@@ -1,0 +1,55 @@
+# Codex Repository Instructions
+
+Policy baseline: 2026-08-06
+
+These rules govern Codex/local implementation agents. ChatGPT may finish GitHub-only work without invoking Codex. Route B means ChatGPT edits and Codex verifies/fixes; Route C means Codex implements.
+
+## Authority and handoff
+
+- Follow: latest explicit user instruction; the exact handoff at its referenced ref; closest nested `AGENTS.md`; this file; then other repository docs.
+- GitHub files carry the full ChatGPT–Codex instruction and report; chat is only a pointer unless GitHub is unavailable.
+- Every Route B/C task must read the named `docs/handoffs/<WORK-ID>-instruction.md`. It defines outcome, scope/non-goals, decisions, targets, checks, Git/PR requirements, and stop conditions.
+- If its path/ref is missing or inconsistent, do not rebuild requirements from old chat, stale handoffs, or unrelated branches. Report a BLOCKER.
+- Material scope/design changes require an updated handoff/ref. Do not edit the instruction unless asked.
+
+## Efficient execution
+
+- Start with handoff-named files; inspect only applicable rules, code, tests, diffs, and history.
+- Do not repeat repo-wide orientation, confirmed decisions, known summaries, or routine prose already supplied by ChatGPT.
+- Build the smallest coherent end-to-end outcome. Apply YAGNI; avoid speculative features, broad refactors, parallel systems, and premature abstractions.
+- Resolve routine reversible ambiguity with the simplest safe assumption and record it. Escalate only when outcome, authorization, safety, security, financial correctness, or reversibility changes materially.
+- Subagents are optional. Use them only for independent parallel work or focused high-risk verification; never use competing writers on overlapping files or duplicate review loops.
+- Prefer one run through implementation, checks, in-scope fixes, commit, push, PR update, and report.
+
+## Implementation and checks
+
+- Implement the primary workflow first; add only essential safety/usability. Investigation is not completion unless requested.
+- Normal checks: relevant lint/type/syntax, focused tests for changed logic, one happy path, and a runnable smoke test.
+- Strengthen checks for destructive work, auth/secrets, migrations, deployment, external writes, security, and financial calculations.
+- After fixes, rerun affected checks/smoke only. Never conceal failures or claim unrun checks.
+- BLOCKER means primary use fails, material data/security/financial risk remains, required authorization is missing, or safe continuation is impossible. Defer lesser gaps without stopping delivery.
+
+## Git and safety
+
+- Check status, branch, remote, and diff; preserve unrelated work and history. Use the handoff branch or a task branch; stage only in-scope files.
+- Do not force-push, rewrite history, merge, release, deploy, delete data, rotate secrets, or operate external systems unless explicitly authorized in the handoff.
+- Never commit secrets, credentials, personal/private production data, or machine-specific paths.
+- Use repository-specific CI proportionately; do not copy tooling mechanically from another repo.
+
+## Report and completion
+
+- Write the complete result to `docs/handoffs/<WORK-ID>-report.md`; commit/push it with the work and link instruction/report in the PR.
+- Report: outcome; changed files; material decisions/assumptions; tests/CI; trial steps; limitations/deferred; simplifications; branch/commit/PR; work time; actual token usage if observable, otherwise `unavailable`; BLOCKER status.
+- Chat reply only: Work ID, report path, commit, branch, PR, BLOCKER status. Do not duplicate the report.
+- Done when primary use works end to end, critical checks pass, no BLOCKER remains, material risks/recovery are recorded, and GitHub is updated. Check consistency once, then stop.
+
+## Repository-specific rules: Knowledge Sharing Platforms
+
+- Read `README.md` and `docs/01_product_vision.md` through `docs/05_decision_log.md` as applicable, then the exact handoff.
+- Keep user effort minimal: reuse normal Google Docs/Drive workflows; do not make direct spreadsheet editing or extra structured entry the default.
+- Preserve source traceability for AI summaries and extracted fields. AI output must not silently become an approved official record.
+- Prefer the currently adopted simple architecture and MVP. Do not introduce broad Gmail/Drive ingestion, unrestricted AI access, advanced RAG/vector infrastructure, or automated investment decisions before need and authorization are confirmed.
+- Do not depend on personal accounts, personal Drive, personal API keys, or an individual owner. Shared Drive and organization-controlled identities/configuration are the target.
+- Never commit real meeting notes/materials, personal information, unpublished fund/deal data, company-confidential content, credentials, IDs, or private URLs. Use synthetic/anonymized fixtures.
+- AppSheet is the current first UI candidate and Apps Script Web App the fallback; Gemini/Vertex use must remain company-approved. Do not implement or deploy live integrations before organizational availability, security, and authorization are confirmed.
+- For Apps Script code, preserve V8/browser compatibility and separate Node-only local tooling.
