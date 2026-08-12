@@ -1,0 +1,12 @@
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+
+# Agent and local diagnostic output
+.codex-log/
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
