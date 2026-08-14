@@ -1,92 +1,66 @@
 # Knowledge Sharing Platforms
 
-部内に散在する面談記録、面談資料、人物情報、ファンド情報、疑問点、フォローアップ事項を、利用者の追加負担を最小限に抑えながら再利用可能なナレッジへ変換するための共有基盤プロジェクトです。
+プライベートアセット領域の面談記録とPitchbook等の資料を、できるだけ少ない運用負荷で蓄積し、将来必要な情報を取り出せるようにするためのナレッジ基盤プロジェクトです。
 
 ## Status
 
-現在は構想・要件整理のみで、実装・試験・デプロイ・本番運用はいずれも未開始です。
+現在は再設計直後の計画フェーズです。実装・試験・デプロイ・本番運用はいずれも未開始です。
 
-`docs/architecture/target-architecture.md`や`docs/planning/mvp-and-roadmap.md`に記載された構成は目標設計であり、実装済み・利用可能・社内承認済みであることを意味しません。実装開始前に、Google Workspace、Shared Drive、AppSheet、Apps Script、Gemini APIまたはVertex AI等の組織上の利用可否と必要なセキュリティ条件を確認します。
+2026-08-14に従来のプロダクト構想、UI方針、アーキテクチャ、MVP計画を破棄し、より単純な構成を新しい出発点として採用しました。旧計画は本リポジトリの現行方針として扱いません。
 
-## Product goal
+## Current baseline
 
-利用者は普段どおりGoogle Docsで記録を作成し、必要な資料をGoogle Driveへ保存します。将来のシステムは、それらを共有ドライブ上で整理し、検索、面談準備、過去履歴確認、AIによる要約・論点抽出に利用できる形へ変換することを目指します。
+現時点で確定しているのは、知識を蓄積するための最小構成だけです。
 
-重視するのは入力項目を増やすことではなく、既に作成されている記録を少ない操作で共有資産へ変えることです。
+### Meeting records
 
-## Current target architecture
+- Google Sheetsに入力用画面を用意する。
+- 面談記録は、日付、面談先、面談場所、チーム、アセットクラス等の少数の共通項目と、自由記載の面談内容で構成する。
+- 登録操作をApps Scriptで処理し、一貫したテンプレートのGoogle Docsを生成する。
+- Google Docsのファイル名は一貫した命名規則にする。具体的な命名規則は今後決める。
+- 生成したGoogle Docsは組織管理下のShared Driveへ保存する。
+- Google Sheetsには検索・管理に必要な最小限の索引情報とGoogle Docsへのリンクを残す。
 
-現時点の設計候補は以下です。いずれも未実装です。
+### Pitchbooks and other source materials
 
-- 利用者向けUI: AppSheetを第一候補、利用不可の場合はApps Script Web App
-- 面談記録: Google Docs
-- 面談資料: Google Drive
-- 正式な保管場所: Google Workspace Shared Drive
-- 構造化データと索引: Google Sheets
-- ファイル連携と自動処理: Google Apps Script
-- AI処理: 会社承認済みのGemini APIまたはVertex AI
-- 設計・ソースコード管理: GitHub
+- Pitchbook等の原資料はShared Driveへ蓄積する。
+- 面談記録と原資料を将来同じ検索・参照体験から利用できることを目標とする。
+- 具体的なフォルダ構成、メタデータ、自動分類、検索方式、AI利用方式は未決定とする。
 
 ## Design principles
 
-1. 利用者の手入力を最小限にする。
-2. Spreadsheetを一般利用者に直接編集させない。
-3. Docsの書式を過度に固定せず、AI出力側を共通化する。
-4. AIの回答から必ず原資料へ戻れるようにする。
-5. 個人アカウント、個人Drive、個人APIキーに依存しない。
-6. 機密データ、認証情報、実際の面談記録をGitHubへ保存しない。
-7. 通常検索から開始し、必要性が確認された後に高度なRAGを導入する。
-8. AI出力を自動的に正式記録や投資判断へ昇格させない。
+1. 最初から複雑なプラットフォームを作らない。
+2. 入力と保存の仕組みを先に完成させ、検索・AIはその上に後から載せる。
+3. 普段の運用はGoogle Workspace内で完結できる構成を優先する。
+4. 面談記録の本文は自由記載を維持し、必須入力項目を増やしすぎない。
+5. 原資料を正本として保持し、将来の検索結果やAI回答から原資料へ戻れる設計にする。
+6. 技術選定は必要になった時点で行い、RAG、Vector DB、独自Web UI等を先回りして導入しない。
+7. 実際の機密情報、面談記録、Pitchbook、認証情報をGitHubへ保存しない。
 
-## Repository structure
+## Not decided yet
 
-```text
-.github/
-  pull_request_template.md
-AGENTS.md
-README.md
-.gitignore
-docs/
-  README.md
-  core-rules-changelog.md
-  repository-initialization.md
-  handoff-template.md
-  product/
-    vision.md
-  architecture/
-    target-architecture.md
-  planning/
-    mvp-and-roadmap.md
-  governance/
-    security.md
-  decisions/
-    decision-log.md
-  handoffs/
-    AGENTS.md
-```
+以下は今後の検討事項であり、現時点では正本化しません。
 
-実装用の`src/`、`tests/`、設定ファイル、CI workflow等は、技術スタックと実行契約が実際に決まった時点で追加します。未確定の構成を先に作って正本化しません。
+- 面談記録の最終入力項目
+- Google Docsのテンプレート詳細
+- ファイル命名規則
+- Shared Driveのフォルダ構成
+- Pitchbookの索引・メタデータ方式
+- 全文検索、意味検索、AI Q&Aの実装方式
+- 検索UI
+- Gemini、Vertex AIその他AI機能の利用範囲
+- RAG / Vector DBの要否
+- 詳細なMVP、ロードマップ、実装順序
 
 ## Documentation
 
 - [文書索引](docs/README.md)
-- [プロダクト構想](docs/product/vision.md)
-- [目標アーキテクチャ](docs/architecture/target-architecture.md)
-- [MVPと開発ロードマップ](docs/planning/mvp-and-roadmap.md)
-- [ガバナンスと情報管理](docs/governance/security.md)
+- [プロダクト方針](docs/product/vision.md)
+- [最小アーキテクチャ](docs/architecture/target-architecture.md)
+- [現時点の計画](docs/planning/mvp-and-roadmap.md)
+- [情報管理の最低条件](docs/governance/security.md)
 - [意思決定記録](docs/decisions/decision-log.md)
-- [Repository初期化・再プロファイルガイド](docs/repository-initialization.md)
-- [構造化handoff template](docs/handoff-template.md)
-
-## Initial non-goals
-
-- Gmail全体の自動読込
-- Shared Drive全体への無制限なAIアクセス
-- AIによる正式記録の自動確定
-- 高度なベクトル検索基盤の先行導入
-- 投資判断資料の自動作成・自動承認
-- 組織承認前のlive integrationやdeployment
 
 ## Repository data policy
 
-このリポジトリには設計書、将来のソースコード、テスト用の匿名化・合成データのみを保存します。実際の面談記録、面談資料、個人情報、未公開ファンド・ディール情報、APIキー、認証情報、組織内ID、private URLは保存しません。
+この公開GitHubリポジトリには、設計書、将来のソースコード、匿名化または合成したテストデータのみを保存します。実際の面談記録、Pitchbook、個人情報、未公開ファンド・ディール情報、APIキー、認証情報、組織内ID、private URLは保存しません。

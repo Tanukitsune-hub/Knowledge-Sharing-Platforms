@@ -1,26 +1,22 @@
-# Project Documentation
+# Documentation
 
-This directory is the durable knowledge base for the Knowledge Sharing Platforms project. The project is still in planning and has not started implementation or live operation; documents describing architecture, components, or integrations are target-state design unless explicitly stated otherwise.
+本ディレクトリはKnowledge Sharing Platformsの現行方針を記録します。
 
-## Template-provided guides
+2026-08-14に旧計画を破棄し、シンプルな蓄積基盤から再設計を開始しました。旧アーキテクチャや旧MVPを前提に今後の設計・実装を進めないでください。
 
-- `core-rules-changelog.md` — behavioral Core Rules history used to assess selective adoption by repositories created from earlier template versions.
-- `repository-initialization.md` — detailed questionnaire and activation checklist for creating or re-profiling Repository-Specific Rules.
-- `handoff-template.md` — concise structure for durable ChatGPT/Codex or agent-to-agent execution handoffs.
+## Current sources of truth
 
-## Project knowledge
+- `product/vision.md`: 何を解決するか、現時点のプロダクト方針
+- `architecture/target-architecture.md`: 現時点で確定している最小構造
+- `planning/mvp-and-roadmap.md`: 現在の計画状態と次に決めること
+- `governance/security.md`: 情報管理上の最低条件
+- `decisions/decision-log.md`: 方針リセットを含む確定判断
 
-- `product/vision.md` — product purpose, target users, operating principles, and intended user experience.
-- `architecture/target-architecture.md` — planned system architecture and component boundaries. This is not evidence that the architecture has been implemented.
-- `planning/mvp-and-roadmap.md` — MVP scope, sequencing, and roadmap assumptions.
-- `governance/security.md` — information handling, organizational ownership, AI, security, and governance constraints.
-- `decisions/decision-log.md` — durable project decisions and rationale.
-- `handoffs/` — durable execution handoffs and local handoff-authoring instructions when later work needs them.
+## Operating documents
 
-## Documentation rules
+- `repository-initialization.md`: Repository初期化・再プロファイルガイド
+- `handoff-template.md`: 構造化handoff template
+- `handoffs/`: 個別作業のhandoff
+- `core-rules-changelog.md`: Core Repository Rulesの変更履歴
 
-- Keep durable design knowledge here rather than expanding root `AGENTS.md` into an encyclopedia.
-- Update the relevant document when an implementation decision materially changes the target design.
-- Do not describe planned integrations as deployed, approved, or operational without observed evidence.
-- Do not store real meeting notes, meeting materials, personal information, unpublished fund or deal information, credentials, account identifiers, or private URLs in this repository.
-- Create additional subdirectories such as `validation/` only when implementation begins and durable evidence actually exists.
+詳細設計はまだ確定していません。未決定事項を推測で正本化せず、ユーザーとの検討後に各文書へ反映します。

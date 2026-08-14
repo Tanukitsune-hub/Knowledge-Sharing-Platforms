@@ -152,112 +152,61 @@ Do not report elapsed time, token usage, internal effort, or similar execution s
 
 REPOSITORY_RULES_STATUS: ACTIVE
 
-## 1. Purpose and Boundaries
+## 1. Purpose and Current Phase
 
-- Purpose: develop a department knowledge-sharing platform that converts ordinary meeting notes and related materials into reusable, searchable knowledge while minimizing additional user input.
-- Primary users: internal private-assets investment professionals and adjacent team members who need to prepare for meetings, recover prior context, search people/fund history, and reuse follow-up knowledge.
-- Primary deliverables: the maintained product/design documentation now; later, an organization-controlled Google Workspace-based implementation and its source, tests, configuration, and validation evidence when implementation is explicitly started.
-- Current phase: planning only. No runtime application, test environment, deployment, production operation, or live integration has started.
-- In scope: product design, target architecture, MVP sequencing, governance/security requirements, decision records, and later implementation consistent with those approved constraints.
-- Initial non-goals: broad Gmail ingestion, unrestricted Shared Drive AI access, automatic promotion of AI output to official records, premature vector/RAG infrastructure, automated investment decisions or approvals, and unapproved live integrations.
+- Purpose: build a simple knowledge base for accumulating private-assets meeting records and Pitchbook/source materials so needed information can later be retrieved reliably.
+- Current phase: planning after a full direction reset on 2026-08-14. No runtime application, tests, deployment, production operation, or live integration exists.
+- The pre-2026-08-14 product, UI, architecture, MVP, RAG, AI, and roadmap decisions are withdrawn and must not be treated as current requirements.
+- Do not restore an old requirement merely because it appears in Git history, old chat, a stale handoff, or an external note. Re-evaluate it under the current baseline.
 
-## 2. Sources of Truth and Project Map
+## 2. Current Source of Truth
 
-- Repository status and high-level index: `README.md`.
-- Product intent and user experience: `docs/product/vision.md`.
-- Planned architecture and component boundaries: `docs/architecture/target-architecture.md`.
-- MVP scope and sequencing: `docs/planning/mvp-and-roadmap.md`.
-- Information handling and governance constraints: `docs/governance/security.md`.
-- Durable decisions: `docs/decisions/decision-log.md`.
-- Repository operating guides: `docs/README.md`, `docs/repository-initialization.md`, `docs/handoff-template.md`, and `docs/core-rules-changelog.md`.
-- Durable task exchange: `docs/handoffs/`, with local handoff-authoring rules in `docs/handoffs/AGENTS.md`.
-- Application source, runtime configuration, schemas, test suite, build system, deployment system, and generated artifacts: not established because implementation has not started.
+- `README.md`: high-level current baseline and status.
+- `docs/product/vision.md`: current product intent and user workflow.
+- `docs/architecture/target-architecture.md`: only the currently accepted minimal structure.
+- `docs/planning/mvp-and-roadmap.md`: planning boundary and undecided items.
+- `docs/governance/security.md`: minimum information-handling constraints.
+- `docs/decisions/decision-log.md`: current durable decisions and explicit withdrawal of old decisions.
 
-| Path | Responsibility | Write Policy / Notes |
-|---|---|---|
-| `README.md` | project status, project map, high-level product summary | authored; keep current-phase claims evidence-based |
-| `docs/product/` | product purpose and user experience | authored design source |
-| `docs/architecture/` | target architecture and boundaries | authored target-state design; never treat as implementation evidence |
-| `docs/planning/` | MVP scope and sequencing | authored planning source; revise when decisions change |
-| `docs/governance/` | security, data handling, organizational ownership | authored constraint source; do not weaken silently |
-| `docs/decisions/` | durable decisions and rationale | append/update deliberately; distinguish decisions from proposals |
-| `docs/handoffs/` | durable execution instructions and reports | task records; nearest `AGENTS.md` also applies |
+## 3. Accepted Baseline
 
-## 3. Architecture and Invariants
+- Meeting records start from a simple Google Sheets input screen.
+- Common fields are intentionally few; current candidates include date, counterparty, meeting location, team, and asset class. Exact schema remains undecided.
+- Meeting notes remain free-form.
+- Google Apps Script generates a consistently formatted Google Doc from each registration.
+- Generated Docs use a consistent filename convention; the exact convention remains undecided.
+- Generated Docs are stored in an organization-controlled Google Shared Drive.
+- Google Sheets retains only the minimum useful index data and links to generated Docs.
+- Pitchbooks and other source materials are accumulated in Shared Drive.
+- A future retrieval layer should eventually search or answer across meeting records and source materials, but its technology and UX are not decided.
 
-- The planned architecture is documented in `docs/architecture/target-architecture.md`; it is a target design, not proof of implementation, availability, organizational approval, or production readiness.
-- Current intended user workflow starts from ordinary Google Docs/Drive usage and aims to add organization-controlled indexing, retrieval, and AI assistance with minimal extra structured entry.
-- AppSheet is the current first UI candidate and Apps Script Web App is the fallback; this is a planning decision, not an implementation mandate if organizational availability or later evidence materially changes.
-- Shared Drive and organization-controlled identities/configuration are the intended ownership boundary. Do not design a durable solution around personal accounts, personal Drive, personal API keys, or an individual owner.
-- Preserve source traceability from summaries, extracted fields, and AI-assisted answers back to original materials.
-- AI-generated summaries or extracted fields must not silently become approved official records or investment decisions.
-- Do not require direct spreadsheet editing by ordinary users as the default workflow.
-- Start with ordinary search/indexing and introduce advanced RAG/vector infrastructure only when a demonstrated need justifies the additional complexity and governance burden.
+## 4. Simplicity Invariants
 
-## 4. Environment and Exact Commands
+- Prefer the smallest Google Workspace-native solution that satisfies the current requirement.
+- Complete the accumulation layer before designing a sophisticated retrieval platform.
+- Do not make AppSheet, a custom web app, Gemini API, Vertex AI, RAG, a vector database, automatic classification, or a complex tag system a requirement unless explicitly decided later.
+- Do not over-structure meeting-note content; preserve free-form notes and keep mandatory fields minimal.
+- Keep original Google Docs and uploaded source materials as authoritative records.
+- Avoid speculative folders, schemas, services, dependencies, and compatibility contracts.
 
-- Runtime / language / dependency manager: not established.
-- Setup: not established.
-- Build: not established.
-- Targeted tests: not established.
-- Full validation: not established.
-- Lint / format / static checks: not established.
-- Runtime / smoke / native validation: not applicable until an implementation and environment exist.
-- CI workflow: not established; do not create CI merely to mirror another repository before executable project checks exist.
+## 5. Security and Data Handling
 
-When implementation begins, derive commands from the actual selected stack and executable repository configuration, then update this section in the same change.
+- Never commit real confidential meeting records, Pitchbooks, unpublished fund/deal data, personal information, credentials, private URLs, or organization-internal identifiers to this public repository.
+- Use synthetic or anonymized fixtures only.
+- Real source data belongs in organization-controlled Google Workspace / Shared Drive.
+- Durable production ownership must not depend on a personal account, personal Drive, or personal API key.
+- Any future search/AI layer must preserve access boundaries and source traceability.
 
-## 5. Validation, Generated Artifacts, and Contracts
+## 6. Implementation and Validation
 
-| Change Type | Required Validation | Expected Evidence |
-|---|---|---|
-| Documentation / planning change | link/path consistency, contradiction review, status-vs-target-state review | inspected diff and valid references |
-| Architecture or governance decision | cross-check product, architecture, governance, and decision record for material inconsistency | updated decision/design docs and explicit unresolved assumptions |
-| First executable implementation | establish exact setup/build/test/static/smoke commands and validate the implemented happy path | observed command results and updated repository profile |
-| Schema, persistence, or external integration | contract tests or equivalent, privacy/security review, failure-path validation | observed evidence appropriate to the selected technology |
-| Live Google Workspace or AI integration | explicit scoped authorization plus managed validation in the intended organizational environment | observed live-environment evidence; otherwise `NOT EXECUTED` |
+- Runtime, language, dependency manager, exact commands, test suite, schemas, deployment, and CI are not established because implementation has not started.
+- Do not create speculative framework scaffolding merely to make the repository look implementation-ready.
+- Documentation/planning changes require contradiction review and link/path consistency checks.
+- When the first executable implementation begins, establish exact setup/build/test/static/smoke commands from the actual selected stack and update this repository profile in the same change.
+- Live Google Workspace reads/writes, OAuth setup, triggers, deployment, or AI provider calls require explicit scoped authorization.
 
-- Generated artifacts and regeneration: not established.
-- External or persisted contracts: not established. Do not create speculative compatibility obligations before a real schema or released behavior exists.
+## 7. Definition of Done for Current Planning Work
 
-## 6. Risks, Traps, and Restricted Areas
-
-| Trap / High-Risk Area | Cause or Risk | Correct Handling |
-|---|---|---|
-| Treating design docs as implementation evidence | current repository contains planning but no runtime | label target-state material clearly and verify executable evidence separately |
-| Premature platform complexity | RAG/vector databases or broad ingestion can create cost, security, and maintenance burden before need is proven | implement the smallest approved MVP first |
-| Sensitive information in GitHub | the intended domain includes meeting notes, people, funds, and unpublished investment information | use synthetic/anonymized fixtures only; never commit real confidential content |
-| Personal-account dependency | personal ownership creates continuity, access-control, and governance risk | use organization-controlled Shared Drive, identities, configuration, and approved credentials |
-| Unapproved external action | Workspace/AI integrations may touch real data or require organizational approval | no live read/write, deployment, OAuth, trigger, provider call, or credential setup without explicit scoped authorization |
-| AI output treated as authority | generated text can be incomplete or wrong | preserve provenance and human review; never auto-approve investment or official records |
-
-## 7. Documentation, Workflow, and Local Instruction Routing
-
-| Situation / Path | Skill, Documentation, or Additional Instruction |
-|---|---|
-| product intent or workflow | `docs/product/vision.md` |
-| architecture / integration design | `docs/architecture/target-architecture.md` |
-| MVP scope / sequencing | `docs/planning/mvp-and-roadmap.md` |
-| security / governance / sensitive data | `docs/governance/security.md` |
-| material decision rationale | `docs/decisions/decision-log.md` |
-| durable execution handoff | `docs/handoff-template.md` and `docs/handoffs/AGENTS.md` |
-| repository re-profile after implementation starts | `docs/repository-initialization.md` |
-
-- Do not create nested instruction files until a real subtree has durable local rules that materially differ from root guidance.
-- When implementation starts, create source/test/config directories only for the selected architecture; do not pre-populate speculative framework folders.
-
-## 8. Repository-Specific Code Review Rules
-
-- Flag any claim that a planned component, permission, integration, security control, or organizational approval is operational without observed evidence.
-- Flag any code or fixture that can expose real meeting content, personal information, unpublished fund/deal data, credentials, account identifiers, or private URLs.
-- Flag broad data ingestion, unrestricted AI access, automatic official-record promotion, or automated investment decision behavior unless the task explicitly authorizes the design and its governance controls.
-- Flag personal-account or personal-key ownership in durable architecture unless explicitly approved as a temporary development-only exception.
-
-## 9. Repository-Specific Definition of Done and Escalation
-
-- Documentation-only work is complete when links, status statements, design assumptions, and decision records are internally consistent for the changed scope.
-- The first executable implementation is not complete until the repository profile is updated with the actual runtime/toolchain, source map, exact commands, validation matrix, schemas/contracts, generated-artifact policy, and relevant failure modes.
-- Live integration or deployment requires explicit scoped authorization and must not be inferred from implementation success.
-- Escalate when organizational availability, data classification, identity/ownership, permission scope, AI-provider approval, or another missing decision makes the requested live behavior unsafe or materially underdetermined.
+Planning work is complete when the changed documents are internally consistent with the 2026-08-14 reset, old withdrawn requirements are not presented as current, undecided items remain explicitly undecided, and no implementation status is overstated.
 
 <!-- REPOSITORY_SPECIFIC_RULES_END -->
