@@ -8,24 +8,53 @@
 
 まず「知識を正しく、継続的に蓄積できること」を優先する。
 
-現時点の中心は以下。
+現時点で採用している中心要素は以下。
 
-1. Google Sheetsの面談入力画面
-2. Apps ScriptによるGoogle Docs生成
-3. 一貫したDocs形式・ファイル命名
-4. Shared Driveへの保存
-5. Sheet上の最小限の索引
-6. Pitchbook等のShared Drive蓄積
+1. Apps Script HTML Serviceによる独立したWeb App
+2. 面談記録登録画面
+3. Pitchbook登録画面
+4. GPマスター管理画面
+5. Apps Scriptによる面談Google Docs生成
+6. Pitchbookの複数ファイル登録、自動命名、連番付与、Shared Drive保存
+7. 共通GPマスターとGoogle Sheets上の最小限の索引
+8. Shared Driveを面談記録・Pitchbook等の正本保管場所とする
+
+## Current UX decisions
+
+### Meeting
+
+- 利用者はGoogle Sheetsを直接編集せず、HTML画面から登録する。
+- GPは共通GPマスターから選択し、未登録の場合は新規追加できる。
+- 面談本文は自由記載とする。
+- 共通入力項目は少数に抑える。
+
+### Pitchbook
+
+- ドラッグ＆ドロップまたはファイル選択で登録する。
+- 複数ファイルを一括選択できる。
+- 利用者入力は原則として日付、GP、アセットクラスの3項目だけとする。
+- 保存ファイル名は自動生成する。
+- 同一条件の複数ファイルは連番で識別する。
+
+### GP Master
+
+- 面談とPitchbookで同じマスターを使う。
+- GPには固定GP ID、表示名、Active / Inactiveを持たせる。
+- 管理画面で新規追加、名称変更、無効化、再有効化を行う。
+- 参照済みGPは物理削除しない。
 
 ## Not yet planned
 
 以下は詳細を決めていない。
 
-- 最終的な入力項目
+- 面談記録の最終入力項目
 - 面談Docsテンプレート
-- ファイル命名規則
-- フォルダ構成
-- Pitchbookの登録・索引方法
+- 面談Docsのファイル命名規則
+- Pitchbook命名規則の細部、連番桁数、後日追加時の採番ルール
+- Shared Driveのフォルダ構成
+- Meeting Index / Pitchbook Indexの最終カラム構成
+- GP重複時の統合機能
+- 大容量ファイルのアップロード方式と実用上の上限
 - 検索方式
 - AI Q&A
 - RAG / Vector DB
