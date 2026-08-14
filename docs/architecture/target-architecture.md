@@ -2,11 +2,16 @@
 
 ## Status
 
-本書は2026-08-14時点で確定した最小構成だけを示す。旧アーキテクチャは破棄済みであり、AppSheet、外部Web基盤、Gemini API、Vertex AI、RAG、Vector DB等を既定の構成要素として扱わない。
+本書は2026-08-15時点で確定した最小構成だけを示す。旧アーキテクチャは破棄済みであり、AppSheet、外部Web基盤、Gemini API、Vertex AI、RAG、Vector DB等を既定の構成要素として扱わない。
 
 ## Confirmed baseline
 
 ```text
+Multiple users
+  A / B / C ...
+        |
+        | same shared URL
+        v
 Apps Script HTML Service Web App
   ├─ Meeting Registration
   ├─ Pitchbook Registration
@@ -17,7 +22,8 @@ Google Apps Script
   ├─ validation / registration logic
   ├─ Google Docs generation
   ├─ Pitchbook rename / numbering / save
-  └─ GP master maintenance
+  ├─ GP master maintenance
+  └─ concurrency control
             |
       +-----+--------------------+
       |                          |
@@ -44,6 +50,12 @@ Search / Retrieval / AI layer
 1. 面談記録登録
 2. Pitchbook登録
 3. GPマスター管理
+
+Web Appは利用者ごとにコピーしない。組織管理下の1つの共通デプロイとURLを複数人で利用し、GP Master、各Index、Shared Drive上の正本を共有する。
+
+各利用者のブラウザ上の入力状態は独立させ、同時に複数人が別々の登録作業を行える前提とする。
+
+Web Appを「デプロイしたユーザーとして実行」するか「アクセスしているユーザーとして実行」するかは、組織の権限設計、監査要件、利用者識別の必要性を実機確認してから決定する。個人アカウント依存の恒久運用にはしない。
 
 ### Meeting registration
 
@@ -92,7 +104,7 @@ Web AppのGPマスター管理画面から、新規追加、名称変更、無�
 - Meeting Index
 - Pitchbook Index
 
-各Indexの最終カラム構成は未決定。
+各Indexの最終カラム構成は未決定。ただし、同一面談の同時編集を検知するため、Meeting Indexには更新時刻または同等のVersion情報を保持する。
 
 ### Google Apps Script
 
@@ -102,17 +114,44 @@ Web AppのGPマスター管理画面から、新規追加、名称変更、無�
 - 面談登録時にGoogle Docsを生成・保存する。
 - Pitchbook登録時にファイル名を生成・連番付与し、Shared Driveへ保存する。
 - 各Indexを更新する。
+- 複数ユーザーの同時実行による競合を防ぐ。
 
 具体的なエラー処理、アップロード上限、大容量ファイル対応等は実装設計時に確定する。
 
-### Google Shared Drive
+## Multi-user concurrency rules
+
+複数人が同じWeb Appを同時利用することを通常ケースとして扱う。
+
+### Shared writes
+
+以下のような共有状態を変更する短い処理ではApps ScriptのLockServiceを用いて排他制御する。
+
+- GPの新規追加やマスター更新
+- Meeting ID等の一意ID採番
+- Pitchbook連番の取得・確定
+- 同一処理内で整合性が必要なIndex更新
+
+ファイルアップロードやDocs本文生成など処理全体を長時間ロックせず、重複や競合を防ぐために必要なクリティカルセクションだけをロックする。
+
+### Concurrent editing of one meeting
+
+同じ面談記録を複数人が同時に開く可能性には、楽観的ロックで対応する。
+
+1. 編集画面を開く際に、Meeting IndexのUpdated AtまたはVersionを読み込む。
+2. 更新時に現在のUpdated At / Versionと比較する。
+3. 開いた後に別利用者が更新していた場合は保存を中止する。
+4. 利用者に最新内容を再読込して確認するよう案内する。
+
+後から保存した利用者の内容で無条件に上書きする実装にはしない。
+
+## Google Shared Drive
 
 - 面談記録のGoogle Docsを保管する正本領域。
 - Pitchbook等の原資料を保管する正本領域。
 - 組織管理下の所有・権限を前提とする。
 - フォルダ構成は未決定。
 
-### Future retrieval layer
+## Future retrieval layer
 
 面談記録と原資料を横断して情報を呼び出す層を将来追加する。
 
@@ -127,4 +166,4 @@ Web AppのGPマスター管理画面から、新規追加、名称変更、無�
 
 ## Architectural rule
 
-保存・蓄積の仕組みは、将来の検索方式を変更しても作り直さなくてよいように、Google Docsと原資料を正本として単純に保つ。利用者向けUIはHTML Serviceに閉じ、Google Sheetsはマスターと索引のバックエンドとして扱う。
+保存・蓄積の仕組みは、将来の検索方式を変更しても作り直さなくてよいように、Google Docsと原資料を正本として単純に保つ。利用者向けUIはHTML Serviceに閉じ、Google Sheetsはマスターと索引のバックエンドとして扱う。複数人利用のために利用者ごとのコピーを作らず、共通Web Appと共有バックエンドの整合性を必要最小限の競合制御で守る。
