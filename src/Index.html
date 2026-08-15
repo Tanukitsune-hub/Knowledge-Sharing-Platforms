@@ -5,183 +5,76 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Knowledge Sharing Platforms</title>
-  <style>
-    :root { font-family: Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; color: #202124; background: #f7f8fa; }
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: #f7f8fa; }
-    button, input, select, textarea { font: inherit; }
-    .app-shell { max-width: 1120px; margin: 0 auto; padding: 28px 20px 48px; }
-    .page-header { margin-bottom: 20px; }
-    .page-header h1 { margin: 0 0 8px; font-size: 28px; }
-    .page-header p { margin: 0; color: #5f6368; line-height: 1.6; }
-    .card { background: #fff; border: 1px solid #dadce0; border-radius: 14px; padding: 22px; box-shadow: 0 2px 8px rgba(60,64,67,.08); }
-    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-    .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
-    .field.full { grid-column: 1 / -1; }
-    label { font-size: 14px; font-weight: 600; }
-    .required::after { content: " *"; color: #c5221f; }
-    input, select, textarea { width: 100%; border: 1px solid #bdc1c6; border-radius: 8px; padding: 10px 12px; background: #fff; color: #202124; }
-    input:focus, select:focus, textarea:focus { outline: 2px solid #1a73e8; outline-offset: 1px; border-color: #1a73e8; }
-    textarea { min-height: 240px; resize: vertical; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .hint { color: #5f6368; font-size: 12px; }
-    .actions { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 22px; flex-wrap: wrap; }
-    .action-group { display: flex; gap: 10px; flex-wrap: wrap; }
-    button { border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; font-weight: 600; }
-    button.primary { background: #1a73e8; color: #fff; }
-    button.secondary { background: #eef2f7; color: #174ea6; }
-    button:disabled { opacity: .55; cursor: default; }
-    .status { margin-top: 18px; padding: 12px 14px; border-radius: 9px; display: none; line-height: 1.5; overflow-wrap: anywhere; }
-    .status.visible { display: block; }
-    .status.info { background: #e8f0fe; color: #174ea6; }
-    .status.success { background: #e6f4ea; color: #137333; }
-    .status.error { background: #fce8e6; color: #a50e0e; }
-    .status.warning { background: #fef7e0; color: #8a4b00; }
-    .retry-note { display: none; margin-top: 12px; padding: 10px 12px; background: #fef7e0; border-radius: 8px; color: #8a4b00; font-size: 13px; }
-    .retry-note.visible { display: block; }
-    .result-link { color: inherit; font-weight: 700; }
-    @media (max-width: 720px) { .app-shell { padding: 18px 12px 36px; } .card { padding: 16px; } .grid { grid-template-columns: 1fr; } .field.full { grid-column: auto; } }
-  </style>
+  <?!= include('Styles'); ?>
+
 </head>
 <body>
   <main class="app-shell">
     <header class="page-header">
-      <h1>面談記録</h1>
-      <p>必須項目は日付、GP、Asset Classだけです。入力内容は24時間このブラウザに保持されます。</p>
+      <div><h1>Knowledge Sharing Platforms</h1><p>面談記録とPitchbookを同じ共通コンテキストで登録します。</p></div>
+      <nav class="nav" aria-label="ページ切替"><button id="nav-meeting" class="active" type="button">面談記録</button><button id="nav-pitchbook" type="button">Pitchbook</button></nav>
     </header>
-    <section class="card">
-      <form id="meeting-form" novalidate>
-        <div class="grid">
-          <div class="field"><label class="required" for="date">日付</label><input id="date" name="date" type="date" required></div>
-          <div class="field"><label for="time">時間</label><input id="time" name="time" type="time"></div>
-          <div class="field"><label for="locationId">面談場所</label><select id="locationId" name="locationId"><option value="">未選択</option></select></div>
-          <div class="field"><label class="required" for="gpId">GP</label><select id="gpId" name="gpId" required><option value="">未選択</option></select></div>
-          <div class="field"><label class="required" for="assetClassId">Asset Class</label><select id="assetClassId" name="assetClassId" required><option value="">未選択</option></select></div>
-          <div class="field"><label for="capitalTypeId">Equity / Debt</label><select id="capitalTypeId" name="capitalTypeId"><option value="">未選択</option></select></div>
-          <div class="field"><label for="counterparty">面談相手</label><input id="counterparty" name="counterparty" type="text" maxlength="500"></div>
-          <div class="field"><label for="internalParticipants">当社側</label><input id="internalParticipants" name="internalParticipants" type="text" maxlength="500"></div>
-          <div class="field full">
-            <label for="notes">面談内容</label>
-            <textarea id="notes" name="notes" maxlength="20000" placeholder="自由に記載してください。改行は保存されます。"></textarea>
-            <div class="hint">面談内容はGoogle Docsだけを正本とし、Indexや監査ログへ全文を複製しません。</div>
+
+    <section id="page-meeting" class="page active">
+      <div class="card">
+        <form id="meeting-form" novalidate>
+          <div class="grid">
+            <div class="field"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
+            <div class="field"><label for="meeting-time">時間</label><input id="meeting-time" type="time"></div>
+            <div class="field"><label for="meeting-locationId">面談場所</label><select id="meeting-locationId"><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="meeting-gpId">GP</label><select id="meeting-gpId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="meeting-assetClassId">Asset Class</label><select id="meeting-assetClassId" required><option value="">未選択</option></select></div>
+            <div class="field"><label for="meeting-capitalTypeId">Equity / Debt</label><select id="meeting-capitalTypeId"><option value="">未選択</option></select></div>
+            <div class="field"><label for="meeting-counterparty">面談相手</label><input id="meeting-counterparty" maxlength="500"></div>
+            <div class="field"><label for="meeting-internalParticipants">当社側</label><input id="meeting-internalParticipants" maxlength="500"></div>
+            <div class="field full"><label for="meeting-notes">面談内容</label><textarea id="meeting-notes" maxlength="20000" placeholder="自由に記載してください。改行は保存されます。"></textarea><div class="hint">本文はGoogle Docsだけに保存し、Indexや監査ログへ全文を複製しません。</div></div>
           </div>
-        </div>
-        <div id="retry-note" class="retry-note">前回の途中失敗から、同じMeeting IDで安全に再試行します。入力内容を変更すると再試行情報は解除されます。</div>
-        <div class="actions">
-          <div class="hint">登録成功後も日付・GP・Asset Class・Equity / Debtは保持されます。</div>
-          <div class="action-group">
-            <button id="clear-button" class="secondary" type="button">下書きをクリア</button>
-            <button id="submit-button" class="primary" type="submit" disabled>登録</button>
+          <div id="meeting-retry-note" class="retry-note">前回の途中失敗から、同じMeeting IDで再試行します。入力変更時は解除されます。</div>
+          <div class="actions"><div class="hint">成功後も日付・GP・Asset Class・Equity / Debtは保持されます。</div><div class="action-group"><button id="meeting-clear" class="action secondary" type="button">下書きをクリア</button><button id="meeting-submit" class="action primary" type="submit" disabled>登録</button></div></div>
+        </form>
+        <div id="meeting-status" class="status" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="page-pitchbook" class="page">
+      <div class="card">
+        <form id="pitchbook-form" novalidate>
+          <div class="grid">
+            <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
+            <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="pitchbook-assetClassId">Asset Class</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
+            <div class="field"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
+            <div class="field full"><label class="required">ファイル</label><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0">ここへファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div><input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"><div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div></div>
           </div>
-        </div>
-      </form>
-      <div id="status" class="status" role="status" aria-live="polite"></div>
+          <div class="actions"><div class="hint">登録はファイル単位。失敗しても成功済みファイルは維持されます。</div><div class="action-group"><button id="pitchbook-clear" class="action secondary" type="button">ファイル下書きをクリア</button><button id="pitchbook-retry" class="action warning" type="button" disabled>失敗分を再試行</button><button id="pitchbook-submit" class="action primary" type="submit" disabled>登録</button></div></div>
+        </form>
+        <div id="pitchbook-status" class="status" role="status" aria-live="polite"></div>
+      </div>
     </section>
   </main>
-  <script>
-    const KSP_SHARED_DRAFT_KEY = 'ksp.shared.registration.v1';
-    const KSP_MEETING_DRAFT_KEY = 'ksp.meeting.draft.v1';
-    const KSP_MEETING_RETRY_KEY = 'ksp.meeting.retry.v1';
-    const KSP_DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
-    const SHARED_FIELDS = ['date', 'gpId', 'assetClassId', 'capitalTypeId'];
-    const MEETING_FIELDS = ['time', 'locationId', 'counterparty', 'internalParticipants', 'notes'];
-    const form = document.getElementById('meeting-form');
-    const submitButton = document.getElementById('submit-button');
-    const clearButton = document.getElementById('clear-button');
-    const statusBox = document.getElementById('status');
-    const retryNote = document.getElementById('retry-note');
-    let retryContext = null;
-    let loading = true;
+<?!= include('ClientCore'); ?>
+<script>
+function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,gpId:el('meeting-gpId').value,assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
+function saveMeetingDraft(){const v=meetingValues();const specific={};MEETING_FIELDS.forEach(f=>specific[f]=v[f]);writeEnvelope(KSP_MEETING_DRAFT_KEY,specific);writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
+function restoreMeetingDraft(){applyShared(readEnvelope(KSP_SHARED_DRAFT_KEY));const specific=readEnvelope(KSP_MEETING_DRAFT_KEY);if(specific)MEETING_FIELDS.forEach(f=>{if(specific[f]!=null)el('meeting-'+f).value=String(specific[f])});const retry=readEnvelope(KSP_MEETING_RETRY_KEY);if(retry&&retry.meetingId&&retry.fingerprint){retryContext=retry;el('meeting-retry-note').classList.add('visible')}}
+function clearRetryContext(){retryContext=null;safeRemove(KSP_MEETING_RETRY_KEY);el('meeting-retry-note').classList.remove('visible')}
+function saveDraft(){saveMeetingDraft();}
+function clearMeetingSpecificDraft() {
+      MEETING_FIELDS.forEach(field => { el('meeting-' + field).value = ''; });
+      safeStorageRemove(KSP_MEETING_DRAFT_KEY);
+      clearRetryContext();
+      writeEnvelope(KSP_SHARED_DRAFT_KEY, getShared('meeting'));
+    }
+function safeStorageRemove(key){safeRemove(key);}
+function setMeetingBusy(busy){el('meeting-submit').disabled=busy||meetingLoading;el('meeting-clear').disabled=busy;el('meeting-submit').textContent=busy?'登録中…':'登録'}
+MEETING_FIELDS.forEach(f=>el('meeting-'+f).addEventListener('input',()=>{clearRetryContext(); saveDraft();}));
+el('meeting-form').addEventListener('submit',async event=>{event.preventDefault();clearStatus('meeting-status');const payload=meetingValues();if(!payload.date||!payload.gpId||!payload.assetClassId){showStatus('meeting-status','error','日付、GP、Asset Classは必須です。');return}if(retryContext){payload.retryMeetingId = retryContext.meetingId;payload.retryFingerprint = retryContext.fingerprint}setMeetingBusy(true);try{const result=await serverCall('registerMeeting',payload);setMeetingBusy(false);if(result&&result.ok){clearMeetingSpecificDraft();const meeting=result.meeting||{};const url=String(meeting.documentUrl||'').replace(/"/g,'&quot;');showStatus('meeting-status','success','登録しました: '+meeting.id+(url?'<br><a class="result-link" target="_blank" rel="noopener" href="'+url+'">Google Docsを開く</a>':''),true)}else{if(result&&result.retry){retryContext=result.retry;writeEnvelope(KSP_MEETING_RETRY_KEY,retryContext);el('meeting-retry-note').classList.add('visible')}saveMeetingDraft();showStatus('meeting-status','error',(result&&result.error?result.error.message:'登録に失敗しました。')+' 入力内容は保持されています。')}}catch(error){setMeetingBusy(false);saveMeetingDraft();showStatus('meeting-status','error',(error&&error.message?error.message:String(error))+' 入力内容は保持されています。')}});
+el('meeting-clear').onclick=()=>{if(!confirm('面談入力と共通項目を消去しますか？'))return;[...SHARED_FIELDS,...MEETING_FIELDS].forEach(f=>{const node=el('meeting-'+f);if(node)node.value=''});applyShared({date:'',gpId:'',assetClassId:'',capitalTypeId:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();clearStatus('meeting-status')};
 
-    function showStatus(kind, message, allowHtml) {
-      statusBox.className = 'status visible ' + kind;
-      if (allowHtml) statusBox.innerHTML = message; else statusBox.textContent = message;
-    }
-    function clearStatus() { statusBox.className = 'status'; statusBox.textContent = ''; }
-    function safeStorageGet(key) { try { return localStorage.getItem(key); } catch (error) { return null; } }
-    function safeStorageSet(key, value) { try { localStorage.setItem(key, value); } catch (error) {} }
-    function safeStorageRemove(key) { try { localStorage.removeItem(key); } catch (error) {} }
-    function readEnvelope(key) {
-      const raw = safeStorageGet(key);
-      if (!raw) return null;
-      try {
-        const envelope = JSON.parse(raw);
-        if (!envelope || typeof envelope.savedAt !== 'number' || Date.now() - envelope.savedAt > KSP_DRAFT_TTL_MS) {
-          safeStorageRemove(key); return null;
-        }
-        return envelope.data || null;
-      } catch (error) { safeStorageRemove(key); return null; }
-    }
-    function writeEnvelope(key, data) { safeStorageSet(key, JSON.stringify({ savedAt: Date.now(), data })); }
-    function valuesFor(fields) { const values = {}; fields.forEach((field) => { values[field] = document.getElementById(field).value; }); return values; }
-    function applyValues(values) {
-      if (!values) return;
-      Object.keys(values).forEach((field) => { const element = document.getElementById(field); if (element && values[field] !== undefined && values[field] !== null) element.value = String(values[field]); });
-    }
-    function saveDraft() { writeEnvelope(KSP_SHARED_DRAFT_KEY, valuesFor(SHARED_FIELDS)); writeEnvelope(KSP_MEETING_DRAFT_KEY, valuesFor(MEETING_FIELDS)); }
-    function restoreDraft() {
-      applyValues(readEnvelope(KSP_SHARED_DRAFT_KEY)); applyValues(readEnvelope(KSP_MEETING_DRAFT_KEY));
-      const savedRetry = readEnvelope(KSP_MEETING_RETRY_KEY);
-      if (savedRetry && savedRetry.meetingId && savedRetry.fingerprint) { retryContext = savedRetry; retryNote.classList.add('visible'); }
-    }
-    function clearRetryContext() { retryContext = null; safeStorageRemove(KSP_MEETING_RETRY_KEY); retryNote.classList.remove('visible'); }
-    function clearMeetingSpecificDraft() {
-      MEETING_FIELDS.forEach((field) => { document.getElementById(field).value = ''; });
-      safeStorageRemove(KSP_MEETING_DRAFT_KEY); clearRetryContext(); writeEnvelope(KSP_SHARED_DRAFT_KEY, valuesFor(SHARED_FIELDS));
-    }
-    function clearAllDrafts() {
-      [...SHARED_FIELDS, ...MEETING_FIELDS].forEach((field) => { document.getElementById(field).value = ''; });
-      safeStorageRemove(KSP_SHARED_DRAFT_KEY); safeStorageRemove(KSP_MEETING_DRAFT_KEY); clearRetryContext(); clearStatus();
-    }
-    function addOptions(selectId, options) {
-      const select = document.getElementById(selectId); const currentValue = select.value; select.innerHTML = '<option value="">未選択</option>';
-      (options || []).forEach((option) => { const element = document.createElement('option'); element.value = option.id; element.textContent = option.name; select.appendChild(element); });
-      if ([...select.options].some((option) => option.value === currentValue)) select.value = currentValue;
-    }
-    function collectMeetingInput() {
-      const payload = valuesFor([...SHARED_FIELDS, ...MEETING_FIELDS]);
-      if (retryContext) { payload.retryMeetingId = retryContext.meetingId; payload.retryFingerprint = retryContext.fingerprint; }
-      return payload;
-    }
-    function validateClient() {
-      if (!document.getElementById('date').value) return '日付を入力してください。';
-      if (!document.getElementById('gpId').value) return 'GPを選択してください。';
-      if (!document.getElementById('assetClassId').value) return 'Asset Classを選択してください。';
-      return '';
-    }
-    function setBusy(busy) { submitButton.disabled = busy || loading; clearButton.disabled = busy; submitButton.textContent = busy ? '登録中…' : '登録'; }
-    function handleBootstrap(result) {
-      if (!result || !result.ok) { loading = false; setBusy(false); showStatus('error', result && result.error ? result.error.message : '初期データを読み込めませんでした。'); return; }
-      addOptions('gpId', result.options.gps); addOptions('assetClassId', result.options.assetClasses); addOptions('capitalTypeId', result.options.capitalTypes); addOptions('locationId', result.options.locations);
-      restoreDraft(); loading = false; setBusy(false); showStatus('info', '入力準備ができました。下書きがある場合は復元されています。');
-    }
-    function handleBootstrapFailure(error) { loading = false; setBusy(false); showStatus('error', error && error.message ? error.message : String(error)); }
-    function handleRegistrationResult(result) {
-      setBusy(false);
-      if (result && result.ok) {
-        clearMeetingSpecificDraft();
-        const meeting = result.meeting || {};
-        const link = meeting.documentUrl ? '<a class="result-link" href="' + String(meeting.documentUrl).replace(/"/g, '&quot;') + '" target="_blank" rel="noopener">Google Docsを開く</a>' : '';
-        const replayText = result.idempotentReplay ? '（既存登録を再利用）' : '';
-        showStatus('success', '登録しました: ' + meeting.id + ' ' + replayText + (link ? '<br>' + link : ''), true); saveDraft(); return;
-      }
-      if (result && result.retry && result.retry.meetingId && result.retry.fingerprint) {
-        retryContext = result.retry; writeEnvelope(KSP_MEETING_RETRY_KEY, retryContext); retryNote.classList.add('visible');
-      }
-      saveDraft();
-      const errorMessage = result && result.error ? result.error.message : '登録に失敗しました。';
-      showStatus('error', errorMessage + ' 入力内容は保持されています。');
-    }
-    function handleRegistrationFailure(error) { setBusy(false); saveDraft(); showStatus('error', (error && error.message ? error.message : String(error)) + ' 入力内容は保持されています。'); }
-    form.addEventListener('input', () => { clearRetryContext(); saveDraft(); });
-    form.addEventListener('change', () => { clearRetryContext(); saveDraft(); });
-    form.addEventListener('submit', (event) => {
-      event.preventDefault(); clearStatus(); const clientError = validateClient();
-      if (clientError) { showStatus('error', clientError); return; }
-      setBusy(true);
-      google.script.run.withSuccessHandler(handleRegistrationResult).withFailureHandler(handleRegistrationFailure).registerMeeting(collectMeetingInput());
-    });
-    clearButton.addEventListener('click', () => { if (window.confirm('このブラウザに保存した面談入力と共通項目を消去しますか？')) clearAllDrafts(); });
-    google.script.run.withSuccessHandler(handleBootstrap).withFailureHandler(handleBootstrapFailure).getMeetingBootstrapData();
-  </script>
+</script>
+<?!= include('ClientPitchbookFiles'); ?>
+<?!= include('ClientPitchbookFlow'); ?>
+<?!= include('ClientBootstrap'); ?>
+
 </body>
 </html>
