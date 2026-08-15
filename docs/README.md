@@ -12,7 +12,8 @@
 - `operations/runtime-policy.md`: 下書き、アップロード上限、部分失敗再試行、実行主体、マスター権限、監査ログ等の実運用ルール
 - `ai/gemini-file-search.md`: Gemini File Search Store、Embedding、Metadata Filter、Citation、AI同期を使う検索・要約レイヤーの正本
 - `governance/security.md`: 情報管理、アクセス、監査上の最低条件
-- `decisions/decision-log.md`: 方針リセットを含む確定判断
+- `decisions/decision-log.md`: 方針リセットを含む既存の確定判断
+- `decisions/gemini-file-search-retrieval.md`: 2026-08-15に採用したGemini File Search検索レイヤーの確定判断
 
 ## Operating documents
 
