@@ -1,3 +1,38 @@
+function kspBuildMaintenanceCatalog(gpRows, optionRows) {
+  var gps = (gpRows || []).map(function (row) {
+    return {
+      id: String(row.GP_ID || ''),
+      name: String(row.GP_Name || ''),
+      status: String(row.Status || '')
+    };
+  }).filter(function (row) { return row.id && row.name; })
+    .sort(function (left, right) {
+      return left.name.toLocaleLowerCase('en').localeCompare(right.name.toLocaleLowerCase('en'), 'en');
+    });
+  var options = (optionRows || []).map(function (row) {
+    return {
+      id: String(row.Option_ID || ''),
+      type: String(row.Type || ''),
+      name: String(row.Name || ''),
+      sortOrder: Number(row.Sort_Order || 0),
+      status: String(row.Status || '')
+    };
+  }).filter(function (row) { return row.id && row.type && row.name; });
+  function byType(type) {
+    return options.filter(function (row) { return row.type === type; })
+      .sort(function (left, right) {
+        if (left.sortOrder !== right.sortOrder) return left.sortOrder - right.sortOrder;
+        return left.name.localeCompare(right.name, 'ja');
+      });
+  }
+  return {
+    gps: gps,
+    assetClasses: byType(KSP_OPTION_TYPES.ASSET_CLASS),
+    capitalTypes: byType(KSP_OPTION_TYPES.CAPITAL_TYPE),
+    locations: byType(KSP_OPTION_TYPES.LOCATION)
+  };
+}
+
 function kspLoadMaintenanceContext(environment) {
   var state = environment.getInstallationState();
   kspAssert(state && state.resources, 'INSTALLATION_STATE_MISSING', 'Installation stateがありません。');
@@ -15,7 +50,7 @@ function kspLoadMaintenanceContext(environment) {
     pitchbookRows: environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX),
     gpRows: gpRows,
     optionRows: optionRows,
-    catalog: kspBuildMeetingCatalog(gpRows, optionRows)
+    catalog: kspBuildMaintenanceCatalog(gpRows, optionRows)
   };
 }
 
