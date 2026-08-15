@@ -10,11 +10,11 @@ Status: Accepted
 
 Knowledge Sharing Platformsの実装は、Google Apps Scriptを本番runtimeとするApps Script-first方式で進める。
 
-開発全体はChatGPTが所有し、GitHub上の設計、scope、Work ID、handoff、review、completionを管理する。Codexは、非自明なApps Script実装、ローカルtest、clasp等を使うdevelopment同期、実機検証、runtime debugging等、ChatGPTだけでは安全に完了できない残作業に限定して使用する。
+開発全体はChatGPTが所有し、GitHub上の設計、scope、Work ID、handoff、review、completionを管理する。Codexは、非自明なApps Script実装、local test、clasp等を使うdevelopment同期、実機検証、runtime debugging等、ChatGPTだけでは安全に完了できない残作業に限定して使用する。
 
 ## Setup decision
 
-通常の導入時に、利用者または管理者が以下を手作業で作らない構成とする。
+通常導入時に、利用者または管理者が以下を手作業で作らない構成とする。
 
 - `Private Assets Knowledge / Meeting Records / Pitchbooks`
 - backend Spreadsheet
@@ -52,6 +52,20 @@ Knowledge Sharing Platformsの実装は、Google Apps Scriptを本番runtimeと�
 - claspとlocal test toolingはdeveloper / Codex用に使用できる。
 - Apps Script service依存を薄いadapterへ分離し、pure logicを軽量なlocal testで検証できるようにする。
 
+## Upload boundary
+
+Pitchbook / source-material uploadの初期上限は以下とする。
+
+- 25MB / file
+- 10 files / selection
+- 100MB / selection total
+
+従来の100MB/file、500MB/batchは廃止する。初期実装では100MB対応のためだけのchunk upload、複雑なresumable transport、Cloud fallback runtimeを作らない。
+
+25MB以内でもApps Script実機上の制約が確認された場合は、architectureを複雑化して上限を守るより、安全なより低い上限へ下げることを優先する。25MB超が実務上必要と確認された場合のみ、上限引上げを別Workとして扱う。
+
+Detailed decision: `docs/decisions/pitchbook-upload-limits.md`
+
 ## Environment decision
 
 DEVとPRODは別のApps Script project、deployment、Shared Drive resources、backend / audit Spreadsheetを使用する。
@@ -64,10 +78,10 @@ DEVは匿名化または合成データだけを使用し、PRODへ実データ�
 
 1. Apps Script scaffoldとidempotent setup
 2. Meeting end-to-end
-3. Pitchbook end-to-end
+3. Pitchbook end-to-end（25MB/file、10 files、100MB total）
 4. Past Records / Masters / concurrency / auditとPhase 1 qualification
 5. Gemini File Search thin sliceと自由質問
-6. 15分sync、6形式、EML、100MB path
+6. 15分sync、6形式、EML、25MB/file path qualification
 7. 要約 / 時系列 / 比較 / 面談準備とproduction qualification
 
 詳細なscope、acceptance、routing、validationは`docs/planning/apps-script-implementation-plan.md`を正本とする。
@@ -78,7 +92,7 @@ DEVは匿名化または合成データだけを使用し、PRODへ実データ�
 - setup automationにより、環境ごとの手作業差異、schema drift、trigger漏れ、Master seed不整合を抑えられる。
 - idempotent setupにより、初回導入だけでなくrepair、DEV再構築、migrationにも同じ経路を使える。
 - ChatGPTが設計とGitHub ownershipを維持し、Codexをimplementation / runtime residualに限定することで、重複調査と長時間のopen-ended実装を減らせる。
-- production runtimeをApps Scriptへ限定しつつ、developer toolingを任意利用できるため、利用者側の導入負荷と開発時の検証可能性を両立できる。
+- 実需のない100MB対応を外すことで、upload transportを必要以上に複雑化せず、Apps Script-firstの目的を維持できる。
 
 ## Non-goals
 
@@ -88,6 +102,7 @@ DEVは匿名化または合成データだけを使用し、PRODへ実データ�
 - per-user Spreadsheet / Web App copy
 - generic production reset / destructive teardown
 - credentialやorganization-specific IDsのGitHub保存
+- 初期リリースで100MBファイルを扱うためだけのtransport complexity
 - current product designの再検討
 
 Work ID: 0003
