@@ -106,23 +106,93 @@ Status: Accepted
 - サイドバーで別画面へ移動しただけでは、各ページの未登録の書きかけ内容や選択済みファイルを消さない。
 - 共通コンテキストと各ページの下書き状態は利用者ブラウザ内で保持し、別利用者には共有しない。
 
-目的は、同じ面談に関する面談記録とPitchbook登録を、順序を問わず二重入力なしで連続実行できるようにすることである。
-
-## 2026-08-15 — Use four shared fields in Pitchbook filenames
+## 2026-08-15 — Use stable Meeting IDs and deterministic meeting filenames
 
 Status: Accepted
 
-Pitchbookの保存ファイル名には、画面で確定した以下の4項目を使用する。
+各面談記録にはシステムが固定Meeting IDを発行する。例: `MTG-000123`。
+
+面談Docsの基本ファイル名は以下とする。
+
+```text
+YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX
+```
+
+- 面談時間はファイル名に含めない。
+- 同日・同GP・同分類の面談もMeeting IDで識別する。
+- 日付、GP、Asset Class等を後から修正してもMeeting IDは変更しない。
+
+## 2026-08-15 — Use four shared fields and persistent sequence numbers in Pitchbook filenames
+
+Status: Accepted
+
+Pitchbookの保存ファイル名には以下の4項目を使用する。
 
 - 日付
 - GP
 - Asset Class
 - エクイティ / デット
 
-利用者に保存ファイル名を自由入力させない。基本形は以下とする。
+基本形:
 
 ```text
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext
 ```
 
-複数ファイルには連番を付与し、元の拡張子を維持する。ファイル名として不適切な文字の安全化、連番桁数、後日追加時の採番ルールは実装時に確定する。
+- 利用者に保存ファイル名を自由入力させない。
+- 1ファイル目から常に`_01`等の連番を付ける。
+- 複数ファイルには順番に連番を付与する。
+- 後日、同じ4項目の組み合わせでファイルを追加した場合は既存最大番号の次を採番する。
+- 元の拡張子を維持する。
+- `/`、`&`等の記号は命名時に除外し、不要な空白や区切りを整える。
+
+## 2026-08-15 — Keep Shared Drive storage flat
+
+Status: Accepted
+
+Shared Driveの正本保管領域は以下の2フォルダだけとする。
+
+```text
+Private Assets Knowledge
+├─ Meeting Records
+└─ Pitchbooks
+```
+
+年、GP、Asset Class等による下位フォルダは作らず、各フォルダ内に規則的なファイル名でフラットに蓄積する。Driveは正本保管に徹し、分類・検索はIndexと将来の検索レイヤーが担う。
+
+## 2026-08-15 — Use five backend Sheets as a small database
+
+Status: Accepted
+
+1つのバックエンドSpreadsheetに以下の5シートを置く。
+
+1. `GP_Master`
+2. `Option_Master`
+3. `Meeting_Index`
+4. `Pitchbook_Index`
+5. `Settings`
+
+- 通常利用者は直接編集しない。
+- 行番号や並び順を永続識別子として使わず、固定IDでレコードを参照する。
+- 面談本文はGoogle Docsを正本とし、Meeting Indexへ重複保存しない。
+- PitchbookはShared Drive上の原ファイルを正本とし、Pitchbook Indexは1ファイル1行で参照とメタデータを保持する。
+- `Original Filename`と`Saved Filename`の両方を保持する。
+- 日常運用では物理削除よりActive / Inactive等の状態管理を優先する。
+- `Settings`にはDrive Folder IDやスキーマバージョン等のシステム設定を保持できる。
+
+## 2026-08-15 — Keep meeting-location options coarse
+
+Status: Accepted
+
+面談場所は住所や都市を詳細に構造化せず、運用上の簡易カテゴリとして管理する。
+
+初期候補は以下のような粒度とする。
+
+- 当社オフィス
+- 先方オフィス
+- セミナー / カンファレンス
+- オンライン
+- 会食
+- その他
+
+これらはOption Masterの`LOCATION`カテゴリとして管理し、必要に応じて追加、名称変更、無効化、再有効化できる。
