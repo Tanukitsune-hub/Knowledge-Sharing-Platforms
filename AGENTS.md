@@ -152,186 +152,134 @@ Do not report elapsed time, token usage, internal effort, or similar execution s
 
 REPOSITORY_RULES_STATUS: ACTIVE
 
-## 1. Purpose and Current Phase
+## 1. Purpose and phase
 
-- Purpose: build a simple private-assets knowledge base that accumulates Meeting records and Pitchbook/source materials, maintains them safely, and retrieves/organizes the resulting knowledge through Gemini File Search with source traceability.
-- Current phase: planning. No runtime application, deployment, production operation, or live Gemini integration exists yet.
-- The pre-2026-08-14 product/UI/architecture/MVP decisions are withdrawn and must not be restored from Git history, old chat, or stale handoffs.
-- The accumulation/maintenance design, Gemini File Search architecture, and five-mode Knowledge Search Target UX adopted on 2026-08-15 are current requirements.
-- Distinguish an accepted design that still needs implementation-time validation from a genuinely undecided requirement. Do not reopen accepted design merely because live validation has not run yet.
+- Build a simple private-assets knowledge base for Meeting records and Pitchbook/source materials with source-traceable Gemini retrieval.
+- Current phase: implementation planning complete; runtime implementation has not started.
+- Pre-2026-08-14 product/UI/architecture/MVP decisions are withdrawn.
+- Accepted accumulation design, Gemini File Search architecture, five-mode Knowledge Search UX, Apps Script-first implementation plan, lower upload limits, and simplified audit/actor model are current requirements.
+- Do not reopen accepted design merely because live validation has not run.
 
-## 2. Current Sources of Truth
+## 2. Current sources of truth
 
-- `README.md`: high-level current baseline.
-- `docs/product/vision.md`: current product intent and Target UX.
-- `docs/architecture/target-architecture.md`: accepted end-to-end architecture and component boundaries.
-- `docs/planning/mvp-and-roadmap.md`: implementation sequence, validation gates, and genuinely remaining implementation choices.
-- `docs/operations/runtime-policy.md`: draft retention, upload limits, retry, execution identity, master permissions, synchronization cadence, and audit policy.
-- `docs/ai/gemini-file-search.md`: File Search Store, embeddings, custom metadata, source formats, five-mode Knowledge Search, synchronization, citations, and AI index contracts.
-- `docs/governance/security.md`: information handling, shared AI access boundary, credentials, and AI-release security blockers.
-- `docs/decisions/decision-log.md`: consolidated current durable decisions.
-- `docs/decisions/gemini-file-search-retrieval.md`: detailed accepted Gemini retrieval decision.
+- `README.md`: high-level baseline
+- `docs/product/vision.md`: product intent / UX
+- `docs/architecture/target-architecture.md`: architecture boundaries
+- `docs/planning/mvp-and-roadmap.md`: phase baseline / genuine remaining choices
+- `docs/planning/apps-script-implementation-plan.md`: implementation sequence / setup / acceptance / routing
+- `docs/operations/runtime-policy.md`: runtime / retry / access / audit
+- `docs/ai/gemini-file-search.md`: retrieval / metadata / five modes / sync / citations
+- `docs/governance/security.md`: information handling / credentials / access boundary
+- `docs/decisions/pitchbook-upload-limits.md`: 25MB/file upload policy
+- `docs/decisions/audit-access-and-user-attribution.md`: best-effort Actor + restricted Audit Spreadsheet
+- `docs/decisions/decision-log.md`: consolidated durable decisions
 
-If documents conflict, prefer the latest explicit user decision and the closest domain-specific source of truth. Do not treat a generic operating template or historical wording as stronger than current project-specific design.
+If documents conflict, prefer the latest explicit user decision and the closest domain-specific source.
 
-## 3. Accepted Storage and UI Baseline
+## 3. Storage and setup baseline
 
-- Use one organization-controlled Apps Script HTML Service Web App for all normal users; do not create per-user Spreadsheet or Web App copies.
-- Normal users do not directly edit backend Sheets, the audit store, or File Search.
-- Shared Drive is authoritative with only `Meeting Records` and `Pitchbooks` under the knowledge-base root; keep those folders flat by default.
-- Backend Sheets are `GP_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, and `Settings`.
-- Treat backend Sheets as a small database: use stable IDs, never row numbers or sheet order, as durable identifiers.
-- Meeting body text lives only in Google Docs as the authoritative source; do not duplicate full notes into `Meeting_Index`.
-- Pitchbook/source files in Shared Drive are authoritative; `Pitchbook_Index` keeps metadata/references and original/saved filenames.
-- Prefer Active / Inactive / Reactivate over normal-user physical deletion.
+- Use one organization-controlled Apps Script HTML Service Web App.
+- Shared Drive authoritative root contains only `Meeting Records` and `Pitchbooks`.
+- Backend Spreadsheet has exactly `GP_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `Settings` as baseline sheets.
+- Audit logs live in a separate Spreadsheet under a restricted admin-only control folder.
+- Normal users do not directly edit backend / audit / File Search.
+- `setupKnowledgePlatform()` is the idempotent create / reuse / migration / repair path.
+- DEV and PROD use separate Apps Script projects and resource sets.
 
-## 4. Accepted Meeting and Pitchbook Contracts
+## 4. Meeting and Pitchbook contracts
 
-- Meeting required fields: Date, GP, Asset Class.
-- Meeting optional fields: Time, Location, Equity/Debt, Counterparty, Internal Participants, free-form notes.
-- Meeting Docs are compact plain-text-style mirrors using one-line `field: value` metadata and original notes.
-- Every Meeting has immutable Meeting ID such as `MTG-000123`.
-- Meeting filename: `YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX`; omit optional Equity/Debt when absent and never include Time.
-- Pitchbook/source registration supports drag/drop and multiple files.
-- Pitchbook/source required inputs: file, Date, GP, Asset Class. Equity/Debt is optional.
-- Source filename: `YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext`; omit optional Equity/Debt when absent.
-- Sequence starts at `01`; later additions in the same context continue from existing max; never close historical gaps.
-- Metadata moves to another filename context allocate the next sequence in the destination context; do not renumber the source context.
-- Remove filename punctuation such as `/` and `&` during generated-name normalization.
-- Upload limits: 100MB per file, 10 files per batch, 500MB per batch.
+- Meeting required: Date, GP, Asset Class.
+- Meeting optional: Time, Location, Equity/Debt, Counterparty, Internal Participants, notes.
+- Meeting Google Doc is authoritative for body text; do not duplicate full notes into Index.
+- Meeting ID is immutable; filename excludes Time and omits absent Equity/Debt.
+- Pitchbook required: file, Date, GP, Asset Class; Equity/Debt optional.
+- Sequence starts at `01`, continues from destination max, and historical gaps are never closed.
+- Upload limit: 25MB/file, 10 files/selection, 100MB total.
+- If 25MB is impractical in Apps Script, lower the limit before adding upload architecture.
+- 100MB/file transport and Cloud fallback are not initial requirements.
 
-## 5. Shared Context, Masters, and Search UI Conventions
+## 5. Masters, drafts, past records
 
-- Meeting and Pitchbook share Date, GP, Asset Class, and Equity/Debt in per-user browser state; Meeting Time is not shared.
-- Keep the shared four fields after successful registration; clear page-specific fields only.
-- Retain text/selection drafts in the same browser for 24 hours; do not expect file handles to survive browser reload/close.
-- GP Master uses immutable GP IDs, mutable names, Active / Inactive, and alphabetical display; GP has no manual Sort Order.
-- Unregistered GP may be quick-added from Meeting/Pitchbook registration after normalized duplicate checking.
-- Location, Asset Class, and Equity/Debt use Option Master with immutable Option IDs, Type, display name, Sort Order, and Active / Inactive.
-- Asset Class initial values: PE, VC, Infrastructure, Real Estate, PD, その他.
-- Equity/Debt initial values: Equity, Debt.
-- Meeting location remains coarse operational categories, not detailed addresses.
-- All users may add, rename, reorder, deactivate, and reactivate allowed masters; rename/deactivate require confirmation and audit logging.
-- Every optional search dropdown must show UI-only `未選択` initially. `未選択` means no filter and is never persisted as Master/source metadata.
+- Meeting/Pitchbook share Date, GP, Asset Class, Equity/Debt in browser state.
+- Retain text/selection drafts for 24h in the same browser; file handles need not survive reload.
+- GP uses immutable ID, mutable name, Active/Inactive, alphabetical display, quick-add with normalized duplicate check.
+- Location / Asset Class / Equity-Debt use Option Master with immutable IDs and Sort Order.
+- All users may add, rename, reorder, deactivate, reactivate allowed masters; rename/deactivate require confirmation + audit.
+- Past-record filters: Date From/To, GP, Asset Class, Equity/Debt, Status.
+- UI-only `未選択` means no filter and is never persisted.
 
-## 6. Past Records, Concurrency, Retry, and Audit
+## 6. Concurrency, retry, audit
 
-- Meeting and Pitchbook past-record search supports optional Date From/To, GP, Asset Class, Equity/Debt, and Status.
-- Meeting updates retain the same Meeting ID and Google Doc and synchronize metadata/content/filename.
-- Pitchbook updates retain Document ID and Drive File ID and synchronize metadata/filename.
-- Use Apps Script LockService only around short consistency-critical writes such as master updates, ID issuance, sequence allocation, and Index writes.
-- Do not hold shared locks across full uploads, Docs generation, or Gemini indexing.
-- Same-Meeting concurrent edits use Version/Updated At optimistic locking and reject stale saves.
-- Pitchbook/source batch processing is file-granular; successful files are not rolled back because another file failed.
-- Failed files retry with the same Batch ID, Document ID, and reserved sequence; retries are idempotent and must avoid duplicate Drive files/Index rows.
-- Audit logs are retained five years in a separate admin-only Spreadsheet.
-- Production must identify the actual user for registrations, changes, and AI queries; do not accept anonymous production audit rows as a normal fallback.
+- LockService only protects short consistency-critical writes.
+- Same-Meeting concurrent edits use Version/Updated At optimistic locking.
+- Pitchbook batch processing is file-granular; successful files are not rolled back because another file failed.
+- Retry uses same Batch ID / Document ID / reserved sequence and avoids duplicate Drive files / Index rows.
+- Audit logs are retained five years in the separate restricted Audit Spreadsheet.
+- Initial Web App does not need an Audit Viewer.
+- Actor attribution is best-effort: email if available, else `TEMP_USER:<key>` if available, else `UNIDENTIFIED`.
+- Missing persistent user identity is not a blocker and must not fail normal operations.
 
-## 7. Accepted Gemini File Search Architecture
+## 7. Gemini File Search architecture
 
-- Shared Drive remains the system of record; Gemini File Search is a derived, rebuildable retrieval index.
-- Use Gemini API File Search as the hosted RAG/semantic-search layer.
-- Start with one File Search Store for Meeting and Pitchbook/source documents across all Asset Classes.
-- Do not add an app-managed vector DB, custom embedding pipeline, knowledge graph, or automatic keyword/tag taxonomy in the initial implementation.
-- Let File Search manage chunking, embeddings, vector storage, and semantic retrieval.
-- Use authoritative custom metadata for exact filtering and embeddings for semantic relevance.
-- Initial metadata includes source type/source ID, date key, GP ID/name, Asset Class ID/name, optional Capital Type ID/name, Drive URL, and saved filename.
-- Only Active records are available to normal AI retrieval.
-- File Search indexing failure must not invalidate or roll back a successful authoritative Meeting/source registration.
-- Inactivation removes the corresponding File Search Document; reactivation re-indexes the current authoritative source.
-- Source changes that affect content or retrieval metadata require re-indexing without duplicate active AI Documents.
-- All grounded outputs surface source citations and Drive links.
+- Shared Drive remains authoritative; Gemini File Search is derived / rebuildable.
+- Start with one Store across Meeting and Pitchbook/source materials.
+- File Search manages chunking / embeddings / semantic retrieval.
+- Use authoritative custom metadata for exact filtering.
+- Do not add custom Vector DB, embedding pipeline, Knowledge Graph, tag taxonomy, Agent framework, per-user retrieval ACL, or model router initially.
+- Only Active sources are retrievable.
+- AI indexing failure never rolls back authoritative source capture.
+- Inactivation removes AI Document; Reactivate re-indexes current source.
+- All grounded outputs show citations and Drive links.
 
-## 8. Knowledge Search Target UX and Access
+## 8. Knowledge Search target UX
 
-- Add `ナレッジ検索` to the shared Web App.
-- Accepted Target UX modes are exactly: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`.
-- `自由質問` is the default mode.
-- All five modes use the same File Search Store, metadata filters, semantic retrieval, configured Gemini Flash model, citation handling, and Drive-link mapping.
-- Preset modes change only the prompt/output template; do not create parallel retrieval implementations.
-- Shared filters: Date From/To, GP, Asset Class, Equity/Debt, Source Type (Meeting/Pitchbook).
-- In `自由質問`, the text field is the primary question input. In preset modes, use the same area as optional `追加指示`; presets must work without additional instruction when their metadata scope is sufficient.
-- Every authenticated Web App user may query all Active indexed Meeting/Pitchbook/source records. Do not implement per-user/per-file retrieval ACLs in the initial release.
-- Use one configured Gemini Flash model for all modes; do not expose model selection or Deep mode.
-- Implementation may stage `自由質問` first and add the four presets after common retrieval is validated, but the five-mode Target UX is already decided and must not be treated as undecided.
+Accepted modes: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`.
 
-## 9. Initial AI Source Formats
+- `自由質問` default.
+- Shared filters: Date From/To, GP, Asset Class, Equity/Debt, Source Type.
+- All five modes use one shared File Search / metadata / semantic / Flash / citation path.
+- Presets change prompt/output template only.
+- Web App users share access to all Active indexed sources; do not implement per-user/per-file retrieval ACL initially.
+- Use one configured Gemini Flash model; no model selector / Deep mode.
 
-Initial AI-searchable extensions:
+## 9. AI sync / formats
 
-- `.pdf`
-- `.pptx`
-- `.xlsx`
-- `.docx`
-- `.txt`
-- `.eml`
+Initial formats: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`.
 
-For Outlook email, support `.eml` only. Preserve original `.eml` in Shared Drive and index normalized Subject/From/To/Cc/Date/Body text. Embedded attachments are not automatically indexed; important attachments are registered separately. `.msg` is out of scope initially.
+- EML original stays in Drive; index normalized Subject/From/To/Cc/Date/Body text.
+- EML embedded attachments are not auto-indexed; `.msg` is out of scope initially.
+- AI states: `NotIndexed / Pending / Indexed / Failed`.
+- Use 15-minute Apps Script worker for Pending / retryable Failed work.
+- Retry must be idempotent; permanent failures are not retried forever.
 
-## 10. AI Index Contracts and Synchronization
+## 10. Security / credentials
 
-Add to both `Meeting_Index` and `Pitchbook_Index`:
+- Never commit real confidential source content, credentials, private URLs, or internal secrets.
+- Production Gemini usage requires organization-approved Google Cloud / Gemini environment.
+- Credentials are server-side only and never returned to browser or stored in source docs / user-facing Sheets.
+- Web App access is the common initial source-access boundary; internet-public access is not assumed.
+- Audit Spreadsheet access is restricted through Google Drive permissions, not custom passwords.
 
-- `AI_Document_Name`
-- `AI_Index_Status`
-- `AI_Indexed_At`
-- `AI_Content_Hash`
-- `AI_Last_Error`
+## 11. Implementation sequence
 
-Allowed AI states: `NotIndexed / Pending / Indexed / Failed`.
+- 0004: Apps Script scaffold + idempotent setup
+- 0005: Meeting vertical slice
+- 0006: Pitchbook vertical slice
+- 0007: maintenance / concurrency / Masters / Phase 1 qualification
+- 0008: Gemini File Search thin slice + 自由質問
+- 0009: 15-minute sync + six formats + EML
+- 0010: four presets + production qualification
 
-Use Settings keys including:
+Default Codex model is Luna Max. Use Sol High only for material unresolved cross-cutting diagnosis; Sol Max only for exceptional hard-to-reverse architecture or critical final review.
 
-- `GEMINI_FILE_SEARCH_STORE_NAME`
-- `AI_DEFAULT_MODEL`
-- `AI_SYNC_ENABLED`
-- `AI_SYNC_INTERVAL_MINUTES`
+## 12. Validation / completion
 
-Initial sync interval is 15 minutes.
+Phase 1 validates setup idempotency, registration/update, 25MB upload policy, stable IDs/sequences, partial retry, concurrency, Master permissions, audit writes/restricted access, and Actor fallback.
 
-- Complete authoritative Shared Drive/Index write first and mark AI work `Pending`.
-- Do not make user registration wait for Gemini indexing.
-- Use an Apps Script time-driven worker every 15 minutes for Pending and retryable Failed work.
-- AI sync is independently retryable and idempotent; do not retry unsupported/permanent failures forever.
-- Meeting Docs may be indexed from compact text representation.
-- Supported source files are indexed directly or via normalized text for EML.
-- 100MB File Search uploads use resumable/chunked transport.
-- If Apps Script cannot reliably handle validated 100MB indexing, escalate only AI-index transport to an organization-approved Google Cloud runtime while preserving Web App/Shared Drive/Index contracts.
+Phase 2 validates source-to-index consistency, 15-minute worker, six formats, EML normalization, metadata filtering, semantic retrieval, five-mode shared retrieval, citations/Drive links, re-index/Inactive/Reactivate, retry idempotency, AI audit, Flash-only behavior, and AI-outage isolation.
 
-## 11. Audit and Security
+Do not stop because user email is unavailable, temporary Actor keys rotate, hosted CI is unavailable, or the safe upload limit needs to be lower than 25MB.
 
-- Never commit real confidential Meeting/Pitchbook content, credentials, private URLs, or internal secrets to this public repository.
-- Real source data belongs in organization-controlled Workspace/Shared Drive.
-- Production Gemini API/File Search usage requires an organization-approved Google Cloud/Gemini API environment.
-- Never expose API credentials to browser-side HTML/JavaScript or user-facing Sheets/source documents.
-- File Search documents/embeddings are derived retained data and participate in source inactivation/deletion/retention procedures.
-- AI output must not silently become an approved official record or investment decision.
-- Every Knowledge Search execution across all five modes is part of the five-year admin-only audit policy.
-- AI query audit includes user, timestamp, search mode, question/additional instruction, filters, configured Flash model ID, success/failure, and cited source IDs when available.
-- Do not copy generated answer text, retrieved chunk text, embeddings, or full source contents into audit logs.
-- Web App access is the initial common AI retrieval boundary; all Web App users must be authorized to search all Active sources.
-
-## 12. Implementation and Validation
-
-- Selected implementation direction: Apps Script HTML Service + Google Sheets + Google Docs + Shared Drive + Gemini API File Search.
-- Implementation has not started; establish exact setup/test/deployment commands from the actual Apps Script project when executable work begins.
-- Treat `docs/planning/mvp-and-roadmap.md` as the source for delivery sequencing, validation gates, and genuinely remaining implementation choices.
-- Do not label accepted requirements as undecided solely because live environment validation remains.
-- Phase 1 validation covers registration/editing, IDs/sequences, concurrency, retry, logical deactivation, master permissions, audit, and user identity.
-- Phase 2 validation covers source-to-index sync, 15-minute worker, six source formats, EML normalization, metadata filters, semantic retrieval, five-mode shared retrieval, citations/Drive links, re-indexing, inactive exclusion, retry idempotency, AI query audit, Flash-only behavior, and 100MB resumable upload/fallback.
-- Live Gemini/Workspace integration requires explicit scoped authorization and organization-approved credentials.
-
-## 13. Simplicity Invariants
-
-- Do not redesign authoritative storage for AI-indexing convenience.
-- Do not add a separate vector DB, tag taxonomy, Agent framework, Knowledge Graph, per-user retrieval ACL system, or multi-model router without a demonstrated requirement the accepted design cannot satisfy.
-- Keep one File Search Store until measured size/latency evidence justifies splitting.
-- Keep AI indexing failure non-blocking to authoritative source capture.
-- Prefer source-backed outputs over broad autonomous behavior.
-- Do not create parallel implementations for the five Knowledge Search modes.
-
-## 14. Definition of Done for Current Planning Work
-
-Planning documentation is coherent when current documents agree with the 2026-08-14 reset and all accepted 2026-08-15 accumulation/operations/Gemini/Knowledge Search decisions; withdrawn requirements are not presented as current; accepted design is not mislabeled as undecided; implementation status is not overstated; and genuine implementation-time choices/validation remain explicit.
+Completion requires primary workflows end-to-end, critical checks passed, correct citations, safe credential handling, restricted Audit Spreadsheet, authoritative data protected from AI failures, and no unresolved blocker.
 
 <!-- REPOSITORY_SPECIFIC_RULES_END -->
