@@ -2,107 +2,124 @@
 
 Work ID: 0003
 
-Date: 2026-08-15
+Date: 2026-08-16
 
 Status: Accepted
 
 ## Decision
 
-Knowledge Sharing Platformsの実装は、Google Apps Scriptを本番runtimeとするApps Script-first方式で進める。
+Knowledge Sharing PlatformsはGoogle Apps Scriptを本番runtimeとするApps Script-first方式で実装する。
 
-開発全体はChatGPTが所有し、GitHub上の設計、scope、Work ID、handoff、review、completionを管理する。Codexは、非自明なApps Script実装、local test、clasp等を使うdevelopment同期、実機検証、runtime debugging等、ChatGPTだけでは安全に完了できない残作業に限定して使用する。
+ChatGPTが全体設計、GitHub、scope、Work ID、handoff、review、completionを所有し、Codexは非自明なApps Script実装、local test、development同期、実機検証、runtime debugging等の残作業へ限定する。
 
 ## Setup decision
 
-通常導入時に、利用者または管理者が以下を手作業で作らない構成とする。
+通常導入時に利用者 / 管理者が以下を手作業で組み立てない。
 
 - `Private Assets Knowledge / Meeting Records / Pitchbooks`
 - backend Spreadsheet
-- Audit Spreadsheet
+- separate Audit Spreadsheet
 - `GP_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings`
-- Master seed
-- schema version / Settings
+- Master seeds
+- schema / Settings
 - required installable triggers
 
-管理者はApps Scriptの初期化関数を実行し、上記資源を作成または再利用する。
+管理者がApps Script初期化関数を実行し、create / reuse / migrate / validateする。
 
-初期化関数はidempotentとし、再実行をrepair手段として利用できるようにする。重複候補や権限不整合がある場合は推測で継続せず、明示的に停止して報告する。
+Setup is idempotent and also serves as repair / migration path.
 
 ## Manual boundary
 
-以下は組織権限・OAuth・deployment上の明示操作として手動に残す。
+Manual administrator actions are limited to organization / OAuth / deployment boundaries:
 
-- organization-controlled Apps Script projectの作成または指定
-- standard Google Cloud projectの紐付け
-- Drive advanced service / Drive APIの有効化
-- Gemini利用時の会社承認済みAPI / Cloud環境の有効化
-- Shared Drive parent / admin-only control folderの用意と権限付与
+- organization-controlled Apps Script project create / select
+- standard Google Cloud project link
+- Advanced Drive Service / Drive API enablement
+- company-approved Gemini / Cloud environment enablement
+- Shared Drive knowledge parent folder preparation
+- Restricted admin-only control folder preparation
 - initial OAuth consent
-- Web App deployment
-- actual-user attributionを確認した上でのexecute-as設定
-- production credentialの組織承認済み保管設定
+- Web App deployment to authorized users
+- approved production credential configuration
 
-アプリ自身がShared Drive、Cloud project、組織承認、credential発行、OAuth consent、Web App deploymentを暗黙に作成・変更する設計にはしない。
+Initial execution preference is Web App running as organization-controlled deployer so backend permissions are centralized.
 
-## Runtime and tooling boundary
+Persistent actual-user identification is not required. Audit Actor is best-effort per `docs/decisions/audit-access-and-user-attribution.md`.
 
-- Runtime sourceはApps Script V8 compatible plain JavaScriptとする。
-- Apps Script editorへ配置できる`.gs / .html / appsscript.json`を正本sourceとして管理する。
-- TypeScript、bundler、external web server、Node.js、claspをproduction runtimeまたは通常管理者のsetup必須条件にしない。
-- claspとlocal test toolingはdeveloper / Codex用に使用できる。
-- Apps Script service依存を薄いadapterへ分離し、pure logicを軽量なlocal testで検証できるようにする。
+The application does not silently create Shared Drives, Cloud projects, organization approvals, credentials, OAuth consent, or Web App deployments.
+
+## Runtime / tooling boundary
+
+- Apps Script V8 compatible plain JavaScript
+- `.gs / .html / appsscript.json` managed in GitHub
+- no production requirement for TypeScript, bundler, external server, Node.js, or clasp
+- clasp / local tests may be used by developer / Codex
+- isolate Apps Script service dependencies behind thin adapters where practical
+
+## Audit boundary
+
+Audit is stored in a separate Google Spreadsheet under a Restricted admin-only control folder.
+
+- no normal-user direct access
+- no mandatory Web App Audit Viewer initially
+- no custom password auth required
+- Drive sharing permissions are the access boundary
+- Actor: email → temporary active user key → `UNIDENTIFIED`
+- missing persistent identity is not a release blocker
 
 ## Upload boundary
 
-Pitchbook / source-material uploadの初期上限は以下とする。
+Initial limits:
 
-- 25MB / file
-- 10 files / selection
-- 100MB / selection total
+```text
+25MB / file
+10 files / selection
+100MB / selection total
+```
 
-従来の100MB/file、500MB/batchは廃止する。初期実装では100MB対応のためだけのchunk upload、複雑なresumable transport、Cloud fallback runtimeを作らない。
+100MB/file and 500MB/batch are withdrawn.
 
-25MB以内でもApps Script実機上の制約が確認された場合は、architectureを複雑化して上限を守るより、安全なより低い上限へ下げることを優先する。25MB超が実務上必要と確認された場合のみ、上限引上げを別Workとして扱う。
-
-Detailed decision: `docs/decisions/pitchbook-upload-limits.md`
+Do not add chunk upload / complex resumable transport / Cloud fallback merely to preserve a larger arbitrary limit. If 25MB is impractical in Apps Script, lower the limit first.
 
 ## Environment decision
 
-DEVとPRODは別のApps Script project、deployment、Shared Drive resources、backend / audit Spreadsheetを使用する。
+DEV and PROD use separate Apps Script projects, deployments, Shared Drive resources, backend Spreadsheets, and Audit Spreadsheets.
 
-DEVは匿名化または合成データだけを使用し、PRODへ実データを投入する前にphase qualificationを完了する。
+DEV uses anonymous / synthetic data only. Production data is introduced only after phase qualification.
 
 ## Delivery sequence
 
-実装は以下の順で進める。
-
-1. Apps Script scaffoldとidempotent setup
+1. Apps Script scaffold + idempotent setup
 2. Meeting end-to-end
-3. Pitchbook end-to-end（25MB/file、10 files、100MB total）
-4. Past Records / Masters / concurrency / auditとPhase 1 qualification
-5. Gemini File Search thin sliceと自由質問
-6. 15分sync、6形式、EML、25MB/file path qualification
-7. 要約 / 時系列 / 比較 / 面談準備とproduction qualification
+3. Pitchbook end-to-end
+4. Past Records / Masters / concurrency / audit + Phase 1 qualification
+5. Gemini File Search thin slice + 自由質問
+6. 15-minute sync + six formats + EML
+7. 要約 / 時系列 / 比較 / 面談準備 + production qualification
 
-詳細なscope、acceptance、routing、validationは`docs/planning/apps-script-implementation-plan.md`を正本とする。
+Detailed execution source: `docs/planning/apps-script-implementation-plan.md`.
 
 ## Rationale
 
-- 現行設計はGoogle Workspaceを正本・運用基盤としており、Apps Script中心の実装が最短で一貫する。
-- setup automationにより、環境ごとの手作業差異、schema drift、trigger漏れ、Master seed不整合を抑えられる。
-- idempotent setupにより、初回導入だけでなくrepair、DEV再構築、migrationにも同じ経路を使える。
-- ChatGPTが設計とGitHub ownershipを維持し、Codexをimplementation / runtime residualに限定することで、重複調査と長時間のopen-ended実装を減らせる。
-- 実需のない100MB対応を外すことで、upload transportを必要以上に複雑化せず、Apps Script-firstの目的を維持できる。
+- Google Workspace is already the authoritative operating environment.
+- Apps Script-first minimizes production prerequisites.
+- idempotent setup reduces manual drift and simplifies repair / migration.
+- separate Restricted Audit Spreadsheet removes the need for Web App audit-access UI.
+- best-effort Actor removes unnecessary coupling between user identity and backend access.
+- lower upload limits avoid architecture that has no demonstrated business value.
+- ChatGPT ownership + Codex residual execution avoids duplicated planning and open-ended implementation.
 
 ## Non-goals
 
-- setupのためだけの外部Web application
-- production必須のNode.js / local server
-- Apps Script以外の並行runtime
+- setup-only external Web application
+- production-required Node.js / local server
+- parallel runtime outside Apps Script without demonstrated need
 - per-user Spreadsheet / Web App copy
+- strict persistent user identity
+- custom audit password system
+- Web App Audit Viewer initially
 - generic production reset / destructive teardown
-- credentialやorganization-specific IDsのGitHub保存
-- 初期リリースで100MBファイルを扱うためだけのtransport complexity
-- current product designの再検討
+- 100MB/file support in initial release
+- storing credentials / organization-specific IDs in GitHub
 
 Work ID: 0003
