@@ -1,0 +1,13 @@
+{
+  "name": "knowledge-sharing-platforms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local validation tooling for the Apps Script Knowledge Sharing Platforms project.",
+  "scripts": {
+    "check": "node scripts/validate-apps-script.cjs && node --test tests/*.test.cjs",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
