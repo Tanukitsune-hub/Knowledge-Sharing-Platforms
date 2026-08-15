@@ -45,7 +45,7 @@ Gemini File Search Store
         |
         | metadata filter + semantic retrieval
         v
-Gemini API
+Gemini Flash
         |
         v
 Knowledge Search UI
@@ -66,6 +66,10 @@ answer + citations + Drive links
 - File SearchからのcitationをDrive原資料へ接続する。
 - AI index障害で正本登録をロールバックしない。
 - Inactive資料は通常AI検索から除外する。
+- Web App利用者は全員、全Active資料をAI検索できる共通アクセスモデルとする。
+- 初期モデルはGemini Flashのみ。利用者向けモデル選択UIは持たせない。
+- AI同期は15分おきのApps Script time-driven workerを基本とする。
+- AI検索も5年保持の管理者専用監査ログへ記録する。
 
 詳細正本: `docs/ai/gemini-file-search.md`
 
@@ -86,21 +90,44 @@ answer + citations + Drive links
 
 `未選択`は検索条件を適用しないUI状態であり、MasterまたはFile Search Metadataには保存しない。
 
+初期版ではモデル選択、Deep Search等の切替UIは置かない。
+
+## Initial source-format whitelist
+
+AI検索対象として初期対応するファイル形式は以下とする。
+
+```text
+.pdf
+.pptx
+.xlsx
+.docx
+.txt
+.eml
+```
+
+Outlook保存メールは`.eml`のみ初期対応とし、Shared Driveには元ファイルを保存する。AI indexにはSubject / From / To / Cc / Date / Body等を抽出したUTF-8テキスト表現を登録する。
+
+`.eml`内の添付ファイルは初期版では自動indexしない。検索対象としたい添付ファイルは別資料として登録する。
+
+Outlook `.msg`は初期対応外とする。
+
 ## Initial AI retrieval release
 
 まず以下だけを完成させる。
 
 1. MeetingをFile Searchへindex
-2. PitchbookをFile Searchへindex
+2. Pitchbook / source materialsをFile Searchへindex
 3. 新規 / 更新 / 無効化 / 再有効化をAI indexへ同期
-4. ナレッジ検索画面
-5. 自由質問
-6. Metadata filter
-7. semantic retrieval
-8. grounded answer
-9. citation表示
-10. 元Drive資料を開く
-11. AI index失敗 / retry管理
+4. 15分間隔のAI sync worker
+5. ナレッジ検索画面
+6. 自由質問
+7. Metadata filter
+8. semantic retrieval
+9. Gemini Flashによるgrounded answer
+10. citation表示
+11. 元Drive資料を開く
+12. AI index失敗 / retry管理
+13. AI query監査
 
 ## Later output modes
 
@@ -134,25 +161,51 @@ AI_Last_Error
 ```text
 GEMINI_FILE_SEARCH_STORE_NAME
 AI_DEFAULT_MODEL
-AI_DEEP_MODEL
 AI_SYNC_ENABLED
-AI_EMBEDDING_MODEL
+AI_SYNC_INTERVAL_MINUTES
 ```
+
+初期方針:
+
+```text
+AI_SYNC_INTERVAL_MINUTES = 15
+AI_DEFAULT_MODEL = configured Gemini Flash model
+```
+
+## AI query audit baseline
+
+Knowledge Searchの実行を既存の5年監査ログ対象に含める。
+
+少なくとも以下を記録する。
+
+- 利用者
+- 日時
+- 質問本文
+- Date From / To
+- GP filter
+- Asset Class filter
+- Equity / Debt filter
+- Source Type filter
+- 実行したFlash model ID
+- Success / Failure
+- cited source IDs
+- 必要に応じて短いerror情報
+
+Gemini回答全文、retrieved chunk全文、Embedding、原資料本文は監査ログへ複製しない。
 
 ## Next implementation decisions / validation
 
-設計として大枠は採用済み。実装フェーズで以下を実機確認する。
+設計として大枠と運用方針は採用済み。実装フェーズで以下を実機確認する。
 
 - 会社承認済みGemini API / Google Cloud projectの利用条件
 - credentialの組織承認済み保管方式
 - Apps ScriptからのFile Search API接続
 - 100MB Pitchbookのresumable upload
-- File Search対応拡張子の実用ホワイトリスト
-- sync worker / retry cadence
+- `.pdf / .pptx / .xlsx / .docx / .txt / .eml`各形式の実機index確認
+- EMLのheader/body抽出品質
 - query / indexing rate limitsと費用管理
-- 利用者アクセス権とFile Searchの派生データ保持ルール
-- AI query監査を既存監査ログへどこまで記録するか
-- default / deep modelの実機選定
+- File Search派生データの保持 / 削除運用が会社ルールに適合すること
+- 具体的なGemini Flash model IDの選定
 
 上記は現在の保存・Index契約を変更せずに実装時検証で決める。
 
@@ -161,6 +214,7 @@ AI_EMBEDDING_MODEL
 Phase 2のリリース条件には最低限以下を含める。
 
 - source-to-index同期の整合
+- 15分sync workerの動作
 - metadata filterの正確性
 - semantic retrievalの妥当性
 - citationsとDriveリンクの一致
@@ -168,6 +222,11 @@ Phase 2のリリース条件には最低限以下を含める。
 - Inactive除外 / Reactivate復帰
 - retry idempotency
 - 100MB pathの検証
+- 対応6形式のindex検証
+- EML本文の正しいテキスト化
+- Web App全利用者が共通AI検索範囲へアクセスできること
+- AI query監査の記録内容と管理者限定閲覧
+- Flash固定でモデル選択UIが存在しないこと
 - AI障害で正本登録が壊れないこと
 - confidential data / credentialsがGitHubや不適切なログへ出ないこと
 
