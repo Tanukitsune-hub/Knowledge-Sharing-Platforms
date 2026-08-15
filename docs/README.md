@@ -2,14 +2,14 @@
 
 本ディレクトリはKnowledge Sharing Platformsの現行方針を記録する。
 
-2026-08-14に旧計画を破棄し、Google Workspace中心のシンプルな蓄積基盤から再設計した。2026-08-15にGemini File Search / 5モードKnowledge Search / Apps Script-first実装方針を採用し、2026-08-16にupload上限とaudit / actor運用をさらに単純化した。
+2026-08-14に旧計画を破棄し、Google Workspace中心のシンプルな蓄積基盤から再設計した。2026-08-15にGemini File Search / 5モードKnowledge Search / Apps Script-first実装方針を採用し、2026-08-16にupload上限、audit / actor運用、およびimplementation-first / final live qualification方針へ単純化した。
 
 ## Current sources of truth
 
 - `product/vision.md`: product purpose / UX
 - `architecture/target-architecture.md`: architecture boundaries
 - `planning/mvp-and-roadmap.md`: accepted phases / validation / genuine remaining choices
-- `planning/apps-script-implementation-plan.md`: setup / Work sequence / acceptance / ChatGPT-Codex routing
+- `planning/apps-script-implementation-plan.md`: setup / Work sequence / acceptance / ChatGPT-Codex routing / live-validation timing
 - `operations/runtime-policy.md`: runtime / upload / retry / audit / actor / sync
 - `ai/gemini-file-search.md`: File Search / metadata / five modes / citations / AI index
 - `governance/security.md`: information handling / credentials / common access boundary / restricted audit
@@ -18,6 +18,7 @@
 - `decisions/apps-script-first-implementation.md`: Apps Script-first delivery decision
 - `decisions/pitchbook-upload-limits.md`: 25MB/file, 10 files, 100MB total
 - `decisions/audit-access-and-user-attribution.md`: best-effort Actor / separate Restricted Audit Spreadsheet
+- `decisions/implementation-first-final-live-qualification.md`: feature implementation first; standard live qualification only after feature freeze
 
 ## Authority / conflict handling
 
@@ -28,14 +29,15 @@
 
 Current domain authority:
 
-- implementation / setup: `planning/apps-script-implementation-plan.md`
+- implementation / setup / validation timing: `planning/apps-script-implementation-plan.md`
 - runtime / audit / actor: `operations/runtime-policy.md`
 - retrieval: `ai/gemini-file-search.md`
 - security: `governance/security.md`
 - upload limits: `decisions/pitchbook-upload-limits.md`
 - actor / audit access: `decisions/audit-access-and-user-attribution.md`
+- live qualification timing: `decisions/implementation-first-final-live-qualification.md`
 
-Older wording that still states `100MB/file`, `500MB/batch`, mandatory persistent user identity, or mandatory Web App Audit Viewer is superseded and must not be restored.
+Older wording that still states `100MB/file`, `500MB/batch`, mandatory persistent user identity, mandatory Web App Audit Viewer, or routine per-Work live validation is superseded and must not be restored.
 
 ## Current implementation baseline
 
@@ -57,18 +59,26 @@ Older wording that still states `100MB/file`, `500MB/batch`, mandatory persisten
 - `.pdf / .pptx / .xlsx / .docx / .txt / .eml`
 - Knowledge Search: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`
 - ChatGPT owns design/GitHub/review/completion; Codex handles residual implementation/runtime work
+- Works 0004–0009 prioritize implementation + local/static/mock/contract tests
+- Work 0010 is the first standard DEV live qualification cycle
 
 ## Implementation Works
 
-- 0004: scaffold + idempotent setup
-- 0005: Meeting vertical slice
-- 0006: Pitchbook vertical slice
-- 0007: maintenance / concurrency / Masters / Phase 1 qualification
-- 0008: File Search thin slice + 自由質問
-- 0009: 15-minute sync + six formats + EML
-- 0010: four presets + production qualification
+- 0004: scaffold + setup engine + local foundation
+- 0005: Meeting feature implementation
+- 0006: Pitchbook feature implementation
+- 0007: Masters / audit / concurrency + Phase 1 code-complete
+- 0008: File Search client / sync engine / 自由質問 implementation with mocks
+- 0009: six formats / EML / four presets + feature freeze
+- 0010: final DEV live qualification + observed-defect remediation + production readiness
 
 詳細は`planning/apps-script-implementation-plan.md`を参照する。
+
+## Validation timing
+
+開発中は原則としてlocal / static / mock / contract validationだけを行う。Apps Script deployment、Shared Drive live write、Gemini live indexing/query、trigger live validation等はfeature-complete後のWork 0010へ集約する。
+
+公式仕様・mock・contract testだけでは解消できず、実装継続を妨げるBLOCKERがある場合だけ最小限のlive probeを前倒しできる。
 
 ## Operating documents
 
