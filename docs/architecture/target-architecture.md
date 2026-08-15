@@ -2,29 +2,21 @@
 
 ## Status
 
-本書は2026-08-15時点で採用している全体アーキテクチャを示す。
+本書は現在採用しているend-to-end architectureと責任境界を示す。
 
-2026-08-14以前の旧計画は現行方針として扱わない。蓄積・修正基盤はGoogle Workspace中心のシンプルな構成を維持し、その上にGemini API / File Searchを検索・要約レイヤーとして追加する。
-
-詳細契約:
-
-- Product / UX: `docs/product/vision.md`
-- Planning / delivery: `docs/planning/mvp-and-roadmap.md`
-- Runtime / operations: `docs/operations/runtime-policy.md`
-- Gemini retrieval: `docs/ai/gemini-file-search.md`
-- Security: `docs/governance/security.md`
+Google Workspace中心のauthoritative layerを維持し、その上にGemini File Searchをderived retrieval layerとして追加する。ImplementationはApps Script-firstで進める。
 
 ## Architecture overview
 
 ```text
-Multiple authorized users
+Authorized users
   A / B / C ...
         |
-        | same shared URL
+        | shared Web App URL
         v
 Apps Script HTML Service Web App
-  ├─ Meeting: New / Past Records
-  ├─ Pitchbook: New / Past Files
+  ├─ Meeting: New / Past
+  ├─ Pitchbook: New / Past
   ├─ Knowledge Search
   │    └─ 自由質問 / 要約 / 時系列 / 比較 / 面談準備
   └─ Master Management
@@ -32,54 +24,41 @@ Apps Script HTML Service Web App
             v
 Google Apps Script
   ├─ browser state / validation
-  ├─ Meeting Docs generation / update
+  ├─ Docs generation / update
   ├─ source upload / rename / numbering
   ├─ master / index maintenance
-  ├─ concurrency control
-  ├─ audit events
+  ├─ concurrency / retry
+  ├─ audit event write
   └─ Gemini File Search sync / query
             |
-      +-----+----------------------------------+
-      |                                        |
-      v                                        v
-Google Sheets                            Google Shared Drive
-  ├─ GP_Master                             ├─ Meeting Records
-  ├─ Option_Master                         └─ Pitchbooks
-  ├─ Meeting_Index                              |
-  ├─ Pitchbook_Index                            | derived AI index
-  └─ Settings                                   v
-                                          Gemini File Search Store
-                                          ├─ Documents / Chunks
-                                          ├─ managed Embeddings
-                                          └─ Custom Metadata
+      +-----+-----------------------------------+
+      |                                         |
+      v                                         v
+Backend Spreadsheet                       Google Shared Drive
+  ├─ GP_Master                              ├─ Meeting Records
+  ├─ Option_Master                          └─ Pitchbooks
+  ├─ Meeting_Index                               |
+  ├─ Pitchbook_Index                             v
+  └─ Settings                              Gemini File Search
                                                    |
                                                    v
-                                          configured Gemini Flash
+                                           Gemini Flash
                                                    |
                                                    v
-                                        grounded output + citations
+                                      grounded output + citations
 
-Separate admin-only Audit Spreadsheet
+Restricted admin-only Audit Spreadsheet
 ```
 
 ## Responsibility boundaries
 
-### Apps Script HTML Service Web App
+### Apps Script Web App
 
-通常利用者が操作する共通UI。利用者ごとにWeb AppやSpreadsheetをコピーしない。
+Normal-user UI only. Users do not directly edit backend / Audit Spreadsheet / File Search.
 
-主要画面:
+### Shared Drive
 
-1. `面談記録` — 新規登録 / 過去記録
-2. `Pitchbook` — 新規登録 / 過去資料
-3. `ナレッジ検索`
-4. `マスター管理`
-
-通常利用者にはbackend Spreadsheet、Audit Spreadsheet、File Search Storeを直接操作させない。
-
-### Google Shared Drive
-
-実データの正本を保管する。
+Authoritative source:
 
 ```text
 Private Assets Knowledge
@@ -87,15 +66,15 @@ Private Assets Knowledge
 └─ Pitchbooks
 ```
 
-年、GP、Asset Class等のサブフォルダを作らずフラットに蓄積する。
+Keep folders flat.
 
-- Meeting: Google Docsが本文の正本。
-- Pitchbook / source materials: Shared Drive上の原ファイルが正本。
-- Gemini File Searchは派生インデックスであり正本ではない。
+- Meeting: Google Docs is authoritative body record.
+- Pitchbook/source: original Shared Drive file is authoritative.
+- File Search is never authoritative.
 
 ### Backend Spreadsheet
 
-1つのSpreadsheetを小さなdatabase / indexとして使用する。
+Exactly five baseline sheets:
 
 1. `GP_Master`
 2. `Option_Master`
@@ -103,31 +82,41 @@ Private Assets Knowledge
 4. `Pitchbook_Index`
 5. `Settings`
 
-行番号や表示順を永続識別子として使用しない。
+Use stable IDs, never row number or sort order, as durable identity.
 
 ### Audit Spreadsheet
 
-既存5-sheet backendとは分離した管理者専用Spreadsheetへ監査ログを保存する。5年間保持し、通常利用者には閲覧させない。
+Separate Spreadsheet under a Restricted admin-only control folder.
 
-## Shared registration context
+- normal users do not receive direct access
+- initial Web App has no Audit Viewer
+- Drive permissions, not custom password, form the direct access boundary
+- retention: 5 years
 
-MeetingとPitchbook登録で以下を利用者ブラウザ内の共通状態として扱う。
+## Apps Script-first setup
 
-- 日付
-- GP
-- Asset Class
-- Equity / Debt
+Idempotent setup entry points:
 
-一方の画面で変更した値はもう一方へ反映する。
+```text
+setupKnowledgePlatform()
+validateInstallation()
+getInstallationStatus()
+```
 
-- サイドバー画面切替では消さない。
-- 登録成功後も共通4項目は保持する。
-- 登録成功時はページ固有入力だけをクリアする。
-- 面談時間はMeeting固有項目とする。
-- テキスト・選択値の下書きは同一ブラウザで24時間保持する。
-- 再読込 / タブ終了後の選択ファイル本体は復元しない。
+Setup creates / reuses / migrates:
 
-## Meeting records
+- knowledge folders
+- backend / audit Spreadsheets
+- five backend sheets
+- schema / Settings
+- Master seeds
+- required triggers
+
+Stored resource IDs are preferred. Duplicate exact-name candidates cause explicit failure instead of silent selection.
+
+DEV and PROD use separate Apps Script projects and resource sets.
+
+## Meeting contract
 
 Required:
 
@@ -142,113 +131,76 @@ Optional:
 - Equity / Debt
 - Counterparty
 - Internal Participants
-- Meeting Notes
+- Notes
 
-面談内容は自由記載とする。長文入力欄は縦スクロール、文字折り返し、改行保持を行う。
-
-Apps Scriptが軽量なGoogle Docsを生成し、入力済み項目だけを`項目: 値`形式でコンパクトにミラーする。本文はDocsだけを正本とする。
-
-固定Meeting ID:
+Fixed Meeting ID example:
 
 ```text
 MTG-000123
 ```
 
-基本命名:
+Filename:
 
 ```text
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX
 ```
 
-- Timeはファイル名に含めない。
-- Equity / Debt未選択時はその要素を省略する。
-- Metadata変更後もMeeting IDは維持する。
+Time is excluded. Optional Equity/Debt segment is omitted when absent.
 
-## Pitchbooks / source materials
+Meeting body is stored only in the Google Doc, not duplicated in `Meeting_Index`.
 
-Registration:
+## Pitchbook / source contract
 
-- drag & drop / file picker
-- multiple files
-- file, Date, GP, Asset Class required
-- Equity / Debt optional
-- 1ファイル100MBまで
-- 1回最大10ファイル
-- 1回合計500MBまで
+Required: file, Date, GP, Asset Class.
+Optional: Equity / Debt.
 
-基本命名:
+Filename:
 
 ```text
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext
 ```
 
-Equity / Debt未選択時:
+Rules:
+
+- sequence starts at `01`
+- later additions use destination-context existing max + 1
+- old gaps are never closed
+- Document ID / Drive File ID remain stable through metadata edits
+- problematic filename punctuation is normalized
+
+Initial upload limits:
 
 ```text
-YYYY-MM-DD_GP_AssetClass_Sequence.ext
+25MB / file
+10 files / selection
+100MB total / selection
 ```
 
-- 1件目から`01`等の連番を付ける。
-- 後日追加は同一コンテキストの既存最大番号の次を使う。
-- Metadata変更で別コンテキストへ移動した場合は移動先最大番号の次を使う。
-- 旧コンテキストの欠番は詰め直さない。
-- `/`、`&`等は保存名生成時に除去 / 正規化する。
-- 元拡張子を維持する。
+If 25MB proves impractical in Apps Script, lower the limit before adding upload architecture. 100MB/file transport / Cloud fallback is not initial scope.
 
-Initial AI-searchable source extensions:
+## Shared browser state / drafts
 
-```text
-.pdf
-.pptx
-.xlsx
-.docx
-.txt
-.eml
-```
+Meeting and Pitchbook share:
 
-`.eml`はShared Driveへ原本保存し、File SearchにはSubject / From / To / Cc / Date / Body等を抽出したUTF-8テキストをindexする。内包添付は自動indexせず、必要な添付は別資料として登録する。`.msg`は初期対応外とする。
-
-## Past records and corrections
-
-Meeting / Pitchbookとも過去記録を検索・編集できる。
-
-Optional filters:
-
-- Date From / To
+- Date
 - GP
 - Asset Class
 - Equity / Debt
-- Status
 
-検索用プルダウンは`未選択`を初期値とし、`未選択`はfilterを適用しないUI状態とする。Masterやsource Metadataへ保存しない。
+Registration success keeps shared values and clears page-specific fields only.
 
-### Meeting update
-
-- same Meeting ID
-- same Google Doc
-- Metadata / Docs body / Index / relevant filenameを同期更新
-- Version / Updated Atでstale saveを拒否
-
-### Pitchbook update
-
-- same Document ID
-- same Drive File ID
-- Metadata / Index / relevant filenameを同期更新
-- 別命名コンテキストへ変更する場合は移動先の次連番を採番
-
-通常利用者向け物理削除は行わず、Active / Inactive / Reactivateを使用する。
+Text / selection drafts persist for 24h in the same browser. File handles need not survive reload / tab close.
 
 ## Masters
 
 ### GP Master
 
 - immutable GP ID
-- mutable GP Name
+- mutable GP name
 - Active / Inactive
-- GP表示は常にアルファベット順
-- manual Sort Orderなし
-- Meeting / Pitchbook画面から未登録GPをquick-add可能
-- 前後空白 / case-insensitive exact duplicate check
+- alphabetical display
+- no manual Sort Order
+- quick-add from Meeting/Pitchbook with normalized duplicate check
 
 ### Option Master
 
@@ -258,48 +210,37 @@ Types:
 - `ASSET_CLASS`
 - `CAPITAL_TYPE`
 
-Option fields include immutable Option ID, Name, Sort Order, Active / Inactive.
+Fields include immutable Option ID, display name, Sort Order, Active / Inactive.
 
-Asset Class initial values:
+Initial Asset Classes:
 
-1. PE
-2. VC
-3. Infrastructure
-4. Real Estate
-5. PD
-6. その他
+```text
+PE / VC / Infrastructure / Real Estate / PD / その他
+```
 
-Equity / Debt initial values:
+Initial Capital Types:
 
-1. Equity
-2. Debt
+```text
+Equity / Debt
+```
 
-Meeting location initial candidates:
-
-- 当社オフィス
-- 先方オフィス
-- セミナー / カンファレンス
-- オンライン
-- 会食
-- その他
-
-全利用者がMasterの追加、名称変更、並び替え、無効化、再有効化を実行できる。名称変更 / 無効化には確認を入れ、監査ログへ記録する。通常操作で物理削除しない。
+All users may add / rename / reorder / deactivate / reactivate allowed Masters. Rename / deactivate require confirmation + audit event.
 
 ## Backend data contracts
 
-### `GP_Master`
+### GP_Master
 
 ```text
 GP_ID, GP_Name, Status, Created_At, Updated_At, Created_By, Updated_By
 ```
 
-### `Option_Master`
+### Option_Master
 
 ```text
 Option_ID, Type, Name, Sort_Order, Status, Created_At, Updated_At, Created_By, Updated_By
 ```
 
-### `Meeting_Index`
+### Meeting_Index
 
 ```text
 Meeting_ID, Date, Time, Location_ID, GP_ID, Asset_Class_ID, Capital_Type_ID,
@@ -308,7 +249,7 @@ Status, Version, Created_At, Updated_At, Created_By, Updated_By,
 AI_Document_Name, AI_Index_Status, AI_Indexed_At, AI_Content_Hash, AI_Last_Error
 ```
 
-### `Pitchbook_Index`
+### Pitchbook_Index
 
 ```text
 Document_ID, Batch_ID, Date, GP_ID, Asset_Class_ID, Capital_Type_ID, Sequence_No,
@@ -317,61 +258,66 @@ Created_At, Updated_At, Created_By, Updated_By,
 AI_Document_Name, AI_Index_Status, AI_Indexed_At, AI_Content_Hash, AI_Last_Error
 ```
 
-### `Settings`
+### Settings
 
 ```text
 Key, Value, Description, Updated_At
 ```
 
-Settings contains system references / counters / schema / admin / audit / Gemini configuration. Credentials are not stored in user-facing Sheets.
+`Created_By / Updated_By` use best-effort Actor representation: email → temporary user key → `UNIDENTIFIED`. Persistent personal identity is not required.
 
-AI index states:
+## Past records / logical deletion
 
-```text
-NotIndexed
-Pending
-Indexed
-Failed
-```
+Optional filters:
 
-## Multi-user concurrency
+- Date From / To
+- GP
+- Asset Class
+- Equity / Debt
+- Status
 
-1つのWeb Appを複数人で同時利用する。
+`未選択` means no filter and is never persisted.
 
-LockServiceは以下の短い共有書込み区間だけに使用する。
+Meeting edits keep same Meeting ID + Doc. Pitchbook edits keep same Document ID + Drive File ID.
 
-- master writes
-- Meeting / Document / Batch ID issuance
-- Pitchbook sequence allocation
-- consistency-sensitive Index writes
+Normal users use Active / Inactive / Reactivate rather than physical delete.
 
-ファイルアップロード、Docs生成、Gemini indexing全体を長時間ロックしない。
+## Concurrency / retry
 
-同一Meetingの同時編集はVersion / Updated Atによるoptimistic lockingで古い保存を拒否する。
+- LockService only around short consistency-critical writes.
+- Same-Meeting edits use Version/Updated At optimistic locking.
+- batch Pitchbook processing is file-granular.
+- failed-file retry reuses same Batch ID / Document ID / reserved sequence.
+- retry checks existing Drive / Index state to prevent duplicates.
 
-## Partial failure and retry
+## Web App access / Actor model
 
-Pitchbook / source-material batchはファイル単位で処理する。
+Initial common access boundary:
 
-- success filesは維持する。
-- failed filesだけ再試行する。
-- same Batch ID / Document ID / reserved sequenceを使う。
-- retry前にDrive / Indexの既存状態を確認する。
-- duplicate Drive file / duplicate Index rowを作らない。
-- sequence gapsを詰め直さない。
+- authorized Web App users can access all Active source records
+- no per-user / per-file retrieval ACL initially
+- internet-public access is not assumed
 
-## Gemini File Search retrieval layer
+Initial execution preference: run as organization-controlled deployer to centralize backend permissions.
 
-### File Search Store
+Audit Actor:
 
-初期は`Private Assets Knowledge`に相当する1 Storeだけを使用する。
+1. email if safely available
+2. else `TEMP_USER:<key>` if available
+3. else `UNIDENTIFIED`
 
-- GP / year / Asset ClassごとにStoreを分けない。
-- exact filteringはCustom Metadataを使う。
-- File Searchにchunking / Embedding / vector storage / semantic retrievalを任せる。
-- 独自Vector DB / embedding pipeline / tag taxonomy / Knowledge Graphを初期実装に含めない。
+Missing persistent identity does not block operation or release.
 
-Initial File Search Metadata:
+## Gemini File Search layer
+
+- one Store initially
+- exact filtering via Custom Metadata
+- semantic retrieval via File Search managed embeddings
+- no custom Vector DB / embedding pipeline / tag taxonomy / Knowledge Graph initially
+- only Active records retrievable
+- AI indexing is derived and independently retryable
+
+Initial metadata:
 
 ```text
 source_type
@@ -387,24 +333,16 @@ drive_url
 saved_filename
 ```
 
-任意項目が未選択なら該当Metadataを省略する。
+AI states:
 
-### AI access boundary
+```text
+NotIndexed
+Pending
+Indexed
+Failed
+```
 
-Web App利用権限を初期AI検索の共通アクセス境界とする。
-
-- Web App利用者は全員Knowledge Searchを利用できる。
-- 全利用者が全Active indexed sourceを検索可能。
-- 利用者別 / GP別 / source別retrieval ACLは初期版に含めない。
-- Audit閲覧は別権限で管理者だけに限定する。
-
-### AI model
-
-初期は設定されたGemini Flash 1モデルだけを使用する。利用者向けモデル選択 / Deep modeは設けない。具体的model IDは`Settings`の`AI_DEFAULT_MODEL`で管理する。
-
-### AI synchronization
-
-正本登録 / 更新を先に完了し、AI indexingを非同期の派生処理として扱う。
+## AI synchronization
 
 ```text
 Authoritative save
@@ -419,23 +357,30 @@ AI_Index_Status = Pending
       └--> Failed -> retry when retryable
 ```
 
-- 15分おきのtime-driven workerを使用する。
-- retryはstable source ID / File Search Document referenceを使いidempotentにする。
-- unsupported / permanent failureを無限retryしない。
-- 100MB File Search uploadはresumable / chunked transportを使用する。
-- Apps Scriptで100MB経路が安定しない場合はAI-index transportだけを組織承認済みGoogle Cloud runtimeへ切り出せる。Web App / Shared Drive / Index contractsは維持する。
-- Inactive化は対応File Search Documentを削除する。
-- Reactivate時は現在の正本をre-indexする。
+- stable source IDs / AI Document references make retry idempotent
+- permanent failures are not retried forever
+- Inactive removes AI Document
+- Reactivate re-indexes current authoritative source
+- AI failure never rolls back authoritative save
+
+## Initial AI source formats
+
+```text
+.pdf
+.pptx
+.xlsx
+.docx
+.txt
+.eml
+```
+
+EML original remains in Drive; normalized Subject / From / To / Cc / Date / Body is indexed. Embedded attachments are not auto-indexed. `.msg` is out of scope initially.
 
 ## Knowledge Search target UX
-
-採用済みTarget UX:
 
 ```text
 自由質問 | 要約 | 時系列 | 比較 | 面談準備
 ```
-
-`自由質問`をdefault modeとする。
 
 Shared filters:
 
@@ -443,82 +388,22 @@ Shared filters:
 - GP
 - Asset Class
 - Equity / Debt
-- Source Type: Meeting / Pitchbook
+- Source Type
 
-5モードは同じretrieval layerを共有する。
+All modes share the same Store / metadata / semantic retrieval / configured Flash / citation path. Presets change prompt/output template only.
 
-```text
-Mode + question / additional instruction
-        |
-        +--> Metadata Filters
-        |
-        v
-Gemini File Search semantic retrieval
-        |
-        v
-Relevant chunks
-        |
-        v
-Configured Gemini Flash
-        |
-        v
-Mode-specific prompt / output template
-        |
-        v
-Grounded output + citations + Drive links
-```
-
-Mode contracts:
-
-- `自由質問`: 任意質問へ根拠付きで回答。
-- `要約`: 選択範囲をテーマ横断で統合要約。
-- `時系列`: 発言 / 見方 / 更新を時系列で整理し変化と継続を示す。
-- `比較`: GP / source / period / strategy等を共通軸で比較。
-- `面談準備`: 最近の情報、変化、未解決論点、再確認事項、次回質問候補をBrief化。
-
-preset modeでは同じ入力領域を任意の`追加指示`として使用できる。
-
-すべてのモードでCitationとDrive linkを表示し、根拠不足時は不足を明示する。
-
-実装は`自由質問`を先行して共通retrieval layerを安定化し、その後4 presetを同じ画面へ追加してよい。5モード構成自体は採用済みであり未決定ではない。
-
-## Audit
-
-監査ログは5年間保持し、管理者だけが閲覧できる。
-
-対象:
-
-- Meeting registration / update / deactivate / reactivate
-- Pitchbook registration / retry / metadata update / deactivate / reactivate / failure
-- Master add / rename / reorder / deactivate / reactivate
-- AI index / re-index / delete / retry / failure
-- Knowledge Search across all five modes
-
-AI query audit includes at least:
-
-- user
-- timestamp
-- search mode
-- question / additional instruction
-- filters
-- configured Flash model ID
-- Success / Failure
-- cited source IDs
-
-Gemini回答全文、retrieved chunk全文、Embedding、原資料本文は監査ログへ複製しない。
-
-## Production identity and credentials
-
-- 本番では登録・変更・AI検索を行った実利用者を識別できることを必須とする。
-- 組織管理下のデプロイ主体としてbackend権限を集約する方式を第一選択とする。
-- 利用者識別が安定しない場合はaccess-user execution等の組織承認済み代替方式へ切り替える。
-- 個人所有のdeployment / credentialへ恒久依存しない。
-- Gemini API credentialをGitHub、client HTML、user-facing Sheets、source documentsへ保存しない。
+Every output must surface citations / Drive links and explicitly indicate insufficient evidence when appropriate.
 
 ## Implementation boundary
 
-現在はplanning phaseでありruntime実装・deployment・production operationは未開始。
+Development follows:
 
-確定済み設計と実装時検証を混同しない。会社環境やAPI挙動の検証が必要でも、そのことだけを理由に採用済み仕様を「未決定」と扱わない。
+- 0004 scaffold + setup
+- 0005 Meeting
+- 0006 Pitchbook
+- 0007 maintenance / Masters / Phase 1 qualification
+- 0008 File Search thin slice + 自由質問
+- 0009 sync + six formats + EML
+- 0010 four presets + production qualification
 
-実装時のgenuine remaining choicesとvalidation gatesは`docs/planning/mvp-and-roadmap.md`を参照する。
+Detailed execution source: `docs/planning/apps-script-implementation-plan.md`.
