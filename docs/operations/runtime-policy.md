@@ -22,7 +22,7 @@
 - 上限超過はアップロード開始前に画面側で通知し、Apps Script / サーバー側でも同じ条件を検証する。
 - 大容量ファイルを1つの巨大なApps Scriptリクエストへ載せることを前提にせず、100MBまで安定して扱える転送方式を実装時に選択する。
 
-初期のAI検索対象ファイル形式は以下とする。
+初期のAI検索対象ファイル形式:
 
 ```text
 .pdf
@@ -84,6 +84,19 @@
 - GP別、ファイル別、利用者別のAI検索ACLは初期実装に含めない。
 - 監査ログの閲覧権限はこれとは別で、管理者だけに限定する。
 
+## Knowledge Search modes
+
+採用済みTarget UX:
+
+```text
+自由質問 | 要約 | 時系列 | 比較 | 面談準備
+```
+
+- `自由質問`をdefault modeとする。
+- 5モードは同じFile Search Store、Metadata Filter、semantic retrieval、Gemini Flash、Citation / Drive link処理を共有する。
+- preset modeでは質問欄を任意の`追加指示`として利用できる。
+- 5モード構成自体は採用済みであり、実装段階化を理由に未決定扱いしない。
+
 ## AI synchronization
 
 - 正本の登録・更新を先に完了し、AI index同期は非同期の派生処理として扱う。
@@ -125,9 +138,9 @@
 - Pitchbookの登録、再試行、メタデータ変更、無効化、再有効化、失敗
 - GP / Option Masterの追加、名称変更、並び替え、無効化、再有効化
 - AI indexのindex / re-index / delete / retry / failure
-- AI Knowledge Search query
+- Knowledge Searchの全5モード実行
 
-通常操作の基本ログ項目は以下とする。
+通常操作の基本ログ項目:
 
 - Event timestamp
 - User identity
@@ -142,7 +155,8 @@
 
 AI queryでは追加で少なくとも以下を記録する。
 
-- Question text
+- Search mode
+- Question / additional instruction text
 - Date From / To
 - GP filter
 - Asset Class filter
@@ -151,8 +165,10 @@ AI queryでは追加で少なくとも以下を記録する。
 - Configured Flash model ID
 - Cited source IDs when available
 
-Gemini回答全文、retrieved chunk全文、Embedding、面談本文全文やPitchbookファイル内容は監査ログへ複製しない。監査に必要な質問・メタデータだけを記録し、原資料内容の不要な複製を避ける。
+Gemini回答全文、retrieved chunk全文、Embedding、面談本文全文やPitchbookファイル内容は監査ログへ複製しない。監査に必要な質問 / 追加指示・Metadataだけを記録し、原資料内容の不要な複製を避ける。
 
 ## Operational principle
 
 利用者の通常操作は簡単に保ちつつ、失敗時にデータを失わないこと、同じデータを二重登録しないこと、誰が何を変更・検索したか追跡できることを優先する。高度なワークフロー、細かなアクセス制御、複数AIモデル等は、実運用で必要性が確認されるまで追加しない。
+
+確定済み仕様と実装時検証を混同しない。実機確認が必要という理由だけで、採用済み仕様を未決定として扱わない。
