@@ -1,67 +1,80 @@
 # Documentation
 
-本ディレクトリはKnowledge Sharing Platformsの現行方針を記録します。
+本ディレクトリはKnowledge Sharing Platformsの現行方針を記録する。
 
-2026-08-14に旧計画を破棄し、Google Workspace中心のシンプルな蓄積基盤から再設計しました。2026-08-15にはGemini API / File Searchによる検索・要約レイヤーと、Knowledge Searchの5モードTarget UXを採用しました。同日、ChatGPT主導・Codex残作業方式と、Apps Scriptのidempotent初期化関数を中心とする実装アプローチを採用しました。
-
-旧アーキテクチャや旧MVPを前提に今後の設計・実装を進めないでください。また、会社環境やAPI挙動の実機確認が未実施であることと、プロダクト仕様が未決定であることを混同しないでください。
+2026-08-14に旧計画を破棄し、Google Workspace中心のシンプルな蓄積基盤から再設計した。2026-08-15にGemini File Search / 5モードKnowledge Search / Apps Script-first実装方針を採用し、2026-08-16にupload上限とaudit / actor運用をさらに単純化した。
 
 ## Current sources of truth
 
-- `product/vision.md`: 現在のプロダクト目的、利用者体験、採用済みTarget UX
-- `architecture/target-architecture.md`: 現在採用している全体アーキテクチャと責任境界
-- `planning/mvp-and-roadmap.md`: 採用済み設計、実装順序、実機検証事項、本当に未決定の実装選択肢
-- `planning/apps-script-implementation-plan.md`: Apps Script-first setup、ChatGPT / Codex責任分担、Work sequence、acceptance、validation、manual boundary
-- `operations/runtime-policy.md`: 下書き、upload、部分失敗retry、実行主体、Master権限、15分AI同期、監査ログ等の確定運用ルール
-- `ai/gemini-file-search.md`: File Search Store、Embedding、Metadata Filter、5モードKnowledge Search、Citation、AI同期、対応形式等のAI retrieval正本
-- `governance/security.md`: 情報管理、共通AIアクセス境界、credential、監査、AI release blocker
-- `decisions/decision-log.md`: 現在も有効な主要判断を統合したDecision Log
-- `decisions/gemini-file-search-retrieval.md`: Gemini File Search採用とKnowledge Search UIに関する詳細Decision
-- `decisions/apps-script-first-implementation.md`: ChatGPT主導、Codex residual、Apps Script-first runtime / setup、manual boundaryの確定判断
-- `decisions/pitchbook-upload-limits.md`: Pitchbook / source uploadの現行上限。25MB/file、10 files、100MB total。旧100MB/file・500MB/batchを上書きする。
+- `product/vision.md`: product purpose / UX
+- `architecture/target-architecture.md`: architecture boundaries
+- `planning/mvp-and-roadmap.md`: accepted phases / validation / genuine remaining choices
+- `planning/apps-script-implementation-plan.md`: setup / Work sequence / acceptance / ChatGPT-Codex routing
+- `operations/runtime-policy.md`: runtime / upload / retry / audit / actor / sync
+- `ai/gemini-file-search.md`: File Search / metadata / five modes / citations / AI index
+- `governance/security.md`: information handling / credentials / common access boundary / restricted audit
+- `decisions/decision-log.md`: consolidated durable decisions
+- `decisions/gemini-file-search-retrieval.md`: Gemini retrieval decision
+- `decisions/apps-script-first-implementation.md`: Apps Script-first delivery decision
+- `decisions/pitchbook-upload-limits.md`: 25MB/file, 10 files, 100MB total
+- `decisions/audit-access-and-user-attribution.md`: best-effort Actor / separate Restricted Audit Spreadsheet
 
 ## Authority / conflict handling
 
-同じ論点が複数文書に現れる場合は、以下のルールで読む。
+1. latest explicit user decision
+2. closest domain-specific source
+3. current planning / architecture documents
+4. historical wording
 
-1. ユーザーの最新の明示的な決定を最優先する。
-2. domain-specificな正本を優先する。
-   - Runtime / audit / permissions: `operations/runtime-policy.md`
-   - Gemini retrieval / Knowledge Search: `ai/gemini-file-search.md`
-   - Security: `governance/security.md`
-   - Implementation execution / setup: `planning/apps-script-implementation-plan.md`
-   - Upload limits: `decisions/pitchbook-upload-limits.md`
-3. `architecture/target-architecture.md`は全体の責任境界、`product/vision.md`はUX / product intentを示す。
-4. `planning/mvp-and-roadmap.md`は、確定済み設計そのものではなく、実装順序・検証事項・残る実装選択肢を明確に区別して管理する。
-5. Historical wordingが現行のdomain-specific正本と矛盾する場合、現行正本を優先し、矛盾する古い記述は修正する。
+Current domain authority:
 
-## Accepted high-level baseline
+- implementation / setup: `planning/apps-script-implementation-plan.md`
+- runtime / audit / actor: `operations/runtime-policy.md`
+- retrieval: `ai/gemini-file-search.md`
+- security: `governance/security.md`
+- upload limits: `decisions/pitchbook-upload-limits.md`
+- actor / audit access: `decisions/audit-access-and-user-attribution.md`
 
-- 1つの組織管理下Apps Script HTML Service Web Appを複数人で利用
-- Shared Driveを正本、Google Sheetsを小さなbackend DB / Indexとして利用
-- Meeting / Pitchbookの登録・過去検索・編集・無効化・再有効化
-- GP Master / Option Master
-- 24時間browser draft retention
-- Pitchbook / source upload: 25MB/file、10 files/selection、100MB total
-- 全利用者がMaster変更可能
-- 5年監査ログ、管理者のみ閲覧
-- Gemini File Searchを1 Storeの派生semantic retrieval indexとして使用
-- Web App利用者全員が全Active indexed sourceをAI検索可能
-- Gemini Flash 1モデル、利用者向けmodel selectorなし
-- 15分おきAI sync
-- AI queryも監査対象
-- Initial AI-searchable formats: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`
-- Knowledge Search Target UX: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`
-- Runtime / normal setupはApps Script-firstとし、Node.js / clasp / external serverをproduction prerequisiteにしない
-- `setupKnowledgePlatform()`をidempotentな作成・migration・repair経路として使用
-- DEV / PRODは別Apps Script projectと別resource setを使用
-- ChatGPTが全体とGitHubを所有し、Codexはimplementation / local / runtime residualへ限定
+Older wording that still states `100MB/file`, `500MB/batch`, mandatory persistent user identity, or mandatory Web App Audit Viewer is superseded and must not be restored.
+
+## Current implementation baseline
+
+- one organization-controlled Apps Script HTML Service Web App
+- Shared Drive authoritative source
+- 5-sheet backend
+- separate Restricted admin-only Audit Spreadsheet
+- Meeting / Pitchbook register + past records + edit + deactivate/reactivate
+- GP / Option Masters
+- 24h browser drafts
+- upload: 25MB/file, 10 files, 100MB total
+- best-effort Actor: email → temporary user key → `UNIDENTIFIED`
+- persistent actual-user identity is not a release requirement
+- Web App internal Audit Viewer is not required initially
+- Gemini File Search: one derived Store
+- common Active-source access for authorized Web App users
+- one Gemini Flash model
+- 15-minute AI sync
+- `.pdf / .pptx / .xlsx / .docx / .txt / .eml`
+- Knowledge Search: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`
+- ChatGPT owns design/GitHub/review/completion; Codex handles residual implementation/runtime work
+
+## Implementation Works
+
+- 0004: scaffold + idempotent setup
+- 0005: Meeting vertical slice
+- 0006: Pitchbook vertical slice
+- 0007: maintenance / concurrency / Masters / Phase 1 qualification
+- 0008: File Search thin slice + 自由質問
+- 0009: 15-minute sync + six formats + EML
+- 0010: four presets + production qualification
+
+詳細は`planning/apps-script-implementation-plan.md`を参照する。
 
 ## Operating documents
 
-- `repository-initialization.md`: Repository初期化・再プロファイルガイド
-- `handoff-template.md`: 構造化handoff template
-- `handoffs/`: 個別作業のhandoff
-- `core-rules-changelog.md`: Core Repository Rulesの変更履歴
+- `repository-initialization.md`
+- `handoff-template.md`
+- `handoffs/`
+- `core-rules-changelog.md`
 
-Operating documentsはproject product specificationではない。汎用template / procedureの文言を、現行プロダクト仕様より優先しない。
+Operating documents are not product specifications and do not override current domain-specific sources.
