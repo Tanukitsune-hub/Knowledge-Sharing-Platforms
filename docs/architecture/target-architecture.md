@@ -46,7 +46,7 @@ Google Sheets                        Google Shared Drive
                                       └─ Custom Metadata
                                                |
                                                v
-                                           Gemini API
+                                      configured Gemini Flash
                                                |
                                                v
                                     grounded answer + citations
@@ -246,17 +246,43 @@ GP / Asset Class / 年等でStoreを分割しない。Exact filterはCustom Meta
 
 容量やretrieval latencyに実測上の問題が出た場合のみStore分割を検討する。
 
+## AI retrieval access
+
+Web App利用者を共通のAI検索アクセス境界とする。
+
+- Web Appを利用できる全利用者がKnowledge Searchを利用可能。
+- 全利用者がFile Search Store内のすべてのActive Meeting / Pitchbook / source materialを検索可能。
+- 初期版では利用者別、GP別、ファイル別のretrieval ACLを持たない。
+- 監査ログ閲覧は別権限とし、管理者だけに限定する。
+
 ## Source synchronization
 
 ### Meeting
 
 Google Docs本文をApps Scriptで読み取り、検索用の軽量テキストDocumentとしてFile Searchへ同期する。
 
-### Pitchbook
+### Pitchbook / source materials
 
-File Search対応形式は原ファイルを同期する。100MBまでの大容量ファイルはresumable uploadを使う。
+初期AI検索対象形式:
 
-AI同期は正本登録と分離する。AI indexingの失敗を理由に正本登録をロールバックしない。
+```text
+.pdf
+.pptx
+.xlsx
+.docx
+.txt
+.eml
+```
+
+PDF / PowerPoint / Excel / Word / TXTは対応する原資料をindexする。
+
+Outlook保存メールは`.eml`のみ初期対応し、Shared Driveへ原本を残した上で、Subject / From / To / Cc / Date / Body等を抽出したUTF-8テキスト表現をFile Searchへindexする。`.eml`内の添付ファイルは自動indexせず、必要な添付は別資料として登録する。`.msg`は初期対応外。
+
+100MBまでの大容量ファイルはresumable uploadを使う。
+
+AI同期は正本登録と分離する。登録・更新時はAI状態を`Pending`とし、正本登録をGemini処理完了まで待たせない。
+
+Apps Scriptのtime-driven sync workerを15分おきに実行し、Pendingおよび再試行可能なFailedを処理する。AI indexingの失敗を理由に正本登録をロールバックしない。
 
 ## File Search metadata
 
@@ -295,6 +321,8 @@ saved_filename
 
 `未選択`は「この条件で絞り込まない」というUI状態であり、MasterやFile Search Metadataへ保存しない。
 
+初期版ではモデル選択やDeep modeを提供しない。
+
 ## Query flow
 
 ```text
@@ -308,7 +336,7 @@ File Search semantic retrieval
 relevant chunks
    |
    v
-Gemini synthesis
+configured Gemini Flash
    |
    v
 answer + citations + Drive links
@@ -348,7 +376,7 @@ Indexed
 Failed
 ```
 
-新規・更新時はPendingからindexし、失敗時はFailedとして再試行可能にする。
+新規・更新時はPendingとして15分sync workerでindexし、失敗時はFailedとして再試行可能にする。
 
 Inactive化時はFile Search Documentを削除し、再有効化時は再indexする。
 
@@ -359,26 +387,45 @@ Inactive化時はFile Search Documentを削除し、再有効化時は再index�
 ```text
 GEMINI_FILE_SEARCH_STORE_NAME
 AI_DEFAULT_MODEL
-AI_DEEP_MODEL
 AI_SYNC_ENABLED
-AI_EMBEDDING_MODEL
+AI_SYNC_INTERVAL_MINUTES
 ```
 
-モデル名をビジネスロジックへ固定しない。
+初期設定は15分同期、Gemini Flash単一モデルとする。モデル名をビジネスロジックへ固定しない。
 
 APIキー等のcredentialはGitHub、ユーザー向けSheet、原資料へ保存しない。
+
+## AI query audit
+
+Knowledge Searchは既存の5年監査ログ対象とする。
+
+AI queryでは少なくとも以下を記録する。
+
+- User identity
+- timestamp
+- question text
+- Date From / To
+- GP / Asset Class / Equity-Debt / Source Type filters
+- configured Flash model ID
+- Success / Failure
+- cited source IDs
+
+Gemini回答全文、retrieved chunk全文、Embedding、原資料本文は監査ログへ複製しない。監査ログの閲覧は管理者だけに限定する。
 
 ## Initial AI feature scope
 
 初期リリース:
 
 1. File Search同期
-2. ナレッジ検索画面
-3. 自由質問
-4. Metadata filter
-5. grounded answer
-6. citations
-7. Drive原資料を開く
+2. 15分sync worker
+3. ナレッジ検索画面
+4. 自由質問
+5. Metadata filter
+6. Gemini Flashによるgrounded answer
+7. citations
+8. Drive原資料を開く
+9. AI query監査
+10. `.pdf / .pptx / .xlsx / .docx / .txt / .eml`対応
 
 後続拡張として同じretrieval layer上に、要約、時系列整理、比較、面談準備等のpreset output modeを追加できる。
 
@@ -386,15 +433,21 @@ APIキー等のcredentialはGitHub、ユーザー向けSheet、原資料へ保�
 
 AIリリース前に少なくとも以下を確認する。
 
-- Meeting / Pitchbookのindexと検索
+- Meeting / source materialのindexと検索
+- `.pdf / .pptx / .xlsx / .docx / .txt / .eml`のindex経路
+- EMLのheader/body抽出と添付非自動index
 - metadata filter
 - `未選択`がfilterを掛けないこと
+- Web App全利用者が共通Active検索範囲へアクセスできること
 - Citationから正しいDrive原資料へ戻れること
 - source更新時の再index
 - Inactiveの除外 / Reactivateの復元
+- 15分sync worker
 - AI indexing失敗が正本登録を壊さないこと
 - retryで重複Documentを作らないこと
 - 100MBファイルのresumable uploadまたは検証済みfallback
+- AI query監査が質問・filters等を記録し、回答/chunk本文を複製しないこと
+- Gemini Flash固定でユーザーモデル選択がないこと
 - credential / confidential dataの不適切な露出がないこと
 
 ## Detailed references
