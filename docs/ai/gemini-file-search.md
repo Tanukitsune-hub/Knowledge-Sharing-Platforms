@@ -140,13 +140,26 @@ The initial knowledge base uses one shared access boundary.
 
 If the organization later requires materially different source permissions by user, treat that as a new security/architecture requirement rather than silently adding ad-hoc filters.
 
-## Search UI
+## Knowledge Search UI
 
 Add a `ナレッジ検索` page to the existing Apps Script Web App sidebar.
 
-Initial controls:
+### Mode selector
 
-- Free-form question
+The Knowledge Search page uses one shared retrieval surface with five user-facing modes:
+
+```text
+自由質問 | 要約 | 時系列 | 比較 | 面談準備
+```
+
+`自由質問` is the initial/default mode.
+
+The five modes do not use separate search systems. They all use the same File Search Store, custom metadata filters, semantic retrieval, Gemini Flash model, citation handling, and Drive-source links. A preset mode changes the prompt/output template only.
+
+### Shared filters
+
+The following filters are shared across modes where relevant:
+
 - Date From / To
 - GP
 - Asset Class
@@ -157,7 +170,13 @@ All dropdown filters must show `未選択` as the initial UI-only option.
 
 `未選択` means the filter is not applied. It is not a GP/Option Master record and is never persisted as source metadata.
 
-Example:
+### Instruction field
+
+- In `自由質問`, the natural-language question field is the primary required input.
+- In preset modes, the same area may be shown as an optional `追加指示` field so the user can refine the preset without creating another search workflow.
+- Preset modes must still work from the selected metadata scope even when no additional instruction is supplied.
+
+Example free question:
 
 ```text
 質問: KKRは最近データセンター投資のボトルネックについて何と言っていたか
@@ -168,12 +187,84 @@ Equity / Debt: 未選択
 Source Type: 未選択
 ```
 
-The selected exact filters are converted into File Search metadata filters. The natural-language question is handled through semantic retrieval over the matching subset.
+The selected exact filters are converted into File Search metadata filters. The natural-language question or preset instruction is handled through semantic retrieval over the matching subset.
+
+## Five search/output modes
+
+### 1. 自由質問
+
+Purpose: answer an arbitrary user question from the accumulated knowledge base.
+
+Expected output:
+
+- direct grounded answer;
+- important supporting points;
+- uncertainty / insufficient-evidence note when applicable;
+- cited source records with Drive links.
+
+### 2. 要約
+
+Purpose: summarize the important information contained in the selected scope.
+
+Default output structure should favor:
+
+- main themes / key findings;
+- material facts and viewpoints;
+- notable changes or contradictions when supported;
+- concise takeaways;
+- cited source list.
+
+Do not simply concatenate per-document summaries; synthesize across the retrieved sources.
+
+### 3. 時系列
+
+Purpose: organize statements, developments, or changes in view over time.
+
+Default output structure should favor:
+
+- dated or period-based chronology;
+- what changed versus prior periods;
+- points that remained consistent;
+- gaps where no relevant evidence is available;
+- cited sources for each material period or change.
+
+Do not infer a change in view merely because different documents mention different topics.
+
+### 4. 比較
+
+Purpose: compare GPs, source materials, periods, strategies, or other user-specified subjects using common dimensions.
+
+Default output structure should favor a compact comparison table or clearly aligned sections such as:
+
+- investment view / market outlook;
+- opportunities;
+- risks / constraints;
+- valuation / returns where supported;
+- areas of agreement and disagreement;
+- cited sources for each comparison target.
+
+Comparison targets may be specified through the selected filters and/or the optional additional instruction. If implementation later benefits from multi-select controls, they may be added without changing the retrieval architecture.
+
+### 5. 面談準備
+
+Purpose: turn the accumulated history for a GP or selected scope into a practical next-meeting brief.
+
+Default output structure should favor:
+
+- recent meetings and source materials;
+- recent key statements / updates;
+- changes since prior discussions;
+- previously discussed or unresolved topics;
+- items worth reconfirming;
+- suggested questions for the upcoming meeting;
+- cited sources and Drive links.
+
+When a specific GP is needed to produce a useful meeting brief, the UI should require or clearly prompt for a GP selection rather than silently producing a broad generic brief.
 
 ## Retrieval flow
 
 ```text
-User question
+Mode + user question/additional instruction
    |
    +--> UI filters -> metadata filter
    |
@@ -184,6 +275,7 @@ Gemini File Search
    v
 Configured Gemini Flash model
    |
+   | mode-specific prompt/output template
    v
 Grounded answer + file citations
    |
@@ -195,7 +287,7 @@ Use stable IDs for filtering wherever possible. Display names are for user-facin
 
 ## Answer behavior
 
-The normal answer must:
+All modes must:
 
 - answer only from retrieved knowledge-base sources;
 - clearly distinguish source-grounded facts from synthesis/inference;
@@ -205,20 +297,19 @@ The normal answer must:
 
 Citation annotations returned by Gemini File Search should be mapped to custom metadata such as `source_id`, `drive_url`, and `saved_filename`.
 
-## Initial output modes
+Do not expose model selection or a deep-analysis mode in the initial UI. Use the configured Flash model for all modes.
 
-The first usable release needs only free-form question answering with filters and citations.
+## Delivery sequence for modes
 
-Do not expose model selection or a deep-analysis mode in the initial UI. Use the configured Flash model for all initial queries.
+The five-mode UI is the accepted target UX.
 
-The same architecture should support later preset modes without changing the storage/retrieval design:
+Implementation may be staged to reduce first-release risk:
 
-- 要約
-- 時系列整理
-- GP / 資料比較
-- 面談準備
+1. complete `自由質問` with filters, retrieval, citations, and Drive links;
+2. validate the common retrieval layer;
+3. add `要約`, `時系列`, `比較`, and `面談準備` as prompt/output presets on the same page.
 
-Preset modes should be implemented as controlled prompt/output templates, not separate retrieval systems.
+Staging the presets does not change the accepted five-mode product design and must not create parallel retrieval implementations.
 
 ## Synchronization lifecycle
 
@@ -309,7 +400,7 @@ For files over the Apps Script URL Fetch single-request payload limit, use Gemin
 
 ## AI query audit
 
-Every Knowledge Search execution is part of the existing five-year audit policy.
+Every Knowledge Search execution in any of the five modes is part of the existing five-year audit policy.
 
 For each AI query, record at least:
 
@@ -317,7 +408,8 @@ For each AI query, record at least:
 Event timestamp
 User identity
 Action = AI_QUERY
-Question text
+Search mode
+Question / additional instruction text
 Date From / To
 GP filter
 Asset Class filter
@@ -331,7 +423,7 @@ Short error code/message when applicable
 
 The audit log is admin-only, consistent with the existing audit policy.
 
-Do not store the generated answer text, retrieved chunk text, embeddings, or full source contents in the audit log. The question is retained for auditability, while source content remains in the authoritative/derived systems rather than being copied into the audit store.
+Do not store the generated answer text, retrieved chunk text, embeddings, or full source contents in the audit log. The user question/additional instruction is retained for auditability, while source content remains in the authoritative/derived systems rather than being copied into the audit store.
 
 ## Security and governance
 
@@ -361,11 +453,14 @@ At minimum validate:
 - reactivation restores retrieval;
 - AI indexing failure does not roll back authoritative registration;
 - retry is idempotent;
-- AI query audit records the required metadata but not answer/chunk text;
+- AI query audit records search mode and required metadata but not answer/chunk text;
 - the configured Flash model is used with no user model-selection control;
+- all five modes reuse the same retrieval/citation layer;
+- `自由質問` works as the default mode;
+- preset outputs follow their intended summary / chronology / comparison / meeting-prep structures without fabricating unsupported information;
 - no confidential content or API key is written to GitHub or inappropriate logs.
 
-## Non-goals for the initial retrieval release
+## Non-goals for the initial retrieval architecture
 
 - custom vector database;
 - custom embedding service;
@@ -374,6 +469,7 @@ At minimum validate:
 - per-user/per-source AI retrieval ACLs;
 - multiple user-selectable Gemini models;
 - deep-analysis model routing;
+- separate retrieval engines for each preset mode;
 - Outlook `.msg` parsing;
 - automatic indexing of attachments embedded in `.eml`;
 - autonomous investment decisions;
