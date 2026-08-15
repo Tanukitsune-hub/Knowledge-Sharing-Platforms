@@ -1,0 +1,152 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+
+class FakeRange {
+  constructor(sheet,row,col,numRows=1,numCols=1){this.sheet=sheet;this.row=row;this.col=col;this.numRows=numRows;this.numCols=numCols;}
+  getValue(){return this.sheet.values[this.row-1]?.[this.col-1] ?? '';}
+  setValue(value){this.sheet.ensure(this.row,this.col);this.sheet.values[this.row-1][this.col-1]=value;return this;}
+  getValues(){const out=[];for(let r=0;r<this.numRows;r++){const row=[];for(let c=0;c<this.numCols;c++)row.push(this.sheet.values[this.row-1+r]?.[this.col-1+c] ?? '');out.push(row);}return out;}
+  setValues(values){for(let r=0;r<this.numRows;r++)for(let c=0;c<this.numCols;c++){this.sheet.ensure(this.row+r,this.col+c);this.sheet.values[this.row-1+r][this.col-1+c]=values[r][c];}return this;}
+}
+class FakeSheet {
+  constructor(name,headers,rows=[]){this.name=name;this.values=[headers.slice(),...rows.map(row=>headers.map(h=>row[h]??''))];}
+  ensure(row,col){while(this.values.length<row)this.values.push([]);while(this.values[row-1].length<col)this.values[row-1].push('');}
+  getRange(r,c,nr=1,nc=1){return new FakeRange(this,r,c,nr,nc);}
+  getLastRow(){return this.values.length;}
+  getLastColumn(){return this.values.reduce((m,r)=>Math.max(m,r.length),0);}
+  getName(){return this.name;}
+  deleteRow(row){this.values.splice(row-1,1);}
+}
+class FakeSpreadsheet { constructor(sheets){this.sheets=new Map(sheets.map(s=>[s.name,s]));}getSheetByName(name){return this.sheets.get(name)||null;} }
+
+function loadAdapterFixture() {
+  const properties=new Map();
+  const spreadsheets=new Map();
+  const files=new Map([['file-1',{id:'file-1',name:'old.pdf'}],['doc-1',{id:'doc-1',name:'old-doc'}]]);
+  const docs=new Map([['doc-1','old text']]);
+  let uuid=0;
+  const scriptProperties={
+    getProperty:k=>properties.has(k)?properties.get(k):null,
+    setProperty:(k,v)=>properties.set(k,String(v)),
+    deleteProperty:k=>properties.delete(k),
+    getProperties:()=>Object.fromEntries(properties)
+  };
+  const context=vm.createContext({console,JSON,Object,Array,String,Number,Boolean,Date,Math,RegExp,Error,TypeError,Set,Map,Intl,
+    PropertiesService:{getScriptProperties:()=>scriptProperties},
+    SpreadsheetApp:{openById:id=>{if(!spreadsheets.has(id))throw new Error('spreadsheet missing');return spreadsheets.get(id);}},
+    LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock(){}})},
+    Utilities:{getUuid:()=>`uuid-${++uuid}`},
+    Drive:{Files:{
+      get:(id)=>{if(!files.has(id))throw new Error('file missing');return {...files.get(id)};},
+      update:(resource,id)=>{if(!files.has(id))throw new Error('file missing');files.set(id,{...files.get(id),...resource});return {...files.get(id)};}
+    }},
+    DocumentApp:{openById:id=>({getBody:()=>({getText:()=>docs.get(id)||'',clear(){docs.set(id,'');return this;},setText(text){docs.set(id,text);return this;}}),saveAndClose(){}})}
+  });
+  const bootstrap=`
+var KSP_STATUS=Object.freeze({ACTIVE:'Active',INACTIVE:'Inactive'});
+var KSP_AI_INDEX_STATUS=Object.freeze({PENDING:'Pending'});
+var KSP_SHEET_NAMES=Object.freeze({GP_MASTER:'GP_Master',OPTION_MASTER:'Option_Master',MEETING_INDEX:'Meeting_Index',PITCHBOOK_INDEX:'Pitchbook_Index',AUDIT_LOG:'Audit_Log'});
+var KSP_RESOURCE_KEYS=Object.freeze({BACKEND_SPREADSHEET:'backendSpreadsheetId',AUDIT_SPREADSHEET:'auditSpreadsheetId'});
+var KSP_DEFAULTS=Object.freeze({LOCK_TIMEOUT_MS:30000});
+function kspAssert(condition,code,message){if(!condition){var e=new Error(message);e.code=code;throw e;}}
+function kspDeepClone(value){return value===undefined?undefined:JSON.parse(JSON.stringify(value));}
+function kspSafeParseJson(text,label){if(text==null||text==='')return null;return JSON.parse(text);}
+function kspReadHeadersFromSheet(sheet){return sheet.values[0].map(String);}
+function kspReadObjectsFromSheet(sheet,headers){return sheet.values.slice(1).map(values=>{var row={};headers.forEach((h,i)=>row[h]=values[i]??'');return row;});}
+function kspAppendObjectsToSheet(sheet,headers,rows){rows.forEach(row=>sheet.values.push(headers.map(h=>row[h]??'')));}
+function kspCreateMeetingEnvironment(){return{
+  getInstallationState:function(){return{resources:{backendSpreadsheetId:'backend',auditSpreadsheetId:'audit'}};},
+  getActor:function(){return'user@example.com';},
+  readRows:function(id,name){var sheet=SpreadsheetApp.openById(id).getSheetByName(name);var headers=kspReadHeadersFromSheet(sheet);return kspReadObjectsFromSheet(sheet,headers);},
+  appendRow:function(id,name,row){var sheet=SpreadsheetApp.openById(id).getSheetByName(name);var headers=kspReadHeadersFromSheet(sheet);kspAppendObjectsToSheet(sheet,headers,[row]);}
+};}
+function kspPitchbookContextMatchesRow(row,input){return String(row.Date||'')===input.date&&String(row.GP_ID||'')===input.gpId&&String(row.Asset_Class_ID||'')===input.assetClassId&&String(row.Capital_Type_ID||'')===input.capitalTypeId;}
+`;
+  new vm.Script(bootstrap).runInContext(context);
+  for(const file of ['100_MaintenanceCore.gs','120_MaintenanceLiveEnvironment.gs','121_MaintenanceLiveHelpers.gs'])new vm.Script(fs.readFileSync(path.join(__dirname,'..','src',file),'utf8'),{filename:file}).runInContext(context);
+
+  function addSpreadsheet(id,sheets){spreadsheets.set(id,new FakeSpreadsheet(sheets));}
+  return {context,properties,spreadsheets,files,docs,addSpreadsheet,FakeSheet};
+}
+
+const MEETING_HEADERS=['Meeting_ID','Doc_File_ID','Status','Version','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'];
+const PITCH_HEADERS=['Document_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','Status','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'];
+const GP_HEADERS=['GP_ID','GP_Name','Status','Created_At','Updated_At','Created_By','Updated_By'];
+const OPTION_HEADERS=['Option_ID','Type','Name','Sort_Order','Status','Created_At','Updated_At','Created_By','Updated_By'];
+const AUDIT_HEADERS=['Event_Timestamp','Action'];
+
+function basicFixture(){
+  const f=loadAdapterFixture();
+  f.addSpreadsheet('backend',[
+    new f.FakeSheet('Meeting_Index',MEETING_HEADERS,[{Meeting_ID:'MTG-000001',Doc_File_ID:'doc-1',Status:'Active',Version:1,Updated_At:'old'}]),
+    new f.FakeSheet('Pitchbook_Index',PITCH_HEADERS,[
+      {Document_ID:'DOC-000001',Date:'2026-01-01',GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:'',Sequence_No:1,File_ID:'file-1',Status:'Active',Updated_At:'old'},
+      {Document_ID:'DOC-000002',Date:'2026-02-01',GP_ID:'GP-2',Asset_Class_ID:'AC-2',Capital_Type_ID:'',Sequence_No:2,File_ID:'file-2',Status:'Active',Updated_At:'old2'}
+    ]),
+    new f.FakeSheet('GP_Master',GP_HEADERS,[{GP_ID:'GP-000001',GP_Name:'Apollo',Status:'Active'}]),
+    new f.FakeSheet('Option_Master',OPTION_HEADERS,[
+      {Option_ID:'OPT-AC-001',Type:'ASSET_CLASS',Name:'PE',Sort_Order:1,Status:'Active'},
+      {Option_ID:'OPT-AC-002',Type:'ASSET_CLASS',Name:'VC',Sort_Order:2,Status:'Active'}
+    ])
+  ]);
+  f.addSpreadsheet('audit',[new f.FakeSheet('Audit_Log',AUDIT_HEADERS,[{Event_Timestamp:'2020-01-01T00:00:00.000Z',Action:'old'},{Event_Timestamp:'2025-01-01T00:00:00.000Z',Action:'keep'}])]);
+  return f;
+}
+
+test('record edit claim blocks overlap and releases by token',()=>{
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const claim=env.claimRecordEdit('Meeting','MTG-000001','Meeting_Index','Meeting_ID','Version',1,'2026-08-16T00:00:00.000Z',300000);
+  assert.equal(env.isRecordEditClaimOwned(claim),true);
+  assert.throws(()=>env.claimRecordEdit('Meeting','MTG-000001','Meeting_Index','Meeting_ID','Version',1,'2026-08-16T00:00:01.000Z',300000),error=>error.code==='RECORD_EDIT_IN_PROGRESS');
+  env.releaseRecordEditClaim(claim);assert.equal(env.isRecordEditClaimOwned(claim),false);
+});
+
+test('commit claimed edit checks source token and clears claim',()=>{
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const claim=env.claimRecordEdit('Meeting','MTG-000001','Meeting_Index','Meeting_ID','Version',1,'2026-08-16T00:00:00.000Z',300000);
+  const updated={...claim.row,Version:2,Status:'Inactive'};
+  const result=env.commitClaimedRowEdit(claim,'Meeting_Index','Meeting_ID','MTG-000001','Version',1,updated);
+  assert.equal(result.Version,2);assert.equal(env.isRecordEditClaimOwned(claim),false);
+});
+
+test('Pitchbook edit sequence reservation counts rows and active claims',()=>{
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const first=env.claimRecordEdit('Pitchbook','DOC-000001','Pitchbook_Index','Document_ID','Updated_At','old','2026-08-16T00:00:00.000Z',300000);
+  const input={documentId:'DOC-000001',date:'2026-03-01',gpId:'GP-3',assetClassId:'AC-3',capitalTypeId:''};
+  assert.equal(env.reservePitchbookEditSequence(first,input),1);
+  const sheet=f.spreadsheets.get('backend').getSheetByName('Pitchbook_Index');
+  sheet.values.push(PITCH_HEADERS.map(h=>({Document_ID:'DOC-000003',Date:'2026-03-01',GP_ID:'GP-3',Asset_Class_ID:'AC-3',Capital_Type_ID:'',Sequence_No:4,File_ID:'x',Status:'Active',Updated_At:'x'})[h]??''));
+  env.releaseRecordEditClaim(first);
+  const second=env.claimRecordEdit('Pitchbook','DOC-000001','Pitchbook_Index','Document_ID','Updated_At','old','2026-08-16T00:00:02.000Z',300000);
+  assert.equal(env.reservePitchbookEditSequence(second,input),5);
+});
+
+test('Meeting reactivation requires authoritative Google Doc ID',()=>{
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const sheet=f.spreadsheets.get('backend').getSheetByName('Meeting_Index');sheet.values[1][MEETING_HEADERS.indexOf('Doc_File_ID')]='';sheet.values[1][MEETING_HEADERS.indexOf('Status')]='Inactive';
+  assert.throws(()=>env.updateStatusAtomic('Meeting_Index','Meeting_ID','MTG-000001','Version',1,'Active','actor','now'),error=>error.code==='MEETING_AUTHORITATIVE_DOCUMENT_MISSING');
+});
+
+test('Option reorder returns before and after order for audit',()=>{
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const result=env.mutateMasterAtomic({entity:'OPTION',action:'REORDER',id:'OPT-AC-002',sortOrder:1},'actor','now');
+  assert.deepEqual(Array.from(result.affectedBefore,r=>r.Option_ID),['OPT-AC-001','OPT-AC-002']);
+  assert.deepEqual(Array.from(result.affectedRows,r=>r.Option_ID),['OPT-AC-002','OPT-AC-001']);
+});
+
+test('Master add duplicate returns existing only for quick-add mode',()=>{
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const existing=env.mutateMasterAtomic({entity:'GP',action:'ADD',name:'apollo',type:'',returnExistingOnDuplicate:true},'actor','now');
+  assert.equal(existing.existing,true);assert.equal(existing.after.GP_ID,'GP-000001');
+  assert.throws(()=>env.mutateMasterAtomic({entity:'GP',action:'ADD',name:'Apollo',type:'',returnExistingOnDuplicate:false},'actor','now'),error=>error.code==='MASTER_DUPLICATE_NAME');
+});
+
+test('audit retention deletes only rows older than cutoff',()=>{
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const result=env.deleteAuditRowsBefore('audit','2021-08-16T00:00:00.000Z');
+  assert.equal(result.deletedRows,1);
+  const sheet=f.spreadsheets.get('audit').getSheetByName('Audit_Log');assert.equal(sheet.values.length,2);assert.equal(sheet.values[1][1],'keep');
+});

@@ -28,60 +28,52 @@ function uploadPitchbookFile(input) {
   return kspUploadPitchbookFile(kspCreatePitchbookEnvironment(), input);
 }
 
-function getMaintenanceBootstrapData() {
-  return kspGetMaintenanceBootstrapData(kspCreateMaintenanceEnvironment());
+function getPhase1MaintenanceBootstrapData() {
+  return kspGetPhase1MaintenanceBootstrap(kspCreateMaintenanceEnvironment());
 }
 
-function searchMeetingRecords(filters) {
-  return kspSearchMeetingRecords(kspCreateMaintenanceEnvironment(), filters);
+function searchMeetingRecords(input) {
+  return kspSearchMeetingRecords(kspCreateMaintenanceEnvironment(), input);
 }
 
-function getMeetingRecord(meetingId) {
-  return kspGetMeetingRecord(kspCreateMaintenanceEnvironment(), meetingId);
+function getMeetingMaintenanceRecord(meetingId) {
+  return kspGetMeetingMaintenanceRecord(kspCreateMaintenanceEnvironment(), meetingId);
 }
 
-function updateMeetingRecord(input) {
-  return kspUpdateMeetingRecord(kspCreateMaintenanceEnvironment(), input);
+function updateMeetingMaintenance(input) {
+  return kspUpdateMeetingMaintenance(kspCreateMaintenanceEnvironment(), input);
 }
 
-function setMeetingRecordStatus(input) {
-  return kspSetMeetingRecordStatus(kspCreateMaintenanceEnvironment(), input);
+function changeMeetingStatus(input) {
+  return kspChangeMeetingStatus(kspCreateMaintenanceEnvironment(), input);
 }
 
-function searchPitchbookRecords(filters) {
-  return kspSearchPitchbookRecords(kspCreateMaintenanceEnvironment(), filters);
+function searchPitchbookRecords(input) {
+  return kspSearchPitchbookRecords(kspCreateMaintenanceEnvironment(), input);
 }
 
-function getPitchbookRecord(documentId) {
-  return kspGetPitchbookRecord(kspCreateMaintenanceEnvironment(), documentId);
+function getPitchbookMaintenanceRecord(documentId) {
+  return kspGetPitchbookMaintenanceRecord(kspCreateMaintenanceEnvironment(), documentId);
 }
 
-function updatePitchbookRecord(input) {
-  return kspUpdatePitchbookRecord(kspCreateMaintenanceEnvironment(), input);
+function updatePitchbookMaintenance(input) {
+  return kspUpdatePitchbookMaintenance(kspCreateMaintenanceEnvironment(), input);
 }
 
-function setPitchbookRecordStatus(input) {
-  return kspSetPitchbookRecordStatus(kspCreateMaintenanceEnvironment(), input);
+function changePitchbookStatus(input) {
+  return kspChangePitchbookStatus(kspCreateMaintenanceEnvironment(), input);
 }
 
-function getMasterData() {
-  return kspGetMasterData(kspCreateMaintenanceEnvironment());
+function mutateMaster(input) {
+  return kspMutateMaster(kspCreateMaintenanceEnvironment(), input);
 }
 
-function addMasterItem(input) {
-  return kspAddMasterItem(kspCreateMaintenanceEnvironment(), input);
+function quickAddGp(name) {
+  return kspQuickAddGp(kspCreateMaintenanceEnvironment(), name);
 }
 
-function renameMasterItem(input) {
-  return kspRenameMasterItem(kspCreateMaintenanceEnvironment(), input);
-}
-
-function setMasterItemStatus(input) {
-  return kspSetMasterItemStatus(kspCreateMaintenanceEnvironment(), input);
-}
-
-function reorderOptionItems(input) {
-  return kspReorderOptionItems(kspCreateMaintenanceEnvironment(), input);
+function runAuditRetentionCleanup() {
+  return kspRunAuditRetentionCleanup(kspCreateMaintenanceEnvironment());
 }
 
 function getPhase1Diagnostics() {

@@ -10,160 +10,73 @@
 <body>
   <main class="app-shell">
     <header class="page-header">
-      <div>
-        <h1>Knowledge Sharing Platforms</h1>
-        <p>面談記録とPitchbookを蓄積し、検索・修正・管理します。</p>
-      </div>
+      <div><h1>Knowledge Sharing Platforms</h1><p>面談記録とPitchbookを蓄積し、過去記録とマスターを同じWeb Appで管理します。</p></div>
       <nav class="nav" aria-label="ページ切替">
         <button id="nav-meeting" class="active" type="button">面談記録</button>
         <button id="nav-pitchbook" type="button">Pitchbook</button>
+        <button id="nav-meeting-past" type="button">過去面談</button>
+        <button id="nav-pitchbook-past" type="button">過去資料</button>
         <button id="nav-masters" type="button">マスター管理</button>
       </nav>
     </header>
 
     <section id="page-meeting" class="page active">
-      <div class="subnav" aria-label="面談記録表示切替">
-        <button id="meeting-tab-new" class="active" type="button">新規登録</button>
-        <button id="meeting-tab-past" type="button">過去記録</button>
-      </div>
-      <div id="meeting-view-new" class="subpage active">
-        <div class="card">
-          <form id="meeting-form" novalidate>
-            <div class="grid">
-              <div class="field"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
-              <div class="field"><label for="meeting-time">時間</label><input id="meeting-time" type="time"></div>
-              <div class="field"><label for="meeting-locationId">面談場所</label><select id="meeting-locationId"><option value="">未選択</option></select></div>
-              <div class="field"><label class="required" for="meeting-gpId">GP</label><select id="meeting-gpId" required><option value="">未選択</option></select></div>
-              <div class="field"><label class="required" for="meeting-assetClassId">Asset Class</label><select id="meeting-assetClassId" required><option value="">未選択</option></select></div>
-              <div class="field"><label for="meeting-capitalTypeId">Equity / Debt</label><select id="meeting-capitalTypeId"><option value="">未選択</option></select></div>
-              <div class="field"><label for="meeting-counterparty">面談相手</label><input id="meeting-counterparty" maxlength="500"></div>
-              <div class="field"><label for="meeting-internalParticipants">当社側</label><input id="meeting-internalParticipants" maxlength="500"></div>
-              <div class="field full"><label for="meeting-notes">面談内容</label><textarea id="meeting-notes" maxlength="20000" placeholder="自由に記載してください。改行は保存されます。"></textarea><div class="hint">本文はGoogle Docsだけに保存し、Indexや監査ログへ全文を複製しません。</div></div>
-            </div>
-            <div id="meeting-retry-note" class="retry-note">前回の途中失敗から、同じMeeting IDで再試行します。入力変更時は解除されます。</div>
-            <div class="actions"><div class="hint">成功後も日付・GP・Asset Class・Equity / Debtは保持されます。</div><div class="action-group"><button id="meeting-clear" class="action secondary" type="button">下書きをクリア</button><button id="meeting-submit" class="action primary" type="submit" disabled>登録</button></div></div>
-          </form>
-          <div id="meeting-status" class="status" role="status" aria-live="polite"></div>
-        </div>
-      </div>
-
-      <div id="meeting-view-past" class="subpage">
-        <div class="card">
-          <h2>過去の面談記録</h2>
-          <div class="filter-grid">
-            <div class="field"><label for="meeting-search-dateFrom">日付 From</label><input id="meeting-search-dateFrom" type="date"></div>
-            <div class="field"><label for="meeting-search-dateTo">日付 To</label><input id="meeting-search-dateTo" type="date"></div>
-            <div class="field"><label for="meeting-search-gpId">GP</label><select id="meeting-search-gpId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="meeting-search-assetClassId">Asset Class</label><select id="meeting-search-assetClassId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="meeting-search-capitalTypeId">Equity / Debt</label><select id="meeting-search-capitalTypeId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="meeting-search-status">Status</label><select id="meeting-search-status"><option value="">未選択</option><option>Active</option><option>Inactive</option></select></div>
-          </div>
-          <div class="actions"><span class="hint">最大200件を新しい順に表示します。</span><button id="meeting-search-button" class="action primary" type="button">検索</button></div>
-          <div id="meeting-search-status-box" class="status" role="status"></div>
-          <div class="table-wrap"><table><thead><tr><th>日付</th><th>GP</th><th>Asset Class</th><th>Status</th><th>更新</th><th></th></tr></thead><tbody id="meeting-results-body"></tbody></table></div>
-        </div>
-        <div id="meeting-edit-panel" class="card edit-panel hidden">
-          <div class="panel-header"><div><h2 id="meeting-edit-title">面談記録を修正</h2><div id="meeting-edit-version" class="hint"></div></div><button id="meeting-edit-close" class="icon-button" type="button">閉じる</button></div>
+      <div class="card">
+        <form id="meeting-form" novalidate>
           <div class="grid">
-            <div class="field"><label class="required" for="meeting-edit-date">日付</label><input id="meeting-edit-date" type="date"></div>
-            <div class="field"><label for="meeting-edit-time">時間</label><input id="meeting-edit-time" type="time"></div>
-            <div class="field"><label for="meeting-edit-locationId">面談場所</label><select id="meeting-edit-locationId"><option value="">未選択</option></select></div>
-            <div class="field"><label class="required" for="meeting-edit-gpId">GP</label><select id="meeting-edit-gpId"><option value="">未選択</option></select></div>
-            <div class="field"><label class="required" for="meeting-edit-assetClassId">Asset Class</label><select id="meeting-edit-assetClassId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="meeting-edit-capitalTypeId">Equity / Debt</label><select id="meeting-edit-capitalTypeId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="meeting-edit-counterparty">面談相手</label><input id="meeting-edit-counterparty" maxlength="500"></div>
-            <div class="field"><label for="meeting-edit-internalParticipants">当社側</label><input id="meeting-edit-internalParticipants" maxlength="500"></div>
-            <div class="field full"><label for="meeting-edit-notes">面談内容</label><textarea id="meeting-edit-notes" maxlength="20000"></textarea></div>
+            <div class="field"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
+            <div class="field"><label for="meeting-time">時間</label><input id="meeting-time" type="time"></div>
+            <div class="field"><label for="meeting-locationId">面談場所</label><select id="meeting-locationId"><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="meeting-gpId">GP</label><select id="meeting-gpId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="meeting-assetClassId">Asset Class</label><select id="meeting-assetClassId" required><option value="">未選択</option></select></div>
+            <div class="field"><label for="meeting-capitalTypeId">Equity / Debt</label><select id="meeting-capitalTypeId"><option value="">未選択</option></select></div>
+            <div class="field"><label for="meeting-counterparty">面談相手</label><input id="meeting-counterparty" maxlength="500"></div>
+            <div class="field"><label for="meeting-internalParticipants">当社側</label><input id="meeting-internalParticipants" maxlength="500"></div>
+            <div class="field full"><label for="meeting-notes">面談内容</label><textarea id="meeting-notes" maxlength="20000" placeholder="自由に記載してください。改行は保存されます。"></textarea><div class="hint">本文はGoogle Docsだけに保存し、Indexや監査ログへ全文を複製しません。</div></div>
           </div>
-          <div class="actions"><div class="action-group"><a id="meeting-edit-doc-link" class="action-link" target="_blank" rel="noopener">Google Docsを開く</a></div><div class="action-group"><button id="meeting-status-toggle" class="action warning" type="button"></button><button id="meeting-edit-save" class="action primary" type="button">修正を保存</button></div></div>
-          <div id="meeting-edit-status-box" class="status" role="status"></div>
-        </div>
+          <div id="meeting-retry-note" class="retry-note">前回の途中失敗から、同じMeeting IDで再試行します。入力変更時は解除されます。</div>
+          <div class="actions"><div class="hint">成功後も日付・GP・Asset Class・Equity / Debtは保持されます。</div><div class="action-group"><button id="meeting-clear" class="action secondary" type="button">下書きをクリア</button><button id="meeting-submit" class="action primary" type="submit" disabled>登録</button></div></div>
+        </form>
+        <div id="meeting-status" class="status" role="status" aria-live="polite"></div>
       </div>
     </section>
 
     <section id="page-pitchbook" class="page">
-      <div class="subnav" aria-label="Pitchbook表示切替">
-        <button id="pitchbook-tab-new" class="active" type="button">新規登録</button>
-        <button id="pitchbook-tab-past" type="button">過去資料</button>
-      </div>
-      <div id="pitchbook-view-new" class="subpage active">
-        <div class="card">
-          <form id="pitchbook-form" novalidate>
-            <div class="grid">
-              <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
-              <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select></div>
-              <div class="field"><label class="required" for="pitchbook-assetClassId">Asset Class</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
-              <div class="field"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
-              <div class="field full"><label class="required">ファイル</label><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0">ここへファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div><input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"><div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div></div>
-            </div>
-            <div class="actions"><div class="hint">登録はファイル単位。失敗しても成功済みファイルは維持されます。</div><div class="action-group"><button id="pitchbook-clear" class="action secondary" type="button">ファイル下書きをクリア</button><button id="pitchbook-retry" class="action warning" type="button" disabled>失敗分を再試行</button><button id="pitchbook-submit" class="action primary" type="submit" disabled>登録</button></div></div>
-          </form>
-          <div id="pitchbook-status" class="status" role="status" aria-live="polite"></div>
-        </div>
-      </div>
-
-      <div id="pitchbook-view-past" class="subpage">
-        <div class="card">
-          <h2>過去のPitchbook / 資料</h2>
-          <div class="filter-grid">
-            <div class="field"><label for="pitchbook-search-dateFrom">日付 From</label><input id="pitchbook-search-dateFrom" type="date"></div>
-            <div class="field"><label for="pitchbook-search-dateTo">日付 To</label><input id="pitchbook-search-dateTo" type="date"></div>
-            <div class="field"><label for="pitchbook-search-gpId">GP</label><select id="pitchbook-search-gpId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="pitchbook-search-assetClassId">Asset Class</label><select id="pitchbook-search-assetClassId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="pitchbook-search-capitalTypeId">Equity / Debt</label><select id="pitchbook-search-capitalTypeId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="pitchbook-search-status">Status</label><select id="pitchbook-search-status"><option value="">未選択</option><option>Active</option><option>Inactive</option><option>Pending</option><option>Failed</option></select></div>
-          </div>
-          <div class="actions"><span class="hint">最大200件を新しい順に表示します。</span><button id="pitchbook-search-button" class="action primary" type="button">検索</button></div>
-          <div id="pitchbook-search-status-box" class="status" role="status"></div>
-          <div class="table-wrap"><table><thead><tr><th>日付</th><th>GP</th><th>資料</th><th>Status</th><th>更新</th><th></th></tr></thead><tbody id="pitchbook-results-body"></tbody></table></div>
-        </div>
-        <div id="pitchbook-edit-panel" class="card edit-panel hidden">
-          <div class="panel-header"><div><h2 id="pitchbook-edit-title">Pitchbookを修正</h2><div id="pitchbook-edit-token" class="hint"></div></div><button id="pitchbook-edit-close" class="icon-button" type="button">閉じる</button></div>
-          <div class="grid">
-            <div class="field"><label class="required" for="pitchbook-edit-date">日付</label><input id="pitchbook-edit-date" type="date"></div>
-            <div class="field"><label class="required" for="pitchbook-edit-gpId">GP</label><select id="pitchbook-edit-gpId"><option value="">未選択</option></select></div>
-            <div class="field"><label class="required" for="pitchbook-edit-assetClassId">Asset Class</label><select id="pitchbook-edit-assetClassId"><option value="">未選択</option></select></div>
-            <div class="field"><label for="pitchbook-edit-capitalTypeId">Equity / Debt</label><select id="pitchbook-edit-capitalTypeId"><option value="">未選択</option></select></div>
-            <div class="field full"><label>元ファイル</label><div id="pitchbook-edit-original" class="readonly-box"></div><div class="hint">ファイル本体は置換しません。メタデータ変更時は同じDrive File IDの名称だけ更新します。</div></div>
-          </div>
-          <div class="actions"><div class="action-group"><a id="pitchbook-edit-file-link" class="action-link" target="_blank" rel="noopener">原資料を開く</a></div><div class="action-group"><button id="pitchbook-status-toggle" class="action warning" type="button"></button><button id="pitchbook-edit-save" class="action primary" type="button">修正を保存</button></div></div>
-          <div id="pitchbook-edit-status-box" class="status" role="status"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="page-masters" class="page">
       <div class="card">
-        <div class="panel-header"><div><h2>マスター管理</h2><p class="hint">追加・名称変更・並び替え・無効化・再有効化ができます。物理削除はしません。</p></div><button id="phase1-diagnostics" class="action secondary" type="button">構成診断</button></div>
-        <div class="master-toolbar">
-          <div class="field"><label for="master-type">種類</label><select id="master-type"><option value="GP">GP</option><option value="ASSET_CLASS">Asset Class</option><option value="CAPITAL_TYPE">Equity / Debt</option><option value="LOCATION">面談場所</option></select></div>
-          <div class="field grow"><label for="master-new-name">新しい名称</label><input id="master-new-name" maxlength="200"></div>
-          <button id="master-add" class="action primary align-end" type="button">追加</button>
-        </div>
-        <div id="master-status-box" class="status" role="status"></div>
-        <div class="table-wrap"><table><thead><tr><th>ID</th><th>名称</th><th>Status</th><th>順序</th><th></th></tr></thead><tbody id="master-results-body"></tbody></table></div>
+        <form id="pitchbook-form" novalidate>
+          <div class="grid">
+            <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
+            <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="pitchbook-assetClassId">Asset Class</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
+            <div class="field"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
+            <div class="field full"><label class="required">ファイル</label><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0">ここへファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div><input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"><div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div></div>
+          </div>
+          <div class="actions"><div class="hint">登録はファイル単位。失敗しても成功済みファイルは維持されます。</div><div class="action-group"><button id="pitchbook-clear" class="action secondary" type="button">ファイル下書きをクリア</button><button id="pitchbook-retry" class="action warning" type="button" disabled>失敗分を再試行</button><button id="pitchbook-submit" class="action primary" type="submit" disabled>登録</button></div></div>
+        </form>
+        <div id="pitchbook-status" class="status" role="status" aria-live="polite"></div>
       </div>
     </section>
+
+    <?!= include('MaintenancePages'); ?>
   </main>
 
-  <?!= include('ClientCore'); ?>
-  <script>
-  function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,gpId:el('meeting-gpId').value,assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
-  function saveMeetingDraft(){const v=meetingValues();const specific={};MEETING_FIELDS.forEach(f=>specific[f]=v[f]);writeEnvelope(KSP_MEETING_DRAFT_KEY,specific);writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
-  function restoreMeetingDraft(){applyShared(readEnvelope(KSP_SHARED_DRAFT_KEY));const specific=readEnvelope(KSP_MEETING_DRAFT_KEY);if(specific)MEETING_FIELDS.forEach(f=>{if(specific[f]!=null)el('meeting-'+f).value=String(specific[f])});const retry=readEnvelope(KSP_MEETING_RETRY_KEY);if(retry&&retry.meetingId&&retry.fingerprint){retryContext=retry;el('meeting-retry-note').classList.add('visible')}}
-  function clearRetryContext(){retryContext=null;safeRemove(KSP_MEETING_RETRY_KEY);el('meeting-retry-note').classList.remove('visible')}
-  function saveDraft(){saveMeetingDraft();}
-  function clearMeetingSpecificDraft(){MEETING_FIELDS.forEach(field=>{el('meeting-'+field).value=''});safeStorageRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
-  function safeStorageRemove(key){safeRemove(key)}
-  function setMeetingBusy(busy){el('meeting-submit').disabled=busy||meetingLoading;el('meeting-clear').disabled=busy;el('meeting-submit').textContent=busy?'登録中…':'登録'}
-  MEETING_FIELDS.forEach(f=>el('meeting-'+f).addEventListener('input',()=>{clearRetryContext();saveDraft()}));
-  el('meeting-form').addEventListener('submit',async event=>{event.preventDefault();clearStatus('meeting-status');const payload=meetingValues();if(!payload.date||!payload.gpId||!payload.assetClassId){showStatus('meeting-status','error','日付、GP、Asset Classは必須です。');return}if(retryContext){payload.retryMeetingId=retryContext.meetingId;payload.retryFingerprint=retryContext.fingerprint}setMeetingBusy(true);try{const result=await serverCall('registerMeeting',payload);setMeetingBusy(false);if(result&&result.ok){clearMeetingSpecificDraft();const meeting=result.meeting||{};const url=String(meeting.documentUrl||'').replace(/"/g,'&quot;');showStatus('meeting-status','success','登録しました: '+meeting.id+(url?'<br><a class="result-link" target="_blank" rel="noopener" href="'+url+'">Google Docsを開く</a>':''),true)}else{if(result&&result.retry){retryContext=result.retry;writeEnvelope(KSP_MEETING_RETRY_KEY,retryContext);el('meeting-retry-note').classList.add('visible')}saveMeetingDraft();showStatus('meeting-status','error',(result&&result.error?result.error.message:'登録に失敗しました。')+' 入力内容は保持されています。')}}catch(error){setMeetingBusy(false);saveMeetingDraft();showStatus('meeting-status','error',(error&&error.message?error.message:String(error))+' 入力内容は保持されています。')}});
-  el('meeting-clear').onclick=()=>{if(!confirm('面談入力と共通項目を消去しますか？'))return;[...SHARED_FIELDS,...MEETING_FIELDS].forEach(f=>{const node=el('meeting-'+f);if(node)node.value=''});applyShared({date:'',gpId:'',assetClassId:'',capitalTypeId:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();clearStatus('meeting-status')};
-  </script>
-  <?!= include('ClientPitchbookFiles'); ?>
-  <?!= include('ClientPitchbookFlow'); ?>
-  <?!= include('ClientMaintenance'); ?>
-  <?!= include('ClientMasters'); ?>
-  <?!= include('ClientBootstrap'); ?>
+<?!= include('ClientCore'); ?>
+<script>
+function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,gpId:el('meeting-gpId').value,assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
+function saveMeetingDraft(){const v=meetingValues();const specific={};MEETING_FIELDS.forEach(f=>specific[f]=v[f]);writeEnvelope(KSP_MEETING_DRAFT_KEY,specific);writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
+function restoreMeetingDraft(){applyShared(readEnvelope(KSP_SHARED_DRAFT_KEY));const specific=readEnvelope(KSP_MEETING_DRAFT_KEY);if(specific)MEETING_FIELDS.forEach(f=>{if(specific[f]!=null)el('meeting-'+f).value=String(specific[f])});const retry=readEnvelope(KSP_MEETING_RETRY_KEY);if(retry&&retry.meetingId&&retry.fingerprint){retryContext=retry;el('meeting-retry-note').classList.add('visible')}}
+function clearRetryContext(){retryContext=null;safeRemove(KSP_MEETING_RETRY_KEY);el('meeting-retry-note').classList.remove('visible')}
+function saveDraft(){saveMeetingDraft();}
+function clearMeetingSpecificDraft(){MEETING_FIELDS.forEach(field=>{el('meeting-'+field).value=''});safeStorageRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
+function safeStorageRemove(key){safeRemove(key)}
+function setMeetingBusy(busy){el('meeting-submit').disabled=busy||meetingLoading;el('meeting-clear').disabled=busy;el('meeting-submit').textContent=busy?'登録中…':'登録'}
+MEETING_FIELDS.forEach(f=>el('meeting-'+f).addEventListener('input',()=>{clearRetryContext();saveDraft()}));
+el('meeting-form').addEventListener('submit',async event=>{event.preventDefault();clearStatus('meeting-status');const payload=meetingValues();if(!payload.date||!payload.gpId||!payload.assetClassId){showStatus('meeting-status','error','日付、GP、Asset Classは必須です。');return}if(retryContext){payload.retryMeetingId=retryContext.meetingId;payload.retryFingerprint=retryContext.fingerprint}setMeetingBusy(true);try{const result=await serverCall('registerMeeting',payload);setMeetingBusy(false);if(result&&result.ok){clearMeetingSpecificDraft();const meeting=result.meeting||{};const url=String(meeting.documentUrl||'').replace(/"/g,'&quot;');showStatus('meeting-status','success','登録しました: '+meeting.id+(url?'<br><a class="result-link" target="_blank" rel="noopener" href="'+url+'">Google Docsを開く</a>':''),true)}else{if(result&&result.retry){retryContext=result.retry;writeEnvelope(KSP_MEETING_RETRY_KEY,retryContext);el('meeting-retry-note').classList.add('visible')}saveMeetingDraft();showStatus('meeting-status','error',(result&&result.error?result.error.message:'登録に失敗しました。')+' 入力内容は保持されています。')}}catch(error){setMeetingBusy(false);saveMeetingDraft();showStatus('meeting-status','error',(error&&error.message?error.message:String(error))+' 入力内容は保持されています。')}});
+el('meeting-clear').onclick=()=>{if(!confirm('面談入力と共通項目を消去しますか？'))return;[...SHARED_FIELDS,...MEETING_FIELDS].forEach(f=>{const node=el('meeting-'+f);if(node)node.value=''});applyShared({date:'',gpId:'',assetClassId:'',capitalTypeId:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();clearStatus('meeting-status')};
+</script>
+<?!= include('ClientPitchbookFiles'); ?>
+<?!= include('ClientPitchbookFlow'); ?>
+<?!= include('ClientMaintenance'); ?>
+<?!= include('ClientBootstrap'); ?>
 </body>
 </html>
