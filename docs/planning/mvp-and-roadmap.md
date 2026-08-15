@@ -77,9 +77,18 @@ answer + citations + Drive links
 
 サイドバーに`ナレッジ検索`ページを追加する。
 
-初期入力:
+ページ上部に以下の5モードを並べる構想を正式採用する。
 
-- 自由質問
+```text
+自由質問 | 要約 | 時系列 | 比較 | 面談準備
+```
+
+`自由質問`を初期表示とする。
+
+5モードは別々の検索機能ではなく、同じFile Search Store、Metadata Filter、semantic retrieval、Gemini Flash、citation / Drive link処理を共有する。違いはGeminiへ渡すprompt / output templateだけとする。
+
+共通検索条件:
+
 - 日付 From / To
 - GP
 - Asset Class
@@ -90,7 +99,36 @@ answer + citations + Drive links
 
 `未選択`は検索条件を適用しないUI状態であり、MasterまたはFile Search Metadataには保存しない。
 
+入力欄の扱い:
+
+- `自由質問`: 自然言語の質問を入力する主入力欄。
+- `要約 / 時系列 / 比較 / 面談準備`: 同じ入力領域を任意の`追加指示`として利用できる。追加指示がなくても選択範囲からpresetを実行できる。
+
 初期版ではモデル選択、Deep Search等の切替UIは置かない。
+
+## Accepted five search/output modes
+
+### 自由質問
+
+蓄積済み資料に対して任意の質問を行い、根拠付きで直接回答する。
+
+### 要約
+
+選択した期間 / GP / Asset Class等の範囲を横断して、主要テーマ、重要事項、変化点、簡潔なTakeawayをまとめる。単なる資料ごとの要約連結ではなく、取得資料を横断して統合する。
+
+### 時系列
+
+発言、見方、市場認識、重要な更新等を日付・期間順に整理し、何が変化したか / 継続したかを示す。資料に根拠がない期間については推測で補わない。
+
+### 比較
+
+GP、資料、期間、戦略等を共通論点で横比較する。可能な場合は表形式を優先し、機会、リスク、見方、Valuation / Return等の比較軸を資料から抽出する。比較対象指定のために将来multi-select UIを加えてもよいが、retrieval architectureは変えない。
+
+### 面談準備
+
+特定GP等について、最近の面談・資料、主要発言、前回からの変化、未解決論点、再確認事項、次回聞くべき質問候補をまとめた実務用Briefを作る。特定GPが必要な場合はGP選択を明示的に求める。
+
+すべてのモードでsource citationと元Drive資料へのリンクを表示し、根拠不足時は不足を明示する。
 
 ## Initial source-format whitelist
 
@@ -111,16 +149,18 @@ Outlook保存メールは`.eml`のみ初期対応とし、Shared Driveには元�
 
 Outlook `.msg`は初期対応外とする。
 
-## Initial AI retrieval release
+## Delivery sequence for Knowledge Search
 
-まず以下だけを完成させる。
+Target UXとしては5モードすべてを採用するが、実装は共通検索基盤の安定性を優先して段階化できる。
+
+### First usable release
 
 1. MeetingをFile Searchへindex
 2. Pitchbook / source materialsをFile Searchへindex
 3. 新規 / 更新 / 無効化 / 再有効化をAI indexへ同期
 4. 15分間隔のAI sync worker
 5. ナレッジ検索画面
-6. 自由質問
+6. `自由質問`
 7. Metadata filter
 8. semantic retrieval
 9. Gemini Flashによるgrounded answer
@@ -129,16 +169,16 @@ Outlook `.msg`は初期対応外とする。
 12. AI index失敗 / retry管理
 13. AI query監査
 
-## Later output modes
+### Preset expansion on the same retrieval layer
 
-初期検索が安定した後、同じretrieval layerを利用して以下を追加できる。
+共通検索基盤が安定した後、同じ画面・同じretrieval layerへ以下を追加する。
 
-- 要約
-- 時系列整理
-- GP比較 / 資料比較
-- 面談準備
+1. `要約`
+2. `時系列`
+3. `比較`
+4. `面談準備`
 
-これらは別検索基盤を作らず、prompt / structured output templateとして実装する。
+これらは別検索基盤を作らず、prompt / structured output templateとして実装する。実装を段階化しても、5モード構成自体は採用済みのTarget UXとして扱う。
 
 ## Index changes for Phase 2
 
@@ -174,13 +214,14 @@ AI_DEFAULT_MODEL = configured Gemini Flash model
 
 ## AI query audit baseline
 
-Knowledge Searchの実行を既存の5年監査ログ対象に含める。
+Knowledge Searchの全5モード実行を既存の5年監査ログ対象に含める。
 
 少なくとも以下を記録する。
 
 - 利用者
 - 日時
-- 質問本文
+- Search mode
+- 質問本文 / 追加指示
 - Date From / To
 - GP filter
 - Asset Class filter
@@ -206,6 +247,7 @@ Gemini回答全文、retrieved chunk全文、Embedding、原資料本文は監�
 - query / indexing rate limitsと費用管理
 - File Search派生データの保持 / 削除運用が会社ルールに適合すること
 - 具体的なGemini Flash model IDの選定
+- 比較モードでmulti-select UIが本当に必要かの実利用確認
 
 上記は現在の保存・Index契約を変更せずに実装時検証で決める。
 
@@ -227,6 +269,9 @@ Phase 2のリリース条件には最低限以下を含める。
 - Web App全利用者が共通AI検索範囲へアクセスできること
 - AI query監査の記録内容と管理者限定閲覧
 - Flash固定でモデル選択UIが存在しないこと
+- `自由質問`がdefault modeとして動作すること
+- 4つのpresetが同じretrieval / citation layerを利用すること
+- 要約 / 時系列 / 比較 / 面談準備が根拠のない内容を補完しないこと
 - AI障害で正本登録が壊れないこと
 - confidential data / credentialsがGitHubや不適切なログへ出ないこと
 
