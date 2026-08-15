@@ -12,7 +12,9 @@ Starting ref: `b5969ea85f9bacb3b57ff30828b1487a7ddb1a9f`
 
 Instruction commit: `998a8381d5eae171a4ff177208e0905f07626aad`
 
-Implementation commit: `87d2d5a27c372617ae2f82f254ca2a553a9981a1`
+Core implementation commit: `87d2d5a27c372617ae2f82f254ca2a553a9981a1`
+
+Final review/remediation head before this report: `d94bc25818181e17b6361d9b487b2868a85bcdaf`
 
 ## Completed outcome
 
@@ -32,10 +34,10 @@ The branch now contains:
 - authoritative-file checks before Meeting or Pitchbook reactivation;
 - short-lived per-record mutation claims so Drive/Docs work is not performed while holding a common Script Lock;
 - snapshot restoration when a Meeting Doc or Pitchbook filename changes but the final row commit fails while the claim remains owned;
-- GP Master add, quick-add, rename, deactivate, and reactivate;
+- GP Master add, quick-add from Meeting/Pitchbook registration, rename, deactivate, and reactivate;
 - Option Master add, rename, reorder, deactivate, and reactivate;
 - immutable stable Master IDs and NFKC/whitespace/case-normalized duplicate checks;
-- inactive Master display values retained for historical-record rendering while ordinary registration remains Active-only;
+- inactive Master display values retained and selectable for historical-record search/edit while ordinary registration selectors remain Active-only;
 - metadata-only before/after Audit events in the separate Audit Spreadsheet;
 - Option reorder Audit snapshots covering every affected Option order;
 - best-effort Actor and non-blocking Audit-write behavior;
@@ -63,6 +65,7 @@ Web App/client:
 - `src/MaintenancePages.html`
 - `src/ClientCore.html`
 - `src/ClientMaintenance.html`
+- `src/ClientMaintenanceEnhancements.html`
 - `src/ClientBootstrap.html`
 - `src/Styles.html`
 
@@ -91,7 +94,7 @@ Observed results:
 
 - Work 0007 Apps Script/static validation: PASS;
 - Apps Script source files parsed by the isolated Work 0007 validation snapshot: `7`;
-- HTML files inspected by the isolated Work 0007 validation snapshot: `6`;
+- HTML files inspected by the isolated Work 0007 validation snapshot: `7`;
 - manifest/OAuth-scope validation: PASS where the manifest was present;
 - Work 0007 tests: `34/34 PASS`;
 - failures: `0`;
@@ -125,6 +128,7 @@ The merged Work 0006 baseline retains the previously observed combined `52/52 PA
 - full GP/Option Master mutation flow;
 - Actor and Audit failures remain non-blocking after successful authoritative mutation;
 - historical records retain labels after a Master becomes Inactive;
+- maintenance bootstrap includes Inactive values for historical search/edit selectors;
 - Phase 1 diagnostics are read-only, do not expose Actor values, and report live/Gemini status accurately.
 
 ## Review findings addressed
@@ -133,11 +137,13 @@ The merged Work 0006 baseline retains the previously observed combined `52/52 PA
 - Added claim-aware rollback so a stale process does not overwrite a newer process's source state.
 - Included active Pitchbook edit claims in destination sequence reservation to avoid duplicate sequence allocation.
 - Required authoritative source IDs before reactivation.
-- Kept historical labels available even when the corresponding Master is Inactive.
+- Kept historical labels and Inactive Master choices available in maintenance screens, while new-registration selectors remain Active-only.
+- Added direct GP quick-add controls to both Meeting and Pitchbook registration pages, using the same normalized duplicate-safe Master service.
 - Centralized normalized duplicate detection using Unicode NFKC, collapsed whitespace, and case-insensitive comparison.
 - Kept Meeting notes and Pitchbook contents out of Index and Audit snapshots.
 - Added complete affected-order snapshots for Option reorder events.
 - Added deterministic five-year Audit retention cleanup and cleanup-event logging.
+- Added a Master-page configuration-diagnostics control without exposing resource IDs or Actor values.
 - Limited Phase 1 diagnostics to non-secret status information; resource IDs and Actor values are not returned.
 - Removed the earlier superseded Work 0007 service/client/test files so only one maintenance implementation remains.
 
