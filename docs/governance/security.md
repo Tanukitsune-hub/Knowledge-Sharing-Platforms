@@ -4,6 +4,8 @@
 
 詳細なガバナンス設計は会社ルール確認に従うが、本書では現在採用している蓄積基盤とGemini File Search検索レイヤーに適用する最低条件を定める。
 
+採用済み仕様と実装時検証を混同しない。会社環境での実機確認が必要という理由だけで、確定済みのアクセス・監査・検索設計を未決定扱いしない。
+
 ## Baseline requirements
 
 1. 実際の面談記録、Pitchbook、未公開の投資情報、個人情報、認証情報を公開GitHubへ保存しない。
@@ -39,6 +41,16 @@
 - 初期版では利用者別、GP別、ファイル別のAI retrieval ACLを実装しない。
 - AI回答は検索対象資料の内容を利用者へ提示し得るため、Web App利用権限は全Active資料を検索可能な者だけに付与する。
 - 将来、利用者ごとに原資料アクセス範囲を分離する必要が生じた場合は、新しいセキュリティ要件としてFile Search Store構成またはretrieval filteringを再設計する。
+
+## Knowledge Search modes
+
+採用済みTarget UX:
+
+```text
+自由質問 | 要約 | 時系列 | 比較 | 面談準備
+```
+
+5モードは同じretrieval / citation layerを使用する。presetの違いはprompt / output templateだけであり、モードごとに別のデータアクセス経路や権限モデルを作らない。
 
 ## Credentials
 
@@ -84,13 +96,24 @@ GP Master、Asset Class、Equity / Debt、面談場所のマスター変更は�
 - Pitchbook: 登録、再試行、メタデータ変更、無効化、再有効化、失敗
 - マスター: 追加、名称変更、並び替え、無効化、再有効化
 - AI layer: index / re-index / delete / retry / failure
-- AI query: Knowledge Searchの実行
+- AI query: Knowledge Searchの全5モード実行
 
 通常操作の基本ログ項目は、日時、利用者、操作、対象種別、対象ID、Success / Failure、変更項目、必要に応じた変更前後メタデータ、Batch ID、短いエラー情報とする。
 
-AI queryについては追加で、質問本文、Date From / To、GP / Asset Class / Equity-Debt / Source Type filter、使用したFlash model ID、Success / Failure、cited source IDsを記録する。
+AI queryについては追加で以下を記録する。
 
-Gemini回答全文、retrieved chunk全文、Embedding、原資料本文は監査ログへ複製しない。質問本文は監査目的で5年間保持するため、監査ログ自体を管理者専用として厳格に扱う。
+- Search mode
+- Question / additional instruction text
+- Date From / To
+- GP filter
+- Asset Class filter
+- Equity / Debt filter
+- Source Type filter
+- Configured Flash model ID
+- Success / Failure
+- cited source IDs when available
+
+Gemini回答全文、retrieved chunk全文、Embedding、原資料本文は監査ログへ複製しない。質問 / 追加指示は監査目的で5年間保持するため、監査ログ自体を管理者専用として厳格に扱う。
 
 ## Web App identity and execution
 
@@ -114,6 +137,22 @@ AI index同期は15分おきのtime-driven workerで処理し、正本登録・�
 
 初期AI検索はGemini Flash系モデル1つだけを使用する。利用者向けモデル選択やDeep modeは提供しない。具体的なmodel IDはserver-side設定として管理する。
 
+## Initial AI-searchable formats
+
+```text
+.pdf
+.pptx
+.xlsx
+.docx
+.txt
+.eml
+```
+
+- `.eml`原本はShared Driveへ保存する。
+- AI indexにはSubject / From / To / Cc / Date / Body等を抽出したテキスト表現を使用する。
+- `.eml`内の添付は自動indexしない。
+- `.msg`は初期対応外とする。
+
 ## Release blockers for AI layer
 
 以下が確認できない場合はAI検索機能を本番リリースしない。
@@ -124,7 +163,7 @@ AI index同期は15分おきのtime-driven workerで処理し、正本登録・�
 - File Search派生データの保持 / 削除運用
 - citationから正しい原資料へ戻れること
 - Inactive資料が通常検索に混入しないこと
-- AI query監査が正しく記録され、通常利用者から閲覧できないこと
+- AI query監査がSearch modeを含む必要項目で正しく記録され、通常利用者から閲覧できないこと
 - AI障害が正本データを破損させないこと
 
 ## GitHub data policy
@@ -133,6 +172,8 @@ GitHub上のテストには匿名化または合成データのみを使用す�
 
 ## References
 
+- `docs/product/vision.md`
+- `docs/architecture/target-architecture.md`
+- `docs/planning/mvp-and-roadmap.md`
 - `docs/ai/gemini-file-search.md`
 - `docs/operations/runtime-policy.md`
-- `docs/architecture/target-architecture.md`
