@@ -27,7 +27,7 @@
             <div class="field"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
             <div class="field"><label for="meeting-time">時間</label><input id="meeting-time" type="time"></div>
             <div class="field"><label for="meeting-locationId">面談場所</label><select id="meeting-locationId"><option value="">未選択</option></select></div>
-            <div class="field"><label class="required" for="meeting-gpId">GP</label><select id="meeting-gpId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="meeting-gpId">GP</label><select id="meeting-gpId" required><option value="">未選択</option></select><button id="meeting-quick-add-gp" class="small-button" type="button">未登録GPを追加</button></div>
             <div class="field"><label class="required" for="meeting-assetClassId">Asset Class</label><select id="meeting-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field"><label for="meeting-capitalTypeId">Equity / Debt</label><select id="meeting-capitalTypeId"><option value="">未選択</option></select></div>
             <div class="field"><label for="meeting-counterparty">面談相手</label><input id="meeting-counterparty" maxlength="500"></div>
@@ -46,7 +46,7 @@
         <form id="pitchbook-form" novalidate>
           <div class="grid">
             <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
-            <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select><button id="pitchbook-quick-add-gp" class="small-button" type="button">未登録GPを追加</button></div>
             <div class="field"><label class="required" for="pitchbook-assetClassId">Asset Class</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
             <div class="field full"><label class="required">ファイル</label><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0">ここへファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div><input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"><div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div></div>
@@ -77,6 +77,7 @@ el('meeting-clear').onclick=()=>{if(!confirm('面談入力と共通項目を消�
 <?!= include('ClientPitchbookFiles'); ?>
 <?!= include('ClientPitchbookFlow'); ?>
 <?!= include('ClientMaintenance'); ?>
+<?!= include('ClientMaintenanceEnhancements'); ?>
 <?!= include('ClientBootstrap'); ?>
 </body>
 </html>
