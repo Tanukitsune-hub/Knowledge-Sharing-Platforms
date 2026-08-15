@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { ksp, catalogRows, createFakeEnvironment } = require('./maintenance-test-fixture.cjs');
 test('maintenance bootstrap returns options and both Master tables', () => {
   const result=ksp.kspGetPhase1MaintenanceBootstrap(createFakeEnvironment());
-  assert.equal(result.ok,true); assert.equal(result.options.gps.length,2); assert.equal(result.masters.gps.length,3); assert.equal(result.masters.options.length,4);
+  assert.equal(result.ok,true); assert.equal(result.options.gps.length,3); assert.ok(result.options.gps.some(item=>item.status==='Inactive')); assert.equal(result.masters.gps.length,3); assert.equal(result.masters.options.length,4);
 });
 
 test('Meeting search returns mapped display names', () => {
