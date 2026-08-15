@@ -12,12 +12,13 @@
 - `architecture/target-architecture.md`: 現在採用している全体アーキテクチャと責任境界
 - `planning/mvp-and-roadmap.md`: 採用済み設計、実装順序、実機検証事項、本当に未決定の実装選択肢
 - `planning/apps-script-implementation-plan.md`: Apps Script-first setup、ChatGPT / Codex責任分担、Work sequence、acceptance、validation、manual boundary
-- `operations/runtime-policy.md`: 下書き、アップロード上限、部分失敗retry、実行主体、Master権限、15分AI同期、監査ログ等の確定運用ルール
+- `operations/runtime-policy.md`: 下書き、upload、部分失敗retry、実行主体、Master権限、15分AI同期、監査ログ等の確定運用ルール
 - `ai/gemini-file-search.md`: File Search Store、Embedding、Metadata Filter、5モードKnowledge Search、Citation、AI同期、対応形式等のAI retrieval正本
 - `governance/security.md`: 情報管理、共通AIアクセス境界、credential、監査、AI release blocker
 - `decisions/decision-log.md`: 現在も有効な主要判断を統合したDecision Log
 - `decisions/gemini-file-search-retrieval.md`: Gemini File Search採用とKnowledge Search UIに関する詳細Decision
 - `decisions/apps-script-first-implementation.md`: ChatGPT主導、Codex residual、Apps Script-first runtime / setup、manual boundaryの確定判断
+- `decisions/pitchbook-upload-limits.md`: Pitchbook / source uploadの現行上限。25MB/file、10 files、100MB total。旧100MB/file・500MB/batchを上書きする。
 
 ## Authority / conflict handling
 
@@ -29,6 +30,7 @@
    - Gemini retrieval / Knowledge Search: `ai/gemini-file-search.md`
    - Security: `governance/security.md`
    - Implementation execution / setup: `planning/apps-script-implementation-plan.md`
+   - Upload limits: `decisions/pitchbook-upload-limits.md`
 3. `architecture/target-architecture.md`は全体の責任境界、`product/vision.md`はUX / product intentを示す。
 4. `planning/mvp-and-roadmap.md`は、確定済み設計そのものではなく、実装順序・検証事項・残る実装選択肢を明確に区別して管理する。
 5. Historical wordingが現行のdomain-specific正本と矛盾する場合、現行正本を優先し、矛盾する古い記述は修正する。
@@ -40,7 +42,7 @@
 - Meeting / Pitchbookの登録・過去検索・編集・無効化・再有効化
 - GP Master / Option Master
 - 24時間browser draft retention
-- 100MB / file、10 files / batch、500MB / batch
+- Pitchbook / source upload: 25MB/file、10 files/selection、100MB total
 - 全利用者がMaster変更可能
 - 5年監査ログ、管理者のみ閲覧
 - Gemini File Searchを1 Storeの派生semantic retrieval indexとして使用
