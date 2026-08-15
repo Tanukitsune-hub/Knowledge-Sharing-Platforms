@@ -20,9 +20,19 @@ Status: Accepted
 
 ## Knowledge Search UI
 
-検索画面には以下を置く。
+ナレッジ検索画面は以下の5モードを持つTarget UXとする。
 
-- 自由質問
+```text
+自由質問 | 要約 | 時系列 | 比較 | 面談準備
+```
+
+- `自由質問`を初期表示とする。
+- 5モードは同じFile Search Store、Metadata Filter、semantic retrieval、Gemini Flash、citation / Drive link処理を共有する。
+- `要約 / 時系列 / 比較 / 面談準備`は別検索基盤ではなく、同じretrieval layer上のprompt / output templateとして実装する。
+- 実装は`自由質問`を先行して安定化し、その後4つのpresetを追加する段階導入を許容する。ただし5モード構成自体は採用済みTarget UXとして扱う。
+
+共通検索条件:
+
 - 日付 From / To
 - GP
 - Asset Class
@@ -30,6 +40,17 @@ Status: Accepted
 - Source Type: Meeting / Pitchbook
 
 すべての任意プルダウンは`未選択`を初期値とする。`未選択`は「その条件で絞らない」というUI状態であり、MasterやFile Search Metadataへ保存しない。
+
+入力欄は、`自由質問`では質問本文、preset modeでは任意の`追加指示`として利用できる。
+
+Presetの基本目的:
+
+- `要約`: 選択範囲の主要テーマ、重要事項、変化点を横断整理する。
+- `時系列`: 発言・見方・更新を時系列で整理し、変化 / 継続を示す。
+- `比較`: GP、資料、期間、戦略等を共通論点で横比較する。
+- `面談準備`: 最近の面談・資料、主要発言、変化、未解決論点、再確認事項、次回質問候補をBrief化する。
+
+すべてのモードでCitationと元Drive資料へのリンクを表示し、根拠不足時は不足を明示する。
 
 初期版では利用者向けモデル選択やDeep modeを置かない。
 
@@ -78,13 +99,14 @@ Outlook `.msg`は初期対応外とする。
 
 ## AI query audit
 
-Knowledge Searchの実行を既存の5年監査ログ対象に含める。
+Knowledge Searchの全5モード実行を既存の5年監査ログ対象に含める。
 
 AI queryでは少なくとも以下を管理者専用監査ログへ記録する。
 
 - User identity
 - Event timestamp
-- Question text
+- Search mode
+- Question / additional instruction text
 - Date From / To
 - GP / Asset Class / Equity-Debt / Source Type filters
 - Configured Flash model ID
@@ -119,24 +141,29 @@ AI_SYNC_INTERVAL_MINUTES
 
 初期同期間隔は15分とする。
 
-## Initial release
+## Initial delivery
+
+First usable release:
 
 1. File Search同期
 2. 15分AI sync worker
 3. ナレッジ検索画面
-4. Metadata Filter
-5. Semantic retrieval
-6. Gemini Flashによるgrounded answer
-7. Citation表示
-8. Drive原資料へのリンク
-9. AI query監査
-10. `.pdf / .pptx / .xlsx / .docx / .txt / .eml`対応
+4. `自由質問`
+5. Metadata Filter
+6. Semantic retrieval
+7. Gemini Flashによるgrounded answer
+8. Citation表示
+9. Drive原資料へのリンク
+10. AI query監査
+11. `.pdf / .pptx / .xlsx / .docx / .txt / .eml`対応
 
-要約、時系列、比較、面談準備は同じretrieval layer上の後続preset output modeとする。
+Common retrieval layer安定後に、同じ画面へ`要約 / 時系列 / 比較 / 面談準備`を追加する。
 
 ## Rationale
 
 既存の構造化MetadataとGoogle管理のEmbedding検索を組み合わせることで、保存基盤を複雑化せずに意味検索と出典付きAI回答を実現できる。独自Vector DBやタグ体系を保守する必要を初期段階で持ち込まず、全利用者共通アクセス、Flash単一モデル、15分同期という単純な運用から開始する。
+
+5モードを同じretrieval layer上のprompt / output templateとして扱うことで、自由度と定型業務の使いやすさを両立しつつ、検索基盤の重複実装を避ける。
 
 ## Detailed design
 
