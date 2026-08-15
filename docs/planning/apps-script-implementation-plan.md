@@ -2,81 +2,104 @@
 
 Work ID: 0003
 
-## Status
+Date: 2026-08-16
 
 Status: Accepted implementation plan
 
-Date: 2026-08-15
+## 1. Goal
 
-本書は、採用済みプロダクト設計を実装へ移すための実行計画を定める。
+採用済みKnowledge Sharing Platforms設計を、Apps Script中心の最短・単純な実装経路で完成させる。
 
-開発はChatGPTが全体責任を持ち、GitHub上の設計、Work ID、scope、handoff、review、completionを管理する。Codexは、非自明なApps Script実装、local test、実機検証、runtime debugging等、ChatGPTだけでは安全に完了できない残作業へ限定して使用する。
+開発全体はChatGPTが所有し、GitHub上の設計、scope、Work ID、handoff、review、completionを管理する。Codexは非自明なApps Script実装、local test、実機検証、runtime debugging等、ChatGPTだけでは安全に完了できない残作業へ限定して使用する。
 
-本番runtimeはGoogle Apps Scriptを中心とする。通常導入時に利用者がSheets、フォルダ、trigger、初期Masterを手作業で組み立てず、管理者がApps Scriptの初期化関数を実行することで必要なGoogle Workspace資源を作成・検証できる構成を目標とする。
+本番利用者 / 管理者にNode.js、clasp、外部server等を要求せず、通常導入はApps Script / Google Workspaceで完結させる。
 
-## 1. Implementation outcome
+## 2. Target runtime
 
-最終的に以下を満たす。
+```text
+Authorized users
+      |
+      v
+Apps Script HTML Service Web App
+  ├─ Meeting: New / Past
+  ├─ Pitchbook: New / Past
+  ├─ Knowledge Search
+  │    └─ 自由質問 / 要約 / 時系列 / 比較 / 面談準備
+  └─ Master Management
+      |
+      v
+Google Apps Script
+      |
+ +----+------------------------------+
+ |                                   |
+ v                                   v
+Backend Spreadsheet             Shared Drive sources
+5 sheets                        Meeting Records / Pitchbooks
+                                     |
+                                     v
+                              Gemini File Search
+                                     |
+                                     v
+                              Gemini Flash
+                                     |
+                                     v
+                       grounded output + citations
 
-1. 組織管理下のApps Script projectからWeb Appをdeployできる。
-2. 初期化関数がShared Drive保管領域、backend Spreadsheet、Audit Spreadsheet、5 backend Sheets、Master seed、Settings、必要なtime-driven triggerを作成または再利用する。
-3. 初期化関数はidempotentで、再実行しても重複folder、Sheet、seed、triggerを作らない。
-4. Meeting、Pitchbook、Past Records、Master Management、AuditがApps Script Web App内で動く。
-5. Gemini File Search同期、15分worker、6形式、Citation、5モードKnowledge Searchが同じWeb Appへ統合される。
-6. Node.js、clasp、外部Web server、独自database等をproduction setupの必須条件にしない。
-7. developer / Codexは必要に応じてclaspやlocal testを利用できるが、runtimeと通常導入はApps Script / Google Workspace中心で完結させる。
+Separate restricted Audit Spreadsheet
+```
 
-## 2. Delivery ownership and routing
+## 3. Responsibility model
 
-### ChatGPT owns
+### ChatGPT
 
-- outcome、scope、design、acceptance criteria
-- GitHub source of truth、Work ID、handoff、Issue / PR管理
-- product / architecture / runtime / security判断
-- Codexへ渡す前の曖昧性解消
-- safeなdocumentation / configuration contractの更新
-- Codex成果のdiff、report、tests、CI、実機evidenceのreview
-- BLOCKER / FIX SOON / BACKLOG分類とcompletion判定
+- outcome / scope / design / acceptance
+- GitHub source of truth
+- Work ID / handoff / PR / Issue coordination
+- implementation ambiguity resolution before Codex
+- safe documentation / configuration updates
+- Codex result review
+- BLOCKER / FIX SOON / BACKLOG classification
+- final completion judgment
 
-### Codex is used only for residual work requiring
+### Codex
 
-- 非自明なApps Script実装
-- 複数ファイルのlocal editing
-- unit / static test harnessの実装・実行
-- clasp等を使うdevelopment project同期
-- Apps Script / Gemini / Drive APIの実機検証
-- codeとruntimeをまたぐdebugging
+Codex is used only for residual work requiring:
 
-### Codex model routing
+- non-trivial Apps Script implementation
+- multi-file local edits
+- test harness and executable validation
+- clasp / DEV Apps Script synchronization when useful
+- Google Workspace / Gemini API runtime validation
+- code + runtime debugging
 
-- Default: Luna Max — 既決仕様に沿う実装、test、bounded debugging、routine verification
-- Sol High — identity / permission / Gemini API等で原因不明のcross-cutting failureが残る場合
-- Sol Max — hard-to-reverseなarchitecture変更またはcritical final reviewで追加推論が結果を変え得る場合のみ
+### Model routing
 
-すべてのCodex作業は、該当する`AGENTS.md`を先に読み、repository-specific subagent policyに従ってsubagentsを積極的かつ比例的に使用する。
+- Default: Luna Max — bounded implementation, tests, routine debugging / verification
+- Sol High — unresolved cross-cutting Gemini / permission / runtime diagnosis where architecture-level reasoning is materially useful
+- Sol Max — only exceptional hard-to-reverse architecture change or critical final review
 
-## 3. Apps Script-first setup strategy
+Every Codex run must read applicable `AGENTS.md` first and actively use subagents according to repository policy.
 
-### 3.1 Minimal manual prerequisites
+## 4. Apps Script-first setup
 
-管理者の明示操作として以下だけを残す。
+### 4.1 Manual prerequisites
 
-1. 組織管理下のstandalone Apps Script projectを作成または指定する。
-2. standard Google Cloud projectを紐付ける。
-3. Drive advanced serviceとDrive APIを有効化する。
-4. Gemini phase開始時に会社承認済みGemini API / Google Cloud利用環境を有効化する。
-5. Apps Scriptが資源を作成できるShared Drive parent folderと管理者専用control folderを用意し、それぞれのFolder IDを取得する。
-6. 初回OAuth consentを完了する。
-7. Web App deploymentを作成し、対象domain / usersへ公開する。
-8. execute-as方式は実利用者識別test後に確定する。
+管理者の手動作業は組織 / OAuth / deployment境界に限定する。
 
-Shared Drive自体の作成、Google Cloud projectの組織承認、API有効化、credential発行、OAuth consent、Web App deploymentをアプリ自身が暗黙に自動化しない。
+1. organization-controlled standalone Apps Script projectを作成 / 指定
+2. standard Google Cloud projectを紐付け
+3. Advanced Drive Service / Drive APIを有効化
+4. Shared Drive上のknowledge parent folderを用意
+5. backend / auditを置く管理者専用control folderを用意し、Drive共有をRestrictedにする
+6. 初回OAuth consent
+7. Web App deploymentを作成し、許可された利用者へ公開
+8. Gemini phase開始時に会社承認済みGemini API / Google Cloud環境とcredentialを設定
 
-### 3.2 Bootstrap configuration
+初期構成はWeb Appをデプロイ主体として実行し、backend権限をアプリ側へ集約する方式を第一選択とする。実利用者emailを取得できることは本番条件にしない。
+
+### 4.2 Bootstrap configuration
 
 組織固有IDやcredentialをsource codeへ埋め込まず、Script Propertiesの`BOOTSTRAP_CONFIG_JSON`から初期化する。
-
-例:
 
 ```json
 {
@@ -89,11 +112,9 @@ Shared Drive自体の作成、Google Cloud projectの組織承認、API有効化
 }
 ```
 
-credentialはこのJSONへ入れない。成功後、必要なnon-secret設定は`Settings`へ移し、bootstrap propertyは削除またはconsumed状態にする。
+credentialはbootstrap JSONへ入れない。
 
-### 3.3 Setup entry points
-
-初期実装では少なくとも以下を提供する。
+### 4.3 Setup entry points
 
 ```text
 setupKnowledgePlatform()
@@ -101,86 +122,62 @@ validateInstallation()
 getInstallationStatus()
 ```
 
-`setupKnowledgePlatform()`は、Script Lock配下でconfig / authorityを確認し、knowledge folders、backend / audit Spreadsheet、5 sheets、schema、Master seed、Settings、triggerを作成または再利用し、最後にvalidation reportを返す。
+`setupKnowledgePlatform()`は次をcreate / reuse / migrateする。
 
-### 3.4 Idempotency and repair
+- `Private Assets Knowledge / Meeting Records / Pitchbooks`
+- Backend Spreadsheet
+- separate Audit Spreadsheet
+- `GP_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings`
+- Master seeds
+- schema version / settings
+- required installable triggers
 
-- setup再実行を通常のrepair手段とする。
-- 保存済みresource IDを優先し、IDがない場合だけ設定済みparent内をexact nameで検索する。
-- exact nameの重複候補が複数ある場合は推測で選ばず停止する。
-- `SCHEMA_VERSION`に基づくforward migrationを使い、既存Sheetを破壊的に作り直さない。
+Setupはidempotentとする。2回目以降をrepair / migration pathとして使えるようにする。
+
+### 4.4 Setup safety
+
+- stored resource IDを優先する。
+- IDがない場合だけconfigured parent内をexact nameで検索する。
+- duplicate candidateが複数ある場合は推測で選ばずfailureにする。
+- `SCHEMA_VERSION`によるforward migrationを使う。
 - seedはstable IDでupsertする。
-- triggerはhandler名とtypeでdeduplicateする。
-- production向けgeneric reset / destructive teardownは提供しない。
+- triggerはhandler + typeでdeduplicateする。
+- generic production reset / destructive teardownを提供しない。
 
-## 4. Resource topology
+## 5. Resource topology
 
 ```text
-Existing Shared Drive parent
+Shared Drive parent
 └─ Private Assets Knowledge
    ├─ Meeting Records
    └─ Pitchbooks
 
-Existing admin-only control folder
-├─ Knowledge Platform Backend
-│  ├─ GP_Master
-│  ├─ Option_Master
-│  ├─ Meeting_Index
-│  ├─ Pitchbook_Index
-│  └─ Settings
-└─ Knowledge Platform Audit
+Restricted admin-only control folder
+├─ Knowledge Platform Backend   (Spreadsheet: 5 sheets)
+└─ Knowledge Platform Audit     (separate Spreadsheet)
 ```
 
-source rootにはMeeting RecordsとPitchbooks以外の運用資源を置かず、backend / auditは分離する。
+通常利用者にはbackend / Audit Spreadsheetを直接操作させない。
 
-## 5. Codebase strategy
+Audit SpreadsheetはDrive共有権限で管理者限定にする。初期版ではWeb App内Audit Viewerや独自password認証を実装しない。
 
-### Runtime source
+## 6. Actor / audit model
 
-- Apps Script V8 compatible plain JavaScript
-- `.gs / .html / appsscript.json`をGitHubで管理
-- 初期実装ではTypeScript transpilation、bundler、frameworkをruntime必須にしない
-- manifestでAdvanced Drive Serviceと必要最小限scopeを管理
+Audit Actorはbest-effortとする。
 
-### Development tooling
+1. emailを安全に取得できる場合: email
+2. email不可、temporary active user key可: `TEMP_USER:<key>`
+3. どちらも不可: `UNIDENTIFIED`
 
-- claspはdeveloper / Codex用の任意toolingとする。
-- pure logicはApps Script service依存から分離し、軽量なlocal testで検証できるようにする。
-- Drive、Sheets、Docs、UrlFetch、Session、Lock、Properties、Triggersは薄いadapterで包む。
-- GitHub Actionsはfinal / integration validation中心。開発中はlocal targeted validationを優先する。
+恒久的本人識別ができないことはrelease blockerではない。
 
-### Initial module boundaries
+監査の目的はoperation trace / change history / failure investigationであり、strict non-repudiationではない。
 
-```text
-Web entry / HTML rendering
-Setup / schema migration
-Configuration / settings
-Identity / authorization
-Drive repository
-Sheet repository
-Document generation
-Meeting service
-Pitchbook service
-Master service
-Audit service
-AI sync queue / worker
-Gemini File Search client
-Knowledge Search service / mode templates
-Validation / diagnostics
-```
-
-Meeting、Pitchbook、5 search modesごとに同じ処理を重複実装しない。
-
-## 6. Environment strategy
-
-- DEVとPRODは別Apps Script project、deployment、Shared Drive resources、backend / audit Spreadsheetを使用する。
-- DEVは匿名化または合成データのみ使用する。
-- PRODへ実データを入れる前にDEVでPhase qualificationを完了する。
-- production credentialやresource IDをGitHubへ保存しない。
+詳細: `docs/decisions/audit-access-and-user-attribution.md`
 
 ## 7. Upload policy
 
-Pitchbook / source-material uploadは初期実装で以下を上限とする。
+初期上限:
 
 ```text
 25MB / file
@@ -188,39 +185,75 @@ Pitchbook / source-material uploadは初期実装で以下を上限とする。
 100MB / selection total
 ```
 
-これは従来の`100MB / file、500MB / batch`を置き換える。
+- client / server両方で同じ上限を検証する。
+- file-granularに処理する。
+- 100MB/file専用chunk uploadやCloud fallbackは初期実装に含めない。
+- 25MBでもApps Script実機上限が確認された場合は、architecture追加より上限引下げを優先する。
 
-- client-sideとserver-sideで同じ上限を検証する。
-- 複数ファイルはfile-granularに処理し、1つの巨大requestへまとめない。
-- 初期実装では100MB専用chunk upload、複雑なresumable transport、upload上限維持のためのCloud fallbackを作らない。
-- 25MB以内でもApps Script実機上限が観測された場合は、上限をさらに下げることを優先し、architectureを複雑化して上限を維持しない。
-- 将来25MB超が実務上必要と確認された場合のみ、上限引上げを別Workで扱う。
+詳細: `docs/decisions/pitchbook-upload-limits.md`
 
-Detailed decision: `docs/decisions/pitchbook-upload-limits.md`
+## 8. Runtime source strategy
 
-## 8. Implementation sequence
+- Apps Script V8 compatible plain JavaScript
+- `.gs / .html / appsscript.json`をGitHubで管理
+- TypeScript / bundler / frameworkをruntime必須にしない
+- Advanced Drive Serviceと必要最小限OAuth scopeをmanifestで管理
+- Apps Script service依存を薄いadapterへ分離する
+- pure logicは軽量local testで検証可能にする
+- claspはdeveloper / Codex用の任意tooling
+- GitHub Actionsはfinal / integration validation中心
 
-### Work 0004 — Repository scaffold and idempotent core setup
+Initial module boundaries:
+
+```text
+Web entry / HTML rendering
+Setup / schema migration
+Configuration / settings
+Actor / authorization
+Drive repository
+Sheet repository
+Document generation
+Meeting service
+Pitchbook service
+Master service
+Audit service
+AI sync worker
+Gemini File Search client
+Knowledge Search service / templates
+Validation / diagnostics
+```
+
+## 9. Environment strategy
+
+- DEV / PRODは別Apps Script project、deployment、Shared Drive resources、backend / audit Spreadsheetを使う。
+- DEVは匿名化 / 合成データのみ。
+- PRODへ実データを投入する前にphase qualificationを完了する。
+- production credential / resource IDをGitHubへ保存しない。
+
+## 10. Implementation sequence
+
+### Work 0004 — Apps Script scaffold and idempotent setup
 
 Route: Codex implementation after ChatGPT handoff
-
 Recommended model: Luna Max
 
 Outcome:
 
-- Apps Script source scaffold / manifest
-- Script Properties bootstrap contract
+- Apps Script scaffold / manifest
+- bootstrap config contract
 - `setupKnowledgePlatform / validateInstallation / getInstallationStatus`
-- knowledge folders、backend / audit Spreadsheet、5 sheets、schema version、Master seeds、trigger registry
+- folder / backend / audit / 5-sheet creation-reuse
+- schema / Master seed / trigger registry
 - structured setup report
-- local tests for schema、filename normalization、seed upsert、trigger deduplication
+- local tests for schema, filename normalization, seed upsert, trigger deduplication
 
 Acceptance:
 
-- empty DEV environmentでsetupが完了する。
-- 2回目setupで重複が発生しない。
-- duplicate / inaccessible resourceはsilent fallbackせず明示failureになる。
-- no secrets / real data in GitHub。
+- empty DEV environmentでsetupが完了
+- 2回目setupでduplicateなし
+- duplicate / inaccessible resourceは明示failure
+- restricted control folderへbackend / auditを配置
+- secrets / real dataをGitHubへ保存しない
 
 ### Work 0005 — Meeting vertical slice
 
@@ -229,19 +262,21 @@ Recommended model: Luna Max
 Outcome:
 
 - Web App shell / navigation
-- Meeting新規登録
+- Meeting registration
 - shared browser context
-- Google Docs生成 / Meeting_Index登録
-- deterministic filename / stable Meeting ID
-- 24時間draft retention
-- registration audit
+- Google Docs generation
+- Meeting_Index
+- stable Meeting ID / deterministic filename
+- 24h draft retention
+- audit event
 
 Acceptance:
 
-- 日付、GP、Asset Classだけで登録できる。
-- optional fieldsと本文改行をDocsへ正しく反映する。
-- Meeting bodyをIndexへ全文重複保存しない。
-- failure時にdraftが消えない。
+- Date / GP / Asset Classだけで登録可能
+- optional fields / line breaksをDocsへ反映
+- Meeting bodyをIndexへduplicateしない
+- failure時にdraftを失わない
+- Actor取得不能でも登録をblockしない
 
 ### Work 0006 — Pitchbook vertical slice
 
@@ -249,22 +284,21 @@ Recommended model: Luna Max
 
 Outcome:
 
-- drag & drop / multi-file registration
-- 25MB/file、10 files、100MB total prevalidation
-- Batch ID / Document ID / Sequence
-- Shared Drive save / rename
+- drag & drop / multiple files
+- 25MB/file, 10 files, 100MB total validation
+- Batch ID / Document ID / sequence
+- Drive save / rename
 - Pitchbook_Index
-- file-granular Pending / Active / Failed
-- retry with same identity / reserved sequence
-- registration / retry audit
+- file-granular status / retry
+- audit event
 
 Acceptance:
 
-- UI / server validationが同じupload limitsを使う。
-- 1ファイル失敗で成功済みfileをrollbackしない。
-- retryでduplicate Drive file / Index rowを作らない。
+- UI / server upload limits一致
+- 1 file failureで成功fileをrollbackしない
+- retryでduplicate Drive file / Index rowを作らない
 
-### Work 0007 — Maintenance, concurrency, masters, and Phase 1 qualification
+### Work 0007 — Maintenance, concurrency, masters, Phase 1 qualification
 
 Recommended model: Luna Max
 
@@ -273,153 +307,154 @@ Outcome:
 - Meeting / Pitchbook past-record search
 - edit / Active / Inactive / Reactivate
 - GP / Option Master management
-- optimistic locking / LockService critical sections
-- admin-only audit access
-- actual-user attribution diagnostics
-- DEV Phase 1 smoke / integration matrix
+- optimistic locking / short LockService sections
+- Audit Spreadsheet restricted-access validation
+- best-effort Actor diagnostics
+- Phase 1 integration matrix
 
 Acceptance:
 
-- stable IDs / Drive File IDsを維持する。
-- stale Meeting saveを拒否する。
-- all Master changes are audited。
-- user identityを取得できない構成をPROD-readyと判定しない。
-- Phase 1 primary workflowがend-to-endで動く。
+- stable IDs / Drive File IDs維持
+- stale Meeting save拒否
+- Master changes audited
+- Actorがemail / temp key / UNIDENTIFIEDのいずれでもoperation継続可能
+- Audit Spreadsheetが通常利用者から直接閲覧できない
+- Phase 1 primary workflow end-to-end PASS
 
-### Work 0008 — Gemini File Search thin slice and free question
+### Work 0008 — Gemini File Search thin slice + 自由質問
 
-Recommended model: Luna Max; unresolved cross-cutting API / identity / permission diagnosis時のみSol High
+Recommended model: Luna Max; unresolved cross-cutting Gemini/API issue only Sol High
 
 Outcome:
 
 - credential provider boundary
 - File Search Store create / reuse
-- small `.txt` and Meeting text indexing
-- AI status fields / metadata filter
+- Meeting text + small TXT indexing
+- AI status fields
+- metadata filter
 - `自由質問`
-- citations / Drive links
+- citation / Drive link mapping
 - AI query audit
-- indexing failure remains non-blocking to source registration
 
 Acceptance:
 
-- synthetic sourceをindexし、質問、citation、Drive mappingまで動く。
-- Inactive sourceが通常検索へ出ない。
-- answer / retrieved chunksをauditへ複製しない。
+- synthetic source: index → question → grounded answer → citation → Drive mapping
+- Inactive sourceが通常retrievalへ出ない
+- AI indexing failureでauthoritative saveをrollbackしない
+- answer / retrieved chunksをauditへ複製しない
 
-### Work 0009 — AI synchronization, six formats, and EML
+### Work 0009 — AI sync + six formats + EML
 
-Recommended model: Luna Max; unresolved quota / runtime root-cause workのみSol High
+Recommended model: Luna Max; unresolved quota/runtime root cause only Sol High
 
 Outcome:
 
-- 15-minute AI worker
-- Pending / retryable Failed processing
+- 15-minute worker
+- Pending / retryable Failed handling
 - idempotent re-index / delete / reactivate
 - `.pdf / .pptx / .xlsx / .docx / .txt / .eml`
 - EML header / body normalization
-- 25MB/fileまでのApps Script upload/index path qualification
+- accepted <=25MB Apps Script source path qualification
 
 Acceptance:
 
-- all six paths have observed evidence。
-- EML embedded attachments are not automatically indexed。
-- accepted 25MB/file pathを実機確認する。
-- source registration remains successful during AI outage。
+- six source paths observed
+- EML attachments are not automatically indexed
+- accepted file path works at practical limit
+- AI outage does not break source registration
 
-### Work 0010 — Preset modes and production qualification
+### Work 0010 — Four presets + production qualification
 
-Recommended model: Luna Max for implementation; material riskが残るfinal cross-checkのみSol High
+Recommended model: Luna Max; final Sol High review only if material risk remains
 
 Outcome:
 
 - `要約 / 時系列 / 比較 / 面談準備`
 - one shared retrieval / citation layer
 - mode-specific prompt / output templates
-- permissions / identity / audit / retention / error-handling final review
-- deployment / operator documentation
+- final permissions / credential / audit / retention / error review
+- deployment / operator docs
 - production setup checklist
 
 Acceptance:
 
-- all five modes use the same source / retrieval path。
-- unsupported inference and insufficient evidence are surfaced。
-- source citations and Drive links remain correct。
-- no BLOCKER remains for approved production deployment。
+- all five modes use same retrieval path
+- insufficient evidence is surfaced instead of invented
+- citations / Drive links correct
+- common-access model works for authorized Web App users
+- no BLOCKER remains for approved production deployment
 
-## 9. Validation strategy
+## 11. Validation strategy
 
-### Development validation
+### Development
 
 - pure unit tests first
 - schema / config / filename / ID / filter / retry / audit-redaction tests
-- targeted Apps Script DEV smoke tests for changed workflow
-- affected-case validation plus representative regression
+- targeted DEV smoke tests
+- affected cases + representative regression
 - local validation before hosted CI
 
 ### Phase 1 qualification
 
 - setup idempotency
-- Meeting / Pitchbook registration and update
-- 25MB/file / 10 files / 100MB total upload validation
+- Meeting / Pitchbook registration / update
+- 25MB/file / 10 files / 100MB total validation
 - stable IDs / sequence
 - partial failure / retry
 - concurrency
 - Master permissions
-- audit / user identity
+- audit writes / restricted access
+- best-effort Actor fallback
 
 ### Phase 2 qualification
 
-- File Search source-to-index consistency
+- source-to-index consistency
 - six formats / EML normalization
 - 15-minute worker
-- metadata filter
+- metadata filter / semantic retrieval
 - re-index / Inactive / Reactivate
-- accepted 25MB/file source path
-- free question and four presets
+- <=25MB practical source path
+- free question + four presets
 - citation / Drive link correctness
 - AI query audit
 - AI outage isolation
 
-### Final release rule
+## 12. Genuine implementation choices
 
-開発中はtargeted validationを優先し、common source / schemaがfreezeした後にfull qualificationを1回行う。CI unavailable aloneはblockerにせず、primary useがend-to-endで動き、critical checksがpassし、BLOCKERがなければ完了する。
-
-## 10. Genuine implementation choices retained
+Remaining choices are limited to:
 
 - concrete Gemini Flash model ID
-- production credential provider / storage mechanism
-- retry batch size、backoff、rate-limit / cost guardrail values
-- comparison modeのmulti-select UI要否
-- final execute-as configuration that satisfies backend access and actual-user attribution
+- organization-approved production credential storage / provider
+- retry batch size / backoff / rate-limit / cost guardrail values
+- comparison mode multi-select UI need
 
-100MB transportやCloud fallback runtimeは、初期のgenuine implementation choiceから外す。25MB超の実需が確認された場合のみ将来Workとして再検討する。
+The following are no longer open decisions:
 
-## 11. Stop and escalation conditions
+- actual-user email is not mandatory
+- Web App internal Audit Viewer is not required initially
+- Audit Spreadsheet is separate and Drive-restricted
+- upload limit is 25MB/file, 10 files, 100MB total
+- 100MB/file transport / Cloud fallback is not initial scope
 
-次の場合だけ該当Workを止め、ChatGPTへscope / design escalationする。
+## 13. Stop / escalation conditions
 
-- organization-approved permission / credentialがなくsafeな実機検証ができない。
-- actual-user attributionとrequired backend accessを両立できない。
-- approved Apps Script / Gemini APIではaccepted requirementを実現できない再現可能なevidenceが得られた。
-- data loss、duplicate authoritative records、confidential-data exposure riskを除去できない。
-- required changeがShared Drive / Index contractsをmaterially変更する。
+Stop only when:
 
-25MB uploadが実機で成立しない場合は、まず安全なより低い上限への変更を検討し、upload上限維持だけを目的とするarchitecture追加は行わない。
+- approved Gemini permission / credential is unavailable for safe validation
+- accepted Apps Script / Gemini design is shown infeasible by reproducible evidence
+- data loss / duplicate authoritative records / confidential-data exposure cannot be prevented
+- required change materially alters Shared Drive / Index contracts
 
-## 12. Official implementation references
+Do not stop because:
 
-- Apps Script Web Apps: https://developers.google.com/apps-script/guides/web
-- Apps Script Advanced Services: https://developers.google.com/apps-script/guides/services/advanced
-- Apps Script Drive Service / Shared Drive guidance: https://developers.google.com/apps-script/reference/drive
-- Apps Script installable triggers: https://developers.google.com/apps-script/guides/triggers/installable
-- Apps Script quotas: https://developers.google.com/apps-script/guides/services/quotas
-- Apps Script best practices: https://developers.google.com/apps-script/guides/support/best-practices
-- Apps Script Cloud projects: https://developers.google.com/apps-script/guides/cloud-platform-projects
-- Gemini File Search: https://ai.google.dev/gemini-api/docs/file-search
+- user email cannot be obtained
+- temporary actor key rotates
+- hosted CI is unavailable
+- 25MB limit must be lowered to a safer practical value
+- optional UX improvements remain
 
-## 13. Completion condition for this plan
+## 14. Completion condition
 
-本計画は、各Workがreviewableかつreversibleであり、Apps Script-first setup、ChatGPT / Codex責任分担、implementation sequence、acceptance、validation、manual boundary、upload policy、escalation conditionが明確であれば完了とする。
+Implementation is done when primary user workflows work end-to-end, critical phase checks pass, confidential data / credentials are handled safely, Audit Spreadsheet is restricted, citations return to correct Drive sources, AI failure cannot corrupt authoritative records, and no BLOCKER remains.
 
 Work ID: 0003
