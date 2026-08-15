@@ -17,7 +17,7 @@
 9. AI回答から利用者が元のShared Drive原資料へ戻れるtraceabilityを維持する。
 10. AIが生成した回答・要約を、原資料確認なしに正式記録や投資判断として自動確定しない。
 11. AI indexing障害でShared Drive上の正本登録や修正をロールバックしない。
-12. 本番では登録・変更・AI利用を行った実利用者を必要な範囲で識別し、監査要件を満たせることを必須とする。
+12. 本番では登録・変更・AI利用を行った実利用者を識別し、監査要件を満たせることを必須とする。
 13. 利用者を識別できない状態のWeb Appを本番運用しない。
 
 ## Gemini File Search data handling
@@ -29,6 +29,16 @@
 - `未選択`等のUI状態をmetadataとして保存しない。
 - 面談本文全文やPitchbook内容を監査ログへ複製しない。
 - File Searchからsourceを削除してもShared Drive正本には影響させない。
+
+## AI retrieval access boundary
+
+初期版ではWeb App自体を共通アクセス境界とする。
+
+- Web Appの利用を許可された全利用者はKnowledge Searchを利用できる。
+- 全利用者はFile Search Store内のすべてのActive Meeting / Pitchbook / source materialを検索できる。
+- 初期版では利用者別、GP別、ファイル別のAI retrieval ACLを実装しない。
+- AI回答は検索対象資料の内容を利用者へ提示し得るため、Web App利用権限は全Active資料を検索可能な者だけに付与する。
+- 将来、利用者ごとに原資料アクセス範囲を分離する必要が生じた場合は、新しいセキュリティ要件としてFile Search Store構成またはretrieval filteringを再設計する。
 
 ## Credentials
 
@@ -73,11 +83,14 @@ GP Master、Asset Class、Equity / Debt、面談場所のマスター変更は�
 - 面談記録: 新規登録、更新、無効化、再有効化
 - Pitchbook: 登録、再試行、メタデータ変更、無効化、再有効化、失敗
 - マスター: 追加、名称変更、並び替え、無効化、再有効化
-- AI layer: index / re-index / delete / retryの成否と、会社要件に応じたquery利用メタデータ
+- AI layer: index / re-index / delete / retry / failure
+- AI query: Knowledge Searchの実行
 
-基本ログ項目は、日時、利用者、操作、対象種別、対象ID、Success / Failure、変更項目、必要に応じた変更前後メタデータ、Batch ID、短いエラー情報とする。
+通常操作の基本ログ項目は、日時、利用者、操作、対象種別、対象ID、Success / Failure、変更項目、必要に応じた変更前後メタデータ、Batch ID、短いエラー情報とする。
 
-AI queryについて、質問本文や取得チャンクを無条件に監査ログへ複製しない。会社の監査要件に必要な範囲で利用者、時刻、filter条件、実行結果等を記録する。
+AI queryについては追加で、質問本文、Date From / To、GP / Asset Class / Equity-Debt / Source Type filter、使用したFlash model ID、Success / Failure、cited source IDsを記録する。
+
+Gemini回答全文、retrieved chunk全文、Embedding、原資料本文は監査ログへ複製しない。質問本文は監査目的で5年間保持するため、監査ログ自体を管理者専用として厳格に扱う。
 
 ## Web App identity and execution
 
@@ -93,7 +106,13 @@ AI queryについて、質問本文や取得チャンクを無条件に監査ロ
 
 Meeting / PitchbookをInactiveにした場合、通常AI検索から除外するため対応するFile Search Documentを削除する。再有効化時は現在のShared Drive正本を再indexする。
 
+AI index同期は15分おきのtime-driven workerで処理し、正本登録・更新の完了をGemini同期成功に依存させない。
+
 法令・社内規程等に基づく実データの完全削除手順が必要になった場合は、Shared Drive、backend Index、File Search派生データ、監査保持義務を含めた管理者手順として通常利用者操作と分離して設計する。
+
+## AI model baseline
+
+初期AI検索はGemini Flash系モデル1つだけを使用する。利用者向けモデル選択やDeep modeは提供しない。具体的なmodel IDはserver-side設定として管理する。
 
 ## Release blockers for AI layer
 
@@ -101,10 +120,11 @@ Meeting / PitchbookをInactiveにした場合、通常AI検索から除外する
 
 - 会社承認済みGemini API / Google Cloud利用環境
 - credentialの安全なserver-side保管
-- 利用者アクセス境界
+- Web App利用者全員が全Active検索対象へアクセスしてよいこと
 - File Search派生データの保持 / 削除運用
 - citationから正しい原資料へ戻れること
 - Inactive資料が通常検索に混入しないこと
+- AI query監査が正しく記録され、通常利用者から閲覧できないこと
 - AI障害が正本データを破損させないこと
 
 ## GitHub data policy
