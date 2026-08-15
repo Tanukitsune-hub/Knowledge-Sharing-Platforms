@@ -1,15 +1,24 @@
 # Knowledge Sharing Platforms
 
-プライベートアセット領域の面談記録とPitchbook / source materialsを、少ない運用負荷で蓄積し、必要なときに検索・整理・要約・比較できるようにするナレッジ基盤プロジェクトです。
+プライベートアセット領域のMeeting recordsとPitchbook / source materialsを、少ない運用負荷で蓄積し、検索・整理・要約・比較できるようにするナレッジ基盤です。
 
 ## Status
 
-現在はplanning phaseです。runtime実装、試験、デプロイ、本番運用、live Gemini integrationはいずれも未開始です。
+現在はimplementation-ready planning phaseです。runtime実装、試験、deployment、本番運用、live Gemini integrationは未開始です。
 
-- 2026-08-14: 旧計画を破棄し、Google Workspace中心のシンプルな蓄積基盤から再設計
-- 2026-08-15: Gemini API / File Searchによる検索・要約レイヤーを採用
+採用済み:
 
-蓄積・修正・運用管理の基本仕様と、Gemini File Search retrieval architecture、Knowledge Searchの5モードTarget UXは採用済みです。今後の主作業は実装と実機検証であり、採用済み仕様を理由なく未決定へ戻しません。
+- Google Workspace / Apps Script-first runtime
+- Shared Drive authoritative source
+- 5-sheet backend
+- separate restricted Audit Spreadsheet
+- Meeting / Pitchbook registration + maintenance
+- Gemini File Search hosted retrieval
+- one configured Gemini Flash model
+- 15-minute AI sync
+- six initial source formats
+- five-mode Knowledge Search
+- ChatGPT-led development + Codex residual implementation
 
 ## Product overview
 
@@ -18,37 +27,34 @@ Authorized users
       |
       v
 Apps Script HTML Service Web App
-  ├─ 面談記録: 新規登録 / 過去記録
-  ├─ Pitchbook: 新規登録 / 過去資料
-  ├─ ナレッジ検索
+  ├─ Meeting: New / Past
+  ├─ Pitchbook: New / Past
+  ├─ Knowledge Search
   │    └─ 自由質問 / 要約 / 時系列 / 比較 / 面談準備
-  └─ マスター管理
+  └─ Master Management
       |
       v
 Google Apps Script
       |
- +----+-----------------------------+
- |                                  |
- v                                  v
-Google Sheets                 Google Shared Drive
-5-sheet backend               authoritative sources
-                                    |
-                                    | derived index
-                                    v
-                             Gemini File Search Store
-                                    |
-                                    v
-                         configured Gemini Flash
-                                    |
-                                    v
-                    grounded output + citations + Drive links
+ +----+------------------------------+
+ |                                   |
+ v                                   v
+Backend Spreadsheet             Google Shared Drive
+5 sheets                        authoritative sources
+                                     |
+                                     v
+                              Gemini File Search
+                                     |
+                                     v
+                              Gemini Flash
+                                     |
+                                     v
+                        output + citations + Drive links
 
-Separate admin-only Audit Spreadsheet
+Separate Restricted Audit Spreadsheet
 ```
 
 ## Authoritative storage
-
-Shared Driveを正本とします。
 
 ```text
 Private Assets Knowledge
@@ -56,7 +62,7 @@ Private Assets Knowledge
 └─ Pitchbooks
 ```
 
-各フォルダ内は年・GP・Asset Class等で細分化せず、規則的なファイル名でフラットに保存します。
+年 / GP / Asset Class等のsubfolderは作らずflat storageとする。
 
 Backend Spreadsheet:
 
@@ -66,7 +72,7 @@ Backend Spreadsheet:
 4. `Pitchbook_Index`
 5. `Settings`
 
-通常利用者はbackend Sheetsを直接編集しません。
+通常利用者はbackend / Audit Spreadsheetを直接操作しない。
 
 ## Meeting records
 
@@ -85,35 +91,88 @@ Optional:
 - 当社側
 - 面談内容
 
-Apps Scriptが軽量なGoogle Docsへ入力済み項目を`項目: 値`形式でミラーします。面談本文はDocsだけを正本とし、Indexへ全文を重複保存しません。
+Meeting bodyはGoogle Docsを正本とし、`Meeting_Index`へ全文duplicateしない。
 
-固定Meeting ID:
+Fixed ID example:
 
 ```text
 MTG-000123
 ```
 
-基本命名:
+Filename:
 
 ```text
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX
 ```
 
-Equity / Debt未選択時はその要素を省略し、Timeはファイル名に含めません。
+Timeはfilenameへ入れず、Equity / Debt未選択時はそのsegmentを省略する。
 
 ## Pitchbooks / source materials
 
 - drag & drop / multiple files
-- file, Date, GP, Asset Class required
-- Equity / Debt optional
-- 1ファイル100MBまで
-- 1回最大10ファイル、合計500MBまで
-- 保存名はApps Scriptが自動生成
-- 1件目から`_01`等を付け、後日追加は既存最大番号の続き
+- required: file, Date, GP, Asset Class
+- optional: Equity / Debt
+- 25MB/file
+- maximum 10 files per selection
+- maximum 100MB total per selection
+- Apps Script generated filename
+- sequence starts at `_01` and continues from existing maximum
 
 ```text
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext
 ```
+
+25MBでもApps Script実機上限が確認された場合は、複雑なupload architectureを追加するより安全な低い上限へ変更することを優先する。
+
+## Masters / drafts / maintenance
+
+- GP: immutable ID, mutable display name, Active/Inactive, alphabetical display, quick-add
+- Option Master: Location / Asset Class / Equity-Debt, Sort Order, Active/Inactive
+- all users may add / rename / reorder / deactivate / reactivate allowed Masters
+- shared browser context: Date / GP / Asset Class / Equity-Debt
+- text / selection drafts retained for 24h in same browser
+- past-record filters: Date From/To, GP, Asset Class, Equity/Debt, Status
+- logical Active / Inactive / Reactivate instead of normal-user physical deletion
+- same Meeting concurrent edits use optimistic locking
+
+## Audit model
+
+Audit logs are stored in a separate Google Spreadsheet under a Restricted admin-only control folder.
+
+Initial Web App does not need an Audit Viewer or custom password screen. Drive sharing permissions are the direct access control.
+
+Actor attribution is best-effort:
+
+1. email when available
+2. otherwise `TEMP_USER:<temporary active user key>` when available
+3. otherwise `UNIDENTIFIED`
+
+Persistent personal identification is not a production requirement. Audit is primarily for operational trace, change history, AI-use trace, and failure investigation.
+
+Audit retention: 5 years.
+
+## Gemini knowledge retrieval
+
+```text
+Shared Drive = authoritative source
+Sheets       = exact metadata / index
+File Search  = rebuildable semantic index
+Gemini Flash = grounded synthesis
+```
+
+Accepted baseline:
+
+- one Gemini File Search Store initially
+- exact filtering via Custom Metadata
+- semantic retrieval via File Search managed embeddings
+- no custom Vector DB / embedding pipeline / tag taxonomy / Knowledge Graph initially
+- Web App authorized users share access to all Active indexed sources
+- no per-user / per-file retrieval ACL initially
+- one configured Gemini Flash model
+- no user model selector / Deep mode
+- 15-minute Apps Script AI sync worker
+- AI failure never rolls back authoritative registration
+- citations must return users to the correct Drive source
 
 Initial AI-searchable formats:
 
@@ -126,84 +185,15 @@ Initial AI-searchable formats:
 .eml
 ```
 
-Outlook保存メールは`.eml`のみ初期対応します。原本はShared Driveへ保存し、AI indexにはSubject / From / To / Cc / Date / Body等を抽出したテキスト表現を使用します。`.eml`内の添付は自動indexせず、必要な添付は別資料として登録します。`.msg`は初期対応外です。
-
-## Masters
-
-- GPは`GP_Master`で固定ID管理し、画面上は常にアルファベット順
-- 未登録GPはMeeting / Pitchbook登録画面からquick-add可能
-- Asset Class、Equity / Debt、面談場所は`Option_Master`で管理
-- OptionはSort Orderで並び替え可能
-- マスターの追加・名称変更・並び替え・無効化・再有効化は全利用者が可能
-- 名称変更 / 無効化は確認ダイアログ＋監査ログ
-- 物理削除は通常操作として提供しない
-
-Asset Class initial values:
-
-`PE / VC / Infrastructure / Real Estate / PD / その他`
-
-## Past records and corrections
-
-Meeting / Pitchbookとも以下の任意条件で過去記録を検索できます。
-
-- Date From / To
-- GP
-- Asset Class
-- Equity / Debt
-- Status
-
-検索用プルダウンは`未選択`を初期表示し、`未選択`は「filterを適用しない」を意味します。MasterやMetadataへ保存しません。
-
-固定ID / Drive File IDを維持しながら編集し、Indexと保存ファイル名を同期します。通常操作ではActive / Inactive / Reactivateを使います。
-
-## Multi-user and operations
-
-- 組織管理下の1つのWeb Appを複数人で利用
-- 共通4項目（日付 / GP / Asset Class / Equity-Debt）はMeeting / Pitchbook間でbrowser state共有
-- テキスト / 選択値の下書きは同一ブラウザで24時間保持
-- LockServiceはID採番・連番・マスター更新等の短い競合区間だけを排他制御
-- 同一Meetingの同時編集はVersion / Updated Atで古い保存を拒否
-- Pitchbook部分失敗は成功分を維持し、失敗分だけ同じID / 連番でretry
-- 監査ログは5年間保持し、管理者のみ閲覧
-- 本番では実際の操作利用者を識別できることを必須とする
-
-詳細: `docs/operations/runtime-policy.md`
-
-## Gemini knowledge retrieval
-
-役割分担:
-
-```text
-Shared Drive = authoritative source
-Sheets       = exact metadata / index
-File Search  = rebuildable semantic retrieval index
-Gemini Flash = grounded synthesis / summary / comparison
-```
-
-採用済み方針:
-
-- Gemini API File Searchをhosted RAG / semantic retrieval layerとして使用
-- 初期はFile Search Storeを1つだけ使用
-- GP / Asset Class等はCustom Metadataでexact filtering
-- File Searchにchunking / Embedding / vector storage / semantic retrievalを任せる
-- 独自Vector DB / custom embedding pipeline / tag taxonomy / Knowledge Graphは初期導入しない
-- Web App利用者は全員、すべてのActive indexed sourceを検索可能
-- 初期AIモデルはconfigured Gemini Flash 1モデルのみ
-- 利用者向けモデル選択 / Deep modeなし
-- AI syncは15分おきのApps Script time-driven worker
-- AI indexing失敗で正本登録をrollbackしない
-- AI queryも5年監査ログ対象
-- Citationから元Drive資料へ戻れるようにする
+`.eml` original remains in Drive; normalized Subject / From / To / Cc / Date / Body text is indexed. Embedded attachments are not auto-indexed. `.msg` is initially out of scope.
 
 ## Knowledge Search target UX
-
-採用済み5モード:
 
 ```text
 自由質問 | 要約 | 時系列 | 比較 | 面談準備
 ```
 
-`自由質問`をdefault modeとします。
+`自由質問` is default.
 
 Shared filters:
 
@@ -213,33 +203,67 @@ Shared filters:
 - Equity / Debt
 - Source Type: Meeting / Pitchbook
 
-5モードは同じFile Search Store、Metadata Filter、semantic retrieval、Gemini Flash、Citation / Drive link処理を共有します。presetはprompt / output templateのみを切り替えます。
+All five modes share one File Search / metadata / semantic retrieval / Gemini Flash / citation path. Presets change prompt/output template only.
 
-実装は`自由質問`を先行して共通retrieval layerを安定化し、その後`要約 / 時系列 / 比較 / 面談準備`を同じ画面へ追加できます。ただし5モード構成自体は採用済みTarget UXです。
+## Apps Script setup
+
+Normal setup is Apps Script-first.
+
+Administrator runs:
+
+```text
+setupKnowledgePlatform()
+validateInstallation()
+getInstallationStatus()
+```
+
+Setup creates / reuses / migrates:
+
+- knowledge folders
+- backend Spreadsheet
+- separate Audit Spreadsheet
+- five backend sheets
+- Master seeds
+- Settings / schema version
+- required triggers
+
+Setup is idempotent and is also the repair / migration path.
+
+## Development sequence
+
+- Work 0004: Apps Script scaffold + idempotent setup
+- Work 0005: Meeting vertical slice
+- Work 0006: Pitchbook vertical slice
+- Work 0007: maintenance / concurrency / Masters / Phase 1 qualification
+- Work 0008: Gemini File Search thin slice + 自由質問
+- Work 0009: 15-minute sync + six formats + EML
+- Work 0010: four presets + production qualification
+
+ChatGPT owns design / GitHub / review / completion. Codex is used for residual implementation, testing, runtime validation, and debugging.
 
 ## Design principles
 
-1. 正本とAIインデックスを分離する。
-2. 利用者にはシンプルなWeb Appだけを見せる。
-3. Metadataで正確に絞り、Embeddingで意味検索する。
-4. AI回答から必ず原資料へ戻れるようにする。
-5. AI検索のために独自Vector DBやタグ体系を先回りして作らない。
-6. AI障害で正本の登録・修正を止めない。
-7. 採用済み仕様と「実装時に検証が必要」を混同しない。
-8. 実際の機密情報、認証情報、APIキーを公開GitHubへ保存しない。
+1. Keep authoritative storage simple.
+2. Separate source of truth from AI index.
+3. Prefer metadata for exact filters and embeddings for semantic search.
+4. Every AI output must trace back to source.
+5. AI failure must not stop source capture.
+6. Do not add architecture merely to preserve an arbitrary upload limit or identity requirement.
+7. Do not add custom Vector DB, ACL system, Agent framework, or model router until a concrete need is demonstrated.
 
 ## Documentation
 
-- [文書索引](docs/README.md)
+- [Documentation index](docs/README.md)
 - [Product Vision](docs/product/vision.md)
 - [Target Architecture](docs/architecture/target-architecture.md)
 - [Planning Baseline](docs/planning/mvp-and-roadmap.md)
+- [Apps Script Implementation Plan](docs/planning/apps-script-implementation-plan.md)
 - [Runtime / Operations](docs/operations/runtime-policy.md)
-- [Gemini File Search retrieval design](docs/ai/gemini-file-search.md)
-- [Security / Information Handling](docs/governance/security.md)
-- [Decision Log](docs/decisions/decision-log.md)
-- [Gemini retrieval decision](docs/decisions/gemini-file-search-retrieval.md)
+- [Gemini File Search](docs/ai/gemini-file-search.md)
+- [Security](docs/governance/security.md)
+- [Audit / Actor Decision](docs/decisions/audit-access-and-user-attribution.md)
+- [Upload Limit Decision](docs/decisions/pitchbook-upload-limits.md)
 
 ## Repository data policy
 
-この公開GitHubリポジトリには設計書、将来のソースコード、匿名化または合成したテストデータのみを保存します。実際の面談記録、Pitchbook、個人情報、未公開ファンド・ディール情報、APIキー、認証情報、組織内ID、private URLは保存しません。
+公開GitHubには設計、source code、匿名化 / 合成test dataのみを保存する。実Meeting、Pitchbook、個人情報、未公開deal情報、API keys、credentials、internal IDs、private URLsを保存しない。
