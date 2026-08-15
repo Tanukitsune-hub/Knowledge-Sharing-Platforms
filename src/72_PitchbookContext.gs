@@ -1,0 +1,38 @@
+function kspLoadPitchbookRuntimeContext(environment) {
+  var state = environment.getInstallationState();
+  kspAssert(state && state.config && state.resources, 'INSTALLATION_STATE_MISSING',
+    'Installation state is missing. Run setupKnowledgePlatform() first.');
+  var backendSpreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
+  var auditSpreadsheetId = state.resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET];
+  var pitchbooksFolderId = state.resources[KSP_RESOURCE_KEYS.PITCHBOOKS];
+  kspAssert(backendSpreadsheetId, 'BACKEND_SPREADSHEET_MISSING', 'Backend Spreadsheet is not configured.');
+  kspAssert(auditSpreadsheetId, 'AUDIT_SPREADSHEET_MISSING', 'Audit Spreadsheet is not configured.');
+  kspAssert(pitchbooksFolderId, 'PITCHBOOK_FOLDER_MISSING', 'Pitchbooks folder is not configured.');
+  var gpRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER);
+  var optionRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER);
+  return {
+    state: state,
+    backendSpreadsheetId: backendSpreadsheetId,
+    auditSpreadsheetId: auditSpreadsheetId,
+    pitchbooksFolderId: pitchbooksFolderId,
+    catalog: kspBuildPitchbookCatalog(gpRows, optionRows)
+  };
+}
+
+function kspGetPitchbookActorSafely(environment, warnings) {
+  try {
+    return environment.getActor() || 'UNIDENTIFIED';
+  } catch (error) {
+    warnings.push({ code: 'ACTOR_RESOLUTION_FAILED', message: error.message || String(error) });
+    return 'UNIDENTIFIED';
+  }
+}
+
+function kspTryAppendPitchbookAudit(environment, auditSpreadsheetId, params) {
+  try {
+    environment.appendRow(auditSpreadsheetId, KSP_SHEET_NAMES.AUDIT_LOG, kspBuildPitchbookAuditRow(params));
+    return null;
+  } catch (error) {
+    return { code: 'AUDIT_WRITE_FAILED', message: error.message || String(error) };
+  }
+}
