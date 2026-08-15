@@ -119,19 +119,15 @@ YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX
 ```
 
 - 面談時間はファイル名に含めない。
+- Equity / Debtが未選択の場合は、その要素を省略する。
 - 同日・同GP・同分類の面談もMeeting IDで識別する。
 - 日付、GP、Asset Class等を後から修正してもMeeting IDは変更しない。
 
-## 2026-08-15 — Use four shared fields and persistent sequence numbers in Pitchbook filenames
+## 2026-08-15 — Use shared fields and persistent sequence numbers in Pitchbook filenames
 
 Status: Accepted
 
-Pitchbookの保存ファイル名には以下の4項目を使用する。
-
-- 日付
-- GP
-- Asset Class
-- エクイティ / デット
+Pitchbookの保存ファイル名には日付、GP、Asset Classを必ず使用し、エクイティ / デットは選択されている場合のみ使用する。
 
 基本形:
 
@@ -139,10 +135,16 @@ Pitchbookの保存ファイル名には以下の4項目を使用する。
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext
 ```
 
+Equity / Debt未選択時:
+
+```text
+YYYY-MM-DD_GP_AssetClass_Sequence.ext
+```
+
 - 利用者に保存ファイル名を自由入力させない。
 - 1ファイル目から常に`_01`等の連番を付ける。
 - 複数ファイルには順番に連番を付与する。
-- 後日、同じ4項目の組み合わせでファイルを追加した場合は既存最大番号の次を採番する。
+- 後日、同じ登録コンテキストでファイルを追加した場合は既存最大番号の次を採番する。
 - 元の拡張子を維持する。
 - `/`、`&`等の記号は命名時に除外し、不要な空白や区切りを整える。
 
@@ -196,3 +198,124 @@ Status: Accepted
 - その他
 
 これらはOption Masterの`LOCATION`カテゴリとして管理し、必要に応じて追加、名称変更、無効化、再有効化できる。
+
+## 2026-08-15 — Set master seeds and ordering behavior
+
+Status: Accepted
+
+Asset Classの初期値と初期表示順を以下とする。
+
+1. PE
+2. VC
+3. Infrastructure
+4. Real Estate
+5. PD
+6. その他
+
+Equity / Debtの初期値は`Equity`、`Debt`とする。
+
+- Asset Class、Equity / Debt、面談場所はOption Masterの`Sort_Order`を持ち、マスター管理画面から並び替えできる。
+- GPはSort Orderを持たず、選択肢を常にGP Nameのアルファベット順で表示する。
+- 主要GPは初期seedとして登録する。
+- 面談 / Pitchbook画面のGPプルダウンから未登録GPをクイック追加できる。
+- クイック追加時は前後空白と大文字小文字を無視して重複確認し、追加後はそのGPを現在の選択値にする。
+- Asset Class、Equity / Debt、面談場所の新規追加は登録画面ではなくマスター管理画面から行う。
+
+## 2026-08-15 — Finalize backend Sheet column contracts
+
+Status: Accepted
+
+`GP_Master`
+
+```text
+GP_ID, GP_Name, Status, Created_At, Updated_At, Created_By, Updated_By
+```
+
+`Option_Master`
+
+```text
+Option_ID, Type, Name, Sort_Order, Status, Created_At, Updated_At, Created_By, Updated_By
+```
+
+`Meeting_Index`
+
+```text
+Meeting_ID, Date, Time, Location_ID, GP_ID, Asset_Class_ID, Capital_Type_ID,
+Counterparty, Internal_Participants, Doc_File_ID, Doc_URL, Saved_Filename,
+Status, Version, Created_At, Updated_At, Created_By, Updated_By
+```
+
+`Pitchbook_Index`
+
+```text
+Document_ID, Batch_ID, Date, GP_ID, Asset_Class_ID, Capital_Type_ID, Sequence_No,
+File_ID, File_URL, Original_Filename, Saved_Filename, Status,
+Created_At, Updated_At, Created_By, Updated_By
+```
+
+`Settings`
+
+```text
+Key, Value, Description, Updated_At
+```
+
+- MeetingではDate、GP_ID、Asset_Class_IDのみ必須。その他の面談入力由来項目は任意を許容する。
+- Pitchbookではファイル、Date、GP_ID、Asset_Class_IDを必須とし、Capital_Type_IDは任意を許容する。
+- Created By / Updated Byは取得可能なWeb App実行方式では記録し、取得できない場合は空欄を許容する。
+- SettingsにはDrive Folder ID、採番値、SCHEMA_VERSION等を保持し、採番更新はLockService配下で行う。
+- 一度発行したIDを再利用しない。
+
+## 2026-08-15 — Allow lightweight meeting records and optional capital type
+
+Status: Accepted
+
+面談実績だけを登録する運用を許容する。
+
+Meetingの必須項目:
+
+- 日付
+- GP
+- Asset Class
+
+任意項目:
+
+- 時間
+- 面談場所
+- Equity / Debt
+- 面談相手
+- 当社側
+- 面談内容
+
+Google Docsでは未入力の任意項目の行を省略する。
+
+Pitchbookではファイル、日付、GP、Asset Classを必須、Equity / Debtを任意とする。
+
+入力画面とApps Scriptサーバー側の両方で同じ必須条件を検証し、エラー時に書きかけ入力を消さない。
+
+## 2026-08-15 — Add past Meeting and Pitchbook management with logical deactivation
+
+Status: Accepted
+
+### Meeting
+
+面談ページ内で`新規登録`と`過去記録`を切り替える。
+
+検索条件はすべて任意とし、以下を提供する。
+
+- 日付 From / To
+- GP
+- Asset Class
+- Equity / Debt
+- Status: Active / Inactive / すべて
+
+条件未指定時は新しい順に表示する。編集時は同じMeeting IDとGoogle Docsを維持し、フォーム、Docs、Index、必要な保存ファイル名を同期更新する。物理削除は行わず、無効化と再有効化を行う。
+
+### Pitchbook
+
+Pitchbookページ内で`新規登録`と`過去資料`を切り替える。
+
+検索条件は面談と同じく、日付 From / To、GP、Asset Class、Equity / Debt、Statusをすべて任意とする。
+
+編集可能なメタデータは日付、GP、Asset Class、Equity / Debtとする。変更時はPitchbook IndexとDrive上の保存ファイル名を同期する。変更先コンテキストに既存ファイルがある場合は、その最大連番の次を新たに採番する。旧コンテキストの欠番は詰め直さない。Document IDとDrive File IDは維持する。
+
+Pitchbookも物理削除せず無効化 / 再有効化を行う。初期実装ではファイル差し替え機能を持たず、誤ファイルは無効化し、正しいファイルを新規登録する。
