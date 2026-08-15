@@ -19,6 +19,7 @@
 7. Pitchbookの自動命名、継続連番、Shared Drive保存
 8. 1つのバックエンドSpreadsheetに5シートを集約
 9. Shared Driveは`Meeting Records`と`Pitchbooks`の2フォルダだけに分け、各フォルダ内はフラットに蓄積
+10. ブラウザ下書き保持、部分失敗再試行、100MBアップロード、監査ログ等の実運用ルールを`docs/operations/runtime-policy.md`で管理
 
 ## Current UX decisions
 
@@ -160,6 +161,13 @@ Equity / Debt初期値:
 
 Asset Class、Equity / Debt、面談場所は`Sort_Order`を持ち、マスター管理画面から並び替えできる。GPはSort Orderではなくアルファベット順を自動適用する。
 
+### Master permissions
+
+- GP Master、Asset Class、Equity / Debt、面談場所の追加、名称変更、並び替え、無効化、再有効化は全利用者が実行できる。
+- 名称変更と無効化は共有選択肢へ影響するため、実行前に確認ダイアログを表示する。
+- 物理削除は通常操作として提供しない。
+- すべてのマスター変更を監査ログへ記録する。
+
 ## Backend Spreadsheet baseline
 
 1つのSpreadsheetに以下の5シートを置く。
@@ -204,7 +212,7 @@ File_ID, File_URL, Original_Filename, Saved_Filename, Status,
 Created_At, Updated_At, Created_By, Updated_By
 ```
 
-1ファイル1行。Capital_Type_IDは任意。Original Filename / Saved Filenameの両方を保持する。
+1ファイル1行。Capital_Type_IDは任意。Original Filename / Saved Filenameの両方を保持する。部分失敗対応のため、PitchbookのStatusは`Pending / Active / Failed / Inactive`を区別できるようにする。
 
 `Settings`
 
@@ -222,6 +230,8 @@ Key, Value, Description, Updated_At
 - NEXT_DOCUMENT_NO
 - NEXT_BATCH_NO
 - SCHEMA_VERSION
+- ADMIN_EMAILS
+- AUDIT_LOG_SPREADSHEET_ID
 
 採番はLockService配下で更新し、一度発行したIDを再利用しない。
 
@@ -235,15 +245,51 @@ Private Assets Knowledge
 
 サブフォルダは作らずフラットに蓄積する。分類・検索はIndexと将来の検索レイヤーに任せる。
 
+## Runtime and operations decisions
+
+詳細は`docs/operations/runtime-policy.md`を正本とする。
+
+### Draft retention
+
+- テキスト・選択値の下書きは同一ブラウザで24時間保持し、再読込やタブ終了後も復元可能とする。
+- Pitchbookファイル本体は再読込 / タブ終了後には復元せず、ファイルだけ再選択する。
+- `下書きをクリア`操作を用意する。
+
+### Pitchbook limits
+
+- 1ファイル100MBまで。
+- 1回最大10ファイル。
+- 1回合計500MBまで。
+- 対応拡張子の最終ホワイトリストと100MBを安定して扱う転送方式は実装時の実機検証で確定する。
+
+### Partial failure and retry
+
+- Batch ID、Document ID、連番を固定し、ファイル単位で`Pending / Active / Failed / Inactive`を管理する。
+- 一部失敗しても成功済みファイルをロールバックしない。
+- 失敗分だけ再試行し、同じDocument IDと連番を使用する。
+- 再試行前にDrive / Indexの既存状態を確認し、二重ファイル・二重Index行を作らない。
+
+### Web App execution and user attribution
+
+- 組織管理下のデプロイ主体として実行し、バックエンド権限をアプリへ集約する方式を第一選択とする。
+- 全操作で実利用者を監査ログへ記録できることを本番リリース条件とする。
+- 対象Workspaceで利用者識別が安定しない場合は、アクセスユーザーとして実行する方式等へ切り替え、匿名状態ではリリースしない。
+
+### Audit
+
+- 監査ログは5年間保持する。
+- 監査ログは既存5シートとは分離した管理者専用Spreadsheetへ保存する。
+- 通常利用者は閲覧不可。管理者だけがWeb Appから閲覧できる。
+- 面談 / Pitchbook / マスターの登録・更新・無効化・再有効化・失敗・再試行等を記録する。
+- 面談本文全文やPitchbook内容は監査ログへ複製しない。
+
 ## Not yet planned
 
 以下はまだ詳細を決めていない。
 
-- マスター管理の名称変更 / 無効化等を全利用者へ許可するか、管理者へ限定するか
-- ブラウザ更新・タブ終了後まで下書きを保持するか、入力クリア操作をどうするか
-- 登録途中で一部処理だけ失敗した場合のロールバック / 再試行 / 二重登録防止
-- 大容量ファイルのアップロード方式、対応形式、実用上の上限
-- Web Appのexecute-as設定、利用者識別、監査ログ
+- 対応ファイル形式の最終ホワイトリスト
+- 100MBまでの大容量アップロードを安定させる具体的転送実装
+- 対象Workspaceで利用者識別が取れない場合の最終代替認証方式
 - GP重複登録時の統合機能
 - 検索方式
 - AI Q&A
@@ -251,7 +297,7 @@ Private Assets Knowledge
 - 高度な検索画面
 - 自動分類・自動要約
 - 実装フェーズ分割
-- リリース条件
+- リリース条件の詳細テスト項目
 
 ## Planning rule
 
