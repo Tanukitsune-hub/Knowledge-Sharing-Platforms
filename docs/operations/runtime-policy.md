@@ -2,27 +2,38 @@
 
 ## Status
 
-本書は、蓄積・呼び出し・修正機能および採用済みGemini File Search検索レイヤーを実運用するための確定運用ルールを記録する。Apps Script Web App、Google Sheets、Google Docs、Shared Drive、Gemini File Searchを安全かつ簡単に運用するためのルールである。
+本書は、蓄積・呼び出し・修正機能および採用済みGemini File Search検索レイヤーを実運用するための確定運用ルールを記録する。
+
+採用済み仕様と実装時検証を混同しない。実機確認が必要という理由だけで、確定済み仕様を未決定として扱わない。
 
 ## Draft retention
 
-- 面談記録、Pitchbook登録、共有コンテキストの未登録入力は利用者ブラウザ内で保持する。
-- サイドバーでページを切り替えるだけでは下書きや選択済みファイルを消さない。
-- ページ再読込、誤ってタブを閉じた場合に備え、テキスト・選択値の下書きは同じブラウザで24時間保持し、自動復元できるようにする。
+- Meeting、Pitchbook登録、共有コンテキストの未登録入力は利用者ブラウザ内で保持する。
+- サイドバー画面切替だけでは下書きや選択済みファイルを消さない。
+- テキスト・選択値の下書きは同じブラウザで24時間保持し、自動復元できるようにする。
 - 24時間を超えた下書きは自動復元対象外とする。
-- ブラウザのセキュリティ制約上、ページ再読込またはタブ終了後のPitchbookファイル本体は復元しない。日付、GP、Asset Class、Equity / Debt等は復元し、ファイルだけ再選択する。
-- 明示的な`下書きをクリア`操作を用意し、確認後に当該利用者ブラウザ内の下書きと共有コンテキストを削除できるようにする。
-- 下書き本文をGoogle SheetsやShared Driveへ自動保存しない。
+- ページ再読込 / タブ終了後のPitchbookファイル本体は復元しない。Metadataは復元し、ファイルだけ再選択する。
+- `下書きをクリア`操作を用意する。
+- 下書き本文をSheets / Shared Driveへ自動保存しない。
 
 ## Pitchbook / source-material upload limits
 
-- 1ファイルのアプリ上限は100MBとする。
-- 1回の一括登録は最大10ファイルとする。
-- 1回の一括登録の合計上限は500MBとする。
-- 上限超過はアップロード開始前に画面側で通知し、Apps Script / サーバー側でも同じ条件を検証する。
-- 大容量ファイルを1つの巨大なApps Scriptリクエストへ載せることを前提にせず、100MBまで安定して扱える転送方式を実装時に選択する。
+初期上限:
 
-初期のAI検索対象ファイル形式:
+```text
+25MB / file
+10 files / selection
+100MB / selection total
+```
+
+- client-sideとserver-sideで同じ条件を検証する。
+- 複数ファイルはfile-granularに処理し、1つの巨大requestへまとめることを前提にしない。
+- 25MB以内でもApps Script実機上限が確認された場合は、architectureを複雑化して上限を維持するより安全な低い上限へ変更することを優先する。
+- 初期版で100MB/file専用chunk uploadやCloud fallbackを実装しない。
+
+詳細Decision: `docs/decisions/pitchbook-upload-limits.md`
+
+## Initial AI-searchable formats
 
 ```text
 .pdf
@@ -33,56 +44,59 @@
 .eml
 ```
 
-- Outlook保存メールは`.eml`のみ初期対応する。
 - `.eml`はShared Driveへ原本保存し、AI indexにはSubject / From / To / Cc / Date / Body等を抽出したUTF-8テキスト表現を使用する。
-- `.eml`に内包された添付ファイルは自動indexせず、必要な添付は別資料として登録する。
-- Outlook `.msg`は初期対応外とする。
-- AI検索非対応形式であっても、別途許容されたShared Drive原資料として保存すること自体は妨げない。AI対象外は`NotIndexed`として区別する。
+- `.eml`内の添付ファイルは自動indexせず、必要な添付は別資料として登録する。
+- `.msg`は初期対応外とする。
+- AI検索非対応形式でも、許容されたShared Drive原資料として保存すること自体は妨げない。AI対象外は`NotIndexed`として区別する。
 
 ## Partial failure and retry
 
-複数Pitchbookの一括登録は、バッチ全体を1つの成否にまとめず、1ファイル単位で状態を管理する。
+複数Pitchbookの一括登録はfile-granularに状態管理する。
 
 ### Identity and state
 
 - 一括登録ごとに固定`Batch_ID`を発行する。
 - 各ファイルに固定`Document_ID`と連番を割り当てる。
-- Pitchbookの状態は少なくとも`Pending / Active / Failed / Inactive`を区別できるようにする。
+- Pitchbook状態は少なくとも`Pending / Active / Failed / Inactive`を区別する。
 - 一度発行したDocument ID、Batch ID、連番を再利用しない。
 
 ### Failure behavior
 
-- 途中の1ファイルが失敗しても、他ファイルの登録処理は可能な範囲で継続する。
-- 正常登録済みファイルをバッチ全体の失敗を理由にロールバックしない。
-- 失敗ファイルは`Failed`として記録し、利用者へファイル単位の結果を表示する。
-- 失敗分だけを再試行できる操作を提供する。
-- 再試行では同じDocument IDと予約済み連番を使用し、新しい重複レコードを作らない。
-- 失敗やメタデータ変更による連番の欠番は詰め直さない。
-- Drive保存とIndex更新の途中で失敗した場合は、再試行前に既存File ID / Document IDを確認し、二重ファイル・二重Index行を作らない。
+- 1ファイルが失敗しても、他ファイルの処理を可能な範囲で継続する。
+- 正常登録済みファイルをバッチ全体の失敗でrollbackしない。
+- 失敗ファイルは`Failed`として記録し、ファイル単位の結果を表示する。
+- 失敗分だけ再試行できる。
+- retryでは同じDocument IDと予約済み連番を使用し、重複recordを作らない。
+- 欠番は詰め直さない。
+- Drive保存とIndex更新の途中で失敗した場合は、retry前に既存File ID / Document IDを確認し、二重Drive file / Index rowを作らない。
 
-## Web App execution and user attribution
+## Web App execution and actor attribution
 
-- 本番の基本構成は、組織管理下のデプロイ主体としてWeb Appを実行し、Sheets / Shared Drive / Gemini APIへのバックエンド権限をアプリ側へ集約する方式を第一選択とする。
-- 恒久運用を個人アカウントに依存させない。
-- すべての登録・変更・AI検索操作について、実際に操作した利用者を監査ログへ記録できることを本番リリース条件とする。
-- 会社Google Workspace環境で利用者メール等を安定して取得できない場合は、アクセスユーザーとして実行する方式または別の組織承認済み識別方法へ切り替える。利用者を識別できない状態で本番運用を開始しない。
-- execute-as方式の最終設定は上記条件を満たすことを実機で確認して確定するが、権限集約と監査の両立を優先する。
+- 初期本番構成は、組織管理下のデプロイ主体としてWeb Appを実行し、Sheets / Shared Drive / Gemini APIへのバックエンド権限をアプリ側へ集約する方式を第一選択とする。
+- 恒久運用を個人所有のアカウント / credentialへ依存させない。
+- 実利用者emailを取得できる場合は監査Actorとして記録する。
+- emailを取得できない場合は`Session.getTemporaryActiveUserKey()`を利用できれば`TEMP_USER:<key>`として記録する。
+- どちらも利用できない場合は`UNIDENTIFIED`を許容する。
+- Actorを恒久的に本人特定できないことだけを理由に、登録・変更・AI検索を失敗させたりPROD-ready判定を拒否したりしない。
+- Temporary Active User Keyは匿名の運用トレース用であり、恒久的な本人識別子として扱わない。
+
+詳細Decision: `docs/decisions/audit-access-and-user-attribution.md`
 
 ## Master permissions
 
-- GP Master、Asset Class、Equity / Debt、面談場所のマスター変更は全利用者に許可する。
-- 全利用者が、許可された範囲で追加、名称変更、並び替え、無効化、再有効化を実行できる。
+- GP Master、Asset Class、Equity / Debt、面談場所のMaster変更は全利用者に許可する。
+- 追加、名称変更、並び替え、無効化、再有効化を許可する。
 - 物理削除は通常操作として提供しない。
-- 名称変更および無効化は共有選択肢へ影響するため、実行前に確認ダイアログを表示する。
+- 名称変更 / 無効化は確認ダイアログを表示する。
 - 重複名称チェックを行う。
-- すべてのマスター変更を監査ログへ記録する。
+- Master変更は監査ログへ記録する。
 
 ## AI retrieval access
 
-- Web Appの利用を許可された全利用者は`ナレッジ検索`を利用できる。
+- Web App利用を許可された利用者はKnowledge Searchを利用できる。
 - 初期版では全利用者がFile Search Store内のすべてのActive Meeting / Pitchbook / source materialを検索できる。
-- GP別、ファイル別、利用者別のAI検索ACLは初期実装に含めない。
-- 監査ログの閲覧権限はこれとは別で、管理者だけに限定する。
+- GP別、file別、利用者別AI retrieval ACLは初期実装に含めない。
+- インターネット一般公開を前提とせず、Web App自体の利用許可範囲を共通アクセス境界とする。
 
 ## Knowledge Search modes
 
@@ -95,55 +109,52 @@
 - `自由質問`をdefault modeとする。
 - 5モードは同じFile Search Store、Metadata Filter、semantic retrieval、Gemini Flash、Citation / Drive link処理を共有する。
 - preset modeでは質問欄を任意の`追加指示`として利用できる。
-- 5モード構成自体は採用済みであり、実装段階化を理由に未決定扱いしない。
+- 5モード構成自体は採用済みであり、段階実装を理由に未決定扱いしない。
 
 ## AI synchronization
 
-- 正本の登録・更新を先に完了し、AI index同期は非同期の派生処理として扱う。
-- 登録 / 更新時は必要なAI状態を`Pending`とし、利用者操作をGemini同期完了まで待たせない。
-- Apps Scriptのtime-driven workerを15分おきに実行する。
-- workerは`Pending`および再試行可能な`Failed`を処理する。
-- 再試行はstable source IDとFile Search Document参照を使ってidempotentにする。
-- 非対応形式や恒久エラーを無限に再試行しない。
-- 新規 / 更新した情報はAI検索へ反映されるまで最大15分程度かかる場合がある旨をUIで案内できるようにする。
-- AI index障害を理由にShared Drive / backend Indexの正本登録をロールバックしない。
+- 正本登録 / 更新を先に完了し、AI index同期は非同期派生処理とする。
+- 登録 / 更新時はAI状態を`Pending`とし、利用者操作をGemini同期完了まで待たせない。
+- Apps Script time-driven workerを15分おきに実行する。
+- workerは`Pending`とretryable `Failed`を処理する。
+- retryはstable source IDとFile Search Document参照を使ってidempotentにする。
+- unsupported / permanent failureを無限retryしない。
+- 新規 / 更新情報はAI検索反映まで最大15分程度かかる場合がある旨をUIで案内できるようにする。
+- AI index障害を理由にShared Drive / backend Indexの正本登録をrollbackしない。
 
 ## AI model policy
 
 - 初期版はGemini Flash系モデル1つだけを使用する。
-- 利用者向けのモデル選択、Deep mode、上位モデル切替は設けない。
-- 具体的なFlash model IDは`Settings`の`AI_DEFAULT_MODEL`で管理し、実装コードへ固定しない。
+- 利用者向けmodel selector、Deep mode、上位モデル切替を設けない。
+- concrete model IDは`Settings.AI_DEFAULT_MODEL`で管理し、コードへ固定しない。
 
 ## Audit log
 
-### Retention and access
+### Storage and access
 
-- 監査ログは5年間保持する。
-- 通常利用者は監査ログを閲覧できない。
-- Web Appの監査ログ閲覧機能は管理者だけに表示・許可する。
-- 管理者は`Settings`の`ADMIN_EMAILS`等、組織管理可能な設定で管理する。
-- 5年を超えた監査ログは定期処理で削除する。
-
-### Storage
-
-- 既存の5バックエンドSheet構成は維持する。
-- 監査ログは通常バックエンドSpreadsheetとは分離した管理者専用Spreadsheetへ保存する。
+- 監査ログは通常backendの5シートとは別のAudit Spreadsheetへ保存する。
+- Audit Spreadsheetは管理者専用control folderへ置く。
+- control folder / Audit SpreadsheetのDrive共有はRestrictedを基本とし、許可された管理者だけが直接閲覧できる状態にする。
+- 通常利用者へAudit Spreadsheetを共有しない。
+- 初期版ではWeb App内にAudit Viewerを実装しない。管理者は必要時にSpreadsheetを直接開く。
+- 独自passwordやSheet保護を主アクセス制御にせず、Google Drive共有権限をアクセス境界とする。
+- 監査ログは5年間保持し、5年を超えたログは定期処理で削除する。
 - `Settings`に`AUDIT_LOG_SPREADSHEET_ID`等の参照設定を保持できる。
 
 ### Logged events
 
 少なくとも以下を記録する。
 
-- 面談の新規登録、更新、無効化、再有効化
-- Pitchbookの登録、再試行、メタデータ変更、無効化、再有効化、失敗
-- GP / Option Masterの追加、名称変更、並び替え、無効化、再有効化
-- AI indexのindex / re-index / delete / retry / failure
-- Knowledge Searchの全5モード実行
+- Meeting: register / update / deactivate / reactivate
+- Pitchbook: register / retry / metadata update / deactivate / reactivate / failure
+- GP / Option Master: add / rename / reorder / deactivate / reactivate
+- AI index: index / re-index / delete / retry / failure
+- Knowledge Search: 全5モード実行
 
 通常操作の基本ログ項目:
 
 - Event timestamp
-- User identity
+- Actor
 - Action
 - Target type
 - Target ID
@@ -165,10 +176,10 @@ AI queryでは追加で少なくとも以下を記録する。
 - Configured Flash model ID
 - Cited source IDs when available
 
-Gemini回答全文、retrieved chunk全文、Embedding、面談本文全文やPitchbookファイル内容は監査ログへ複製しない。監査に必要な質問 / 追加指示・Metadataだけを記録し、原資料内容の不要な複製を避ける。
+Gemini回答全文、retrieved chunk全文、Embedding、Meeting本文全文、Pitchbook内容は監査ログへ複製しない。
 
 ## Operational principle
 
-利用者の通常操作は簡単に保ちつつ、失敗時にデータを失わないこと、同じデータを二重登録しないこと、誰が何を変更・検索したか追跡できることを優先する。高度なワークフロー、細かなアクセス制御、複数AIモデル等は、実運用で必要性が確認されるまで追加しない。
+利用者操作は簡単に保ちつつ、失敗時のdata loss回避、duplicate防止、変更 / AI利用の運用トレースを優先する。
 
-確定済み仕様と実装時検証を混同しない。実機確認が必要という理由だけで、採用済み仕様を未決定として扱わない。
+実利用者の恒久的本人識別、細かなアクセス制御、Web App内Audit Viewer、複数AIモデル等は、実運用で必要性が確認されるまで追加しない。
