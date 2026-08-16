@@ -1,0 +1,14 @@
+{
+  "name": "fileSearchStores/store-123/upload/operations/op-1",
+  "done": true,
+  "response": {
+    "fileSearchDocument": {
+      "name": "fileSearchStores/store-123/documents/doc-1",
+      "displayName": "meeting.txt",
+      "customMetadata": [
+        {"key":"source_id","stringValue":"MTG-000001"},
+        {"key":"content_hash","stringValue":"abc123"}
+      ]
+    }
+  }
+}
