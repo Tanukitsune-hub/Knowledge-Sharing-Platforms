@@ -1,0 +1,25 @@
+{
+  "id": "interaction-1",
+  "status": "completed",
+  "steps": [
+    {
+      "type": "model_output",
+      "content": [
+        {
+          "type": "text",
+          "text": "KKRはAPACインフラの投資機会を前向きに評価しています。",
+          "annotations": [
+            {
+              "type": "file_citation",
+              "file_name": "meeting.txt",
+              "source": "fileSearchStores/store-123/documents/doc-1",
+              "custom_metadata": [
+                {"key":"source_id","string_value":"MTG-000001"}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
