@@ -1,4 +1,4 @@
-function kspCreateAiEnvironment() {
+function kspCreateAiEnvironment_() {
   var base = kspCreateMaintenanceEnvironment();
   var scriptProperties = PropertiesService.getScriptProperties();
 
@@ -42,15 +42,15 @@ function kspCreateAiEnvironment() {
   };
 
   base.getFileSearchStore = function (storeName) {
-    return kspNormalizeFileSearchStore(kspGeminiJsonRequestLive('GET', '/' + kspAiStoreResourcePath(storeName), null));
+    return kspNormalizeFileSearchStore(kspGeminiJsonRequestLive_('GET', '/' + kspAiStoreResourcePath(storeName), null));
   };
 
   base.createFileSearchStore = function (request) {
-    return kspNormalizeFileSearchStore(kspGeminiJsonRequestLive('POST', KSP_AI_API.STORES_PATH, request));
+    return kspNormalizeFileSearchStore(kspGeminiJsonRequestLive_('POST', KSP_AI_API.STORES_PATH, request));
   };
 
   base.findFileSearchDocumentsBySource = function (storeName, sourceId) {
-    return kspListAllFileSearchDocumentsLive(storeName).filter(function (documentValue) {
+    return kspListAllFileSearchDocumentsLive_(storeName).filter(function (documentValue) {
       return String(documentValue.customMetadata.source_id || '') === String(sourceId);
     });
   };
@@ -60,16 +60,16 @@ function kspCreateAiEnvironment() {
     var name = kspAiTrim(documentName);
     kspAssert(name.indexOf(normalizedStore + '/documents/') === 0, 'AI_DOCUMENT_STORE_MISMATCH',
       'File Search Document does not belong to the configured Store.');
-    kspGeminiJsonRequestLive('DELETE', '/' + name + '?force=true', null);
+    kspGeminiJsonRequestLive_('DELETE', '/' + name + '?force=true', null);
     return true;
   };
 
   base.uploadSourceToFileSearchStore = function (storeName, source) {
-    return kspUploadSourceLive(storeName, source);
+    return kspUploadSourceLive_(storeName, source);
   };
 
   base.queryFileSearch = function (request) {
-    return kspGeminiJsonRequestLive('POST', KSP_AI_API.INTERACTIONS_PATH, request);
+    return kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, request);
   };
 
   base.readMeetingText = function (fileId) {

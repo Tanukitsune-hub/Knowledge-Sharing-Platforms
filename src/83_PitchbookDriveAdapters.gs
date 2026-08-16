@@ -24,4 +24,4 @@ function kspAttachPitchbookDriveAdapters(meetingEnvironment) {
     }, blob, { supportsAllDrives: true, fields: 'id,name,webViewLink,parents,appProperties' });
     return { id: created.id, name: created.name, url: created.webViewLink || '', reused: false };
   };
-
+}

@@ -7,12 +7,12 @@ const vm = require('node:vm');
 class FakeRange {
   constructor(sheet,row,col,numRows=1,numCols=1){this.sheet=sheet;this.row=row;this.col=col;this.numRows=numRows;this.numCols=numCols;}
   getValue(){return this.sheet.values[this.row-1]?.[this.col-1] ?? '';}
-  setValue(value){this.sheet.ensure(this.row,this.col);this.sheet.values[this.row-1][this.col-1]=value;return this;}
+  setValue(value){this.sheet.ensure(this.row,this.col);this.sheet.values[this.row-1][this.col-1]=value;this.sheet.writes.push({row:this.row,col:this.col,numRows:1,numCols:1});return this;}
   getValues(){const out=[];for(let r=0;r<this.numRows;r++){const row=[];for(let c=0;c<this.numCols;c++)row.push(this.sheet.values[this.row-1+r]?.[this.col-1+c] ?? '');out.push(row);}return out;}
-  setValues(values){for(let r=0;r<this.numRows;r++)for(let c=0;c<this.numCols;c++){this.sheet.ensure(this.row+r,this.col+c);this.sheet.values[this.row-1+r][this.col-1+c]=values[r][c];}return this;}
+  setValues(values){for(let r=0;r<this.numRows;r++)for(let c=0;c<this.numCols;c++){this.sheet.ensure(this.row+r,this.col+c);this.sheet.values[this.row-1+r][this.col-1+c]=values[r][c];}this.sheet.writes.push({row:this.row,col:this.col,numRows:this.numRows,numCols:this.numCols});return this;}
 }
 class FakeSheet {
-  constructor(name,headers,rows=[]){this.name=name;this.values=[headers.slice(),...rows.map(row=>headers.map(h=>row[h]??''))];}
+  constructor(name,headers,rows=[]){this.name=name;this.values=[headers.slice(),...rows.map(row=>headers.map(h=>row[h]??''))];this.writes=[];}
   ensure(row,col){while(this.values.length<row)this.values.push([]);while(this.values[row-1].length<col)this.values[row-1].push('');}
   getRange(r,c,nr=1,nc=1){return new FakeRange(this,r,c,nr,nc);}
   getLastRow(){return this.values.length;}
@@ -72,7 +72,7 @@ function kspPitchbookContextMatchesRow(row,input){return String(row.Date||'')===
   return {context,properties,spreadsheets,files,docs,addSpreadsheet,FakeSheet};
 }
 
-const MEETING_HEADERS=['Meeting_ID','Doc_File_ID','Status','Version','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'];
+const MEETING_HEADERS=['Meeting_ID','Date','Time','Doc_File_ID','Status','Version','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'];
 const PITCH_HEADERS=['Document_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','Status','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'];
 const GP_HEADERS=['GP_ID','GP_Name','Status','Created_At','Updated_At','Created_By','Updated_By'];
 const OPTION_HEADERS=['Option_ID','Type','Name','Sort_Order','Status','Created_At','Updated_At','Created_By','Updated_By'];
@@ -128,6 +128,31 @@ test('Meeting reactivation requires authoritative Google Doc ID',()=>{
   const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
   const sheet=f.spreadsheets.get('backend').getSheetByName('Meeting_Index');sheet.values[1][MEETING_HEADERS.indexOf('Doc_File_ID')]='';sheet.values[1][MEETING_HEADERS.indexOf('Status')]='Inactive';
   assert.throws(()=>env.updateStatusAtomic('Meeting_Index','Meeting_ID','MTG-000001','Version',1,'Active','actor','now'),error=>error.code==='MEETING_AUTHORITATIVE_DOCUMENT_MISSING');
+});
+
+test('Meeting status update does not rewrite Date and Time cells',()=>{
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const sheet=f.spreadsheets.get('backend').getSheetByName('Meeting_Index');
+  const dateValue=new Date('2026-08-14T00:00:00.000Z');
+  const timeValue=new Date('1899-12-30T14:30:00.000Z');
+  sheet.values[1][MEETING_HEADERS.indexOf('Date')]=dateValue;
+  sheet.values[1][MEETING_HEADERS.indexOf('Time')]=timeValue;
+
+  env.updateStatusAtomic('Meeting_Index','Meeting_ID','MTG-000001','Version',1,'Inactive','actor','now-1');
+  env.updateStatusAtomic('Meeting_Index','Meeting_ID','MTG-000001','Version',2,'Active','actor','now-2');
+
+  assert.equal(sheet.values[1][MEETING_HEADERS.indexOf('Date')],dateValue);
+  assert.equal(sheet.values[1][MEETING_HEADERS.indexOf('Time')],timeValue);
+  const dateColumn=MEETING_HEADERS.indexOf('Date')+1;
+  const timeColumn=MEETING_HEADERS.indexOf('Time')+1;
+  assert.equal(sheet.writes.some(write=>write.col<=dateColumn&&dateColumn<write.col+write.numCols),false);
+  assert.equal(sheet.writes.some(write=>write.col<=timeColumn&&timeColumn<write.col+write.numCols),false);
+  const expectedColumns=['Status','Version','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error']
+    .map(header=>MEETING_HEADERS.indexOf(header)+1).sort((a,b)=>a-b);
+  const writtenColumns=sheet.writes.map(write=>write.col).sort((a,b)=>a-b);
+  assert.deepEqual(writtenColumns,[...expectedColumns,...expectedColumns].sort((a,b)=>a-b));
+  assert.equal(sheet.values[1][MEETING_HEADERS.indexOf('Status')],'Active');
+  assert.equal(sheet.values[1][MEETING_HEADERS.indexOf('Version')],3);
 });
 
 test('Option reorder returns before and after order for audit',()=>{

@@ -28,6 +28,13 @@ test('normalizes snake_case and camelCase operation/document contracts',()=>{
   assert.equal(doc.customMetadata.source_id,'MTG-1');
 });
 
+test('live File Search Document listing stays within the official page-size limit',()=>{
+  const paths=[];
+  ksp.kspGeminiJsonRequestLive_=(method,path)=>{paths.push({method,path});return{documents:[]};};
+  assert.deepEqual(plain(ksp.kspListAllFileSearchDocumentsLive_('fileSearchStores/store-1')),[]);
+  assert.deepEqual(paths,[{method:'GET',path:'/fileSearchStores/store-1/documents?pageSize=20'}]);
+});
+
 test('parses and deduplicates file citations',()=>{
   const parsed=plain(ksp.kspParseInteractionResponse({id:'i-1',steps:[{type:'model_output',content:[{type:'text',text:'Answer',annotations:[{type:'file_citation',file_name:'one',source:'fileSearchStores/store-1/documents/a',custom_metadata:[{key:'source_id',string_value:'MTG-1'}]},{type:'file_citation',fileName:'one',source:'other',customMetadata:[{key:'source_id',stringValue:'MTG-1'}]}]}]}]}));
   assert.equal(parsed.answer,'Answer');assert.equal(parsed.citations.length,1);assert.equal(parsed.citations[0].metadata.source_id,'MTG-1');

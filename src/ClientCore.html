@@ -20,7 +20,10 @@ let retryContext=null,meetingLoading=true,pitchbookLoading=true,selectedPitchboo
 function el(id){return document.getElementById(id)}
 function showPage(name){Object.keys(pages).forEach(key=>{if(pages[key])pages[key].classList.toggle('active',key===name);const button=el('nav-'+key);if(button)button.classList.toggle('active',key===name)});}
 Object.keys(pages).forEach(name=>{const button=el('nav-'+name);if(button)button.onclick=()=>showPage(name)});
-function showStatus(id,kind,message,html){const box=el(id);box.className='status visible '+kind;if(html)box.innerHTML=message;else box.textContent=message}
+function kspSafeDriveUrl(value){const candidate=String(value==null?'':value).trim();return /^https:\/\/(?:drive|docs)\.google\.com\//.test(candidate)?candidate:''}
+function kspEscapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function kspSanitizeStatusHtml(value){return String(value==null?'':value).replace(/href="([^"]*)"/gi,(match,href)=>{const safe=kspSafeDriveUrl(href);return safe?'href="'+kspEscapeHtml(safe)+'"':'href="#" aria-disabled="true"'})}
+function showStatus(id,kind,message,html){const box=el(id);box.className='status visible '+kind;if(html)box.innerHTML=kspSanitizeStatusHtml(message);else box.textContent=message}
 function clearStatus(id){const box=el(id);box.className='status';box.textContent=''}
 function safeGet(key){try{return localStorage.getItem(key)}catch(e){return null}}function safeSet(key,value){try{localStorage.setItem(key,value)}catch(e){}}function safeRemove(key){try{localStorage.removeItem(key)}catch(e){}}
 function readEnvelope(key){const raw=safeGet(key);if(!raw)return null;try{const env=JSON.parse(raw);if(!env||typeof env.savedAt!=='number'||Date.now()-env.savedAt>KSP_DRAFT_TTL_MS){safeRemove(key);return null}return env.data||null}catch(e){safeRemove(key);return null}}
