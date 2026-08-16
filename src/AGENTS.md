@@ -12,5 +12,5 @@ Scope: files under `src/`.
 - Setup reruns must never reset operational ID counters or future Gemini configuration.
 - Never add secrets, real record data, private URLs, or organization-specific IDs.
 - Validate changes with `npm run check` from the repository root.
-- Work 0010 is the authorized final DEV live-qualification Work. Authenticated Apps Script / Workspace / Gemini calls are allowed only within the scoped Work 0010 handoff, with synthetic or anonymized DEV data, no secret logging, and no production deployment or destructive production action.
-- During Work 0010, fix only defects observed by full-checkout or live qualification; do not expand the feature-frozen product scope.
+- Work 0010 and Work 0011 are the authorized DEV qualification scopes for their respective handoffs. Authenticated Apps Script / Workspace calls are allowed only within the active scoped handoff, with synthetic or anonymized DEV data, no secret logging, and no production deployment or destructive production action.
+- Work 0011 export code must remain Gemini-independent, resolve Active sources from the Backend Index, and keep Audit metadata-only and content-redacted.

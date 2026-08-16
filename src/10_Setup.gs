@@ -110,6 +110,13 @@ function kspResolveAllResources(environment, storedResources, config, report) {
   });
 
   kspResolveResource(environment, resources, report, {
+    key: KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS,
+    parentId: config.knowledgeParentFolderId,
+    name: KSP_RESOURCE_NAMES.KNOWLEDGE_EXPORTS,
+    mimeType: KSP_MIME_TYPES.FOLDER
+  });
+
+  kspResolveResource(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET,
     parentId: config.controlFolderId,
     name: KSP_RESOURCE_NAMES.BACKEND_SPREADSHEET,
@@ -257,6 +264,7 @@ function kspRunValidation(environment) {
       [KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.MEETING_RECORDS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.PITCHBOOKS, KSP_MIME_TYPES.FOLDER],
+      [KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET, KSP_MIME_TYPES.SPREADSHEET],
       [KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET, KSP_MIME_TYPES.SPREADSHEET]
     ];
@@ -269,6 +277,21 @@ function kspRunValidation(environment) {
       kspAssert(resource.mimeType === check[1], 'RESOURCE_TYPE_MISMATCH',
         'Resource has unexpected MIME type: ' + check[0]);
       kspAddAction(report, 'validation', check[0], 'passed', { id: id });
+    });
+
+    var parentChecks = [
+      [KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT, config.knowledgeParentFolderId],
+      [KSP_RESOURCE_KEYS.MEETING_RECORDS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
+      [KSP_RESOURCE_KEYS.PITCHBOOKS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
+      [KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS, config.knowledgeParentFolderId],
+      [KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET, config.controlFolderId],
+      [KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET, config.controlFolderId]
+    ];
+    parentChecks.forEach(function (check) {
+      var resource = environment.getResource(state.resources[check[0]]);
+      kspAssert((resource.parents || []).indexOf(check[1]) !== -1,
+        'RESOURCE_PARENT_MISMATCH', 'Resource is outside the configured parent boundary: ' + check[0]);
+      kspAddAction(report, 'validation', check[0] + ':parent', 'passed', { parentId: check[1] });
     });
 
     kspValidateSchemas(

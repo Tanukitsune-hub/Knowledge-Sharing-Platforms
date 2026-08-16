@@ -307,19 +307,25 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const report = ksp.kspRunSetup(env);
   assert.equal(report.ok, true, JSON.stringify(report.errors));
   assert.equal(report.mode, 'SETUP');
-  assert.equal(Object.keys(report.resources).length, 5);
+  assert.equal(Object.keys(report.resources).length, 6);
   assert.ok(report.actions.some((action) => action.resource === 'knowledgeRootFolderId' && action.action === 'created'));
+  assert.ok(report.actions.some((action) => action.resource === 'knowledgeExportsFolderId' && action.action === 'created'));
   assert.equal(env._debug.properties.has('BOOTSTRAP_CONFIG_JSON'), false);
   assert.equal(env._debug.properties.has('KSP_INSTALLATION_STATE_JSON'), true);
 
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
   const backend = env._debug.spreadsheets.get(state.resources.backendSpreadsheetId);
   const audit = env._debug.spreadsheets.get(state.resources.auditSpreadsheetId);
+  const exportsFolder = env._debug.resources.get(state.resources.knowledgeExportsFolderId);
+  assert.equal(exportsFolder.name, 'Knowledge Exports');
+  assert.deepEqual(exportsFolder.parents, ['knowledge-parent']);
+  assert.equal(state.schemaVersion, 2);
   assert.equal(backend.sheets.size, 5);
   assert.equal(audit.sheets.size, 1);
   assert.equal(backend.sheets.get('GP_Master').rows.length, 30);
   assert.equal(backend.sheets.get('Option_Master').rows.length, 14);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'AUDIT_LOG_SPREADSHEET_ID').Value, state.resources.auditSpreadsheetId);
+  assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'KNOWLEDGE_EXPORTS_FOLDER_ID').Value, state.resources.knowledgeExportsFolderId);
 });
 
 test('second setup reuses all resources and does not duplicate seeds', () => {
@@ -331,7 +337,7 @@ test('second setup reuses all resources and does not duplicate seeds', () => {
   assert.equal(first.ok, true);
   const second = ksp.kspRunSetup(env);
   assert.equal(second.ok, true, JSON.stringify(second.errors));
-  assert.equal(second.actions.filter((action) => action.category === 'resource' && action.action === 'reused').length, 5);
+  assert.equal(second.actions.filter((action) => action.category === 'resource' && action.action === 'reused').length, 6);
 
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
   const backend = env._debug.spreadsheets.get(state.resources.backendSpreadsheetId);
