@@ -31,7 +31,8 @@ function loadAi() {
   for (const file of [
     '130_AiConstants.gs','131_AiFileSearchContracts.gs','132_AiKnowledgeContracts.gs','133_AiRetryContracts.gs',
     '140_AiSourceModels.gs','141_AiSyncHelpers.gs','142_AiSyncWorker.gs',
-    '150_KnowledgeSearchModels.gs','151_KnowledgeSearchService.gs'
+    '150_KnowledgeSearchModels.gs','151_KnowledgeSearchService.gs',
+    '180_FeatureFreezeFormats.gs','181_FeatureFreezeSync.gs','182_FeatureFreezeKnowledge.gs','190_FeatureFreezeDiagnostics.gs','170_AiEntryPoints.gs'
   ]) {
     new vm.Script(fs.readFileSync(path.join(root,'src',file),'utf8'), { filename:file }).runInContext(context);
   }

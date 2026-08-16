@@ -1,11 +1,21 @@
 function runAiSyncWorker() {
-  return kspRunAiSync(kspCreateAiEnvironment());
+  return kspRunFeatureFreezeAiSync(kspCreateFeatureFreezeAiEnvironment());
 }
 
 function getKnowledgeSearchBootstrapData() {
-  return kspGetKnowledgeSearchBootstrap(kspCreateAiEnvironment());
+  return kspGetFeatureFreezeKnowledgeBootstrap(kspCreateFeatureFreezeAiEnvironment());
+}
+
+function searchKnowledge(input) {
+  return kspRunFeatureFreezeKnowledgeSearch(kspCreateFeatureFreezeAiEnvironment(), input);
 }
 
 function askKnowledgeQuestion(input) {
-  return kspRunFreeQuestion(kspCreateAiEnvironment(), input);
+  var payload = kspDeepClone(input || {});
+  payload.mode = KSP_FEATURE_FREEZE_SEARCH_MODES.FREE_QUESTION;
+  return kspRunFeatureFreezeKnowledgeSearch(kspCreateFeatureFreezeAiEnvironment(), payload);
+}
+
+function getFeatureFreezeDiagnostics() {
+  return kspGetFeatureFreezeDiagnostics(kspCreateFeatureFreezeAiEnvironment());
 }

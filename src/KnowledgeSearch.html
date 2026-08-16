@@ -12,8 +12,8 @@
     .citation-item{border:1px solid #e0e3e7;border-radius:10px;padding:12px;background:#fafbfc}
     .citation-item a{font-weight:700;color:#174ea6;text-decoration:none;overflow-wrap:anywhere}
     .citation-meta{margin-top:5px;color:#5f6368;font-size:12px}
-    .mode-chip{display:inline-flex;border-radius:999px;background:#e8f0fe;color:#174ea6;padding:5px 10px;font-size:12px;font-weight:700}
-    .knowledge-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+    .knowledge-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+    .mode-field{min-width:220px}
   </style>
 </head>
 <body>
@@ -21,7 +21,7 @@
     <header class="page-header">
       <div>
         <h1>ナレッジ検索</h1>
-        <p>登録済みのActive資料だけを根拠に、Gemini File Searchで横断検索します。</p>
+        <p>Activeな登録資料を、1つのGemini File Search基盤で横断検索します。</p>
       </div>
       <nav class="nav" aria-label="ページ切替">
         <button id="knowledge-back" type="button">登録・管理へ戻る</button>
@@ -30,22 +30,31 @@
 
     <section class="card">
       <div class="knowledge-toolbar">
-        <span class="mode-chip">自由質問</span>
+        <div class="field mode-field">
+          <label for="knowledge-mode">検索モード</label>
+          <select id="knowledge-mode">
+            <option value="自由質問">自由質問</option>
+            <option value="要約">要約</option>
+            <option value="時系列">時系列</option>
+            <option value="比較">比較</option>
+            <option value="面談準備">面談準備</option>
+          </select>
+        </div>
         <span id="knowledge-config-state" class="hint">設定を確認しています…</span>
       </div>
       <form id="knowledge-form" novalidate>
         <div class="filter-grid">
           <div class="field"><label for="knowledge-dateFrom">Date From</label><input id="knowledge-dateFrom" type="date"></div>
           <div class="field"><label for="knowledge-dateTo">Date To</label><input id="knowledge-dateTo" type="date"></div>
-          <div class="field"><label for="knowledge-gpId">GP</label><select id="knowledge-gpId"><option value="">未選択</option></select></div>
+          <div class="field"><label id="knowledge-gp-label" for="knowledge-gpId">GP</label><select id="knowledge-gpId"><option value="">未選択</option></select></div>
           <div class="field"><label for="knowledge-assetClassId">Asset Class</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
           <div class="field"><label for="knowledge-capitalTypeId">Equity / Debt</label><select id="knowledge-capitalTypeId"><option value="">未選択</option></select></div>
           <div class="field"><label for="knowledge-sourceType">Source Type</label><select id="knowledge-sourceType"><option value="">未選択</option><option value="Meeting">Meeting</option><option value="Pitchbook">Pitchbook</option></select></div>
         </div>
         <div class="field full" style="margin-top:18px">
-          <label class="required" for="knowledge-question">質問</label>
-          <textarea id="knowledge-question" maxlength="5000" placeholder="例: KKRとの最近の面談で、APACインフラの投資機会についてどのような見解が示されましたか？"></textarea>
-          <div class="hint">回答全文や検索チャンクは監査ログへ複製しません。Citationから原資料へ戻れます。</div>
+          <label id="knowledge-instruction-label" class="required" for="knowledge-instruction">質問</label>
+          <textarea id="knowledge-instruction" maxlength="5000" placeholder="例: 最近の資料では、APACインフラの投資機会についてどのような見解が示されていますか？"></textarea>
+          <div id="knowledge-mode-help" class="hint">自由質問では質問が必須です。回答全文や検索チャンクは監査ログへ複製しません。</div>
         </div>
         <div class="actions">
           <span class="hint">新規・更新資料が検索可能になるまで最大約15分かかる想定です。</span>
