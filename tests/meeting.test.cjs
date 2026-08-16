@@ -178,9 +178,20 @@ test('bootstrap response exposes active options and 24-hour draft contract', () 
 });
 
 test('UI preserves shared context, stores retry context, and clears it on changes', () => {
-  const html = fs.readFileSync(path.join(root, 'src', 'Index.html'), 'utf8');
-  assert.match(html, /KSP_SHARED_DRAFT_KEY/); assert.match(html, /KSP_MEETING_DRAFT_KEY/); assert.match(html, /KSP_MEETING_RETRY_KEY/); assert.match(html, /24 \* 60 \* 60 \* 1000/);
-  assert.match(html, /payload\.retryMeetingId = retryContext\.meetingId/); assert.match(html, /clearRetryContext\(\);\s*saveDraft\(\);/);
-  const functionBody = html.match(/function clearMeetingSpecificDraft\(\) \{([\s\S]*?)\n    \}/)?.[1] || '';
-  assert.match(functionBody, /safeStorageRemove\(KSP_MEETING_DRAFT_KEY\)/); assert.doesNotMatch(functionBody, /safeStorageRemove\(KSP_SHARED_DRAFT_KEY\)/); assert.match(functionBody, /writeEnvelope\(KSP_SHARED_DRAFT_KEY/); assert.match(html, /入力内容は保持されています/);
+  const html = [
+    fs.readFileSync(path.join(root, 'src', 'Index.html'), 'utf8'),
+    fs.readFileSync(path.join(root, 'src', 'ClientCore.html'), 'utf8')
+  ].join('\n');
+  assert.match(html, /KSP_SHARED_DRAFT_KEY/); assert.match(html, /KSP_MEETING_DRAFT_KEY/); assert.match(html, /KSP_MEETING_RETRY_KEY/); assert.match(html, /24\s*\*\s*60\s*\*\s*60\s*\*\s*1000/);
+  assert.match(html, /payload\.retryMeetingId\s*=\s*retryContext\.meetingId/); assert.match(html, /clearRetryContext\(\);\s*saveDraft\(\);?/);
+  const clearMeetingLine = html.split(/\r?\n/).find(line => line.includes('function clearMeetingSpecificDraft'));
+  assert.ok(clearMeetingLine);
+  assert.match(clearMeetingLine, /safeStorageRemove\(KSP_MEETING_DRAFT_KEY\)/);
+  assert.doesNotMatch(clearMeetingLine, /safeStorageRemove\(KSP_SHARED_DRAFT_KEY\)/);
+  assert.match(clearMeetingLine, /writeEnvelope\(KSP_SHARED_DRAFT_KEY/);
+  assert.match(html, /入力内容は保持されています/);
+  assert.match(html, /function kspSafeDriveUrl/);
+  assert.match(html, /function kspSanitizeStatusHtml/);
+  assert.ok(html.includes('return /^https:\\/\\/(?:drive|docs)\\.google\\.com\\//.test(candidate)'));
+  assert.match(html, /innerHTML=kspSanitizeStatusHtml\(message\)/);
 });

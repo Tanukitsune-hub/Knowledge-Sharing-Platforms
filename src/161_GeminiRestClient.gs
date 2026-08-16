@@ -1,14 +1,14 @@
-function kspGeminiApiKeyLive() {
+function kspGeminiApiKeyLive_() {
   var apiKey = PropertiesService.getScriptProperties().getProperty(KSP_AI_PROPERTY_KEYS.API_KEY);
   kspAssert(apiKey, 'AI_CREDENTIAL_NOT_CONFIGURED', 'Gemini API credentialが設定されていません。');
   return apiKey;
 }
 
-function kspGeminiJsonRequestLive(method, path, payload) {
+function kspGeminiJsonRequestLive_(method, path, payload) {
   var url = /^https?:\/\//.test(String(path || '')) ? String(path) : KSP_AI_API.BASE_URL + String(path || '');
   var options = {
     method: String(method || 'GET').toLowerCase(),
-    headers: { 'x-goog-api-key': kspGeminiApiKeyLive() },
+    headers: { 'x-goog-api-key': kspGeminiApiKeyLive_() },
     muteHttpExceptions: true
   };
   if (payload !== null && payload !== undefined) {
@@ -30,7 +30,7 @@ function kspGeminiJsonRequestLive(method, path, payload) {
   return parsed;
 }
 
-function kspUploadSourceLive(storeName, source) {
+function kspUploadSourceLive_(storeName, source) {
   var normalizedStore = kspAiStoreResourcePath(storeName);
   var bytes = Utilities.newBlob(String(source.text || ''), source.mimeType || 'text/plain', source.displayName).getBytes();
   var metadata = kspBuildFileSearchUploadMetadata(source);
@@ -39,7 +39,7 @@ function kspUploadSourceLive(storeName, source) {
     method: 'post',
     contentType: 'application/json',
     headers: {
-      'x-goog-api-key': kspGeminiApiKeyLive(),
+      'x-goog-api-key': kspGeminiApiKeyLive_(),
       'X-Goog-Upload-Protocol': 'resumable',
       'X-Goog-Upload-Command': 'start',
       'X-Goog-Upload-Header-Content-Length': String(bytes.length),
@@ -58,7 +58,7 @@ function kspUploadSourceLive(storeName, source) {
     method: 'post',
     contentType: metadata.mimeType,
     headers: {
-      'x-goog-api-key': kspGeminiApiKeyLive(),
+      'x-goog-api-key': kspGeminiApiKeyLive_(),
       'X-Goog-Upload-Offset': '0',
       'X-Goog-Upload-Command': 'upload, finalize'
     },
@@ -75,35 +75,35 @@ function kspUploadSourceLive(storeName, source) {
     throw error;
   }
   var operation = kspNormalizeFileSearchOperation(parsed);
-  operation = kspPollFileSearchOperationLive(operation);
+  operation = kspPollFileSearchOperationLive_(operation);
   kspAssert(!operation.error, 'AI_UPLOAD_OPERATION_FAILED', operation.error ? operation.error.message : 'Upload operation failed.');
-  return kspExtractDocumentFromOperation(operation);
+  return kspExtractDocumentFromOperation_(operation);
 }
 
-function kspPollFileSearchOperationLive(operation) {
+function kspPollFileSearchOperationLive_(operation) {
   var current = operation;
   for (var attempt = 0; attempt < KSP_AI_DEFAULTS.MAX_OPERATION_POLLS && !current.done; attempt += 1) {
     Utilities.sleep(KSP_AI_DEFAULTS.OPERATION_POLL_MILLIS);
-    current = kspNormalizeFileSearchOperation(kspGeminiJsonRequestLive('GET', '/' + current.name, null));
+    current = kspNormalizeFileSearchOperation(kspGeminiJsonRequestLive_('GET', '/' + current.name, null));
   }
   kspAssert(current.done, 'AI_OPERATION_TIMEOUT', 'File Search operationが完了しませんでした。');
   return current;
 }
 
-function kspExtractDocumentFromOperation(operation) {
+function kspExtractDocumentFromOperation_(operation) {
   var response = operation && operation.response ? operation.response : {};
   var documentValue = response.fileSearchDocument || response.file_search_document || response.document || response;
   return kspNormalizeFileSearchDocument(documentValue);
 }
 
-function kspListAllFileSearchDocumentsLive(storeName) {
+function kspListAllFileSearchDocumentsLive_(storeName) {
   var store = kspAiStoreResourcePath(storeName);
   var documents = [];
   var pageToken = '';
   for (var page = 0; page < 20; page += 1) {
-    var path = '/' + store + '/documents?pageSize=100';
+    var path = '/' + store + '/documents?pageSize=20';
     if (pageToken) path += '&pageToken=' + encodeURIComponent(pageToken);
-    var normalized = kspNormalizeFileSearchDocumentList(kspGeminiJsonRequestLive('GET', path, null));
+    var normalized = kspNormalizeFileSearchDocumentList(kspGeminiJsonRequestLive_('GET', path, null));
     documents = documents.concat(normalized.documents);
     pageToken = normalized.nextPageToken;
     if (!pageToken) break;

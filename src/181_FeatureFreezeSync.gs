@@ -239,8 +239,8 @@ function kspRunFeatureFreezeAiSync(environment) {
   return report;
 }
 
-function kspCreateFeatureFreezeAiEnvironment() {
-  var base = kspCreateAiEnvironment();
+function kspCreateFeatureFreezeAiEnvironment_() {
+  var base = kspCreateAiEnvironment_();
   base.readPitchbookSource = function (fileId) {
     kspAssert(fileId, 'AI_PITCHBOOK_FILE_MISSING', 'Pitchbook source fileがありません。');
     var file = Drive.Files.get(fileId, { supportsAllDrives: true, fields: 'id,name,mimeType,size,trashed' });
@@ -269,16 +269,16 @@ function kspCreateFeatureFreezeAiEnvironment() {
     return digest.map(function (value) { return ('0' + ((Number(value) + 256) % 256).toString(16)).slice(-2); }).join('');
   };
   base.uploadSourceToFileSearchStore = function (storeName, source) {
-    return kspUploadFeatureFreezeSourceLive(storeName, source);
+    return kspUploadFeatureFreezeSourceLive_(storeName, source);
   };
   return base;
 }
 
-function kspFfSignedBytes(bytes) {
+function kspFfSignedBytes_(bytes) {
   return kspNormalizeAiByteArray(bytes).map(function (value) { return value > 127 ? value - 256 : value; });
 }
 
-function kspFfThrowHttpError(code, parsed, fallbackMessage) {
+function kspFfThrowHttpError_(code, parsed, fallbackMessage) {
   var message = parsed && parsed.error && parsed.error.message ? parsed.error.message : (fallbackMessage || ('Gemini API HTTP ' + code));
   var error = new Error(message);
   error.code = 'AI_HTTP_' + code;
@@ -287,7 +287,7 @@ function kspFfThrowHttpError(code, parsed, fallbackMessage) {
   throw error;
 }
 
-function kspUploadFeatureFreezeSourceLive(storeName, source) {
+function kspUploadFeatureFreezeSourceLive_(storeName, source) {
   var normalizedStore = kspAiStoreResourcePath(storeName);
   var bytes = kspAiSourcePayloadBytes(source);
   kspAssert(bytes.length > 0, 'AI_SOURCE_SIZE_INVALID', 'AI source payload is empty.');
@@ -296,7 +296,7 @@ function kspUploadFeatureFreezeSourceLive(storeName, source) {
   var startResponse = UrlFetchApp.fetch(KSP_AI_API.UPLOAD_BASE_URL + '/' + normalizedStore + ':uploadToFileSearchStore', {
     method: 'post', contentType: 'application/json',
     headers: {
-      'x-goog-api-key': kspGeminiApiKeyLive(),
+      'x-goog-api-key': kspGeminiApiKeyLive_(),
       'X-Goog-Upload-Protocol': 'resumable',
       'X-Goog-Upload-Command': 'start',
       'X-Goog-Upload-Header-Content-Length': String(bytes.length),
@@ -307,7 +307,7 @@ function kspUploadFeatureFreezeSourceLive(storeName, source) {
   var startCode = startResponse.getResponseCode();
   if (startCode < 200 || startCode >= 300) {
     var startText = startResponse.getContentText('UTF-8');
-    kspFfThrowHttpError(startCode, startText ? kspSafeParseJson(startText, 'File Search upload session response') : {}, 'File Search upload sessionを開始できませんでした。');
+    kspFfThrowHttpError_(startCode, startText ? kspSafeParseJson(startText, 'File Search upload session response') : {}, 'File Search upload sessionを開始できませんでした。');
   }
   var headers = startResponse.getAllHeaders();
   var uploadUrl = headers.Location || headers.location || headers['X-Goog-Upload-URL'] || headers['x-goog-upload-url'];
@@ -315,18 +315,18 @@ function kspUploadFeatureFreezeSourceLive(storeName, source) {
   var uploadResponse = UrlFetchApp.fetch(String(uploadUrl), {
     method: 'post', contentType: metadata.mimeType,
     headers: {
-      'x-goog-api-key': kspGeminiApiKeyLive(),
+      'x-goog-api-key': kspGeminiApiKeyLive_(),
       'Content-Length': String(bytes.length),
       'X-Goog-Upload-Offset': '0',
       'X-Goog-Upload-Command': 'upload, finalize'
     },
-    payload: kspFfSignedBytes(bytes), muteHttpExceptions: true
+    payload: kspFfSignedBytes_(bytes), muteHttpExceptions: true
   });
   var code = uploadResponse.getResponseCode();
   var responseText = uploadResponse.getContentText('UTF-8');
   var parsed = responseText ? kspSafeParseJson(responseText, 'File Search upload response') : {};
-  if (code < 200 || code >= 300) kspFfThrowHttpError(code, parsed, 'File Search upload failed.');
-  var operation = kspPollFileSearchOperationLive(kspNormalizeFileSearchOperation(parsed));
+  if (code < 200 || code >= 300) kspFfThrowHttpError_(code, parsed, 'File Search upload failed.');
+  var operation = kspPollFileSearchOperationLive_(kspNormalizeFileSearchOperation(parsed));
   kspAssert(!operation.error, 'AI_UPLOAD_OPERATION_FAILED', operation.error ? operation.error.message : 'Upload operation failed.');
-  return kspExtractDocumentFromOperation(operation);
+  return kspExtractDocumentFromOperation_(operation);
 }

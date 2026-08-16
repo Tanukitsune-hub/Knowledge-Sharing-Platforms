@@ -29,7 +29,7 @@ function loadAi() {
   new vm.Script(stub, { filename: 'base-stub.gs' }).runInContext(context);
   const root = path.resolve(__dirname, '..');
   for (const file of [
-    '130_AiConstants.gs','131_AiFileSearchContracts.gs','132_AiKnowledgeContracts.gs','133_AiRetryContracts.gs',
+    '130_AiConstants.gs','131_AiFileSearchContracts.gs','132_AiKnowledgeContracts.gs','133_AiRetryContracts.gs','161_GeminiRestClient.gs',
     '140_AiSourceModels.gs','141_AiSyncHelpers.gs','142_AiSyncWorker.gs',
     '150_KnowledgeSearchModels.gs','151_KnowledgeSearchService.gs',
     '180_FeatureFreezeFormats.gs','181_FeatureFreezeSync.gs','182_FeatureFreezeKnowledge.gs','190_FeatureFreezeDiagnostics.gs','170_AiEntryPoints.gs'
