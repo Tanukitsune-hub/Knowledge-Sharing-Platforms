@@ -183,15 +183,23 @@ function kspCreateMaintenanceEnvironment() {
         kspAssert(String(found.row.Doc_File_ID || ''), 'MEETING_AUTHORITATIVE_DOCUMENT_MISSING',
           'Google Doc原本がない面談はActiveに戻せません。');
       }
-      var before = kspDeepClone(found.row);
-      var after = kspDeepClone(found.row);
+      // Status changes must not rewrite untouched authoritative metadata cells.
+      var before = Object.assign({}, found.row);
+      var after = Object.assign({}, found.row);
       after.Status = targetStatus;
       after.Version = Number(found.row.Version || 0) + 1;
       after.Updated_At = nowIso;
       after.Updated_By = actor;
       after.AI_Index_Status = KSP_AI_INDEX_STATUS.PENDING;
       after.AI_Last_Error = '';
-      kspMaintenanceWriteSheetRow(found.sheet, found.headers, found.rowNumber, after);
+      kspMaintenanceWriteSheetFields(found.sheet, found.headers, found.rowNumber, {
+        Status: after.Status,
+        Version: after.Version,
+        Updated_At: after.Updated_At,
+        Updated_By: after.Updated_By,
+        AI_Index_Status: after.AI_Index_Status,
+        AI_Last_Error: after.AI_Last_Error
+      });
       return { before: before, after: after };
     } finally {
       lock.releaseLock();

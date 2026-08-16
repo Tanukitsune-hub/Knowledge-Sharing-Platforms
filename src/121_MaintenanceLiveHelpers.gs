@@ -43,3 +43,14 @@ function kspMaintenanceWriteSheetRow(sheet, headers, rowNumber, row) {
   });
   sheet.getRange(rowNumber, 1, 1, headers.length).setValues([values]);
 }
+
+function kspMaintenanceWriteSheetFields(sheet, headers, rowNumber, fields) {
+  Object.keys(fields).forEach(function (header) {
+    var columnIndex = headers.indexOf(header);
+    kspAssert(columnIndex !== -1, 'SHEET_HEADER_MISSING', 'Sheet header not found: ' + header);
+    var value = fields[header];
+    sheet.getRange(rowNumber, columnIndex + 1).setValue(
+      value === undefined || value === null ? '' : value
+    );
+  });
+}
