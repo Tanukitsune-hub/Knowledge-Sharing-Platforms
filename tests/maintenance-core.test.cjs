@@ -8,6 +8,16 @@ test('optional search filters and date bounds work', () => {
   assert.throws(() => ksp.kspValidateRecordSearch(ksp.kspNormalizeRecordSearch({ dateFrom: '2026-09-01', dateTo: '2026-08-01' })), /From日付/);
 });
 
+test('maintenance search normalizes spreadsheet Date and Time cells', () => {
+  const search = ksp.kspValidateRecordSearch(ksp.kspNormalizeRecordSearch({ dateFrom: '2026-08-14', dateTo: '2026-08-15' }));
+  const dateCell = new Date(Date.UTC(2026, 7, 14));
+  const timeCell = new Date(Date.UTC(1899, 11, 30, 14, 30));
+  assert.equal(ksp.kspRecordMatchesSearch({ Date: dateCell }, search), true);
+  const mapped = ksp.kspMapMeetingSearchResult({ Meeting_ID: 'MTG-000001', Date: dateCell, Time: timeCell }, { gp: {}, assetClass: {}, capitalType: {}, location: {} });
+  assert.equal(mapped.date, '2026-08-14');
+  assert.equal(mapped.time, '14:30');
+});
+
 test('search rows sort newest first and respect limit', () => {
   const rows = [{ Meeting_ID:'MTG-000001',Date:'2026-01-01',Updated_At:'a' },{ Meeting_ID:'MTG-000002',Date:'2026-02-01',Updated_At:'b' }];
   const result = ksp.kspSearchRows(rows, { dateFrom:'',dateTo:'',gpId:'',assetClassId:'',capitalTypeId:'',status:'',limit:1 }, row=>row.Meeting_ID);

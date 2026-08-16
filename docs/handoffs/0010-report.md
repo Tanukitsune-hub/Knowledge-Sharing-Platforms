@@ -4,93 +4,126 @@ WORK_ID: `0010`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Route: `C — Codex implementation / executable qualification`
+Route: `C — Codex executable qualification`
 
 Qualification date: `2026-08-16`
 
 Target branch: `agent/0010-dev-live-qualification`
 
-Exact checkout ref at start: `335d415fd7fd3152932b426f1f488b2a6914e05b`
-
-Implementation commit: `ec4e79a6f2310b9a1342caceb6f3b00aba703e03`
-
-Final delivery commit: the report-only commit that records this delivery update; its exact SHA is reported in the completion response.
+Exact checkout ref at start: `7f0ce71c8bba40645199a6ac3bd1a38d77d1f9ee`
 
 Overall result: `BLOCKER`
 
-## Outcome
+The authenticated DEV Apps Script / Google Workspace setup and the safely executable
+Phase 1 checks were completed with synthetic data. One runtime defect was observed in
+date/time handling, repaired narrowly, regression-tested, pushed to the DEV script, and
+re-qualified. Gemini File Search and downstream AI matrices remain blocked by the absence
+of a billing-enabled DEV Gemini credential. No credential, API key, private URL, Google
+resource ID, account identifier, or source material is included in this report.
 
-The complete local checkout was qualified and the observed local defects were repaired with focused regression coverage. The authenticated Apps Script / Google Workspace / Gemini DEV matrices could not be executed safely because this execution environment did not provide an authenticated Apps Script project or a temporary DEV Gemini credential. No external Google resource was created or modified.
+## Scope and safety
 
-The feature-frozen architecture was not expanded. All qualification data remained synthetic or anonymized in the local tests and report.
+- The repository-specific `AGENTS.md` files under the root, `docs/handoffs`, `src`, and
+  `tests` were read. No applicable `AGENTS.override.md` file was present.
+- The mandatory subagent policy was followed with four bounded read-only perspectives:
+  full-repository validation, Apps Script / Workspace runtime readiness, Gemini / File
+  Search contract review, and security / Audit evidence.
+- DEV execution used a clearly named user-owned My Drive resource set because a
+  disposable Shared Drive was not available. All records and metadata created for this
+  qualification were synthetic or anonymized.
+- Interactive Google authentication was completed in the authenticated browser flow.
+  Credentials and tokens were never requested in chat, printed, committed, or written
+  to the report.
+- The production deployment and production data were not touched.
 
-## Repository and policy checks
+## Observed defect and repair
 
-- The exact requested branch and starting ref were verified before implementation.
-- `AGENTS.md` files applicable to the checkout were read at the repository root and under `docs/handoffs`, `src`, and `tests`.
-- No applicable `AGENTS.override.md` file was present.
-- The repository policy requiring active, proportionate subagent use was followed. Four bounded read-only perspectives were used: full repository validation, Apps Script / Workspace runtime readiness, Gemini / File Search contract review, and security / audit evidence.
-- No credential, API key, private URL, account identifier, organization-specific resource ID, or private source material was written to the repository, report, logs, or chat.
+The live Past Meetings screen returned zero rows for a valid Date From/Date To range and
+rendered stored date/time cells as JavaScript `Date` strings. The root cause was that
+Sheets `getValues()` returns date and time cells as `Date` objects, while the maintenance
+search and result mappers compared or rendered them as plain strings.
 
-## Observed defects repaired
+The smallest repair was applied in `src/100_MaintenanceCore.gs`:
 
-Only defects observed during the local qualification and contract review were changed.
+- normalize spreadsheet date cells to `YYYY-MM-DD` for filtering, sorting, and display;
+- normalize spreadsheet time cells to `HH:mm` for display;
+- normalize timestamp cells to ISO text for result mapping.
 
-1. `src/83_PitchbookDriveAdapters.gs` was missing its final function-closing brace. The Apps Script validator reported an unexpected end of input at the exact starting ref. The missing brace was restored.
-2. `tests/meeting.test.cjs` read only the template instead of the included `ClientCore.html` and assumed formatting that no longer matched the compact client source. The test was made whitespace-tolerant and now evaluates the same included source contract.
-3. `src/161_GeminiRestClient.gs` listed File Search Documents with `pageSize=100`, exceeding the official maximum of 20. The request now uses `pageSize=20`, and `tests/ai-contracts.test.cjs` covers the exact path. Reference: https://ai.google.dev/api/file-search/documents?hl=en
-4. Credential-bearing Gemini request, upload, polling, document-list, and AI-environment helpers were made Apps Script-private with the trailing `_` convention. Intended public UI/admin entrypoints remain unchanged. This limits direct `google.script.run` exposure of the transport and credential helper layer. Reference: https://developers.google.com/apps-script/guides/html/reference/run
-5. The meeting success-link path in `src/Index.html` was observed to assemble an HTML link from a Drive URL. `src/ClientCore.html` now allowlists Drive/Docs origins and sanitizes status HTML before assigning `innerHTML`; focused assertions were added to `tests/meeting.test.cjs`.
+A focused regression test was added to
+`tests/maintenance-core.test.cjs` covering Date-object filtering and date/time mapping.
+No architecture or product scope was expanded.
 
-## Local validation evidence
+## Local validation
 
 | Check | Status | Observed result |
 |---|---|---|
-| Exact branch/ref and upstream | `PASS` | Branch `agent/0010-dev-live-qualification`; initial `HEAD` matched `335d415fd7fd3152932b426f1f488b2a6914e05b`; upstream was the same named origin branch. |
-| Apps Script source/manifest validator | `PASS` | `Validated 43 Apps Script source files, 11 HTML files, and available manifest.` |
-| Canonical `npm run check` | `PASS` | `131/131` tests passed; 0 failed, 0 skipped, 0 cancelled. |
-| `npm run test` | `PASS` | `131/131` tests passed; 0 failed. |
-| `git diff --check` | `PASS` | No whitespace errors. |
-| Setup/idempotency, schema, seed, trigger, retry, citation, and audit-redaction logic covered by deterministic tests | `PASS` | Existing deterministic test suite plus the focused regressions above passed without network calls. |
-| Official Gemini contract preflight | `PASS` | Store configuration, resumable upload headers/byte length, operation handling, Interactions path, File Search request fields, citations, model constants, and the corrected Document-list page size were reviewed against current official documentation. |
+| Exact branch and starting ref | PASS | Branch was `agent/0010-dev-live-qualification`; starting `HEAD` matched the requested ref. |
+| Apps Script validator | PASS | 43 Apps Script files, 11 HTML files, and the manifest validated. |
+| Focused maintenance tests | PASS | 10/10 passed, including the new spreadsheet Date/Time regression. |
+| `npm run check` | PASS | 132/132 tests passed; 0 failed, 0 skipped. |
+| `npm run test` | PASS | 132/132 tests passed; 0 failed, 0 skipped. |
+| `git diff --check` | PASS | No whitespace errors. |
+| Existing format, retry, citation, mode, trigger, and audit contracts | PASS | Covered by the complete deterministic local suite. |
 
 ## DEV live qualification matrix
 
-The following statuses distinguish implementation evidence from unavailable external execution evidence.
-
 | Matrix | Status | Evidence / limitation |
 |---|---|---|
-| Standalone Apps Script setup, validation, status, and idempotent rerun | `BLOCKER` | No authenticated Apps Script project/session was available. The Apps Script page redirected to sign-in. No project or DEV folders/spreadsheets/triggers were created. |
-| Backend/Audit spreadsheet separation and DEV permission check | `SKIPPED` | Requires the unavailable authenticated Apps Script execution path. The separation and metadata-only audit contracts passed deterministic local tests; live permissions remain unobserved. |
-| Phase 1 Meeting/Pitchbook capture, update, retry, version conflict, status, masters, and synthetic upload-size observation | `SKIPPED` | Requires a live DEV Apps Script / Drive target. No production or company data was touched. |
-| Gemini credential configuration, Store creation/reuse, diagnostics, and 15-minute trigger | `BLOCKER` | `KSP_GEMINI_API_KEY` and `BOOTSTRAP_CONFIG_JSON` were absent from the process environment. No credential value was requested, printed, or stored. |
-| Six-format indexing and EML edge cases | `SKIPPED` | Requires live Drive files and Gemini File Search execution. Local source-format and retry contracts remain covered by deterministic tests. |
-| Five-mode Knowledge Search, grounded response, filters, citations, and query audit | `SKIPPED` | Requires a live Store, indexed synthetic documents, and Gemini execution. Local shared retrieval, mode validation, citation mapping, and redaction tests passed. |
-| Trigger execution, retry/backoff, disabled-sync no-op, and outage isolation | `SKIPPED` | No safe trigger target or Gemini credential was available. Local retry, no-op, source-preservation, and isolation tests passed. |
-| Shared Drive-specific behavior | `SKIPPED` | No authenticated DEV Workspace target was available; My Drive fallback was therefore not attempted. |
+| Standalone DEV Apps Script project and interactive authentication | PASS | A standalone DEV project was created and authenticated without exposing credentials. |
+| `setupKnowledgePlatform()` | PASS | Completed successfully against the synthetic DEV resource set. |
+| `validateInstallation()` | PASS | Completed successfully. |
+| `getInstallationStatus()` | PASS | Completed successfully. |
+| Setup rerun / idempotency | PASS | Reran setup successfully without duplicate baseline resources or seed rows. |
+| Backend and Audit separation | PASS | Separate spreadsheets were created and independently readable. |
+| Audit access restriction | PASS | My Drive DEV metadata showed owner-only access with no domain or anyone permission. Shared Drive behavior remains unobserved. |
+| Baseline backend schema and DEV settings | PASS | Backend contained exactly `GP_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, and `Settings`; DEV timezone and 15-minute interval settings were confirmed. |
+| Meeting minimal registration | PASS | Synthetic minimal Meeting capture succeeded. |
+| Meeting full-field registration | PASS | Synthetic full-field Meeting capture succeeded. |
+| Authoritative Google Doc content and filename | PASS | The authoritative Google Doc was created and its synthetic body matched the submitted content; the Index did not contain the body. |
+| Past Meeting search without date bounds | PASS | Both synthetic Meeting rows were returned. |
+| Past Meeting date-only and date-plus-master filters before repair | FAIL (observed) | Valid date bounds returned zero rows and date/time values were rendered incorrectly. This was the defect repaired above. |
+| Past Meeting date-only and date-plus-master filters after repair | PASS | Both filters returned the two matching synthetic rows; the UI showed ISO dates and the submitted time. |
+| Meeting update | PASS | Update succeeded, the authoritative document changed, the Index version advanced, and the active row count remained stable. |
+| Version conflict | PASS | Two DEV sessions used a stale version; the stale save was rejected and the winning authoritative content remained intact. |
+| GP and Option Master add / rename / deactivate / reactivate | PASS | Synthetic GP and Asset Class mutations completed and audit actions were recorded. |
+| Actor attribution | PASS (partial) | A live actor value was recorded; fallback branches remain covered locally but were not forced in the authenticated session. |
+| Live audit metadata and redaction | PASS | Audit rows contained action/filter/model/citation fields as designed and did not contain Meeting body text, answer text, retrieved chunks, normalized EML body, embeddings, or source contents. |
+| Meeting retry behavior | SKIPPED | No live partial-failure injection was performed after the primary workflow passed; deterministic retry tests passed. |
+| Inactive / Reactivate live workflow | SKIPPED | The browser execution surface became unavailable after deployment refresh; the record was left Active and no unsafe direct spreadsheet mutation was used. Local status and reactivation contracts passed. |
+| Pitchbook single-file registration | SKIPPED | No live synthetic file upload was performed after the browser surface became unavailable. |
+| Pitchbook multi-file partial success and failed-file retry | SKIPPED | Requires the live upload surface and injected file-level failure. Local tests passed. |
+| Live upload-size qualification | SKIPPED | No reliable live size observation was obtained. The accepted 25 MB/file, 10-file selection, and 100 MB total limits were not changed. |
+| Gemini credential, Store, embedding model, diagnostics, and AI sync trigger | BLOCKER | No billing-enabled DEV Gemini credential was configured through the approved secure path. No key was requested or entered in chat. |
+| Six-format live indexing and EML edge cases | SKIPPED | Requires the blocked Gemini/File Search path and live source files. Local format and EML contract tests passed. |
+| Five-mode Knowledge Search, grounded output, citations, and query audit | SKIPPED | Requires an indexed DEV Store and Gemini execution. Local mode validation, citation mapping, and audit-redaction tests passed. |
+| Trigger schedule, retry/backoff, disabled-sync no-op, and outage isolation | SKIPPED | Requires the blocked AI runtime. Local retry, no-op, and authoritative-source isolation tests passed. |
+| Shared Drive-specific behavior | SKIPPED | The DEV qualification used the authorized My Drive fallback; Shared Drive semantics were not inferred. |
 
-## Runtime and credential boundary evidence
+## Security and residual limitations
 
-- Node.js, npm, and Git were available locally.
-- `clasp` and `gcloud` were not installed. Installing either would not provide the missing authenticated project or Gemini credential, so no installation or external mutation was attempted.
-- The connected Drive capability was used only for read-only availability checks; it did not identify or expose a usable Apps Script execution target.
-- No live Google API request containing confidential or material data was sent.
+- No committed secret, API key, credential, private URL, Google resource ID, account
+  identifier, or private source content was found or added.
+- The DEV Web App was deployed with execute-as-owner and self-only access. This limits
+  the observed DEV exposure but is not evidence of production access configuration.
+- Static security review recorded access-boundary items for future deployment review;
+  no live public exposure was observed and no architecture change was authorized by an
+  observed defect.
+- Live AI indexing, citations, five-mode search, practical upload size, scheduled
+  trigger execution, and Gemini outage isolation remain unobserved because the secure
+  DEV Gemini credential was unavailable.
 
-## Security and audit evidence
+## Blocker
 
-- Static review found no committed real secret, API key, private source, or organization-specific resource ID.
-- The Gemini credential and transport helper layer is now private to Apps Script HTML-service calls. Live Web App access/execute-as authorization was not observable without a deployment and authenticated session.
-- Local audit tests verify separate audit schema and metadata-only query evidence; answer text, retrieved chunks, normalized EML body, embeddings, and source body are not placed in the audit payload.
-- Live Audit spreadsheet access restriction, Shared Drive permissions, and real citation link opening remain unverified because the DEV runtime blocker prevented deployment.
+`BLOCKER: YES` — the remaining Gemini File Search, six-format indexing, five-mode search,
+AI trigger, and outage-isolation matrices require a billing-enabled DEV Gemini credential
+through the approved secure local / Apps Script configuration path. The credential was
+not available, and it was not requested or pasted into chat. This is an external
+execution-readiness blocker; no implementation-level blocker remains in the locally
+validated scope.
 
-## Blocker and safe next action
+## Delivery
 
-`BLOCKER: YES` — the acceptance criteria requiring authenticated Apps Script / Workspace / Gemini DEV execution cannot be completed from this environment without a disposable authenticated DEV Apps Script project and a billing-enabled DEV Gemini credential. Provide access through the approved secure execution channel, never in GitHub, this report, logs, or chat; then rerun only the skipped live matrices on the target branch.
-
-No implementation-level blocker remains in the locally executable scope. The unresolved blocker is external execution readiness, not a reason to change the frozen architecture.
-
-## Delivery state
-
-- Scoped implementation and regression changes are ready for commit on `agent/0010-dev-live-qualification`.
-- This report is the required durable handoff artifact.
-- The branch must remain associated with Draft PR `#8` and must not be merged by this Work.
+- Scoped source, focused regression test, and this report are intended for
+  `agent/0010-dev-live-qualification`.
+- The final commit SHA and Draft PR #8 state are reported in the completion response.
+- Draft PR #8 must remain Draft and must not be merged.

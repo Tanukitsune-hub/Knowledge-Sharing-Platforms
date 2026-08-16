@@ -67,6 +67,19 @@ function kspMaintenanceTrim(value) {
   return value === null || value === undefined ? '' : String(value).trim();
 }
 
+function kspMaintenanceCellText(value, kind) {
+  if (value === null || value === undefined) return '';
+  if (!(value instanceof Date)) return String(value || '');
+  if (isNaN(value.getTime())) return '';
+  if (kind === 'date') {
+    return [value.getUTCFullYear(), String(value.getUTCMonth() + 1).padStart(2, '0'), String(value.getUTCDate()).padStart(2, '0')].join('-');
+  }
+  if (kind === 'time') {
+    return [String(value.getUTCHours()).padStart(2, '0'), String(value.getUTCMinutes()).padStart(2, '0')].join(':');
+  }
+  return value.toISOString();
+}
+
 function kspMaintenancePositiveInteger(value, fallback) {
   var numberValue = Number(value);
   return Number.isFinite(numberValue) && numberValue > 0 && Math.floor(numberValue) === numberValue
@@ -74,7 +87,7 @@ function kspMaintenancePositiveInteger(value, fallback) {
 }
 
 function kspRecordMatchesSearch(row, search) {
-  var date = String(row.Date || '');
+  var date = kspMaintenanceCellText(row.Date, 'date');
   if (search.dateFrom && date < search.dateFrom) return false;
   if (search.dateTo && date > search.dateTo) return false;
   if (search.gpId && String(row.GP_ID || '') !== search.gpId) return false;
@@ -88,7 +101,7 @@ function kspSearchRows(rows, search, mapper) {
   return (rows || [])
     .filter(function (row) { return kspRecordMatchesSearch(row, search); })
     .sort(function (left, right) {
-      var dateCompare = String(right.Date || '').localeCompare(String(left.Date || ''));
+      var dateCompare = kspMaintenanceCellText(right.Date, 'date').localeCompare(kspMaintenanceCellText(left.Date, 'date'));
       if (dateCompare !== 0) return dateCompare;
       var updateCompare = String(right.Updated_At || '').localeCompare(String(left.Updated_At || ''));
       if (updateCompare !== 0) return updateCompare;
@@ -126,8 +139,8 @@ function kspBuildAllMasterMaps(gpRows, optionRows) {
 function kspMapMeetingSearchResult(row, maps) {
   return {
     meetingId: String(row.Meeting_ID || ''),
-    date: String(row.Date || ''),
-    time: String(row.Time || ''),
+    date: kspMaintenanceCellText(row.Date, 'date'),
+    time: kspMaintenanceCellText(row.Time, 'time'),
     gpId: String(row.GP_ID || ''),
     gpName: maps.gp[String(row.GP_ID || '')] || '',
     assetClassId: String(row.Asset_Class_ID || ''),
@@ -143,7 +156,7 @@ function kspMapMeetingSearchResult(row, maps) {
     filename: String(row.Saved_Filename || ''),
     status: String(row.Status || ''),
     version: Number(row.Version || 0),
-    updatedAt: String(row.Updated_At || '')
+    updatedAt: kspMaintenanceCellText(row.Updated_At, 'iso')
   };
 }
 
@@ -151,7 +164,7 @@ function kspMapPitchbookSearchResult(row, maps) {
   return {
     documentId: String(row.Document_ID || ''),
     batchId: String(row.Batch_ID || ''),
-    date: String(row.Date || ''),
+    date: kspMaintenanceCellText(row.Date, 'date'),
     gpId: String(row.GP_ID || ''),
     gpName: maps.gp[String(row.GP_ID || '')] || '',
     assetClassId: String(row.Asset_Class_ID || ''),
@@ -164,7 +177,7 @@ function kspMapPitchbookSearchResult(row, maps) {
     originalFilename: String(row.Original_Filename || ''),
     savedFilename: String(row.Saved_Filename || ''),
     status: String(row.Status || ''),
-    updatedAt: String(row.Updated_At || '')
+    updatedAt: kspMaintenanceCellText(row.Updated_At, 'iso')
   };
 }
 
