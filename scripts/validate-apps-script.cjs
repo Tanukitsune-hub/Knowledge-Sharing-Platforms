@@ -44,6 +44,9 @@ for(const token of [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   '自由質問','要約','時系列','比較','面談準備',
   'id="knowledge-mode"','searchKnowledge','getFeatureFreezeDiagnostics',
-  'runAiSyncWorker','kspRunFeatureFreezeKnowledgeSearch','kspRunFeatureFreezeAiSync'
+  'runAiSyncWorker','kspRunFeatureFreezeKnowledgeSearch','kspRunFeatureFreezeAiSync',
+  'KSP_KNOWLEDGE_EXPORT_LIMITS','kspResolveKnowledgeExportSources',
+  'previewKnowledgeExport','createKnowledgeExport','getKnowledgeExportPrompt',
+  'recordKnowledgeExportPromptCopy','Knowledge Exports','Knowledge Export'
 ])if(!allSource.includes(token))throw new Error(`Feature-freeze surface missing token: ${token}`);
 console.log(`Validated ${files.length} Apps Script source files, ${htmlFiles.length} HTML files, and available manifest.`);

@@ -28,3 +28,19 @@ function getInstallationStatus() {
 function getBootstrapConfigTemplate() {
   return kspGetBootstrapConfigTemplate();
 }
+
+function previewKnowledgeExport(input) {
+  return kspRunKnowledgeExportPreview(kspCreateKnowledgeExportEnvironment(), input);
+}
+
+function createKnowledgeExport(input) {
+  return kspRunKnowledgeExportCreation(kspCreateKnowledgeExportEnvironment(), input);
+}
+
+function getKnowledgeExportPrompt(input) {
+  return kspGetKnowledgeExportPrompt(kspCreateKnowledgeExportEnvironment(), input);
+}
+
+function recordKnowledgeExportPromptCopy(input) {
+  return kspRecordKnowledgeExportPromptCopy(kspCreateKnowledgeExportEnvironment(), input);
+}

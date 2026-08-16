@@ -155,11 +155,11 @@ REPOSITORY_RULES_STATUS: ACTIVE
 ## 1. Purpose and phase
 
 - Build a simple private-assets knowledge base for Meeting records and Pitchbook/source materials with source-traceable Gemini retrieval.
-- Current phase: Works 0004–0009 are implemented and merged; the initial product is feature-frozen and Work 0010 DEV live qualification / observed-defect remediation is active.
+- Current phase: Works 0004–0010 are implemented and merged; Work 0011 Gemini-independent Knowledge Export and external-AI handoff implementation / targeted validation is active.
 - Pre-2026-08-14 product/UI/architecture/MVP decisions are withdrawn.
 - Accepted accumulation design, Gemini File Search architecture, five-mode Knowledge Search UX, Apps Script-first implementation plan, lower upload limits, and simplified audit/actor model are current requirements.
 - Do not reopen accepted design merely because live validation has not run.
-- During Work 0010, do not expand features. Repair only defects demonstrated by full-checkout or live evidence.
+- During Work 0011, do not reopen deferred Work 0010 browser or Gemini qualification. Keep export implementation within the accepted export, prompt, setup, UI, audit, and validation contract.
 
 ## 2. Current sources of truth
 
@@ -170,12 +170,14 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - `docs/planning/apps-script-implementation-plan.md`: implementation sequence / setup / acceptance / routing
 - `docs/operations/runtime-policy.md`: runtime / retry / access / audit
 - `docs/operations/work0010-live-qualification.md`: active final DEV qualification plan
+- `docs/planning/work0011-knowledge-export-and-external-ai-handoff.md`: accepted Knowledge Export and external-AI handoff contract
 - `docs/ai/gemini-file-search.md`: retrieval / metadata / five modes / sync / citations
 - `docs/governance/security.md`: information handling / credentials / access boundary
 - `docs/decisions/pitchbook-upload-limits.md`: 25MB/file upload policy
 - `docs/decisions/audit-access-and-user-attribution.md`: best-effort Actor + restricted Audit Spreadsheet
 - `docs/decisions/decision-log.md`: consolidated durable decisions
 - `docs/handoffs/0010-instruction.md`: active Work 0010 execution contract
+- `docs/handoffs/0011-instruction.md`: active Work 0011 execution contract
 
 If documents conflict, prefer the latest explicit user decision and the closest domain-specific source.
 
@@ -189,6 +191,7 @@ If documents conflict, prefer the latest explicit user decision and the closest 
 - `setupKnowledgePlatform()` is the idempotent create / reuse / migration / repair path.
 - DEV and PROD use separate Apps Script projects and resource sets.
 - Work 0010 may use a clearly named user-owned My Drive DEV resource set with synthetic data when a disposable Shared Drive is unavailable. Record Shared Drive-specific behavior as unobserved; do not infer it from My Drive.
+- Work 0011 export validation is Gemini-independent and may use synthetic DEV source rows and authoritative-text fakes; never use production or confidential data.
 
 ## 4. Meeting and Pitchbook contracts
 
@@ -246,6 +249,7 @@ Accepted modes: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`.
 - Web App users share access to all Active indexed sources; do not implement per-user/per-file retrieval ACL initially.
 - Use one configured Gemini Flash model; no model selector / Deep mode.
 - Work 0010 DEV default: `gemini-3.6-flash`.
+- Knowledge Export resolves Active sources directly from the Backend Index and does not require Gemini credentials, citations, or File Search state.
 
 ## 9. AI sync / formats
 
@@ -266,6 +270,7 @@ Initial formats: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`.
 - Web App access is the common initial source-access boundary; internet-public access is not assumed.
 - Audit Spreadsheet access is restricted through Google Drive permissions, not custom passwords.
 - Work 0010 may use `KSP_GEMINI_API_KEY` as a temporary DEV Script Property only. It is not the production credential architecture; never print, log, or commit its value.
+- Knowledge Exports is a sibling under the configured knowledge parent; Audit records export metadata only and never source bodies, prompts, answers, chunks, embeddings, or bytes.
 
 ## 11. Implementation sequence
 
@@ -276,6 +281,7 @@ Initial formats: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`.
 - 0008: Gemini File Search sync foundation + 自由質問
 - 0009: six formats + EML normalization + all five modes + feature freeze
 - 0010: full-checkout validation + final DEV live qualification + observed-defect remediation
+- 0011: Gemini-independent Knowledge Export, external-AI prompt handoff, setup migration, UI, audit redaction, and targeted validation
 
 Default Codex model is Luna Max. Use Sol High only for material unresolved cross-cutting diagnosis; Sol Max only for exceptional hard-to-reverse architecture or critical final review.
 
@@ -283,7 +289,9 @@ Default Codex model is Luna Max. Use Sol High only for material unresolved cross
 
 Work 0010 validates setup idempotency, registration/update, practical upload limit, stable IDs/sequences, partial retry, concurrency, Master operations, separate restricted Audit, Actor fallback, source-to-index consistency, 15-minute worker, six formats, EML normalization, metadata filtering, five-mode retrieval, citations/Drive links, re-index/Inactive/Reactivate, retry idempotency, AI audit, Flash-only behavior, and AI-outage isolation.
 
-Authenticated live calls are authorized only under the scoped Work 0010 handoff, using synthetic or anonymized DEV data and no production deployment or destructive production action.
+Work 0011 validates Active-source resolution, exact Meeting text counts, metadata/link-only Pitchbook handling, stale-preview protection, limits, Docs/PDF artifact boundaries, neutral five-mode prompts, Knowledge Exports setup/migration, successful-copy-only prompt Audit, metadata redaction, safe URLs, and Gemini-independent operation.
+
+Authenticated live calls are authorized only under the scoped Work 0010 or Work 0011 handoff, using synthetic or anonymized DEV data and no production deployment or destructive production action.
 
 Do not stop because user email is unavailable, temporary Actor keys rotate, hosted CI is unavailable, a disposable Shared Drive is unavailable while My Drive functional DEV can continue, or the safe upload limit needs to be lower than 25MB.
 

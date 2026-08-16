@@ -1,6 +1,6 @@
 var KSP_WORK_ID = '0004';
 var KSP_APP_VERSION = '0.1.0';
-var KSP_SCHEMA_VERSION = 1;
+var KSP_SCHEMA_VERSION = 2;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
@@ -12,6 +12,7 @@ var KSP_RESOURCE_NAMES = Object.freeze({
   KNOWLEDGE_ROOT: 'Private Assets Knowledge',
   MEETING_RECORDS: 'Meeting Records',
   PITCHBOOKS: 'Pitchbooks',
+  KNOWLEDGE_EXPORTS: 'Knowledge Exports',
   BACKEND_SPREADSHEET: 'Knowledge Platform Backend',
   AUDIT_SPREADSHEET: 'Knowledge Platform Audit'
 });
@@ -20,6 +21,7 @@ var KSP_RESOURCE_KEYS = Object.freeze({
   KNOWLEDGE_ROOT: 'knowledgeRootFolderId',
   MEETING_RECORDS: 'meetingRecordsFolderId',
   PITCHBOOKS: 'pitchbooksFolderId',
+  KNOWLEDGE_EXPORTS: 'knowledgeExportsFolderId',
   BACKEND_SPREADSHEET: 'backendSpreadsheetId',
   AUDIT_SPREADSHEET: 'auditSpreadsheetId'
 });
@@ -361,6 +363,7 @@ function kspBuildSettingsRows(config, resources, nowIso) {
     { Key: 'KNOWLEDGE_ROOT_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT], Description: 'Authoritative knowledge root folder.', Updated_At: nowIso },
     { Key: 'MEETING_RECORDS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.MEETING_RECORDS], Description: 'Meeting records folder.', Updated_At: nowIso },
     { Key: 'PITCHBOOKS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.PITCHBOOKS], Description: 'Pitchbooks/source-material folder.', Updated_At: nowIso },
+    { Key: 'KNOWLEDGE_EXPORTS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS], Description: 'Derived Knowledge Exports folder outside the authoritative root.', Updated_At: nowIso },
     { Key: 'BACKEND_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET], Description: 'Five-sheet backend spreadsheet.', Updated_At: nowIso },
     { Key: 'AUDIT_LOG_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET], Description: 'Separate restricted audit spreadsheet.', Updated_At: nowIso },
     { Key: 'ADMIN_EMAILS', Value: adminEmails, Description: 'Administrative contacts; not an application authentication mechanism.', Updated_At: nowIso },
