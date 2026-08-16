@@ -12,7 +12,9 @@ Target branch: `agent/0010-dev-live-qualification`
 
 Exact checkout ref at start: `335d415fd7fd3152932b426f1f488b2a6914e05b`
 
-Final commit: recorded by the final report-only commit after the scoped implementation commit.
+Implementation commit: `ec4e79a6f2310b9a1342caceb6f3b00aba703e03`
+
+Final delivery commit: the report-only commit that records this delivery update; its exact SHA is reported in the completion response.
 
 Overall result: `BLOCKER`
 
