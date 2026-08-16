@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ナレッジ検索 | Knowledge Sharing Platforms</title>
+  <?!= include('Styles'); ?>
+  <style>
+    .knowledge-answer{white-space:pre-wrap;line-height:1.75;overflow-wrap:anywhere}
+    .citation-list{display:grid;gap:10px;margin-top:16px;padding:0;list-style:none}
+    .citation-item{border:1px solid #e0e3e7;border-radius:10px;padding:12px;background:#fafbfc}
+    .citation-item a{font-weight:700;color:#174ea6;text-decoration:none;overflow-wrap:anywhere}
+    .citation-meta{margin-top:5px;color:#5f6368;font-size:12px}
+    .mode-chip{display:inline-flex;border-radius:999px;background:#e8f0fe;color:#174ea6;padding:5px 10px;font-size:12px;font-weight:700}
+    .knowledge-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="page-header">
+      <div>
+        <h1>ナレッジ検索</h1>
+        <p>登録済みのActive資料だけを根拠に、Gemini File Searchで横断検索します。</p>
+      </div>
+      <nav class="nav" aria-label="ページ切替">
+        <button id="knowledge-back" type="button">登録・管理へ戻る</button>
+      </nav>
+    </header>
+
+    <section class="card">
+      <div class="knowledge-toolbar">
+        <span class="mode-chip">自由質問</span>
+        <span id="knowledge-config-state" class="hint">設定を確認しています…</span>
+      </div>
+      <form id="knowledge-form" novalidate>
+        <div class="filter-grid">
+          <div class="field"><label for="knowledge-dateFrom">Date From</label><input id="knowledge-dateFrom" type="date"></div>
+          <div class="field"><label for="knowledge-dateTo">Date To</label><input id="knowledge-dateTo" type="date"></div>
+          <div class="field"><label for="knowledge-gpId">GP</label><select id="knowledge-gpId"><option value="">未選択</option></select></div>
+          <div class="field"><label for="knowledge-assetClassId">Asset Class</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
+          <div class="field"><label for="knowledge-capitalTypeId">Equity / Debt</label><select id="knowledge-capitalTypeId"><option value="">未選択</option></select></div>
+          <div class="field"><label for="knowledge-sourceType">Source Type</label><select id="knowledge-sourceType"><option value="">未選択</option><option value="Meeting">Meeting</option><option value="Pitchbook">Pitchbook</option></select></div>
+        </div>
+        <div class="field full" style="margin-top:18px">
+          <label class="required" for="knowledge-question">質問</label>
+          <textarea id="knowledge-question" maxlength="5000" placeholder="例: KKRとの最近の面談で、APACインフラの投資機会についてどのような見解が示されましたか？"></textarea>
+          <div class="hint">回答全文や検索チャンクは監査ログへ複製しません。Citationから原資料へ戻れます。</div>
+        </div>
+        <div class="actions">
+          <span class="hint">新規・更新資料が検索可能になるまで最大約15分かかる想定です。</span>
+          <div class="action-group">
+            <button id="knowledge-clear" class="action secondary" type="button">条件をクリア</button>
+            <button id="knowledge-submit" class="action primary" type="submit" disabled>検索</button>
+          </div>
+        </div>
+      </form>
+      <div id="knowledge-status" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section id="knowledge-result" class="card maintenance-editor hidden-panel">
+      <div class="section-heading"><div><h2>回答</h2><p id="knowledge-evidence-note" class="hint"></p></div></div>
+      <div id="knowledge-answer" class="knowledge-answer"></div>
+      <h3>参照資料</h3>
+      <ul id="knowledge-citations" class="citation-list"></ul>
+    </section>
+  </main>
+  <?!= include('ClientKnowledgeSearch'); ?>
+</body>
+</html>

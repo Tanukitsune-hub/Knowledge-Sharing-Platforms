@@ -1,0 +1,6 @@
+{
+  "name": "fileSearchStores/store-123",
+  "displayName": "Private Assets Knowledge",
+  "embeddingModel": "models/gemini-embedding-2",
+  "activeDocumentsCount": "2"
+}
