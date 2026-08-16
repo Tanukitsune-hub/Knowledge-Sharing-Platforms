@@ -1,0 +1,87 @@
+<script>
+function maintenanceOptionSets(masters, activeOnly) {
+  const gps=(masters.gps||[]).filter(item=>!activeOnly||item.status==='Active');
+  const source=masters.options||[];
+  const mapType=type=>source
+    .filter(item=>item.type===type&&(!activeOnly||item.status==='Active'))
+    .map(item=>({id:item.id,name:item.name,status:item.status,sortOrder:item.sortOrder}));
+  return {
+    gps,
+    assetClasses:mapType('ASSET_CLASS'),
+    capitalTypes:mapType('CAPITAL_TYPE'),
+    locations:mapType('LOCATION')
+  };
+}
+
+function applyMaintenanceMasterData(masters) {
+  maintenanceBootstrap=maintenanceBootstrap||{};
+  maintenanceBootstrap.masters=masters||{gps:[],options:[]};
+  renderMasters(maintenanceBootstrap.masters);
+  populateMaintenanceSelects(maintenanceOptionSets(maintenanceBootstrap.masters,false));
+  populateSharedOptions(maintenanceOptionSets(maintenanceBootstrap.masters,true));
+}
+
+function bootstrapMaintenance(result) {
+  if(!result||!result.ok){
+    showStatus('masters-status','error',result&&result.error?result.error.message:'保守機能を読み込めませんでした。');
+    return;
+  }
+  maintenanceBootstrap=result;
+  applyMaintenanceMasterData(result.masters||{gps:[],options:[]});
+}
+
+async function performMasterMutation(payload) {
+  clearStatus('masters-status');
+  const result=await serverCall('mutateMaster',payload);
+  if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Master変更に失敗しました。');
+  applyMaintenanceMasterData(result.masters);
+  showStatus('masters-status','success','Masterを更新しました。');
+}
+
+async function quickAddGpFromRegistration(page,statusId) {
+  const name=prompt('追加するGP名を入力してください。');
+  if(name===null||!name.trim())return;
+  try{
+    const result=await serverCall('quickAddGp',name.trim());
+    if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'GP追加に失敗しました。');
+    applyMaintenanceMasterData(result.masters);
+    const shared=getShared(page);
+    shared.gpId=result.gp.id;
+    applyShared(shared);
+    writeEnvelope(KSP_SHARED_DRAFT_KEY,shared);
+    showStatus(statusId,'success','GPを選択しました: '+result.gp.name);
+  }catch(error){
+    showStatus(statusId,'error',error.message||String(error));
+  }
+}
+
+function ensurePhase1DiagnosticsButton() {
+  let button=el('phase1-diagnostics');
+  if(button)return button;
+  const refresh=el('masters-refresh');
+  if(!refresh)return null;
+  button=document.createElement('button');
+  button.id='phase1-diagnostics';
+  button.className='small-button';
+  button.type='button';
+  button.textContent='構成診断';
+  refresh.parentNode.insertBefore(button,refresh);
+  return button;
+}
+
+el('meeting-quick-add-gp').onclick=()=>quickAddGpFromRegistration('meeting','meeting-status');
+el('pitchbook-quick-add-gp').onclick=()=>quickAddGpFromRegistration('pitchbook','pitchbook-status');
+const phase1DiagnosticsButton=ensurePhase1DiagnosticsButton();
+if(phase1DiagnosticsButton)phase1DiagnosticsButton.onclick=async()=>{
+  try{
+    const result=await serverCall('getPhase1Diagnostics');
+    if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'診断に失敗しました。');
+    const message='構成: '+(result.healthy?'OK':'要確認')+
+      ' / Backend・Audit分離: '+(result.resources.backendAuditSeparated?'OK':'要確認')+
+      ' / Actor: '+result.actor.kind+' / 実機検証: 未実施';
+    showStatus('masters-status',result.healthy?'info':'warning',message);
+  }catch(error){
+    showStatus('masters-status','error',error.message||String(error));
+  }
+};
+</script>

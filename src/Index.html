@@ -6,13 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Knowledge Sharing Platforms</title>
   <?!= include('Styles'); ?>
-
 </head>
 <body>
   <main class="app-shell">
     <header class="page-header">
-      <div><h1>Knowledge Sharing Platforms</h1><p>面談記録とPitchbookを同じ共通コンテキストで登録します。</p></div>
-      <nav class="nav" aria-label="ページ切替"><button id="nav-meeting" class="active" type="button">面談記録</button><button id="nav-pitchbook" type="button">Pitchbook</button></nav>
+      <div><h1>Knowledge Sharing Platforms</h1><p>面談記録とPitchbookを蓄積し、過去記録とマスターを同じWeb Appで管理します。</p></div>
+      <nav class="nav" aria-label="ページ切替">
+        <button id="nav-meeting" class="active" type="button">面談記録</button>
+        <button id="nav-pitchbook" type="button">Pitchbook</button>
+        <button id="nav-meeting-past" type="button">過去面談</button>
+        <button id="nav-pitchbook-past" type="button">過去資料</button>
+        <button id="nav-masters" type="button">マスター管理</button>
+      </nav>
     </header>
 
     <section id="page-meeting" class="page active">
@@ -22,7 +27,7 @@
             <div class="field"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
             <div class="field"><label for="meeting-time">時間</label><input id="meeting-time" type="time"></div>
             <div class="field"><label for="meeting-locationId">面談場所</label><select id="meeting-locationId"><option value="">未選択</option></select></div>
-            <div class="field"><label class="required" for="meeting-gpId">GP</label><select id="meeting-gpId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="meeting-gpId">GP</label><select id="meeting-gpId" required><option value="">未選択</option></select><button id="meeting-quick-add-gp" class="small-button" type="button">未登録GPを追加</button></div>
             <div class="field"><label class="required" for="meeting-assetClassId">Asset Class</label><select id="meeting-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field"><label for="meeting-capitalTypeId">Equity / Debt</label><select id="meeting-capitalTypeId"><option value="">未選択</option></select></div>
             <div class="field"><label for="meeting-counterparty">面談相手</label><input id="meeting-counterparty" maxlength="500"></div>
@@ -41,7 +46,7 @@
         <form id="pitchbook-form" novalidate>
           <div class="grid">
             <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
-            <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select><button id="pitchbook-quick-add-gp" class="small-button" type="button">未登録GPを追加</button></div>
             <div class="field"><label class="required" for="pitchbook-assetClassId">Asset Class</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
             <div class="field full"><label class="required">ファイル</label><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0">ここへファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div><input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"><div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div></div>
@@ -51,7 +56,10 @@
         <div id="pitchbook-status" class="status" role="status" aria-live="polite"></div>
       </div>
     </section>
+
+    <?!= include('MaintenancePages'); ?>
   </main>
+
 <?!= include('ClientCore'); ?>
 <script>
 function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,gpId:el('meeting-gpId').value,assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
@@ -59,22 +67,17 @@ function saveMeetingDraft(){const v=meetingValues();const specific={};MEETING_FI
 function restoreMeetingDraft(){applyShared(readEnvelope(KSP_SHARED_DRAFT_KEY));const specific=readEnvelope(KSP_MEETING_DRAFT_KEY);if(specific)MEETING_FIELDS.forEach(f=>{if(specific[f]!=null)el('meeting-'+f).value=String(specific[f])});const retry=readEnvelope(KSP_MEETING_RETRY_KEY);if(retry&&retry.meetingId&&retry.fingerprint){retryContext=retry;el('meeting-retry-note').classList.add('visible')}}
 function clearRetryContext(){retryContext=null;safeRemove(KSP_MEETING_RETRY_KEY);el('meeting-retry-note').classList.remove('visible')}
 function saveDraft(){saveMeetingDraft();}
-function clearMeetingSpecificDraft() {
-      MEETING_FIELDS.forEach(field => { el('meeting-' + field).value = ''; });
-      safeStorageRemove(KSP_MEETING_DRAFT_KEY);
-      clearRetryContext();
-      writeEnvelope(KSP_SHARED_DRAFT_KEY, getShared('meeting'));
-    }
-function safeStorageRemove(key){safeRemove(key);}
+function clearMeetingSpecificDraft(){MEETING_FIELDS.forEach(field=>{el('meeting-'+field).value=''});safeStorageRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
+function safeStorageRemove(key){safeRemove(key)}
 function setMeetingBusy(busy){el('meeting-submit').disabled=busy||meetingLoading;el('meeting-clear').disabled=busy;el('meeting-submit').textContent=busy?'登録中…':'登録'}
-MEETING_FIELDS.forEach(f=>el('meeting-'+f).addEventListener('input',()=>{clearRetryContext(); saveDraft();}));
-el('meeting-form').addEventListener('submit',async event=>{event.preventDefault();clearStatus('meeting-status');const payload=meetingValues();if(!payload.date||!payload.gpId||!payload.assetClassId){showStatus('meeting-status','error','日付、GP、Asset Classは必須です。');return}if(retryContext){payload.retryMeetingId = retryContext.meetingId;payload.retryFingerprint = retryContext.fingerprint}setMeetingBusy(true);try{const result=await serverCall('registerMeeting',payload);setMeetingBusy(false);if(result&&result.ok){clearMeetingSpecificDraft();const meeting=result.meeting||{};const url=String(meeting.documentUrl||'').replace(/"/g,'&quot;');showStatus('meeting-status','success','登録しました: '+meeting.id+(url?'<br><a class="result-link" target="_blank" rel="noopener" href="'+url+'">Google Docsを開く</a>':''),true)}else{if(result&&result.retry){retryContext=result.retry;writeEnvelope(KSP_MEETING_RETRY_KEY,retryContext);el('meeting-retry-note').classList.add('visible')}saveMeetingDraft();showStatus('meeting-status','error',(result&&result.error?result.error.message:'登録に失敗しました。')+' 入力内容は保持されています。')}}catch(error){setMeetingBusy(false);saveMeetingDraft();showStatus('meeting-status','error',(error&&error.message?error.message:String(error))+' 入力内容は保持されています。')}});
+MEETING_FIELDS.forEach(f=>el('meeting-'+f).addEventListener('input',()=>{clearRetryContext();saveDraft()}));
+el('meeting-form').addEventListener('submit',async event=>{event.preventDefault();clearStatus('meeting-status');const payload=meetingValues();if(!payload.date||!payload.gpId||!payload.assetClassId){showStatus('meeting-status','error','日付、GP、Asset Classは必須です。');return}if(retryContext){payload.retryMeetingId=retryContext.meetingId;payload.retryFingerprint=retryContext.fingerprint}setMeetingBusy(true);try{const result=await serverCall('registerMeeting',payload);setMeetingBusy(false);if(result&&result.ok){clearMeetingSpecificDraft();const meeting=result.meeting||{};const url=String(meeting.documentUrl||'').replace(/"/g,'&quot;');showStatus('meeting-status','success','登録しました: '+meeting.id+(url?'<br><a class="result-link" target="_blank" rel="noopener" href="'+url+'">Google Docsを開く</a>':''),true)}else{if(result&&result.retry){retryContext=result.retry;writeEnvelope(KSP_MEETING_RETRY_KEY,retryContext);el('meeting-retry-note').classList.add('visible')}saveMeetingDraft();showStatus('meeting-status','error',(result&&result.error?result.error.message:'登録に失敗しました。')+' 入力内容は保持されています。')}}catch(error){setMeetingBusy(false);saveMeetingDraft();showStatus('meeting-status','error',(error&&error.message?error.message:String(error))+' 入力内容は保持されています。')}});
 el('meeting-clear').onclick=()=>{if(!confirm('面談入力と共通項目を消去しますか？'))return;[...SHARED_FIELDS,...MEETING_FIELDS].forEach(f=>{const node=el('meeting-'+f);if(node)node.value=''});applyShared({date:'',gpId:'',assetClassId:'',capitalTypeId:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();clearStatus('meeting-status')};
-
 </script>
 <?!= include('ClientPitchbookFiles'); ?>
 <?!= include('ClientPitchbookFlow'); ?>
+<?!= include('ClientMaintenance'); ?>
+<?!= include('ClientMaintenanceEnhancements'); ?>
 <?!= include('ClientBootstrap'); ?>
-
 </body>
 </html>

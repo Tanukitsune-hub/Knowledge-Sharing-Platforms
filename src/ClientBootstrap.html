@@ -3,4 +3,5 @@ function bootstrapMeeting(result){if(!result||!result.ok){meetingLoading=false;s
 function bootstrapPitchbook(result){if(!result||!result.ok){pitchbookLoading=false;setPitchbookBusy(false);showStatus('pitchbook-status','error',result&&result.error?result.error.message:'初期データを読み込めませんでした。');return}populateSharedOptions(result.options);applyShared(readEnvelope(KSP_SHARED_DRAFT_KEY));restorePitchbookSlots();pitchbookLoading=false;setPitchbookBusy(false)}
 google.script.run.withSuccessHandler(bootstrapMeeting).withFailureHandler(error=>{meetingLoading=false;setMeetingBusy(false);showStatus('meeting-status','error',error&&error.message?error.message:String(error))}).getMeetingBootstrapData();
 google.script.run.withSuccessHandler(bootstrapPitchbook).withFailureHandler(error=>{pitchbookLoading=false;setPitchbookBusy(false);showStatus('pitchbook-status','error',error&&error.message?error.message:String(error))}).getPitchbookBootstrapData();
+google.script.run.withSuccessHandler(bootstrapMaintenance).withFailureHandler(error=>{showStatus('masters-status','error',error&&error.message?error.message:String(error))}).getPhase1MaintenanceBootstrapData();
 </script>
