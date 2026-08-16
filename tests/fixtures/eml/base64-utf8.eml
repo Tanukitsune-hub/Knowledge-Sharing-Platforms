@@ -1,0 +1,9 @@
+From: sender@example.com
+To: receiver@example.com
+Subject: Base64 body
+Date: Sat, 15 Aug 2026 11:00:00 +0900
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+44GT44KT44Gr44Gh44Gv44CBQVBBQ+OBruabtOaWsOOBp+OBmeOAgg==
