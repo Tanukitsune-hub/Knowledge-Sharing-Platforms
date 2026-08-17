@@ -17,9 +17,12 @@ Scope: files under `src/`.
 - Setup reruns must never reset operational ID counters or future Gemini configuration.
 - Never add secrets, real record data, private URLs, or organization-specific IDs.
 - Validate changes with `npm run check` from the repository root.
-- Work 0013 is the active consolidated DEV live-qualification scope. Authenticated Apps Script / Workspace / Gemini DEV calls are explicitly authorized under `docs/handoffs/0013-instruction.md`, using synthetic or anonymized DEV data only, no secret logging, no production deployment, and no destructive production action.
-- Interactive browser sign-in, OAuth consent, native file selection, and billing/account confirmation may be requested from the user only when required to execute Work 0013. Never ask the user to paste credentials, API keys, tokens, or private resource IDs into chat.
+- Work 0013 is the active consolidated DEV live-qualification scope. Authenticated Apps Script / Workspace / Gemini DEV calls are explicitly authorized under the current Work 0013 handoffs, using synthetic or anonymized DEV data only, no secret logging, no production deployment, and no destructive production action.
+- Interactive browser sign-in, OAuth consent, native file selection, and billing/account confirmation may be requested from the user only when required. Never ask the user to paste credentials, API keys, tokens, or private resource IDs into chat.
 - Do not add a public qualification wrapper to reach private functions. Run private setup/status/retention/sync/diagnostic functions only through an editor/trigger or another approved DEV execution path that preserves the trailing-underscore privacy boundary.
-- Work 0013 is qualification-first: do not add features or broadly refactor. Fix only defects actually observed in live qualification, add focused regression coverage, and rerun the affected matrix plus the canonical final checks.
+- Work 0013 is qualification-first: do not add features or broadly refactor. Fix only defects covered by a ChatGPT-authored bounded diagnosis handoff.
+- For Luna Max defect work, ChatGPT owns root-cause analysis. The handoff must state one falsifiable hypothesis, exact files/functions, expected pre-fix failing test, one minimal repair, focused checks, one live confirmation, and stop conditions.
+- Luna Max must stop when the hypothesis is not reproduced, the one repair attempt fails focused checks, the live case still fails after deterministic PASS, or evidence points to another cause. It must not explore a second hypothesis or broaden the investigation in the same run.
+- Subagents remain mandatory, but for bounded Luna defect work they are limited to independent hypothesis verification and patch/regression review, not competing root-cause exploration.
 - Release version remains `0.1.2` unless an observed defect repair materially changes the application release contract; qualification-only evidence does not by itself require a version bump.
 - Preserve the accepted Gemini-independent Knowledge Export contract: resolve Active sources from the Backend Index and keep Audit metadata-only and content-redacted.
