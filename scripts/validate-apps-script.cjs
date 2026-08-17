@@ -33,8 +33,8 @@ if(fs.existsSync(path.join(sourceDir,'Index.html'))){
   for(const token of [
     'id="meeting-form"','id="pitchbook-form"','pitchbook-drop-zone','preparePitchbookBatch','uploadPitchbookFile',
     '25*1024*1024','KSP_PITCHBOOK_SLOT_KEY','id="page-meeting-past"','id="page-pitchbook-past"','id="page-masters"',
-    'meeting-quick-add-gp','pitchbook-quick-add-gp','phase1-diagnostics','searchMeetingRecords','updateMeetingMaintenance',
-    'mutateMaster','quickAddGp','runAuditRetentionCleanup','getPhase1Diagnostics'
+    'meeting-quick-add-gp','pitchbook-quick-add-gp','searchMeetingRecords','updateMeetingMaintenance',
+    'mutateMaster','quickAddGp','getPhase1MaintenanceBootstrapData','include_'
   ])if(!allSource.includes(token))throw new Error(`Source surface missing token: ${token}`);
 }
 for(const token of [
@@ -43,10 +43,10 @@ for(const token of [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   '自由質問','要約','時系列','比較','面談準備',
-  'id="knowledge-mode"','searchKnowledge','getFeatureFreezeDiagnostics',
-  'runAiSyncWorker','kspRunFeatureFreezeKnowledgeSearch','kspRunFeatureFreezeAiSync',
+  'id="knowledge-mode"','searchKnowledge','getFeatureFreezeDiagnostics_',
+  'runAiSyncWorker_','kspRunFeatureFreezeKnowledgeSearch_','kspRunFeatureFreezeAiSync_',
   'KSP_KNOWLEDGE_EXPORT_LIMITS','kspResolveKnowledgeExportSources',
   'previewKnowledgeExport','createKnowledgeExport','getKnowledgeExportPrompt',
-  'recordKnowledgeExportPromptCopy','Knowledge Exports','Knowledge Export'
+  'recordKnowledgeExportPromptCopy','kspResolveKnowledgeExportSources_','Knowledge Exports','Knowledge Export'
 ])if(!allSource.includes(token))throw new Error(`Feature-freeze surface missing token: ${token}`);
 console.log(`Validated ${files.length} Apps Script source files, ${htmlFiles.length} HTML files, and available manifest.`);

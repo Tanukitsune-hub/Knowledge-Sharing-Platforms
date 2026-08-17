@@ -51,17 +51,17 @@ var KSP_AI_INDEX_STATUS=Object.freeze({PENDING:'Pending'});
 var KSP_SHEET_NAMES=Object.freeze({GP_MASTER:'GP_Master',OPTION_MASTER:'Option_Master',MEETING_INDEX:'Meeting_Index',PITCHBOOK_INDEX:'Pitchbook_Index',AUDIT_LOG:'Audit_Log'});
 var KSP_RESOURCE_KEYS=Object.freeze({BACKEND_SPREADSHEET:'backendSpreadsheetId',AUDIT_SPREADSHEET:'auditSpreadsheetId'});
 var KSP_DEFAULTS=Object.freeze({LOCK_TIMEOUT_MS:30000});
-function kspAssert(condition,code,message){if(!condition){var e=new Error(message);e.code=code;throw e;}}
-function kspDeepClone(value){return value===undefined?undefined:JSON.parse(JSON.stringify(value));}
-function kspSafeParseJson(text,label){if(text==null||text==='')return null;return JSON.parse(text);}
-function kspReadHeadersFromSheet(sheet){return sheet.values[0].map(String);}
-function kspReadObjectsFromSheet(sheet,headers){return sheet.values.slice(1).map(values=>{var row={};headers.forEach((h,i)=>row[h]=values[i]??'');return row;});}
-function kspAppendObjectsToSheet(sheet,headers,rows){rows.forEach(row=>sheet.values.push(headers.map(h=>row[h]??'')));}
-function kspCreateMeetingEnvironment(){return{
+function kspAssert_(condition,code,message){if(!condition){var e=new Error(message);e.code=code;throw e;}}
+function kspDeepClone_(value){return value===undefined?undefined:JSON.parse(JSON.stringify(value));}
+function kspSafeParseJson_(text,label){if(text==null||text==='')return null;return JSON.parse(text);}
+function kspReadHeadersFromSheet_(sheet){return sheet.values[0].map(String);}
+function kspReadObjectsFromSheet_(sheet,headers){return sheet.values.slice(1).map(values=>{var row={};headers.forEach((h,i)=>row[h]=values[i]??'');return row;});}
+function kspAppendObjectsToSheet_(sheet,headers,rows){rows.forEach(row=>sheet.values.push(headers.map(h=>row[h]??'')));}
+function kspCreateMeetingEnvironment_(){return{
   getInstallationState:function(){return{resources:{backendSpreadsheetId:'backend',auditSpreadsheetId:'audit'}};},
   getActor:function(){return'user@example.com';},
-  readRows:function(id,name){var sheet=SpreadsheetApp.openById(id).getSheetByName(name);var headers=kspReadHeadersFromSheet(sheet);return kspReadObjectsFromSheet(sheet,headers);},
-  appendRow:function(id,name,row){var sheet=SpreadsheetApp.openById(id).getSheetByName(name);var headers=kspReadHeadersFromSheet(sheet);kspAppendObjectsToSheet(sheet,headers,[row]);}
+  readRows:function(id,name){var sheet=SpreadsheetApp.openById(id).getSheetByName(name);var headers=kspReadHeadersFromSheet_(sheet);return kspReadObjectsFromSheet_(sheet,headers);},
+  appendRow:function(id,name,row){var sheet=SpreadsheetApp.openById(id).getSheetByName(name);var headers=kspReadHeadersFromSheet_(sheet);kspAppendObjectsToSheet_(sheet,headers,[row]);}
 };}
 function kspPitchbookContextMatchesRow(row,input){return String(row.Date||'')===input.date&&String(row.GP_ID||'')===input.gpId&&String(row.Asset_Class_ID||'')===input.assetClassId&&String(row.Capital_Type_ID||'')===input.capitalTypeId;}
 `;
@@ -97,7 +97,7 @@ function basicFixture(){
 }
 
 test('record edit claim blocks overlap and releases by token',()=>{
-  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const claim=env.claimRecordEdit('Meeting','MTG-000001','Meeting_Index','Meeting_ID','Version',1,'2026-08-16T00:00:00.000Z',300000);
   assert.equal(env.isRecordEditClaimOwned(claim),true);
   assert.throws(()=>env.claimRecordEdit('Meeting','MTG-000001','Meeting_Index','Meeting_ID','Version',1,'2026-08-16T00:00:01.000Z',300000),error=>error.code==='RECORD_EDIT_IN_PROGRESS');
@@ -105,7 +105,7 @@ test('record edit claim blocks overlap and releases by token',()=>{
 });
 
 test('commit claimed edit checks source token and clears claim',()=>{
-  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const claim=env.claimRecordEdit('Meeting','MTG-000001','Meeting_Index','Meeting_ID','Version',1,'2026-08-16T00:00:00.000Z',300000);
   const updated={...claim.row,Version:2,Status:'Inactive'};
   const result=env.commitClaimedRowEdit(claim,'Meeting_Index','Meeting_ID','MTG-000001','Version',1,updated);
@@ -113,7 +113,7 @@ test('commit claimed edit checks source token and clears claim',()=>{
 });
 
 test('Pitchbook edit sequence reservation counts rows and active claims',()=>{
-  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const first=env.claimRecordEdit('Pitchbook','DOC-000001','Pitchbook_Index','Document_ID','Updated_At','old','2026-08-16T00:00:00.000Z',300000);
   const input={documentId:'DOC-000001',date:'2026-03-01',gpId:'GP-3',assetClassId:'AC-3',capitalTypeId:''};
   assert.equal(env.reservePitchbookEditSequence(first,input),1);
@@ -125,13 +125,13 @@ test('Pitchbook edit sequence reservation counts rows and active claims',()=>{
 });
 
 test('Meeting reactivation requires authoritative Google Doc ID',()=>{
-  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const sheet=f.spreadsheets.get('backend').getSheetByName('Meeting_Index');sheet.values[1][MEETING_HEADERS.indexOf('Doc_File_ID')]='';sheet.values[1][MEETING_HEADERS.indexOf('Status')]='Inactive';
   assert.throws(()=>env.updateStatusAtomic('Meeting_Index','Meeting_ID','MTG-000001','Version',1,'Active','actor','now'),error=>error.code==='MEETING_AUTHORITATIVE_DOCUMENT_MISSING');
 });
 
 test('Meeting status update does not rewrite Date and Time cells',()=>{
-  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const sheet=f.spreadsheets.get('backend').getSheetByName('Meeting_Index');
   const dateValue=new Date('2026-08-14T00:00:00.000Z');
   const timeValue=new Date('1899-12-30T14:30:00.000Z');
@@ -156,21 +156,21 @@ test('Meeting status update does not rewrite Date and Time cells',()=>{
 });
 
 test('Option reorder returns before and after order for audit',()=>{
-  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const result=env.mutateMasterAtomic({entity:'OPTION',action:'REORDER',id:'OPT-AC-002',sortOrder:1},'actor','now');
   assert.deepEqual(Array.from(result.affectedBefore,r=>r.Option_ID),['OPT-AC-001','OPT-AC-002']);
   assert.deepEqual(Array.from(result.affectedRows,r=>r.Option_ID),['OPT-AC-002','OPT-AC-001']);
 });
 
 test('Master add duplicate returns existing only for quick-add mode',()=>{
-  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const existing=env.mutateMasterAtomic({entity:'GP',action:'ADD',name:'apollo',type:'',returnExistingOnDuplicate:true},'actor','now');
   assert.equal(existing.existing,true);assert.equal(existing.after.GP_ID,'GP-000001');
   assert.throws(()=>env.mutateMasterAtomic({entity:'GP',action:'ADD',name:'Apollo',type:'',returnExistingOnDuplicate:false},'actor','now'),error=>error.code==='MASTER_DUPLICATE_NAME');
 });
 
 test('audit retention deletes only rows older than cutoff',()=>{
-  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment();
+  const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const result=env.deleteAuditRowsBefore('audit','2021-08-16T00:00:00.000Z');
   assert.equal(result.deletedRows,1);
   const sheet=f.spreadsheets.get('audit').getSheetByName('Audit_Log');assert.equal(sheet.values.length,2);assert.equal(sheet.values[1][1],'keep');

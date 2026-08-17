@@ -52,7 +52,7 @@ Knowledge Sharing Platformsは、機能実装を先に連続して進め、Apps 
 
 確認対象:
 
-1. `setupKnowledgePlatform()`によるresource creation / reuse / repair
+1. `setupKnowledgePlatform_()`によるresource creation / reuse / repair
 2. Web App deployment / navigation
 3. Meeting end-to-end
 4. Pitchbook end-to-end and practical upload limit

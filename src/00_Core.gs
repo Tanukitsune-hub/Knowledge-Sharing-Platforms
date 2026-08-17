@@ -1,5 +1,7 @@
-var KSP_WORK_ID = '0004';
-var KSP_APP_VERSION = '0.1.0';
+var KSP_COMPONENT_WORK_ID = '0004';
+var KSP_RELEASE_VERSION = '0.1.2';
+var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
+var KSP_APP_VERSION = KSP_RELEASE_VERSION;
 var KSP_SCHEMA_VERSION = 2;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
@@ -62,15 +64,15 @@ var KSP_DEFAULTS = Object.freeze({
 var KSP_TRIGGER_EVENT_TYPES = Object.freeze({
   CLOCK: 'CLOCK'
 });
-function kspDeepClone(value) {
+function kspDeepClone_(value) {
   return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
 }
 
-function kspIsPlainObject(value) {
+function kspIsPlainObject_(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-function kspNormalizeGeneratedNameSegment(value) {
+function kspNormalizeGeneratedNameSegment_(value) {
   if (value === null || value === undefined) {
     return '';
   }
@@ -84,11 +86,11 @@ function kspNormalizeGeneratedNameSegment(value) {
     .replace(/^_+|_+$/g, '');
 }
 
-function kspEscapeDriveQueryLiteral(value) {
+function kspEscapeDriveQueryLiteral_(value) {
   return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
-function kspNormalizeEmailList(value) {
+function kspNormalizeEmailList_(value) {
   if (!Array.isArray(value)) {
     return [];
   }
@@ -105,7 +107,7 @@ function kspNormalizeEmailList(value) {
     });
 }
 
-function kspToBoolean(value, defaultValue) {
+function kspToBoolean_(value, defaultValue) {
   if (value === true || value === false) {
     return value;
   }
@@ -118,7 +120,7 @@ function kspToBoolean(value, defaultValue) {
   return defaultValue;
 }
 
-function kspToPositiveInteger(value, defaultValue) {
+function kspToPositiveInteger_(value, defaultValue) {
   var numberValue = Number(value);
   if (!Number.isFinite(numberValue) || numberValue <= 0 || Math.floor(numberValue) !== numberValue) {
     return defaultValue;
@@ -126,7 +128,7 @@ function kspToPositiveInteger(value, defaultValue) {
   return numberValue;
 }
 
-function kspSafeParseJson(text, label) {
+function kspSafeParseJson_(text, label) {
   if (text === null || text === undefined || text === '') {
     return null;
   }
@@ -137,7 +139,7 @@ function kspSafeParseJson(text, label) {
   }
 }
 
-function kspStringifyError(error) {
+function kspStringifyError_(error) {
   if (!error) {
     return 'Unknown error';
   }
@@ -150,9 +152,11 @@ function kspStringifyError(error) {
   return String(error);
 }
 
-function kspCreateReport(mode, nowIso) {
+function kspCreateReport_(mode, nowIso) {
   return {
     workId: KSP_WORK_ID,
+    componentWorkId: KSP_COMPONENT_WORK_ID,
+    releaseVersion: KSP_RELEASE_VERSION,
     appVersion: KSP_APP_VERSION,
     schemaVersion: KSP_SCHEMA_VERSION,
     mode: mode,
@@ -167,7 +171,7 @@ function kspCreateReport(mode, nowIso) {
   };
 }
 
-function kspAddAction(report, category, resource, action, details) {
+function kspAddAction_(report, category, resource, action, details) {
   report.actions.push({
     category: category,
     resource: resource,
@@ -176,7 +180,7 @@ function kspAddAction(report, category, resource, action, details) {
   });
 }
 
-function kspAddWarning(report, code, message, details) {
+function kspAddWarning_(report, code, message, details) {
   report.warnings.push({
     code: code,
     message: message,
@@ -184,7 +188,7 @@ function kspAddWarning(report, code, message, details) {
   });
 }
 
-function kspAddError(report, code, message, details) {
+function kspAddError_(report, code, message, details) {
   report.ok = false;
   report.errors.push({
     code: code,
@@ -193,13 +197,13 @@ function kspAddError(report, code, message, details) {
   });
 }
 
-function kspFinalizeReport(report, nowIso) {
+function kspFinalizeReport_(report, nowIso) {
   report.finishedAt = nowIso;
   report.ok = report.errors.length === 0;
   return report;
 }
 
-function kspAssert(condition, code, message) {
+function kspAssert_(condition, code, message) {
   if (!condition) {
     var error = new Error(message);
     error.code = code;
@@ -207,11 +211,112 @@ function kspAssert(condition, code, message) {
   }
 }
 
-function kspGetErrorCode(error, fallback) {
+function kspGetErrorCode_(error, fallback) {
   return error && error.code ? String(error.code) : (fallback || 'UNEXPECTED_ERROR');
 }
 
-function kspUniqueStrings(values) {
+var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
+  MEETING_DATE_REQUIRED: '日付を入力してください。',
+  MEETING_GP_REQUIRED: 'GPを選択してください。',
+  MEETING_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
+  MEETING_DATE_INVALID: '日付の形式を確認してください。',
+  MEETING_TIME_INVALID: '時刻の形式を確認してください。',
+  MEETING_NOT_FOUND: '指定されたMeetingを確認できません。',
+  MEETING_RETRY_REQUEST_CHANGED: '入力内容が変更されたため、再試行できません。',
+  MEETING_RETRY_CONFLICT: '同じMeeting IDに別の登録内容があります。',
+  MEETING_DOCUMENT_READ_FAILED: 'Meeting原本を読み取れませんでした。',
+  PITCHBOOK_DATE_REQUIRED: '日付を入力してください。',
+  PITCHBOOK_GP_REQUIRED: 'GPを選択してください。',
+  PITCHBOOK_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
+  PITCHBOOK_FILE_REQUIRED: 'ファイルを選択してください。',
+  PITCHBOOK_BATCH_INVALID: 'Pitchbook登録内容を確認してください。',
+  PITCHBOOK_FILE_SIZE_EXCEEDED: 'ファイルサイズの上限を超えています。',
+  PITCHBOOK_TOTAL_SIZE_EXCEEDED: '合計ファイルサイズの上限を超えています。',
+  PITCHBOOK_FILE_COUNT_EXCEEDED: '選択ファイル数の上限を超えています。',
+  PITCHBOOK_NOT_FOUND: '指定されたPitchbookを確認できません。',
+  PITCHBOOK_BATCH_CONFLICT: 'Batch IDが一致しません。',
+  PITCHBOOK_FILENAME_CONFLICT: '選択されたファイル名が登録内容と一致しません。',
+  PITCHBOOK_FILE_SIZE_MISMATCH: '送信されたファイルサイズを確認できません。',
+  RECORD_NOT_FOUND: '対象レコードを確認できません。',
+  STALE_RECORD_VERSION: '他の利用者が先に更新しています。最新情報を読み直してください。',
+  RECORD_EDIT_IN_PROGRESS: 'このレコードは別の処理中です。少し待って再試行してください。',
+  MASTER_DUPLICATE_NAME: '同じ名称のMasterが既に存在します。',
+  MASTER_NOT_FOUND: '対象Masterを確認できません。',
+  AI_QUESTION_REQUIRED: '質問を入力してください。',
+  AI_QUESTION_TOO_LONG: '質問または追加指示は5,000文字以内で入力してください。',
+  AI_STORE_NOT_CONFIGURED: '検索設定がまだ完了していません。',
+  AI_MODEL_NOT_CONFIGURED: '検索設定がまだ完了していません。',
+  AI_HTTP_429: '検索が混み合っています。少し待って再試行してください。',
+  AI_HTTP_500: '検索サービスを利用できません。',
+  AI_HTTP_502: '検索サービスを利用できません。',
+  AI_HTTP_503: '検索サービスを利用できません。',
+  AI_RATE_LIMITED: '検索が混み合っています。少し待って再試行してください。',
+  KNOWLEDGE_EXPORT_PREVIEW_REQUIRED: '先に対象資料を確認してください。',
+  KNOWLEDGE_EXPORT_PREVIEW_STALE: 'プレビューが古くなっています。再度プレビューを実行してください。',
+  KNOWLEDGE_EXPORT_RATE_LIMITED: '処理が集中しています。少し待って再試行してください。',
+  KNOWLEDGE_EXPORT_LIMIT_EXCEEDED: '対象資料が書き出し上限を超えています。フィルターを絞ってください。',
+  KNOWLEDGE_EXPORT_NO_RESULTS: '一致するActiveな資料がありません。',
+  KNOWLEDGE_EXPORT_MEETING_DOCUMENT_MISSING: 'Meeting原本を確認できません。',
+  KNOWLEDGE_EXPORT_MEETING_URL_MISSING: 'Meeting原本のリンクを確認できません。',
+  KNOWLEDGE_EXPORT_MEETING_LINK_MISMATCH: 'Meeting原本のリンク整合性を確認できません。',
+  KNOWLEDGE_EXPORT_PITCHBOOK_FILE_MISSING: 'Pitchbook原本を確認できません。',
+  KNOWLEDGE_EXPORT_PITCHBOOK_URL_MISSING: 'Pitchbook原本のリンクを確認できません。',
+  KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH: 'Pitchbook原本のリンク整合性を確認できません。',
+  KNOWLEDGE_EXPORT_MEETING_DOCUMENT_READ_FAILED: 'Meeting原本を読み取れませんでした。',
+  KNOWLEDGE_EXPORT_ARTIFACT_URL_MISSING: '生成された書き出しのリンクを確認できません。',
+  KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED: '書き出しファイルを作成できませんでした。'
+});
+
+function kspSafePublicErrorMessage_(code, category) {
+  var normalizedCode = String(code || 'UNEXPECTED_ERROR');
+  if (KSP_SAFE_ERROR_MESSAGES[normalizedCode]) return KSP_SAFE_ERROR_MESSAGES[normalizedCode];
+  var defaults = {
+    MEETING: 'Meetingを処理できませんでした。',
+    PITCHBOOK: 'Pitchbookを処理できませんでした。',
+    MAINTENANCE: '管理処理を完了できませんでした。',
+    SEARCH: '検索を実行できませんでした。',
+    EXPORT: 'Knowledge Exportを処理できませんでした。'
+  };
+  return defaults[String(category || '').toUpperCase()] || '処理を完了できませんでした。';
+}
+
+function kspSafeOperationalWarning_(code) {
+  var messages = {
+    ACTOR_RESOLUTION_FAILED: 'Actor情報を取得できないため、匿名扱いで記録します。',
+    AUDIT_WRITE_FAILED: '監査メタデータを記録できませんでした。',
+    MEETING_DOCUMENT_RESTORE_FAILED: 'Meeting原本の復元を確認できませんでした。',
+    MEETING_EDIT_CLAIM_RELEASE_FAILED: 'Meeting編集状態の解放を確認できませんでした。',
+    PITCHBOOK_FILENAME_RESTORE_FAILED: 'Pitchbookファイル名の復元を確認できませんでした。',
+    PITCHBOOK_EDIT_CLAIM_RELEASE_FAILED: 'Pitchbook編集状態の解放を確認できませんでした。',
+    PITCHBOOK_FAIL_STATUS_WRITE_FAILED: 'Pitchbookの失敗状態を記録できませんでした。'
+  };
+  return messages[String(code || '')] || '補足処理を完了できませんでした。';
+}
+
+function kspPublicOperationHash_(value) {
+  var hash = 2166136261;
+  var text = String(value || '');
+  for (var index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return ('00000000' + (hash >>> 0).toString(16)).slice(-8);
+}
+
+function kspBuildPublicOperationCacheKey_(operation, actor, discriminator) {
+  return 'KSP_PUBLIC_' + kspPublicOperationHash_([
+    operation, actor || 'UNIDENTIFIED', discriminator || ''
+  ].join('\u001f'));
+}
+
+function kspClaimPublicOperation_(environment, operation, actor, discriminator, expirationSeconds) {
+  if (!environment || typeof environment.claimPublicOperation !== 'function') return true;
+  return environment.claimPublicOperation(
+    kspBuildPublicOperationCacheKey_(operation, actor, discriminator), expirationSeconds
+  );
+}
+
+function kspUniqueStrings_(values) {
   var seen = {};
   return values.filter(function (value) {
     var key = String(value);
@@ -222,7 +327,7 @@ function kspUniqueStrings(values) {
     return true;
   });
 }
-function kspGetBackendSchemas() {
+function kspGetBackendSchemas_() {
   var schemas = {};
 
   schemas[KSP_SHEET_NAMES.GP_MASTER] = [
@@ -257,7 +362,7 @@ function kspGetBackendSchemas() {
   return schemas;
 }
 
-function kspGetAuditSchema() {
+function kspGetAuditSchema_() {
   var schema = {};
   schema[KSP_SHEET_NAMES.AUDIT_LOG] = [
     'Event_Timestamp', 'Actor', 'Action', 'Target_Type', 'Target_ID', 'Result',
@@ -269,7 +374,7 @@ function kspGetAuditSchema() {
   return schema;
 }
 
-function kspGetGpSeedDefinitions() {
+function kspGetGpSeedDefinitions_() {
   return [
     ['GP-000001', 'Advent International'],
     ['GP-000002', 'Apollo'],
@@ -304,7 +409,7 @@ function kspGetGpSeedDefinitions() {
   ];
 }
 
-function kspGetOptionSeedDefinitions() {
+function kspGetOptionSeedDefinitions_() {
   return [
     ['OPT-AC-001', 'ASSET_CLASS', 'PE', 1],
     ['OPT-AC-002', 'ASSET_CLASS', 'VC', 2],
@@ -323,8 +428,8 @@ function kspGetOptionSeedDefinitions() {
   ];
 }
 
-function kspBuildGpSeedRows(nowIso) {
-  return kspGetGpSeedDefinitions().map(function (seed) {
+function kspBuildGpSeedRows_(nowIso) {
+  return kspGetGpSeedDefinitions_().map(function (seed) {
     return {
       GP_ID: seed[0],
       GP_Name: seed[1],
@@ -337,8 +442,8 @@ function kspBuildGpSeedRows(nowIso) {
   });
 }
 
-function kspBuildOptionSeedRows(nowIso) {
-  return kspGetOptionSeedDefinitions().map(function (seed) {
+function kspBuildOptionSeedRows_(nowIso) {
+  return kspGetOptionSeedDefinitions_().map(function (seed) {
     return {
       Option_ID: seed[0],
       Type: seed[1],
@@ -353,8 +458,8 @@ function kspBuildOptionSeedRows(nowIso) {
   });
 }
 
-function kspBuildSettingsRows(config, resources, nowIso) {
-  var adminEmails = kspNormalizeEmailList(config.adminEmails).join(',');
+function kspBuildSettingsRows_(config, resources, nowIso) {
+  var adminEmails = kspNormalizeEmailList_(config.adminEmails).join(',');
   return [
     { Key: 'SCHEMA_VERSION', Value: String(KSP_SCHEMA_VERSION), Description: 'Current backend schema version.', Updated_At: nowIso },
     { Key: 'APP_VERSION', Value: KSP_APP_VERSION, Description: 'Current application scaffold version.', Updated_At: nowIso },
@@ -378,7 +483,7 @@ function kspBuildSettingsRows(config, resources, nowIso) {
   ];
 }
 
-function kspGetSettingsPreserveExistingKeys() {
+function kspGetSettingsPreserveExistingKeys_() {
   return [
     'NEXT_MEETING_ID',
     'NEXT_DOCUMENT_ID',
@@ -388,11 +493,12 @@ function kspGetSettingsPreserveExistingKeys() {
   ];
 }
 
-function kspGetTriggerRegistry(config) {
+function kspGetTriggerRegistry_(config) {
   return [
     {
       key: 'AI_SYNC_INTERVAL_TRIGGER',
-      handler: 'runAiSyncWorker',
+      handler: 'runAiSyncWorker_',
+      legacyHandlers: ['runAiSyncWorker'],
       eventType: KSP_TRIGGER_EVENT_TYPES.CLOCK,
       intervalMinutes: config.aiSyncIntervalMinutes,
       enabled: config.aiSyncEnabled,
@@ -400,7 +506,7 @@ function kspGetTriggerRegistry(config) {
     }
   ];
 }
-function kspGetBootstrapConfigTemplate() {
+function kspGetBootstrapConfigTemplate_() {
   return {
     environment: 'DEV',
     knowledgeParentFolderId: 'REPLACE_WITH_SHARED_DRIVE_PARENT_FOLDER_ID',
@@ -411,9 +517,9 @@ function kspGetBootstrapConfigTemplate() {
   };
 }
 
-function kspLoadInstallationState(environment) {
+function kspLoadInstallationState_(environment) {
   var rawState = environment.getProperty(KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON);
-  var state = kspSafeParseJson(rawState, KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON);
+  var state = kspSafeParseJson_(rawState, KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON);
   if (!state) {
     return {
       schemaVersion: KSP_SCHEMA_VERSION,
@@ -427,41 +533,41 @@ function kspLoadInstallationState(environment) {
   return state;
 }
 
-function kspLoadEffectiveConfig(environment, existingState) {
+function kspLoadEffectiveConfig_(environment, existingState) {
   var rawBootstrap = environment.getProperty(KSP_PROPERTY_KEYS.BOOTSTRAP_CONFIG_JSON);
-  var bootstrapConfig = kspSafeParseJson(rawBootstrap, KSP_PROPERTY_KEYS.BOOTSTRAP_CONFIG_JSON);
+  var bootstrapConfig = kspSafeParseJson_(rawBootstrap, KSP_PROPERTY_KEYS.BOOTSTRAP_CONFIG_JSON);
   var storedConfig = existingState && existingState.config ? existingState.config : null;
   var source = bootstrapConfig || storedConfig;
 
-  kspAssert(source, 'MISSING_BOOTSTRAP_CONFIG',
+  kspAssert_(source, 'MISSING_BOOTSTRAP_CONFIG',
     'Set Script Property ' + KSP_PROPERTY_KEYS.BOOTSTRAP_CONFIG_JSON + ' before first setup.');
 
-  return kspNormalizeAndValidateConfig(source);
+  return kspNormalizeAndValidateConfig_(source);
 }
 
-function kspNormalizeAndValidateConfig(input) {
-  kspAssert(kspIsPlainObject(input), 'INVALID_BOOTSTRAP_CONFIG', 'Bootstrap config must be a JSON object.');
+function kspNormalizeAndValidateConfig_(input) {
+  kspAssert_(kspIsPlainObject_(input), 'INVALID_BOOTSTRAP_CONFIG', 'Bootstrap config must be a JSON object.');
 
   var environment = String(input.environment || '').trim().toUpperCase();
   var knowledgeParentFolderId = String(input.knowledgeParentFolderId || '').trim();
   var controlFolderId = String(input.controlFolderId || '').trim();
   var timezone = String(input.timezone || KSP_DEFAULTS.TIMEZONE).trim();
-  var adminEmails = kspNormalizeEmailList(input.adminEmails || []);
-  var aiSyncEnabled = kspToBoolean(input.aiSyncEnabled, KSP_DEFAULTS.AI_SYNC_ENABLED);
-  var aiSyncIntervalMinutes = kspToPositiveInteger(
+  var adminEmails = kspNormalizeEmailList_(input.adminEmails || []);
+  var aiSyncEnabled = kspToBoolean_(input.aiSyncEnabled, KSP_DEFAULTS.AI_SYNC_ENABLED);
+  var aiSyncIntervalMinutes = kspToPositiveInteger_(
     input.aiSyncIntervalMinutes,
     KSP_DEFAULTS.AI_SYNC_INTERVAL_MINUTES
   );
 
-  kspAssert(environment === 'DEV' || environment === 'PROD',
+  kspAssert_(environment === 'DEV' || environment === 'PROD',
     'INVALID_ENVIRONMENT', 'environment must be DEV or PROD.');
-  kspAssert(knowledgeParentFolderId, 'MISSING_KNOWLEDGE_PARENT',
+  kspAssert_(knowledgeParentFolderId, 'MISSING_KNOWLEDGE_PARENT',
     'knowledgeParentFolderId is required.');
-  kspAssert(controlFolderId, 'MISSING_CONTROL_FOLDER', 'controlFolderId is required.');
-  kspAssert(knowledgeParentFolderId !== controlFolderId, 'INVALID_FOLDER_BOUNDARY',
+  kspAssert_(controlFolderId, 'MISSING_CONTROL_FOLDER', 'controlFolderId is required.');
+  kspAssert_(knowledgeParentFolderId !== controlFolderId, 'INVALID_FOLDER_BOUNDARY',
     'knowledgeParentFolderId and controlFolderId must be different.');
-  kspAssert(timezone, 'MISSING_TIMEZONE', 'timezone is required.');
-  kspAssert(aiSyncIntervalMinutes === 15, 'INVALID_AI_SYNC_INTERVAL',
+  kspAssert_(timezone, 'MISSING_TIMEZONE', 'timezone is required.');
+  kspAssert_(aiSyncIntervalMinutes === 15, 'INVALID_AI_SYNC_INTERVAL',
     'Initial AI sync interval is fixed at 15 minutes.');
 
   return {
@@ -475,12 +581,14 @@ function kspNormalizeAndValidateConfig(input) {
   };
 }
 
-function kspBuildStoredInstallationState(config, resources, nowIso) {
+function kspBuildStoredInstallationState_(config, resources, nowIso) {
   return {
     schemaVersion: KSP_SCHEMA_VERSION,
+    componentWorkId: KSP_COMPONENT_WORK_ID,
+    releaseVersion: KSP_RELEASE_VERSION,
     appVersion: KSP_APP_VERSION,
-    config: kspDeepClone(config),
-    resources: kspDeepClone(resources),
+    config: kspDeepClone_(config),
+    resources: kspDeepClone_(resources),
     updatedAt: nowIso
   };
 }

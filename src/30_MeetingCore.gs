@@ -22,35 +22,35 @@ var KSP_MEETING_LIMITS = Object.freeze({
   NOTES: 20000
 });
 
-function kspNormalizeMeetingInput(input) {
+function kspNormalizeMeetingInput_(input) {
   var source = input && typeof input === 'object' ? input : {};
   return {
-    date: kspTrimMeetingField(source.date),
-    time: kspTrimMeetingField(source.time),
-    locationId: kspTrimMeetingField(source.locationId),
-    gpId: kspTrimMeetingField(source.gpId),
-    assetClassId: kspTrimMeetingField(source.assetClassId),
-    capitalTypeId: kspTrimMeetingField(source.capitalTypeId),
-    counterparty: kspTrimMeetingField(source.counterparty),
-    internalParticipants: kspTrimMeetingField(source.internalParticipants),
-    notes: kspNormalizeMeetingNotes(source.notes),
-    retryMeetingId: kspTrimMeetingField(source.retryMeetingId),
-    retryFingerprint: kspTrimMeetingField(source.retryFingerprint)
+    date: kspTrimMeetingField_(source.date),
+    time: kspTrimMeetingField_(source.time),
+    locationId: kspTrimMeetingField_(source.locationId),
+    gpId: kspTrimMeetingField_(source.gpId),
+    assetClassId: kspTrimMeetingField_(source.assetClassId),
+    capitalTypeId: kspTrimMeetingField_(source.capitalTypeId),
+    counterparty: kspTrimMeetingField_(source.counterparty),
+    internalParticipants: kspTrimMeetingField_(source.internalParticipants),
+    notes: kspNormalizeMeetingNotes_(source.notes),
+    retryMeetingId: kspTrimMeetingField_(source.retryMeetingId),
+    retryFingerprint: kspTrimMeetingField_(source.retryFingerprint)
   };
 }
 
-function kspTrimMeetingField(value) {
+function kspTrimMeetingField_(value) {
   return value === null || value === undefined ? '' : String(value).trim();
 }
 
-function kspNormalizeMeetingNotes(value) {
+function kspNormalizeMeetingNotes_(value) {
   if (value === null || value === undefined) {
     return '';
   }
   return String(value).replace(/\r\n?/g, '\n').replace(/\u0000/g, '');
 }
 
-function kspBuildMeetingCatalog(gpRows, optionRows) {
+function kspBuildMeetingCatalog_(gpRows, optionRows) {
   var gps = (gpRows || [])
     .filter(function (row) { return String(row.Status) === KSP_STATUS.ACTIVE; })
     .map(function (row) {
@@ -95,35 +95,35 @@ function kspBuildMeetingCatalog(gpRows, optionRows) {
   };
 }
 
-function kspValidateMeetingInput(normalizedInput, catalog) {
+function kspValidateMeetingInput_(normalizedInput, catalog) {
   var input = normalizedInput || {};
   var safeCatalog = catalog || { gps: [], assetClasses: [], capitalTypes: [], locations: [] };
 
-  kspAssert(input.date, 'MEETING_DATE_REQUIRED', '日付は必須です。');
-  kspAssert(input.gpId, 'MEETING_GP_REQUIRED', 'GPは必須です。');
-  kspAssert(input.assetClassId, 'MEETING_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
-  kspAssert(kspIsValidDateKey(input.date), 'MEETING_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
-  kspAssert(!input.time || kspIsValidTimeValue(input.time), 'MEETING_TIME_INVALID', '時間はHH:MM形式で入力してください。');
-  kspAssert(input.counterparty.length <= KSP_MEETING_LIMITS.SHORT_TEXT,
+  kspAssert_(input.date, 'MEETING_DATE_REQUIRED', '日付は必須です。');
+  kspAssert_(input.gpId, 'MEETING_GP_REQUIRED', 'GPは必須です。');
+  kspAssert_(input.assetClassId, 'MEETING_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
+  kspAssert_(kspIsValidDateKey_(input.date), 'MEETING_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
+  kspAssert_(!input.time || kspIsValidTimeValue_(input.time), 'MEETING_TIME_INVALID', '時間はHH:MM形式で入力してください。');
+  kspAssert_(input.counterparty.length <= KSP_MEETING_LIMITS.SHORT_TEXT,
     'MEETING_COUNTERPARTY_TOO_LONG', '面談相手は500文字以内で入力してください。');
-  kspAssert(input.internalParticipants.length <= KSP_MEETING_LIMITS.SHORT_TEXT,
+  kspAssert_(input.internalParticipants.length <= KSP_MEETING_LIMITS.SHORT_TEXT,
     'MEETING_INTERNAL_PARTICIPANTS_TOO_LONG', '当社側は500文字以内で入力してください。');
-  kspAssert(input.notes.length <= KSP_MEETING_LIMITS.NOTES,
+  kspAssert_(input.notes.length <= KSP_MEETING_LIMITS.NOTES,
     'MEETING_NOTES_TOO_LONG', '面談内容は20,000文字以内で入力してください。');
 
   var hasRetryId = Boolean(input.retryMeetingId);
   var hasRetryFingerprint = Boolean(input.retryFingerprint);
-  kspAssert(hasRetryId === hasRetryFingerprint, 'MEETING_RETRY_CONTEXT_INCOMPLETE',
+  kspAssert_(hasRetryId === hasRetryFingerprint, 'MEETING_RETRY_CONTEXT_INCOMPLETE',
     'Retry Meeting ID and fingerprint must be supplied together.');
   if (hasRetryId) {
-    kspParseMeetingId(input.retryMeetingId);
-    kspAssert(/^[0-9a-f]{8}$/.test(input.retryFingerprint), 'MEETING_RETRY_FINGERPRINT_INVALID',
+    kspParseMeetingId_(input.retryMeetingId);
+    kspAssert_(/^[0-9a-f]{8}$/.test(input.retryFingerprint), 'MEETING_RETRY_FINGERPRINT_INVALID',
       'Retry fingerprint is invalid.');
   }
 
   var selected = {
-    gp: kspRequireCatalogItem(safeCatalog.gps, input.gpId, 'MEETING_GP_UNAVAILABLE', '選択されたGPは利用できません。'),
-    assetClass: kspRequireCatalogItem(
+    gp: kspRequireCatalogItem_(safeCatalog.gps, input.gpId, 'MEETING_GP_UNAVAILABLE', '選択されたGPは利用できません。'),
+    assetClass: kspRequireCatalogItem_(
       safeCatalog.assetClasses,
       input.assetClassId,
       'MEETING_ASSET_CLASS_UNAVAILABLE',
@@ -134,7 +134,7 @@ function kspValidateMeetingInput(normalizedInput, catalog) {
   };
 
   if (input.capitalTypeId) {
-    selected.capitalType = kspRequireCatalogItem(
+    selected.capitalType = kspRequireCatalogItem_(
       safeCatalog.capitalTypes,
       input.capitalTypeId,
       'MEETING_CAPITAL_TYPE_UNAVAILABLE',
@@ -143,7 +143,7 @@ function kspValidateMeetingInput(normalizedInput, catalog) {
   }
 
   if (input.locationId) {
-    selected.location = kspRequireCatalogItem(
+    selected.location = kspRequireCatalogItem_(
       safeCatalog.locations,
       input.locationId,
       'MEETING_LOCATION_UNAVAILABLE',
@@ -154,13 +154,13 @@ function kspValidateMeetingInput(normalizedInput, catalog) {
   return selected;
 }
 
-function kspRequireCatalogItem(items, id, code, message) {
+function kspRequireCatalogItem_(items, id, code, message) {
   var found = (items || []).filter(function (item) { return String(item.id) === String(id); })[0];
-  kspAssert(found, code, message);
+  kspAssert_(found, code, message);
   return found;
 }
 
-function kspIsValidDateKey(value) {
+function kspIsValidDateKey_(value) {
   var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ''));
   if (!match) {
     return false;
@@ -172,26 +172,26 @@ function kspIsValidDateKey(value) {
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
-function kspIsValidTimeValue(value) {
+function kspIsValidTimeValue_(value) {
   return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(value || ''));
 }
 
-function kspFormatMeetingId(sequenceNumber) {
+function kspFormatMeetingId_(sequenceNumber) {
   var sequence = Number(sequenceNumber);
-  kspAssert(Number.isFinite(sequence) && sequence > 0 && Math.floor(sequence) === sequence,
+  kspAssert_(Number.isFinite(sequence) && sequence > 0 && Math.floor(sequence) === sequence,
     'MEETING_SEQUENCE_INVALID', 'Meeting ID sequence must be a positive integer.');
   return 'MTG-' + String(sequence).padStart(6, '0');
 }
 
-function kspParseMeetingId(meetingId) {
+function kspParseMeetingId_(meetingId) {
   var match = /^MTG-(\d{6})$/.exec(String(meetingId || ''));
-  kspAssert(match, 'MEETING_ID_INVALID', 'Meeting ID is invalid.');
+  kspAssert_(match, 'MEETING_ID_INVALID', 'Meeting ID is invalid.');
   var sequence = Number(match[1]);
-  kspAssert(sequence > 0, 'MEETING_ID_INVALID', 'Meeting ID is invalid.');
+  kspAssert_(sequence > 0, 'MEETING_ID_INVALID', 'Meeting ID is invalid.');
   return sequence;
 }
 
-function kspBuildMeetingRequestFingerprint(input) {
+function kspBuildMeetingRequestFingerprint_(input) {
   var canonical = [
     input.date,
     input.time,
@@ -212,20 +212,20 @@ function kspBuildMeetingRequestFingerprint(input) {
   return ('00000000' + (hash >>> 0).toString(16)).slice(-8);
 }
 
-function kspBuildMeetingFilename(input, selected, meetingId) {
+function kspBuildMeetingFilename_(input, selected, meetingId) {
   var segments = [input.date, selected.gp.name, selected.assetClass.name];
   if (selected.capitalType) {
     segments.push(selected.capitalType.name);
   }
   segments.push(meetingId);
 
-  var normalizedSegments = segments.map(kspNormalizeGeneratedNameSegment);
-  kspAssert(normalizedSegments.every(function (segment) { return segment !== ''; }),
+  var normalizedSegments = segments.map(kspNormalizeGeneratedNameSegment_);
+  kspAssert_(normalizedSegments.every(function (segment) { return segment !== ''; }),
     'MEETING_FILENAME_INVALID', 'Meeting filename contains an empty required segment.');
   return normalizedSegments.join('_');
 }
 
-function kspBuildMeetingDocumentText(input, selected) {
+function kspBuildMeetingDocumentText_(input, selected) {
   var lines = ['日付: ' + input.date];
   if (input.time) lines.push('時間: ' + input.time);
   if (selected.location) lines.push('面談場所: ' + selected.location.name);
@@ -242,7 +242,7 @@ function kspBuildMeetingDocumentText(input, selected) {
   return lines.join('\n');
 }
 
-function kspBuildMeetingMetadata(input, selected, meetingId, documentInfo, filename) {
+function kspBuildMeetingMetadata_(input, selected, meetingId, documentInfo, filename) {
   return {
     Meeting_ID: meetingId,
     Date: input.date,
@@ -263,7 +263,7 @@ function kspBuildMeetingMetadata(input, selected, meetingId, documentInfo, filen
   };
 }
 
-function kspBuildMeetingIndexRow(input, selected, meetingId, documentInfo, filename, actor, nowIso) {
+function kspBuildMeetingIndexRow_(input, selected, meetingId, documentInfo, filename, actor, nowIso) {
   return {
     Meeting_ID: meetingId,
     Date: input.date,
@@ -291,7 +291,7 @@ function kspBuildMeetingIndexRow(input, selected, meetingId, documentInfo, filen
   };
 }
 
-function kspMeetingIndexRowMatchesRequest(row, input, filename) {
+function kspMeetingIndexRowMatchesRequest_(row, input, filename) {
   if (!row) return false;
   return String(row.Date || '') === input.date &&
     String(row.Time || '') === input.time &&
@@ -304,7 +304,7 @@ function kspMeetingIndexRowMatchesRequest(row, input, filename) {
     String(row.Saved_Filename || '') === filename;
 }
 
-function kspMeetingInfoFromIndexRow(row) {
+function kspMeetingInfoFromIndexRow_(row) {
   return {
     id: String(row.Meeting_ID || ''),
     filename: String(row.Saved_Filename || ''),
@@ -317,7 +317,7 @@ function kspMeetingInfoFromIndexRow(row) {
   };
 }
 
-function kspBuildMeetingAuditRow(params) {
+function kspBuildMeetingAuditRow_(params) {
   var options = params || {};
   var metadata = options.metadata || {};
   return {
@@ -327,12 +327,12 @@ function kspBuildMeetingAuditRow(params) {
     Target_Type: 'Meeting',
     Target_ID: options.meetingId || '',
     Result: options.result || KSP_AUDIT_RESULTS.FAILURE,
-    Changed_Fields: options.result === KSP_AUDIT_RESULTS.SUCCESS ? kspGetNonEmptyMeetingMetadataFields(metadata).join(',') : '',
+    Changed_Fields: options.result === KSP_AUDIT_RESULTS.SUCCESS ? kspGetNonEmptyMeetingMetadataFields_(metadata).join(',') : '',
     Before_Metadata_JSON: '',
-    After_Metadata_JSON: options.result === KSP_AUDIT_RESULTS.SUCCESS ? JSON.stringify(kspMeetingAuditMetadata(metadata)) : '',
+    After_Metadata_JSON: options.result === KSP_AUDIT_RESULTS.SUCCESS ? JSON.stringify(kspMeetingAuditMetadata_(metadata)) : '',
     Batch_ID: '',
     Error_Code: options.errorCode || '',
-    Error_Message: options.errorMessage || '',
+    Error_Message: options.errorCode ? kspSafePublicErrorMessage_(options.errorCode, 'MEETING') : '',
     Search_Mode: '',
     Question_Or_Instruction: '',
     Date_From: '',
@@ -346,7 +346,7 @@ function kspBuildMeetingAuditRow(params) {
   };
 }
 
-function kspMeetingAuditMetadata(metadata) {
+function kspMeetingAuditMetadata_(metadata) {
   return {
     Meeting_ID: metadata.Meeting_ID || '',
     Date: metadata.Date || '',
@@ -363,14 +363,14 @@ function kspMeetingAuditMetadata(metadata) {
   };
 }
 
-function kspGetNonEmptyMeetingMetadataFields(metadata) {
-  return Object.keys(kspMeetingAuditMetadata(metadata)).filter(function (key) {
+function kspGetNonEmptyMeetingMetadataFields_(metadata) {
+  return Object.keys(kspMeetingAuditMetadata_(metadata)).filter(function (key) {
     var value = metadata[key];
     return value !== '' && value !== null && value !== undefined;
   });
 }
 
-function kspResolveActorValue(email, temporaryUserKey) {
+function kspResolveActorValue_(email, temporaryUserKey) {
   var normalizedEmail = String(email || '').trim().toLowerCase();
   if (normalizedEmail) return normalizedEmail;
   var normalizedKey = String(temporaryUserKey || '').trim();
@@ -378,7 +378,7 @@ function kspResolveActorValue(email, temporaryUserKey) {
   return 'UNIDENTIFIED';
 }
 
-function kspBuildMeetingBootstrapResponse(catalog) {
+function kspBuildMeetingBootstrapResponse_(catalog) {
   return {
     ok: true,
     workId: KSP_MEETING_WORK_ID,
@@ -386,10 +386,10 @@ function kspBuildMeetingBootstrapResponse(catalog) {
     draftTtlMs: KSP_MEETING_DRAFT_TTL_MS,
     sharedContextFields: ['date', 'gpId', 'assetClassId', 'capitalTypeId'],
     options: {
-      gps: kspDeepClone(catalog.gps),
-      assetClasses: kspDeepClone(catalog.assetClasses),
-      capitalTypes: kspDeepClone(catalog.capitalTypes),
-      locations: kspDeepClone(catalog.locations)
+      gps: kspDeepClone_(catalog.gps),
+      assetClasses: kspDeepClone_(catalog.assetClasses),
+      capitalTypes: kspDeepClone_(catalog.capitalTypes),
+      locations: kspDeepClone_(catalog.locations)
     }
   };
 }

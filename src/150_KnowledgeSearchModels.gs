@@ -1,9 +1,9 @@
-function kspBuildKnowledgeSearchCatalog(gpRows, optionRows) {
-  var catalog = kspBuildMeetingCatalog(gpRows || [], optionRows || []);
+function kspBuildKnowledgeSearchCatalog_(gpRows, optionRows) {
+  var catalog = kspBuildMeetingCatalog_(gpRows || [], optionRows || []);
   return {
-    gps: kspDeepClone(catalog.gps || []),
-    assetClasses: kspDeepClone(catalog.assetClasses || []),
-    capitalTypes: kspDeepClone(catalog.capitalTypes || []),
+    gps: kspDeepClone_(catalog.gps || []),
+    assetClasses: kspDeepClone_(catalog.assetClasses || []),
+    capitalTypes: kspDeepClone_(catalog.capitalTypes || []),
     sourceTypes: [
       { id: KSP_AI_SOURCE_TYPES.MEETING, name: 'Meeting' },
       { id: KSP_AI_SOURCE_TYPES.PITCHBOOK, name: 'Pitchbook' }
@@ -11,13 +11,13 @@ function kspBuildKnowledgeSearchCatalog(gpRows, optionRows) {
   };
 }
 
-function kspValidateKnowledgeFilterIds(input, catalog) {
+function kspValidateKnowledgeFilterIds_(input, catalog) {
   var safeCatalog = catalog || { gps: [], assetClasses: [], capitalTypes: [] };
   if (input.gpId) {
-    kspRequireCatalogItem(safeCatalog.gps, input.gpId, 'AI_GP_FILTER_UNAVAILABLE', '選択されたGPは利用できません。');
+    kspRequireCatalogItem_(safeCatalog.gps, input.gpId, 'AI_GP_FILTER_UNAVAILABLE', '選択されたGPは利用できません。');
   }
   if (input.assetClassId) {
-    kspRequireCatalogItem(
+    kspRequireCatalogItem_(
       safeCatalog.assetClasses,
       input.assetClassId,
       'AI_ASSET_CLASS_FILTER_UNAVAILABLE',
@@ -25,7 +25,7 @@ function kspValidateKnowledgeFilterIds(input, catalog) {
     );
   }
   if (input.capitalTypeId) {
-    kspRequireCatalogItem(
+    kspRequireCatalogItem_(
       safeCatalog.capitalTypes,
       input.capitalTypeId,
       'AI_CAPITAL_TYPE_FILTER_UNAVAILABLE',
@@ -34,7 +34,7 @@ function kspValidateKnowledgeFilterIds(input, catalog) {
   }
 }
 
-function kspBuildAuthoritativeSourceMaps(meetingRows, pitchbookRows) {
+function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
   var maps = { bySourceId: {}, byAiDocumentName: {} };
 
   function add(source) {
@@ -70,7 +70,7 @@ function kspBuildAuthoritativeSourceMaps(meetingRows, pitchbookRows) {
   return maps;
 }
 
-function kspMapKnowledgeCitations(rawCitations, sourceMaps) {
+function kspMapKnowledgeCitations_(rawCitations, sourceMaps) {
   var maps = sourceMaps || { bySourceId: {}, byAiDocumentName: {} };
   var warnings = [];
   var seen = {};
@@ -78,7 +78,7 @@ function kspMapKnowledgeCitations(rawCitations, sourceMaps) {
 
   (rawCitations || []).forEach(function (citation) {
     var metadata = citation && citation.metadata ? citation.metadata : {};
-    var sourceId = kspAiTrim(metadata.source_id);
+    var sourceId = kspAiTrim_(metadata.source_id);
     var authoritative = sourceId ? maps.bySourceId[sourceId] : null;
     if (!authoritative && citation && citation.source) {
       authoritative = maps.byAiDocumentName[String(citation.source)] || null;
@@ -88,8 +88,7 @@ function kspMapKnowledgeCitations(rawCitations, sourceMaps) {
     if (!authoritative) {
       warnings.push({
         code: 'AI_CITATION_SOURCE_NOT_FOUND',
-        message: 'Gemini citation could not be matched to an authoritative source record.',
-        externalSource: citation ? kspAiTrim(citation.source) : ''
+        message: 'Gemini citation could not be matched to an authoritative source record.'
       });
       return;
     }
@@ -127,7 +126,7 @@ function kspMapKnowledgeCitations(rawCitations, sourceMaps) {
   return { citations: citations, warnings: warnings };
 }
 
-function kspBuildKnowledgeSearchAuditRow(params) {
+function kspBuildKnowledgeSearchAuditRow_(params) {
   var options = params || {};
   var input = options.input || {};
   var sourceIds = (options.citations || []).map(function (citation) { return citation.sourceId; });
@@ -143,9 +142,9 @@ function kspBuildKnowledgeSearchAuditRow(params) {
     After_Metadata_JSON: '',
     Batch_ID: '',
     Error_Code: options.errorCode || '',
-    Error_Message: options.errorMessage || '',
+    Error_Message: options.errorCode ? kspSafePublicErrorMessage_(options.errorCode, 'SEARCH') : '',
     Search_Mode: KSP_AI_SEARCH_MODES.FREE_QUESTION,
-    Question_Or_Instruction: input.question || '',
+    Question_Or_Instruction: '',
     Date_From: input.dateFrom || '',
     Date_To: input.dateTo || '',
     GP_Filter: input.gpId || '',
@@ -153,6 +152,6 @@ function kspBuildKnowledgeSearchAuditRow(params) {
     Capital_Type_Filter: input.capitalTypeId || '',
     Source_Type_Filter: input.sourceType || '',
     Model_ID: options.modelId || '',
-    Cited_Source_IDs: kspUniqueStrings(sourceIds).join(',')
+    Cited_Source_IDs: kspUniqueStrings_(sourceIds).join(',')
   };
 }

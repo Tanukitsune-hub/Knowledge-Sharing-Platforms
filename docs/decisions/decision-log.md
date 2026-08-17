@@ -237,7 +237,7 @@ Status: Accepted
 
 - production runtime is Apps Script V8 JavaScript.
 - normal setup does not require Node.js / clasp / external server.
-- `setupKnowledgePlatform()` is idempotent create / reuse / migration / repair path.
+- `setupKnowledgePlatform_()` is the editor-only idempotent create / reuse / migration / repair path; normal users cannot call setup through `google.script.run`.
 - DEV / PROD use separate Apps Script projects / resources.
 - ChatGPT owns design / GitHub / review / completion.
 - Codex handles residual implementation / tests / runtime validation / debugging.
@@ -251,6 +251,19 @@ Implementation sequence:
 5. 0008 File Search thin slice + 自由質問
 6. 0009 sync + six formats + EML
 7. 0010 four presets + production qualification
+
+## 2026-08-17 — Knowledge Export and Apps Script public-surface hardening
+
+Status: Accepted and implemented in Work 0012
+
+- The only normal-user top-level Apps Script functions are the canonical Web App facade allowlist enforced by `scripts/validate-public-surface.cjs`.
+- All other top-level functions, including setup, status, validation, retention, manual sync, diagnostics, triggers, and raw Drive / Docs / Sheets helpers, end with `_` or are non-top-level.
+- Legacy `runAiSyncWorker` triggers are migrated to the private `runAiSyncWorker_` handler during idempotent setup.
+- Knowledge Export resolves Active Backend Index rows, hard-stops count limits before Meeting Doc reads, binds source links to stable file IDs, writes explicit Docs hyperlinks, and returns canonical artifact URLs.
+- Export prompt copies are provider-neutral across five modes and use Master display names with stable IDs. Audit stores metadata only; prompt text, answers, source bodies, chunks, embeddings, and bytes are excluded.
+- Short-lived actor-bucket throttling and export idempotency are the minimal abuse controls; no new ACL system, queue, database, expiry engine, or export-management UI is added.
+- Release version is `0.1.2`; component Work IDs remain historical trace identifiers and are not the application release version.
+- `Knowledge Exports` is a derived-copy boundary. Permission equivalence and retention/deletion operations remain required DEV/production qualification items.
 
 ## 2026-08-16 — Lower upload limits
 

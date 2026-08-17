@@ -6,6 +6,10 @@
 
 Google Workspaceを正本・運用基盤とし、その上にGemini File Searchを再生成可能な検索レイヤーとして載せる、シンプルな業務ツールを目指す。
 
+## Current implementation status
+
+Works 0004–0011は実装・マージ済みで、Work 0012は通常利用者向けApps Script公開ファサードとKnowledge Exportの安全性をhardeningした。アプリケーションrelease versionは`0.1.2`である。Work 0010–0011のDEV実機qualification（Shared Drive固有挙動、Docs/PDFリンク、Gemini、clipboard等）は未観測の項目を残しており、本番デプロイ完了とは扱わない。
+
 ## Core user experience
 
 通常利用者は、組織管理下の1つのApps Script HTML Service Web Appを共通URLから利用する。
@@ -152,6 +156,14 @@ Persistent actual-user identification is not required for production operation.
 
 Audit Spreadsheet is restricted by Google Drive sharing permissions and opened directly by admins when needed. Initial Web App does not require an Audit Viewer or custom password screen.
 
+## Knowledge Export / external-AI handoff
+
+Knowledge ExportはGemini資格情報に依存せず、Backend Indexで`Active`の資料を解決する。Meetingは正本Google Doc本文を含め、Pitchbookは本文を複製せずmetadataとstable File IDに結び付いたauthoritative Drive linkだけを含める。Google DocsまたはPDFをKnowledge Exports sibling folderへ生成する。
+
+サーバーはMeeting 50件超、Pitchbook 200件超、またはMeeting本文250,000文字超で処理を停止し、件数超過時にはMeeting Docを読み取らない。5モードの外部AI向けpromptはGP、Asset Class、Equity / Debtの表示名とstable IDを併記する。Prompt本文、原文、回答、chunk、embedding、bytesはAuditへ保存しない。
+
+Exportは正本の派生コピーであり、権限設定のドリフトと無期限蓄積のリスクを持つ。permission equivalenceとretention運用はproduction前にDEVで確認する。
+
 ## Knowledge retrieval with Gemini
 
 ```text
@@ -220,10 +232,12 @@ All modes show source citations / Drive links and surface insufficient evidence 
 Administrator runs idempotent setup functions to create / reuse / validate Workspace resources.
 
 ```text
-setupKnowledgePlatform()
-validateInstallation()
-getInstallationStatus()
+setupKnowledgePlatform_()
+validateInstallation_()
+getInstallationStatus_()
 ```
+
+These are editor-only/private Apps Script entry points; normal users cannot call them through `google.script.run`.
 
 Normal production setup does not require Node.js, clasp, external server, custom DB, or manual construction of all Sheets / triggers / Master seeds.
 

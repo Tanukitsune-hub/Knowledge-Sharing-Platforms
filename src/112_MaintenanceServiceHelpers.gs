@@ -1,4 +1,4 @@
-function kspBuildMaintenanceCatalog(gpRows, optionRows) {
+function kspBuildMaintenanceCatalog_(gpRows, optionRows) {
   var gps = (gpRows || []).map(function (row) {
     return {
       id: String(row.GP_ID || ''),
@@ -33,13 +33,13 @@ function kspBuildMaintenanceCatalog(gpRows, optionRows) {
   };
 }
 
-function kspLoadMaintenanceContext(environment) {
+function kspLoadMaintenanceContext_(environment) {
   var state = environment.getInstallationState();
-  kspAssert(state && state.resources, 'INSTALLATION_STATE_MISSING', 'Installation stateがありません。');
+  kspAssert_(state && state.resources, 'INSTALLATION_STATE_MISSING', 'Installation stateがありません。');
   var backendSpreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
   var auditSpreadsheetId = state.resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET];
-  kspAssert(backendSpreadsheetId, 'BACKEND_SPREADSHEET_MISSING', 'Backend Spreadsheetがありません。');
-  kspAssert(auditSpreadsheetId, 'AUDIT_SPREADSHEET_MISSING', 'Audit Spreadsheetがありません。');
+  kspAssert_(backendSpreadsheetId, 'BACKEND_SPREADSHEET_MISSING', 'Backend Spreadsheetがありません。');
+  kspAssert_(auditSpreadsheetId, 'AUDIT_SPREADSHEET_MISSING', 'Audit Spreadsheetがありません。');
   var gpRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER);
   var optionRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER);
   return {
@@ -50,18 +50,18 @@ function kspLoadMaintenanceContext(environment) {
     pitchbookRows: environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX),
     gpRows: gpRows,
     optionRows: optionRows,
-    catalog: kspBuildMaintenanceCatalog(gpRows, optionRows)
+    catalog: kspBuildMaintenanceCatalog_(gpRows, optionRows)
   };
 }
 
-function kspRequireSingleRow(rows, keyColumn, keyValue, notFoundCode) {
+function kspRequireSingleRow_(rows, keyColumn, keyValue, notFoundCode) {
   var matches = (rows || []).filter(function (row) { return String(row[keyColumn]) === String(keyValue); });
-  kspAssert(matches.length <= 1, 'DUPLICATE_KEY_ROWS', '同じIDの行が複数あります: ' + keyValue);
-  kspAssert(matches.length === 1, notFoundCode, '対象レコードが見つかりません: ' + keyValue);
+  kspAssert_(matches.length <= 1, 'DUPLICATE_KEY_ROWS', '同じIDの行が複数あります: ' + keyValue);
+  kspAssert_(matches.length === 1, notFoundCode, '対象レコードが見つかりません: ' + keyValue);
   return matches[0];
 }
 
-function kspBuildMasterResponse(gpRows, optionRows) {
+function kspBuildMasterResponse_(gpRows, optionRows) {
   var gps = (gpRows || []).map(function (row) {
     return { id: String(row.GP_ID || ''), name: String(row.GP_Name || ''),
       status: String(row.Status || ''), updatedAt: String(row.Updated_At || '') };
@@ -77,22 +77,22 @@ function kspBuildMasterResponse(gpRows, optionRows) {
   return { gps: gps, options: options };
 }
 
-function kspGetMaintenanceActorSafely(environment, warnings) {
+function kspGetMaintenanceActorSafely_(environment, warnings) {
   try { return environment.getActor() || 'UNIDENTIFIED'; }
-  catch (error) { warnings.push({ code: 'ACTOR_RESOLUTION_FAILED', message: error.message || String(error) }); return 'UNIDENTIFIED'; }
+  catch (error) { warnings.push({ code: 'ACTOR_RESOLUTION_FAILED', message: kspSafeOperationalWarning_('ACTOR_RESOLUTION_FAILED') }); return 'UNIDENTIFIED'; }
 }
 
-function kspTryMaintenanceAudit(environment, auditSpreadsheetId, params, warnings) {
-  try { environment.appendRow(auditSpreadsheetId, KSP_SHEET_NAMES.AUDIT_LOG, kspBuildMaintenanceAuditRow(params)); }
-  catch (error) { warnings.push({ code: 'AUDIT_WRITE_FAILED', message: error.message || String(error) }); }
+function kspTryMaintenanceAudit_(environment, auditSpreadsheetId, params, warnings) {
+  try { environment.appendRow(auditSpreadsheetId, KSP_SHEET_NAMES.AUDIT_LOG, kspBuildMaintenanceAuditRow_(params)); }
+  catch (error) { warnings.push({ code: 'AUDIT_WRITE_FAILED', message: kspSafeOperationalWarning_('AUDIT_WRITE_FAILED') }); }
 }
 
-function kspMaintenanceFailure(error, warnings) {
+function kspMaintenanceFailure_(error, warnings) {
   return { ok: false, workId: KSP_MAINTENANCE_WORK_ID,
-    error: { code: kspGetErrorCode(error), message: error.message || String(error) }, warnings: warnings || [] };
+    error: { code: kspGetErrorCode_(error), message: kspSafePublicErrorMessage_(kspGetErrorCode_(error), 'MAINTENANCE') }, warnings: warnings || [] };
 }
 
-function kspMasterActionName(input) {
+function kspMasterActionName_(input) {
   var entity = input && input.entity === KSP_MASTER_ENTITY.OPTION ? 'OPTION' : 'GP';
   var action = input && input.action ? input.action : 'UNKNOWN';
   return KSP_MAINTENANCE_ACTIONS[entity + '_' + action] || (entity + '_' + action);

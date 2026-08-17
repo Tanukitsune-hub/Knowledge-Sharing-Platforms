@@ -164,6 +164,11 @@ function createFakeEnvironment(options = {}) {
       triggers.push(trigger);
       return { ...trigger };
     },
+    deleteTrigger(triggerId) {
+      const index = triggers.findIndex((trigger) => String(trigger.id) === String(triggerId));
+      if (index === -1) throw new Error('Trigger is not accessible for migration.');
+      triggers.splice(index, 1);
+    },
     getSheetHeaders(spreadsheetId, sheetName) {
       return [...spreadsheets.get(spreadsheetId).sheets.get(sheetName).headers];
     },
@@ -188,7 +193,7 @@ const root = path.resolve(__dirname, '..');
 const ksp = loadAppsScript(root);
 
 test('normalizes a valid bootstrap config', () => {
-  const config = ksp.kspNormalizeAndValidateConfig({
+  const config = ksp.kspNormalizeAndValidateConfig_({
     environment: 'dev',
     knowledgeParentFolderId: ' knowledge-parent ',
     controlFolderId: ' control ',
@@ -206,7 +211,7 @@ test('normalizes a valid bootstrap config', () => {
 });
 
 test('rejects a shared source/control folder boundary', () => {
-  assert.throws(() => ksp.kspNormalizeAndValidateConfig({
+  assert.throws(() => ksp.kspNormalizeAndValidateConfig_({
     environment: 'DEV',
     knowledgeParentFolderId: 'same',
     controlFolderId: 'same'
@@ -214,14 +219,14 @@ test('rejects a shared source/control folder boundary', () => {
 });
 
 test('returns a safe bootstrap template without credentials', () => {
-  const template = ksp.kspGetBootstrapConfigTemplate();
+  const template = ksp.kspGetBootstrapConfigTemplate_();
   assert.equal(template.aiSyncEnabled, false);
   assert.equal(Object.hasOwn(template, 'credential'), false);
   assert.equal(Object.hasOwn(template, 'apiKey'), false);
 });
 
 test('defines exactly five baseline backend sheets', () => {
-  const schemas = ksp.kspGetBackendSchemas();
+  const schemas = ksp.kspGetBackendSchemas_();
   assert.deepEqual(Object.keys(schemas).sort(), [
     'GP_Master', 'Meeting_Index', 'Option_Master', 'Pitchbook_Index', 'Settings'
   ]);
@@ -230,7 +235,7 @@ test('defines exactly five baseline backend sheets', () => {
 });
 
 test('defines a separate audit log schema', () => {
-  const audit = ksp.kspGetAuditSchema();
+  const audit = ksp.kspGetAuditSchema_();
   assert.deepEqual(Object.keys(audit), ['Audit_Log']);
   assert.ok(audit.Audit_Log.includes('Actor'));
   assert.ok(audit.Audit_Log.includes('Search_Mode'));
@@ -238,8 +243,8 @@ test('defines a separate audit log schema', () => {
 });
 
 test('master seed IDs are stable and unique', () => {
-  const gpIds = ksp.kspGetGpSeedDefinitions().map((seed) => seed[0]);
-  const optionIds = ksp.kspGetOptionSeedDefinitions().map((seed) => seed[0]);
+  const gpIds = ksp.kspGetGpSeedDefinitions_().map((seed) => seed[0]);
+  const optionIds = ksp.kspGetOptionSeedDefinitions_().map((seed) => seed[0]);
   assert.equal(new Set(gpIds).size, gpIds.length);
   assert.equal(new Set(optionIds).size, optionIds.length);
   assert.ok(gpIds.includes('GP-000019'));
@@ -247,13 +252,13 @@ test('master seed IDs are stable and unique', () => {
 });
 
 test('normalizes future generated filename segments predictably', () => {
-  assert.equal(ksp.kspNormalizeGeneratedNameSegment('  KKR / Infra & Debt  '), 'KKR_Infra_Debt');
-  assert.equal(ksp.kspNormalizeGeneratedNameSegment('A\\B'), 'AB');
-  assert.equal(ksp.kspNormalizeGeneratedNameSegment(null), '');
+  assert.equal(ksp.kspNormalizeGeneratedNameSegment_('  KKR / Infra & Debt  '), 'KKR_Infra_Debt');
+  assert.equal(ksp.kspNormalizeGeneratedNameSegment_('A\\B'), 'AB');
+  assert.equal(ksp.kspNormalizeGeneratedNameSegment_(null), '');
 });
 
 test('escapes Drive query literals', () => {
-  assert.equal(ksp.kspEscapeDriveQueryLiteral("O'Reilly\\Fund"), "O\\'Reilly\\\\Fund");
+  assert.equal(ksp.kspEscapeDriveQueryLiteral_("O'Reilly\\Fund"), "O\\'Reilly\\\\Fund");
 });
 
 test('forward migration appends missing columns and preserves existing columns', () => {
@@ -261,7 +266,7 @@ test('forward migration appends missing columns and preserves existing columns',
   const backend = env.createSpreadsheet('control', 'Knowledge Platform Backend');
   env.ensureSheet(backend.id, 'Settings', ['Key', 'Value']);
 
-  const result = env.ensureSheet(backend.id, 'Settings', ksp.kspGetBackendSchemas().Settings);
+  const result = env.ensureSheet(backend.id, 'Settings', ksp.kspGetBackendSchemas_().Settings);
   assert.equal(result.action, 'migrated');
   assert.deepEqual(Array.from(result.addedHeaders), ['Description', 'Updated_At']);
   assert.deepEqual(env.getSheetHeaders(backend.id, 'Settings'), ['Key', 'Value', 'Description', 'Updated_At']);
@@ -304,7 +309,7 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
     properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() }
   });
 
-  const report = ksp.kspRunSetup(env);
+  const report = ksp.kspRunSetup_(env);
   assert.equal(report.ok, true, JSON.stringify(report.errors));
   assert.equal(report.mode, 'SETUP');
   assert.equal(Object.keys(report.resources).length, 6);
@@ -333,9 +338,9 @@ test('second setup reuses all resources and does not duplicate seeds', () => {
     properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() }
   });
 
-  const first = ksp.kspRunSetup(env);
+  const first = ksp.kspRunSetup_(env);
   assert.equal(first.ok, true);
-  const second = ksp.kspRunSetup(env);
+  const second = ksp.kspRunSetup_(env);
   assert.equal(second.ok, true, JSON.stringify(second.errors));
   assert.equal(second.actions.filter((action) => action.category === 'resource' && action.action === 'reused').length, 6);
 
@@ -355,21 +360,21 @@ test('multiple exact-name candidates fail explicitly', () => {
     ]
   });
 
-  const report = ksp.kspRunSetup(env);
+  const report = ksp.kspRunSetup_(env);
   assert.equal(report.ok, false);
   assert.equal(report.errors[0].code, 'DUPLICATE_RESOURCE_CANDIDATES');
 });
 
 test('second setup preserves operational counters and future AI configuration', () => {
   const env = createFakeEnvironment({ properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() } });
-  const first = ksp.kspRunSetup(env);
+  const first = ksp.kspRunSetup_(env);
   assert.equal(first.ok, true);
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
   const settings = env._debug.spreadsheets.get(state.resources.backendSpreadsheetId).sheets.get('Settings').rows;
   settings.find((row) => row.Key === 'NEXT_MEETING_ID').Value = '42';
   settings.find((row) => row.Key === 'AI_DEFAULT_MODEL').Value = 'gemini-flash-selected-later';
 
-  const second = ksp.kspRunSetup(env);
+  const second = ksp.kspRunSetup_(env);
   assert.equal(second.ok, true, JSON.stringify(second.errors));
   assert.equal(settings.find((row) => row.Key === 'NEXT_MEETING_ID').Value, '42');
   assert.equal(settings.find((row) => row.Key === 'AI_DEFAULT_MODEL').Value, 'gemini-flash-selected-later');
@@ -377,35 +382,35 @@ test('second setup preserves operational counters and future AI configuration', 
 
 test('stored resource outside the configured parent boundary fails', () => {
   const env = createFakeEnvironment({ properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() } });
-  const first = ksp.kspRunSetup(env);
+  const first = ksp.kspRunSetup_(env);
   assert.equal(first.ok, true);
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
   const backend = env._debug.resources.get(state.resources.backendSpreadsheetId);
   backend.parents = ['wrong-control-folder'];
 
-  const second = ksp.kspRunSetup(env);
+  const second = ksp.kspRunSetup_(env);
   assert.equal(second.ok, false);
   assert.equal(second.errors[0].code, 'STORED_RESOURCE_PARENT_MISMATCH');
 });
 
 test('validation passes after a fake setup', () => {
   const env = createFakeEnvironment({ properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() } });
-  const setupReport = ksp.kspRunSetup(env);
+  const setupReport = ksp.kspRunSetup_(env);
   assert.equal(setupReport.ok, true);
-  const validationReport = ksp.kspRunValidation(env);
+  const validationReport = ksp.kspRunValidation_(env);
   assert.equal(validationReport.ok, true, JSON.stringify(validationReport.errors));
   assert.ok(validationReport.actions.some((action) => action.resource === 'master-seeds'));
 });
 
 function report() {
-  return ksp.kspCreateReport('TEST', '2026-08-16T00:00:00.000Z');
+  return ksp.kspCreateReport_('TEST', '2026-08-16T00:00:00.000Z');
 }
 
 test('creates one missing clock trigger', () => {
   const env = createFakeEnvironment();
   const output = report();
-  ksp.kspEnsureTriggers(env, [{
-    key: 'AI_SYNC', handler: 'runAiSyncWorker', eventType: 'CLOCK', intervalMinutes: 15, enabled: true
+  ksp.kspEnsureTriggers_(env, [{
+    key: 'AI_SYNC', handler: 'runAiSyncWorker_', eventType: 'CLOCK', intervalMinutes: 15, enabled: true
   }], output);
   assert.equal(env._debug.triggers.length, 1);
   assert.equal(output.actions[0].action, 'created');
@@ -413,21 +418,35 @@ test('creates one missing clock trigger', () => {
 
 test('does not create another trigger when handler/type already exists', () => {
   const env = createFakeEnvironment({
-    triggers: [{ id: 'existing', handler: 'runAiSyncWorker', eventType: 'CLOCK' }]
+    triggers: [{ id: 'existing', handler: 'runAiSyncWorker_', eventType: 'CLOCK' }]
   });
   const output = report();
-  ksp.kspEnsureTriggers(env, [{
-    key: 'AI_SYNC', handler: 'runAiSyncWorker', eventType: 'CLOCK', intervalMinutes: 15, enabled: true
+  ksp.kspEnsureTriggers_(env, [{
+    key: 'AI_SYNC', handler: 'runAiSyncWorker_', eventType: 'CLOCK', intervalMinutes: 15, enabled: true
   }], output);
   assert.equal(env._debug.triggers.length, 1);
   assert.equal(output.actions[0].action, 'reused');
 });
 
+test('migrates the legacy public trigger handler before reusing the private handler', () => {
+  const env = createFakeEnvironment({
+    triggers: [{ id: 'legacy', handler: 'runAiSyncWorker', eventType: 'CLOCK' }]
+  });
+  const output = report();
+  ksp.kspEnsureTriggers_(env, [{
+    key: 'AI_SYNC', handler: 'runAiSyncWorker_', legacyHandlers: ['runAiSyncWorker'],
+    eventType: 'CLOCK', intervalMinutes: 15, enabled: true
+  }], output);
+  assert.deepEqual(env._debug.triggers.map((trigger) => trigger.handler), ['runAiSyncWorker_']);
+  assert.equal(output.actions[0].action, 'migrated');
+  assert.equal(output.actions[1].action, 'created');
+});
+
 test('refuses to create a trigger for an unavailable handler contract', () => {
   const env = createFakeEnvironment();
   const output = report();
-  assert.throws(() => ksp.kspEnsureTriggers(env, [{
-    key: 'AI_SYNC', handler: 'runAiSyncWorker', eventType: 'CLOCK', intervalMinutes: 15, enabled: true, available: false
+  assert.throws(() => ksp.kspEnsureTriggers_(env, [{
+    key: 'AI_SYNC', handler: 'runAiSyncWorker_', eventType: 'CLOCK', intervalMinutes: 15, enabled: true, available: false
   }], output), /not implemented/);
   assert.equal(env._debug.triggers.length, 0);
 });

@@ -17,12 +17,22 @@ Shared Drive and Google Docs remain authoritative. File Search documents may be 
 ## Server entry points
 
 ```text
-runAiSyncWorker()
+runAiSyncWorker_()
 getKnowledgeSearchBootstrapData()
-askKnowledgeQuestion(input)
+askKnowledgeQuestion_(input)
+getFeatureFreezeDiagnostics_()
 ```
 
-`setupKnowledgePlatform()` temporarily marks `runAiSyncWorker` as an available trigger handler while executing the existing idempotent setup engine. Therefore a configuration with `aiSyncEnabled: true` can create or reuse the accepted 15-minute trigger without weakening the Work 0004 trigger-deduplication contract.
+`runAiSyncWorker_()`, `askKnowledgeQuestion_()`, and
+`getFeatureFreezeDiagnostics_()` are editor/trigger-only functions. The
+normal user search surface is `getKnowledgeSearchBootstrapData()` and
+`searchKnowledge()`; the legacy alias is intentionally private.
+
+`setupKnowledgePlatform_()` temporarily marks `runAiSyncWorker_` as an
+available trigger handler while executing the existing idempotent setup
+engine. Therefore a configuration with `aiSyncEnabled: true` can create or
+reuse the accepted 15-minute trigger without weakening the Work 0004
+trigger-deduplication contract.
 
 ## Configuration
 

@@ -6,6 +6,8 @@
 
 採用済み仕様と実装時検証を混同しない。実機確認が必要という理由だけで、確定済み仕様を未決定として扱わない。
 
+Works 0004–0011は実装・マージ済みで、Work 0012は公開surfaceとExport reliabilityのhardeningを完了した。release versionは`0.1.2`。Work 0010–0011のDEV実機qualificationは別途未観測として管理する。
+
 ## Draft retention
 
 - Meeting、Pitchbook登録、共有コンテキストの未登録入力は利用者ブラウザ内で保持する。
@@ -80,6 +82,12 @@
 - Actorを恒久的に本人特定できないことだけを理由に、登録・変更・AI検索を失敗させたりPROD-ready判定を拒否したりしない。
 - Temporary Active User Keyは匿名の運用トレース用であり、恒久的な本人識別子として扱わない。
 
+### Apps Script public surface
+
+HTML Serviceのtop-level関数は末尾`_`がない限りbrowser-callableである。`ksp` prefixはprivacy boundaryではない。通常利用者に公開するのはcanonical facade allowlistだけとし、setup、installation status / validation、retention、manual AI sync、diagnostics、trigger、Drive / Docs / Sheets adapterはprivate関数にする。public-surface validatorを`npm run check`で実行し、予期しない公開関数を回帰として拒否する。
+
+editor-only setup functions are `setupKnowledgePlatform_()`, `validateInstallation_()`, and `getInstallationStatus_()`. Normal users must not receive backend, audit, folder, store, credential, stack, or raw API details.
+
 詳細Decision: `docs/decisions/audit-access-and-user-attribution.md`
 
 ## Master permissions
@@ -110,6 +118,16 @@
 - 5モードは同じFile Search Store、Metadata Filter、semantic retrieval、Gemini Flash、Citation / Drive link処理を共有する。
 - preset modeでは質問欄を任意の`追加指示`として利用できる。
 - 5モード構成自体は採用済みであり、段階実装を理由に未決定扱いしない。
+
+## Knowledge Export operations
+
+- Backend IndexのActive rowsだけを対象にする。
+- Meeting 50件超 / Pitchbook 200件超はexact count後にhard-stopし、Meeting Docsを読み取らない。
+- Meeting本文250,000文字超もartifact作成前に停止する。
+- Meeting `Doc_URL`と`Doc_File_ID`、Pitchbook `File_URL`と`File_ID`を検証し、accessibleな原本からcanonical linkを生成する。不一致やtrashed/folder原本はexport全体を失敗させる。
+- Google Docsではsource linkを明示的なhyperlinkとして書き込む。PDFはsource-link textを保持する。
+- Export creationはactor + preview fingerprint + output typeの短期idempotencyと、preview / Search / creationのbounded throttleを使う。
+- `Knowledge Exports`は正本の派生コピーであり、permission driftと無期限蓄積のリスクがある。自動expiryは現行スコープ外で、production前にpermission equivalenceと削除・保持手順を確認する。
 
 ## AI synchronization
 
@@ -167,7 +185,7 @@
 AI queryでは追加で少なくとも以下を記録する。
 
 - Search mode
-- Question / additional instruction text
+- mode / filter metadata（Question / additional instruction本文はcurrent hardeningで保存しない）
 - Date From / To
 - GP filter
 - Asset Class filter

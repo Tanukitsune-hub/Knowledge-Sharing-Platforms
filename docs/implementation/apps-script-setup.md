@@ -15,11 +15,15 @@ Apps Script source lives under `src/`.
 ## Administrator entry points
 
 ```text
-setupKnowledgePlatform()
-validateInstallation()
-getInstallationStatus()
-getBootstrapConfigTemplate()
+setupKnowledgePlatform_()
+validateInstallation_()
+getInstallationStatus_()
+getBootstrapConfigTemplate_()
 ```
+
+These are editor-only setup/status entry points. The trailing `_` is an
+Apps Script HTML Service privacy boundary; they are not part of the normal
+user `google.script.run` facade.
 
 The first setup reads Script Property `BOOTSTRAP_CONFIG_JSON`.
 

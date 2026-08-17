@@ -1,36 +1,36 @@
-function kspBuildFileSearchStoreCreateRequest(displayName, embeddingModel) {
+function kspBuildFileSearchStoreCreateRequest_(displayName, embeddingModel) {
   return {
-    displayName: kspAiTrim(displayName) || KSP_AI_DEFAULTS.STORE_DISPLAY_NAME,
-    embeddingModel: kspAiTrim(embeddingModel) || KSP_AI_DEFAULTS.EMBEDDING_MODEL
+    displayName: kspAiTrim_(displayName) || KSP_AI_DEFAULTS.STORE_DISPLAY_NAME,
+    embeddingModel: kspAiTrim_(embeddingModel) || KSP_AI_DEFAULTS.EMBEDDING_MODEL
   };
 }
 
-function kspNormalizeFileSearchStore(response) {
+function kspNormalizeFileSearchStore_(response) {
   var value = response || {};
-  var name = kspAiTrim(value.name);
-  kspAssert(/^fileSearchStores\/[^/]+$/.test(name), 'AI_STORE_RESPONSE_INVALID',
+  var name = kspAiTrim_(value.name);
+  kspAssert_(/^fileSearchStores\/[^/]+$/.test(name), 'AI_STORE_RESPONSE_INVALID',
     'File Search Store response does not contain a valid resource name.');
   return {
     name: name,
-    displayName: kspAiTrim(value.displayName || value.display_name),
-    embeddingModel: kspAiTrim(value.embeddingModel || value.embedding_model),
+    displayName: kspAiTrim_(value.displayName || value.display_name),
+    embeddingModel: kspAiTrim_(value.embeddingModel || value.embedding_model),
     activeDocumentsCount: Number(value.activeDocumentsCount || value.active_documents_count || 0),
     pendingDocumentsCount: Number(value.pendingDocumentsCount || value.pending_documents_count || 0),
     failedDocumentsCount: Number(value.failedDocumentsCount || value.failed_documents_count || 0)
   };
 }
 
-function kspAiStoreResourcePath(storeName) {
-  var name = kspAiTrim(storeName);
-  kspAssert(/^fileSearchStores\/[^/]+$/.test(name), 'AI_STORE_NAME_INVALID',
+function kspAiStoreResourcePath_(storeName) {
+  var name = kspAiTrim_(storeName);
+  kspAssert_(/^fileSearchStores\/[^/]+$/.test(name), 'AI_STORE_NAME_INVALID',
     'File Search Store name is invalid.');
   return name;
 }
 
-function kspBuildAiCustomMetadata(source) {
+function kspBuildAiCustomMetadata_(source) {
   var metadata = [];
   function addString(key, value) {
-    var normalized = kspAiTrim(value);
+    var normalized = kspAiTrim_(value);
     if (normalized) metadata.push({ key: key, stringValue: normalized });
   }
   addString('source_type', source.sourceType);
@@ -48,33 +48,33 @@ function kspBuildAiCustomMetadata(source) {
   return metadata;
 }
 
-function kspBuildFileSearchUploadMetadata(source) {
+function kspBuildFileSearchUploadMetadata_(source) {
   return {
     displayName: source.displayName || source.savedFilename || source.sourceId + '.txt',
-    customMetadata: kspBuildAiCustomMetadata(source),
+    customMetadata: kspBuildAiCustomMetadata_(source),
     mimeType: source.mimeType || 'text/plain'
   };
 }
 
-function kspNormalizeFileSearchOperation(response) {
+function kspNormalizeFileSearchOperation_(response) {
   var value = response || {};
   var errorValue = value.error || null;
   return {
-    name: kspAiTrim(value.name),
+    name: kspAiTrim_(value.name),
     done: Boolean(value.done),
     error: errorValue ? {
       code: Number(errorValue.code || 0),
-      message: kspAiTrim(errorValue.message),
-      status: kspAiTrim(errorValue.status)
+      message: kspAiTrim_(errorValue.message),
+      status: kspAiTrim_(errorValue.status)
     } : null,
     response: value.response || null,
     metadata: value.metadata || null
   };
 }
 
-function kspMetadataArrayToMap(metadata) {
+function kspMetadataArrayToMap_(metadata) {
   if (metadata && !Array.isArray(metadata) && typeof metadata === 'object') {
-    return kspDeepClone(metadata);
+    return kspDeepClone_(metadata);
   }
   var output = {};
   (metadata || []).forEach(function (entry) {
@@ -89,26 +89,26 @@ function kspMetadataArrayToMap(metadata) {
   return output;
 }
 
-function kspNormalizeFileSearchDocument(response) {
+function kspNormalizeFileSearchDocument_(response) {
   var value = response || {};
   var metadata = value.customMetadata || value.custom_metadata || [];
-  var name = kspAiTrim(value.name);
-  kspAssert(/^fileSearchStores\/[^/]+\/documents\/[^/]+$/.test(name),
+  var name = kspAiTrim_(value.name);
+  kspAssert_(/^fileSearchStores\/[^/]+\/documents\/[^/]+$/.test(name),
     'AI_DOCUMENT_RESPONSE_INVALID', 'File Search Document response is invalid.');
   return {
     name: name,
-    displayName: kspAiTrim(value.displayName || value.display_name),
-    state: kspAiTrim(value.state),
-    customMetadata: kspMetadataArrayToMap(metadata),
-    rawCustomMetadata: kspDeepClone(metadata)
+    displayName: kspAiTrim_(value.displayName || value.display_name),
+    state: kspAiTrim_(value.state),
+    customMetadata: kspMetadataArrayToMap_(metadata),
+    rawCustomMetadata: kspDeepClone_(metadata)
   };
 }
 
-function kspNormalizeFileSearchDocumentList(response) {
+function kspNormalizeFileSearchDocumentList_(response) {
   var value = response || {};
   var documents = value.documents || value.fileSearchDocuments || value.file_search_documents || [];
   return {
-    documents: documents.map(kspNormalizeFileSearchDocument),
-    nextPageToken: kspAiTrim(value.nextPageToken || value.next_page_token)
+    documents: documents.map(kspNormalizeFileSearchDocument_),
+    nextPageToken: kspAiTrim_(value.nextPageToken || value.next_page_token)
   };
 }

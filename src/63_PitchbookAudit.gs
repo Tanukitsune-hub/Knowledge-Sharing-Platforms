@@ -1,4 +1,4 @@
-function kspBuildPitchbookAuditRow(params) {
+function kspBuildPitchbookAuditRow_(params) {
   var options = params || {};
   var row = options.row || {};
   var success = options.result === KSP_AUDIT_RESULTS.SUCCESS;
@@ -28,13 +28,13 @@ function kspBuildPitchbookAuditRow(params) {
     After_Metadata_JSON: success ? JSON.stringify(metadata) : '',
     Batch_ID: row.Batch_ID || options.batchId || '',
     Error_Code: options.errorCode || '',
-    Error_Message: options.errorMessage || '',
+    Error_Message: options.errorCode ? kspSafePublicErrorMessage_(options.errorCode, 'PITCHBOOK') : '',
     Search_Mode: '', Question_Or_Instruction: '', Date_From: '', Date_To: '', GP_Filter: '',
     Asset_Class_Filter: '', Capital_Type_Filter: '', Source_Type_Filter: '', Model_ID: '', Cited_Source_IDs: ''
   };
 }
 
-function kspBuildPitchbookBootstrapResponse(catalog) {
+function kspBuildPitchbookBootstrapResponse_(catalog) {
   return {
     ok: true,
     workId: KSP_PITCHBOOK_WORK_ID,
@@ -47,9 +47,9 @@ function kspBuildPitchbookBootstrapResponse(catalog) {
     },
     allowedExtensions: KSP_PITCHBOOK_ALLOWED_EXTENSIONS.slice(),
     options: {
-      gps: kspDeepClone(catalog.gps),
-      assetClasses: kspDeepClone(catalog.assetClasses),
-      capitalTypes: kspDeepClone(catalog.capitalTypes)
+      gps: kspDeepClone_(catalog.gps),
+      assetClasses: kspDeepClone_(catalog.assetClasses),
+      capitalTypes: kspDeepClone_(catalog.capitalTypes)
     }
   };
 }

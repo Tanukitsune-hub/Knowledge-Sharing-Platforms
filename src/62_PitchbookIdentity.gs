@@ -1,35 +1,35 @@
-function kspFormatBatchId(sequenceNumber) {
-  return 'BAT-' + kspFormatSixDigitSequence(sequenceNumber, 'Batch');
+function kspFormatBatchId_(sequenceNumber) {
+  return 'BAT-' + kspFormatSixDigitSequence_(sequenceNumber, 'Batch');
 }
 
-function kspFormatDocumentId(sequenceNumber) {
-  return 'DOC-' + kspFormatSixDigitSequence(sequenceNumber, 'Document');
+function kspFormatDocumentId_(sequenceNumber) {
+  return 'DOC-' + kspFormatSixDigitSequence_(sequenceNumber, 'Document');
 }
 
-function kspParseDocumentId(documentId) {
+function kspParseDocumentId_(documentId) {
   var match = /^DOC-(\d{6})$/.exec(String(documentId || ''));
-  kspAssert(match && Number(match[1]) > 0, 'PITCHBOOK_DOCUMENT_ID_INVALID', 'Document IDが不正です。');
+  kspAssert_(match && Number(match[1]) > 0, 'PITCHBOOK_DOCUMENT_ID_INVALID', 'Document IDが不正です。');
   return Number(match[1]);
 }
 
-function kspFormatSixDigitSequence(sequenceNumber, label) {
+function kspFormatSixDigitSequence_(sequenceNumber, label) {
   var sequence = Number(sequenceNumber);
-  kspAssert(Number.isFinite(sequence) && sequence > 0 && Math.floor(sequence) === sequence,
+  kspAssert_(Number.isFinite(sequence) && sequence > 0 && Math.floor(sequence) === sequence,
     'PITCHBOOK_SEQUENCE_INVALID', (label || 'Sequence') + ' sequence must be a positive integer.');
   return String(sequence).padStart(6, '0');
 }
 
-function kspBuildPitchbookFilename(input, selected, sequenceNo, extension) {
+function kspBuildPitchbookFilename_(input, selected, sequenceNo, extension) {
   var segments = [input.date, selected.gp.name, selected.assetClass.name];
   if (selected.capitalType) segments.push(selected.capitalType.name);
   segments.push(String(Number(sequenceNo)).padStart(2, '0'));
-  var normalized = segments.map(kspNormalizeGeneratedNameSegment);
-  kspAssert(normalized.every(function (segment) { return segment !== ''; }), 'PITCHBOOK_FILENAME_INVALID',
+  var normalized = segments.map(kspNormalizeGeneratedNameSegment_);
+  kspAssert_(normalized.every(function (segment) { return segment !== ''; }), 'PITCHBOOK_FILENAME_INVALID',
     '保存ファイル名に空の必須要素があります。');
   return normalized.join('_') + '.' + String(extension);
 }
 
-function kspBuildPitchbookPendingRow(params) {
+function kspBuildPitchbookPendingRow_(params) {
   var options = params || {};
   return {
     Document_ID: options.documentId,
@@ -56,17 +56,17 @@ function kspBuildPitchbookPendingRow(params) {
   };
 }
 
-function kspBuildPitchbookSlotFingerprint(row, reservedFile, totalBytes) {
+function kspBuildPitchbookSlotFingerprint_(row, reservedFile, totalBytes) {
   var descriptor = reservedFile || {};
   var canonical = [
     row.Batch_ID, row.Document_ID, row.Date, row.GP_ID, row.Asset_Class_ID,
     row.Capital_Type_ID, row.Sequence_No, row.Original_Filename, row.Saved_Filename,
     descriptor.sizeBytes, descriptor.mimeType, totalBytes
   ].map(function (value) { return String(value || ''); }).join('\u001f');
-  return kspFnv1aHex(canonical);
+  return kspFnv1aHex_(canonical);
 }
 
-function kspFnv1aHex(text) {
+function kspFnv1aHex_(text) {
   var hash = 2166136261;
   for (var index = 0; index < String(text).length; index += 1) {
     hash ^= String(text).charCodeAt(index);
@@ -75,7 +75,7 @@ function kspFnv1aHex(text) {
   return ('00000000' + (hash >>> 0).toString(16)).slice(-8);
 }
 
-function kspPitchbookSlotFromRow(row, reservedFile, totalBytes) {
+function kspPitchbookSlotFromRow_(row, reservedFile, totalBytes) {
   var descriptor = reservedFile || {};
   var slot = {
     batchId: String(row.Batch_ID || ''),
@@ -88,13 +88,13 @@ function kspPitchbookSlotFromRow(row, reservedFile, totalBytes) {
     fileUrl: String(row.File_URL || ''),
     sizeBytes: Number(descriptor.sizeBytes || 0),
     mimeType: String(descriptor.mimeType || ''),
-    slotFingerprint: kspBuildPitchbookSlotFingerprint(row, descriptor, totalBytes)
+    slotFingerprint: kspBuildPitchbookSlotFingerprint_(row, descriptor, totalBytes)
   };
   if (descriptor.ordinal) slot.ordinal = Number(descriptor.ordinal);
   return slot;
 }
 
-function kspBuildPitchbookReservation(batchId, input, rows, totalBytes) {
+function kspBuildPitchbookReservation_(batchId, input, rows, totalBytes) {
   return {
     batchId: batchId,
     totalBytes: Number(totalBytes || 0),
@@ -116,7 +116,7 @@ function kspBuildPitchbookReservation(batchId, input, rows, totalBytes) {
   };
 }
 
-function kspFindPitchbookReservationFile(reservation, documentId) {
+function kspFindPitchbookReservationFile_(reservation, documentId) {
   return reservation && Array.isArray(reservation.files)
     ? reservation.files.filter(function (file) { return String(file.documentId) === String(documentId); })[0] || null
     : null;

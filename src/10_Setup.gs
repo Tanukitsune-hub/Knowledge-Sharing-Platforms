@@ -1,27 +1,27 @@
-function kspRunSetup(environment) {
-  var report = kspCreateReport('SETUP', environment.nowIso());
+function kspRunSetup_(environment) {
+  var report = kspCreateReport_('SETUP', environment.nowIso());
   var lock = null;
 
   try {
     lock = environment.acquireScriptLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS);
-    var existingState = kspLoadInstallationState(environment);
-    var config = kspLoadEffectiveConfig(environment, existingState);
+    var existingState = kspLoadInstallationState_(environment);
+    var config = kspLoadEffectiveConfig_(environment, existingState);
     report.environment = config.environment;
 
-    var resources = kspResolveAllResources(environment, existingState.resources || {}, config, report);
-    report.resources = kspDeepClone(resources);
+    var resources = kspResolveAllResources_(environment, existingState.resources || {}, config, report);
+    report.resources = kspDeepClone_(resources);
 
-    kspEnsureSpreadsheetSchemas(
+    kspEnsureSpreadsheetSchemas_(
       environment,
       resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
-      kspGetBackendSchemas(),
+      kspGetBackendSchemas_(),
       'backend',
       report
     );
-    kspEnsureSpreadsheetSchemas(
+    kspEnsureSpreadsheetSchemas_(
       environment,
       resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET],
-      kspGetAuditSchema(),
+      kspGetAuditSchema_(),
       'audit',
       report
     );
@@ -31,47 +31,47 @@ function kspRunSetup(environment) {
       resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
       KSP_SHEET_NAMES.GP_MASTER,
       'GP_ID',
-      kspBuildGpSeedRows(nowIso)
+      kspBuildGpSeedRows_(nowIso)
     );
-    kspAddAction(report, 'seed', KSP_SHEET_NAMES.GP_MASTER, 'upserted', gpResult);
+    kspAddAction_(report, 'seed', KSP_SHEET_NAMES.GP_MASTER, 'upserted', gpResult);
 
     var optionResult = environment.insertMissingRows(
       resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
       KSP_SHEET_NAMES.OPTION_MASTER,
       'Option_ID',
-      kspBuildOptionSeedRows(nowIso)
+      kspBuildOptionSeedRows_(nowIso)
     );
-    kspAddAction(report, 'seed', KSP_SHEET_NAMES.OPTION_MASTER, 'upserted', optionResult);
+    kspAddAction_(report, 'seed', KSP_SHEET_NAMES.OPTION_MASTER, 'upserted', optionResult);
 
     var settingsResult = environment.upsertRows(
       resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
       KSP_SHEET_NAMES.SETTINGS,
       'Key',
-      kspBuildSettingsRows(config, resources, nowIso),
-      { preserveExistingKeys: kspGetSettingsPreserveExistingKeys() }
+      kspBuildSettingsRows_(config, resources, nowIso),
+      { preserveExistingKeys: kspGetSettingsPreserveExistingKeys_() }
     );
-    kspAddAction(report, 'settings', KSP_SHEET_NAMES.SETTINGS, 'upserted', settingsResult);
+    kspAddAction_(report, 'settings', KSP_SHEET_NAMES.SETTINGS, 'upserted', settingsResult);
 
-    kspEnsureTriggers(environment, kspGetTriggerRegistry(config), report);
+    kspEnsureTriggers_(environment, kspGetTriggerRegistry_(config), report);
 
-    var storedState = kspBuildStoredInstallationState(config, resources, nowIso);
+    var storedState = kspBuildStoredInstallationState_(config, resources, nowIso);
     environment.setProperty(
       KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON,
       JSON.stringify(storedState)
     );
     environment.deleteProperty(KSP_PROPERTY_KEYS.BOOTSTRAP_CONFIG_JSON);
-    kspAddAction(report, 'state', KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON, 'saved', {
+    kspAddAction_(report, 'state', KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON, 'saved', {
       schemaVersion: KSP_SCHEMA_VERSION
     });
 
-    kspFinalizeReport(report, environment.nowIso());
+    kspFinalizeReport_(report, environment.nowIso());
     environment.setProperty(KSP_PROPERTY_KEYS.LAST_SETUP_REPORT_JSON, JSON.stringify(report));
     return report;
   } catch (error) {
-    kspAddError(report, kspGetErrorCode(error), error.message || String(error), {
-      stack: kspStringifyError(error)
+    kspAddError_(report, kspGetErrorCode_(error), error.message || String(error), {
+      stack: kspStringifyError_(error)
     });
-    kspFinalizeReport(report, environment.nowIso());
+    kspFinalizeReport_(report, environment.nowIso());
     try {
       environment.setProperty(KSP_PROPERTY_KEYS.LAST_SETUP_REPORT_JSON, JSON.stringify(report));
     } catch (ignored) {
@@ -85,45 +85,45 @@ function kspRunSetup(environment) {
   }
 }
 
-function kspResolveAllResources(environment, storedResources, config, report) {
-  var resources = kspDeepClone(storedResources || {});
+function kspResolveAllResources_(environment, storedResources, config, report) {
+  var resources = kspDeepClone_(storedResources || {});
 
-  var knowledgeRoot = kspResolveResource(environment, resources, report, {
+  var knowledgeRoot = kspResolveResource_(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT,
     parentId: config.knowledgeParentFolderId,
     name: KSP_RESOURCE_NAMES.KNOWLEDGE_ROOT,
     mimeType: KSP_MIME_TYPES.FOLDER
   });
 
-  kspResolveResource(environment, resources, report, {
+  kspResolveResource_(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.MEETING_RECORDS,
     parentId: knowledgeRoot.id,
     name: KSP_RESOURCE_NAMES.MEETING_RECORDS,
     mimeType: KSP_MIME_TYPES.FOLDER
   });
 
-  kspResolveResource(environment, resources, report, {
+  kspResolveResource_(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.PITCHBOOKS,
     parentId: knowledgeRoot.id,
     name: KSP_RESOURCE_NAMES.PITCHBOOKS,
     mimeType: KSP_MIME_TYPES.FOLDER
   });
 
-  kspResolveResource(environment, resources, report, {
+  kspResolveResource_(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS,
     parentId: config.knowledgeParentFolderId,
     name: KSP_RESOURCE_NAMES.KNOWLEDGE_EXPORTS,
     mimeType: KSP_MIME_TYPES.FOLDER
   });
 
-  kspResolveResource(environment, resources, report, {
+  kspResolveResource_(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET,
     parentId: config.controlFolderId,
     name: KSP_RESOURCE_NAMES.BACKEND_SPREADSHEET,
     mimeType: KSP_MIME_TYPES.SPREADSHEET
   });
 
-  kspResolveResource(environment, resources, report, {
+  kspResolveResource_(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET,
     parentId: config.controlFolderId,
     name: KSP_RESOURCE_NAMES.AUDIT_SPREADSHEET,
@@ -133,21 +133,21 @@ function kspResolveAllResources(environment, storedResources, config, report) {
   return resources;
 }
 
-function kspResolveResource(environment, resources, report, specification) {
+function kspResolveResource_(environment, resources, report, specification) {
   var storedId = resources[specification.key];
   var resource;
 
   if (storedId) {
     resource = environment.getResource(storedId);
-    kspAssert(resource, 'STORED_RESOURCE_NOT_FOUND',
+    kspAssert_(resource, 'STORED_RESOURCE_NOT_FOUND',
       'Stored resource is not accessible: ' + specification.key + ' (' + storedId + ').');
-    kspAssert(resource.mimeType === specification.mimeType, 'STORED_RESOURCE_TYPE_MISMATCH',
+    kspAssert_(resource.mimeType === specification.mimeType, 'STORED_RESOURCE_TYPE_MISMATCH',
       'Stored resource has the wrong MIME type: ' + specification.key + '.');
-    kspAssert((resource.parents || []).indexOf(specification.parentId) !== -1,
+    kspAssert_((resource.parents || []).indexOf(specification.parentId) !== -1,
       'STORED_RESOURCE_PARENT_MISMATCH',
       'Stored resource is outside the configured parent boundary: ' + specification.key + '.');
     if (resource.name !== specification.name) {
-      kspAddWarning(report, 'STORED_RESOURCE_RENAMED',
+      kspAddWarning_(report, 'STORED_RESOURCE_RENAMED',
         'Stored resource name differs from the accepted default; the stored ID remains authoritative.', {
           key: specification.key,
           expectedName: specification.name,
@@ -155,7 +155,7 @@ function kspResolveResource(environment, resources, report, specification) {
           id: resource.id
         });
     }
-    kspAddAction(report, 'resource', specification.key, 'reused', {
+    kspAddAction_(report, 'resource', specification.key, 'reused', {
       id: resource.id,
       name: resource.name,
       source: 'stored-id'
@@ -169,25 +169,25 @@ function kspResolveResource(environment, resources, report, specification) {
     specification.mimeType
   );
 
-  kspAssert(matches.length <= 1, 'DUPLICATE_RESOURCE_CANDIDATES',
+  kspAssert_(matches.length <= 1, 'DUPLICATE_RESOURCE_CANDIDATES',
     'Multiple exact-name resources found for ' + specification.name + '.');
 
   if (matches.length === 1) {
     resource = matches[0];
-    kspAddAction(report, 'resource', specification.key, 'reused', {
+    kspAddAction_(report, 'resource', specification.key, 'reused', {
       id: resource.id,
       name: resource.name,
       source: 'exact-name'
     });
   } else if (specification.mimeType === KSP_MIME_TYPES.FOLDER) {
     resource = environment.createFolder(specification.parentId, specification.name);
-    kspAddAction(report, 'resource', specification.key, 'created', {
+    kspAddAction_(report, 'resource', specification.key, 'created', {
       id: resource.id,
       name: resource.name
     });
   } else if (specification.mimeType === KSP_MIME_TYPES.SPREADSHEET) {
     resource = environment.createSpreadsheet(specification.parentId, specification.name);
-    kspAddAction(report, 'resource', specification.key, 'created', {
+    kspAddAction_(report, 'resource', specification.key, 'created', {
       id: resource.id,
       name: resource.name
     });
@@ -199,23 +199,46 @@ function kspResolveResource(environment, resources, report, specification) {
   return resource;
 }
 
-function kspEnsureSpreadsheetSchemas(environment, spreadsheetId, schemas, category, report) {
+function kspEnsureSpreadsheetSchemas_(environment, spreadsheetId, schemas, category, report) {
   Object.keys(schemas).forEach(function (sheetName) {
     var result = environment.ensureSheet(spreadsheetId, sheetName, schemas[sheetName]);
-    kspAddAction(report, 'schema', category + ':' + sheetName, result.action, result);
+    kspAddAction_(report, 'schema', category + ':' + sheetName, result.action, result);
   });
 }
 
-function kspEnsureTriggers(environment, registry, report) {
+function kspEnsureTriggers_(environment, registry, report) {
   var existingTriggers = environment.listTriggers();
 
   registry.forEach(function (rule) {
+    var legacyHandlers = rule.legacyHandlers || [];
+    var legacyMatches = existingTriggers.filter(function (trigger) {
+      return trigger.eventType === rule.eventType && legacyHandlers.indexOf(trigger.handler) !== -1;
+    });
+    legacyMatches.forEach(function (trigger) {
+      kspAssert_(typeof environment.deleteTrigger === 'function', 'TRIGGER_MIGRATION_UNSUPPORTED',
+        'Trigger migration requires a deleteTrigger adapter.');
+      kspAssert_(trigger.id, 'TRIGGER_MIGRATION_ID_MISSING',
+        'Legacy trigger migration requires a trigger ID.');
+      environment.deleteTrigger(trigger.id);
+      kspAddAction_(report, 'trigger', rule.key, 'migrated', {
+        removedHandler: trigger.handler,
+        replacementHandler: rule.handler,
+        eventType: rule.eventType,
+        id: trigger.id
+      });
+    });
+    if (legacyMatches.length) {
+      existingTriggers = existingTriggers.filter(function (trigger) {
+        return legacyMatches.indexOf(trigger) === -1;
+      });
+    }
+
     if (!rule.enabled) {
-      kspAddAction(report, 'trigger', rule.key, 'skipped', { reason: 'disabled' });
+      kspAddAction_(report, 'trigger', rule.key, 'skipped', { reason: 'disabled' });
       return;
     }
 
-    kspAssert(rule.available !== false, 'TRIGGER_HANDLER_NOT_AVAILABLE',
+    kspAssert_(rule.available !== false, 'TRIGGER_HANDLER_NOT_AVAILABLE',
       'Trigger handler is not implemented in the current application version: ' + rule.handler + '.');
 
     var matches = existingTriggers.filter(function (trigger) {
@@ -223,13 +246,13 @@ function kspEnsureTriggers(environment, registry, report) {
     });
 
     if (matches.length > 0) {
-      kspAddAction(report, 'trigger', rule.key, 'reused', {
+      kspAddAction_(report, 'trigger', rule.key, 'reused', {
         count: matches.length,
         handler: rule.handler,
         eventType: rule.eventType
       });
       if (matches.length > 1) {
-        kspAddWarning(report, 'DUPLICATE_EXISTING_TRIGGERS',
+        kspAddWarning_(report, 'DUPLICATE_EXISTING_TRIGGERS',
           'Multiple matching triggers already exist; setup did not create another trigger.', {
             key: rule.key,
             count: matches.length
@@ -240,7 +263,7 @@ function kspEnsureTriggers(environment, registry, report) {
 
     var created = environment.createClockTrigger(rule.handler, rule.intervalMinutes);
     existingTriggers.push(created);
-    kspAddAction(report, 'trigger', rule.key, 'created', {
+    kspAddAction_(report, 'trigger', rule.key, 'created', {
       handler: rule.handler,
       eventType: rule.eventType,
       intervalMinutes: rule.intervalMinutes,
@@ -248,17 +271,17 @@ function kspEnsureTriggers(environment, registry, report) {
     });
   });
 }
-function kspRunValidation(environment) {
-  var report = kspCreateReport('VALIDATE', environment.nowIso());
+function kspRunValidation_(environment) {
+  var report = kspCreateReport_('VALIDATE', environment.nowIso());
 
   try {
-    var state = kspLoadInstallationState(environment);
-    kspAssert(state && state.config && state.resources, 'INSTALLATION_STATE_MISSING',
-      'Installation state is missing. Run setupKnowledgePlatform() first.');
+    var state = kspLoadInstallationState_(environment);
+    kspAssert_(state && state.config && state.resources, 'INSTALLATION_STATE_MISSING',
+      'Installation state is missing. Run setupKnowledgePlatform_() first.');
 
-    var config = kspNormalizeAndValidateConfig(state.config);
+    var config = kspNormalizeAndValidateConfig_(state.config);
     report.environment = config.environment;
-    report.resources = kspDeepClone(state.resources);
+    report.resources = kspDeepClone_(state.resources);
 
     var resourceChecks = [
       [KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT, KSP_MIME_TYPES.FOLDER],
@@ -271,12 +294,12 @@ function kspRunValidation(environment) {
 
     resourceChecks.forEach(function (check) {
       var id = state.resources[check[0]];
-      kspAssert(id, 'RESOURCE_ID_MISSING', 'Missing stored resource ID: ' + check[0]);
+      kspAssert_(id, 'RESOURCE_ID_MISSING', 'Missing stored resource ID: ' + check[0]);
       var resource = environment.getResource(id);
-      kspAssert(resource, 'RESOURCE_NOT_ACCESSIBLE', 'Resource is not accessible: ' + check[0]);
-      kspAssert(resource.mimeType === check[1], 'RESOURCE_TYPE_MISMATCH',
+      kspAssert_(resource, 'RESOURCE_NOT_ACCESSIBLE', 'Resource is not accessible: ' + check[0]);
+      kspAssert_(resource.mimeType === check[1], 'RESOURCE_TYPE_MISMATCH',
         'Resource has unexpected MIME type: ' + check[0]);
-      kspAddAction(report, 'validation', check[0], 'passed', { id: id });
+      kspAddAction_(report, 'validation', check[0], 'passed', { id: id });
     });
 
     var parentChecks = [
@@ -289,22 +312,22 @@ function kspRunValidation(environment) {
     ];
     parentChecks.forEach(function (check) {
       var resource = environment.getResource(state.resources[check[0]]);
-      kspAssert((resource.parents || []).indexOf(check[1]) !== -1,
+      kspAssert_((resource.parents || []).indexOf(check[1]) !== -1,
         'RESOURCE_PARENT_MISMATCH', 'Resource is outside the configured parent boundary: ' + check[0]);
-      kspAddAction(report, 'validation', check[0] + ':parent', 'passed', { parentId: check[1] });
+      kspAddAction_(report, 'validation', check[0] + ':parent', 'passed', { parentId: check[1] });
     });
 
-    kspValidateSchemas(
+    kspValidateSchemas_(
       environment,
       state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
-      kspGetBackendSchemas(),
+      kspGetBackendSchemas_(),
       'backend',
       report
     );
-    kspValidateSchemas(
+    kspValidateSchemas_(
       environment,
       state.resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET],
-      kspGetAuditSchema(),
+      kspGetAuditSchema_(),
       'audit',
       report
     );
@@ -320,18 +343,18 @@ function kspRunValidation(environment) {
       'Option_ID'
     );
 
-    kspGetGpSeedDefinitions().forEach(function (seed) {
-      kspAssert(gpIds.indexOf(seed[0]) !== -1, 'GP_SEED_MISSING', 'Missing GP seed: ' + seed[0]);
+    kspGetGpSeedDefinitions_().forEach(function (seed) {
+      kspAssert_(gpIds.indexOf(seed[0]) !== -1, 'GP_SEED_MISSING', 'Missing GP seed: ' + seed[0]);
     });
-    kspGetOptionSeedDefinitions().forEach(function (seed) {
-      kspAssert(optionIds.indexOf(seed[0]) !== -1, 'OPTION_SEED_MISSING', 'Missing Option seed: ' + seed[0]);
+    kspGetOptionSeedDefinitions_().forEach(function (seed) {
+      kspAssert_(optionIds.indexOf(seed[0]) !== -1, 'OPTION_SEED_MISSING', 'Missing Option seed: ' + seed[0]);
     });
-    kspAddAction(report, 'validation', 'master-seeds', 'passed', {
-      gpSeedCount: kspGetGpSeedDefinitions().length,
-      optionSeedCount: kspGetOptionSeedDefinitions().length
+    kspAddAction_(report, 'validation', 'master-seeds', 'passed', {
+      gpSeedCount: kspGetGpSeedDefinitions_().length,
+      optionSeedCount: kspGetOptionSeedDefinitions_().length
     });
 
-    var triggerRegistry = kspGetTriggerRegistry(config);
+    var triggerRegistry = kspGetTriggerRegistry_(config);
     var existingTriggers = environment.listTriggers();
     triggerRegistry.forEach(function (rule) {
       if (!rule.enabled) {
@@ -340,36 +363,36 @@ function kspRunValidation(environment) {
       var found = existingTriggers.some(function (trigger) {
         return trigger.handler === rule.handler && trigger.eventType === rule.eventType;
       });
-      kspAssert(found, 'TRIGGER_MISSING', 'Required trigger is missing: ' + rule.key);
+      kspAssert_(found, 'TRIGGER_MISSING', 'Required trigger is missing: ' + rule.key);
     });
 
-    return kspFinalizeReport(report, environment.nowIso());
+    return kspFinalizeReport_(report, environment.nowIso());
   } catch (error) {
-    kspAddError(report, kspGetErrorCode(error), error.message || String(error), {
-      stack: kspStringifyError(error)
+    kspAddError_(report, kspGetErrorCode_(error), error.message || String(error), {
+      stack: kspStringifyError_(error)
     });
-    return kspFinalizeReport(report, environment.nowIso());
+    return kspFinalizeReport_(report, environment.nowIso());
   }
 }
 
-function kspValidateSchemas(environment, spreadsheetId, schemas, category, report) {
+function kspValidateSchemas_(environment, spreadsheetId, schemas, category, report) {
   Object.keys(schemas).forEach(function (sheetName) {
     var actualHeaders = environment.getSheetHeaders(spreadsheetId, sheetName);
     var missing = schemas[sheetName].filter(function (header) {
       return actualHeaders.indexOf(header) === -1;
     });
-    kspAssert(missing.length === 0, 'SCHEMA_COLUMNS_MISSING',
+    kspAssert_(missing.length === 0, 'SCHEMA_COLUMNS_MISSING',
       category + ':' + sheetName + ' is missing columns: ' + missing.join(', '));
-    kspAddAction(report, 'validation', category + ':' + sheetName, 'passed', {
+    kspAddAction_(report, 'validation', category + ':' + sheetName, 'passed', {
       columnCount: actualHeaders.length
     });
   });
 }
 
-function kspGetStatus(environment) {
+function kspGetStatus_(environment) {
   var state;
   try {
-    state = kspLoadInstallationState(environment);
+    state = kspLoadInstallationState_(environment);
   } catch (error) {
     return {
       installed: false,
@@ -387,11 +410,13 @@ function kspGetStatus(environment) {
   return {
     installed: Boolean(state && state.config && missingResourceKeys.length === 0),
     ok: true,
+    componentWorkId: state.componentWorkId || KSP_COMPONENT_WORK_ID,
+    releaseVersion: state.releaseVersion || state.appVersion || KSP_RELEASE_VERSION,
     appVersion: state.appVersion || null,
     schemaVersion: state.schemaVersion || null,
     environment: state.config ? state.config.environment : null,
     updatedAt: state.updatedAt || null,
-    resources: kspDeepClone(resources),
+    resources: kspDeepClone_(resources),
     missingResourceKeys: missingResourceKeys
   };
 }

@@ -1,29 +1,29 @@
-function kspCreateMeetingEnvironment() {
+function kspCreateMeetingEnvironment_() {
   var scriptProperties = PropertiesService.getScriptProperties();
   return {
     nowIso: function () { return new Date().toISOString(); },
     getInstallationState: function () {
       var raw = scriptProperties.getProperty(KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON);
-      return kspSafeParseJson(raw, KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON) || null;
+      return kspSafeParseJson_(raw, KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON) || null;
     },
     getActor: function () {
       var email = '';
       var temporaryUserKey = '';
       try { email = Session.getActiveUser().getEmail(); } catch (ignoredEmail) { email = ''; }
       try { temporaryUserKey = Session.getTemporaryActiveUserKey(); } catch (ignoredKey) { temporaryUserKey = ''; }
-      return kspResolveActorValue(email, temporaryUserKey);
+      return kspResolveActorValue_(email, temporaryUserKey);
     },
     readRows: function (spreadsheetId, sheetName) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
-      kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
-      var headers = kspReadHeadersFromSheet(sheet);
-      return kspReadObjectsFromSheet(sheet, headers);
+      kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+      var headers = kspReadHeadersFromSheet_(sheet);
+      return kspReadObjectsFromSheet_(sheet, headers);
     },
     getCounterValue: function (spreadsheetId, counterKey) {
-      var setting = kspFindSettingRow(spreadsheetId, counterKey);
+      var setting = kspFindSettingRow_(spreadsheetId, counterKey);
       var value = Number(setting.sheet.getRange(setting.rowIndex, setting.valueIndex + 1).getValue());
-      kspAssert(Number.isFinite(value) && value > 0 && Math.floor(value) === value,
+      kspAssert_(Number.isFinite(value) && value > 0 && Math.floor(value) === value,
         'COUNTER_VALUE_INVALID', 'Counter must be a positive integer: ' + counterKey);
       return value;
     },
@@ -35,9 +35,9 @@ function kspCreateMeetingEnvironment() {
         throw lockError;
       }
       try {
-        var setting = kspFindSettingRow(spreadsheetId, counterKey);
+        var setting = kspFindSettingRow_(spreadsheetId, counterKey);
         var currentValue = Number(setting.sheet.getRange(setting.rowIndex, setting.valueIndex + 1).getValue());
-        kspAssert(Number.isFinite(currentValue) && currentValue > 0 && Math.floor(currentValue) === currentValue,
+        kspAssert_(Number.isFinite(currentValue) && currentValue > 0 && Math.floor(currentValue) === currentValue,
           'COUNTER_VALUE_INVALID', 'Counter must be a positive integer: ' + counterKey);
         setting.sheet.getRange(setting.rowIndex, setting.valueIndex + 1).setValue(String(currentValue + 1));
         if (setting.updatedAtIndex !== -1) setting.sheet.getRange(setting.rowIndex, setting.updatedAtIndex + 1).setValue(nowIso);
@@ -47,12 +47,12 @@ function kspCreateMeetingEnvironment() {
     findRowByKey: function (spreadsheetId, sheetName, keyColumn, keyValue) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
-      kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
-      var headers = kspReadHeadersFromSheet(sheet);
-      var found = kspReadObjectsFromSheet(sheet, headers).filter(function (row) {
+      kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+      var headers = kspReadHeadersFromSheet_(sheet);
+      var found = kspReadObjectsFromSheet_(sheet, headers).filter(function (row) {
         return String(row[keyColumn]) === String(keyValue);
       });
-      kspAssert(found.length <= 1, 'DUPLICATE_KEY_ROWS', 'Multiple rows found for ' + keyColumn + ': ' + keyValue);
+      kspAssert_(found.length <= 1, 'DUPLICATE_KEY_ROWS', 'Multiple rows found for ' + keyColumn + ': ' + keyValue);
       return found.length === 1 ? found[0] : null;
     },
     createOrReuseDocument: function (parentFolderId, meetingId, filename, documentText) {
@@ -65,13 +65,13 @@ function kspCreateMeetingEnvironment() {
       var file;
       var reused = false;
       try {
-        var query = "'" + kspEscapeDriveQueryLiteral(parentFolderId) + "' in parents" +
-          " and trashed = false and name = '" + kspEscapeDriveQueryLiteral(filename) +
+        var query = "'" + kspEscapeDriveQueryLiteral_(parentFolderId) + "' in parents" +
+          " and trashed = false and name = '" + kspEscapeDriveQueryLiteral_(filename) +
           "' and mimeType = 'application/vnd.google-apps.document'";
         var response = Drive.Files.list({ q: query, spaces: 'drive', includeItemsFromAllDrives: true,
           supportsAllDrives: true, pageSize: 10, fields: 'files(id,name,webViewLink,parents)' });
         var matches = response.files || [];
-        kspAssert(matches.length <= 1, 'DUPLICATE_MEETING_DOCUMENTS', 'Multiple Meeting documents found for ' + meetingId + '.');
+        kspAssert_(matches.length <= 1, 'DUPLICATE_MEETING_DOCUMENTS', 'Multiple Meeting documents found for ' + meetingId + '.');
         if (matches.length === 1) {
           file = matches[0];
           reused = true;
@@ -104,12 +104,12 @@ function kspCreateMeetingEnvironment() {
       try {
         var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
         var sheet = spreadsheet.getSheetByName(sheetName);
-        kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
-        var headers = kspReadHeadersFromSheet(sheet);
-        var found = kspReadObjectsFromSheet(sheet, headers).filter(function (existing) {
+        kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+        var headers = kspReadHeadersFromSheet_(sheet);
+        var found = kspReadObjectsFromSheet_(sheet, headers).filter(function (existing) {
           return String(existing[keyColumn]) === String(row[keyColumn]);
         });
-        kspAssert(found.length <= 1, 'DUPLICATE_KEY_ROWS', 'Multiple rows found for ' + keyColumn + ': ' + row[keyColumn]);
+        kspAssert_(found.length <= 1, 'DUPLICATE_KEY_ROWS', 'Multiple rows found for ' + keyColumn + ': ' + row[keyColumn]);
         if (found.length === 1) return { inserted: false, row: found[0] };
         var values = headers.map(function (header) {
           var value = row[header];
@@ -122,8 +122,8 @@ function kspCreateMeetingEnvironment() {
     appendRow: function (spreadsheetId, sheetName, row) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
-      kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
-      var headers = kspReadHeadersFromSheet(sheet);
+      kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+      var headers = kspReadHeadersFromSheet_(sheet);
       var values = headers.map(function (header) {
         var value = row[header];
         return value === undefined || value === null ? '' : value;
@@ -134,20 +134,20 @@ function kspCreateMeetingEnvironment() {
   };
 }
 
-function kspFindSettingRow(spreadsheetId, counterKey) {
+function kspFindSettingRow_(spreadsheetId, counterKey) {
   var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
   var sheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.SETTINGS);
-  kspAssert(sheet, 'SETTINGS_SHEET_NOT_FOUND', 'Settings sheet not found.');
-  var headers = kspReadHeadersFromSheet(sheet);
+  kspAssert_(sheet, 'SETTINGS_SHEET_NOT_FOUND', 'Settings sheet not found.');
+  var headers = kspReadHeadersFromSheet_(sheet);
   var keyIndex = headers.indexOf('Key');
   var valueIndex = headers.indexOf('Value');
   var updatedAtIndex = headers.indexOf('Updated_At');
-  kspAssert(keyIndex !== -1 && valueIndex !== -1, 'SETTINGS_SCHEMA_INVALID', 'Settings sheet must include Key and Value columns.');
-  var rows = kspReadObjectsFromSheet(sheet, headers);
+  kspAssert_(keyIndex !== -1 && valueIndex !== -1, 'SETTINGS_SCHEMA_INVALID', 'Settings sheet must include Key and Value columns.');
+  var rows = kspReadObjectsFromSheet_(sheet, headers);
   var rowIndex = -1;
   for (var index = 0; index < rows.length; index += 1) {
     if (String(rows[index].Key) === String(counterKey)) { rowIndex = index + 2; break; }
   }
-  kspAssert(rowIndex !== -1, 'COUNTER_NOT_FOUND', 'Counter setting not found: ' + counterKey);
+  kspAssert_(rowIndex !== -1, 'COUNTER_NOT_FOUND', 'Counter setting not found: ' + counterKey);
   return { sheet: sheet, rowIndex: rowIndex, valueIndex: valueIndex, updatedAtIndex: updatedAtIndex };
 }

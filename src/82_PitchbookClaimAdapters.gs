@@ -1,4 +1,4 @@
-function kspAttachPitchbookClaimAdapters(meetingEnvironment, scriptProperties) {
+function kspAttachPitchbookClaimAdapters_(meetingEnvironment, scriptProperties) {
   meetingEnvironment.claimPitchbookUpload = function (batchId, documentId, nowIso) {
     var lock = LockService.getScriptLock();
     if (!lock.tryLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS)) {
@@ -7,11 +7,11 @@ function kspAttachPitchbookClaimAdapters(meetingEnvironment, scriptProperties) {
       throw lockError;
     }
     try {
-      var key = kspPitchbookReservationKey(batchId);
-      var reservation = kspSafeParseJson(scriptProperties.getProperty(key), key);
-      kspAssert(reservation, 'PITCHBOOK_RESERVATION_NOT_FOUND', 'Batch reservationが見つかりません。');
-      var file = kspFindPitchbookReservationFile(reservation, documentId);
-      kspAssert(file, 'PITCHBOOK_RESERVATION_FILE_NOT_FOUND', 'Document reservationが見つかりません。');
+      var key = kspPitchbookReservationKey_(batchId);
+      var reservation = kspSafeParseJson_(scriptProperties.getProperty(key), key);
+      kspAssert_(reservation, 'PITCHBOOK_RESERVATION_NOT_FOUND', 'Batch reservationが見つかりません。');
+      var file = kspFindPitchbookReservationFile_(reservation, documentId);
+      kspAssert_(file, 'PITCHBOOK_RESERVATION_FILE_NOT_FOUND', 'Document reservationが見つかりません。');
       if (file.fileId) {
         return { claimToken: '', fileInfo: { id: file.fileId, url: file.fileUrl || '', reused: true } };
       }
@@ -35,7 +35,7 @@ function kspAttachPitchbookClaimAdapters(meetingEnvironment, scriptProperties) {
   };
 
   meetingEnvironment.completePitchbookUploadClaim = function (batchId, documentId, claimToken, fileInfo, nowIso) {
-    kspUpdatePitchbookReservationClaim(scriptProperties, batchId, documentId, claimToken, function (file) {
+    kspUpdatePitchbookReservationClaim_(scriptProperties, batchId, documentId, claimToken, function (file) {
       file.uploadState = 'UPLOADED';
       file.claimToken = '';
       file.claimedAt = nowIso;
@@ -45,7 +45,7 @@ function kspAttachPitchbookClaimAdapters(meetingEnvironment, scriptProperties) {
   };
 
   meetingEnvironment.releasePitchbookUploadClaim = function (batchId, documentId, claimToken, errorMessage, nowIso) {
-    kspUpdatePitchbookReservationClaim(scriptProperties, batchId, documentId, claimToken, function (file) {
+    kspUpdatePitchbookReservationClaim_(scriptProperties, batchId, documentId, claimToken, function (file) {
       file.uploadState = 'FAILED';
       file.claimToken = '';
       file.claimedAt = nowIso;
@@ -55,7 +55,7 @@ function kspAttachPitchbookClaimAdapters(meetingEnvironment, scriptProperties) {
 
 }
 
-function kspUpdatePitchbookReservationClaim(scriptProperties, batchId, documentId, claimToken, updater) {
+function kspUpdatePitchbookReservationClaim_(scriptProperties, batchId, documentId, claimToken, updater) {
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS)) {
     var lockError = new Error('Could not acquire the Pitchbook reservation update lock.');
@@ -63,13 +63,13 @@ function kspUpdatePitchbookReservationClaim(scriptProperties, batchId, documentI
     throw lockError;
   }
   try {
-    var key = kspPitchbookReservationKey(batchId);
-    var reservation = kspSafeParseJson(scriptProperties.getProperty(key), key);
-    kspAssert(reservation, 'PITCHBOOK_RESERVATION_NOT_FOUND', 'Batch reservationが見つかりません。');
-    var file = kspFindPitchbookReservationFile(reservation, documentId);
-    kspAssert(file, 'PITCHBOOK_RESERVATION_FILE_NOT_FOUND', 'Document reservationが見つかりません。');
+    var key = kspPitchbookReservationKey_(batchId);
+    var reservation = kspSafeParseJson_(scriptProperties.getProperty(key), key);
+    kspAssert_(reservation, 'PITCHBOOK_RESERVATION_NOT_FOUND', 'Batch reservationが見つかりません。');
+    var file = kspFindPitchbookReservationFile_(reservation, documentId);
+    kspAssert_(file, 'PITCHBOOK_RESERVATION_FILE_NOT_FOUND', 'Document reservationが見つかりません。');
     if (claimToken) {
-      kspAssert(String(file.claimToken || '') === String(claimToken), 'PITCHBOOK_UPLOAD_CLAIM_CONFLICT',
+      kspAssert_(String(file.claimToken || '') === String(claimToken), 'PITCHBOOK_UPLOAD_CLAIM_CONFLICT',
         'Upload claimが一致しません。');
     }
     updater(file);

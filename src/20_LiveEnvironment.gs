@@ -1,4 +1,4 @@
-function kspCreateAppsScriptEnvironment() {
+function kspCreateAppsScriptEnvironment_() {
   var scriptProperties = PropertiesService.getScriptProperties();
 
   return {
@@ -53,10 +53,10 @@ function kspCreateAppsScriptEnvironment() {
     },
 
     findChildren: function (parentId, name, mimeType) {
-      var query = "'" + kspEscapeDriveQueryLiteral(parentId) + "' in parents" +
+      var query = "'" + kspEscapeDriveQueryLiteral_(parentId) + "' in parents" +
         " and trashed = false" +
-        " and name = '" + kspEscapeDriveQueryLiteral(name) + "'" +
-        " and mimeType = '" + kspEscapeDriveQueryLiteral(mimeType) + "'";
+        " and name = '" + kspEscapeDriveQueryLiteral_(name) + "'" +
+        " and mimeType = '" + kspEscapeDriveQueryLiteral_(mimeType) + "'";
       var response = Drive.Files.list({
         q: query,
         spaces: 'drive',
@@ -114,7 +114,7 @@ function kspCreateAppsScriptEnvironment() {
       var sheet = spreadsheet.getSheetByName(sheetName);
       var created = false;
       if (!sheet) {
-        var disposableDefault = kspFindDisposableDefaultSheet(spreadsheet);
+        var disposableDefault = kspFindDisposableDefaultSheet_(spreadsheet);
         if (disposableDefault) {
           disposableDefault.setName(sheetName);
           sheet = disposableDefault;
@@ -124,8 +124,8 @@ function kspCreateAppsScriptEnvironment() {
         created = true;
       }
 
-      var actualHeaders = kspReadHeadersFromSheet(sheet);
-      kspAssert(kspUniqueStrings(actualHeaders).length === actualHeaders.length,
+      var actualHeaders = kspReadHeadersFromSheet_(sheet);
+      kspAssert_(kspUniqueStrings_(actualHeaders).length === actualHeaders.length,
         'DUPLICATE_SHEET_HEADERS', 'Duplicate headers found in ' + sheetName + '.');
 
       if (actualHeaders.length === 0) {
@@ -154,9 +154,9 @@ function kspCreateAppsScriptEnvironment() {
     insertMissingRows: function (spreadsheetId, sheetName, keyColumn, rows) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
-      kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
-      var headers = kspReadHeadersFromSheet(sheet);
-      var existingRows = kspReadObjectsFromSheet(sheet, headers);
+      kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+      var headers = kspReadHeadersFromSheet_(sheet);
+      var existingRows = kspReadObjectsFromSheet_(sheet, headers);
       var existingKeys = {};
       existingRows.forEach(function (row) {
         existingKeys[String(row[keyColumn])] = true;
@@ -164,16 +164,16 @@ function kspCreateAppsScriptEnvironment() {
       var missingRows = rows.filter(function (row) {
         return !existingKeys[String(row[keyColumn])];
       });
-      kspAppendObjectsToSheet(sheet, headers, missingRows);
+      kspAppendObjectsToSheet_(sheet, headers, missingRows);
       return { inserted: missingRows.length, skipped: rows.length - missingRows.length };
     },
 
     upsertRows: function (spreadsheetId, sheetName, keyColumn, rows, options) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
-      kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
-      var headers = kspReadHeadersFromSheet(sheet);
-      var existingRows = kspReadObjectsFromSheet(sheet, headers);
+      kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+      var headers = kspReadHeadersFromSheet_(sheet);
+      var existingRows = kspReadObjectsFromSheet_(sheet, headers);
       var rowIndexByKey = {};
       existingRows.forEach(function (row, index) {
         rowIndexByKey[String(row[keyColumn])] = index + 2;
@@ -222,20 +222,28 @@ function kspCreateAppsScriptEnvironment() {
       };
     },
 
+    deleteTrigger: function (triggerId) {
+      var trigger = ScriptApp.getProjectTriggers().filter(function (candidate) {
+        return candidate.getUniqueId() === String(triggerId);
+      })[0];
+      kspAssert_(trigger, 'TRIGGER_NOT_FOUND', 'Trigger is not accessible for migration.');
+      ScriptApp.deleteTrigger(trigger);
+    },
+
     getSheetHeaders: function (spreadsheetId, sheetName) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
-      kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
-      return kspReadHeadersFromSheet(sheet);
+      kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+      return kspReadHeadersFromSheet_(sheet);
     },
 
     getColumnValues: function (spreadsheetId, sheetName, columnName) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
-      kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
-      var headers = kspReadHeadersFromSheet(sheet);
+      kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+      var headers = kspReadHeadersFromSheet_(sheet);
       var columnIndex = headers.indexOf(columnName);
-      kspAssert(columnIndex !== -1, 'COLUMN_NOT_FOUND', 'Column not found: ' + columnName);
+      kspAssert_(columnIndex !== -1, 'COLUMN_NOT_FOUND', 'Column not found: ' + columnName);
       var lastRow = sheet.getLastRow();
       if (lastRow < 2) {
         return [];
@@ -247,7 +255,7 @@ function kspCreateAppsScriptEnvironment() {
   };
 }
 
-function kspReadHeadersFromSheet(sheet) {
+function kspReadHeadersFromSheet_(sheet) {
   var lastColumn = sheet.getLastColumn();
   if (lastColumn < 1 || sheet.getLastRow() < 1) {
     return [];
@@ -257,7 +265,7 @@ function kspReadHeadersFromSheet(sheet) {
     .filter(function (value) { return value !== ''; });
 }
 
-function kspReadObjectsFromSheet(sheet, headers) {
+function kspReadObjectsFromSheet_(sheet, headers) {
   var lastRow = sheet.getLastRow();
   if (lastRow < 2 || headers.length === 0) {
     return [];
@@ -271,7 +279,7 @@ function kspReadObjectsFromSheet(sheet, headers) {
   });
 }
 
-function kspAppendObjectsToSheet(sheet, headers, rows) {
+function kspAppendObjectsToSheet_(sheet, headers, rows) {
   if (!rows || rows.length === 0) {
     return;
   }
@@ -283,7 +291,7 @@ function kspAppendObjectsToSheet(sheet, headers, rows) {
   sheet.getRange(sheet.getLastRow() + 1, 1, values.length, headers.length).setValues(values);
 }
 
-function kspFindDisposableDefaultSheet(spreadsheet) {
+function kspFindDisposableDefaultSheet_(spreadsheet) {
   var sheets = spreadsheet.getSheets();
   if (sheets.length !== 1) {
     return null;

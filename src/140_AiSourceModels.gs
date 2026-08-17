@@ -1,4 +1,4 @@
-function kspBuildAiMasterMaps(gpRows, optionRows) {
+function kspBuildAiMasterMaps_(gpRows, optionRows) {
   var maps = { gps: {}, assetClasses: {}, capitalTypes: {} };
   (gpRows || []).forEach(function (row) {
     if (row && row.GP_ID) maps.gps[String(row.GP_ID)] = String(row.GP_Name || row.GP_ID);
@@ -13,13 +13,13 @@ function kspBuildAiMasterMaps(gpRows, optionRows) {
   return maps;
 }
 
-function kspAiSourceKey(sourceType, sourceId) {
+function kspAiSourceKey_(sourceType, sourceId) {
   return String(sourceType) + ':' + String(sourceId);
 }
 
-function kspBuildMeetingAiSource(row, maps, text, contentHash) {
-  kspAssert(row && row.Meeting_ID, 'AI_MEETING_ROW_INVALID', 'Meeting row is invalid.');
-  kspAssert(row.Doc_File_ID, 'AI_MEETING_DOC_MISSING', 'Meeting Google Doc is missing.');
+function kspBuildMeetingAiSource_(row, maps, text, contentHash) {
+  kspAssert_(row && row.Meeting_ID, 'AI_MEETING_ROW_INVALID', 'Meeting row is invalid.');
+  kspAssert_(row.Doc_File_ID, 'AI_MEETING_DOC_MISSING', 'Meeting Google Doc is missing.');
   return {
     sourceType: KSP_AI_SOURCE_TYPES.MEETING,
     sourceId: String(row.Meeting_ID),
@@ -39,17 +39,17 @@ function kspBuildMeetingAiSource(row, maps, text, contentHash) {
   };
 }
 
-function kspGetPitchbookExtensionForAi(row) {
+function kspGetPitchbookExtensionForAi_(row) {
   var name = String((row && (row.Saved_Filename || row.Original_Filename)) || '');
   var match = /\.([^.]+)$/.exec(name);
   return match ? match[1].toLowerCase() : '';
 }
 
-function kspBuildPitchbookAiSource(row, maps, text, contentHash) {
-  kspAssert(row && row.Document_ID, 'AI_PITCHBOOK_ROW_INVALID', 'Pitchbook row is invalid.');
-  kspAssert(row.File_ID, 'AI_PITCHBOOK_FILE_MISSING', 'Pitchbook source file is missing.');
-  var extension = kspGetPitchbookExtensionForAi(row);
-  kspAssert(extension === 'txt', 'AI_FORMAT_DEFERRED_TO_WORK_0009',
+function kspBuildPitchbookAiSource_(row, maps, text, contentHash) {
+  kspAssert_(row && row.Document_ID, 'AI_PITCHBOOK_ROW_INVALID', 'Pitchbook row is invalid.');
+  kspAssert_(row.File_ID, 'AI_PITCHBOOK_FILE_MISSING', 'Pitchbook source file is missing.');
+  var extension = kspGetPitchbookExtensionForAi_(row);
+  kspAssert_(extension === 'txt', 'AI_FORMAT_DEFERRED_TO_WORK_0009',
     'Work 0008 indexes Meeting text and TXT sources only.');
   return {
     sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
@@ -70,7 +70,7 @@ function kspBuildPitchbookAiSource(row, maps, text, contentHash) {
   };
 }
 
-function kspAiWorkItemFromRow(sourceType, row) {
+function kspAiWorkItemFromRow_(sourceType, row) {
   return {
     sourceType: sourceType,
     sourceId: sourceType === KSP_AI_SOURCE_TYPES.MEETING ? String(row.Meeting_ID || '') : String(row.Document_ID || ''),
@@ -78,7 +78,7 @@ function kspAiWorkItemFromRow(sourceType, row) {
   };
 }
 
-function kspIsAiWorkEligible(item, nowIso, settings) {
+function kspIsAiWorkEligible_(item, nowIso, settings) {
   var row = item.row || {};
   var sourceStatus = String(row.Status || '');
   var aiStatus = String(row.AI_Index_Status || KSP_AI_INDEX_STATUS.NOT_INDEXED);
@@ -89,20 +89,20 @@ function kspIsAiWorkEligible(item, nowIso, settings) {
   if (aiStatus === KSP_AI_INDEX_STATUS.PENDING) return true;
   if (aiStatus === KSP_AI_INDEX_STATUS.INDEXED && !row.AI_Document_Name) return true;
   if (aiStatus !== KSP_AI_INDEX_STATUS.FAILED) return false;
-  var lastError = kspParseAiLastError(row.AI_Last_Error);
+  var lastError = kspParseAiLastError_(row.AI_Last_Error);
   if (lastError.permanent || !lastError.retryable || lastError.attempt >= settings.maxRetryAttempts) return false;
   return !lastError.nextAttemptAt || lastError.nextAttemptAt <= nowIso;
 }
 
-function kspSelectAiWorkItems(meetingRows, pitchbookRows, nowIso, settings) {
+function kspSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
   var items = [];
   (meetingRows || []).forEach(function (row) {
-    var item = kspAiWorkItemFromRow(KSP_AI_SOURCE_TYPES.MEETING, row);
-    if (kspIsAiWorkEligible(item, nowIso, settings)) items.push(item);
+    var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.MEETING, row);
+    if (kspIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
   });
   (pitchbookRows || []).forEach(function (row) {
-    var item = kspAiWorkItemFromRow(KSP_AI_SOURCE_TYPES.PITCHBOOK, row);
-    if (kspIsAiWorkEligible(item, nowIso, settings)) items.push(item);
+    var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.PITCHBOOK, row);
+    if (kspIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
   });
   items.sort(function (left, right) {
     var leftInactive = String(left.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
@@ -111,19 +111,19 @@ function kspSelectAiWorkItems(meetingRows, pitchbookRows, nowIso, settings) {
     var leftTime = String(left.row.Updated_At || left.row.Created_At || '');
     var rightTime = String(right.row.Updated_At || right.row.Created_At || '');
     if (leftTime !== rightTime) return leftTime.localeCompare(rightTime);
-    return kspAiSourceKey(left.sourceType, left.sourceId).localeCompare(kspAiSourceKey(right.sourceType, right.sourceId));
+    return kspAiSourceKey_(left.sourceType, left.sourceId).localeCompare(kspAiSourceKey_(right.sourceType, right.sourceId));
   });
   return items.slice(0, settings.syncBatchSize);
 }
 
-function kspBuildAiSource(environment, item, maps) {
+function kspBuildAiSource_(environment, item, maps) {
   var row = item.row;
   var text;
   if (item.sourceType === KSP_AI_SOURCE_TYPES.MEETING) {
     text = environment.readMeetingText(String(row.Doc_File_ID || ''));
-    return kspBuildMeetingAiSource(row, maps, text, environment.hashText(text));
+    return kspBuildMeetingAiSource_(row, maps, text, environment.hashText(text));
   }
-  var extension = kspGetPitchbookExtensionForAi(row);
+  var extension = kspGetPitchbookExtensionForAi_(row);
   if (extension !== 'txt') {
     var unsupported = new Error('Work 0008 indexes Meeting text and TXT sources only.');
     unsupported.code = 'AI_FORMAT_DEFERRED_TO_WORK_0009';
@@ -132,5 +132,5 @@ function kspBuildAiSource(environment, item, maps) {
     throw unsupported;
   }
   text = environment.readTextFile(String(row.File_ID || ''));
-  return kspBuildPitchbookAiSource(row, maps, text, environment.hashText(text));
+  return kspBuildPitchbookAiSource_(row, maps, text, environment.hashText(text));
 }

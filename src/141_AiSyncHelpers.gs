@@ -1,4 +1,4 @@
-function kspBuildAiSyncReport(nowIso, settings) {
+function kspBuildAiSyncReport_(nowIso, settings) {
   return {
     workId: KSP_AI_WORK_ID,
     startedAt: nowIso,
@@ -18,13 +18,13 @@ function kspBuildAiSyncReport(nowIso, settings) {
   };
 }
 
-function kspAiDocumentMatchesSource(documentValue, sourceId, contentHash) {
+function kspAiDocumentMatchesSource_(documentValue, sourceId, contentHash) {
   var metadata = documentValue && documentValue.customMetadata ? documentValue.customMetadata : {};
   return String(metadata.source_id || '') === String(sourceId) &&
     String(metadata.content_hash || '') === String(contentHash);
 }
 
-function kspDeleteAiDocuments(environment, storeName, sourceId, storedDocumentName, documents) {
+function kspDeleteAiDocuments_(environment, storeName, sourceId, storedDocumentName, documents) {
   var names = {};
   if (storedDocumentName) names[String(storedDocumentName)] = true;
   (documents || []).forEach(function (documentValue) {
@@ -35,7 +35,7 @@ function kspDeleteAiDocuments(environment, storeName, sourceId, storedDocumentNa
   });
 }
 
-function kspApplyAiIndexedPatch(environment, item, documentValue, contentHash, nowIso) {
+function kspApplyAiIndexedPatch_(environment, item, documentValue, contentHash, nowIso) {
   environment.updateAiRow(item.sourceType, item.sourceId, {
     AI_Document_Name: String(documentValue.name || ''),
     AI_Index_Status: KSP_AI_INDEX_STATUS.INDEXED,
@@ -45,10 +45,10 @@ function kspApplyAiIndexedPatch(environment, item, documentValue, contentHash, n
   });
 }
 
-function kspProcessInactiveAiItem(environment, storeName, item, report) {
+function kspProcessInactiveAiItem_(environment, storeName, item, report) {
   var row = item.row || {};
   var documents = environment.findFileSearchDocumentsBySource(storeName, item.sourceId);
-  kspDeleteAiDocuments(environment, storeName, item.sourceId, row.AI_Document_Name, documents);
+  kspDeleteAiDocuments_(environment, storeName, item.sourceId, row.AI_Document_Name, documents);
   environment.updateAiRow(item.sourceType, item.sourceId, {
     AI_Document_Name: '',
     AI_Index_Status: KSP_AI_INDEX_STATUS.NOT_INDEXED,
@@ -60,17 +60,17 @@ function kspProcessInactiveAiItem(environment, storeName, item, report) {
   report.items.push({ sourceType: item.sourceType, sourceId: item.sourceId, action: 'removed' });
 }
 
-function kspProcessActiveAiItem(environment, storeName, item, maps, report, nowIso) {
+function kspProcessActiveAiItem_(environment, storeName, item, maps, report, nowIso) {
   var row = item.row || {};
-  if (item.sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK && kspGetPitchbookExtensionForAi(row) !== 'txt') {
+  if (item.sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK && kspGetPitchbookExtensionForAi_(row) !== 'txt') {
     var deferredDocuments = environment.findFileSearchDocumentsBySource(storeName, item.sourceId);
-    kspDeleteAiDocuments(environment, storeName, item.sourceId, row.AI_Document_Name, deferredDocuments);
+    kspDeleteAiDocuments_(environment, storeName, item.sourceId, row.AI_Document_Name, deferredDocuments);
     environment.updateAiRow(item.sourceType, item.sourceId, {
       AI_Document_Name: '',
       AI_Index_Status: KSP_AI_INDEX_STATUS.NOT_INDEXED,
       AI_Indexed_At: '',
       AI_Content_Hash: '',
-      AI_Last_Error: kspBuildAiLastError({
+      AI_Last_Error: kspBuildAiLastError_({
         attempt: 1,
         retryable: false,
         permanent: true,
@@ -82,7 +82,7 @@ function kspProcessActiveAiItem(environment, storeName, item, maps, report, nowI
     report.items.push({ sourceType: item.sourceType, sourceId: item.sourceId, action: 'deferred', code: 'AI_FORMAT_DEFERRED_TO_WORK_0009' });
     return;
   }
-  var source = kspBuildAiSource(environment, item, maps);
+  var source = kspBuildAiSource_(environment, item, maps);
   if (String(row.AI_Content_Hash || '') === source.contentHash && row.AI_Document_Name) {
     report.unchanged += 1;
     report.items.push({ sourceType: item.sourceType, sourceId: item.sourceId, action: 'unchanged' });
@@ -91,39 +91,39 @@ function kspProcessActiveAiItem(environment, storeName, item, maps, report, nowI
 
   var documents = environment.findFileSearchDocumentsBySource(storeName, item.sourceId);
   var matching = documents.filter(function (documentValue) {
-    return kspAiDocumentMatchesSource(documentValue, item.sourceId, source.contentHash);
+    return kspAiDocumentMatchesSource_(documentValue, item.sourceId, source.contentHash);
   });
   if (matching.length > 0) {
     var selected = matching[0];
     var extras = documents.filter(function (documentValue) { return documentValue.name !== selected.name; });
-    kspDeleteAiDocuments(environment, storeName, item.sourceId, '', extras);
-    kspApplyAiIndexedPatch(environment, item, selected, source.contentHash, nowIso);
+    kspDeleteAiDocuments_(environment, storeName, item.sourceId, '', extras);
+    kspApplyAiIndexedPatch_(environment, item, selected, source.contentHash, nowIso);
     report.reused += 1;
     report.items.push({ sourceType: item.sourceType, sourceId: item.sourceId, action: 'reconciled', documentName: selected.name });
     return;
   }
 
-  kspDeleteAiDocuments(environment, storeName, item.sourceId, row.AI_Document_Name, documents);
+  kspDeleteAiDocuments_(environment, storeName, item.sourceId, row.AI_Document_Name, documents);
   var uploaded = environment.uploadSourceToFileSearchStore(storeName, source);
-  kspAssert(uploaded && uploaded.name, 'AI_UPLOAD_DOCUMENT_MISSING', 'File Search upload did not return a Document.');
-  kspApplyAiIndexedPatch(environment, item, uploaded, source.contentHash, nowIso);
+  kspAssert_(uploaded && uploaded.name, 'AI_UPLOAD_DOCUMENT_MISSING', 'File Search upload did not return a Document.');
+  kspApplyAiIndexedPatch_(environment, item, uploaded, source.contentHash, nowIso);
   report.indexed += 1;
   report.items.push({ sourceType: item.sourceType, sourceId: item.sourceId, action: 'indexed', documentName: uploaded.name });
 }
 
-function kspRecordAiFailure(environment, item, error, settings, nowIso, report) {
-  var previous = kspParseAiLastError(item.row && item.row.AI_Last_Error);
+function kspRecordAiFailure_(environment, item, error, settings, nowIso, report) {
+  var previous = kspParseAiLastError_(item.row && item.row.AI_Last_Error);
   var attempt = previous.attempt + 1;
-  var retryable = kspIsAiErrorRetryable(error) && !error.permanent && attempt < settings.maxRetryAttempts;
+  var retryable = kspIsAiErrorRetryable_(error) && !error.permanent && attempt < settings.maxRetryAttempts;
   var permanent = Boolean(error.permanent) || !retryable;
-  var nextAttemptAt = retryable ? kspCalculateAiRetryAt(nowIso, attempt, settings) : '';
-  var code = kspGetErrorCode(error, 'AI_SYNC_FAILED');
+  var nextAttemptAt = retryable ? kspCalculateAiRetryAt_(nowIso, attempt, settings) : '';
+  var code = kspGetErrorCode_(error, 'AI_SYNC_FAILED');
   var patch = {
     AI_Document_Name: '',
     AI_Index_Status: KSP_AI_INDEX_STATUS.FAILED,
     AI_Indexed_At: '',
     AI_Content_Hash: '',
-    AI_Last_Error: kspBuildAiLastError({
+    AI_Last_Error: kspBuildAiLastError_({
       attempt: attempt,
       retryable: retryable,
       permanent: permanent,

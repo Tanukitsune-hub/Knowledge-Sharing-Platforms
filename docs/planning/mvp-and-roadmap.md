@@ -6,9 +6,11 @@
 
 蓄積・修正・運用管理、Gemini File Search retrieval、Knowledge Search 5モードは採用済み。採用済み事項を実装時に理由なく未決定へ戻さない。
 
+実装状況: Works 0004–0011は実装・マージ済み。Work 0012は公開surface、safe-error、Export資源上限、source link integrity、prompt readabilityのhardeningを完了した。release versionは`0.1.2`で、Work IDとは別に管理する。Work 0010–0011のDEV実機qualificationは未観測項目を残す。
+
 ## Phase 1 — Accumulation and maintenance
 
-Status: Accepted design, implementation not started.
+Status: Implemented and merged (Works 0004–0007); final DEV qualification evidence remains separate.
 
 採用済み:
 
@@ -38,7 +40,7 @@ Status: Accepted design, implementation not started.
 
 ## Phase 2 — Gemini knowledge retrieval
 
-Status: Accepted design, implementation not started.
+Status: Implemented and merged (Works 0008–0010); Gemini / Workspace live qualification remains environment-dependent.
 
 ```text
 Shared Drive authoritative records
@@ -132,8 +134,18 @@ All modes use the same retrieval / citation layer and must surface insufficient 
 - Work 0008: File Search thin slice + 自由質問
 - Work 0009: 15-minute sync + six formats + EML
 - Work 0010: four preset modes + production qualification
+- Work 0011: Gemini-independent Knowledge Export, external-AI prompt handoff, and setup migration
+- Work 0012: public-surface security hardening, safe errors, export bounds/link integrity, and deterministic regression enforcement
 
 Detailed scope / acceptance / routing: `docs/planning/apps-script-implementation-plan.md`
+
+## Knowledge Export / external-AI handoff
+
+Knowledge Export is a Gemini-independent derived-copy path. It resolves only Active Backend Index rows, includes full authoritative Meeting text, and includes Pitchbook metadata plus stable-ID-bound authoritative links without Pitchbook body duplication. Google Docs / PDF artifacts are created under `Knowledge Exports`.
+
+The server count-guards Meeting 50, Pitchbook 200, and Meeting text 250,000 characters. Count hard-stops occur before Meeting Doc reads. Prompt copies remain provider-neutral across all five modes and use Master display names with stable IDs. Audit stores export metadata only; prompt text, source bodies, answers, chunks, embeddings, and bytes are redacted.
+
+The derived `Knowledge Exports` folder requires a production permission-equivalence check and an explicit retention/deletion operating policy; automatic expiry and export-management UI remain out of scope.
 
 ## Accepted backend extensions for Phase 2
 
@@ -184,7 +196,7 @@ AI query audit includes:
 - Actor
 - timestamp
 - Search mode
-- question / additional instruction
+- mode and filter metadata; question / additional instruction text is redacted in the current implementation
 - Date From / To
 - GP / Asset Class / Equity-Debt / Source Type filters
 - configured model ID

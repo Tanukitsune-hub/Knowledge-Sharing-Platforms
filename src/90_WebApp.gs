@@ -16,78 +16,78 @@ function doGet(event) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }
 
-function include(filename) {
+function include_(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
 function getMeetingBootstrapData() {
-  return kspGetMeetingBootstrapData(kspCreateMeetingEnvironment());
+  return kspGetMeetingBootstrapData_(kspCreateMeetingEnvironment_());
 }
 
 function registerMeeting(input) {
-  return kspRegisterMeeting(kspCreateMeetingEnvironment(), input);
+  return kspRegisterMeeting_(kspCreateMeetingEnvironment_(), input);
 }
 
 function getPitchbookBootstrapData() {
-  return kspGetPitchbookBootstrapData(kspCreatePitchbookEnvironment());
+  return kspGetPitchbookBootstrapData_(kspCreatePitchbookEnvironment_());
 }
 
 function preparePitchbookBatch(input) {
-  return kspPreparePitchbookBatch(kspCreatePitchbookEnvironment(), input);
+  return kspPreparePitchbookBatch_(kspCreatePitchbookEnvironment_(), input);
 }
 
 function uploadPitchbookFile(input) {
-  return kspUploadPitchbookFile(kspCreatePitchbookEnvironment(), input);
+  return kspUploadPitchbookFile_(kspCreatePitchbookEnvironment_(), input);
 }
 
 function getPhase1MaintenanceBootstrapData() {
-  return kspGetPhase1MaintenanceBootstrap(kspCreateMaintenanceEnvironment());
+  return kspGetPhase1MaintenanceBootstrap_(kspCreateMaintenanceEnvironment_());
 }
 
 function searchMeetingRecords(input) {
-  return kspSearchMeetingRecords(kspCreateMaintenanceEnvironment(), input);
+  return kspSearchMeetingRecords_(kspCreateMaintenanceEnvironment_(), input);
 }
 
 function getMeetingMaintenanceRecord(meetingId) {
-  return kspGetMeetingMaintenanceRecord(kspCreateMaintenanceEnvironment(), meetingId);
+  return kspGetMeetingMaintenanceRecord_(kspCreateMaintenanceEnvironment_(), meetingId);
 }
 
 function updateMeetingMaintenance(input) {
-  return kspUpdateMeetingMaintenance(kspCreateMaintenanceEnvironment(), input);
+  return kspUpdateMeetingMaintenance_(kspCreateMaintenanceEnvironment_(), input);
 }
 
 function changeMeetingStatus(input) {
-  return kspChangeMeetingStatus(kspCreateMaintenanceEnvironment(), input);
+  return kspChangeMeetingStatus_(kspCreateMaintenanceEnvironment_(), input);
 }
 
 function searchPitchbookRecords(input) {
-  return kspSearchPitchbookRecords(kspCreateMaintenanceEnvironment(), input);
+  return kspSearchPitchbookRecords_(kspCreateMaintenanceEnvironment_(), input);
 }
 
 function getPitchbookMaintenanceRecord(documentId) {
-  return kspGetPitchbookMaintenanceRecord(kspCreateMaintenanceEnvironment(), documentId);
+  return kspGetPitchbookMaintenanceRecord_(kspCreateMaintenanceEnvironment_(), documentId);
 }
 
 function updatePitchbookMaintenance(input) {
-  return kspUpdatePitchbookMaintenance(kspCreateMaintenanceEnvironment(), input);
+  return kspUpdatePitchbookMaintenance_(kspCreateMaintenanceEnvironment_(), input);
 }
 
 function changePitchbookStatus(input) {
-  return kspChangePitchbookStatus(kspCreateMaintenanceEnvironment(), input);
+  return kspChangePitchbookStatus_(kspCreateMaintenanceEnvironment_(), input);
 }
 
 function mutateMaster(input) {
-  return kspMutateMaster(kspCreateMaintenanceEnvironment(), input);
+  return kspMutateMaster_(kspCreateMaintenanceEnvironment_(), input);
 }
 
 function quickAddGp(name) {
-  return kspQuickAddGp(kspCreateMaintenanceEnvironment(), name);
+  return kspQuickAddGp_(kspCreateMaintenanceEnvironment_(), name);
 }
 
-function runAuditRetentionCleanup() {
-  return kspRunAuditRetentionCleanup(kspCreateMaintenanceEnvironment());
+function runAuditRetentionCleanup_() {
+  return kspRunAuditRetentionCleanup_(kspCreateMaintenanceEnvironment_());
 }
 
-function getPhase1Diagnostics() {
-  return kspGetPhase1Diagnostics(kspCreateMaintenanceEnvironment());
+function getPhase1Diagnostics_() {
+  return kspGetPhase1Diagnostics_(kspCreateMaintenanceEnvironment_());
 }

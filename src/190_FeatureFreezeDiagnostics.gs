@@ -1,15 +1,15 @@
-function kspGetFeatureFreezeDiagnostics(environment) {
+function kspGetFeatureFreezeDiagnostics_(environment) {
   var settings = {};
   var warning = '';
   if (environment && typeof environment.loadAiContext === 'function') {
-    try { settings = kspNormalizeAiSettings(environment.loadAiContext().settings || {}); }
+    try { settings = kspNormalizeAiSettings_(environment.loadAiContext().settings || {}); }
     catch (error) { warning = error.message || String(error); }
   }
-  var formats = kspGetAiFormatExtensions().map(function (extension) {
-    var definition = kspGetAiFormatDefinition(extension);
+  var formats = kspGetAiFormatExtensions_().map(function (extension) {
+    var definition = kspGetAiFormatDefinition_(extension);
     return { extension: extension, uploadMimeType: definition.uploadMimeType, readStrategy: definition.readStrategy, implemented: true };
   });
-  var modes = kspGetFeatureFreezeModeDefinitions().map(function (definition) {
+  var modes = kspGetFeatureFreezeModeDefinitions_().map(function (definition) {
     return { mode: definition.mode, implemented: true, inputRequired: definition.inputRequired, gpRequired: definition.gpRequired };
   });
   return {
@@ -19,11 +19,11 @@ function kspGetFeatureFreezeDiagnostics(environment) {
     featureFreezeCandidate: formats.length === 6 && modes.length === 5,
     formats: formats,
     modes: modes,
-    sharedRetrievalPath: 'kspRunFeatureFreezeKnowledgeSearch',
-    sharedCitationPath: 'kspMapKnowledgeCitations',
-    sharedAuditPath: 'kspBuildFeatureFreezeAuditRow',
-    syncHandler: 'runAiSyncWorker',
-    syncHandlerAvailable: typeof runAiSyncWorker === 'function',
+    sharedRetrievalPath: 'kspRunFeatureFreezeKnowledgeSearch_',
+    sharedCitationPath: 'kspMapKnowledgeCitations_',
+    sharedAuditPath: 'kspBuildFeatureFreezeAuditRow_',
+    syncHandler: 'runAiSyncWorker_',
+    syncHandlerAvailable: typeof runAiSyncWorker_ === 'function',
     modelConfigured: Boolean(settings.modelId),
     storeConfigured: Boolean(settings.storeName),
     credentialProvider: 'SERVER_SIDE_NOT_INSPECTED',
