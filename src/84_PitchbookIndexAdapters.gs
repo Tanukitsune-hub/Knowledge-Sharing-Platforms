@@ -1,6 +1,6 @@
-function kspAttachPitchbookIndexAdapters(meetingEnvironment, scriptProperties) {
+function kspAttachPitchbookIndexAdapters_(meetingEnvironment, scriptProperties) {
   meetingEnvironment.completePitchbookRow = function (spreadsheetId, documentId, fileInfo, actor, nowIso) {
-    return kspUpdatePitchbookRowLive(spreadsheetId, documentId, function (row) {
+    return kspUpdatePitchbookRowLive_(spreadsheetId, documentId, function (row) {
       if (String(row.Status) === KSP_PITCHBOOK_STATUS.ACTIVE && row.File_ID) return row;
       row.File_ID = fileInfo.id;
       row.File_URL = fileInfo.url || '';
@@ -13,7 +13,7 @@ function kspAttachPitchbookIndexAdapters(meetingEnvironment, scriptProperties) {
   };
 
   meetingEnvironment.failPitchbookRow = function (spreadsheetId, documentId, fileInfo, actor, nowIso) {
-    return kspUpdatePitchbookRowLive(spreadsheetId, documentId, function (row) {
+    return kspUpdatePitchbookRowLive_(spreadsheetId, documentId, function (row) {
       if (String(row.Status) === KSP_PITCHBOOK_STATUS.ACTIVE) return row;
       if (fileInfo) {
         row.File_ID = fileInfo.id || row.File_ID;
@@ -29,13 +29,13 @@ function kspAttachPitchbookIndexAdapters(meetingEnvironment, scriptProperties) {
   meetingEnvironment.clearPitchbookReservationIfComplete = function (spreadsheetId, batchId) {
     var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
     var sheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.PITCHBOOK_INDEX);
-    kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + KSP_SHEET_NAMES.PITCHBOOK_INDEX);
-    var headers = kspReadHeadersFromSheet(sheet);
-    var rows = kspReadObjectsFromSheet(sheet, headers).filter(function (row) {
+    kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + KSP_SHEET_NAMES.PITCHBOOK_INDEX);
+    var headers = kspReadHeadersFromSheet_(sheet);
+    var rows = kspReadObjectsFromSheet_(sheet, headers).filter(function (row) {
       return String(row.Batch_ID) === String(batchId);
     });
     if (rows.length > 0 && rows.every(function (row) { return String(row.Status) === KSP_PITCHBOOK_STATUS.ACTIVE; })) {
-      scriptProperties.deleteProperty(kspPitchbookReservationKey(batchId));
+      scriptProperties.deleteProperty(kspPitchbookReservationKey_(batchId));
       return true;
     }
     return false;
@@ -43,7 +43,7 @@ function kspAttachPitchbookIndexAdapters(meetingEnvironment, scriptProperties) {
 
 }
 
-function kspUpdatePitchbookRowLive(spreadsheetId, documentId, updater) {
+function kspUpdatePitchbookRowLive_(spreadsheetId, documentId, updater) {
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS)) {
     var lockError = new Error('Could not acquire the Pitchbook Index update lock.');
@@ -53,16 +53,16 @@ function kspUpdatePitchbookRowLive(spreadsheetId, documentId, updater) {
   try {
     var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
     var sheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.PITCHBOOK_INDEX);
-    kspAssert(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + KSP_SHEET_NAMES.PITCHBOOK_INDEX);
-    var headers = kspReadHeadersFromSheet(sheet);
-    var rows = kspReadObjectsFromSheet(sheet, headers);
+    kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + KSP_SHEET_NAMES.PITCHBOOK_INDEX);
+    var headers = kspReadHeadersFromSheet_(sheet);
+    var rows = kspReadObjectsFromSheet_(sheet, headers);
     var indexes = [];
     rows.forEach(function (row, index) {
       if (String(row.Document_ID) === String(documentId)) indexes.push(index);
     });
-    kspAssert(indexes.length === 1, indexes.length === 0 ? 'PITCHBOOK_SLOT_NOT_FOUND' : 'DUPLICATE_KEY_ROWS',
+    kspAssert_(indexes.length === 1, indexes.length === 0 ? 'PITCHBOOK_SLOT_NOT_FOUND' : 'DUPLICATE_KEY_ROWS',
       'Expected exactly one Pitchbook row for ' + documentId + '.');
-    var updated = updater(kspDeepClone(rows[indexes[0]]));
+    var updated = updater(kspDeepClone_(rows[indexes[0]]));
     var values = headers.map(function (header) {
       var value = updated[header];
       return value === undefined || value === null ? '' : value;

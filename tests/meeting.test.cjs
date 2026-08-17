@@ -13,15 +13,15 @@ function loadMeetingSource(rootDir) {
     var KSP_RESOURCE_KEYS = Object.freeze({ MEETING_RECORDS: 'meetingRecordsFolderId', BACKEND_SPREADSHEET: 'backendSpreadsheetId', AUDIT_SPREADSHEET: 'auditSpreadsheetId' });
     var KSP_DEFAULTS = Object.freeze({ LOCK_TIMEOUT_MS: 30000 });
     var KSP_PROPERTY_KEYS = Object.freeze({ INSTALLATION_STATE_JSON: 'KSP_INSTALLATION_STATE_JSON' });
-    function kspAssert(condition, code, message) { if (!condition) { var error = new Error(message); error.code = code; throw error; } }
-    function kspGetErrorCode(error, fallback) { return error && error.code ? String(error.code) : (fallback || 'UNEXPECTED_ERROR'); }
-    function kspDeepClone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
-    function kspSafeParseJson(text, label) { if (!text) return null; try { return JSON.parse(text); } catch (error) { throw new Error((label || 'JSON') + ' is not valid JSON: ' + error.message); } }
-    function kspEscapeDriveQueryLiteral(value) { return String(value).replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'"); }
-    function kspNormalizeGeneratedNameSegment(value) { if (value === null || value === undefined) return ''; return String(value).replace(/[\\u0000-\\u001f\\u007f]/g, '').replace(/[\\\\/&]/g, '').trim().replace(/\\s+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, ''); }
+    function kspAssert_(condition, code, message) { if (!condition) { var error = new Error(message); error.code = code; throw error; } }
+    function kspGetErrorCode_(error, fallback) { return error && error.code ? String(error.code) : (fallback || 'UNEXPECTED_ERROR'); }
+    function kspDeepClone_(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
+    function kspSafeParseJson_(text, label) { if (!text) return null; try { return JSON.parse(text); } catch (error) { throw new Error((label || 'JSON') + ' is not valid JSON: ' + error.message); } }
+    function kspEscapeDriveQueryLiteral_(value) { return String(value).replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'"); }
+    function kspNormalizeGeneratedNameSegment_(value) { if (value === null || value === undefined) return ''; return String(value).replace(/[\\u0000-\\u001f\\u007f]/g, '').replace(/[\\\\/&]/g, '').trim().replace(/\\s+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, ''); }
   `;
   new vm.Script(prelude, { filename: 'test-prelude.gs' }).runInContext(context);
-  for (const file of ['30_MeetingCore.gs','40_MeetingService.gs','50_MeetingLiveEnvironment.gs','90_WebApp.gs']) {
+  for (const file of ['00_Core.gs','30_MeetingCore.gs','40_MeetingService.gs','50_MeetingLiveEnvironment.gs','90_WebApp.gs']) {
     new vm.Script(fs.readFileSync(path.join(rootDir, 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;
@@ -88,14 +88,14 @@ const ksp = loadMeetingSource(root);
 function minimalInput(overrides = {}) { return { date: '2026-08-16', gpId: 'GP-1', assetClassId: 'AC-INFRA', time: '', locationId: '', capitalTypeId: '', counterparty: '', internalParticipants: '', notes: '', ...overrides }; }
 
 test('catalog filters inactive rows and sorts GP and options', () => {
-  const catalog = ksp.kspBuildMeetingCatalog(createMasterRows().gps, createMasterRows().options);
+  const catalog = ksp.kspBuildMeetingCatalog_(createMasterRows().gps, createMasterRows().options);
   assert.deepEqual(Array.from(catalog.gps, (item) => item.name), ['Apollo','KKR']);
   assert.deepEqual(Array.from(catalog.assetClasses, (item) => item.name), ['PE','Infrastructure']);
   assert.deepEqual(Array.from(catalog.locations, (item) => item.name), ['オンライン']);
 });
 
 test('minimal Meeting registration creates document, Index row, and audit event', () => {
-  const env = createFakeEnvironment(); const result = ksp.kspRegisterMeeting(env, minimalInput());
+  const env = createFakeEnvironment(); const result = ksp.kspRegisterMeeting_(env, minimalInput());
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(result.meeting.id, 'MTG-000001');
   assert.equal(result.meeting.filename, '2026-08-16_KKR_Infrastructure_MTG-000001');
@@ -109,7 +109,7 @@ test('minimal Meeting registration creates document, Index row, and audit event'
 
 test('optional fields render compact Docs text and preserve note line breaks', () => {
   const env = createFakeEnvironment({ counter: 12, actor: 'owner@example.com' });
-  const result = ksp.kspRegisterMeeting(env, minimalInput({ time: '10:30', locationId: 'LOC-ONLINE', capitalTypeId: 'CT-EQ', counterparty: 'Jane Smith', internalParticipants: 'Kondo', notes: 'First line\r\nSecond line' }));
+  const result = ksp.kspRegisterMeeting_(env, minimalInput({ time: '10:30', locationId: 'LOC-ONLINE', capitalTypeId: 'CT-EQ', counterparty: 'Jane Smith', internalParticipants: 'Kondo', notes: 'First line\r\nSecond line' }));
   assert.equal(result.ok, true);
   assert.equal(result.meeting.filename, '2026-08-16_KKR_Infrastructure_Equity_MTG-000012');
   assert.equal(env._debug.documents[0].text, ['日付: 2026-08-16','時間: 10:30','面談場所: オンライン','GP: KKR','Asset Class: Infrastructure','Equity / Debt: Equity','面談相手: Jane Smith','当社側: Kondo','','面談内容:','First line','Second line'].join('\n'));
@@ -117,63 +117,63 @@ test('optional fields render compact Docs text and preserve note line breaks', (
 });
 
 test('required-field validation stops before ID or document writes', () => {
-  const env = createFakeEnvironment(); const result = ksp.kspRegisterMeeting(env, minimalInput({ date: '' }));
+  const env = createFakeEnvironment(); const result = ksp.kspRegisterMeeting_(env, minimalInput({ date: '' }));
   assert.equal(result.ok, false); assert.equal(result.error.code, 'MEETING_DATE_REQUIRED'); assert.equal(result.retry, null);
   assert.equal(env._debug.documents.length, 0); assert.equal(env._debug.rows.Meeting_Index.length, 0); assert.equal(env._debug.rows.Audit_Log[0].Result, 'Failure');
 });
 
 test('invalid dates, times, inactive masters, and incomplete retry context are rejected', () => {
-  const catalog = ksp.kspBuildMeetingCatalog(createMasterRows().gps, createMasterRows().options);
-  assert.throws(() => ksp.kspValidateMeetingInput(ksp.kspNormalizeMeetingInput(minimalInput({ date: '2026-02-30' })), catalog), /YYYY-MM-DD/);
-  assert.throws(() => ksp.kspValidateMeetingInput(ksp.kspNormalizeMeetingInput(minimalInput({ time: '25:00' })), catalog), /HH:MM/);
-  assert.throws(() => ksp.kspValidateMeetingInput(ksp.kspNormalizeMeetingInput(minimalInput({ gpId: 'GP-X' })), catalog), /利用できません/);
-  assert.throws(() => ksp.kspValidateMeetingInput(ksp.kspNormalizeMeetingInput(minimalInput({ retryMeetingId: 'MTG-000001' })), catalog), /supplied together/);
+  const catalog = ksp.kspBuildMeetingCatalog_(createMasterRows().gps, createMasterRows().options);
+  assert.throws(() => ksp.kspValidateMeetingInput_(ksp.kspNormalizeMeetingInput_(minimalInput({ date: '2026-02-30' })), catalog), /YYYY-MM-DD/);
+  assert.throws(() => ksp.kspValidateMeetingInput_(ksp.kspNormalizeMeetingInput_(minimalInput({ time: '25:00' })), catalog), /HH:MM/);
+  assert.throws(() => ksp.kspValidateMeetingInput_(ksp.kspNormalizeMeetingInput_(minimalInput({ gpId: 'GP-X' })), catalog), /利用できません/);
+  assert.throws(() => ksp.kspValidateMeetingInput_(ksp.kspNormalizeMeetingInput_(minimalInput({ retryMeetingId: 'MTG-000001' })), catalog), /supplied together/);
 });
 
 test('partial failure returns retry context and retry reuses same ID and document without duplicate Index rows', () => {
   const env = createFakeEnvironment({ failIndexOnce: true });
-  const first = ksp.kspRegisterMeeting(env, minimalInput({ notes: 'Keep this draft' }));
+  const first = ksp.kspRegisterMeeting_(env, minimalInput({ notes: 'Keep this draft' }));
   assert.equal(first.ok, false); assert.equal(first.error.code, 'INDEX_FAIL'); assert.equal(first.retry.meetingId, 'MTG-000001'); assert.match(first.retry.fingerprint, /^[0-9a-f]{8}$/);
   assert.equal(env._debug.documents.length, 1); assert.equal(env._debug.rows.Meeting_Index.length, 0);
   const retryInput = minimalInput({ notes: 'Keep this draft', retryMeetingId: first.retry.meetingId, retryFingerprint: first.retry.fingerprint });
-  const second = ksp.kspRegisterMeeting(env, retryInput);
+  const second = ksp.kspRegisterMeeting_(env, retryInput);
   assert.equal(second.ok, true, JSON.stringify(second)); assert.equal(second.meeting.id, 'MTG-000001'); assert.equal(second.meeting.reusedDocument, true);
   assert.equal(env._debug.documents.length, 1); assert.equal(env._debug.rows.Meeting_Index.length, 1); assert.equal(env._debug.counter, 2);
-  const third = ksp.kspRegisterMeeting(env, retryInput);
+  const third = ksp.kspRegisterMeeting_(env, retryInput);
   assert.equal(third.ok, true); assert.equal(third.idempotentReplay, true); assert.equal(env._debug.documents.length, 1); assert.equal(env._debug.rows.Meeting_Index.length, 1);
 });
 
 test('retry context rejects changed form content', () => {
   const env = createFakeEnvironment({ failIndexOnce: true });
-  const first = ksp.kspRegisterMeeting(env, minimalInput({ notes: 'Original' }));
-  const changed = ksp.kspRegisterMeeting(env, minimalInput({ notes: 'Changed', retryMeetingId: first.retry.meetingId, retryFingerprint: first.retry.fingerprint }));
+  const first = ksp.kspRegisterMeeting_(env, minimalInput({ notes: 'Original' }));
+  const changed = ksp.kspRegisterMeeting_(env, minimalInput({ notes: 'Changed', retryMeetingId: first.retry.meetingId, retryFingerprint: first.retry.fingerprint }));
   assert.equal(changed.ok, false); assert.equal(changed.error.code, 'MEETING_RETRY_REQUEST_CHANGED'); assert.equal(env._debug.documents.length, 1); assert.equal(env._debug.rows.Meeting_Index.length, 0);
 });
 
 test('audit failure does not roll back a committed Meeting', () => {
-  const env = createFakeEnvironment({ failAudit: true }); const result = ksp.kspRegisterMeeting(env, minimalInput());
+  const env = createFakeEnvironment({ failAudit: true }); const result = ksp.kspRegisterMeeting_(env, minimalInput());
   assert.equal(result.ok, true); assert.equal(env._debug.rows.Meeting_Index.length, 1); assert.equal(env._debug.documents.length, 1); assert.equal(result.warnings.at(-1).code, 'AUDIT_WRITE_FAILED');
 });
 
 test('Actor lookup failure falls back to UNIDENTIFIED and never blocks registration', () => {
-  const env = createFakeEnvironment({ actorThrows: true }); const result = ksp.kspRegisterMeeting(env, minimalInput());
+  const env = createFakeEnvironment({ actorThrows: true }); const result = ksp.kspRegisterMeeting_(env, minimalInput());
   assert.equal(result.ok, true); assert.equal(env._debug.rows.Meeting_Index[0].Created_By, 'UNIDENTIFIED'); assert.equal(env._debug.rows.Audit_Log[0].Actor, 'UNIDENTIFIED'); assert.equal(result.warnings[0].code, 'ACTOR_RESOLUTION_FAILED');
 });
 
 test('actor resolution follows email, temporary key, then UNIDENTIFIED', () => {
-  assert.equal(ksp.kspResolveActorValue(' OWNER@Example.com ', 'temp'), 'owner@example.com');
-  assert.equal(ksp.kspResolveActorValue('', 'abc'), 'TEMP_USER:abc');
-  assert.equal(ksp.kspResolveActorValue('', ''), 'UNIDENTIFIED');
+  assert.equal(ksp.kspResolveActorValue_(' OWNER@Example.com ', 'temp'), 'owner@example.com');
+  assert.equal(ksp.kspResolveActorValue_('', 'abc'), 'TEMP_USER:abc');
+  assert.equal(ksp.kspResolveActorValue_('', ''), 'UNIDENTIFIED');
 });
 
 test('Meeting notes never appear in Index or Audit payload', () => {
   const env = createFakeEnvironment(); const secretNotes = 'Highly confidential line\nSecond line';
-  const result = ksp.kspRegisterMeeting(env, minimalInput({ notes: secretNotes }));
+  const result = ksp.kspRegisterMeeting_(env, minimalInput({ notes: secretNotes }));
   assert.equal(result.ok, true); assert.equal(JSON.stringify(env._debug.rows.Meeting_Index).includes('Highly confidential'), false); assert.equal(JSON.stringify(env._debug.rows.Audit_Log).includes('Highly confidential'), false); assert.equal(env._debug.documents[0].text.includes('Highly confidential'), true);
 });
 
 test('bootstrap response exposes active options and 24-hour draft contract', () => {
-  const result = ksp.kspGetMeetingBootstrapData(createFakeEnvironment());
+  const result = ksp.kspGetMeetingBootstrapData_(createFakeEnvironment());
   assert.equal(result.ok, true); assert.equal(result.draftTtlMs, 86_400_000); assert.deepEqual(Array.from(result.sharedContextFields), ['date','gpId','assetClassId','capitalTypeId']); assert.equal(result.options.gps.length, 2);
 });
 

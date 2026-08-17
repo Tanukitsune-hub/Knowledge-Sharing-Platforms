@@ -58,11 +58,11 @@ var KSP_AI_RETRYABLE_HTTP_CODES = Object.freeze({
   504: true
 });
 
-function kspAiTrim(value) {
+function kspAiTrim_(value) {
   return value === null || value === undefined ? '' : String(value).trim();
 }
 
-function kspAiToInteger(value, fallback, minimum, maximum) {
+function kspAiToInteger_(value, fallback, minimum, maximum) {
   var numberValue = Number(value);
   if (!Number.isFinite(numberValue) || Math.floor(numberValue) !== numberValue) return fallback;
   if (minimum !== undefined && numberValue < minimum) return fallback;
@@ -70,52 +70,52 @@ function kspAiToInteger(value, fallback, minimum, maximum) {
   return numberValue;
 }
 
-function kspNormalizeAiSettings(settings) {
+function kspNormalizeAiSettings_(settings) {
   var source = settings || {};
   return {
-    storeName: kspAiTrim(source[KSP_AI_SETTINGS.STORE_NAME] || source.storeName),
-    modelId: kspAiTrim(source[KSP_AI_SETTINGS.MODEL_ID] || source.modelId),
-    syncEnabled: kspToBoolean(
+    storeName: kspAiTrim_(source[KSP_AI_SETTINGS.STORE_NAME] || source.storeName),
+    modelId: kspAiTrim_(source[KSP_AI_SETTINGS.MODEL_ID] || source.modelId),
+    syncEnabled: kspToBoolean_(
       source[KSP_AI_SETTINGS.SYNC_ENABLED] !== undefined ? source[KSP_AI_SETTINGS.SYNC_ENABLED] : source.syncEnabled,
       false
     ),
-    syncIntervalMinutes: kspAiToInteger(
+    syncIntervalMinutes: kspAiToInteger_(
       source[KSP_AI_SETTINGS.SYNC_INTERVAL_MINUTES] || source.syncIntervalMinutes,
       15,
       15,
       15
     ),
-    syncBatchSize: kspAiToInteger(
+    syncBatchSize: kspAiToInteger_(
       source[KSP_AI_SETTINGS.SYNC_BATCH_SIZE] || source.syncBatchSize,
       KSP_AI_DEFAULTS.SYNC_BATCH_SIZE,
       1,
       50
     ),
-    maxRetryAttempts: kspAiToInteger(
+    maxRetryAttempts: kspAiToInteger_(
       source[KSP_AI_SETTINGS.MAX_RETRY_ATTEMPTS] || source.maxRetryAttempts,
       KSP_AI_DEFAULTS.MAX_RETRY_ATTEMPTS,
       1,
       20
     ),
-    retryBaseMinutes: kspAiToInteger(
+    retryBaseMinutes: kspAiToInteger_(
       source[KSP_AI_SETTINGS.RETRY_BASE_MINUTES] || source.retryBaseMinutes,
       KSP_AI_DEFAULTS.RETRY_BASE_MINUTES,
       1,
       1440
     ),
-    retryMaxMinutes: kspAiToInteger(
+    retryMaxMinutes: kspAiToInteger_(
       source[KSP_AI_SETTINGS.RETRY_MAX_MINUTES] || source.retryMaxMinutes,
       KSP_AI_DEFAULTS.RETRY_MAX_MINUTES,
       1,
       10080
     ),
-    embeddingModel: kspAiTrim(
+    embeddingModel: kspAiTrim_(
       source[KSP_AI_SETTINGS.EMBEDDING_MODEL] || source.embeddingModel || KSP_AI_DEFAULTS.EMBEDDING_MODEL
     )
   };
 }
 
-function kspGetAiSettingSeedRows(nowIso) {
+function kspGetAiSettingSeedRows_(nowIso) {
   return [
     { Key: KSP_AI_SETTINGS.SYNC_BATCH_SIZE, Value: String(KSP_AI_DEFAULTS.SYNC_BATCH_SIZE), Description: 'Maximum AI sources processed per worker execution.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.MAX_RETRY_ATTEMPTS, Value: String(KSP_AI_DEFAULTS.MAX_RETRY_ATTEMPTS), Description: 'Maximum retryable indexing failures before permanent stop.', Updated_At: nowIso },

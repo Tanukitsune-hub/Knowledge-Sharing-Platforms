@@ -1,10 +1,10 @@
-function kspRunAiSync(environment) {
+function kspRunAiSync_(environment) {
   var startedAt = environment.nowIso();
   var context = environment.loadAiContext();
-  environment.ensureAiSettings(kspGetAiSettingSeedRows(startedAt));
+  environment.ensureAiSettings(kspGetAiSettingSeedRows_(startedAt));
   context = environment.loadAiContext();
-  var settings = kspNormalizeAiSettings(context.settings);
-  var report = kspBuildAiSyncReport(startedAt, settings);
+  var settings = kspNormalizeAiSettings_(context.settings);
+  var report = kspBuildAiSyncReport_(startedAt, settings);
   if (!settings.syncEnabled) {
     report.finishedAt = environment.nowIso();
     return report;
@@ -12,9 +12,9 @@ function kspRunAiSync(environment) {
 
   var store = environment.ensureFileSearchStore(settings, KSP_AI_DEFAULTS.STORE_DISPLAY_NAME);
   var storeName = store.name;
-  var items = kspSelectAiWorkItems(context.meetingRows, context.pitchbookRows, startedAt, settings);
+  var items = kspSelectAiWorkItems_(context.meetingRows, context.pitchbookRows, startedAt, settings);
   report.selected = items.length;
-  var maps = kspBuildAiMasterMaps(context.gpRows, context.optionRows);
+  var maps = kspBuildAiMasterMaps_(context.gpRows, context.optionRows);
 
   items.forEach(function (item) {
     var claim = environment.claimAiSource(item.sourceType, item.sourceId, startedAt, KSP_AI_DEFAULTS.CLAIM_TTL_MILLIS);
@@ -25,19 +25,19 @@ function kspRunAiSync(environment) {
     }
     try {
       if (String(item.row.Status) === KSP_STATUS.INACTIVE) {
-        kspProcessInactiveAiItem(environment, storeName, item, report);
+        kspProcessInactiveAiItem_(environment, storeName, item, report);
       } else {
-        kspProcessActiveAiItem(environment, storeName, item, maps, report, environment.nowIso());
+        kspProcessActiveAiItem_(environment, storeName, item, maps, report, environment.nowIso());
       }
     } catch (error) {
       try {
-        kspRecordAiFailure(environment, item, error, settings, environment.nowIso(), report);
+        kspRecordAiFailure_(environment, item, error, settings, environment.nowIso(), report);
       } catch (recordError) {
         report.ok = false;
         report.errors.push({
           sourceType: item.sourceType,
           sourceId: item.sourceId,
-          code: kspGetErrorCode(recordError),
+          code: kspGetErrorCode_(recordError),
           message: recordError.message || String(recordError)
         });
       }

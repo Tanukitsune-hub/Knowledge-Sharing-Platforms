@@ -27,8 +27,14 @@ updatePitchbookMaintenance(input)
 changePitchbookStatus(input)
 mutateMaster(input)
 quickAddGp(name)
-runAuditRetentionCleanup()
-getPhase1Diagnostics()
+```
+
+Editor/trigger-only operations are private and are not callable through the
+normal Web App surface:
+
+```text
+runAuditRetentionCleanup_()
+getPhase1Diagnostics_()
 ```
 
 ## Record maintenance
@@ -67,11 +73,11 @@ Option reorder audit records the complete affected ordering before and after the
 
 Actor and audit-write failures remain non-blocking after an authoritative operation succeeds.
 
-`runAuditRetentionCleanup()` removes Audit rows whose `Event_Timestamp` is older than the five-year UTC cutoff and then records the cleanup event. Scheduling the live cleanup trigger remains part of final setup/qualification.
+`runAuditRetentionCleanup_()` removes Audit rows whose `Event_Timestamp` is older than the five-year UTC cutoff and then records the cleanup event. Scheduling the live cleanup trigger remains part of final setup/qualification.
 
 ## Phase 1 diagnostics
 
-`getPhase1Diagnostics()` performs read-only checks for backend/Audit resource separation, required sheet headers, Actor fallback classification, and currently implemented capabilities. It does not return resource IDs or the Actor value, and it reports Gemini/live qualification as unavailable until later Works.
+`getPhase1Diagnostics_()` performs read-only checks for backend/Audit resource separation, required sheet headers, Actor fallback classification, and currently implemented capabilities. It does not return resource IDs or the Actor value, and it is editor-only rather than a normal-user Web App endpoint.
 
 ## Local validation
 

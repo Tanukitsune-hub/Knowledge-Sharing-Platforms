@@ -45,6 +45,7 @@ function catalogRows() {
 }
 
 function meetingRow(id, date, overrides = {}) {
+  const docId = overrides.Doc_File_ID || `doc-${id}`;
   return {
     Meeting_ID: id,
     Date: date,
@@ -55,8 +56,8 @@ function meetingRow(id, date, overrides = {}) {
     Capital_Type_ID: '',
     Counterparty: 'Counterparty',
     Internal_Participants: 'Team',
-    Doc_File_ID: `doc-${id}`,
-    Doc_URL: `https://docs.google.com/document/d/${id}/edit`,
+    Doc_File_ID: docId,
+    Doc_URL: `https://docs.google.com/document/d/${docId}/edit`,
     Saved_Filename: `${id}.gdoc`,
     Status: 'Active',
     Version: 1,
@@ -67,6 +68,7 @@ function meetingRow(id, date, overrides = {}) {
 }
 
 function pitchbookRow(id, date, overrides = {}) {
+  const fileId = overrides.File_ID || `file-${id}`;
   return {
     Document_ID: id,
     Batch_ID: `BAT-${id}`,
@@ -75,8 +77,8 @@ function pitchbookRow(id, date, overrides = {}) {
     Asset_Class_ID: 'OPT-AC-002',
     Capital_Type_ID: '',
     Sequence_No: 1,
-    File_ID: `file-${id}`,
-    File_URL: `https://drive.google.com/file/d/${id}/view`,
+    File_ID: fileId,
+    File_URL: `https://drive.google.com/file/d/${fileId}/view`,
     Original_Filename: `${id}.pdf`,
     Saved_Filename: `${id}.pdf`,
     Status: 'Active',
@@ -104,6 +106,8 @@ function createFakeEnvironment(options = {}) {
   const audits = [];
   const artifacts = [];
   const reads = [];
+  const publicOperations = new Map();
+  const idempotency = new Map();
   let tick = 0;
   const gpRows = cat.gps.map((row) => ({ ...row }));
   const optionRows = cat.options.map((row) => ({ ...row }));
@@ -133,12 +137,43 @@ function createFakeEnvironment(options = {}) {
       if (options.documentReadError) throw new Error(String(options.documentReadError));
       return documents.get(id) ? documents.get(id).text : '';
     },
+    getDriveFileMetadata(id) {
+      if (options.driveMetadataError) throw new Error(String(options.driveMetadataError));
+      return {
+        id,
+        mimeType: 'application/pdf',
+        parents: ['pitchbooks-synthetic'],
+        trashed: false,
+        webViewLink: options.driveWebViewLink || `https://drive.google.com/file/d/${id}/view`
+      };
+    },
+    claimPublicOperation(key, expirationSeconds) {
+      const now = Date.now();
+      const existing = publicOperations.get(key);
+      if (existing && existing > now) return false;
+      publicOperations.set(key, now + Number(expirationSeconds || 1) * 1000);
+      return true;
+    },
+    getPublicIdempotency(key) {
+      const entry = idempotency.get(key);
+      if (!entry || entry.expiresAt <= Date.now()) {
+        idempotency.delete(key);
+        return null;
+      }
+      return JSON.parse(JSON.stringify(entry.value));
+    },
+    setPublicIdempotency(key, value, expirationSeconds) {
+      idempotency.set(key, {
+        value: JSON.parse(JSON.stringify(value)),
+        expiresAt: Date.now() + Number(expirationSeconds || 1) * 1000
+      });
+    },
     createKnowledgeExportArtifact(input) {
       if (options.createError) throw new Error('synthetic artifact failure');
       artifacts.push(JSON.parse(JSON.stringify(input)));
       return {
         id: `export-${artifacts.length}`,
-        url: `https://drive.google.com/open?id=export-${artifacts.length}`,
+        url: options.artifactUrl || `https://drive.google.com/open?id=export-${artifacts.length}`,
         name: input.filename,
         warnings: options.artifactWarnings || []
       };
@@ -147,7 +182,7 @@ function createFakeEnvironment(options = {}) {
       if (options.auditError) throw new Error('synthetic audit failure');
       audits.push({ ...row });
     },
-    _debug: { meetingRows, pitchbookRows, documents, audits, artifacts, reads }
+    _debug: { meetingRows, pitchbookRows, documents, audits, artifacts, reads, publicOperations, idempotency }
   };
   return environment;
 }
@@ -164,11 +199,11 @@ function baseInput(overrides = {}) {
 
 test('Active source resolution applies filters and deterministic date/ID ordering', () => {
   const env = createFakeEnvironment();
-  const input = ksp.kspValidateKnowledgeExportFilters(
-    ksp.kspNormalizeKnowledgeExportInput(baseInput()),
-    ksp.kspBuildKnowledgeSearchCatalog(catalogRows().gps, catalogRows().options)
+  const input = ksp.kspValidateKnowledgeExportFilters_(
+    ksp.kspNormalizeKnowledgeExportInput_(baseInput()),
+    ksp.kspBuildKnowledgeSearchCatalog_(catalogRows().gps, catalogRows().options)
   );
-  const sources = ksp.kspResolveKnowledgeExportSources(
+  const sources = ksp.kspResolveKnowledgeExportSources_(
     env._debug.meetingRows, env._debug.pitchbookRows, input
   );
   assert.deepEqual(Array.from(sources, (source) => source.sourceId), [
@@ -176,7 +211,7 @@ test('Active source resolution applies filters and deterministic date/ID orderin
   ]);
   assert.equal(sources.some((source) => source.sourceId === 'MTG-000002'), false);
   assert.deepEqual(
-    Array.from(ksp.kspResolveKnowledgeExportSources(
+    Array.from(ksp.kspResolveKnowledgeExportSources_(
       env._debug.meetingRows, env._debug.pitchbookRows,
       { ...input, sourceType: 'Meeting' }
     ), (source) => source.sourceId),
@@ -186,7 +221,7 @@ test('Active source resolution applies filters and deterministic date/ID orderin
 
 test('preview counts exact Meeting text and records metadata-only audit', () => {
   const env = createFakeEnvironment();
-  const result = ksp.kspRunKnowledgeExportPreview(env, baseInput({ sourceType: 'Meeting' }));
+  const result = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: 'Meeting' }));
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(result.preview.meetingCount, 1);
   assert.equal(result.preview.meetingCharacterCount, env._debug.documents.get('doc-1').text.length);
@@ -202,10 +237,10 @@ test('preview counts exact Meeting text and records metadata-only audit', () => 
 test('creation rejects a stale preview after authoritative source text changes', () => {
   const env = createFakeEnvironment();
   const input = baseInput({ sourceType: 'Meeting' });
-  const preview = ksp.kspRunKnowledgeExportPreview(env, input);
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
   assert.equal(preview.ok, true);
   env._debug.documents.get('doc-1').text += ' changed after preview';
-  const result = ksp.kspRunKnowledgeExportCreation(env, {
+  const result = ksp.kspRunKnowledgeExportCreation_(env, {
     ...input,
     previewFingerprint: preview.preview.previewFingerprint,
     outputType: 'GOOGLE_DOCS'
@@ -218,9 +253,9 @@ test('creation rejects a stale preview after authoritative source text changes',
 test('creation rejects a changed filter or Index revision even when the source set is unchanged', () => {
   const env = createFakeEnvironment();
   const input = baseInput({ sourceType: 'Meeting' });
-  const preview = ksp.kspRunKnowledgeExportPreview(env, input);
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
   assert.equal(preview.ok, true);
-  const filterChanged = ksp.kspRunKnowledgeExportCreation(env, {
+  const filterChanged = ksp.kspRunKnowledgeExportCreation_(env, {
     ...input,
     dateTo: '2026-08-04',
     previewFingerprint: preview.preview.previewFingerprint,
@@ -230,9 +265,9 @@ test('creation rejects a changed filter or Index revision even when the source s
   assert.equal(filterChanged.error.code, 'KNOWLEDGE_EXPORT_PREVIEW_STALE');
 
   const revisionEnv = createFakeEnvironment();
-  const revisionPreview = ksp.kspRunKnowledgeExportPreview(revisionEnv, input);
+  const revisionPreview = ksp.kspRunKnowledgeExportPreview_(revisionEnv, input);
   revisionEnv._debug.meetingRows[0].Version = 2;
-  const revisionChanged = ksp.kspRunKnowledgeExportCreation(revisionEnv, {
+  const revisionChanged = ksp.kspRunKnowledgeExportCreation_(revisionEnv, {
     ...input,
     previewFingerprint: revisionPreview.preview.previewFingerprint,
     outputType: 'PDF'
@@ -245,9 +280,9 @@ test('creation preserves Meeting bodies and exports Pitchbook metadata and links
   const env = createFakeEnvironment();
   const sourceRowsBefore = JSON.stringify({ meetings: env._debug.meetingRows, pitchbooks: env._debug.pitchbookRows });
   const input = baseInput({ mode: '要約', sourceType: '' });
-  const preview = ksp.kspRunKnowledgeExportPreview(env, input);
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
   assert.equal(preview.ok, true, JSON.stringify(preview));
-  const result = ksp.kspRunKnowledgeExportCreation(env, {
+  const result = ksp.kspRunKnowledgeExportCreation_(env, {
     ...input,
     previewFingerprint: preview.preview.previewFingerprint,
     outputType: 'GOOGLE_DOCS'
@@ -258,7 +293,7 @@ test('creation preserves Meeting bodies and exports Pitchbook metadata and links
   const model = env._debug.artifacts[0].model;
   assert.equal(model.meetingSections[0].body, env._debug.documents.get('doc-1').text);
   assert.match(model.pitchbookLines.join('\n'), /DOC-000001/);
-  assert.match(model.pitchbookLines.join('\n'), /https:\/\/drive\.google\.com\/file\/d\/DOC-000001\/view/);
+  assert.match(model.pitchbookLines.join('\n'), /https:\/\/drive\.google\.com\/open\?id=file-1/);
   assert.doesNotMatch(model.pitchbookLines.join('\n'), /Pitchbook body/);
   assert.deepEqual(env._debug.reads, ['doc-1', 'doc-1']);
   assert.equal(env._debug.audits.at(-1).Question_Or_Instruction, '');
@@ -266,13 +301,44 @@ test('creation preserves Meeting bodies and exports Pitchbook metadata and links
   assert.equal(JSON.stringify({ meetings: env._debug.meetingRows, pitchbooks: env._debug.pitchbookRows }), sourceRowsBefore);
 });
 
+test('creation is idempotent for the same preview fingerprint and output type', () => {
+  const env = createFakeEnvironment();
+  const input = baseInput({ sourceType: 'Meeting' });
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
+  const request = {
+    ...input,
+    previewFingerprint: preview.preview.previewFingerprint,
+    outputType: 'GOOGLE_DOCS'
+  };
+  const first = ksp.kspRunKnowledgeExportCreation_(env, request);
+  const second = ksp.kspRunKnowledgeExportCreation_(env, request);
+  assert.equal(first.ok, true);
+  assert.equal(second.ok, true);
+  assert.equal(second.idempotentReplay, true);
+  assert.equal(second.artifact.id, first.artifact.id);
+  assert.equal(env._debug.artifacts.length, 1);
+});
+
+test('artifact URL must identify the returned artifact ID', () => {
+  const env = createFakeEnvironment({ artifactUrl: 'https://drive.google.com/open?id=other-artifact' });
+  const input = baseInput({ sourceType: 'Meeting' });
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
+  const result = ksp.kspRunKnowledgeExportCreation_(env, {
+    ...input,
+    previewFingerprint: preview.preview.previewFingerprint,
+    outputType: 'GOOGLE_DOCS'
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_ARTIFACT_URL_MISMATCH');
+});
+
 test('thresholds warn and hard-stop at strictly greater values', () => {
-  assert.equal(ksp.kspBuildKnowledgeExportLimitState(30, 150000, 200).warning, false);
-  assert.equal(ksp.kspBuildKnowledgeExportLimitState(31, 150000, 200).warning, true);
-  assert.equal(ksp.kspBuildKnowledgeExportLimitState(50, 250000, 200).hardStop, false);
-  assert.equal(ksp.kspBuildKnowledgeExportLimitState(51, 250000, 200).hardStop, true);
-  assert.equal(ksp.kspBuildKnowledgeExportLimitState(50, 250001, 200).hardStop, true);
-  assert.equal(ksp.kspBuildKnowledgeExportLimitState(50, 250000, 201).hardStop, true);
+  assert.equal(ksp.kspBuildKnowledgeExportLimitState_(30, 150000, 200).warning, false);
+  assert.equal(ksp.kspBuildKnowledgeExportLimitState_(31, 150000, 200).warning, true);
+  assert.equal(ksp.kspBuildKnowledgeExportLimitState_(50, 250000, 200).hardStop, false);
+  assert.equal(ksp.kspBuildKnowledgeExportLimitState_(51, 250000, 200).hardStop, true);
+  assert.equal(ksp.kspBuildKnowledgeExportLimitState_(50, 250001, 200).hardStop, true);
+  assert.equal(ksp.kspBuildKnowledgeExportLimitState_(50, 250000, 201).hardStop, true);
 
   const rows = Array.from({ length: 51 }, (_, index) => (
     meetingRow(`MTG-${String(index + 1).padStart(6, '0')}`, '2026-08-01', {
@@ -281,10 +347,10 @@ test('thresholds warn and hard-stop at strictly greater values', () => {
   ));
   const documents = Object.fromEntries(rows.map((row) => [row.Doc_File_ID, { text: 'x' }]));
   const env = createFakeEnvironment({ meetingRows: rows, pitchbookRows: [], documents });
-  const preview = ksp.kspRunKnowledgeExportPreview(env, baseInput({ sourceType: 'Meeting' }));
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: 'Meeting' }));
   assert.equal(preview.ok, true);
   assert.equal(preview.preview.hardStop, true);
-  const result = ksp.kspRunKnowledgeExportCreation(env, {
+  const result = ksp.kspRunKnowledgeExportCreation_(env, {
     ...baseInput({ sourceType: 'Meeting' }),
     previewFingerprint: preview.preview.previewFingerprint,
     outputType: 'PDF'
@@ -292,17 +358,44 @@ test('thresholds warn and hard-stop at strictly greater values', () => {
   assert.equal(result.ok, false);
   assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_LIMIT_EXCEEDED');
   assert.equal(env._debug.artifacts.length, 0);
+  assert.deepEqual(env._debug.reads, [], 'Index hard-stop must not read Meeting Docs');
+});
+
+test('source link identity mismatches fail closed before reading or creating artifacts', () => {
+  const meetingEnv = createFakeEnvironment({
+    meetingRows: [meetingRow('MTG-000001', '2026-08-01', {
+      Doc_File_ID: 'doc-authoritative',
+      Doc_URL: 'https://docs.google.com/document/d/doc-other/edit'
+    })],
+    pitchbookRows: []
+  });
+  const meetingResult = ksp.kspRunKnowledgeExportPreview_(meetingEnv, baseInput({ sourceType: 'Meeting' }));
+  assert.equal(meetingResult.ok, false);
+  assert.equal(meetingResult.error.code, 'KNOWLEDGE_EXPORT_MEETING_LINK_MISMATCH');
+  assert.deepEqual(meetingEnv._debug.reads, []);
+
+  const pitchbookEnv = createFakeEnvironment({
+    meetingRows: [],
+    pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', {
+      File_ID: 'file-authoritative',
+      File_URL: 'https://drive.google.com/file/d/file-other/view'
+    })]
+  });
+  const pitchbookResult = ksp.kspRunKnowledgeExportPreview_(pitchbookEnv, baseInput({ sourceType: 'Pitchbook' }));
+  assert.equal(pitchbookResult.ok, false);
+  assert.equal(pitchbookResult.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH');
+  assert.deepEqual(pitchbookEnv._debug.artifacts, []);
 });
 
 test('zero-result preview is explicit and cannot create an artifact', () => {
   const env = createFakeEnvironment();
   const input = baseInput({ sourceType: 'Meeting', dateFrom: '2027-01-01', dateTo: '2027-01-31' });
-  const preview = ksp.kspRunKnowledgeExportPreview(env, input);
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
   assert.equal(preview.ok, true);
   assert.equal(preview.preview.noResults, true);
   assert.equal(preview.preview.meetingCount, 0);
   assert.equal(preview.preview.pitchbookCount, 0);
-  const result = ksp.kspRunKnowledgeExportCreation(env, {
+  const result = ksp.kspRunKnowledgeExportCreation_(env, {
     ...input,
     previewFingerprint: preview.preview.previewFingerprint,
     outputType: 'PDF'
@@ -314,10 +407,10 @@ test('zero-result preview is explicit and cannot create an artifact', () => {
 
 test('all five prompts are provider-neutral and independent of Gemini state', () => {
   const env = createFakeEnvironment();
-  const modes = Array.from(ksp.kspGetKnowledgeExportModeDefinitions(), (definition) => definition.mode);
+  const modes = Array.from(ksp.kspGetKnowledgeExportModeDefinitions_(), (definition) => definition.mode);
   assert.deepEqual(modes, ['自由質問', '要約', '時系列', '比較', '面談準備']);
   modes.forEach((mode) => {
-    const result = ksp.kspGetKnowledgeExportPrompt(env, baseInput({
+    const result = ksp.kspGetKnowledgeExportPrompt_(env, baseInput({
       mode,
       gpId: mode === '面談準備' ? 'GP-000002' : '',
       questionOrInstruction: mode === '自由質問' ? '合意事項を整理してください。' : ''
@@ -330,19 +423,33 @@ test('all five prompts are provider-neutral and independent of Gemini state', ()
   assert.equal(env._debug.audits.length, 0);
 });
 
+test('prompt filters use readable master names alongside stable IDs', () => {
+  const env = createFakeEnvironment();
+  const result = ksp.kspGetKnowledgeExportPrompt_(env, baseInput({
+    mode: '比較',
+    gpId: 'GP-000001',
+    assetClassId: 'OPT-AC-002',
+    capitalTypeId: 'OPT-CT-001'
+  }));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.match(result.prompt, /GP: Apollo \(GP-000001\)/);
+  assert.match(result.prompt, /Asset Class: Infrastructure \(OPT-AC-002\)/);
+  assert.match(result.prompt, /Equity \/ Debt: Equity \(OPT-CT-001\)/);
+});
+
 test('prompt-copy audit is metadata-only and occurs only on the explicit copy record call', () => {
   const env = createFakeEnvironment();
   const input = baseInput({ mode: '要約', questionOrInstruction: 'リスクを整理してください。' });
-  const prompt = ksp.kspGetKnowledgeExportPrompt(env, input);
+  const prompt = ksp.kspGetKnowledgeExportPrompt_(env, input);
   assert.equal(prompt.ok, true);
   assert.equal(env._debug.audits.length, 0);
-  const copied = ksp.kspRecordKnowledgeExportPromptCopy(env, { ...input, copyConfirmed: true });
+  const copied = ksp.kspRecordKnowledgeExportPromptCopy_(env, { ...input, copyConfirmed: true });
   assert.equal(copied.ok, true);
   assert.equal(env._debug.audits.length, 1);
   assert.equal(env._debug.audits[0].Action, 'KNOWLEDGE_EXPORT_PROMPT_COPY');
   assert.equal(env._debug.audits[0].Question_Or_Instruction, '');
   assert.doesNotMatch(JSON.stringify(env._debug.audits), /リスクを整理/);
-  const unconfirmed = ksp.kspRecordKnowledgeExportPromptCopy(env, input);
+  const unconfirmed = ksp.kspRecordKnowledgeExportPromptCopy_(env, input);
   assert.equal(unconfirmed.ok, false);
   assert.equal(unconfirmed.error.code, 'KNOWLEDGE_EXPORT_COPY_NOT_CONFIRMED');
   assert.equal(env._debug.audits.length, 1);
@@ -350,17 +457,17 @@ test('prompt-copy audit is metadata-only and occurs only on the explicit copy re
 
 test('source integrity failures and audit failures do not create a false artifact', () => {
   const readFailureEnv = createFakeEnvironment({ documentReadError: 'private source URL SECRET_SENTINEL' });
-  const readFailure = ksp.kspRunKnowledgeExportPreview(readFailureEnv, baseInput({ sourceType: 'Meeting' }));
+  const readFailure = ksp.kspRunKnowledgeExportPreview_(readFailureEnv, baseInput({ sourceType: 'Meeting' }));
   assert.equal(readFailure.ok, false);
   assert.equal(readFailure.error.code, 'KNOWLEDGE_EXPORT_MEETING_DOCUMENT_READ_FAILED');
   assert.match(readFailure.error.message, /MTG-000001/);
   assert.doesNotMatch(JSON.stringify(readFailure), /SECRET_SENTINEL|private source URL/);
 
   const auditFailureEnv = createFakeEnvironment({ auditError: true });
-  const preview = ksp.kspRunKnowledgeExportPreview(auditFailureEnv, baseInput({ sourceType: 'Meeting' }));
+  const preview = ksp.kspRunKnowledgeExportPreview_(auditFailureEnv, baseInput({ sourceType: 'Meeting' }));
   assert.equal(preview.ok, true);
   assert.ok(preview.warnings.some((warning) => warning.code === 'AUDIT_WRITE_FAILED'));
-  const result = ksp.kspRunKnowledgeExportCreation(auditFailureEnv, {
+  const result = ksp.kspRunKnowledgeExportCreation_(auditFailureEnv, {
     ...baseInput({ sourceType: 'Meeting' }),
     previewFingerprint: preview.preview.previewFingerprint,
     outputType: 'PDF'
@@ -374,8 +481,8 @@ test('artifact cleanup warnings are non-secret and retained as Audit metadata', 
     artifactWarnings: [{ code: 'KNOWLEDGE_EXPORT_TEMP_DOCUMENT_CLEANUP_FAILED', message: 'PRIVATE_API_RESPONSE' }]
   });
   const input = baseInput({ sourceType: 'Meeting' });
-  const preview = ksp.kspRunKnowledgeExportPreview(env, input);
-  const result = ksp.kspRunKnowledgeExportCreation(env, {
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
+  const result = ksp.kspRunKnowledgeExportCreation_(env, {
     ...input,
     previewFingerprint: preview.preview.previewFingerprint,
     outputType: 'PDF'
@@ -389,12 +496,12 @@ test('artifact cleanup warnings are non-secret and retained as Audit metadata', 
 });
 
 test('Docs and PDF live adapter paths write the model, validate the folder, and clean temporary PDF Docs', () => {
-  const originalMaintenanceEnvironment = ksp.kspCreateMaintenanceEnvironment;
+  const originalMaintenanceEnvironment = ksp.kspCreateMaintenanceEnvironment_;
   const originalDrive = ksp.Drive;
   const originalDocumentApp = ksp.DocumentApp;
-  const calls = { creates: [], exports: 0, trashed: [], paragraphs: [], pageBreaks: 0 };
+  const calls = { creates: [], exports: 0, trashed: [], paragraphs: [], links: [], pageBreaks: 0 };
   let createCount = 0;
-  ksp.kspCreateMaintenanceEnvironment = () => ({
+  ksp.kspCreateMaintenanceEnvironment_ = () => ({
     getInstallationState() {
       return { config: { knowledgeParentFolderId: 'parent-synthetic' } };
     }
@@ -444,7 +551,16 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
             clear() { return this; },
             appendParagraph(text) {
               calls.paragraphs.push(String(text));
-              return { setHeading() { return this; } };
+              return {
+                setHeading() { return this; },
+                editAsText() {
+                  return {
+                    setLinkUrl(start, end, url) {
+                      calls.links.push({ text: String(text), start, end, url });
+                    }
+                  };
+                }
+              };
             },
             appendPageBreak() { calls.pageBreaks += 1; },
           };
@@ -460,24 +576,25 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
     pitchbookLines: ['Document ID: DOC-000001\nAuthoritative Drive link: https://drive.google.com/file/d/synthetic/view']
   };
   try {
-    const environment = ksp.kspCreateKnowledgeExportEnvironment();
+    const environment = ksp.kspCreateKnowledgeExportEnvironment_();
     const docs = environment.createKnowledgeExportArtifact({
       folderId: 'exports-synthetic', filename: 'Knowledge_Export', outputType: 'GOOGLE_DOCS', model
     });
     assert.equal(docs.id, 'adapter-1');
-    assert.match(docs.url, /^https:\/\/docs\.google\.com\//);
+    assert.equal(docs.url, 'https://docs.google.com/document/d/adapter-1/edit');
     const pdf = environment.createKnowledgeExportArtifact({
       folderId: 'exports-synthetic', filename: 'Knowledge_Export.pdf', outputType: 'PDF', model
     });
     assert.equal(pdf.id, 'adapter-3');
-    assert.match(pdf.url, /^https:\/\/drive\.google\.com\//);
+    assert.equal(pdf.url, 'https://drive.google.com/open?id=adapter-3');
     assert.equal(calls.exports, 1);
     assert.deepEqual(calls.trashed, ['adapter-2']);
     assert.ok(calls.paragraphs.includes('SECRET_MEETING_BODY'));
+    assert.ok(calls.links.some((link) => link.url === 'https://drive.google.com/file/d/synthetic/view'));
     assert.ok(calls.pageBreaks >= 1);
     assert.ok(calls.creates.every((file) => file.parents.includes('exports-synthetic')));
   } finally {
-    ksp.kspCreateMaintenanceEnvironment = originalMaintenanceEnvironment;
+    ksp.kspCreateMaintenanceEnvironment_ = originalMaintenanceEnvironment;
     if (originalDrive === undefined) delete ksp.Drive;
     else ksp.Drive = originalDrive;
     if (originalDocumentApp === undefined) delete ksp.DocumentApp;

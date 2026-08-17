@@ -119,14 +119,14 @@ function createFakeEnvironment(options = {}) {
       const rows = input.entity === 'GP' ? gpRows : optionRows;
       const key = input.entity === 'GP' ? 'GP_ID' : 'Option_ID';
       if (input.action === 'ADD') {
-        const dup = ksp.kspFindNormalizedMasterDuplicate(rows, input.entity, input.type, input.name, '');
+        const dup = ksp.kspFindNormalizedMasterDuplicate_(rows, input.entity, input.type, input.name, '');
         if (dup) {
           if (input.returnExistingOnDuplicate) return { before: { ...dup }, after: { ...dup }, existing: true };
           throw Object.assign(new Error('duplicate'), { code: 'MASTER_DUPLICATE_NAME' });
         }
         const row = input.entity === 'GP'
-          ? { GP_ID: ksp.kspNextGpId(rows), GP_Name: input.name, Status: 'Active', Updated_At: now, Updated_By: actor }
-          : { Option_ID: ksp.kspNextOptionId(rows, input.type), Type: input.type, Name: input.name, Sort_Order: rows.filter(r => r.Type === input.type).length + 1, Status: 'Active', Updated_At: now, Updated_By: actor };
+          ? { GP_ID: ksp.kspNextGpId_(rows), GP_Name: input.name, Status: 'Active', Updated_At: now, Updated_By: actor }
+          : { Option_ID: ksp.kspNextOptionId_(rows, input.type), Type: input.type, Name: input.name, Sort_Order: rows.filter(r => r.Type === input.type).length + 1, Status: 'Active', Updated_At: now, Updated_By: actor };
         rows.push(row); return { before: null, after: { ...row } };
       }
       const row = find(rows, key, input.id); if (!row) throw Object.assign(new Error('missing'), { code: 'MASTER_NOT_FOUND' });

@@ -63,12 +63,12 @@ var KSP_AI_FORMAT_REGISTRY = Object.freeze({
   })
 });
 
-function kspGetAiFormatExtensions() {
+function kspGetAiFormatExtensions_() {
   return Object.keys(KSP_AI_FORMAT_REGISTRY);
 }
 
-function kspGetAiFormatDefinition(extension) {
-  var normalized = kspAiTrim(extension).toLowerCase();
+function kspGetAiFormatDefinition_(extension) {
+  var normalized = kspAiTrim_(extension).toLowerCase();
   var definition = KSP_AI_FORMAT_REGISTRY[normalized] || null;
   if (!definition) {
     var error = new Error('AI indexing does not support this source extension: ' + normalized);
@@ -80,39 +80,39 @@ function kspGetAiFormatDefinition(extension) {
   return definition;
 }
 
-function kspNormalizeAiMimeType(value) {
-  return kspAiTrim(value).toLowerCase().split(';')[0].trim();
+function kspNormalizeAiMimeType_(value) {
+  return kspAiTrim_(value).toLowerCase().split(';')[0].trim();
 }
 
-function kspValidateAiSourceDescriptor(extension, mimeType, byteLength) {
-  var definition = kspGetAiFormatDefinition(extension);
-  var normalizedMime = kspNormalizeAiMimeType(mimeType) || 'application/octet-stream';
-  kspAssert(definition.acceptedMimeTypes.indexOf(normalizedMime) !== -1,
+function kspValidateAiSourceDescriptor_(extension, mimeType, byteLength) {
+  var definition = kspGetAiFormatDefinition_(extension);
+  var normalizedMime = kspNormalizeAiMimeType_(mimeType) || 'application/octet-stream';
+  kspAssert_(definition.acceptedMimeTypes.indexOf(normalizedMime) !== -1,
     'AI_SOURCE_MIME_MISMATCH',
     'Source MIME type does not match .' + definition.extension + ': ' + normalizedMime);
   var length = Number(byteLength);
-  kspAssert(Number.isFinite(length) && length > 0 && Math.floor(length) === length,
+  kspAssert_(Number.isFinite(length) && length > 0 && Math.floor(length) === length,
     'AI_SOURCE_SIZE_INVALID', 'AI source size must be a positive integer.');
-  kspAssert(length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_SOURCE_BYTES,
+  kspAssert_(length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_SOURCE_BYTES,
     'AI_SOURCE_TOO_LARGE', 'AI source exceeds the 25MB product limit.');
   return definition;
 }
 
-function kspNormalizeAiByteArray(bytes) {
+function kspNormalizeAiByteArray_(bytes) {
   var values = bytes || [];
-  kspAssert(Array.isArray(values) || typeof values.length === 'number',
+  kspAssert_(Array.isArray(values) || typeof values.length === 'number',
     'AI_SOURCE_BYTES_INVALID', 'AI source bytes are invalid.');
   return Array.prototype.map.call(values, function (value) {
     var numberValue = Number(value);
     if (numberValue < 0) numberValue += 256;
-    kspAssert(Number.isFinite(numberValue) && numberValue >= 0 && numberValue <= 255,
+    kspAssert_(Number.isFinite(numberValue) && numberValue >= 0 && numberValue <= 255,
       'AI_SOURCE_BYTES_INVALID', 'AI source contains an invalid byte.');
     return Math.floor(numberValue);
   });
 }
 
-function kspAiHashBytesFallback(bytes) {
-  var normalized = kspNormalizeAiByteArray(bytes);
+function kspAiHashBytesFallback_(bytes) {
+  var normalized = kspNormalizeAiByteArray_(bytes);
   var hash = 2166136261;
   normalized.forEach(function (value) {
     hash ^= value;
@@ -121,11 +121,11 @@ function kspAiHashBytesFallback(bytes) {
   return ('00000000' + (hash >>> 0).toString(16)).slice(-8);
 }
 
-function kspAiSourcePayloadBytes(source) {
-  if (source && source.payloadKind === 'binary') return kspNormalizeAiByteArray(source.bytes || []);
+function kspAiSourcePayloadBytes_(source) {
+  if (source && source.payloadKind === 'binary') return kspNormalizeAiByteArray_(source.bytes || []);
   var text = String(source && source.text !== undefined ? source.text : '');
   if (typeof Utilities !== 'undefined' && Utilities.newBlob) {
-    return kspNormalizeAiByteArray(Utilities.newBlob(text, source.mimeType || 'text/plain').getBytes());
+    return kspNormalizeAiByteArray_(Utilities.newBlob(text, source.mimeType || 'text/plain').getBytes());
   }
   var bytes = [];
   for (var index = 0; index < text.length; index += 1) {
@@ -140,19 +140,19 @@ function kspAiSourcePayloadBytes(source) {
   return bytes;
 }
 
-function kspEmlNormalizeLineEndings(value) {
+function kspEmlNormalizeLineEndings_(value) {
   return String(value === null || value === undefined ? '' : value).replace(/\r\n?/g, '\n');
 }
 
-function kspEmlSplitHeaderBody(raw) {
-  var normalized = kspEmlNormalizeLineEndings(raw);
+function kspEmlSplitHeaderBody_(raw) {
+  var normalized = kspEmlNormalizeLineEndings_(raw);
   var separator = normalized.indexOf('\n\n');
-  kspAssert(separator >= 0, 'AI_EML_MALFORMED', 'EML has no header/body separator.');
+  kspAssert_(separator >= 0, 'AI_EML_MALFORMED', 'EML has no header/body separator.');
   return { headerText: normalized.slice(0, separator), bodyText: normalized.slice(separator + 2) };
 }
 
-function kspEmlParseHeaders(headerText) {
-  var unfolded = kspEmlNormalizeLineEndings(headerText).replace(/\n[ \t]+/g, ' ');
+function kspEmlParseHeaders_(headerText) {
+  var unfolded = kspEmlNormalizeLineEndings_(headerText).replace(/\n[ \t]+/g, ' ');
   var headers = {};
   unfolded.split('\n').forEach(function (line) {
     if (!line) return;
@@ -166,12 +166,12 @@ function kspEmlParseHeaders(headerText) {
   return headers;
 }
 
-function kspEmlHeader(headers, name) {
+function kspEmlHeader_(headers, name) {
   var values = headers && headers[String(name).toLowerCase()] ? headers[String(name).toLowerCase()] : [];
   return values.length ? values.join(', ') : '';
 }
 
-function kspEmlParseHeaderParameters(value) {
+function kspEmlParseHeaderParameters_(value) {
   var source = String(value || '');
   var pieces = source.split(';');
   var output = { value: pieces.shift().trim().toLowerCase(), parameters: {} };
@@ -183,7 +183,7 @@ function kspEmlParseHeaderParameters(value) {
   return output;
 }
 
-function kspEmlDecodeBase64Bytes(value) {
+function kspEmlDecodeBase64Bytes_(value) {
   var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   var source = String(value || '').replace(/\s+/g, '').replace(/=+$/g, '');
   var bits = 0;
@@ -191,7 +191,7 @@ function kspEmlDecodeBase64Bytes(value) {
   var output = [];
   for (var index = 0; index < source.length; index += 1) {
     var digit = alphabet.indexOf(source.charAt(index));
-    kspAssert(digit >= 0, 'AI_EML_BASE64_INVALID', 'EML contains invalid base64 data.');
+    kspAssert_(digit >= 0, 'AI_EML_BASE64_INVALID', 'EML contains invalid base64 data.');
     bits = (bits << 6) | digit;
     bitCount += 6;
     if (bitCount >= 8) {
@@ -203,7 +203,7 @@ function kspEmlDecodeBase64Bytes(value) {
   return output;
 }
 
-function kspEmlDecodeQuotedPrintableBytes(value, headerMode) {
+function kspEmlDecodeQuotedPrintableBytes_(value, headerMode) {
   var source = String(value || '');
   if (headerMode) source = source.replace(/_/g, ' ');
   source = source.replace(/=\r?\n/g, '');
@@ -217,14 +217,14 @@ function kspEmlDecodeQuotedPrintableBytes(value, headerMode) {
     var code = source.charCodeAt(index);
     if (code <= 255) output.push(code);
     else {
-      var utf8 = kspAiSourcePayloadBytes({ payloadKind: 'text', text: source.charAt(index), mimeType: 'text/plain' });
+      var utf8 = kspAiSourcePayloadBytes_({ payloadKind: 'text', text: source.charAt(index), mimeType: 'text/plain' });
       output = output.concat(utf8);
     }
   }
   return output;
 }
 
-function kspEmlWindows1252Character(value) {
+function kspEmlWindows1252Character_(value) {
   var map = {
     128: '€', 130: '‚', 131: 'ƒ', 132: '„', 133: '…', 134: '†', 135: '‡', 136: 'ˆ',
     137: '‰', 138: 'Š', 139: '‹', 140: 'Œ', 142: 'Ž', 145: '‘', 146: '’', 147: '“',
@@ -234,8 +234,8 @@ function kspEmlWindows1252Character(value) {
   return map[value] || String.fromCharCode(value);
 }
 
-function kspEmlDecodeUtf8(bytes) {
-  var values = kspNormalizeAiByteArray(bytes);
+function kspEmlDecodeUtf8_(bytes) {
+  var values = kspNormalizeAiByteArray_(bytes);
   var output = '';
   for (var index = 0; index < values.length;) {
     var first = values[index++];
@@ -258,22 +258,22 @@ function kspEmlDecodeUtf8(bytes) {
   return output;
 }
 
-function kspEmlDecodeBytes(bytes, charset) {
-  var normalizedCharset = kspAiTrim(charset || 'utf-8').toLowerCase().replace(/["']/g, '');
+function kspEmlDecodeBytes_(bytes, charset) {
+  var normalizedCharset = kspAiTrim_(charset || 'utf-8').toLowerCase().replace(/["']/g, '');
   if (typeof Utilities !== 'undefined' && Utilities.newBlob) {
-    try { return Utilities.newBlob(kspNormalizeAiByteArray(bytes)).getDataAsString(normalizedCharset || 'UTF-8'); }
+    try { return Utilities.newBlob(kspNormalizeAiByteArray_(bytes)).getDataAsString(normalizedCharset || 'UTF-8'); }
     catch (ignored) { }
   }
   if (!normalizedCharset || normalizedCharset === 'utf-8' || normalizedCharset === 'utf8' || normalizedCharset === 'us-ascii' || normalizedCharset === 'ascii') {
-    return kspEmlDecodeUtf8(bytes);
+    return kspEmlDecodeUtf8_(bytes);
   }
   if (normalizedCharset === 'iso-8859-1' || normalizedCharset === 'latin1' || normalizedCharset === 'windows-1252' || normalizedCharset === 'cp1252') {
-    return kspNormalizeAiByteArray(bytes).map(kspEmlWindows1252Character).join('');
+    return kspNormalizeAiByteArray_(bytes).map(kspEmlWindows1252Character_).join('');
   }
-  return kspEmlDecodeUtf8(bytes);
+  return kspEmlDecodeUtf8_(bytes);
 }
 
-function kspEmlDecodeRawHeaderUtf8(value) {
+function kspEmlDecodeRawHeaderUtf8_(value) {
   var source = String(value || '');
   if (!/[\u0080-\u00ff]/.test(source)) return source;
   var bytes = [];
@@ -282,36 +282,36 @@ function kspEmlDecodeRawHeaderUtf8(value) {
     if (code > 255) return source;
     bytes.push(code);
   }
-  var decoded = kspEmlDecodeUtf8(bytes);
+  var decoded = kspEmlDecodeUtf8_(bytes);
   return decoded.indexOf('\uFFFD') === -1 ? decoded : source;
 }
 
-function kspEmlDecodeEncodedWords(value) {
+function kspEmlDecodeEncodedWords_(value) {
   var decoded = String(value || '').replace(/=\?([^?]+)\?([bBqQ])\?([^?]*)\?=/g, function (_, charset, encoding, data) {
     var bytes = String(encoding).toUpperCase() === 'B'
-      ? kspEmlDecodeBase64Bytes(data)
-      : kspEmlDecodeQuotedPrintableBytes(data, true);
-    return kspEmlDecodeBytes(bytes, charset);
+      ? kspEmlDecodeBase64Bytes_(data)
+      : kspEmlDecodeQuotedPrintableBytes_(data, true);
+    return kspEmlDecodeBytes_(bytes, charset);
   });
-  return kspEmlDecodeRawHeaderUtf8(decoded).replace(/\s{2,}/g, ' ').trim();
+  return kspEmlDecodeRawHeaderUtf8_(decoded).replace(/\s{2,}/g, ' ').trim();
 }
 
-function kspEmlDecodePartBody(bodyText, transferEncoding, charset) {
-  var encoding = kspAiTrim(transferEncoding).toLowerCase();
+function kspEmlDecodePartBody_(bodyText, transferEncoding, charset) {
+  var encoding = kspAiTrim_(transferEncoding).toLowerCase();
   var bytes;
-  if (encoding === 'base64') bytes = kspEmlDecodeBase64Bytes(bodyText);
-  else if (encoding === 'quoted-printable') bytes = kspEmlDecodeQuotedPrintableBytes(bodyText, false);
-  else bytes = kspAiSourcePayloadBytes({ payloadKind: 'text', text: kspEmlNormalizeLineEndings(bodyText), mimeType: 'text/plain' });
-  return kspEmlDecodeBytes(bytes, charset || 'utf-8');
+  if (encoding === 'base64') bytes = kspEmlDecodeBase64Bytes_(bodyText);
+  else if (encoding === 'quoted-printable') bytes = kspEmlDecodeQuotedPrintableBytes_(bodyText, false);
+  else bytes = kspAiSourcePayloadBytes_({ payloadKind: 'text', text: kspEmlNormalizeLineEndings_(bodyText), mimeType: 'text/plain' });
+  return kspEmlDecodeBytes_(bytes, charset || 'utf-8');
 }
 
-function kspEmlSplitMultipart(bodyText, boundary) {
+function kspEmlSplitMultipart_(bodyText, boundary) {
   var marker = '--' + boundary;
   var closing = marker + '--';
   var parts = [];
   var current = [];
   var active = false;
-  kspEmlNormalizeLineEndings(bodyText).split('\n').forEach(function (line) {
+  kspEmlNormalizeLineEndings_(bodyText).split('\n').forEach(function (line) {
     if (line === marker || line === closing) {
       if (active && current.length) parts.push(current.join('\n'));
       current = [];
@@ -324,40 +324,40 @@ function kspEmlSplitMultipart(bodyText, boundary) {
   return parts;
 }
 
-function kspEmlIsAttachment(headers, contentType) {
-  var disposition = kspEmlParseHeaderParameters(kspEmlHeader(headers, 'content-disposition'));
+function kspEmlIsAttachment_(headers, contentType) {
+  var disposition = kspEmlParseHeaderParameters_(kspEmlHeader_(headers, 'content-disposition'));
   if (disposition.value === 'attachment') return true;
   if (disposition.parameters.filename) return true;
   if (contentType.parameters.name) return true;
   return false;
 }
 
-function kspEmlCollectBodyCandidates(rawPart, depth, state) {
+function kspEmlCollectBodyCandidates_(rawPart, depth, state) {
   var traversal = state || { parts: 0 };
   traversal.parts += 1;
-  kspAssert(traversal.parts <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_EML_PARTS, 'AI_EML_TOO_MANY_PARTS', 'EML contains too many MIME parts.');
-  kspAssert(depth <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_EML_DEPTH, 'AI_EML_TOO_DEEP', 'EML multipart nesting is too deep.');
-  var split = kspEmlSplitHeaderBody(rawPart);
-  var headers = kspEmlParseHeaders(split.headerText);
-  var contentType = kspEmlParseHeaderParameters(kspEmlHeader(headers, 'content-type') || 'text/plain; charset=utf-8');
-  if (kspEmlIsAttachment(headers, contentType)) return { plain: [], html: [] };
+  kspAssert_(traversal.parts <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_EML_PARTS, 'AI_EML_TOO_MANY_PARTS', 'EML contains too many MIME parts.');
+  kspAssert_(depth <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_EML_DEPTH, 'AI_EML_TOO_DEEP', 'EML multipart nesting is too deep.');
+  var split = kspEmlSplitHeaderBody_(rawPart);
+  var headers = kspEmlParseHeaders_(split.headerText);
+  var contentType = kspEmlParseHeaderParameters_(kspEmlHeader_(headers, 'content-type') || 'text/plain; charset=utf-8');
+  if (kspEmlIsAttachment_(headers, contentType)) return { plain: [], html: [] };
   if (contentType.value.indexOf('multipart/') === 0) {
     var boundary = contentType.parameters.boundary;
-    kspAssert(boundary, 'AI_EML_BOUNDARY_MISSING', 'Multipart EML has no boundary.');
-    return kspEmlSplitMultipart(split.bodyText, boundary).reduce(function (result, part) {
-      var nested = kspEmlCollectBodyCandidates(part, depth + 1, traversal);
+    kspAssert_(boundary, 'AI_EML_BOUNDARY_MISSING', 'Multipart EML has no boundary.');
+    return kspEmlSplitMultipart_(split.bodyText, boundary).reduce(function (result, part) {
+      var nested = kspEmlCollectBodyCandidates_(part, depth + 1, traversal);
       result.plain = result.plain.concat(nested.plain);
       result.html = result.html.concat(nested.html);
       return result;
     }, { plain: [], html: [] });
   }
   if (contentType.value !== 'text/plain' && contentType.value !== 'text/html') return { plain: [], html: [] };
-  var decoded = kspEmlDecodePartBody(split.bodyText, kspEmlHeader(headers, 'content-transfer-encoding'), contentType.parameters.charset || 'utf-8').trim();
+  var decoded = kspEmlDecodePartBody_(split.bodyText, kspEmlHeader_(headers, 'content-transfer-encoding'), contentType.parameters.charset || 'utf-8').trim();
   if (!decoded) return { plain: [], html: [] };
   return contentType.value === 'text/plain' ? { plain: [decoded], html: [] } : { plain: [], html: [decoded] };
 }
 
-function kspEmlDecodeHtmlEntities(value) {
+function kspEmlDecodeHtmlEntities_(value) {
   var named = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
   return String(value || '').replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi, function (_, entity) {
     var lower = entity.toLowerCase();
@@ -367,8 +367,8 @@ function kspEmlDecodeHtmlEntities(value) {
   });
 }
 
-function kspEmlHtmlToText(value) {
-  return kspEmlDecodeHtmlEntities(String(value || '')
+function kspEmlHtmlToText_(value) {
+  return kspEmlDecodeHtmlEntities_(String(value || '')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
     .replace(/<(br|\/p|\/div|\/li|\/tr|h[1-6])\b[^>]*>/gi, '\n')
@@ -380,29 +380,29 @@ function kspEmlHtmlToText(value) {
     .trim();
 }
 
-function kspNormalizeEmlText(rawEml) {
-  var normalized = kspEmlNormalizeLineEndings(rawEml);
-  var split = kspEmlSplitHeaderBody(normalized);
-  var headers = kspEmlParseHeaders(split.headerText);
-  var candidates = kspEmlCollectBodyCandidates(normalized, 0, { parts: 0 });
-  var body = candidates.plain.length ? candidates.plain.join('\n\n') : kspEmlHtmlToText(candidates.html.join('\n\n'));
+function kspNormalizeEmlText_(rawEml) {
+  var normalized = kspEmlNormalizeLineEndings_(rawEml);
+  var split = kspEmlSplitHeaderBody_(normalized);
+  var headers = kspEmlParseHeaders_(split.headerText);
+  var candidates = kspEmlCollectBodyCandidates_(normalized, 0, { parts: 0 });
+  var body = candidates.plain.length ? candidates.plain.join('\n\n') : kspEmlHtmlToText_(candidates.html.join('\n\n'));
   var fields = [
-    ['Subject', kspEmlDecodeEncodedWords(kspEmlHeader(headers, 'subject'))],
-    ['From', kspEmlDecodeEncodedWords(kspEmlHeader(headers, 'from'))],
-    ['To', kspEmlDecodeEncodedWords(kspEmlHeader(headers, 'to'))],
-    ['Cc', kspEmlDecodeEncodedWords(kspEmlHeader(headers, 'cc'))],
-    ['Date', kspEmlDecodeEncodedWords(kspEmlHeader(headers, 'date'))]
+    ['Subject', kspEmlDecodeEncodedWords_(kspEmlHeader_(headers, 'subject'))],
+    ['From', kspEmlDecodeEncodedWords_(kspEmlHeader_(headers, 'from'))],
+    ['To', kspEmlDecodeEncodedWords_(kspEmlHeader_(headers, 'to'))],
+    ['Cc', kspEmlDecodeEncodedWords_(kspEmlHeader_(headers, 'cc'))],
+    ['Date', kspEmlDecodeEncodedWords_(kspEmlHeader_(headers, 'date'))]
   ];
   var lines = [];
   fields.forEach(function (field) { if (field[1]) lines.push(field[0] + ': ' + field[1]); });
-  kspAssert(body, 'AI_EML_BODY_EMPTY', 'EML contains no indexable non-attachment body.');
+  kspAssert_(body, 'AI_EML_BODY_EMPTY', 'EML contains no indexable non-attachment body.');
   lines.push('', 'Body:', body);
   var output = lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
-  kspAssert(output.length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_EML_OUTPUT_CHARS,
+  kspAssert_(output.length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_EML_OUTPUT_CHARS,
     'AI_EML_OUTPUT_TOO_LARGE', 'Normalized EML text is too large.');
   return output;
 }
 
-function kspNormalizeEml(rawEml) {
-  return kspNormalizeEmlText(rawEml);
+function kspNormalizeEml_(rawEml) {
+  return kspNormalizeEmlText_(rawEml);
 }

@@ -2,7 +2,9 @@
 
 本ディレクトリはKnowledge Sharing Platformsの現行方針を記録する。
 
-2026-08-14に旧計画を破棄し、Google Workspace中心のシンプルな蓄積基盤から再設計した。2026-08-15にGemini File Search / 5モードKnowledge Search / Apps Script-first実装方針を採用し、2026-08-16にupload上限、audit / actor運用、およびimplementation-first / final live qualification方針へ単純化した。
+2026-08-14に旧計画を破棄し、Google Workspace中心のシンプルな蓄積基盤から再設計した。2026-08-15にGemini File Search / 5モードKnowledge Search / Apps Script-first実装方針を採用し、2026-08-16にupload上限、audit / actor運用、およびimplementation-first / final live qualification方針へ単純化した。Works 0004–0011は実装・マージ済みで、Work 0012はApps Script公開surfaceとKnowledge Exportのhardeningを完了した。
+
+アプリケーションrelease versionは`0.1.2`、Work IDは実装コンポーネントとhandoffを追跡する別の識別子である。setup/statusの`componentWorkId`と`releaseVersion`を混同しない。
 
 ## Current sources of truth
 
@@ -60,7 +62,9 @@ Older wording that still states `100MB/file`, `500MB/batch`, mandatory persisten
 - Knowledge Search: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`
 - ChatGPT owns design/GitHub/review/completion; Codex handles residual implementation/runtime work
 - Works 0004–0009 prioritize implementation + local/static/mock/contract tests
-- Work 0010 is the first standard DEV live qualification cycle
+- Work 0010 is the standard DEV live qualification cycle; its browser/Gemini/Shared Drive observations remain environment-dependent
+- Work 0011 is the Gemini-independent Knowledge Export and external-AI prompt handoff
+- Work 0012 is the public-surface security hardening, safe-error, link-integrity, and deterministic regression work
 
 ## Implementation Works
 
@@ -71,12 +75,14 @@ Older wording that still states `100MB/file`, `500MB/batch`, mandatory persisten
 - 0008: File Search client / sync engine / 自由質問 implementation with mocks
 - 0009: six formats / EML / four presets + feature freeze
 - 0010: final DEV live qualification + observed-defect remediation + production readiness
+- 0011: Gemini-independent Knowledge Export, Google Docs/PDF output, prompt handoff, setup migration, and metadata-only Audit
+- 0012: explicit normal-user facade, private internal Apps Script functions, trigger migration, export bounds/link integrity, safe errors, and regression enforcement
 
 詳細は`planning/apps-script-implementation-plan.md`を参照する。
 
 ## Validation timing
 
-開発中は原則としてlocal / static / mock / contract validationだけを行う。Apps Script deployment、Shared Drive live write、Gemini live indexing/query、trigger live validation等はfeature-complete後のWork 0010へ集約する。
+開発中は原則としてlocal / static / mock / contract validationだけを行う。Apps Script deployment、Shared Drive live write、Gemini live indexing/query、trigger live validation等はfeature-complete後のWork 0010–0011 qualificationへ集約する。Work 0012の決定論的hardeningは完了しているが、実機での権限等価性・リンク挙動・Gemini qualificationを完了したとは扱わない。
 
 公式仕様・mock・contract testだけでは解消できず、実装継続を妨げるBLOCKERがある場合だけ最小限のlive probeを前倒しできる。
 

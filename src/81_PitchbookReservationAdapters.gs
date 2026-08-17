@@ -1,4 +1,4 @@
-function kspAttachPitchbookReservationAdapters(meetingEnvironment, scriptProperties) {
+function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProperties) {
   meetingEnvironment.reservePitchbookBatch = function (spreadsheetId, input, selected, totalBytes, actor, nowIso) {
     var lock = LockService.getScriptLock();
     if (!lock.tryLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS)) {
@@ -9,13 +9,13 @@ function kspAttachPitchbookReservationAdapters(meetingEnvironment, scriptPropert
     try {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var indexSheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.PITCHBOOK_INDEX);
-      kspAssert(indexSheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + KSP_SHEET_NAMES.PITCHBOOK_INDEX);
-      var headers = kspReadHeadersFromSheet(indexSheet);
-      var existingRows = kspReadObjectsFromSheet(indexSheet, headers);
-      var batchSetting = kspFindSettingRow(spreadsheetId, 'NEXT_BATCH_ID');
-      var documentSetting = kspFindSettingRow(spreadsheetId, 'NEXT_DOCUMENT_ID');
-      var batchSequence = kspReadPositiveSettingValue(batchSetting, 'NEXT_BATCH_ID');
-      var documentSequence = kspReadPositiveSettingValue(documentSetting, 'NEXT_DOCUMENT_ID');
+      kspAssert_(indexSheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + KSP_SHEET_NAMES.PITCHBOOK_INDEX);
+      var headers = kspReadHeadersFromSheet_(indexSheet);
+      var existingRows = kspReadObjectsFromSheet_(indexSheet, headers);
+      var batchSetting = kspFindSettingRow_(spreadsheetId, 'NEXT_BATCH_ID');
+      var documentSetting = kspFindSettingRow_(spreadsheetId, 'NEXT_DOCUMENT_ID');
+      var batchSequence = kspReadPositiveSettingValue_(batchSetting, 'NEXT_BATCH_ID');
+      var documentSequence = kspReadPositiveSettingValue_(documentSetting, 'NEXT_DOCUMENT_ID');
       var maxSequence = existingRows.reduce(function (maximum, row) {
         var sameContext = String(row.Date || '') === input.date &&
           String(row.GP_ID || '') === input.gpId &&
@@ -23,17 +23,17 @@ function kspAttachPitchbookReservationAdapters(meetingEnvironment, scriptPropert
           String(row.Capital_Type_ID || '') === input.capitalTypeId;
         return sameContext ? Math.max(maximum, Number(row.Sequence_No) || 0) : maximum;
       }, 0);
-      var batchId = kspFormatBatchId(batchSequence);
+      var batchId = kspFormatBatchId_(batchSequence);
       var rows = input.files.map(function (file, index) {
         var sequenceNo = maxSequence + index + 1;
-        var documentId = kspFormatDocumentId(documentSequence + index);
-        var savedFilename = kspBuildPitchbookFilename(
+        var documentId = kspFormatDocumentId_(documentSequence + index);
+        var savedFilename = kspBuildPitchbookFilename_(
           input,
           selected,
           sequenceNo,
-          kspGetPitchbookExtension(file.originalFilename)
+          kspGetPitchbookExtension_(file.originalFilename)
         );
-        return kspBuildPitchbookPendingRow({
+        return kspBuildPitchbookPendingRow_({
           batchId: batchId,
           documentId: documentId,
           sequenceNo: sequenceNo,
@@ -48,7 +48,7 @@ function kspAttachPitchbookReservationAdapters(meetingEnvironment, scriptPropert
       var existingDocumentIds = {};
       existingRows.forEach(function (row) { existingDocumentIds[String(row.Document_ID)] = true; });
       rows.forEach(function (row) {
-        kspAssert(!existingDocumentIds[String(row.Document_ID)], 'PITCHBOOK_DOCUMENT_ID_COLLISION',
+        kspAssert_(!existingDocumentIds[String(row.Document_ID)], 'PITCHBOOK_DOCUMENT_ID_COLLISION',
           'Document ID already exists: ' + row.Document_ID);
       });
       var values = rows.map(function (row) {
@@ -64,9 +64,9 @@ function kspAttachPitchbookReservationAdapters(meetingEnvironment, scriptPropert
       if (batchSetting.updatedAtIndex !== -1) batchSetting.sheet.getRange(batchSetting.rowIndex, batchSetting.updatedAtIndex + 1).setValue(nowIso);
       if (documentSetting.updatedAtIndex !== -1) documentSetting.sheet.getRange(documentSetting.rowIndex, documentSetting.updatedAtIndex + 1).setValue(nowIso);
 
-      var reservation = kspBuildPitchbookReservation(batchId, input, rows, totalBytes);
+      var reservation = kspBuildPitchbookReservation_(batchId, input, rows, totalBytes);
       reservation.createdAt = nowIso;
-      scriptProperties.setProperty(kspPitchbookReservationKey(batchId), JSON.stringify(reservation));
+      scriptProperties.setProperty(kspPitchbookReservationKey_(batchId), JSON.stringify(reservation));
       return { rows: rows, reservation: reservation };
     } finally {
       lock.releaseLock();
@@ -74,21 +74,21 @@ function kspAttachPitchbookReservationAdapters(meetingEnvironment, scriptPropert
   };
 
   meetingEnvironment.getPitchbookReservation = function (batchId) {
-    return kspSafeParseJson(
-      scriptProperties.getProperty(kspPitchbookReservationKey(batchId)),
-      kspPitchbookReservationKey(batchId)
+    return kspSafeParseJson_(
+      scriptProperties.getProperty(kspPitchbookReservationKey_(batchId)),
+      kspPitchbookReservationKey_(batchId)
     );
   };
 
 }
 
-function kspPitchbookReservationKey(batchId) {
+function kspPitchbookReservationKey_(batchId) {
   return KSP_PITCHBOOK_RESERVATION_PREFIX + String(batchId || '');
 }
 
-function kspReadPositiveSettingValue(setting, key) {
+function kspReadPositiveSettingValue_(setting, key) {
   var value = Number(setting.sheet.getRange(setting.rowIndex, setting.valueIndex + 1).getValue());
-  kspAssert(Number.isFinite(value) && value > 0 && Math.floor(value) === value,
+  kspAssert_(Number.isFinite(value) && value > 0 && Math.floor(value) === value,
     'COUNTER_VALUE_INVALID', 'Counter must be a positive integer: ' + key);
   return value;
 }

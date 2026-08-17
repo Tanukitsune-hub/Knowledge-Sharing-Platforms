@@ -4,7 +4,9 @@
 
 ## Status
 
-現在はimplementation-ready planning phaseです。runtime実装、試験、deployment、本番運用、live Gemini integrationは未開始です。
+Works 0004–0011は実装・マージ済みです。Work 0012では、Apps Scriptの公開ファサード境界、Knowledge Exportの資源上限・リンク整合性、公開エラーの秘匿、および決定論的回帰検証をhardeningしました。アプリケーションrelease versionは`0.1.2`です。
+
+Work 0010–0011で定義されたDEVのブラウザ / Shared Drive / Docs / PDF / Gemini実機qualificationは、環境依存の確認項目として引き続き未観測です。本書は本番デプロイ完了を意味しません。
 
 採用済み:
 
@@ -18,6 +20,7 @@
 - 15-minute AI sync
 - six initial source formats
 - five-mode Knowledge Search
+- Gemini-independent Knowledge Export: Active Meeting本文、Pitchbook metadata / authoritative link、Google Docs / PDF
 - ChatGPT-led development + Codex residual implementation
 
 ## Product overview
@@ -205,16 +208,25 @@ Shared filters:
 
 All five modes share one File Search / metadata / semantic retrieval / Gemini Flash / citation path. Presets change prompt/output template only.
 
+## Knowledge Export / external-AI handoff
+
+- Backend Indexの`Status = Active`だけを対象にする。
+- Meetingは正本Google Doc本文を取り込み、Pitchbookは本文を複製せずmetadataとauthoritative Drive linkだけを出力する。
+- Meeting 50件超、Pitchbook 200件超、またはMeeting本文250,000文字超はサーバー側で書き出しを停止する。件数超過時はMeeting Docを読み取らない。
+- Google Docs / PDFは設定済みのKnowledge Exports sibling folderへ生成し、原資料リンクはstable file IDから検証・生成する。
+- 外部AI向け5モードpromptはMaster表示名とstable IDを併記する。prompt本文、原文、回答、chunk、bytesはAuditへ保存しない。
+- Exportは正本の派生コピーであり、権限ドリフトと無期限蓄積のリスクがある。production前にfolder permission equivalenceとretention運用を実機確認する。
+
 ## Apps Script setup
 
 Normal setup is Apps Script-first.
 
-Administrator runs:
+Administrator/editor runs (normal users cannot call these through `google.script.run`):
 
 ```text
-setupKnowledgePlatform()
-validateInstallation()
-getInstallationStatus()
+setupKnowledgePlatform_()
+validateInstallation_()
+getInstallationStatus_()
 ```
 
 Setup creates / reuses / migrates:
@@ -229,6 +241,12 @@ Setup creates / reuses / migrates:
 
 Setup is idempotent and is also the repair / migration path.
 
+## Apps Script public surface
+
+Apps Script HTML Serviceでは、top-level関数は末尾`_`がない限りbrowserから呼び出せます。`ksp` prefixはprivacy boundaryではありません。通常利用者向けの公開関数は、Web Appが実際に使用するfacade allowlistだけです。setup、status、validation、retention、manual sync、diagnostics、trigger handler、Drive / Docs / Sheets adapterはprivate関数として保持します。
+
+公開surfaceの回帰検証は`npm run check`に含まれる`public-surface` validatorで実行します。
+
 ## Development sequence
 
 - Work 0004: Apps Script scaffold + idempotent setup
@@ -238,6 +256,8 @@ Setup is idempotent and is also the repair / migration path.
 - Work 0008: Gemini File Search thin slice + 自由質問
 - Work 0009: 15-minute sync + six formats + EML
 - Work 0010: four presets + production qualification
+- Work 0011: Knowledge Export / external-AI prompt handoff
+- Work 0012: public-surface security hardening and reliability validation
 
 ChatGPT owns design / GitHub / review / completion. Codex is used for residual implementation, testing, runtime validation, and debugging.
 

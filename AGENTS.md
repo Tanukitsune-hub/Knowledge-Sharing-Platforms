@@ -155,11 +155,11 @@ REPOSITORY_RULES_STATUS: ACTIVE
 ## 1. Purpose and phase
 
 - Build a simple private-assets knowledge base for Meeting records and Pitchbook/source materials with source-traceable Gemini retrieval.
-- Current phase: Works 0004–0010 are implemented and merged; Work 0011 Gemini-independent Knowledge Export and external-AI handoff implementation / targeted validation is active.
+- Current phase: Works 0004–0011 are implemented and merged; Work 0012 Apps Script public-surface security hardening, reliability work, and deterministic validation are complete on the active branch.
 - Pre-2026-08-14 product/UI/architecture/MVP decisions are withdrawn.
 - Accepted accumulation design, Gemini File Search architecture, five-mode Knowledge Search UX, Apps Script-first implementation plan, lower upload limits, and simplified audit/actor model are current requirements.
 - Do not reopen accepted design merely because live validation has not run.
-- During Work 0011, do not reopen deferred Work 0010 browser or Gemini qualification. Keep export implementation within the accepted export, prompt, setup, UI, audit, and validation contract.
+- During Work 0012, do not reopen deferred Work 0010–0011 browser, Shared Drive, Docs/PDF, clipboard, or Gemini qualification. Keep hardening within the accepted public-facade, export, prompt, setup, audit, security, and validation contract.
 
 ## 2. Current sources of truth
 
@@ -188,10 +188,11 @@ If documents conflict, prefer the latest explicit user decision and the closest 
 - Backend Spreadsheet has exactly `GP_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `Settings` as baseline sheets.
 - Audit logs live in a separate Spreadsheet under a restricted admin-only control folder.
 - Normal users do not directly edit backend / audit / File Search.
-- `setupKnowledgePlatform()` is the idempotent create / reuse / migration / repair path.
+- `setupKnowledgePlatform_()` is the editor-only idempotent create / reuse / migration / repair path; normal users cannot call it through `google.script.run`.
 - DEV and PROD use separate Apps Script projects and resource sets.
 - Work 0010 may use a clearly named user-owned My Drive DEV resource set with synthetic data when a disposable Shared Drive is unavailable. Record Shared Drive-specific behavior as unobserved; do not infer it from My Drive.
 - Work 0011 export validation is Gemini-independent and may use synthetic DEV source rows and authoritative-text fakes; never use production or confidential data.
+- Work 0012 public-surface validation is Gemini-independent and uses synthetic data only; no production deployment or destructive live action is allowed.
 
 ## 4. Meeting and Pitchbook contracts
 
@@ -250,6 +251,7 @@ Accepted modes: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`.
 - Use one configured Gemini Flash model; no model selector / Deep mode.
 - Work 0010 DEV default: `gemini-3.6-flash`.
 - Knowledge Export resolves Active sources directly from the Backend Index and does not require Gemini credentials, citations, or File Search state.
+- Knowledge Export hard-stops count limits before Meeting Doc reads, binds source links to stable IDs, writes explicit Docs hyperlinks, and returns canonical artifact links.
 
 ## 9. AI sync / formats
 
@@ -282,12 +284,15 @@ Initial formats: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`.
 - 0009: six formats + EML normalization + all five modes + feature freeze
 - 0010: full-checkout validation + final DEV live qualification + observed-defect remediation
 - 0011: Gemini-independent Knowledge Export, external-AI prompt handoff, setup migration, UI, audit redaction, and targeted validation
+- 0012: explicit normal-user facade, private internal Apps Script functions, trigger migration, export reliability/link integrity, safe errors, and regression enforcement
 
 Default Codex model is Luna Max. Use Sol High only for material unresolved cross-cutting diagnosis; Sol Max only for exceptional hard-to-reverse architecture or critical final review.
 
 ## 12. Validation / completion
 
 Work 0010 validates setup idempotency, registration/update, practical upload limit, stable IDs/sequences, partial retry, concurrency, Master operations, separate restricted Audit, Actor fallback, source-to-index consistency, 15-minute worker, six formats, EML normalization, metadata filtering, five-mode retrieval, citations/Drive links, re-index/Inactive/Reactivate, retry idempotency, AI audit, Flash-only behavior, and AI-outage isolation.
+
+Work 0012 validates the exact normal-user public facade, private setup/status/retention/sync/diagnostic/destructive helpers, legacy trigger migration, bounded Knowledge Export reads, stable-ID link integrity, explicit hyperlinks, readable prompts, safe public errors, metadata-only Audit, throttling/idempotency, and deterministic regression enforcement. Live permission, Docs/PDF, clipboard, Gemini, and Shared Drive-specific checks remain separately unobserved until authorized DEV qualification.
 
 Work 0011 validates Active-source resolution, exact Meeting text counts, metadata/link-only Pitchbook handling, stale-preview protection, limits, Docs/PDF artifact boundaries, neutral five-mode prompts, Knowledge Exports setup/migration, successful-copy-only prompt Audit, metadata redaction, safe URLs, and Gemini-independent operation.
 

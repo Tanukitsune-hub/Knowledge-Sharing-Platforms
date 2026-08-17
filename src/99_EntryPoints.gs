@@ -1,9 +1,9 @@
-function setupKnowledgePlatform() {
-  var originalTriggerRegistry = kspGetTriggerRegistry;
-  kspGetTriggerRegistry = function (config) {
+function setupKnowledgePlatform_() {
+  var originalTriggerRegistry = kspGetTriggerRegistry_;
+  kspGetTriggerRegistry_ = function (config) {
     return originalTriggerRegistry(config).map(function (rule) {
-      if (rule.handler === 'runAiSyncWorker') {
-        var copy = kspDeepClone(rule);
+      if (rule.handler === 'runAiSyncWorker_') {
+        var copy = kspDeepClone_(rule);
         copy.available = true;
         return copy;
       }
@@ -11,36 +11,36 @@ function setupKnowledgePlatform() {
     });
   };
   try {
-    return kspRunSetup(kspCreateAppsScriptEnvironment());
+    return kspRunSetup_(kspCreateAppsScriptEnvironment_());
   } finally {
-    kspGetTriggerRegistry = originalTriggerRegistry;
+    kspGetTriggerRegistry_ = originalTriggerRegistry;
   }
 }
 
-function validateInstallation() {
-  return kspRunValidation(kspCreateAppsScriptEnvironment());
+function validateInstallation_() {
+  return kspRunValidation_(kspCreateAppsScriptEnvironment_());
 }
 
-function getInstallationStatus() {
-  return kspGetStatus(kspCreateAppsScriptEnvironment());
+function getInstallationStatus_() {
+  return kspGetStatus_(kspCreateAppsScriptEnvironment_());
 }
 
-function getBootstrapConfigTemplate() {
-  return kspGetBootstrapConfigTemplate();
+function getBootstrapConfigTemplate_() {
+  return kspGetBootstrapConfigTemplate_();
 }
 
 function previewKnowledgeExport(input) {
-  return kspRunKnowledgeExportPreview(kspCreateKnowledgeExportEnvironment(), input);
+  return kspRunKnowledgeExportPreview_(kspCreateKnowledgeExportEnvironment_(), input);
 }
 
 function createKnowledgeExport(input) {
-  return kspRunKnowledgeExportCreation(kspCreateKnowledgeExportEnvironment(), input);
+  return kspRunKnowledgeExportCreation_(kspCreateKnowledgeExportEnvironment_(), input);
 }
 
 function getKnowledgeExportPrompt(input) {
-  return kspGetKnowledgeExportPrompt(kspCreateKnowledgeExportEnvironment(), input);
+  return kspGetKnowledgeExportPrompt_(kspCreateKnowledgeExportEnvironment_(), input);
 }
 
 function recordKnowledgeExportPromptCopy(input) {
-  return kspRecordKnowledgeExportPromptCopy(kspCreateKnowledgeExportEnvironment(), input);
+  return kspRecordKnowledgeExportPromptCopy_(kspCreateKnowledgeExportEnvironment_(), input);
 }

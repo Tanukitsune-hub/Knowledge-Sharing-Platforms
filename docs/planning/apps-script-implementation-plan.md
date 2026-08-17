@@ -1,10 +1,12 @@
 # Apps Script-first Implementation Plan
 
-Work ID: 0003
+Work ID: 0003 (historical planning document; current implementation status is tracked by Works 0004–0012)
 
 Date: 2026-08-16
 
-Status: Accepted implementation plan
+Status: Accepted implementation plan; Works 0004–0011 merged and Work 0012 hardening implemented. Release version: `0.1.2`.
+
+Work 0010–0011 browser / Workspace / Gemini qualification remains a separate environment-dependent evidence track. Work 0012 deterministic public-surface, export-integrity, safe-error, and regression checks do not claim those live checks passed.
 
 ## 1. Goal
 
@@ -147,12 +149,14 @@ credentialはbootstrap JSONへ入れない。
 ### 5.3 Setup entry points
 
 ```text
-setupKnowledgePlatform()
-validateInstallation()
-getInstallationStatus()
+setupKnowledgePlatform_()
+validateInstallation_()
+getInstallationStatus_()
 ```
 
-`setupKnowledgePlatform()`は次をcreate / reuse / migrateする。
+These are editor-only/private Apps Script entry points. The normal-user Web App cannot call them through `google.script.run`; the public facade is enforced by the repository validator.
+
+`setupKnowledgePlatform_()`は次をcreate / reuse / migrateする。
 
 - `Private Assets Knowledge / Meeting Records / Pitchbooks`
 - Backend Spreadsheet
@@ -272,7 +276,7 @@ Outcome:
 
 - Apps Script scaffold / manifest
 - bootstrap config contract
-- `setupKnowledgePlatform / validateInstallation / getInstallationStatus`
+- editor-only `setupKnowledgePlatform_ / validateInstallation_ / getInstallationStatus_`
 - folder / backend / audit / 5-sheet adapters
 - schema / migration / Master seed / trigger registry logic
 - structured setup report
@@ -423,7 +427,7 @@ This is the first standard live-validation Work.
 Outcome:
 
 - create / configure DEV Apps Script / Google Workspace resources
-- run `setupKnowledgePlatform()` live
+- run `setupKnowledgePlatform_()` live from the editor or authorized setup path
 - deploy DEV Web App
 - Meeting end-to-end live validation
 - Pitchbook end-to-end live validation and practical upload-limit confirmation
@@ -451,9 +455,17 @@ Acceptance:
 - AI failure cannot corrupt authoritative records
 - no BLOCKER remains for approved production deployment
 
+### Work 0011 — Knowledge Export and external-AI handoff
+
+Implemented and merged as a Gemini-independent path. It resolves Active sources from the Backend Index, creates Google Docs / PDF derived outputs, preserves Meeting authoritative text, emits Pitchbook metadata/link lists, supports five neutral prompt modes, migrates Knowledge Exports setup, and writes metadata-only Audit records. Live Docs/PDF placement, hyperlink behavior, permission equivalence, and clipboard behavior remain qualification evidence rather than assumed results.
+
+### Work 0012 — Apps Script public-surface and reliability hardening
+
+Implemented and validated with deterministic tests. The canonical normal-user facade is allowlisted and all other top-level functions are private; legacy AI triggers migrate to the private handler; `npm run check` enforces the boundary. Export count hard-stops precede Meeting Doc reads, source IDs bind to links/files, generated Docs receive explicit hyperlinks, prompts use readable Master names, and public errors/Audit are redacted. Synthetic data only is used for the focused validation.
+
 ## 12. Validation strategy
 
-### During Works 0004–0009
+### During Works 0004–0012
 
 Run local / static validation only by default:
 
@@ -479,7 +491,7 @@ Do not routinely:
 - wait for live 15-minute triggers
 - run live OAuth / permission qualification
 
-### Work 0010 final live qualification
+### Work 0010–0011 final live qualification
 
 Run one consolidated qualification cycle after feature freeze.
 
@@ -503,7 +515,7 @@ The following are not open decisions:
 - Audit Spreadsheet is separate and Drive-restricted
 - upload limit is 25MB/file, 10 files, 100MB total unless final live qualification proves a lower safe limit is needed
 - 100MB/file transport / Cloud fallback is not initial scope
-- routine live validation is deferred until Work 0010
+- routine/live qualification remains deferred or environment-limited for the affected Work 0010–0011 matrices
 
 ## 14. Stop / escalation conditions
 
@@ -526,6 +538,6 @@ Do not stop because:
 
 ## 15. Completion condition
 
-Implementation is done when feature-complete code has passed local/static validation, final DEV live qualification shows primary workflows working end-to-end, critical checks pass, confidential data / credentials are handled safely, Audit Spreadsheet is restricted, citations return to correct Drive sources, AI failure cannot corrupt authoritative records, and no BLOCKER remains.
+Implementation is done when feature-complete code and Work 0012 hardening pass local/static validation. Production readiness additionally requires the separate DEV live qualification to show primary workflows, permission boundaries, Docs/PDF links, citations, Audit restriction, and AI failure isolation end-to-end; those unobserved checks must not be claimed as passed.
 
 Work ID: 0003

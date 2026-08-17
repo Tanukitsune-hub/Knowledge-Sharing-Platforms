@@ -1,21 +1,21 @@
-function runAiSyncWorker() {
-  return kspRunFeatureFreezeAiSync(kspCreateFeatureFreezeAiEnvironment_());
+function runAiSyncWorker_() {
+  return kspRunFeatureFreezeAiSync_(kspCreateFeatureFreezeAiEnvironment_());
 }
 
 function getKnowledgeSearchBootstrapData() {
-  return kspGetFeatureFreezeKnowledgeBootstrap(kspCreateFeatureFreezeAiEnvironment_());
+  return kspGetFeatureFreezeKnowledgeBootstrap_(kspCreateFeatureFreezeAiEnvironment_());
 }
 
 function searchKnowledge(input) {
-  return kspRunFeatureFreezeKnowledgeSearch(kspCreateFeatureFreezeAiEnvironment_(), input);
+  return kspRunFeatureFreezeKnowledgeSearch_(kspCreateFeatureFreezeAiEnvironment_(), input);
 }
 
-function askKnowledgeQuestion(input) {
-  var payload = kspDeepClone(input || {});
+function askKnowledgeQuestion_(input) {
+  var payload = kspDeepClone_(input || {});
   payload.mode = KSP_FEATURE_FREEZE_SEARCH_MODES.FREE_QUESTION;
-  return kspRunFeatureFreezeKnowledgeSearch(kspCreateFeatureFreezeAiEnvironment_(), payload);
+  return kspRunFeatureFreezeKnowledgeSearch_(kspCreateFeatureFreezeAiEnvironment_(), payload);
 }
 
-function getFeatureFreezeDiagnostics() {
-  return kspGetFeatureFreezeDiagnostics(kspCreateFeatureFreezeAiEnvironment_());
+function getFeatureFreezeDiagnostics_() {
+  return kspGetFeatureFreezeDiagnostics_(kspCreateFeatureFreezeAiEnvironment_());
 }

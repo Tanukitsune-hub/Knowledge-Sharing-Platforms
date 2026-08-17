@@ -4,6 +4,8 @@
 
 本書は、Knowledge Sharing Platformsの蓄積基盤とGemini File Search検索レイヤーに適用する初期セキュリティ / 情報管理方針を定める。
 
+Works 0004–0011は実装・マージ済みで、Work 0012はApps Script public-surface、safe-error、Export link integrityのhardeningを完了した。release versionは`0.1.2`。Work 0010–0011のDEV実機qualificationとpermission equivalence確認は未観測であり、本番承認とは別である。
+
 ## Baseline requirements
 
 1. 実際のMeeting、Pitchbook、未公開投資情報、個人情報、credentialを公開GitHubへ保存しない。
@@ -25,6 +27,26 @@
 - 利用者別、GP別、file別のretrieval ACLを初期版に実装しない。
 - インターネット一般公開を前提としない。
 - 将来、利用者ごとにsource accessを分離する要件が生じた場合だけ、新しいsecurity / architecture requirementとして再設計する。
+
+## Apps Script server-function boundary
+
+Apps Script HTML Serviceでは、top-level server functionは末尾`_`がない限り`google.script.run`から呼び出せる。`ksp` prefixやUI上の非表示は認証・認可境界にならない。通常利用者向けの公開関数は、実際のWeb App routeだけを列挙したcanonical facade allowlistに限定し、setup、validation、status、retention、manual sync、diagnostics、trigger、raw Drive / Docs / Sheets helperはprivate関数にする。`scripts/validate-public-surface.cjs`を`npm run check`へ組み込み、destructive helperの公開を回帰として失敗させる。
+
+Public responsesはbackend / audit / folder / store IDs、credential state、private URLs、raw API payload、stack、source bodyを返さない。公開エラーは固定safe catalogと非機密error codeを使用する。詳細な実装エラーは通常利用者へ返さず、Auditにもsource contentやprompt本文を保存しない。
+
+通常利用者向けfacadeは次だけである。
+
+```text
+doGet
+getMeetingBootstrapData / registerMeeting
+getPitchbookBootstrapData / preparePitchbookBatch / uploadPitchbookFile
+getPhase1MaintenanceBootstrapData
+searchMeetingRecords / getMeetingMaintenanceRecord / updateMeetingMaintenance / changeMeetingStatus
+searchPitchbookRecords / getPitchbookMaintenanceRecord / updatePitchbookMaintenance / changePitchbookStatus
+mutateMaster / quickAddGp
+getKnowledgeSearchBootstrapData / searchKnowledge
+previewKnowledgeExport / createKnowledgeExport / getKnowledgeExportPrompt / recordKnowledgeExportPromptCopy
+```
 
 ## Web App execution and actor attribution
 
@@ -100,13 +122,17 @@ Credentialの具体的保管方式は会社環境で実装時に確定するが�
 AI query追加項目:
 
 - Search mode
-- Question / additional instruction
+- mode / filter metadata（Question / additional instruction本文は保存しない）
 - Date From / To
 - GP / Asset Class / Equity-Debt / Source Type filters
 - configured Flash model ID
 - cited source IDs when available
 
 Gemini回答全文、retrieved chunk全文、Embedding、Meeting本文全文、Pitchbook内容を監査ログへ複製しない。
+
+## Knowledge Export derived-copy risk
+
+Knowledge Exportは`Knowledge Exports` sibling folderへ生成する派生コピーである。Meeting本文を含むGoogle Docs / PDFと、Pitchbook metadata / authoritative linkを作成するため、原本のアクセス権と同等以上に広い共有設定を許可しない。setupは親境界を検証するが、Workspaceの実効permission equivalence、共有リンク設定、削除・保持運用はDEVで確認してからproductionへ進める。自動expiry、履歴管理、削除UIは現行スコープ外であり、無期限蓄積を運用上のリスクとして扱う。
 
 ## Gemini File Search data handling
 

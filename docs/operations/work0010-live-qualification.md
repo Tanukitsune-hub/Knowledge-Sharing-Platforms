@@ -53,9 +53,9 @@ Create or use a standalone DEV Apps Script project tied to a standard Google Clo
 Configure `BOOTSTRAP_CONFIG_JSON` with DEV-only parent folder IDs and `aiSyncEnabled: false`, then run:
 
 ```text
-setupKnowledgePlatform()
-validateInstallation()
-getInstallationStatus()
+setupKnowledgePlatform_()
+validateInstallation_()
+getInstallationStatus_()
 ```
 
 Rerun setup and prove no duplicate folders, Spreadsheets, sheets, seeds, or triggers. Confirm counters and future configuration are preserved.
@@ -85,7 +85,7 @@ Test upload sizes incrementally. If 25MB is not reliable, lower the product limi
 - set `AI_EMBEDDING_MODEL = models/gemini-embedding-2`;
 - create or reuse one File Search Store;
 - persist `GEMINI_FILE_SEARCH_STORE_NAME` through the existing Settings path;
-- run `getFeatureFreezeDiagnostics()`;
+- run `getFeatureFreezeDiagnostics_()`;
 - enable AI sync and rerun setup to create/reuse the 15-minute trigger.
 
 ### 5. Six-format indexing matrix

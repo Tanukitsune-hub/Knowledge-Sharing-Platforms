@@ -55,33 +55,6 @@ async function quickAddGpFromRegistration(page,statusId) {
   }
 }
 
-function ensurePhase1DiagnosticsButton() {
-  let button=el('phase1-diagnostics');
-  if(button)return button;
-  const refresh=el('masters-refresh');
-  if(!refresh)return null;
-  button=document.createElement('button');
-  button.id='phase1-diagnostics';
-  button.className='small-button';
-  button.type='button';
-  button.textContent='構成診断';
-  refresh.parentNode.insertBefore(button,refresh);
-  return button;
-}
-
 el('meeting-quick-add-gp').onclick=()=>quickAddGpFromRegistration('meeting','meeting-status');
 el('pitchbook-quick-add-gp').onclick=()=>quickAddGpFromRegistration('pitchbook','pitchbook-status');
-const phase1DiagnosticsButton=ensurePhase1DiagnosticsButton();
-if(phase1DiagnosticsButton)phase1DiagnosticsButton.onclick=async()=>{
-  try{
-    const result=await serverCall('getPhase1Diagnostics');
-    if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'診断に失敗しました。');
-    const message='構成: '+(result.healthy?'OK':'要確認')+
-      ' / Backend・Audit分離: '+(result.resources.backendAuditSeparated?'OK':'要確認')+
-      ' / Actor: '+result.actor.kind+' / 実機検証: 未実施';
-    showStatus('masters-status',result.healthy?'info':'warning',message);
-  }catch(error){
-    showStatus('masters-status','error',error.message||String(error));
-  }
-};
 </script>

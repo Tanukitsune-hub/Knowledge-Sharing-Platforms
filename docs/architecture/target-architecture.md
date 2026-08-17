@@ -6,6 +6,8 @@
 
 Google Workspace中心のauthoritative layerを維持し、その上にGemini File Searchをderived retrieval layerとして追加する。ImplementationはApps Script-firstで進める。
 
+Works 0004–0011は実装・マージ済みで、Work 0012はApps Script公開surfaceとKnowledge Exportのhardeningを完了した。release versionは`0.1.2`。Work 0010–0011のDEV実機qualificationは未観測項目を残している。
+
 ## Architecture overview
 
 ```text
@@ -56,6 +58,8 @@ Restricted admin-only Audit Spreadsheet
 
 Normal-user UI only. Users do not directly edit backend / Audit Spreadsheet / File Search.
 
+HTML Serviceのtop-level関数は末尾`_`がない限り`google.script.run`から呼び出せる。通常利用者向けの公開関数はcanonical facade allowlistだけに限定し、setup、validation、installation status、retention、manual sync、diagnostics、trigger、Drive / Docs / Sheets adapterは末尾`_`のprivate関数とする。`ksp` prefixはprivacy boundaryではない。`npm run check`のpublic-surface validatorがこの境界を検査する。
+
 ### Shared Drive
 
 Authoritative source:
@@ -95,12 +99,12 @@ Separate Spreadsheet under a Restricted admin-only control folder.
 
 ## Apps Script-first setup
 
-Idempotent setup entry points:
+Idempotent editor-only setup entry points:
 
 ```text
-setupKnowledgePlatform()
-validateInstallation()
-getInstallationStatus()
+setupKnowledgePlatform_()
+validateInstallation_()
+getInstallationStatus_()
 ```
 
 Setup creates / reuses / migrates:
@@ -394,6 +398,15 @@ All modes share the same Store / metadata / semantic retrieval / configured Flas
 
 Every output must surface citations / Drive links and explicitly indicate insufficient evidence when appropriate.
 
+## Knowledge Export target contract
+
+- Backend Indexで`Status = Active`のMeeting / Pitchbookだけを対象にする。
+- Meeting本文の文字数は正本Google Docから計測する。件数がMeeting 50件超またはPitchbook 200件超なら、先にexact countを返してDoc materializationを行わない。
+- Meeting本文250,000文字超はartifactを作成しない。
+- `Doc_URL` / `File_URL`は`Doc_File_ID` / `File_ID`と一致することを確認し、必要ならstable IDからcanonical URLを生成する。不一致、欠落、trashed/folder/未アクセスの原本はexport全体を停止する。
+- Generated Google Docsにはsource URLを明示的なhyperlinkとして書き込む。PDFはsource-link textを保持する。
+- 外部AI promptは5モード共通・provider-neutralで、Master表示名とstable IDを併記する。Auditはmetadata-onlyでprompt本文やsource bodyを保存しない。
+
 ## Implementation boundary
 
 Development follows:
@@ -405,5 +418,7 @@ Development follows:
 - 0008 File Search thin slice + 自由質問
 - 0009 sync + six formats + EML
 - 0010 four presets + production qualification
+- 0011 Knowledge Export / external-AI prompt handoff
+- 0012 Apps Script public-surface security hardening and reliability validation
 
 Detailed execution source: `docs/planning/apps-script-implementation-plan.md`.

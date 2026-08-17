@@ -8,6 +8,7 @@ Scope: files under `src/`.
 - Do not perform live service calls at file load time.
 - A `ksp` prefix does not make an Apps Script function private. Any top-level server function without a trailing `_` is potentially callable through `google.script.run`.
 - Keep only the explicitly approved normal-user facade functions public. Every internal helper, adapter, administrator operation, diagnostic, maintenance job, and trigger-only handler must end with `_` or be non-top-level.
+- The canonical allowlist is maintained in `scripts/public-surface.cjs`; a `ksp` prefix alone is never sufficient. Work 0012 keeps diagnostics, setup, status, retention, manual sync, and destructive Drive/Docs helpers private even when an editor can run them directly.
 - Setup, installation status/validation, retention cleanup, manual AI sync, and internal diagnostics must not be callable from the normal-user Web App surface.
 - Add and maintain an automated public-surface allowlist check. Unexpected top-level public functions are a security defect and must fail `npm run check`.
 - Public responses and errors must not expose backend/audit/folder/store IDs, credentials, private URLs, source bodies, raw API payloads, or stack traces.
@@ -17,4 +18,5 @@ Scope: files under `src/`.
 - Never add secrets, real record data, private URLs, or organization-specific IDs.
 - Validate changes with `npm run check` from the repository root.
 - Work 0012 is the active adversarial hardening scope. Authenticated Apps Script / Workspace calls are allowed only within its handoff, using synthetic or anonymized DEV data, no secret logging, and no production deployment or destructive production action.
+- Work 0012 deterministic hardening is complete on the active branch; release version is `0.1.2`, while component Work IDs remain historical response/report identifiers.
 - Preserve the accepted Gemini-independent Knowledge Export contract: resolve Active sources from the Backend Index and keep Audit metadata-only and content-redacted.
