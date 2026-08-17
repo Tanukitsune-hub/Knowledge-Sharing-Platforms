@@ -4,11 +4,11 @@ WORK_ID: `0013`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-検証日: `2026-08-17`
+検証日: `2026-08-18`
 
 対象ブランチ: `agent/0013-consolidated-dev-live-qualification`
 
-開始時点の指定ref: `08332089acb8b9bcb71a66be14552645388fa1e6`
+開始時点の指定ref: `3b780deaa13693eab1325bfd0367cb0a502ca5c7`
 
 Draft PR: `#11`
 
@@ -16,105 +16,100 @@ Draft PR: `#11`
 
 ## 結論
 
-`DEV QUALIFIED WITH EXTERNAL PRODUCTION GAPS`
+`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
 
-Work 0012 の hardened source を指定DEV Apps Scriptへpushし、公式の
-Apps Script Web App deployment UIで作成した、明示的にDEVと分かるWeb Appを
-ブラウザーで確認した。現在の画面はKnowledge Sharing PlatformsのPitchbook
-画面を表示し、GP / Asset Classの選択肢、合成ファイルのスロット復元、失敗分の
-再試行UI、`25MB/ファイル、最大10件、合計100MB` の表示を確認できる。
-ブラウザーのerror logは空だった。資格確認専用の公開wrapperやdebug endpointは
-追加していない。
+Pitchbook_Index の Date が Apps Script の native `Date`、`YYYY-MM-DD`、保存済み
+ISO date string のいずれで返っても同じ canonical date key になるよう修正した。
+`kspBuildPitchbookSlotFingerprint_` と `reservePitchbookBatch` の `sameContext`
+判定を同じ helper に統一し、既存行を予約判定のために書き換えないことを決定的
+テストで固定した。
 
-ユーザー操作が必要なnative file chooserについては、旧deploymentでの選択・登録
-操作が現行sourceのdeployment確認前に行われ、3スロットがFailedとして残った。
-その結果は現行sourceのFAILとは判定していない。復旧後の現行DEV Web Appでは、
-同じ3つの合成slotが安全に復元され、ファイル本体の再選択を待つ状態になった。
-再選択がこの実行中に完了しなかったため、現行deploymentでのnative再試行・成功、
-Drive/Indexの重複なし、metadata更新、Active/Inactive/Reactivateのブラウザー
-観測は `DEFERRED` とした。コード欠陥を推測して修正することはしていない。
+現行DEVでは synthetic 3ファイルの新規 Batch を登録し、同一 context の保存済み
+sequence `01`–`03` に続く `04`–`06` として、3件すべてが `Active` になった。
+検索結果には各行の「開く」リンクが表示され、編集フォームの日付は
+`2026-08-17` として読み戻された。production / confidential dataは使用していない。
 
-## 安全境界
+## コード変更
 
-- 認証済みDEV環境のみを使用した。
-- 登録・表示に使ったのは合成データだけで、production / confidential dataは使用していない。
-- credentials、API key、token、private resource ID、private URL、source bodyはGit、報告書、PRへ記録していない。
-- Gemini credential、production deployment、production resource、破壊的なproduction操作は使用していない。
-- Work 0010–0012の既存PASS evidenceは、矛盾する現行観測がない範囲で再利用した。
+- `src/62_PitchbookIdentity.gs`
+  - `kspCanonicalPitchbookDateKey_` を追加。
+  - slot fingerprint の Date 部分を canonical date key に変更。
+- `src/81_PitchbookReservationAdapters.gs`
+  - `sameContext` の Date 比較を canonical date key 比較に変更。
+  - 既存 `Pitchbook_Index` 行への不要な Date 書き込みは追加していない。
+- `src/100_MaintenanceCore.gs`
+  - 実DEVで観測した persisted ISO date string が編集フォームで空になる事象を、
+    `YYYY-MM-DD` へ正規化して修正。
+- `tests/pitchbook.test.cjs`
+  - Date / date string / ISO string の同一 key、fingerprint 一致、sequence 継続、
+    native Date の保持を回帰テスト。
+- `tests/maintenance-core.test.cjs`
+  - persisted ISO date string の検索結果日付を回帰テスト。
 
-## 実施内容と観測マトリクス
+## 観測マトリクス
 
-| Matrix | Status | Observed evidence / limitation |
+| Matrix | Status | Evidence / limitation |
 |---|---|---|
-| Exact ref / branch / Draft PR | PASS | 指定refから対象branchを確認。Draft PR #11はOPEN / Draftのまま維持した。 |
-| AGENTS / handoff / prior reports | PASS | rootおよび適用nested `AGENTS.md`、Work 0013 instruction、0010–0012 report、adversarial reviewを確認した。 |
-| Mandatory independent reviews | PASS | DEV public/private surface、Pitchbook upload/retry、Knowledge Export、Gemini gap、security/cleanup/final diffの5視点をread-onlyで実施した。 |
-| Baseline local validation | PASS | 開始前の `npm run check` はApps Script 46 source / HTML 11 / manifest validation PASS、tests 154/154 PASS。 |
-| Hardened source push | PASS | 現在の `src` 58 filesを既存のsynthetic DEV Apps Scriptへpushした。qualification-only source / public wrapperは含めていない。 |
-| Current DEV Web App load | PASS | 公式UIで作成したDEV Web AppがKnowledge Sharing Platformsとして表示され、Pitchbook画面、masters、upload contract、retry UIを確認した。browser error logは空だった。 |
-| Normal public facade smoke | PASS | 通常ユーザー画面からbootstrapとmaster選択肢を取得でき、private diagnostic objectやresource IDは表示されなかった。 |
-| Setup / validation / status private execution | DEFERRED | `setupKnowledgePlatform_()`等はtrailing underscoreによりeditor function selectorから非公開。DEV projectではApps Script API executableを作成できず、`clasp run`によるprivate execution pathも利用できなかった。temporary public wrapperは作成していない。 |
-| Legacy trigger migration / direct worker | DEFERRED | trigger画面は0 triggersで、setup未実行のためmigration結果を観測できなかった。現行sourceのprivate namingとdeterministic validatorはPASS。 |
-| Private calls through browser | DEFERRED | browserからの直接private invocationを安全に実行できるユーザー向け経路はなく、API executableも利用不可だった。source-level public validatorとprivate naming regressionはPASS。 |
-| Meeting browser smoke | PASS (prior evidence reused) | Work 0010のsynthetic DEV evidenceでregistration、authoritative Doc、search/update、status lifecycle、audit redactionを確認済み。Work 0012後のcurrent browserでの再実行は行っていない。 |
-| Pitchbook native selection / current upload | DEFERRED | 現行Web Appで3つのFailed slot復元までは観測したが、file body再選択が未完了のため、現行deploymentのupload成功をPASS扱いしていない。 |
-| Pitchbook retry / partial success / duplicate protection | DEFERRED | 現行deploymentでの再試行クリックとDrive/Index readbackは未観測。Work 0010 server-side reserved-slot retryとdeterministic retry testsはPASS。 |
-| Pitchbook search / metadata update / lifecycle | DEFERRED | 現行deploymentのbrowser readbackは未観測。既存のserver-side/deterministic contract evidenceは保持した。 |
-| Practical upload limit | DEFERRED | 現行browserでは小さい合成slotの復元と表示契約のみ。25MB boundaryのincremental transport testは未完了で、採用上限は変更していない。 |
-| Knowledge Export real Docs / PDF / links / folder | DEFERRED | Work 0011–0012のfake/deterministic adapter、stable-ID、explicit-link、folder-boundary testsはPASS。authenticated DEVの実Docs/PDF readbackは未観測。 |
-| Export Index/AI isolation / metadata-only Audit / idempotency | DEFERRED | deterministic testsはPASS。実DEV exportによるIndex、AI state、Audit readbackは未観測。 |
-| Browser clipboard / five neutral prompts | DEFERRED | prompt readability、neutral five-mode templates、copy-only Audit、fallbackはdeterministic tests PASS。native clipboardは未観測。 |
-| Disposable Shared Drive | DEFERRED | 明示的に承認されたdisposable Shared Driveを使用していない。My Drive相当のDEV観測からShared Drive動作を推測していない。 |
-| Gemini / File Search / six formats / five modes | DEFERRED | billing-enabled DEV credential / Storeが利用可能である証拠はなく、credentialを要求・入力・記録していない。Work 0010のlocal/deterministic evidenceのみ保持した。 |
-| Production readiness | NOT APPLICABLE | production deployment、production permission、Shared Drive、Gemini billing、全browser export matrix未完了のため、`PRODUCTION READY`は主張しない。 |
+| Exact ref / branch / Draft PR | PASS | 指定refを起点に対象branchを確認。Draft PR #11はDraft / 未mergeのまま維持。 |
+| AGENTS / handoff / prior reports | PASS | rootおよび適用nested `AGENTS.md`、resume instruction、Work 0010–0012の関連証跡を確認。 |
+| Mandatory independent reviews | PASS | public/private surface、Pitchbook、Knowledge Export、security/reportの独立read-onlyレビューを実施。 |
+| Date canonical key | PASS | native Date、`YYYY-MM-DD`、ISO date string が同じ keyになる決定的テストに合格。 |
+| Slot fingerprint | PASS | prepared slotとPitchbook_Index相当行の Date 表現が違っても fingerprint が一致。 |
+| Sequence continuation | PASS | 決定的テストで `05`、後続Batchで `06`。現行DEVでも新Batchが `04`–`06` となり `01` に戻らないことを確認。 |
+| Existing native Date preservation | PASS | 予約・upload回帰テストで既存native Date objectの値・参照を保持。既存行への不要な書き換えなし。 |
+| Current DEV Web App load | PASS | 公式 Apps Script UIで作成した現行DEV Web Appを読み込み、Pitchbook画面と選択肢を確認。browser error logは空。 |
+| Synthetic Pitchbook Batch | PASS | `pb-alpha.txt`、`pb-beta.txt`、`pb-gamma.txt` を登録。保存名の sequence `04`、`05`、`06` が検索結果に表示され、3件すべて `Active`。 |
+| File_ID / File_URL evidence | PASS | 3件すべてに「開く」リンクが表示され、File_ID/File_URLがIndexからUIへ渡されたことを確認。値そのものは報告書へ記録していない。 |
+| Metadata date readback | PASS | 新Batchの編集フォームで日付 `2026-08-17` を読み戻し。実DEVで観測したISO string表示欠落を再発させないことを確認。 |
+| Pitchbook retry / duplicate protection | PASS (bounded) | deterministic retry/idempotency testsはPASS。現行DEVでは既存Pending行を新Batchで再利用せず、04–06を新規保存。native retryの再操作とDriveの重複なしを別Batchで再確認する matrixはDEFERRED。 |
+| Active / Inactive / Reactivate | DEFERRED | 現行DEVの検索・Active・編集・リンクは確認。確認ダイアログを伴う status mutation はブラウザ接続がタイムアウトしたため、前回PASS証跡を再利用し、今回の新Batchでは追加操作を行っていない。 |
+| Practical upload limit | DEFERRED | 小さいsynthetic filesの登録のみ。25MB boundaryの実ブラウザtransport qualificationは未実施。 |
+| Private setup / validation / status / trigger path | DEFERRED | private functionはeditor selectorに出ず、DEV API executableも作成できなかった。public wrapperは追加していない。 |
+| Knowledge Export real Docs / PDF / hyperlinks / Audit | DEFERRED | Work 0011–0012のdeterministic/fake testsとprior evidenceはPASS。authenticated DEVの実Docs/PDF、Audit非本文、clipboard readbackは未観測。 |
+| Disposable Shared Drive | DEFERRED | authorized disposable Shared Driveがないため、My Drive相当のDEV結果から推測していない。 |
+| Gemini / File Search | DEFERRED | Work 0010のlocal/deterministic evidenceを再利用。credential、billing、Storeを要求・入力・記録していない。 |
+| Production readiness | NOT APPLICABLE | production deployment、production permission、全外部qualification matrix未完了のため主張しない。 |
 
-## 観測した運用上の事象と対応
+## Deployment / 安全境界
 
-Apps Script CLIでのdeployment確認中、既存の古いWeb App deploymentを更新する操作が
-一時的なlibrary deploymentへ変わり、旧Web App URLが利用できなくなった。これは
-sourceの欠陥ではなく、deployment操作の事象である。公式Apps Script UIから現行sourceの
-DEV Web Appを新規作成して復旧し、現行画面の表示・選択肢・upload contract・error log
-を確認した。誤って作成された一時library deploymentは、対象descriptionを限定して
-削除した。現行Web Appは削除していない。
-
-旧deploymentでのsynthetic Pitchbook 3件のFailed結果は、現行sourceを確認する前の
-deployment結果であるため、実装FAILや修正理由にはしていない。現行deploymentで同じ
-slotを再選択して再試行する必要があるが、native file chooserのユーザー操作がこの
-実行中に完了しなかった。
-
-## コード変更・欠陥修正
-
-現行DEV qualificationで再現・確定したsource defectはない。そのため、Work 0013では
-source / testの推測修正やfeature追加を行っていない。報告書とdelivery evidenceだけを
-対象branchへ追加する。Work 0012のpublic-surface validator、safe error、export
-integrity、retry/idempotency、Audit redactionのdeterministic regressionは継続して
-canonical checksで検証する。
+- 認証済みDEV環境のみを使用し、登録ファイルはsynthetic dataだけとした。
+- credentials、API key、token、private resource ID、private URL、source bodyをGit、
+  report、PRへ記録していない。
+- `clasp` 操作中、既存の古いdeploymentをCLIで更新した際にWeb Appではなく一時的な
+  library deploymentとなり、旧Web App URLが利用できなくなった。これはsourceの
+  欠陥ではなくdeployment操作の事象である。公式 Apps Script UIで現行sourceの新しい
+  DEV Web Appを作成し、そこだけを現行qualification対象とした。誤った一時deployment
+  は対象を限定して整理し、現行DEV Web Appは削除していない。
+- 未追跡のローカル `.clasp.json` は、DEV resource情報を含むためcommit対象から除外し、
+  最終worktreeから削除した。
+- production deploy、production resource変更、merge、force-push、破壊的Git操作は
+  行っていない。
 
 ## 最終ローカル検証
 
 ```text
 npm run check
-  PASS — Apps Script 46 source / HTML 11 / manifest validation PASS;
-  tests 154/154 PASS, 0 failed, 0 skipped.
+  PASS — `Validated 46 Apps Script source files, 11 HTML files, and available manifest.`;
+  `Validated Apps Script public facade: 23 public, 360 private top-level functions.`;
+  tests 156/156 PASS, 0 failed, 0 skipped.
 
 npm run test
-  PASS — 154/154 PASS, 0 failed, 0 skipped.
+  PASS — tests 156/156 PASS, 0 failed, 0 skipped.
 
 git diff --check
-  PASS — whitespace errorなし。
+  PASS — exit code 0、whitespace errorなし（改行コード変換warningのみ）。
 ```
 
 ## 残存する外部qualification gap
 
-ユーザー操作が必要な現行Pitchbook native再選択・retry、実DEVのDocs/PDF/clipboard/
-Audit/Index非変更readback、disposable Shared Drive permission、billing-enabled
-Gemini/File Search、private setup/status/trigger executionは、この環境で必要な操作・
-権限・credentialが揃わず `DEFERRED` のまま残る。これらは正確な外部qualification gap
-であり、今回観測した実装BLOCKERではない。
+現行DEVの新規Pitchbook Batch、Active化、File link、sequence継続、Date readbackは
+確認済み。残るのは native retryの別ケース、実ブラウザ25MB境界、status確認ダイアログ、
+private administrator path、実Docs/PDF/clipboard/Audit readback、Shared Drive、
+Gemini/File Searchである。必要な権限・API経路・環境がないものは推測せず `DEFERRED`
+とした。今回の実装BLOCKERは観測していない。
 
 ## Delivery
 
-- `docs/handoffs/0013-report.md`を追加した。
-- 対象branchへscoped reportをcommit・pushする。
+- このreportとDate canonical normalizationのsource / testsを対象branchへcommit・pushする。
 - Draft PR #11をDraftのまま更新する。
 - mergeは実行しない。

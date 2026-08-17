@@ -18,6 +18,17 @@ test('maintenance search normalizes spreadsheet Date and Time cells', () => {
   assert.equal(mapped.time, '14:30');
 });
 
+test('maintenance date mapping normalizes persisted ISO date strings', () => {
+  const mapped = ksp.kspMapPitchbookSearchResult_({
+    Document_ID: 'DOC-000001',
+    Date: '2026-08-13T00:00:00.000Z',
+    GP_ID: 'GP-1',
+    Asset_Class_ID: 'AC-1',
+    Capital_Type_ID: ''
+  }, { gp: {}, assetClass: {}, capitalType: {} });
+  assert.equal(mapped.date, '2026-08-13');
+});
+
 test('search rows sort newest first and respect limit', () => {
   const rows = [{ Meeting_ID:'MTG-000001',Date:'2026-01-01',Updated_At:'a' },{ Meeting_ID:'MTG-000002',Date:'2026-02-01',Updated_At:'b' }];
   const result = ksp.kspSearchRows_(rows, { dateFrom:'',dateTo:'',gpId:'',assetClassId:'',capitalTypeId:'',status:'',limit:1 }, row=>row.Meeting_ID);

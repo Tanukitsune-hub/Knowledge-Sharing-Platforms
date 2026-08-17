@@ -69,7 +69,14 @@ function kspMaintenanceTrim_(value) {
 
 function kspMaintenanceCellText_(value, kind) {
   if (value === null || value === undefined) return '';
-  if (!(value instanceof Date)) return String(value || '');
+  if (!(value instanceof Date)) {
+    var text = String(value || '');
+    if (kind === 'date') {
+      var isoDate = /^(\d{4}-\d{2}-\d{2})(?:T|$)/.exec(text.trim());
+      if (isoDate && kspIsValidDateKey_(isoDate[1])) return isoDate[1];
+    }
+    return text;
+  }
   if (isNaN(value.getTime())) return '';
   if (kind === 'date') {
     return [value.getUTCFullYear(), String(value.getUTCMonth() + 1).padStart(2, '0'), String(value.getUTCDate()).padStart(2, '0')].join('-');
