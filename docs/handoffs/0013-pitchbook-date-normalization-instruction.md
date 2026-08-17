@@ -1,186 +1,64 @@
-# Work 0013 — Bounded Pitchbook date-normalization verification
+# Work 0013 — Completed bounded Pitchbook date-normalization diagnosis
 
 WORK_ID: `0013`
 
+Status: `COMPLETED — DO NOT RE-EXECUTE`
+
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Route: `B — ChatGPT diagnosis, Codex bounded verification / minimal repair`.
+Route used: `B — ChatGPT diagnosis, Codex bounded verification / minimal repair`.
 
-Recommended Codex model: `Luna Max`.
+Recommended model used: `Luna Max`.
 
-Rationale: ChatGPT has already narrowed the observed Pitchbook failure to one falsifiable root-cause hypothesis. Luna Max is used only to reproduce that hypothesis, make one bounded repair when reproduced, run focused regression tests, and perform one live confirmation. Open-ended diagnosis is not authorized.
+## Diagnosis
 
-Parent GitHub ref: `3b780deaa13693eab1325bfd0367cb0a502ca5c7`.
+ChatGPT identified one falsifiable hypothesis:
 
-Target branch: `agent/0013-consolidated-dev-live-qualification`.
+> Google Sheets returns `Pitchbook_Index.Date` as a JavaScript `Date` object or persisted ISO date string, while browser/reservation input uses `YYYY-MM-DD`. Pitchbook context comparison and slot-fingerprint construction were not using one canonical date key, which could cause both repeated sequence numbering and a slot fingerprint mismatch before Drive file creation.
 
-Draft PR: `#11`.
+## Outcome
 
-Primary report to update: `docs/handoffs/0013-report.md`.
+The hypothesis was confirmed and repaired in Work 0013.
 
-## Mandatory diagnosis boundary
+The completed implementation:
 
-Do not conduct an open-ended root-cause investigation.
+- introduced one canonical Pitchbook date key;
+- applied it to `kspBuildPitchbookSlotFingerprint_`;
+- applied it to the existing-context sequence comparison in the reservation path;
+- preserved existing native Google Sheets Date values without unnecessary rewrites;
+- corrected persisted ISO date readback for the maintenance edit form;
+- added focused deterministic regression tests.
 
-The accepted hypothesis for this run is:
+Current synthetic DEV evidence recorded in `docs/handoffs/0013-report.md`:
 
-> Google Sheets returns `Pitchbook_Index.Date` as a JavaScript `Date` object after persistence, while the browser/reservation input uses a `YYYY-MM-DD` string. Pitchbook sequence-context comparison and slot-fingerprint construction currently stringify these representations without canonical date normalization. This can simultaneously cause a repeated sequence starting at `01` and `PITCHBOOK_SLOT_FINGERPRINT_CONFLICT` before Drive file creation.
+- a new three-file Pitchbook Batch continued at sequences `04 / 05 / 06` rather than restarting at `01`;
+- all three rows reached `Active`;
+- Drive links were returned through the UI, confirming `File_ID` / `File_URL` propagation;
+- metadata date readback returned `2026-08-17`.
 
-Observed evidence supporting the hypothesis:
+Do not rerun this diagnosis or reopen alternative causes without new contradictory evidence.
 
-- current affected rows remain `Pending` with empty `File_ID` and `File_URL`, so the path likely stops before Drive creation;
-- two batches for the same date / GP / Asset Class were assigned `01 / 02 / 03` again rather than continuing from the prior maximum;
-- the code compares `String(row.Date || '') === input.date` when finding the existing context maximum;
-- the slot fingerprint includes the persisted row date without explicit `YYYY-MM-DD` canonicalization;
-- an earlier live Meeting defect had the same Sheets `Date` object versus string class of failure.
+## Durable Luna Max execution rule
 
-This hypothesis is not yet proven. Prove or reject it with focused tests before changing production source.
+This completed task is the template for future Luna Max debugging work in this repository:
 
-## Allowed scope
+1. ChatGPT performs the root-cause analysis and writes one falsifiable hypothesis.
+2. The handoff identifies exact source targets and the expected pre-fix failing test.
+3. Luna Max may only:
+   - reproduce the stated hypothesis;
+   - make one minimal repair when reproduced;
+   - run focused deterministic checks;
+   - perform one bounded live confirmation.
+4. Luna Max must stop when:
+   - the pre-fix reproducer does not fail;
+   - the one repair attempt does not pass the focused checks;
+   - the live case still fails after deterministic PASS;
+   - evidence points to a different root cause.
+5. A stopped run returns evidence to ChatGPT. It must not explore a second hypothesis, conduct a broad repository scan, refactor broadly, or invent the next diagnosis.
+6. Subagents remain mandatory, but are limited to independent verification and patch review rather than competing root-cause exploration.
 
-Primary source targets:
+## Source of truth
 
-- `src/62_PitchbookIdentity.gs`
-- `src/81_PitchbookReservationAdapters.gs`
-
-Use an existing canonical date helper when suitable, including `kspMaintenanceCellText_(value, 'date')`, instead of adding a parallel date system.
-
-Focused tests may be added to the existing Pitchbook/setup test files. Touch another source file only when strictly required to reuse the existing canonical helper or preserve the accepted contract.
-
-Do not modify unrelated Meeting, Maintenance, Knowledge Export, AI, UI, schema, or architecture behavior.
-
-## Execution sequence
-
-### 1. Stop and preserve current evidence
-
-Before making changes:
-
-- inspect the current working tree;
-- preserve any existing scoped evidence;
-- do not discard unrelated user or agent work;
-- run only the smallest existing Pitchbook test subset needed for a baseline.
-
-### 2. Create the pre-fix reproducer
-
-Add focused deterministic tests covering both representations of the same date:
-
-1. `kspBuildPitchbookSlotFingerprint_` must produce the same fingerprint when the row date is:
-   - the string `2026-08-17`; and
-   - a JavaScript `Date` representing the same calendar date.
-2. Pitchbook context sequence discovery must treat existing rows with a Sheets-style `Date` object as the same context as input date `2026-08-17`, so a prior maximum sequence of `3` yields the next sequence `4`, not `1`.
-
-The tests must demonstrate the current defect before the source fix.
-
-### Mandatory stop condition A
-
-If the focused tests do not reproduce either fingerprint divergence or sequence reset, stop immediately.
-
-Do not investigate another hypothesis, scan the repository broadly, refactor code, or make a speculative source change.
-
-Update the report with:
-
-- the exact test arrangement;
-- actual values observed;
-- why the accepted hypothesis was rejected or not reproduced;
-- the smallest additional evidence ChatGPT would need for the next diagnosis.
-
-Commit/push only durable diagnostic tests or report changes that are valid without weakening the suite.
-
-### 3. Make one minimal repair when reproduced
-
-Only after reproduction:
-
-- canonicalize persisted/input dates to one `YYYY-MM-DD` date key before Pitchbook context comparison;
-- canonicalize the date contribution to the slot fingerprint in the same way;
-- preserve native Google Sheets Date cells and do not rewrite untouched date metadata merely to obtain matching strings;
-- preserve Batch ID, Document ID, reserved sequence, retry, and existing fingerprint contracts outside this normalization defect.
-
-Do not add a migration, new schema, new upload mechanism, compatibility branch, or broad date abstraction.
-
-### 4. Focused deterministic verification
-
-Run:
-
-- the two new regression tests;
-- the existing Pitchbook identity / reservation / upload / retry tests;
-- one representative Meeting date-preservation regression;
-- `npm run check`;
-- `npm run test`;
-- `git diff --check`.
-
-Record exact observed counts. Do not claim hosted CI PASS unless an actual workflow exists.
-
-### Mandatory stop condition B
-
-If the minimal repair does not make the focused tests pass, stop after that one repair attempt.
-
-Do not pursue alternative causes. Report the exact failed assertion and current diff to ChatGPT.
-
-### 5. One current-DEV live confirmation
-
-After deterministic PASS:
-
-- push only the scoped repaired source to the existing synthetic DEV Apps Script project;
-- create one fresh synthetic Pitchbook batch in the same date / GP / Asset Class context as existing rows;
-- use small supported synthetic files;
-- confirm the new sequences continue from the existing maximum instead of restarting at `01`;
-- complete one browser upload/retry;
-- verify the successful row becomes `Active` with non-empty `File_ID` and `File_URL`;
-- verify exactly one authoritative Drive file and one Index row exist for the Document ID;
-- verify the Batch ID / Document ID / reserved sequence remain stable;
-- verify no duplicate Drive file or Index row was created.
-
-### Mandatory stop condition C
-
-If the focused tests pass but the live row still remains `Pending`/`Failed`, or `File_ID`/`File_URL` remain empty, stop immediately after capturing the safe exact error code and relevant non-secret row state.
-
-Do not continue root-cause investigation, try a second speculative source fix, inspect unrelated systems, or broaden scope. Return the evidence to ChatGPT for the next diagnosis.
-
-## Subagent use
-
-Read all applicable `AGENTS.md` files first and follow the repository-specific subagent policy.
-
-Subagents remain mandatory, but their roles are bounded:
-
-- one independent verifier confirms whether the specified Date normalization hypothesis is reproduced;
-- one independent reviewer checks the minimal patch and regression coverage.
-
-Do not use multiple subagents to explore competing root causes.
-
-## Safety
-
-- synthetic DEV data only;
-- no production deployment or production resources;
-- no credentials, private Google IDs/URLs, source content, or local paths in GitHub/report/chat;
-- no blind Windows UI automation;
-- no temporary public admin/debug wrapper;
-- no feature addition or broad refactor.
-
-## Delivery
-
-Update the existing:
-
-`docs/handoffs/0013-report.md`
-
-The report must state one of:
-
-- `HYPOTHESIS CONFIRMED — FIXED AND LIVE VERIFIED`;
-- `HYPOTHESIS REJECTED — STOPPED FOR CHATGPT DIAGNOSIS`;
-- `DETERMINISTIC FIX PASSED — LIVE FAILURE REMAINS, STOPPED FOR CHATGPT DIAGNOSIS`.
-
-Commit and push only scoped source/tests/report changes to the existing branch and update Draft PR #11. Do not merge.
-
-## Completion response
-
-Return only:
-
-- Work ID;
-- hypothesis result;
-- report path;
-- final commit;
-- branch;
-- Draft PR;
-- focused test result;
-- live verification result;
-- `BLOCKER: YES / NO`;
-- one-line evidence needed from ChatGPT when stopped.
+- Current report: `docs/handoffs/0013-report.md`
+- General residual policy: `docs/handoffs/0013-resume-instruction.md`
+- Draft PR: `#11`
