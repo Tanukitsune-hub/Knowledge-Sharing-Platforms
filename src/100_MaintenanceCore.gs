@@ -263,7 +263,7 @@ function kspNormalizePitchbookEditInput_(input) {
 }
 
 function kspValidatePitchbookEditInput_(input, catalog) {
-  kspParsePitchbookDocumentId(input.documentId);
+  kspParseDocumentId_(input.documentId);
   kspAssert_(input.expectedUpdatedAt, 'PITCHBOOK_EXPECTED_UPDATED_AT_REQUIRED', '更新トークンがありません。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付が不正です。');
   var selected = {
