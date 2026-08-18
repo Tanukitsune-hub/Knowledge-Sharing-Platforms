@@ -137,6 +137,7 @@ git diff --check
 
 ## Delivery
 
-- `docs/handoffs/0013-report.md`のみをreport-only commitとしてcommit・pushする。
+- `docs/handoffs/0013-report.md`のみをreport-only commitとしてcommit・pushした。
+- report-only commit: `ab5b4dda91a3b8c766853b51f194c69e36799c8a`
 - Draft PR #11はDraft / 未mergeのまま更新する。
 - mergeは実行しない。
