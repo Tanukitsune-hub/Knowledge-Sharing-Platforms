@@ -6,7 +6,7 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 検証日: `2026-08-18`
 
-今回の実行契約ref: `84b04fbc382e0378731c57bf61a4eeb776626908`
+今回の実行契約ref: `99f8a2326af8b8afe43ccaa0836cdaf55ceeb921`
 
 前回のruntime qualification ref: `8943123d8e258e4be07f8b172059870326eed2d3`
 
@@ -16,20 +16,26 @@ Draft PR: `#11`
 
 ## 結論
 
-`DEV QUALIFICATION STOPPED — MANUAL MATRIX A SAFE ERROR`
+`MATRIX C PASS — 25 MiB boundary qualified`
 
-今回のuser-assisted browser qualificationでは、Matrix Aの手動ステータス変更中に
-アプリケーションのsafe errorが表示されたため、指示どおり直ちに停止した。再クリック、
-再試行、原因調査、Matrix B/Cの実行はしていない。
+今回のbounded Matrix C runでは、synthetic ASCII `.txt` を1 MiBから25 MiBまで昇順に
+native file selectionし、通常のPitchbook登録を実行した。全6サイズで画面上の登録成功を
+確認した後、各回のBackend / Drive / Auditを権威データで照合した。全てでIndex行1件、
+`Active`、File_ID/File_URLあり、対応Driveファイル1件、`PITCHBOOK_REGISTER / Success`
+Audit 1件、重複なしだった。
+
+したがって今回のMatrix Cのlargest stable upload sizeは `25 MiB / 26,214,400 bytes`、
+first reproducible failing sizeは `not established within supported range` と判定する。
+25 MiB超のテスト、Matrix Aの再実行、Matrix Bのmalformed requestは行っていない。
 
 このrunはqualification-onlyで実行し、source、tests、limits、architecture、product
-documentationは変更していない。指定されたPitchbook runtime Matrix A〜Cだけを対象にした。
+documentation、deploymentは変更していない。変更対象はreport-onlyのhandoff文書だけである。
 
 Date normalizationの診断・修正・決定的テスト・前回のsynthetic `04 / 05 / 06`
 Active化は、completed diagnosis recordと既存reportの証跡を再利用した。今回のrunでは
 再実行していない。
 
-## 今回のuser-assisted browser qualification
+## Previous user-assisted browser qualification (retained)
 
 ### Matrix A — Current-Batch Active → Inactive → Active
 
@@ -78,6 +84,38 @@ upload call、Drive/Index write、サイズ境界は未観測である。
 Largest stable upload size: `not established`.
 
 First reproducible failing size: `not established`; the run stopped before the upload path.
+
+## Current bounded Matrix C — Practical browser upload boundary
+
+Status: `PASS`
+
+The existing approved synthetic DEV Web App was used without redeployment. The user completed
+native file selection and normal Pitchbook registration one file at a time in strict ascending
+order. No production or confidential data was used.
+
+| Size | Native selection | Upload/application path | Result | Index rows | Status | File_ID/File_URL | Drive files | Audit |
+|---:|---|---|---|---:|---|---|---:|---|
+| 1 MiB / 1,048,576 bytes | completed | reached | PASS | 1 | Active | present / present | 1 | 1 Success |
+| 5 MiB / 5,242,880 bytes | completed | reached | PASS | 1 | Active | present / present | 1 | 1 Success |
+| 10 MiB / 10,485,760 bytes | completed | reached | PASS | 1 | Active | present / present | 1 | 1 Success |
+| 15 MiB / 15,728,640 bytes | completed | reached | PASS | 1 | Active | present / present | 1 | 1 Success |
+| 20 MiB / 20,971,520 bytes | completed | reached | PASS | 1 | Active | present / present | 1 | 1 Success |
+| 25 MiB / 26,214,400 bytes | completed | reached | PASS | 1 | Active | present / present | 1 | 1 Success |
+
+The six corresponding synthetic filenames were `KSP0013_MatrixC_01MiB.txt`,
+`KSP0013_MatrixC_05MiB.txt`, `KSP0013_MatrixC_10MiB.txt`, `KSP0013_MatrixC_15MiB.txt`,
+`KSP0013_MatrixC_20MiB.txt`, and `KSP0013_MatrixC_25MiB.txt`. Each Drive file's observed
+byte size matched the requested exact size. Each Backend row had one coherent batch/document/
+sequence allocation and no duplicate Index row or Drive file was found. Audit entries were
+metadata-only registration records with no error code or error message.
+
+Largest stable upload size: `25 MiB / 26,214,400 bytes`.
+
+First observed failing size: `not observed`.
+
+First reproducible failing size: `not established within supported range`.
+
+No size above the accepted 25 MiB boundary was tested. Matrix A and Matrix B were not rerun.
 
 ## Prior automated runtime qualification evidence
 
@@ -167,7 +205,8 @@ size-dependent upload request.
 - synthetic DEV dataだけを使用し、production、confidential data、credentials、tokens、
   private IDs、private URLsは報告書へ記録していない。
 - public qualification wrapper、debug endpoint、temporary source changeは追加していない。
-- Matrix A〜Cの停止後に、別仮説、root-cause scan、再試行、status mutation、size escalationは行っていない。
+- 前回のMatrix A停止時には、再クリック・再試行・原因調査を行わなかった。今回のMatrix Cでは
+  各サイズを権威確認してから次へ進み、25 MiB後の上限超えテスト、再試行、別仮説は行っていない。
 
 ## Prior evidence retained
 
