@@ -14,15 +14,25 @@ Product architecture and feature scope are settled through Work 0012. Luna Max i
 
 For known qualification matrices, Luna Max may execute the specified steps. When a live defect appears, Luna Max must stop with the smallest safe evidence and wait for a new ChatGPT-authored bounded handoff.
 
-## Current next execution
+## Current state and next execution
 
-The latest automated browser run stopped before application-level mutation/upload. ChatGPT has classified the next path as user-assisted browser qualification rather than source debugging.
+The Pitchbook Date representation defect and the Pitchbook status-parser defect are repaired, regression-tested, and live-verified.
+
+Current-Batch Matrix A is complete:
+
+`Active -> Inactive -> Active = PASS`.
+
+Matrix B remains:
+
+`NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`.
+
+The active next execution is Matrix C practical browser upload-size qualification only.
 
 Use:
 
-`docs/handoffs/0013-user-assisted-browser-qualification-instruction.md`
+`docs/handoffs/0013-matrix-c-upload-size-qualification-instruction.md`
 
-Do not rerun the prior automated-browser Matrix A/C package.
+Do not rerun Matrix A, Matrix B malformed-request work, the parser diagnosis, or the earlier automated-browser filechooser package.
 
 ## Current policy
 
@@ -32,26 +42,30 @@ Completed Pitchbook Date diagnosis record:
 
 `docs/handoffs/0013-pitchbook-date-normalization-instruction.md`
 
+Completed Pitchbook status-parser repair record:
+
+`docs/handoffs/0013-pitchbook-status-parser-defect-report.md`
+
 Primary report:
 
 `docs/handoffs/0013-report.md`
 
 ## Remaining qualification scope
 
-- user-assisted current-Batch Active / Inactive / Reactivate;
-- normal-UI retry/duplicate-protection only when a natural failed slot exists;
 - user-assisted practical browser upload-size boundary;
 - safe private administrator setup / validation / status / trigger execution path;
 - real Knowledge Export Docs / PDF / hyperlinks / Audit / non-indexing / clipboard;
 - disposable Shared Drive behavior when authorized test infrastructure exists;
 - billing-enabled Gemini / File Search when an approved DEV credential exists.
 
+Normal-UI retry/duplicate-protection remains accepted as `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained` unless a natural Failed/Pending slot is encountered in a separately authorized run. Do not manufacture one.
+
 ## Safety
 
 - DEV only;
 - synthetic/anonymized data only;
 - no production deployment or destructive production action;
-- no credentials, private IDs/URLs, source content, or local paths in GitHub/report/chat;
+- no credentials, private IDs/URLs, source content, or user-specific local paths in GitHub/report/chat;
 - no temporary public admin/debug wrapper;
 - no blind Windows UI automation;
 - no feature addition or broad refactor.
