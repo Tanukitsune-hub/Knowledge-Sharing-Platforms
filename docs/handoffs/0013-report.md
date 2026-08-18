@@ -6,7 +6,9 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 検証日: `2026-08-18`
 
-実行契約ref: `8943123d8e258e4be07f8b172059870326eed2d3`
+今回の実行契約ref: `84b04fbc382e0378731c57bf61a4eeb776626908`
+
+前回のruntime qualification ref: `8943123d8e258e4be07f8b172059870326eed2d3`
 
 対象ブランチ: `agent/0013-consolidated-dev-live-qualification`
 
@@ -14,7 +16,11 @@ Draft PR: `#11`
 
 ## 結論
 
-`DEV QUALIFICATION STOPPED — EVIDENCE RETURNED TO CHATGPT`
+`DEV QUALIFICATION STOPPED — MANUAL MATRIX A SAFE ERROR`
+
+今回のuser-assisted browser qualificationでは、Matrix Aの手動ステータス変更中に
+アプリケーションのsafe errorが表示されたため、指示どおり直ちに停止した。再クリック、
+再試行、原因調査、Matrix B/Cの実行はしていない。
 
 このrunはqualification-onlyで実行し、source、tests、limits、architecture、product
 documentationは変更していない。指定されたPitchbook runtime Matrix A〜Cだけを対象にした。
@@ -23,7 +29,59 @@ Date normalizationの診断・修正・決定的テスト・前回のsynthetic `
 Active化は、completed diagnosis recordと既存reportの証跡を再利用した。今回のrunでは
 再実行していない。
 
-## Matrix A — Current-Batch Active → Inactive → Active
+## 今回のuser-assisted browser qualification
+
+### Matrix A — Current-Batch Active → Inactive → Active
+
+Status: `FAIL (stopped at first manual application error)`
+
+ユーザーが現行DEVの `04` 行について「無効化」を手動実行し、確認ダイアログで確定した。
+画面には次の文言が表示された。
+
+`管理処理を完了できませんでした。`
+
+停止時のsafe evidence:
+
+| Field | Evidence |
+|---|---|
+| affected saved filename | `2026-08-17_KSP_DEV_GP_0010_Renamed_PE_04.txt` |
+| reserved sequence | `04` |
+| visible safe error | `管理処理を完了できませんでした。` |
+| Audit action/result | `PITCHBOOK_DEACTIVATE / Failure` |
+| safe error code | `UNEXPECTED_ERROR` |
+| Backend Status after error | `Active` |
+| Backend File_ID / File_URL | present / present |
+| Drive source file | one matching file remains |
+| status mutation | not observed |
+| Reactivate | not attempted |
+
+Authoritative readbackでは、対象Backend行は `Active` のままで、sequence `04`、File_ID、
+File_URLが維持されていた。Drive検索でも同名のsource fileは1件だった。Auditには
+`2026-08-18T13:48:24.236Z` の `PITCHBOOK_DEACTIVATE` Failureがあり、safe error codeと
+画面文言が一致した。原因調査や仮説検証は行っていない。
+
+### Matrix B — Retry / duplicate protection
+
+Status: `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`
+
+このrunではmalformed `sizeBytes` requestを作成していない。現在のnormal UIにはその操作が
+なく、今回の実行でretry対象となる完全一致のsynthetic local file付きFailed/Pending
+スロットも用意していない。新しい失敗、Index行、Driveファイル、retryは作成していない。
+
+### Matrix C — Manual upload-size qualification
+
+Status: `NOT RUN (stopped after Matrix A safe error)`
+
+Matrix Aの停止後はnative file selectionを開始していない。したがって1MB〜25MBの
+upload call、Drive/Index write、サイズ境界は未観測である。
+
+Largest stable upload size: `not established`.
+
+First reproducible failing size: `not established`; the run stopped before the upload path.
+
+## Prior automated runtime qualification evidence
+
+### Previous automated runtime Matrix A — Current-Batch Active → Inactive → Active
 
 Status: `FAIL (stopped at first unexpected result)`
 
@@ -53,7 +111,7 @@ Status: `FAIL (stopped at first unexpected result)`
 | mutation after stop | なし |
 | Index / Drive / Audit detailed counts | この停止点では未取得 |
 
-## Matrix B — size mismatch → same-slot retry → duplicate protection
+### Previous automated runtime Matrix B — size mismatch → same-slot retry → duplicate protection
 
 Status: `DEFERRED (controlled request not executed)`
 
@@ -66,7 +124,7 @@ call自体を送信しなかった。Matrix Bについて新しいIndex行、Dri
 作成していない。size-mismatch / same-slot retry / idempotent replayのdeterministic
 testsと前回のserver-side evidenceはPASSだが、今回のlive Matrix BのPASSとは判定しない。
 
-## Matrix C — Practical browser upload boundary
+### Previous automated runtime Matrix C — Practical browser upload boundary
 
 Status: `FAIL (stopped before first upload)`
 
@@ -120,16 +178,14 @@ size-dependent upload request.
 - deterministic retry/idempotency and size validation:
   local tests / prior server-side evidenceのPASSを再利用。今回のlive Matrix B/CのPASSとは分離。
 
-## 最終ローカル検証
+## 今回のローカル検証
 
 ```text
 npm run check
-  PASS — Validated 46 Apps Script source files, 11 HTML files, and available manifest;
-  public facade 23 public, 360 private top-level functions; tests 156/156 PASS,
-  0 failed, 0 skipped.
+  NOT RERUN — source/tests unchanged; prior PASS retained above.
 
 npm run test
-  PASS — tests 156/156 PASS, 0 failed, 0 skipped.
+  NOT RERUN — source/tests unchanged; prior PASS retained above.
 
 git diff --check
   PASS — no whitespace errors.
@@ -137,7 +193,7 @@ git diff --check
 
 ## Delivery
 
-- `docs/handoffs/0013-report.md`のみをreport-only commitとしてcommit・pushした。
-- report-only commit: `ab5b4dda91a3b8c766853b51f194c69e36799c8a`
+- 前回までのreport-only commitは維持する。
+- 今回は `docs/handoffs/0013-report.md` のevidenceだけをreport-only commitとしてcommit・pushする。
 - Draft PR #11はDraft / 未mergeのまま更新する。
 - mergeは実行しない。
