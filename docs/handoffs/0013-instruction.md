@@ -16,35 +16,37 @@ For known qualification matrices, Luna Max may execute the specified steps. When
 
 ## Current state and next execution
 
-The Pitchbook Date representation defect and the Pitchbook status-parser defect are repaired, regression-tested, and live-verified.
+Completed and accepted:
 
-Current-Batch Matrix A is complete:
+- Pitchbook Date representation repair: PASS;
+- Pitchbook status-parser repair: PASS;
+- Matrix A `Active -> Inactive -> Active`: live PASS;
+- Matrix B: `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`;
+- Matrix C normal-browser upload-size qualification: PASS at `1 / 5 / 10 / 15 / 20 / 25 MiB`;
+- largest stable supported upload: `25 MiB / 26,214,400 bytes`;
+- first observed failing size: none;
+- first reproducible failing size: not established within the supported range.
 
-`Active -> Inactive -> Active = PASS`.
+The active next execution is the final safely executable non-AI DEV qualification:
 
-Matrix B remains:
+`docs/handoffs/0013-non-ai-final-live-qualification-instruction.md`
 
-`NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`.
+This run covers:
 
-The active next execution is Matrix C practical browser upload-size qualification only.
+1. post-hardening private administrator setup / validation / status / disabled-sync execution path; and
+2. real Gemini-independent Knowledge Export Docs / PDF / hyperlinks / Audit / non-indexing / clipboard.
 
-Use:
-
-`docs/handoffs/0013-matrix-c-upload-size-qualification-instruction.md`
-
-Do not rerun Matrix A, Matrix B malformed-request work, the parser diagnosis, or the earlier automated-browser filechooser package.
+Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, or prior defect work.
 
 ## Current policy
 
 `docs/handoffs/0013-resume-instruction.md`
 
-Completed Pitchbook Date diagnosis record:
+Completed records:
 
-`docs/handoffs/0013-pitchbook-date-normalization-instruction.md`
-
-Completed Pitchbook status-parser repair record:
-
-`docs/handoffs/0013-pitchbook-status-parser-defect-report.md`
+- `docs/handoffs/0013-pitchbook-date-normalization-instruction.md`;
+- `docs/handoffs/0013-pitchbook-status-parser-defect-report.md`;
+- `docs/handoffs/0013-matrix-c-upload-size-qualification-report.md`.
 
 Primary report:
 
@@ -52,13 +54,23 @@ Primary report:
 
 ## Remaining qualification scope
 
-- user-assisted practical browser upload-size boundary;
-- safe private administrator setup / validation / status / trigger execution path;
-- real Knowledge Export Docs / PDF / hyperlinks / Audit / non-indexing / clipboard;
-- disposable Shared Drive behavior when authorized test infrastructure exists;
-- billing-enabled Gemini / File Search when an approved DEV credential exists.
+Safely executable now:
+
+- private administrator execution path after Work 0012 hardening;
+- real Knowledge Export Docs / PDF / hyperlinks / Audit / non-indexing / clipboard.
+
+External residual categories to be separated after the final non-AI run:
+
+- disposable Shared Drive-specific behavior when authorized test infrastructure exists;
+- billing-enabled Gemini / File Search live qualification when an approved DEV credential exists.
 
 Normal-UI retry/duplicate-protection remains accepted as `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained` unless a natural Failed/Pending slot is encountered in a separately authorized run. Do not manufacture one.
+
+If the final non-AI run completes without an implementation blocker, Work 0013 may be classified:
+
+`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`.
+
+Do not claim `PRODUCTION READY` without Shared Drive-specific and Gemini/File Search live evidence.
 
 ## Safety
 
@@ -72,4 +84,4 @@ Normal-UI retry/duplicate-protection remains accepted as `NOT APPLICABLE TO NORM
 
 ## Delivery
 
-Continue using Work ID `0013`, the existing branch, report, and Draft PR #11. Do not merge. ChatGPT reviews each bounded result and prepares the next exact instruction only when required.
+Continue using Work ID `0013`, the existing branch, report, and Draft PR #11. Do not merge. ChatGPT performs the final merge review after the non-AI qualification result.
