@@ -16,20 +16,23 @@ Primary report: `docs/handoffs/0013-report.md`.
 
 The Pitchbook Date representation defect has been confirmed, repaired, tested, and live-verified. Do not rerun it.
 
-The subsequent automated browser qualification stopped before application mutation/upload:
+The Pitchbook status-parser defect has also been confirmed, minimally repaired, regression-tested, and live-verified. Current-Batch Matrix A now passes `Active -> Inactive -> Active` with stable authoritative file identity and coherent Audit evidence. Do not rerun Matrix A.
 
-- Matrix A: edit card remained hidden after one automated Edit action, with no application safe error and no browser error;
-- Matrix C: automated filechooser timed out and the browser target closed before file selection, FileReader, Apps Script call, Drive write, or Index write.
+Matrix B remains `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`; do not manufacture a malformed request.
 
-ChatGPT classifies the next hypothesis as browser-automation/session instability rather than a reproduced application defect. The next execution must therefore use explicit user-assisted browser actions and non-browser authoritative verification.
+The active residual Pitchbook qualification is the practical browser upload-size boundary.
 
 Active next instruction:
 
-`docs/handoffs/0013-user-assisted-browser-qualification-instruction.md`
+`docs/handoffs/0013-matrix-c-upload-size-qualification-instruction.md`
 
 Completed Date diagnosis record:
 
 `docs/handoffs/0013-pitchbook-date-normalization-instruction.md`
+
+Completed status-parser defect record:
+
+`docs/handoffs/0013-pitchbook-status-parser-defect-report.md`
 
 ## Mandatory ChatGPT-led diagnosis gate
 
@@ -77,13 +80,13 @@ Subagent use remains mandatory under applicable `AGENTS.md`, but is bounded to i
 
 The remaining Work 0013 categories are:
 
-- user-assisted current-Batch Active / Inactive / Reactivate;
-- a normal-UI retry/duplicate-protection case when a natural Failed/Pending slot exists;
 - user-assisted practical browser upload-size qualification;
 - safe private administrator setup / validation / status / trigger execution path;
 - real Knowledge Export Docs / PDF / hyperlinks / Audit / non-indexing / clipboard;
 - disposable Shared Drive behavior when an authorized test location exists;
 - billing-enabled Gemini / File Search when an approved DEV credential exists.
+
+Normal-UI retry/duplicate-protection is not an active remaining matrix unless a natural Failed/Pending slot becomes available under a separately authorized instruction.
 
 ## User interaction rules
 
