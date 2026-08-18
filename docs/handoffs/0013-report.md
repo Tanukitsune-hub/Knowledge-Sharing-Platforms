@@ -6,98 +6,137 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 検証日: `2026-08-18`
 
-対象ブランチ: `agent/0013-consolidated-dev-live-qualification`
+実行契約ref: `8943123d8e258e4be07f8b172059870326eed2d3`
 
-開始時点の指定ref: `3b780deaa13693eab1325bfd0367cb0a502ca5c7`
+対象ブランチ: `agent/0013-consolidated-dev-live-qualification`
 
 Draft PR: `#11`
 
-主実装commit: `a087d37c7a2e3b0000429cb334767bda97283f5d`
-
 ## 結論
 
-`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
+`DEV QUALIFICATION STOPPED — EVIDENCE RETURNED TO CHATGPT`
 
-Pitchbook_Index の Date が Apps Script の native `Date`、`YYYY-MM-DD`、保存済みISO date string のいずれで返っても同じ canonical date key になるよう修正した。`kspBuildPitchbookSlotFingerprint_` と `reservePitchbookBatch` の `sameContext` 判定を同じ helper に統一し、既存行を予約判定のために書き換えないことを決定的テストで固定した。
+このrunはqualification-onlyで実行し、source、tests、limits、architecture、product
+documentationは変更していない。指定されたPitchbook runtime Matrix A〜Cだけを対象にした。
 
-現行DEVではsynthetic 3ファイルの新規Batchを登録し、同一contextの保存済みsequence `01`–`03`に続く`04`–`06`として、3件すべてが`Active`になった。検索結果には各行の「開く」リンクが表示され、編集フォームの日付は`2026-08-17`として読み戻された。production / confidential dataは使用していない。
+Date normalizationの診断・修正・決定的テスト・前回のsynthetic `04 / 05 / 06`
+Active化は、completed diagnosis recordと既存reportの証跡を再利用した。今回のrunでは
+再実行していない。
 
-## コード変更
+## Matrix A — Current-Batch Active → Inactive → Active
 
-- `src/62_PitchbookIdentity.gs`
-  - `kspCanonicalPitchbookDateKey_`を追加。
-  - slot fingerprintのDate部分をcanonical date keyに変更。
-- `src/81_PitchbookReservationAdapters.gs`
-  - `sameContext`のDate比較をcanonical date key比較に変更。
-  - 既存`Pitchbook_Index`行への不要なDate書き込みは追加していない。
-- `src/100_MaintenanceCore.gs`
-  - 実DEVで観測したpersisted ISO date stringが編集フォームで空になる事象を、`YYYY-MM-DD`へ正規化して修正。
-- `tests/pitchbook.test.cjs`
-  - Date / date string / ISO stringの同一key、fingerprint一致、sequence継続、native Date保持を回帰テスト。
-- `tests/maintenance-core.test.cjs`
-  - persisted ISO date stringの検索結果日付を回帰テスト。
+Status: `FAIL (stopped at first unexpected result)`
 
-## 観測マトリクス
+事前に現行DEVの検索画面で、対象の `06` 行について次を確認した。
 
-| Matrix | Status | Evidence / limitation |
-|---|---|---|
-| Date canonical key | PASS | native Date、`YYYY-MM-DD`、ISO date stringが同じkeyになる決定的テストに合格。 |
-| Slot fingerprint | PASS | prepared slotとPitchbook_Index相当行のDate表現が違ってもfingerprintが一致。 |
-| Sequence continuation | PASS | 現行DEVで新Batchが`04`–`06`となり`01`へ戻らないことを確認。 |
-| Existing native Date preservation | PASS | 既存native Date objectの値を保持し、不要な書き換えなし。 |
-| Current DEV Web App load | PASS | 現行DEV Web Appを読み込み、Pitchbook画面と選択肢を確認。browser error logは空。 |
-| Synthetic Pitchbook Batch | PASS | `pb-alpha.txt`、`pb-beta.txt`、`pb-gamma.txt`を登録し、3件すべて`Active`。 |
-| File_ID / File_URL evidence | PASS | 3件すべてに「開く」リンクが表示され、File_ID/File_URLがIndexからUIへ渡されたことを確認。値は報告書へ記録していない。 |
-| Metadata date readback | PASS | 新Batchの編集フォームで日付`2026-08-17`を読み戻し。 |
-| Pitchbook retry / duplicate protection | PASS (bounded) | deterministic retry/idempotency testsはPASS。別Batchでのnative retry/Drive重複確認はDEFERRED。 |
-| Active / Inactive / Reactivate | DEFERRED | 現行DEVの確認ダイアログを伴うstatus mutationは未完了。 |
-| Practical upload limit | DEFERRED | 小さいsynthetic filesのみ。25MB境界は未実施。 |
-| Private setup / validation / status / trigger path | DEFERRED | private functionはeditor selectorに出ず、DEV API executableも作成できなかった。public wrapperは追加していない。 |
-| Knowledge Export real Docs / PDF / hyperlinks / Audit | DEFERRED | deterministic/fake testsはPASS。authenticated DEVの実Docs/PDF、Audit、clipboard readbackは未観測。 |
-| Disposable Shared Drive | DEFERRED | authorized disposable Shared Driveなし。 |
-| Gemini / File Search | DEFERRED | credential、billing、Store未使用。 |
-| Production readiness | NOT APPLICABLE | production-release-critical matrix未完了。 |
+- rendered Date: `2026-08-17`
+- saved filename: `2026-08-17_KSP_DEV_GP_0010_Renamed_PE_06.txt`
+- visible Status: `Active`
+- 「開く」Drive link: visible
+- 検索画面のvisible status: `10件を表示しました。`
+- browser error log: 0件
+
+「編集」を1回実行したが、期待した編集カードが表示されず、Date / Updated Atの
+読み取りへ進めなかった。アプリケーションのsafe error code/messageは表示されなかった。
+この時点でstatus mutationは実行していないため、Active行・Drive・Indexへの変更はない。
+再クリック、Inactive、Reactivate、原因調査は行っていない。
+
+停止証跡:
+
+| Field | Evidence |
+|---|---|
+| failed step | Active `06` rowの編集カード事前読取 |
+| expected | 編集カード表示、Date / expected Updated At読取 |
+| observed | 編集カード非表示、visible errorなし |
+| safe application error code | なし |
+| visible browser errors | 0件 |
+| mutation after stop | なし |
+| Index / Drive / Audit detailed counts | この停止点では未取得 |
+
+## Matrix B — size mismatch → same-slot retry → duplicate protection
+
+Status: `DEFERRED (controlled request not executed)`
+
+現行normal public Web App UIには、選択ファイルの実サイズに対して送信
+`sizeBytes`だけを `actual + 1` にする操作がない。DEVのApps Script API executableを
+使った公開関数の引数実行経路も、既存の管理者経路確認で利用不能と記録されている。
+
+したがって、予約Batchを作成して不完全な状態を残すことを避け、controlled mismatch
+call自体を送信しなかった。Matrix Bについて新しいIndex行、Driveファイル、Audit行は
+作成していない。size-mismatch / same-slot retry / idempotent replayのdeterministic
+testsと前回のserver-side evidenceはPASSだが、今回のlive Matrix BのPASSとは判定しない。
+
+## Matrix C — Practical browser upload boundary
+
+Status: `FAIL (stopped before first upload)`
+
+Round 1の1MB synthetic TXT fileを用意した。filechooser API経路を試したところ、選択前に
+filechooser eventがtimeoutした。その後、現行DEVのネイティブ選択UIを開くための操作で
+ブラウザ対象が閉じた。ファイル選択、FileReader、Apps Script upload call、Drive/Index
+writeは発生していない。
+
+安全な停止証跡:
+
+- safe application error code: なし
+- filechooser stage: selection前にtimeout
+- fallback native-picker stage: browser target closed while handling the command
+- upload response: 未取得
+- final row Status: 未作成のため該当なし
+- File_ID / File_URL: 未作成のため該当なし
+- new Drive / Index row: なし
+- retry/escalation: 指示に従い実施していない
+
+### Upload-size table
+
+| Nominal size | Synthetic file | FileReader/base64 | Apps Script call | Final status | Drive/Index evidence |
+|---:|---|---|---|---|---|
+| 1MB | prepared | NOT EXECUTED | NOT EXECUTED | STOPPED before selection | no new row/file observed |
+| 5MB | not attempted | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED after Round 1 stop | no new row/file observed |
+| 10MB | not attempted | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED after Round 1 stop | no new row/file observed |
+| 15MB | not attempted | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | no new row/file observed |
+| 20MB | not attempted | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | no new row/file observed |
+| 25MB exact | not attempted | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | no new row/file observed |
+
+Largest stable upload size: `not established`.
+
+First reproducible size failure: `not established`; the observed stop occurred before any
+size-dependent upload request.
+
+## Scope and safety
+
+- このrunで変更したtracked fileはreportだけ。
+- source / tests / limits / architecture / product documentationは変更していない。
+- synthetic DEV dataだけを使用し、production、confidential data、credentials、tokens、
+  private IDs、private URLsは報告書へ記録していない。
+- public qualification wrapper、debug endpoint、temporary source changeは追加していない。
+- Matrix A〜Cの停止後に、別仮説、root-cause scan、再試行、status mutation、size escalationは行っていない。
+
+## Prior evidence retained
+
+- Date canonical key、slot fingerprint、sequence継続、native Date preservation:
+  completed diagnosis recordのPASSを再利用。
+- 現行DEVのsynthetic `04 / 05 / 06` Active化、Drive link、`2026-08-17` date readback:
+  前回reportのPASSを再利用。
+- deterministic retry/idempotency and size validation:
+  local tests / prior server-side evidenceのPASSを再利用。今回のlive Matrix B/CのPASSとは分離。
 
 ## 最終ローカル検証
 
 ```text
 npm run check
-  PASS — Apps Script 46 source / HTML 11 / manifest validation PASS;
-  public facade 23 / private top-level functions 360;
-  tests 156/156 PASS, 0 failed, 0 skipped.
+  PASS — Validated 46 Apps Script source files, 11 HTML files, and available manifest;
+  public facade 23 public, 360 private top-level functions; tests 156/156 PASS,
+  0 failed, 0 skipped.
 
 npm run test
   PASS — tests 156/156 PASS, 0 failed, 0 skipped.
 
 git diff --check
-  PASS — whitespace errorなし。
+  PASS — no whitespace errors.
 ```
-
-## ChatGPT-led Luna Max diagnosis policy
-
-今後、Luna Maxにopen-endedな原因究明を委ねない。
-
-- ChatGPTがGitHub・実データ・コードから原因仮説を1つに絞る。
-- GitHub handoffに、仮説、根拠、対象関数、pre-fix failing test、許可する最小修正、検証、停止条件を記載する。
-- Luna Maxは仮説の再現、1回の最小修正、focused tests、1回のlive confirmationだけを担当する。
-- pre-fix testが失敗しない、修正がfocused testを通らない、live caseが残る、別原因が示唆される、のいずれかで即停止する。
-- Luna Maxは同一run内で第2仮説へ移らず、証拠をChatGPTへ返す。
-- subagentは仮説確認とpatch reviewに限定し、競合する原因探索へ使わない。
-
-Completed bounded diagnostic record:
-
-`docs/handoffs/0013-pitchbook-date-normalization-instruction.md`
-
-General residual policy:
-
-`docs/handoffs/0013-resume-instruction.md`
-
-## 残存する外部qualification gap
-
-現行DEVの新規Pitchbook Batch、Active化、File link、sequence継続、Date readbackは確認済み。残るのはnative retryの別ケース、実ブラウザ25MB境界、status確認ダイアログ、private administrator path、実Docs/PDF/clipboard/Audit readback、Shared Drive、Gemini/File Searchである。必要な権限・API経路・環境がないものは推測せず`DEFERRED`とした。今回の実装BLOCKERは観測していない。
 
 ## Delivery
 
-- Date canonical normalizationのsource / testsと本reportを対象branchへcommit・push済み。
-- ChatGPT-led diagnosis policyを同じWork 0013 branchへ追加済み。
-- Draft PR #11はDraft / 未mergeのまま維持。
+- `docs/handoffs/0013-report.md`のみをreport-only commitとしてcommit・pushする。
+- Draft PR #11はDraft / 未mergeのまま更新する。
+- mergeは実行しない。
