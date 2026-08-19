@@ -20,70 +20,67 @@ Product architecture and feature scope are settled through Work 0012. When a liv
 - Matrix B: `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`.
 - Matrix C normal-browser upload-size qualification: PASS at `1 / 5 / 10 / 15 / 20 / 25 MiB`.
 - Largest stable supported upload: `25 MiB / 26,214,400 bytes`.
-- Prior parser-repair local suite: `158/158 PASS`.
-- Work 0010 pre-hardening setup / validation / status / setup-idempotency: live PASS.
 - Work 0011 Knowledge Export deterministic implementation/tests: PASS.
 - Work 0012 public-surface hardening: deterministic PASS.
 
 Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, or prior defect work.
 
-## Latest observed non-AI qualification result
+## Latest navigation state
 
-At pre-fix ref `03b1a4b2e97b16212b5e8f495f3c595d55d05b27`:
+ChatGPT's first bounded navigation repair replaced the iframe-local `window.location.search` route with published-Web-App GET navigation using `_top`, and added `tests/webapp-navigation.test.cjs`.
 
-- Matrix D was reported `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION` after `00_Core.gs` and `10_Setup.gs` were selected in the Apps Script editor and the toolbar showed `関数なし`.
-- Matrix E stopped immediately when one click on `ナレッジ検索` produced an entirely white page. Preview, Docs, PDF, clipboard, and integrity checks were not reached.
+Codex independently verified the patch:
 
-The durable stopped-run evidence remains in:
+- focused navigation regression: `1/1 PASS`;
+- `npm run check`: `159/159 PASS`;
+- `npm run test`: `159/159 PASS`;
+- Apps Script / HTML / manifest validation: PASS;
+- public surface: `23 public / 360 private top-level functions`;
+- `git diff --check`: PASS.
 
-- `docs/handoffs/0013-non-ai-final-live-qualification-report.md`;
-- `docs/handoffs/0013-report.md`.
+The verified source was deployed to the existing synthetic DEV Web App as version 19. One normal user click on `ナレッジ検索` still produced a fully white page. Matrix D/E were not run after that failure.
 
-## ChatGPT diagnosis and bounded repair
+Current Work 0013 classification remains:
 
-ChatGPT inspected the current source and isolated the Matrix E defect to Web App navigation:
+`NOT QUALIFIED — POST-REPAIR LIVE NAVIGATION STILL FAILS`
 
-- `src/90_WebApp.gs` used `window.location.search='?page=knowledge'` inside the Apps Script HTML Service iframe.
-- The bounded repair now uses the published Web App URL from `ScriptApp.getService().getUrl()` and normal GET navigation with `target="_top"` for both directions.
-- `tests/webapp-navigation.test.cjs` adds a focused regression for the route.
-
-ChatGPT patch commits:
-
-- `af847bb11ad419c95a86b63af7406f1abf4bf772`;
-- `966e5d985840c1d9ba380bd4080b68ce1ae8e2ca`.
-
-Matrix D also requires a corrected execution attempt: the actual private administrator entrypoints are in `src/99_EntryPoints.gs`, and `runAiSyncWorker_()` is in `src/170_AiEntryPoints.gs`; the previous helper-file selection is not treated as proof that the entrypoints are absent.
+`BLOCKER: YES`
 
 ## Active next execution
 
+ChatGPT has deliberately not made a second speculative navigation patch. The remaining ambiguity is now a single runtime distinction: whether the deployed `?page=knowledge` route itself fails independently of the main-page navigation control.
+
 Use:
 
-`docs/handoffs/0013-knowledge-navigation-defect-instruction.md`
+`docs/handoffs/0013-knowledge-direct-route-diagnosis-instruction.md`
 
-Exact ref:
+Exact handoff commit:
 
-`11a123e43044ce5e1207cece4610bc8206d44144`
+`a986d2feb96b52c8bcd6053bb595cf7cdaff5c75`
 
-This is Route B: verify the ChatGPT patch, run the repository checks, update the existing synthetic DEV deployment, confirm live Knowledge Search navigation, then complete corrected Matrix D plus Knowledge Export preview / Docs / PDF / clipboard / integrity readback.
+The active run is diagnosis-only. Perform one direct user navigation to the current version-19 Web App with `page=knowledge`, classify the result, update report evidence, and stop. Do not modify source/deployment or continue to Matrix D/E.
 
-If the patched live navigation still fails after deterministic PASS, stop and return to ChatGPT without exploring a second hypothesis.
+If the direct route renders, the remaining defect is in the navigation-control layer. If the direct route is also white, the server route/render layer is confirmed. ChatGPT will author the next bounded repair only after that result.
+
+## Matrix D correction retained
+
+When Matrix D eventually resumes, the actual private administrator entrypoints are:
+
+- `src/99_EntryPoints.gs`: `getInstallationStatus_()`, `validateInstallation_()`, `setupKnowledgePlatform_()`;
+- `src/170_AiEntryPoints.gs`: `runAiSyncWorker_()`.
+
+Do not treat prior selection of `00_Core.gs` / `10_Setup.gs` as proof that the private entrypoints are unavailable.
 
 ## Remaining external categories
 
-Do not execute in the active run:
+Do not execute in the active diagnosis run:
 
 - disposable Shared Drive-specific behavior;
 - billing-enabled Gemini / File Search live qualification.
 
 These remain explicit external residual gaps unless separately proven.
 
-If the bounded navigation repair and Matrix E pass, and Matrix D is either PASS or only the allowed private-execution-surface DEFERRED state, Work 0013 may be classified:
-
-`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
-
-with `BLOCKER: NO`.
-
-Do not claim `PRODUCTION READY` without Shared Drive-specific and Gemini/File Search live evidence.
+Do not claim `DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS` or `PRODUCTION READY` while the current navigation blocker remains.
 
 ## Safety and delivery
 
