@@ -4,9 +4,9 @@ WORK_ID: `0013`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-検証日: `2026-08-18`
+検証日: `2026-08-19`
 
-今回の実行契約ref: `99f8a2326af8b8afe43ccaa0836cdaf55ceeb921`
+今回の実行契約ref: `c5f0399be6882e6927265a2ca1c7070edd9d816b`
 
 前回のruntime qualification ref: `8943123d8e258e4be07f8b172059870326eed2d3`
 
@@ -14,7 +14,53 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Draft PR: `#11`
 
-## 結論
+## Current final non-AI qualification result (latest)
+
+今回の最終 non-AI DEV qualification は、Matrix D の private execution surface limitation と、
+Matrix E の最初の実アプリケーション不具合により完了していない。
+
+Overall classification: `NOT QUALIFIED — MATRIX E STOPPED AT FIRST OBSERVED APPLICATION DEFECT`
+
+`BLOCKER: YES`
+
+### Matrix D — post-hardening private administrator path
+
+Result: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`
+
+- Settings の `ENVIRONMENT=DEV` と `AI_SYNC_ENABLED=false`、Work 0012 の deterministic public-surface
+  boundary evidence を事前確認した。
+- Apps Script の synthetic DEV project editor で `00_Core.gs`、続いて `10_Setup.gs` を選択したが、
+  上部の関数選択欄はどちらでも `関数なし` のままだった。
+- private functions の戻り値を観測できる安全な実行経路が得られなかったため、
+  `getInstallationStatus_()`、`validateInstallation_()`、`setupKnowledgePlatform_()`、
+  再読込確認、`runAiSyncWorker_()` は実行していない。
+- public wrapper、debug endpoint、臨時 deployment、source change は作成していない。
+- これは handoff が許容する execution-surface limitation であり、Matrix D の implementation defect
+  とは判定していない。
+
+### Matrix E — real Knowledge Export / clipboard qualification
+
+Result: `FAIL — STOPPED AT FIRST OBSERVED APPLICATION DEFECT`
+
+- 既存の synthetic DEV Web App に戻り、ユーザーが正常な登録・管理画面で「ナレッジ検索」を1回
+  クリックした。
+- クリック直後、画面全体が白くなり、Knowledge Search / Export の操作面、成功・失敗 status、safe
+  error code/message は表示されなかった。
+- この時点で再クリック、更新、戻る、別仮説の調査を行わず、Matrix E を停止した。
+- E1 Preview、E2 Google Docs、E3 PDF、E4 clipboard、E5 integrity/readback は未実行。
+- したがって Docs/PDF/clipboard の実機 PASS は主張しない。今回の操作では preview、export、prompt
+  copy を実行していない。
+
+### Residual external categories
+
+- Shared Drive-specific behavior: `DEFERRED — authorized disposable Shared Drive not exercised in this run`
+- Gemini / File Search live qualification: `DEFERRED — requires approved billing-enabled DEV credential and dedicated qualification`
+
+この最新結果が今回の実行の判定であり、後続の historical sections は過去の Matrix A/C 等の証跡として
+のみ保持する。今回の白画面は、ChatGPT による bounded diagnosis と修正が必要な application defect
+として引き継ぐ。今回の Work 0013 実行では原因調査・source修正を行わない。
+
+## Previous Matrix C qualification conclusion (historical retained evidence)
 
 `MATRIX C PASS — 25 MiB boundary qualified`
 
@@ -85,7 +131,7 @@ Largest stable upload size: `not established`.
 
 First reproducible failing size: `not established`; the run stopped before the upload path.
 
-## Current bounded Matrix C — Practical browser upload boundary
+## Historical bounded Matrix C — Practical browser upload boundary
 
 Status: `PASS`
 
