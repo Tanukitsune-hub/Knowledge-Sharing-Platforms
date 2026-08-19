@@ -246,7 +246,9 @@ size-dependent upload request.
 
 ## Scope and safety
 
-- このrunで変更したtracked fileはreportだけ。
+- この最新runで変更したtracked docsは `docs/handoffs/0013-instruction.md`、
+  `docs/handoffs/0013-report.md`、`docs/handoffs/0013-non-ai-final-live-qualification-report.md`
+  の3文書だけである。
 - source / tests / limits / architecture / product documentationは変更していない。
 - synthetic DEV dataだけを使用し、production、confidential data、credentials、tokens、
   private IDs、private URLsは報告書へ記録していない。
@@ -279,6 +281,6 @@ git diff --check
 ## Delivery
 
 - 前回までのreport-only commitは維持する。
-- 今回は `docs/handoffs/0013-report.md` のevidenceだけをreport-only commitとしてcommit・pushする。
+- 今回は上記3文書だけをreport/documentation-only commitとしてcommit・pushする。
 - Draft PR #11はDraft / 未mergeのまま更新する。
 - mergeは実行しない。
