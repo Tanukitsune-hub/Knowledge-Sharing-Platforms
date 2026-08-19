@@ -6,7 +6,7 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 検証日: `2026-08-20`
 
-今回の実行契約ref: `9799c7c1cd924be3747a3c6e23cc679bafc88770`
+今回の実行契約ref: `d8628c4e055a73fc3b82c548bed606ff38f22a4d`
 
 前回のruntime qualification ref: `8943123d8e258e4be07f8b172059870326eed2d3`
 
@@ -14,7 +14,30 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Draft PR: `#11`
 
-## Latest post-repair navigation verification (2026-08-20)
+## Latest direct-route diagnosis (2026-08-20)
+
+Direct-route result: `DIRECT_ROUTE_PASS — NAVIGATION_CONTROL_LAYER_REMAINS_DEFECTIVE`
+
+- Using the same authenticated synthetic DEV Web App deployment version `19`, the user
+  performed exactly one direct navigation by adding `?page=knowledge` to the existing local
+  Web App URL.
+- The direct route rendered the normal `ナレッジ検索` heading and the `対象資料の書き出し`
+  section, including the Knowledge Export controls.
+- This falsifies the single direct-route hypothesis that the server route itself fails to
+  render. The earlier version-19 white screen after one normal `ナレッジ検索` click remains
+  the observed navigation-control-layer defect; no navigation patch or second hypothesis was
+  investigated in this run.
+- `doGet` execution evidence: `not safely observable` (no additional execution/log inspection
+  was performed).
+- The diagnostic stopped immediately. No retry, refresh, normal navigation button click,
+  Knowledge Export control, Matrix D/E, Docs/PDF, clipboard, Shared Drive, or Gemini/File
+  Search action was performed.
+
+Current Work 0013 classification: `NOT QUALIFIED — NORMAL NAVIGATION CONTROL DEFECT REMAINS`
+
+`BLOCKER: YES`
+
+## Previous post-repair navigation verification (2026-08-20)
 
 Navigation patch deterministic result: `PASS`
 

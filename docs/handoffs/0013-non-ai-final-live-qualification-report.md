@@ -6,13 +6,34 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Execution date: `2026-08-20`
 
-Instruction ref: `9799c7c1cd924be3747a3c6e23cc679bafc88770`
+Instruction ref: `d8628c4e055a73fc3b82c548bed606ff38f22a4d`
 
 Branch: `agent/0013-consolidated-dev-live-qualification`
 
 Draft PR: `#11`
 
-## Latest post-repair verification result
+## Latest direct-route diagnosis
+
+Direct-route result: `DIRECT_ROUTE_PASS — NAVIGATION_CONTROL_LAYER_REMAINS_DEFECTIVE`.
+
+The same authenticated synthetic DEV Web App deployment version `19` was used. The user
+performed exactly one direct navigation by adding `?page=knowledge` to the existing local Web
+App URL. The page rendered the `ナレッジ検索` heading and the `対象資料の書き出し` section,
+including the Knowledge Export controls. Therefore the single hypothesis that the deployed
+Knowledge Search route itself fails to render was falsified. The earlier white page after one
+normal `ナレッジ検索` click remains the current navigation-control-layer defect.
+
+`doGet` execution evidence: `not safely observable`.
+
+The diagnostic stopped immediately. No retry, refresh, normal navigation button click, Knowledge
+Export control, Matrix D/E, Docs/PDF, clipboard, Shared Drive, Gemini/File Search, source,
+test, deployment, manifest, public-facade, limit, or architecture change was performed.
+
+Current Work 0013 classification: `NOT QUALIFIED — NORMAL NAVIGATION CONTROL DEFECT REMAINS`.
+
+`BLOCKER: YES`.
+
+## Previous post-repair verification result
 
 Navigation patch deterministic result: `PASS`.
 
@@ -123,7 +144,7 @@ These categories were not executed and are not the cause of the current blocker.
 
 - Source/tests/limits/architecture/deployment were unchanged.
 - Full `npm run check` / `npm run test` were not rerun solely for this report-only qualification
-  update, per the handoff. Accepted deterministic evidence remains `158/158 PASS`.
+  update, per the handoff. Accepted deterministic evidence remains `159/159 PASS`.
 - `git diff --check` was run before delivery.
 - This report and the primary Work 0013 report are the only scoped changes for this run.
 - Draft PR #11 remains Draft and unmerged.
