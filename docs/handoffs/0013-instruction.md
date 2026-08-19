@@ -22,45 +22,37 @@ Product architecture and feature scope are settled through Work 0012. When a liv
 - Largest stable supported upload: `25 MiB / 26,214,400 bytes`.
 - Work 0011 Knowledge Export deterministic implementation/tests: PASS.
 - Work 0012 public-surface hardening: deterministic PASS.
+- First navigation repair deterministic verification: focused `1/1 PASS`, full `159/159 PASS`.
+- DEV version 19 normal `ナレッジ検索` control: white-screen FAIL.
+- DEV version 19 direct `?page=knowledge`: PASS; Knowledge Search and Knowledge Export controls visibly render.
 
-Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, or prior defect work.
+Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, the broken normal navigation click, or the direct-route proof.
 
-## Latest navigation state
+## Current classification
 
-ChatGPT's first bounded navigation repair replaced the iframe-local `window.location.search` route with published-Web-App GET navigation using `_top`, and added `tests/webapp-navigation.test.cjs`.
-
-Codex independently verified the patch:
-
-- focused navigation regression: `1/1 PASS`;
-- `npm run check`: `159/159 PASS`;
-- `npm run test`: `159/159 PASS`;
-- Apps Script / HTML / manifest validation: PASS;
-- public surface: `23 public / 360 private top-level functions`;
-- `git diff --check`: PASS.
-
-The verified source was deployed to the existing synthetic DEV Web App as version 19. One normal user click on `ナレッジ検索` still produced a fully white page. Matrix D/E were not run after that failure.
-
-Current Work 0013 classification remains:
-
-`NOT QUALIFIED — POST-REPAIR LIVE NAVIGATION STILL FAILS`
+`NOT QUALIFIED — NORMAL NAVIGATION CONTROL DEFECT REMAINS`
 
 `BLOCKER: YES`
 
+The direct route has falsified the hypothesis that the deployed Knowledge Search route/render layer is broken. The remaining defect is confined to the normal navigation control.
+
 ## Active next execution
 
-ChatGPT has deliberately not made a second speculative navigation patch. The remaining ambiguity is now a single runtime distinction: whether the deployed `?page=knowledge` route itself fails independently of the main-page navigation control.
+ChatGPT has not made a second source patch.
+
+The next single hypothesis is that the rendered navigation form generated from `ScriptApp.getService().getUrl()` does not target the same current DEV deployment base URL whose direct `?page=knowledge` route passed.
 
 Use:
 
-`docs/handoffs/0013-knowledge-direct-route-diagnosis-instruction.md`
+`docs/handoffs/0013-navigation-action-url-diagnosis-instruction.md`
 
 Exact handoff commit:
 
-`a986d2feb96b52c8bcd6053bb595cf7cdaff5c75`
+`c0cf7ddf12577a8ad99c8fce1a0e6e813e82f9b2`
 
-The active run is diagnosis-only. Perform one direct user navigation to the current version-19 Web App with `page=knowledge`, classify the result, update report evidence, and stop. Do not modify source/deployment or continue to Matrix D/E.
+The run is diagnosis-only. Inspect the rendered `#nav-knowledge` form action without clicking it and compare its deployment/base identity privately with the successful current DEV deployment base. Record only `ACTION_URL_MISMATCH`, `ACTION_URL_MATCH`, or `NOT_SAFELY_OBSERVABLE` plus non-secret structural differences. Then stop.
 
-If the direct route renders, the remaining defect is in the navigation-control layer. If the direct route is also white, the server route/render layer is confirmed. ChatGPT will author the next bounded repair only after that result.
+Do not modify source, tests, deployment, manifest, public facade, limits, or architecture in this run. Do not proceed to Matrix D/E.
 
 ## Matrix D correction retained
 
