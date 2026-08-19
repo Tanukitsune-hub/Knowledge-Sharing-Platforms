@@ -8,76 +8,89 @@ Route: `ChatGPT-led diagnosis / bounded edit; Codex authenticated DEV execution 
 
 Recommended Codex model: `Luna Max`.
 
-## Current operating rule
+## Current state
 
-Product architecture and feature scope are settled through Work 0012. When a live defect appears, Codex stops with the smallest safe evidence and ChatGPT owns diagnosis, scope, and the next bounded handoff.
+Accepted completed evidence:
 
-## Accepted completed evidence — do not rerun
-
-- Pitchbook Date representation repair: PASS.
+- Pitchbook Date repair: PASS.
 - Pitchbook status-parser repair: PASS.
 - Matrix A `Active -> Inactive -> Active`: live PASS.
 - Matrix B: `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`.
-- Matrix C normal-browser upload-size qualification: PASS at `1 / 5 / 10 / 15 / 20 / 25 MiB`.
+- Matrix C: `1 / 5 / 10 / 15 / 20 / 25 MiB`: live PASS.
 - Largest stable supported upload: `25 MiB / 26,214,400 bytes`.
 - Work 0011 Knowledge Export deterministic implementation/tests: PASS.
 - Work 0012 public-surface hardening: deterministic PASS.
-- First navigation repair deterministic verification: focused `1/1 PASS`, full `159/159 PASS`.
-- DEV version 19 normal `ナレッジ検索` control: white-screen FAIL.
-- DEV version 19 direct `?page=knowledge`: PASS; Knowledge Search and Knowledge Export controls visibly render.
+- First navigation repair: deterministic focused `1/1` and full `159/159` PASS, but live normal navigation FAIL.
+- DEV version 19 direct `?page=knowledge`: PASS; Knowledge Search and Knowledge Export render normally.
+- Navigation action URL comparison: `NOT SAFELY OBSERVABLE`; no URL mismatch was inferred.
 
-Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, the broken normal navigation click, or the direct-route proof.
-
-## Current classification
+Current classification:
 
 `NOT QUALIFIED — NORMAL NAVIGATION CONTROL DEFECT REMAINS`
 
 `BLOCKER: YES`
 
-The direct route has falsified the hypothesis that the deployed Knowledge Search route/render layer is broken. The remaining defect is confined to the normal navigation control.
+## ChatGPT second bounded repair
+
+The route/render layer is proven live-good. The remaining failing control after the first repair was a top-level HTML `<form>` submission.
+
+ChatGPT has replaced that form-based navigation with the Apps Script HTML Service documented pattern: explicit `<a>` links using `target="_top"`.
+
+Changed only:
+
+- `src/90_WebApp.gs`;
+- `tests/webapp-navigation.test.cjs`.
+
+Repair commits:
+
+- `6a7dd8544b85b2fa415d79bcc2c6f16cccf871a8`;
+- `e7a7ea065daa2f9bac7920c4c7eea9b9303ba852`.
+
+No data, export, AI, limit, storage, public-facade, manifest, or architecture contract changed.
 
 ## Active next execution
 
-ChatGPT has not made a second source patch.
-
-The next single hypothesis is that the rendered navigation form generated from `ScriptApp.getService().getUrl()` does not target the same current DEV deployment base URL whose direct `?page=knowledge` route passed.
-
 Use:
 
-`docs/handoffs/0013-navigation-action-url-diagnosis-instruction.md`
+`docs/handoffs/0013-navigation-anchor-repair-instruction.md`
 
-Exact handoff commit:
+Handoff commit:
 
-`c0cf7ddf12577a8ad99c8fce1a0e6e813e82f9b2`
+`100385bd8dc2601d75dbf97ab36add977c72e6aa`
 
-The run is diagnosis-only. Inspect the rendered `#nav-knowledge` form action without clicking it and compare its deployment/base identity privately with the successful current DEV deployment base. Record only `ACTION_URL_MISMATCH`, `ACTION_URL_MATCH`, or `NOT_SAFELY_OBSERVABLE` plus non-secret structural differences. Then stop.
+Codex must verify the anchor patch, run focused/full local checks, deploy it to the existing synthetic DEV Web App, and ask the user for exactly one normal `ナレッジ検索` click.
 
-Do not modify source, tests, deployment, manifest, public facade, limits, or architecture in this run. Do not proceed to Matrix D/E.
+If the normal click still fails after deterministic PASS, stop immediately and return to ChatGPT. Do not pursue a third navigation hypothesis.
 
-## Matrix D correction retained
+If the normal click passes, continue in the same bounded run to:
 
-When Matrix D eventually resumes, the actual private administrator entrypoints are:
+- corrected Matrix D using the actual private entrypoints in `99_EntryPoints.gs` / `170_AiEntryPoints.gs`;
+- Matrix E Knowledge Export preview, Google Docs, PDF, clipboard, and integrity readback.
 
-- `src/99_EntryPoints.gs`: `getInstallationStatus_()`, `validateInstallation_()`, `setupKnowledgePlatform_()`;
-- `src/170_AiEntryPoints.gs`: `runAiSyncWorker_()`.
+Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, direct-route proof, or action-URL comparison.
 
-Do not treat prior selection of `00_Core.gs` / `10_Setup.gs` as proof that the private entrypoints are unavailable.
+## Residual external categories
 
-## Remaining external categories
+Do not execute in the active run:
 
-Do not execute in the active diagnosis run:
+- Shared Drive-specific qualification;
+- billing-enabled Gemini / File Search qualification.
 
-- disposable Shared Drive-specific behavior;
-- billing-enabled Gemini / File Search live qualification.
+These remain explicit external residual gaps.
 
-These remain explicit external residual gaps unless separately proven.
+If anchor navigation and Matrix E pass, and Matrix D is PASS or only the allowed private-execution-surface DEFERRED state, Work 0013 may be classified:
 
-Do not claim `DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS` or `PRODUCTION READY` while the current navigation blocker remains.
+`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
 
-## Safety and delivery
+with `BLOCKER: NO`.
+
+Do not claim `PRODUCTION READY` while Shared Drive/Gemini live qualification remains deferred.
+
+## Safety / delivery
 
 - DEV only; synthetic/anonymized data only.
-- No production deployment/data, credentials, private IDs/URLs, source content, or user-specific local paths in GitHub/report/chat.
+- No production deployment/data or confidential source material.
+- No credentials, private IDs/URLs, tokens, cookies, or user-specific local paths in GitHub/report/chat.
 - No temporary public admin/debug wrapper or blind Windows UI automation.
 - Continue on `agent/0013-consolidated-dev-live-qualification` and Draft PR #11.
 - Do not merge; ChatGPT performs final review.
