@@ -8,7 +8,7 @@ function doGet(event) {
     var knowledgeHtml = evaluatedKnowledge.getContent()
       .replace(
         '<button id="knowledge-back" type="button">登録・管理へ戻る</button>',
-        '<form method="get" action="' + webAppUrl + '" target="_top" style="margin:0"><button id="knowledge-back" type="submit">登録・管理へ戻る</button></form>'
+        '<a id="knowledge-back" href="' + webAppUrl + '" target="_top">登録・管理へ戻る</a>'
       )
       .replace(
         "kEl('knowledge-back').onclick=()=>{window.location.search=''};",
@@ -22,7 +22,7 @@ function doGet(event) {
   var evaluated = HtmlService.createTemplateFromFile('Index').evaluate();
   var html = evaluated.getContent().replace(
     '</nav>',
-    '<form method="get" action="' + webAppUrl + '" target="_top" style="margin:0"><input type="hidden" name="page" value="knowledge"><button id="nav-knowledge" type="submit">ナレッジ検索</button></form></nav>'
+    '<a id="nav-knowledge" href="' + webAppUrl + '?page=knowledge" target="_top">ナレッジ検索</a></nav>'
   );
   return HtmlService.createHtmlOutput(html)
     .setTitle('Knowledge Sharing Platforms')
