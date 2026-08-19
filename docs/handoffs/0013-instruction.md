@@ -4,96 +4,91 @@ WORK_ID: `0013`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Route: `ChatGPT-led diagnosis; Codex authenticated DEV execution and bounded verification`.
+Route: `ChatGPT-led diagnosis / bounded edit; Codex authenticated DEV execution and verification`.
 
 Recommended Codex model: `Luna Max`.
 
 ## Current operating rule
 
-Product architecture and feature scope are settled through Work 0012. Luna Max is not authorized to perform open-ended root-cause discovery.
+Product architecture and feature scope are settled through Work 0012. When a live defect appears, Codex stops with the smallest safe evidence and ChatGPT owns diagnosis, scope, and the next bounded handoff.
 
-For known qualification matrices, Luna Max may execute the specified steps. When a live defect appears, Luna Max must stop with the smallest safe evidence and wait for a new ChatGPT-authored bounded handoff.
+## Accepted completed evidence — do not rerun
 
-## Current state and final non-AI qualification result
-
-Completed and accepted historical evidence:
-
-- Pitchbook Date representation repair: PASS;
-- Pitchbook status-parser repair: PASS;
-- Matrix A `Active -> Inactive -> Active`: live PASS;
-- Matrix B: `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`;
-- Matrix C normal-browser upload-size qualification: PASS at `1 / 5 / 10 / 15 / 20 / 25 MiB`;
-- largest stable supported upload: `25 MiB / 26,214,400 bytes`;
-- parser-repair local suite: `158/158 PASS`;
-- Work 0010 pre-hardening live setup / validation / status / setup-idempotency: PASS;
-- Work 0011 Knowledge Export deterministic implementation/tests: PASS;
+- Pitchbook Date representation repair: PASS.
+- Pitchbook status-parser repair: PASS.
+- Matrix A `Active -> Inactive -> Active`: live PASS.
+- Matrix B: `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`.
+- Matrix C normal-browser upload-size qualification: PASS at `1 / 5 / 10 / 15 / 20 / 25 MiB`.
+- Largest stable supported upload: `25 MiB / 26,214,400 bytes`.
+- Prior parser-repair local suite: `158/158 PASS`.
+- Work 0010 pre-hardening setup / validation / status / setup-idempotency: live PASS.
+- Work 0011 Knowledge Export deterministic implementation/tests: PASS.
 - Work 0012 public-surface hardening: deterministic PASS.
-
-The final non-AI DEV qualification under
-`docs/handoffs/0013-non-ai-final-live-qualification-instruction.md` was executed on
-`2026-08-19` and did not complete:
-
-- Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`. The authenticated Apps
-  Script editor showed `関数なし` after `00_Core.gs` and `10_Setup.gs` were selected, so no
-  private return-value-observable execution was available. No wrapper, debug endpoint,
-  temporary deployment, or source change was used.
-- Matrix E: `FAIL — STOPPED AT FIRST OBSERVED APPLICATION DEFECT`. Clicking `ナレッジ検索`
-  once in the synthetic DEV Web App immediately produced an entirely white page with no
-  visible safe error code/message. No retry, refresh, navigation experiment, or diagnosis
-  was performed. Preview, Docs, PDF, clipboard, and integrity checks were not reached.
-
-Current Work 0013 classification:
-
-`NOT QUALIFIED — MATRIX E STOPPED AT FIRST OBSERVED APPLICATION DEFECT`
-
-`BLOCKER: YES`
-
-The durable evidence is in `docs/handoffs/0013-non-ai-final-live-qualification-report.md` and
-the latest section of `docs/handoffs/0013-report.md`. The white-screen defect requires a new
-ChatGPT-authored bounded diagnosis/remediation handoff; this Work 0013 run does not diagnose or
-repair it.
 
 Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, or prior defect work.
 
-## Current policy
+## Latest observed non-AI qualification result
 
-`docs/handoffs/0013-resume-instruction.md`
+At pre-fix ref `03b1a4b2e97b16212b5e8f495f3c595d55d05b27`:
 
-Completed records:
+- Matrix D was reported `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION` after `00_Core.gs` and `10_Setup.gs` were selected in the Apps Script editor and the toolbar showed `関数なし`.
+- Matrix E stopped immediately when one click on `ナレッジ検索` produced an entirely white page. Preview, Docs, PDF, clipboard, and integrity checks were not reached.
 
-- `docs/handoffs/0013-pitchbook-date-normalization-instruction.md`;
-- `docs/handoffs/0013-pitchbook-status-parser-defect-report.md`;
-- `docs/handoffs/0013-matrix-c-upload-size-qualification-report.md`.
+The durable stopped-run evidence remains in:
 
-Primary report:
+- `docs/handoffs/0013-non-ai-final-live-qualification-report.md`;
+- `docs/handoffs/0013-report.md`.
 
-`docs/handoffs/0013-report.md`
+## ChatGPT diagnosis and bounded repair
 
-## Remaining external qualification categories
+ChatGPT inspected the current source and isolated the Matrix E defect to Web App navigation:
 
-The final non-AI run stopped before Knowledge Export execution. The remaining external categories
-are separated from the observed application defect:
+- `src/90_WebApp.gs` used `window.location.search='?page=knowledge'` inside the Apps Script HTML Service iframe.
+- The bounded repair now uses the published Web App URL from `ScriptApp.getService().getUrl()` and normal GET navigation with `target="_top"` for both directions.
+- `tests/webapp-navigation.test.cjs` adds a focused regression for the route.
 
-- disposable Shared Drive-specific behavior when authorized test infrastructure exists;
-- billing-enabled Gemini / File Search live qualification when an approved DEV credential exists.
+ChatGPT patch commits:
 
-Normal-UI retry/duplicate-protection remains accepted as `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained` unless a natural Failed/Pending slot is encountered in a separately authorized run. Do not manufacture one.
+- `af847bb11ad419c95a86b63af7406f1abf4bf772`;
+- `966e5d985840c1d9ba380bd4080b68ce1ae8e2ca`.
 
-`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS` is not claimed because Matrix E stopped at an actual
-application defect.
+Matrix D also requires a corrected execution attempt: the actual private administrator entrypoints are in `src/99_EntryPoints.gs`, and `runAiSyncWorker_()` is in `src/170_AiEntryPoints.gs`; the previous helper-file selection is not treated as proof that the entrypoints are absent.
+
+## Active next execution
+
+Use:
+
+`docs/handoffs/0013-knowledge-navigation-defect-instruction.md`
+
+Exact ref:
+
+`11a123e43044ce5e1207cece4610bc8206d44144`
+
+This is Route B: verify the ChatGPT patch, run the repository checks, update the existing synthetic DEV deployment, confirm live Knowledge Search navigation, then complete corrected Matrix D plus Knowledge Export preview / Docs / PDF / clipboard / integrity readback.
+
+If the patched live navigation still fails after deterministic PASS, stop and return to ChatGPT without exploring a second hypothesis.
+
+## Remaining external categories
+
+Do not execute in the active run:
+
+- disposable Shared Drive-specific behavior;
+- billing-enabled Gemini / File Search live qualification.
+
+These remain explicit external residual gaps unless separately proven.
+
+If the bounded navigation repair and Matrix E pass, and Matrix D is either PASS or only the allowed private-execution-surface DEFERRED state, Work 0013 may be classified:
+
+`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
+
+with `BLOCKER: NO`.
 
 Do not claim `PRODUCTION READY` without Shared Drive-specific and Gemini/File Search live evidence.
 
-## Safety
+## Safety and delivery
 
-- DEV only;
-- synthetic/anonymized data only;
-- no production deployment or destructive production action;
-- no credentials, private IDs/URLs, source content, or user-specific local paths in GitHub/report/chat;
-- no temporary public admin/debug wrapper;
-- no blind Windows UI automation;
-- no feature addition or broad refactor.
-
-## Delivery
-
-Continue using Work ID `0013`, the existing branch, report, and Draft PR #11. Do not merge. ChatGPT performs the final merge review after the non-AI qualification result.
+- DEV only; synthetic/anonymized data only.
+- No production deployment/data, credentials, private IDs/URLs, source content, or user-specific local paths in GitHub/report/chat.
+- No temporary public admin/debug wrapper or blind Windows UI automation.
+- Continue on `agent/0013-consolidated-dev-live-qualification` and Draft PR #11.
+- Do not merge; ChatGPT performs final review.
