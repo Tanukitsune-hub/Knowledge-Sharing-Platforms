@@ -6,13 +6,35 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Execution date: `2026-08-20`
 
-Instruction ref: `d8628c4e055a73fc3b82c548bed606ff38f22a4d`
+Instruction ref: `6ed51b5768c241ec0b5118ce7822824d74ba1db7`
 
 Branch: `agent/0013-consolidated-dev-live-qualification`
 
 Draft PR: `#11`
 
-## Latest direct-route diagnosis
+## Latest navigation-action URL comparison
+
+Action URL comparison result: `ACTION_URL_COMPARISON_NOT_SAFELY_OBSERVABLE`.
+
+The existing authenticated synthetic DEV Web App tab whose direct `?page=knowledge` route had
+already passed was read without repeating that proof. A temporary read-only main-page view was
+opened from that already-observed deployment base, but the rendered page exposed `0` elements
+matching `#nav-knowledge`. Therefore the parent form and resolved `form.action` could not be
+read, and the normalized deployment/base comparison could not be performed.
+
+No URL mismatch, deployment drift, form semantics, sandbox, authentication, or other hypothesis
+was inferred. No full URL, deployment ID, script ID, credential, cookie, or token was printed or
+recorded. No navigation control was clicked, and no retry, refresh, direct-route proof, Matrix
+D/E, Knowledge Export, Docs/PDF, clipboard, Shared Drive, or Gemini/File Search action was
+performed.
+
+Structural difference: `not safely observable`.
+
+Current Work 0013 classification: `NOT QUALIFIED — NAVIGATION ACTION COMPARISON NOT SAFELY OBSERVABLE`.
+
+`BLOCKER: YES`.
+
+## Previous direct-route diagnosis
 
 Direct-route result: `DIRECT_ROUTE_PASS — NAVIGATION_CONTROL_LAYER_REMAINS_DEFECTIVE`.
 
