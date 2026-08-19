@@ -4,9 +4,9 @@ WORK_ID: `0013`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-検証日: `2026-08-19`
+検証日: `2026-08-20`
 
-今回の実行契約ref: `c5f0399be6882e6927265a2ca1c7070edd9d816b`
+今回の実行契約ref: `9799c7c1cd924be3747a3c6e23cc679bafc88770`
 
 前回のruntime qualification ref: `8943123d8e258e4be07f8b172059870326eed2d3`
 
@@ -14,7 +14,41 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Draft PR: `#11`
 
-## Current final non-AI qualification result (latest)
+## Latest post-repair navigation verification (2026-08-20)
+
+Navigation patch deterministic result: `PASS`
+
+- focused `tests/webapp-navigation.test.cjs`: `1/1 PASS`;
+- `npm run check`: `159/159 PASS`;
+- `npm run test`: `159/159 PASS`;
+- Apps Script validator: `46 Apps Script source files / 11 HTML files / manifest PASS`;
+- public surface: `23 public / 360 private top-level functions`;
+- `git diff --check`: `PASS`;
+- existing synthetic DEV source push: `58 files PASS`;
+- existing `KSP Work 0013 DEV Web App current` deployment updated to version `19`.
+
+Live Knowledge Search navigation result: `FAIL — STOPPED AT FIRST POST-REPAIR APPLICATION DEFECT`
+
+- After the version 19 deployment, the user opened the existing synthetic DEV Web App and clicked
+  `ナレッジ検索` exactly once.
+- The page again showed only a white screen; Knowledge Search / Export controls and a safe error
+  code/message were not visible.
+- The run stopped immediately. No retry, refresh, alternate navigation, Matrix D execution, or
+  competing root-cause investigation was performed.
+
+Current run Matrix D: `NOT RUN — stopped before Matrix D because live navigation failed`.
+
+Current run Matrix E: `NOT RUN — stopped before Knowledge Export because live navigation failed`.
+
+Overall classification: `NOT QUALIFIED — POST-REPAIR LIVE NAVIGATION STILL FAILS`
+
+`BLOCKER: YES`
+
+The earlier pre-fix white-screen observation is historical evidence only; the post-repair version
+19 white-screen observation supersedes it as the current blocker. The prior Matrix D deferral and
+Knowledge Export non-execution remain historical and were not reclassified by this stopped run.
+
+## Historical pre-fix final non-AI qualification result
 
 今回の最終 non-AI DEV qualification は、Matrix D の private execution surface limitation と、
 Matrix E の最初の実アプリケーション不具合により完了していない。
