@@ -1,7 +1,20 @@
 function doGet(event) {
   var page = event && event.parameter ? String(event.parameter.page || '') : '';
+  var webAppUrl = String(ScriptApp.getService().getUrl() || '');
+  kspAssert_(webAppUrl, 'WEB_APP_URL_UNAVAILABLE', 'Web App URLを確認できません。');
+
   if (page === 'knowledge') {
-    return HtmlService.createTemplateFromFile('KnowledgeSearch').evaluate()
+    var evaluatedKnowledge = HtmlService.createTemplateFromFile('KnowledgeSearch').evaluate();
+    var knowledgeHtml = evaluatedKnowledge.getContent()
+      .replace(
+        '<button id="knowledge-back" type="button">登録・管理へ戻る</button>',
+        '<form method="get" action="' + webAppUrl + '" target="_top" style="margin:0"><button id="knowledge-back" type="submit">登録・管理へ戻る</button></form>'
+      )
+      .replace(
+        "kEl('knowledge-back').onclick=()=>{window.location.search=''};",
+        ''
+      );
+    return HtmlService.createHtmlOutput(knowledgeHtml)
       .setTitle('ナレッジ検索 | Knowledge Sharing Platforms')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
@@ -9,7 +22,7 @@ function doGet(event) {
   var evaluated = HtmlService.createTemplateFromFile('Index').evaluate();
   var html = evaluated.getContent().replace(
     '</nav>',
-    '<button id="nav-knowledge" type="button" onclick="window.location.search=\'?page=knowledge\'">ナレッジ検索</button></nav>'
+    '<form method="get" action="' + webAppUrl + '" target="_top" style="margin:0"><input type="hidden" name="page" value="knowledge"><button id="nav-knowledge" type="submit">ナレッジ検索</button></form></nav>'
   );
   return HtmlService.createHtmlOutput(html)
     .setTitle('Knowledge Sharing Platforms')
