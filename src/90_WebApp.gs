@@ -1,30 +1,13 @@
 function doGet(event) {
   var page = event && event.parameter ? String(event.parameter.page || '') : '';
-  var webAppUrl = String(ScriptApp.getService().getUrl() || '');
-  kspAssert_(webAppUrl, 'WEB_APP_URL_UNAVAILABLE', 'Web App URLを確認できません。');
 
   if (page === 'knowledge') {
-    var evaluatedKnowledge = HtmlService.createTemplateFromFile('KnowledgeSearch').evaluate();
-    var knowledgeHtml = evaluatedKnowledge.getContent()
-      .replace(
-        '<button id="knowledge-back" type="button">登録・管理へ戻る</button>',
-        '<a id="knowledge-back" href="' + webAppUrl + '" target="_top">登録・管理へ戻る</a>'
-      )
-      .replace(
-        "kEl('knowledge-back').onclick=()=>{window.location.search=''};",
-        ''
-      );
-    return HtmlService.createHtmlOutput(knowledgeHtml)
+    return HtmlService.createTemplateFromFile('KnowledgeSearch').evaluate()
       .setTitle('ナレッジ検索 | Knowledge Sharing Platforms')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
 
-  var evaluated = HtmlService.createTemplateFromFile('Index').evaluate();
-  var html = evaluated.getContent().replace(
-    '</nav>',
-    '<a id="nav-knowledge" href="' + webAppUrl + '?page=knowledge" target="_top">ナレッジ検索</a></nav>'
-  );
-  return HtmlService.createHtmlOutput(html)
+  return HtmlService.createTemplateFromFile('Index').evaluate()
     .setTitle('Knowledge Sharing Platforms')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }

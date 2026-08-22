@@ -27,80 +27,9 @@
         <button id="knowledge-back" type="button">登録・管理へ戻る</button>
       </nav>
     </header>
-
-    <section class="card">
-      <div class="knowledge-toolbar">
-        <div class="field mode-field">
-          <label for="knowledge-mode">検索モード</label>
-          <select id="knowledge-mode">
-            <option value="自由質問">自由質問</option>
-            <option value="要約">要約</option>
-            <option value="時系列">時系列</option>
-            <option value="比較">比較</option>
-            <option value="面談準備">面談準備</option>
-          </select>
-        </div>
-        <span id="knowledge-config-state" class="hint">設定を確認しています…</span>
-      </div>
-      <form id="knowledge-form" novalidate>
-        <div class="filter-grid">
-          <div class="field"><label for="knowledge-dateFrom">Date From</label><input id="knowledge-dateFrom" type="date"></div>
-          <div class="field"><label for="knowledge-dateTo">Date To</label><input id="knowledge-dateTo" type="date"></div>
-          <div class="field"><label id="knowledge-gp-label" for="knowledge-gpId">GP</label><select id="knowledge-gpId"><option value="">未選択</option></select></div>
-          <div class="field"><label for="knowledge-assetClassId">Asset Class</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
-          <div class="field"><label for="knowledge-capitalTypeId">Equity / Debt</label><select id="knowledge-capitalTypeId"><option value="">未選択</option></select></div>
-          <div class="field"><label for="knowledge-sourceType">Source Type</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">未選択</option><option value="Meeting">Meeting</option><option value="Pitchbook">Pitchbook</option></select><span id="knowledge-source-help" class="hint">未選択はMeetingとPitchbookの両方です。</span></div>
-        </div>
-        <div class="field full" style="margin-top:18px">
-          <label id="knowledge-instruction-label" class="required" for="knowledge-instruction">質問</label>
-          <textarea id="knowledge-instruction" maxlength="5000" placeholder="例: 最近の資料では、APACインフラの投資機会についてどのような見解が示されていますか？"></textarea>
-          <div id="knowledge-mode-help" class="hint">自由質問では質問が必須です。回答全文や検索チャンクは監査ログへ複製しません。</div>
-        </div>
-        <div class="actions">
-          <span class="hint">新規・更新資料が検索可能になるまで最大約15分かかる想定です。</span>
-          <div class="action-group">
-            <button id="knowledge-clear" class="action secondary" type="button">条件をクリア</button>
-            <button id="knowledge-submit" class="action primary" type="submit" disabled>検索</button>
-          </div>
-        </div>
-      </form>
-      <div id="knowledge-status" class="status" role="status" aria-live="polite"></div>
-    </section>
-
-    <section class="card" id="knowledge-export-section">
-      <div class="section-heading">
-        <div>
-          <h2>対象資料の書き出し</h2>
-          <p class="hint">Gemini検索を実行せず、選択した条件に一致するActiveな原資料を確認して書き出します。</p>
-        </div>
-      </div>
-      <p id="knowledge-export-scope" class="hint" aria-live="polite">Source Type: 未選択（MeetingとPitchbook）</p>
-      <div class="actions">
-        <span class="hint">まず対象資料を確認してください。書き出しは確認済みの原文とリンクだけを使います。</span>
-        <div class="action-group">
-          <button id="knowledge-export-preview-button" class="action secondary" type="button">対象資料を確認</button>
-          <button id="knowledge-export-docs" class="action primary" type="button" disabled>Google Docsに書き出す</button>
-          <button id="knowledge-export-pdf" class="action primary" type="button" disabled>PDFに書き出す</button>
-          <button id="knowledge-export-prompt" class="action secondary" type="button">AI用プロンプトをコピー</button>
-        </div>
-      </div>
-      <div id="knowledge-export-preview-summary" class="summary" aria-live="polite">対象資料を確認すると、件数と文字数を表示します。</div>
-      <div id="knowledge-export-hard-stop" class="status error" role="alert" aria-live="assertive"></div>
-      <div id="knowledge-export-prompt-preview" class="field hidden-panel" style="margin-top:18px">
-        <label for="knowledge-export-prompt-text">コピーするプロンプト</label>
-        <textarea id="knowledge-export-prompt-text" readonly aria-describedby="knowledge-export-policy"></textarea>
-      </div>
-      <p id="knowledge-export-policy" class="hint">機密資料を別のAIへ投入する場合は、所属組織の利用ルールと許可されたサービスに従ってください。</p>
-      <div id="knowledge-export-status" class="status" role="status" aria-live="polite"></div>
-    </section>
-
-    <section id="knowledge-result" class="card maintenance-editor hidden-panel">
-      <div class="section-heading"><div><h2>回答</h2><p id="knowledge-evidence-note" class="hint"></p></div></div>
-      <div id="knowledge-answer" class="knowledge-answer"></div>
-      <h3>参照資料</h3>
-      <ul id="knowledge-citations" class="citation-list"></ul>
-    </section>
+    <?!= include_('KnowledgeSearchPage'); ?>
   </main>
+  <script>document.getElementById('page-knowledge').classList.add('active');</script>
   <?!= include_('ClientKnowledgeSearch'); ?>
 </body>
 </html>

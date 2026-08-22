@@ -5,7 +5,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..', 'src');
-const page = fs.readFileSync(path.join(root, 'KnowledgeSearch.html'), 'utf8');
+const page = fs.readFileSync(path.join(root, 'KnowledgeSearchPage.html'), 'utf8');
+const standalone = fs.readFileSync(path.join(root, 'KnowledgeSearch.html'), 'utf8');
 const client = fs.readFileSync(path.join(root, 'ClientKnowledgeSearch.html'), 'utf8');
 
 test('Knowledge Export UI is deterministic, keyboard-native, and Gemini-independent', () => {
@@ -38,7 +39,10 @@ test('Knowledge Export UI is deterministic, keyboard-native, and Gemini-independ
   }
   assert.match(page, /Gemini検索を実行せず/);
   assert.match(page, /所属組織の利用ルールと許可されたサービスに従ってください/);
+  assert.match(standalone, /include_\('KnowledgeSearchPage'\)/);
+  assert.match(standalone, /include_\('ClientKnowledgeSearch'\)/);
   assert.match(client, /knowledgeState\.configured/);
+  assert.match(client, /const knowledgeBack=kEl\('knowledge-back'\);if\(knowledgeBack\)/);
   const exportBusyFunction = client.match(/function kSetExportBusy\([^}]+\}/)[0];
   assert.doesNotMatch(exportBusyFunction, /configured/);
 

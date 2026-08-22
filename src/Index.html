@@ -17,6 +17,7 @@
         <button id="nav-meeting-past" type="button">過去面談</button>
         <button id="nav-pitchbook-past" type="button">過去資料</button>
         <button id="nav-masters" type="button">マスター管理</button>
+        <button id="nav-knowledge" type="button">ナレッジ検索</button>
       </nav>
     </header>
 
@@ -58,9 +59,11 @@
     </section>
 
     <?!= include_('MaintenancePages'); ?>
+    <?!= include_('KnowledgeSearchPage'); ?>
   </main>
 
 <?!= include_('ClientCore'); ?>
+<?!= include_('ClientKnowledgeSearch'); ?>
 <script>
 function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,gpId:el('meeting-gpId').value,assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
 function saveMeetingDraft(){const v=meetingValues();const specific={};MEETING_FIELDS.forEach(f=>specific[f]=v[f]);writeEnvelope(KSP_MEETING_DRAFT_KEY,specific);writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}

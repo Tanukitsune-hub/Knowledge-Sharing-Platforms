@@ -36,8 +36,11 @@ test('all new Apps Script and client files parse and contain required live contr
   const gsFiles=fs.readdirSync(path.join(root,'src')).filter(f=>f.endsWith('.gs')).sort();
   for(const file of gsFiles)new vm.Script(fs.readFileSync(path.join(root,'src',file),'utf8'),{filename:file});
   const client=fs.readFileSync(path.join(root,'src','ClientKnowledgeSearch.html'),'utf8');const match=client.match(/<script>([\s\S]*?)<\/script>/);assert.ok(match);new vm.Script(match[1],{filename:'ClientKnowledgeSearch.js'});
-  const page=fs.readFileSync(path.join(root,'src','KnowledgeSearch.html'),'utf8');
-  for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation','ClientKnowledgeSearch'])assert.ok((page+'\n'+client).includes(token),token);
+  const page=fs.readFileSync(path.join(root,'src','KnowledgeSearchPage.html'),'utf8');
+  const standalone=fs.readFileSync(path.join(root,'src','KnowledgeSearch.html'),'utf8');
+  for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation'])assert.ok((page+'\n'+client).includes(token),token);
+  assert.match(standalone,/include_\('KnowledgeSearchPage'\)/);
+  assert.match(standalone,/include_\('ClientKnowledgeSearch'\)/);
   assert.doesNotMatch(client,/askKnowledgeQuestion/);
   const aiSource=fs.readdirSync(path.join(root,'src')).filter(f=>/^(13|14|15|16|17)\d_.*\.gs$/.test(f)).sort().map(f=>fs.readFileSync(path.join(root,'src',f),'utf8')).join('\n');
   for(const token of ['/interactions','uploadToFileSearchStore','X-Goog-Upload-Protocol','x-goog-api-key','customMetadata','ScriptApp.getOAuthToken'])assert.ok(aiSource.includes(token),token);
