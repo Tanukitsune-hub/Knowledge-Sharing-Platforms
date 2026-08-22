@@ -83,7 +83,7 @@ function kspChangePitchbookStatus_(environment, rawInput) {
     var expectedUpdatedAt = kspMaintenanceTrim_(input.expectedUpdatedAt);
     kspAssert_(expectedUpdatedAt, 'PITCHBOOK_EXPECTED_UPDATED_AT_REQUIRED', '更新トークンがありません。');
     var targetStatus = kspMaintenanceTrim_(input.targetStatus);
-    kspParsePitchbookDocumentId(documentId);
+    kspParseDocumentId_(documentId);
     kspAssert_(targetStatus === KSP_STATUS.ACTIVE || targetStatus === KSP_STATUS.INACTIVE,
       'PITCHBOOK_TARGET_STATUS_INVALID', 'Pitchbook Statusが不正です。');
     var result = environment.updatePitchbookStatusAtomic(

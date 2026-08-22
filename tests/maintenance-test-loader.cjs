@@ -28,7 +28,6 @@ function kspIsValidTimeValue_(value){return /^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test
 function kspNormalizeGeneratedNameSegment_(value){if(value===null||value===undefined)return '';return String(value).replace(/[\\u0000-\\u001f\\u007f]/g,'').replace(/[\\\\/&]/g,'').trim().replace(/\\s+/g,'_').replace(/_+/g,'_').replace(/^_+|_+$/g,'');}
 function kspNormalizeMeetingInput_(input){var s=input&&typeof input==='object'?input:{};function t(v){return v==null?'':String(v).trim();}return{date:t(s.date),time:t(s.time),locationId:t(s.locationId),gpId:t(s.gpId),assetClassId:t(s.assetClassId),capitalTypeId:t(s.capitalTypeId),counterparty:t(s.counterparty),internalParticipants:t(s.internalParticipants),notes:s.notes==null?'':String(s.notes).replace(/\\r\\n?/g,'\\n').replace(/\\u0000/g,''),retryMeetingId:t(s.retryMeetingId),retryFingerprint:t(s.retryFingerprint)};}
 function kspParseMeetingId_(value){var m=/^MTG-(\\d{6})$/.exec(String(value||''));kspAssert_(m&&Number(m[1])>0,'MEETING_ID_INVALID','Meeting ID is invalid.');return Number(m[1]);}
-function kspParsePitchbookDocumentId(value){var m=/^DOC-(\\d{6})$/.exec(String(value||''));kspAssert_(m&&Number(m[1])>0,'PITCHBOOK_DOCUMENT_ID_INVALID','Document ID is invalid.');return Number(m[1]);}
 function kspRequireCatalogItem_(items,id,code,message){var found=(items||[]).filter(function(item){return String(item.id)===String(id);})[0];kspAssert_(found,code,message);return found;}
 function kspBuildMeetingCatalog_(gpRows,optionRows){var gps=(gpRows||[]).filter(r=>String(r.Status)==='Active').map(r=>({id:String(r.GP_ID),name:String(r.GP_Name)})).filter(r=>r.id&&r.name).sort((a,b)=>a.name.toLowerCase().localeCompare(b.name.toLowerCase(),'en'));var opts=(optionRows||[]).filter(r=>String(r.Status)==='Active').map(r=>({id:String(r.Option_ID),type:String(r.Type),name:String(r.Name),sortOrder:Number(r.Sort_Order)||0}));function byType(type){return opts.filter(r=>r.type===type).sort((a,b)=>a.sortOrder-b.sortOrder||a.name.localeCompare(b.name,'ja')).map(r=>({id:r.id,name:r.name,sortOrder:r.sortOrder}));}return{gps,assetClasses:byType('ASSET_CLASS'),capitalTypes:byType('CAPITAL_TYPE'),locations:byType('LOCATION')};}
 function kspBuildMeetingBootstrapResponse_(catalog){return{options:kspDeepClone_(catalog)};}
@@ -46,7 +45,7 @@ function kspPitchbookContextMatchesRow(row,input){return String(row.Date||'')===
 function kspBuildPitchbookSavedFilename(input,selected,sequence,original){var parts=[input.date,selected.gp.name,selected.assetClass.name];if(selected.capitalType)parts.push(selected.capitalType.name);parts.push(String(Number(sequence)).padStart(2,'0'));var ext=String(original).split('.').pop();return parts.map(kspNormalizeGeneratedNameSegment_).join('_')+'.'+ext;}
 `;
   new vm.Script(bootstrap, { filename: 'base-stubs.js' }).runInContext(context);
-  for (const file of ['00_Core.gs', '100_MaintenanceCore.gs', '110_MaintenanceMeetingService.gs', '111_MaintenancePitchbookMasterService.gs', '112_MaintenanceServiceHelpers.gs']) {
+  for (const file of ['62_PitchbookIdentity.gs', '00_Core.gs', '100_MaintenanceCore.gs', '110_MaintenanceMeetingService.gs', '111_MaintenancePitchbookMasterService.gs', '112_MaintenanceServiceHelpers.gs']) {
     new vm.Script(fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;

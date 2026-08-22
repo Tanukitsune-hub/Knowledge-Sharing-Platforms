@@ -34,6 +34,6 @@ kEl('knowledge-export-preview-button').onclick=kPreviewExport;
 kEl('knowledge-export-docs').onclick=()=>kCreateExport('GOOGLE_DOCS');
 kEl('knowledge-export-pdf').onclick=()=>kCreateExport('PDF');
 kEl('knowledge-export-prompt').onclick=kCopyExportPrompt;
-kEl('knowledge-back').onclick=()=>{window.location.search=''};
+const knowledgeBack=kEl('knowledge-back');if(knowledgeBack)knowledgeBack.onclick=()=>{window.location.search=''};
 google.script.run.withSuccessHandler(kBootstrap).withFailureHandler(error=>{knowledgeState.loading=false;knowledgeState.configured=false;kSetBusy(false);kSetExportBusy(false);kShowStatus('error',error&&error.message?error.message:String(error))}).getKnowledgeSearchBootstrapData();
 </script>
