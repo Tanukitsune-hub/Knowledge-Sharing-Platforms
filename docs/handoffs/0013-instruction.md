@@ -4,36 +4,11 @@ WORK_ID: `0013`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Route: `ChatGPT-led diagnosis / bounded edit; Codex authenticated DEV execution and verification`.
+Route: `ChatGPT-owned design/diagnosis; bounded Codex implementation and authenticated DEV verification`.
 
 Recommended Codex model: `Luna Max`.
 
-## Latest execution state (2026-08-23)
-
-Anchor repair deterministic evidence: focused `1/1 PASS`; `npm run check` and `npm run test`
-`159/159 PASS`; Apps Script / HTML / manifest validation PASS; public surface `23 public / 360
-private`; `git diff --check` PASS; existing synthetic DEV source push `58 files PASS`; existing
-Work 0013 Web App deployment updated to version `20`.
-
-The user opened the normal synthetic DEV page and clicked `ナレッジ検索` exactly once. The user
-reported `白画面またはエラー` remained, so the required Knowledge Search heading and Export
-section were not confirmed as rendered.
-
-Current classification:
-
-`NOT QUALIFIED — ANCHOR NAVIGATION STILL FAILS`
-
-`BLOCKER: YES`
-
-Corrected Matrix D and Matrix E were not started. No retry, refresh, alternate URL, direct-route
-proof, action-URL comparison, third navigation hypothesis, browser workaround, Shared Drive, or
-Gemini/File Search work was performed in the current run.
-
-The current run is complete at the first post-anchor live defect. The detailed evidence is in
-`docs/handoffs/0013-report.md` and
-`docs/handoffs/0013-non-ai-final-live-qualification-report.md`.
-
-## Previous state before anchor repair
+## Current state
 
 Accepted completed evidence:
 
@@ -45,54 +20,55 @@ Accepted completed evidence:
 - Largest stable supported upload: `25 MiB / 26,214,400 bytes`.
 - Work 0011 Knowledge Export deterministic implementation/tests: PASS.
 - Work 0012 public-surface hardening: deterministic PASS.
-- First navigation repair: deterministic focused `1/1` and full `159/159` PASS, but live normal navigation FAIL.
-- DEV version 19 direct `?page=knowledge`: PASS; Knowledge Search and Knowledge Export render normally.
-- Navigation action URL comparison: `NOT SAFELY OBSERVABLE`; no URL mismatch was inferred.
+- First top-level Knowledge navigation repair (`form target=_top`): deterministic PASS, live FAIL.
+- Second top-level Knowledge navigation repair (`a target=_top`): deterministic PASS, live FAIL on DEV version 20.
+- Direct deployed `?page=knowledge`: live PASS; Knowledge Search and Knowledge Export visibly render.
+- Action-URL comparison: `NOT SAFELY OBSERVABLE`; no URL mismatch was inferred.
 
 Current classification:
 
-`NOT QUALIFIED — NORMAL NAVIGATION CONTROL DEFECT REMAINS`
+`NOT QUALIFIED — TOP-LEVEL KNOWLEDGE NAVIGATION PATH REMAINS UNRELIABLE`
 
 `BLOCKER: YES`
 
-## ChatGPT second bounded repair
+Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, direct-route proof, action-URL comparison, or either failed top-level navigation variant.
 
-The route/render layer is proven live-good. The remaining failing control after the first repair was a top-level HTML `<form>` submission.
+## ChatGPT design decision
 
-ChatGPT has replaced that form-based navigation with the Apps Script HTML Service documented pattern: explicit `<a>` links using `target="_top"`.
+Normal user access to Knowledge Search will no longer perform top-level Web App/browser navigation.
 
-Changed only:
+Knowledge Search is to be integrated as another page inside the existing `Index.html` document and switched with the existing `showPage()` mechanism already used for Meeting, Pitchbook, Past records, and Master management.
 
-- `src/90_WebApp.gs`;
-- `tests/webapp-navigation.test.cjs`.
+The direct `?page=knowledge` route may remain as a secondary/backward-compatible standalone entrypoint, but normal product use must not depend on it.
 
-Repair commits:
-
-- `6a7dd8544b85b2fa415d79bcc2c6f16cccf871a8`;
-- `e7a7ea065daa2f9bac7920c4c7eea9b9303ba852`.
-
-No data, export, AI, limit, storage, public-facade, manifest, or architecture contract changed.
+This reuses the application's already-proven page-switching architecture and removes the repeatedly failing navigation dependency rather than trying a third link/URL mechanism.
 
 ## Active next execution
 
 Use:
 
-`docs/handoffs/0013-navigation-anchor-repair-instruction.md`
+`docs/handoffs/0013-inline-knowledge-page-integration-instruction.md`
 
 Handoff commit:
 
-`100385bd8dc2601d75dbf97ab36add977c72e6aa`
+`bdf2514a04afad55d1957b2f5f277911afb8364f`
 
-Codex must verify the anchor patch, run focused/full local checks, deploy it to the existing synthetic DEV Web App, and ask the user for exactly one normal `ナレッジ検索` click.
+Codex must read all applicable AGENTS.md / AGENTS.override.md files and follow the repository-specific mandatory subagent policy.
 
-If the normal click still fails after deterministic PASS, stop immediately and return to ChatGPT. Do not pursue a third navigation hypothesis.
+The run implements only the bounded same-document integration, adds production-faithful regression coverage, runs focused/full deterministic validation, deploys to the existing synthetic DEV Web App, and performs one integrated navigation confirmation.
 
-If the normal click passes, continue in the same bounded run to:
+If integrated navigation passes, continue in the same run to corrected Matrix D and Matrix E Knowledge Export preview / Docs / PDF / clipboard / integrity readback.
 
-- corrected Matrix D using the actual private entrypoints in `99_EntryPoints.gs` / `170_AiEntryPoints.gs`;
-- Matrix E Knowledge Export preview, Google Docs, PDF, clipboard, and integrity readback.
+If integrated navigation still fails after deterministic PASS, stop and return to ChatGPT. Do not try another navigation mechanism.
 
-Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, direct-route proof, or action-URL comparison.
+## Matrix D correction retained
+
+Actual private administrator entrypoints:
+
+- `src/99_EntryPoints.gs`: `getInstallationStatus_()`, `validateInstallation_()`, `setupKnowledgePlatform_()`;
+- `src/170_AiEntryPoints.gs`: `runAiSyncWorker_()`.
+
+If the exact private functions cannot be safely invoked/observed from the Apps Script editor, `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION` remains an allowed non-blocking classification. Do not expose them publicly.
 
 ## Residual external categories
 
@@ -103,7 +79,7 @@ Do not execute in the active run:
 
 These remain explicit external residual gaps.
 
-If anchor navigation and Matrix E pass, and Matrix D is PASS or only the allowed private-execution-surface DEFERRED state, Work 0013 may be classified:
+If integrated navigation and Matrix E pass, and Matrix D is PASS or only the allowed private-execution-surface deferral, Work 0013 may be classified:
 
 `DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
 
