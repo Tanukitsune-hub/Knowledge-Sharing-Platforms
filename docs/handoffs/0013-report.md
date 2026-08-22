@@ -4,15 +4,45 @@ WORK_ID: `0013`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-検証日: `2026-08-20`
+検証日: `2026-08-23`
 
-今回の実行契約ref: `6ed51b5768c241ec0b5118ce7822824d74ba1db7`
+今回の実行契約ref: `e152f4606375502736bf93a88db2bdc11088fbea`
 
 前回のruntime qualification ref: `8943123d8e258e4be07f8b172059870326eed2d3`
 
 対象ブランチ: `agent/0013-consolidated-dev-live-qualification`
 
 Draft PR: `#11`
+
+## Latest anchor repair runtime verification (2026-08-23)
+
+Anchor patch deterministic result: `PASS`
+
+- focused `tests/webapp-navigation.test.cjs`: `1/1 PASS`;
+- `npm run check`: `159/159 PASS`;
+- `npm run test`: `159/159 PASS`;
+- Apps Script validator: `46 Apps Script source files / 11 HTML files / manifest PASS`;
+- public surface: `23 public / 360 private top-level functions`;
+- `git diff --check`: `PASS`;
+- existing synthetic DEV source push: `58 files PASS`;
+- existing Work 0013 DEV Web App deployment updated to version `20`.
+
+Live normal Knowledge Search navigation result: `FAIL — STOPPED AT FIRST POST-ANCHOR APPLICATION DEFECT`
+
+- After deployment version 20, the user opened the normal synthetic DEV page and clicked the
+  normal `ナレッジ検索` control exactly once.
+- The user reported that it remained a `白画面またはエラー`; the required `ナレッジ検索`
+  heading and `対象資料の書き出し` section were not confirmed as rendered.
+- The run stopped immediately. No retry, refresh, alternate URL, direct-route proof, action-URL
+  comparison, third navigation hypothesis, or browser workaround was attempted.
+
+Current Matrix D: `NOT RUN — stopped before corrected private administrator path because normal navigation failed`.
+
+Current Matrix E: `NOT RUN — stopped before Knowledge Export because normal navigation failed`.
+
+Overall classification: `NOT QUALIFIED — ANCHOR NAVIGATION STILL FAILS`
+
+`BLOCKER: YES`
 
 ## Latest navigation-action URL comparison (2026-08-20)
 
