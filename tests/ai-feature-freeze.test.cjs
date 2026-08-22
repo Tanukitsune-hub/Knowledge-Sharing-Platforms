@@ -135,7 +135,7 @@ test('binary upload implementation preserves MIME and exact byte count contract'
 });
 
 test('Knowledge Search UI exposes all modes and generic endpoint',()=>{
-  const root=path.resolve(__dirname,'..','src');const page=fs.readFileSync(path.join(root,'KnowledgeSearch.html'),'utf8');const client=fs.readFileSync(path.join(root,'ClientKnowledgeSearch.html'),'utf8');
+  const root=path.resolve(__dirname,'..','src');const page=fs.readFileSync(path.join(root,'KnowledgeSearchPage.html'),'utf8');const client=fs.readFileSync(path.join(root,'ClientKnowledgeSearch.html'),'utf8');
   new vm.Script(client.match(/<script>([\s\S]*?)<\/script>/)[1]);
   for(const token of ['id="knowledge-mode"','自由質問','要約','時系列','比較','面談準備','id="knowledge-instruction"','searchKnowledge'])assert.ok((page+'\n'+client).includes(token),token);
 });
