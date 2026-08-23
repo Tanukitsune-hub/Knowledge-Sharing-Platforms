@@ -14,33 +14,38 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Draft PR: `#11`
 
-## Latest DEV Web App entrypoint recovery preflight (2026-08-23)
+## Latest project identity reconstruction and Web App recovery (2026-08-23)
 
-Recovery instruction: `docs/handoffs/0013-dev-web-app-entrypoint-recovery-instruction.md`.
+Dedicated report:
+`docs/handoffs/0013-project-identity-reconstruction-and-web-app-recovery-report.md`.
 
-Recovery contract commit: `6818d9f10b55f2d24c3bdfb635d0630604dbcfef`.
+Instruction ref: `2ec12af71b004da7cf0be4adefad1f2139e49995`.
 
-Project identity classification: `PROJECT_IDENTITY_NOT_PROVABLE`.
+Project identity classification: `PROJECT_IDENTITY_CONFIRMED`.
 
-The repository workspace contains no local `.clasp.json`, alternate clasp mapping, or clasp
-directory, and none is tracked. The source inventory is consistent with the tested implementation
-(`doGet`, `Index.html`, `KnowledgeSearchPage.html`, `page-knowledge`, and the `ClientCore`
-knowledge mapping), but that cannot prove the Apps Script project identity without the local
-mapping comparison value.
+The single authenticated KSP candidate passed the installation-state, source-family, operational
+continuity, and uniqueness evidence gates. The Script Property and Backend `Settings` resource
+references matched through private fingerprints; no identifier or URL was recorded.
 
-The mandatory identity gate stopped the run before any Apps Script or external runtime operation:
+An ignored, untracked `.clasp.json` mapping was reconstructed. A disposable read-only pull found
+`59` local and `59` remote Apps Script/HTML/manifest files, with zero missing, extra, or
+content-different files. Remote source classification: `REMOTE_SOURCE_CURRENT`; no push occurred.
 
-- `/dev`: `DEV_TEST_WEB_APP_UNAVAILABLE — identity gate not passed`;
+The editor Test deployments dialog was opened with deployment type `Web app`. Its `/dev` link
+displayed the Google Drive file-open error page. Result: `DEV_TEST_WEB_APP_FAIL`.
+
+The mandatory stop condition prevented all downstream operations:
+
 - `/exec`: `NOT RUN`;
 - integrated navigation: `NOT RUN`;
-- authoritative integrity: `NO MUTATION OBSERVED — no external operation initiated`;
-- deployment type / execute-as / access: `NOT SELECTED`.
+- execute-as / access: `NOT SELECTED`;
+- authoritative integrity: `NO MUTATION OBSERVED — read-only checks only`;
+- Matrix D/E, Docs, PDF, clipboard, Shared Drive, and Gemini/File Search: `NOT RUN`.
 
-No `clasp pull`, `clasp push`, `clasp deploy`, `clasp redeploy`, deployment edit, new project,
-Library update/deletion, data operation, or URL/ID recording was performed. Previously accepted
-deterministic evidence was not rerun.
+No source, data, setup, trigger, Library deployment, persistent Web App deployment, or production
+resource was changed. Previously accepted deterministic evidence was not rerun.
 
-Overall recovery classification: `BLOCKED — PROJECT IDENTITY NOT PROVABLE`.
+Overall recovery classification: `BLOCKED — DEV TEST WEB APP FAIL`.
 
 `BLOCKER: YES`.
 

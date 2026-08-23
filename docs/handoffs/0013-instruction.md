@@ -27,15 +27,20 @@ Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, historical URL-navig
 
 ## Current blocker
 
-The previous recovery run returned:
+The corrected project-identity reconstruction completed successfully:
 
-`PROJECT_IDENTITY_NOT_PROVABLE`
+- `PROJECT_IDENTITY_CONFIRMED`;
+- installation-state, source-family, operational-continuity, and uniqueness gates: PASS;
+- remote source: `REMOTE_SOURCE_CURRENT` with `59` local / `59` remote files and no content diff;
+- no source push was required.
 
-because the local `.clasp.json` mapping was absent. No Apps Script mutation was performed.
+The editor-only Web App test deployment then failed at the mandatory `/dev` gate. Opening the
+`/dev` link displayed the Google Drive file-open error page.
 
-ChatGPT has corrected that gate: `.clasp.json` is only a local mapping and is not the sole authoritative identity source. The exact synthetic DEV Apps Script project can instead be proven by matching its installation-state Script Property to the existing DEV Backend/Audit resource fingerprint, confirming the KSP source family, confirming operational continuity, and proving uniqueness. Only after that proof may `.clasp.json` be reconstructed locally.
+Current blocker: `DEV_TEST_WEB_APP_FAIL`.
 
-The existing Backend remains a coherent DEV resource set with separate Backend/Audit references, AI sync disabled, operational counters, and retained setup history. Raw IDs and URLs remain private.
+The run stopped without creating `/exec`, changing a persistent deployment, executing application
+or administrator functions, or mutating authoritative data. Raw IDs and URLs remain private.
 
 ## Active next execution
 
@@ -45,7 +50,7 @@ Use:
 
 ChatGPT has also hardened `.gitignore` so local clasp mappings and credentials cannot be tracked.
 
-The active run must:
+The active recovery contract required:
 
 1. discover plausible Apps Script project candidates without mutation;
 2. confirm exactly one project through installation-state, source-family, continuity, and uniqueness evidence;
@@ -57,7 +62,9 @@ The active run must:
 8. verify same-document `ナレッジ検索 -> 面談記録 -> ナレッジ検索` navigation;
 9. confirm no authoritative data mutation.
 
-If project identity is ambiguous, not found, or not safely observable, stop without push/pull/deployment.
+The identity and remote-source stages are complete. The `/dev` failure is a mandatory stop
+condition, so `/exec` recovery and integrated navigation remain unrun until a later explicitly
+bounded instruction resolves or supersedes that gate.
 
 ## Source freeze
 
