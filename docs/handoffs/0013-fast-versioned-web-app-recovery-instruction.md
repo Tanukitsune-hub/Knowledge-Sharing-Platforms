@@ -10,6 +10,10 @@ Recommended Codex model: `Luna Max`.
 
 Rationale: the project, account context, installation state, and remote source are already proven. The remaining recovery action is routine and reversible: create one versioned Web App deployment in the confirmed synthetic DEV project, open its `/exec`, and verify the current same-document navigation. No further architecture, source diagnosis, or broad planning is required.
 
+Starting ref before this handoff was finalized: `2baf70f20ed3aed060fada3c3c0182b72867bab4`.
+
+Use the exact ref supplied in the Codex execution request; it must include this handoff.
+
 Target branch: `agent/0013-consolidated-dev-live-qualification`.
 
 Draft PR: `#11`.
@@ -43,7 +47,7 @@ Success requires:
 - source / HTML / manifest / public-surface validation: PASS.
 - no authoritative mutation observed in recovery attempts.
 
-Do not inspect or rerun historical navigation hypotheses, project discovery, remote comparison, Matrix A/B/C, upload sizing, parser diagnosis, `/dev`, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search.
+Do not inspect or rerun historical navigation hypotheses, project discovery, remote comparison, Matrix A/B/C, upload sizing, parser diagnosis, `/dev`, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini File Search.
 
 ## Mandatory repository instructions and subagents
 
