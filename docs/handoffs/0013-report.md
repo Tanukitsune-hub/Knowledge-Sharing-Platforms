@@ -2,6 +2,29 @@
 
 WORK_ID: `0013`
 
+## Latest bounded recovery result
+
+The authorized recovery operation was completed once at the exact requested
+ref. One versioned synthetic DEV deployment was created as a `Web app` with
+description `KSP Work 0013 DEV Web App restored`, execute-as deploying user,
+and access `Only myself`. The generated endpoint was confirmed as `/exec`, not
+`/library/`, and the normal main page rendered.
+
+The first required integrated-navigation action, `ナレッジ検索`, could not be
+safely executed: the browser control returned a selector deadline error with
+no matching button before a click occurred. The run stopped immediately with
+no retry or alternate navigation. The result is:
+
+`VERSIONED_EXEC_MAIN_PAGE_PASS — INTEGRATED_NAVIGATION_NOT_SAFELY_OBSERVABLE`
+
+`BLOCKER: YES`
+
+No data-changing control was used, and no authoritative mutation was observed.
+Post-failure row-count/artifact readback and Matrix D/E remain `NOT RUN`.
+See the detailed report:
+
+`docs/handoffs/0013-fast-versioned-web-app-recovery-report.md`
+
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Branch: `agent/0013-consolidated-dev-live-qualification`
