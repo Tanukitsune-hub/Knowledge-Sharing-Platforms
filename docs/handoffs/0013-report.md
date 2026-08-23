@@ -14,6 +14,36 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Draft PR: `#11`
 
+## Latest DEV Web App entrypoint recovery preflight (2026-08-23)
+
+Recovery instruction: `docs/handoffs/0013-dev-web-app-entrypoint-recovery-instruction.md`.
+
+Recovery contract commit: `6818d9f10b55f2d24c3bdfb635d0630604dbcfef`.
+
+Project identity classification: `PROJECT_IDENTITY_NOT_PROVABLE`.
+
+The repository workspace contains no local `.clasp.json`, alternate clasp mapping, or clasp
+directory, and none is tracked. The source inventory is consistent with the tested implementation
+(`doGet`, `Index.html`, `KnowledgeSearchPage.html`, `page-knowledge`, and the `ClientCore`
+knowledge mapping), but that cannot prove the Apps Script project identity without the local
+mapping comparison value.
+
+The mandatory identity gate stopped the run before any Apps Script or external runtime operation:
+
+- `/dev`: `DEV_TEST_WEB_APP_UNAVAILABLE — identity gate not passed`;
+- `/exec`: `NOT RUN`;
+- integrated navigation: `NOT RUN`;
+- authoritative integrity: `NO MUTATION OBSERVED — no external operation initiated`;
+- deployment type / execute-as / access: `NOT SELECTED`.
+
+No `clasp pull`, `clasp push`, `clasp deploy`, `clasp redeploy`, deployment edit, new project,
+Library update/deletion, data operation, or URL/ID recording was performed. Previously accepted
+deterministic evidence was not rerun.
+
+Overall recovery classification: `BLOCKED — PROJECT IDENTITY NOT PROVABLE`.
+
+`BLOCKER: YES`.
+
 ## Latest inline Knowledge Search integration implementation and runtime qualification (2026-08-23)
 
 Dedicated report: `docs/handoffs/0013-inline-knowledge-page-integration-report.md`.

@@ -10,6 +10,35 @@ Branch: `agent/0013-consolidated-dev-live-qualification`
 
 Draft PR: `#11`
 
+## Latest DEV Web App entrypoint recovery preflight
+
+Recovery instruction: `docs/handoffs/0013-dev-web-app-entrypoint-recovery-instruction.md`.
+
+Recovery contract commit: `6818d9f10b55f2d24c3bdfb635d0630604dbcfef`.
+
+Project identity result: `PROJECT_IDENTITY_NOT_PROVABLE`.
+
+The repository workspace has no local `.clasp.json`, alternate clasp mapping, or clasp directory,
+and no such file is tracked. The expected source inventory is present, but source presence cannot
+prove the Apps Script project identity. The recovery run therefore stopped before any Apps Script
+or external runtime operation.
+
+Gated results:
+
+- `/dev`: `DEV_TEST_WEB_APP_UNAVAILABLE — identity gate not passed`;
+- `/exec`: `NOT RUN`;
+- integrated navigation: `NOT RUN`;
+- authoritative integrity: `NO MUTATION OBSERVED — no external operation initiated`;
+- deployment type / execute-as / access: `NOT SELECTED`.
+
+No clasp pull/push/deploy/redeploy, deployment edit, project creation, Library mutation, data
+operation, or private URL/ID recording occurred. The previously accepted deterministic source
+evidence was not rerun.
+
+Recovery classification: `BLOCKED — PROJECT IDENTITY NOT PROVABLE`.
+
+`BLOCKER: YES`.
+
 ## Implementation
 
 Knowledge Search was integrated into the existing single-document `showPage()` flow.
