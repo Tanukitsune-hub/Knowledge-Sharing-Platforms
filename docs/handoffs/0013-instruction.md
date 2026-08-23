@@ -4,9 +4,9 @@ WORK_ID: `0013`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Route: `ChatGPT-owned diagnosis and GitHub coordination; bounded authenticated recovery / verification by Codex`.
+Route: `ChatGPT-owned diagnosis and GitHub coordination; one bounded versioned Web App recovery by Codex`.
 
-Recommended Codex model: `Sol High` for the active verified versioned Web App recovery run.
+Recommended Codex model: `Luna Max` for the active recovery run.
 
 ## Accepted completed evidence — do not rerun
 
@@ -20,47 +20,54 @@ Recommended Codex model: `Sol High` for the active verified versioned Web App re
 - Work 0012 public-surface hardening: deterministic PASS.
 - Inline Knowledge Search implementation: focused `36/36 PASS`.
 - `npm run check` / `npm run test`: `160/160 PASS`.
-- Current source inventory and public-surface validation: PASS.
+- Apps Script source / HTML / manifest / public-surface validation: PASS.
 - Project identity: `PROJECT_IDENTITY_CONFIRMED`.
 - Installation-state / source-family / continuity / uniqueness: PASS.
-- Remote source: `REMOTE_SOURCE_CURRENT`; no push required.
+- Remote source: `REMOTE_SOURCE_CURRENT`; no push is required.
 - Account context: `SINGLE_ACCOUNT_EDITOR_CONTEXT_CONFIRMED`.
-- `/dev` request produced a completed `doGet` execution but browser displayed the Google Drive file-open error.
+- The editor-only `/dev` request completed `doGet` but displayed the Google Drive file-open error.
 - Prior recovery attempts observed no authoritative data mutation.
 
-These facts exclude wrong project, stale remote source, missing `doGet`, multi-account context, and a server-side `doGet` exception as sufficient explanations. They do not yet prove one final root cause.
+Do not rerun project discovery, remote source comparison, historical navigation hypotheses, Matrix A/B/C, upload sizing, parser diagnosis, `/dev`, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search.
 
-Do not rerun project discovery, remote source comparison, Matrix A/B/C, upload sizing, parser diagnosis, historical navigation experiments, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search.
+## Current decision
 
-## Current diagnosis boundary
+The next action is intentionally simple and reversible:
 
-The remaining material ambiguity is limited to:
+- keep application source frozen;
+- create exactly one versioned synthetic DEV deployment explicitly typed `Web app` in the already confirmed project;
+- execute as the deploying user;
+- restrict access to `Only myself`;
+- confirm the generated entrypoint is `/exec`, not `/library/`;
+- open it once;
+- if the main page renders, verify `ナレッジ検索 -> 面談記録 -> ナレッジ検索` through same-document switching;
+- confirm no authoritative mutation;
+- stop on the first failure with no second deployment or source repair.
 
-1. an editor-only HEAD `/dev` serving defect;
-2. incorrect or ambiguous deployment entrypoint metadata;
-3. a failure between completed `doGet` and normal client bootstrap;
-4. a failure after client bootstrap begins.
-
-Do not claim a narrower cause until versioned deployment metadata and `/exec` execution-startup evidence distinguish these layers.
+The editor-only `/dev` Drive error remains diagnostic evidence but is not a prerequisite for this normal versioned recovery.
 
 ## Active execution
 
 Use:
 
-`docs/handoffs/0013-verified-versioned-web-app-recovery-instruction.md`
+`docs/handoffs/0013-fast-versioned-web-app-recovery-instruction.md`
 
-The active run must:
+Durable deployment and recurrence-prevention rules:
 
-1. classify whether normal client bootstrap executions followed the accepted failed `/dev` `doGet`;
-2. read the current deployment inventory by entrypoint type;
-3. create no more than one explicit versioned synthetic DEV Web App when needed;
-4. read back and prove `WEB_APP`, pinned version, `MYSELF`, `USER_DEPLOYING`, and `/exec` before opening it;
-5. open only the verified Web App entrypoint;
-6. classify browser render and `doGet` / bootstrap execution startup;
-7. only after main render PASS, verify same-document `ナレッジ検索 -> 面談記録 -> ナレッジ検索`;
-8. confirm no authoritative data mutation.
+`docs/operations/apps-script-web-app-deployment.md`
 
-If deployment metadata, `/exec`, or integrated navigation fails, stop without a second deployment or source hypothesis.
+## Recorded Work 0013 lessons
+
+The incident record identifies the process failures that caused the investigation to expand:
+
+- source changes before fixing the project/version/deployment/account identity chain;
+- conflation of Library and Web App deployments;
+- excessive reliance on deterministic tests for live behavior;
+- treating missing `.clasp.json` as authoritative identity loss;
+- treating `/dev` PASS as a universal prerequisite for `/exec`;
+- repeated hypotheses before simplifying the control-plane state.
+
+Future Apps Script deployment/recovery handoffs are required by `docs/handoffs/AGENTS.md` to follow the durable operations document and authorize no more than one bounded deployment mutation while source/deployment identity is uncertain.
 
 ## Source and data freeze
 
@@ -74,15 +81,13 @@ Do not execute setup/private admin functions, Matrix D/E, Preview, Docs, PDF, cl
 
 ## Completion state
 
-If verified versioned `/exec`, integrated navigation, and integrity checks pass:
+If versioned `/exec`, integrated navigation, and integrity checks pass:
 
 `DEV VERSIONED WEB APP RESTORED — MATRIX D/E READY`
 
 `BLOCKER: NO` for Web App entrypoint recovery.
 
-The `/dev` HEAD/test defect may remain a non-blocking development-environment issue if the normal versioned Web App is proven usable.
-
-Matrix D/E remain NOT RUN for a later bounded run.
+Matrix D/E remain NOT RUN for the next bounded run.
 
 ## Safety / delivery
 
