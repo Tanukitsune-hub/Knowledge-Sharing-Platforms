@@ -28,7 +28,7 @@ Recommended Codex model: `Luna Max` for the active recovery run.
 - The editor-only `/dev` request completed `doGet` but displayed the Google Drive file-open error.
 - Prior recovery attempts observed no authoritative data mutation.
 
-Do not rerun project discovery, remote source comparison, historical navigation hypotheses, Matrix A/B/C, upload sizing, parser diagnosis, `/dev`, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search.
+Do not rerun project discovery, remote source comparison, historical navigation hypotheses, Matrix A/B/C, upload sizing, parser diagnosis, `/dev`, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini File Search.
 
 ## Current decision
 
@@ -51,6 +51,10 @@ The editor-only `/dev` Drive error remains diagnostic evidence but is not a prer
 Use:
 
 `docs/handoffs/0013-fast-versioned-web-app-recovery-instruction.md`
+
+Exact execution ref:
+
+`f07c9d80ee057a9f83b46673adfea6783e404552`
 
 Durable deployment and recurrence-prevention rules:
 
@@ -77,7 +81,7 @@ Do not revert inline Knowledge Search integration.
 
 Do not push or pull source, create another Apps Script project, or modify/delete Library deployments.
 
-Do not execute setup/private admin functions, Matrix D/E, Preview, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search.
+Do not execute setup/private admin functions, Matrix D/E, Preview, Docs, PDF, clipboard, Shared Drive, or Gemini File Search.
 
 ## Completion state
 
