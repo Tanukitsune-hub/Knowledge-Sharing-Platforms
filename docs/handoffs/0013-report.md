@@ -6,13 +6,58 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 検証日: `2026-08-23`
 
-今回の実行契約ref: `e152f4606375502736bf93a88db2bdc11088fbea`
+今回の実行契約ref: `e88482aa749665966912f9987ee3a50e0f7f3b1d`
 
 前回のruntime qualification ref: `8943123d8e258e4be07f8b172059870326eed2d3`
 
 対象ブランチ: `agent/0013-consolidated-dev-live-qualification`
 
 Draft PR: `#11`
+
+## Latest inline Knowledge Search integration implementation and runtime qualification (2026-08-23)
+
+Dedicated report: `docs/handoffs/0013-inline-knowledge-page-integration-report.md`.
+
+Implementation result: `PASS`.
+
+Knowledge Search was integrated into the existing single-document `showPage()` architecture.
+The static `nav-knowledge` button, shared `page-knowledge` partial, page-map registration,
+standalone partial reuse, guarded standalone back control, and removal of server-injected normal
+URL navigation are implemented within the bounded handoff scope. No second router, public-facade
+change, Knowledge Export/AI server change, limit change, manifest change, or credential change
+was made.
+
+Final implementation HEAD: `2bb8458`.
+
+Deterministic validation after the final source state:
+
+- focused integrated-navigation / Knowledge Export / Knowledge Search tests: `36/36 PASS`;
+- `npm run check`: `160/160 PASS`;
+- `npm run test`: `160/160 PASS`;
+- Apps Script validator: `46` source files, `12` HTML files, and manifest PASS;
+- public surface: `23 public / 360 private top-level functions`;
+- `git diff --check`: `PASS`.
+
+DEV runtime result: `BLOCKED — EXISTING DEV WEB APP ENTRYPOINT UNAVAILABLE`.
+
+The user-assisted Apps Script deployment-manager check found that all inspected active and
+archived entries were `ライブラリ` deployments with `/library/` URLs. No inspected entry was a
+`ウェブアプリ` deployment with an `/exec` URL, and the read-only web-app lookup reported no Web
+App entry point. The required normal in-app `ナレッジ検索 -> 面談記録 -> ナレッジ検索` action was
+therefore not safely reachable. No further deployment update, new deployment, URL navigation,
+or speculative source change was attempted.
+
+Current integrated navigation: `NOT RUN — DEV WEB APP ENTRYPOINT INACCESSIBLE`.
+
+Current Matrix D: `NOT RUN — integrated navigation gate not passed`.
+
+Current Matrix E, Docs, PDF, clipboard: `NOT RUN — integrated navigation gate not passed`.
+
+Shared Drive and Gemini/File Search remain explicitly deferred as required by the handoff.
+
+Overall Work 0013 classification: `NOT QUALIFIED — EXISTING DEV WEB APP ENTRYPOINT UNAVAILABLE`.
+
+`BLOCKER: YES`.
 
 ## Latest anchor repair runtime verification (2026-08-23)
 

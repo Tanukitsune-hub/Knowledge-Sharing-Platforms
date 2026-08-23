@@ -6,11 +6,50 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Execution date: `2026-08-23`
 
-Instruction ref: `e152f4606375502736bf93a88db2bdc11088fbea`
+Instruction ref: `e88482aa749665966912f9987ee3a50e0f7f3b1d`
 
 Branch: `agent/0013-consolidated-dev-live-qualification`
 
 Draft PR: `#11`
+
+## Latest inline Knowledge Search integration run
+
+Dedicated report: `docs/handoffs/0013-inline-knowledge-page-integration-report.md`.
+
+The bounded implementation is deterministic PASS. Knowledge Search now uses the existing
+single-document `showPage()` flow, with shared markup reused by the main document and the
+standalone direct route. No second URL-navigation mechanism, public-facade expansion, server
+Knowledge Export/AI change, limit change, manifest change, or credential change was made.
+
+Final implementation HEAD: `2bb8458`.
+
+Validation:
+
+- focused integrated-navigation / Knowledge Export / Knowledge Search tests: `36/36 PASS`;
+- `npm run check`: `160/160 PASS`;
+- `npm run test`: `160/160 PASS`;
+- Apps Script validator: `46` source files, `12` HTML files, and manifest PASS;
+- public surface: `23 public / 360 private top-level functions`;
+- `git diff --check`: `PASS`.
+
+The required authenticated synthetic DEV Web App could not be opened for the live check. In
+the Apps Script deployment manager, every inspected active and archived entry was displayed as
+`ライブラリ` with a `/library/` URL. No inspected deployment displayed `ウェブアプリ` or an
+`/exec` URL, and the read-only web-app lookup found no Web App entry point. This is the first
+runtime gate failure for this run, so the user did not click the normal navigation control in
+this inaccessible state and the run stopped without a workaround or new deployment.
+
+Integrated navigation: `NOT RUN — DEV WEB APP ENTRYPOINT INACCESSIBLE`.
+
+Matrix D: `NOT RUN — integrated navigation gate not passed`.
+
+Matrix E, Docs, PDF, clipboard: `NOT RUN — integrated navigation gate not passed`.
+
+Shared Drive and Gemini/File Search: `DEFERRED — explicitly excluded from this run`.
+
+Overall classification: `NOT QUALIFIED — EXISTING DEV WEB APP ENTRYPOINT UNAVAILABLE`.
+
+`BLOCKER: YES`.
 
 ## Latest anchor repair runtime verification
 
