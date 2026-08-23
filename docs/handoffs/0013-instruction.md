@@ -6,7 +6,7 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Route: `ChatGPT-owned diagnosis and GitHub coordination; bounded authenticated recovery / verification by Codex`.
 
-Recommended Codex model: `Sol High` for the active recovery run.
+Recommended Codex model: `Luna Max` for the active account-context recovery run.
 
 ## Accepted completed evidence — do not rerun
 
@@ -21,72 +21,71 @@ Recommended Codex model: `Sol High` for the active recovery run.
 - Inline Knowledge Search implementation: focused `36/36 PASS`.
 - `npm run check` / `npm run test`: `160/160 PASS`.
 - Current source inventory and public-surface validation: PASS.
-- Prior failed recovery attempt observed no authoritative data mutation.
+- Project identity: `PROJECT_IDENTITY_CONFIRMED`.
+- Installation-state, source-family, operational-continuity, and uniqueness gates: PASS.
+- Remote source: `REMOTE_SOURCE_CURRENT`; no push required.
+- Prior recovery attempts observed no authoritative data mutation.
 
-Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, historical URL-navigation experiments, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search in the active recovery run.
+Do not rerun project discovery, remote source comparison, Matrix A/B/C, upload sizing, parser diagnosis, historical URL-navigation experiments, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search in the active recovery run.
 
-## Current blocker
+## Current blocker and corrected diagnosis
 
-The corrected project-identity reconstruction completed successfully:
+The editor-only Web App test deployment failed with a Google Drive file-open page.
 
-- `PROJECT_IDENTITY_CONFIRMED`;
-- installation-state, source-family, operational-continuity, and uniqueness gates: PASS;
-- remote source: `REMOTE_SOURCE_CURRENT` with `59` local / `59` remote files and no content diff;
-- no source push was required.
+Current observed result:
 
-The editor-only Web App test deployment then failed at the mandatory `/dev` gate. Opening the
-`/dev` link displayed the Google Drive file-open error page.
+`DEV_TEST_WEB_APP_FAIL`.
 
-Current blocker: `DEV_TEST_WEB_APP_FAIL`.
+This result does not yet prove an application-source failure. Apps Script `/dev` URLs are accessible only to users with edit access to the script project, and Apps Script/Web Apps do not reliably support multiple Google Accounts active in the same browser profile.
 
-The run stopped without creating `/exec`, changing a persistent deployment, executing application
-or administrator functions, or mutating authoritative data. Raw IDs and URLs remain private.
+The previous run did not establish that the `/dev` URL was opened in the same isolated single-account browser context as the confirmed editor account. The next run therefore tests one access-layer hypothesis before any deployment or source action.
 
 ## Active next execution
 
 Use:
 
-`docs/handoffs/0013-project-identity-reconstruction-and-web-app-recovery-instruction.md`
+`docs/handoffs/0013-dev-test-auth-context-recovery-instruction.md`
 
-ChatGPT has also hardened `.gitignore` so local clasp mappings and credentials cannot be tracked.
+The active hypothesis is:
 
-The active recovery contract required:
+`The /dev Drive file-open error was caused by a multi-account or different-account browser session rather than application source.`
 
-1. discover plausible Apps Script project candidates without mutation;
-2. confirm exactly one project through installation-state, source-family, continuity, and uniqueness evidence;
-3. reconstruct an untracked local clasp mapping;
-4. compare remote source in a disposable directory;
-5. synchronize only if the confirmed project is behind the tested ref;
-6. prove the `/dev` Web App entrypoint;
-7. create/restore one explicit DEV `/exec` Web App deployment through the Apps Script UI;
-8. verify same-document `ナレッジ検索 -> 面談記録 -> ナレッジ検索` navigation;
-9. confirm no authoritative data mutation.
+The run must:
 
-The identity and remote-source stages are complete. The `/dev` failure is a mandatory stop
-condition, so `/exec` recovery and integrated navigation remain unrun until a later explicitly
-bounded instruction resolves or supersedes that gate.
+1. use a clean Incognito or dedicated browser profile with exactly one Google Account;
+2. confirm that account has edit access to the exact identity-confirmed synthetic DEV project;
+3. open the Web App `/dev` URL once in the same browser context;
+4. record whether a corresponding `doGet` execution occurs;
+5. stop if `/dev` does not pass;
+6. only after `/dev` PASS, create one explicit DEV `/exec` Web App through the Apps Script UI;
+7. verify same-document `ナレッジ検索 -> 面談記録 -> ナレッジ検索`;
+8. confirm no authoritative data mutation.
 
-## Source freeze
+## Source and data freeze
 
-Do not change application source, tests, manifest, public facade, setup logic, schema, limits, Knowledge Export logic, AI/File Search logic, or navigation implementation in the active recovery run.
+Do not change application source, tests, manifest, public facade, setup logic, schema, limits, Knowledge Export logic, AI/File Search logic, or navigation implementation.
 
 Do not revert inline Knowledge Search integration.
 
-Do not create a new Apps Script project.
+Do not push or pull source, create a new Apps Script project, or modify/delete Library deployments.
 
-Do not modify/delete Library deployments.
+Do not execute setup/private admin functions, Matrix D/E, Preview, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search.
 
-## Matrix D/E and external residuals
+## Completion state
 
-Matrix D and Matrix E remain NOT RUN until the DEV Web App entrypoint is restored and integrated navigation passes.
+If the isolated `/dev`, explicit `/exec`, integrated navigation, and integrity checks pass:
 
-Shared Drive-specific qualification and billing-enabled Gemini/File Search qualification remain separate external residual gaps.
+`DEV WEB APP ENTRYPOINT RESTORED — MATRIX D/E READY`
+
+`BLOCKER: NO` for entrypoint recovery.
+
+Matrix D/E remain NOT RUN for a later bounded run.
 
 ## Safety / delivery
 
 - DEV only; synthetic/anonymized data only.
 - No production deployment/data or confidential source material.
-- No credentials, raw IDs/URLs, tokens, cookies, or user-specific local paths in GitHub/report/chat.
+- No credentials, raw IDs/URLs, account addresses, tokens, cookies, or user-specific local paths in GitHub/report/chat.
 - No temporary public admin/debug wrapper or blind Windows UI automation.
 - Continue on `agent/0013-consolidated-dev-live-qualification` and Draft PR #11.
 - Keep PR Draft / Open / unmerged.
