@@ -52,9 +52,7 @@ Use:
 
 `docs/handoffs/0013-fast-versioned-web-app-recovery-instruction.md`
 
-Exact execution ref:
-
-`f07c9d80ee057a9f83b46673adfea6783e404552`
+Use the exact ref supplied in the Codex execution request.
 
 Durable deployment and recurrence-prevention rules:
 
