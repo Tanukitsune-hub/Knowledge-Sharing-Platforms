@@ -28,38 +28,23 @@ Recommended Codex model: `Luna Max` for the active account-context recovery run.
 
 Do not rerun project discovery, remote source comparison, Matrix A/B/C, upload sizing, parser diagnosis, historical URL-navigation experiments, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search in the active recovery run.
 
-## Current blocker and corrected diagnosis
+## Latest account-context recovery result
 
-The editor-only Web App test deployment failed with a Google Drive file-open page.
+The isolated single-account editor context was confirmed. The `/dev` link was then opened exactly
+once in that same context. It displayed the Google Drive file-open error page, while the Apps Script
+Executions view showed a corresponding completed `doGet` Web App execution.
 
-Current observed result:
+Result: `DEV_TEST_RUNTIME_FAIL_EXECUTION_OBSERVED`.
 
-`DEV_TEST_WEB_APP_FAIL`.
+The single-account-session hypothesis was not sufficient to explain the failure. The mandatory
+stop condition fired. `/exec`, integrated navigation, source changes, deployment changes, and all
+Matrix D/E or Knowledge Export work remain unrun.
 
-This result does not yet prove an application-source failure. Apps Script `/dev` URLs are accessible only to users with edit access to the script project, and Apps Script/Web Apps do not reliably support multiple Google Accounts active in the same browser profile.
+The current detailed evidence is in:
 
-The previous run did not establish that the `/dev` URL was opened in the same isolated single-account browser context as the confirmed editor account. The next run therefore tests one access-layer hypothesis before any deployment or source action.
+`docs/handoffs/0013-dev-test-auth-context-recovery-report.md`
 
-## Active next execution
-
-Use:
-
-`docs/handoffs/0013-dev-test-auth-context-recovery-instruction.md`
-
-The active hypothesis is:
-
-`The /dev Drive file-open error was caused by a multi-account or different-account browser session rather than application source.`
-
-The run must:
-
-1. use a clean Incognito or dedicated browser profile with exactly one Google Account;
-2. confirm that account has edit access to the exact identity-confirmed synthetic DEV project;
-3. open the Web App `/dev` URL once in the same browser context;
-4. record whether a corresponding `doGet` execution occurs;
-5. stop if `/dev` does not pass;
-6. only after `/dev` PASS, create one explicit DEV `/exec` Web App through the Apps Script UI;
-7. verify same-document `ナレッジ検索 -> 面談記録 -> ナレッジ検索`;
-8. confirm no authoritative data mutation.
+No second hypothesis may be pursued under this run.
 
 ## Source and data freeze
 

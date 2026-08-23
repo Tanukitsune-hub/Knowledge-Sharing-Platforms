@@ -14,6 +14,40 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Draft PR: `#11`
 
+## Latest DEV test authentication-context recovery (2026-08-23)
+
+Dedicated report:
+`docs/handoffs/0013-dev-test-auth-context-recovery-report.md`.
+
+Instruction ref: `9335c152318d03faf0405dcdc1653cd7928defbb`.
+
+Account context: `SINGLE_ACCOUNT_EDITOR_CONTEXT_CONFIRMED`.
+
+In the same isolated single-account Chrome context, the confirmed Apps Script editor opened with
+the project source and editor controls visible. `Deploy > Test deployments > Web app` was selected,
+and the generated `/dev` link was opened exactly once in that same context.
+
+The result was the Google Drive file-open error page. The Apps Script Executions view showed a
+corresponding completed `doGet` Web App execution at the same observed attempt time.
+
+Classification: `DEV_TEST_RUNTIME_FAIL_EXECUTION_OBSERVED`.
+
+The single-account-session hypothesis was not sufficient to explain the failure. The mandatory
+stop condition fired immediately:
+
+- `/exec`: `NOT RUN`;
+- integrated navigation: `NOT RUN`;
+- deployment type / execute-as / access for persistent recovery: `NOT SELECTED`;
+- authoritative mutation: `NO MUTATION OBSERVED`;
+- Matrix D/E, Preview, Docs, PDF, clipboard, Shared Drive, and Gemini/File Search: `NOT RUN`.
+
+No source, test, manifest, deployment, Library, setup, trigger, export, or authoritative data
+change was made. Raw account information and private IDs/URLs were not recorded.
+
+Overall classification: `BLOCKED — DEV_TEST_RUNTIME_FAIL_EXECUTION_OBSERVED`.
+
+`BLOCKER: YES`.
+
 ## Latest project identity reconstruction and Web App recovery (2026-08-23)
 
 Dedicated report:
