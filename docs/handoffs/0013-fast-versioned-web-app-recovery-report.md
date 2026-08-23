@@ -4,92 +4,63 @@ WORK_ID: `0013`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Exact ref: `baf1e08ef15a9553f70ca6fd83eedf714d36d3d6`
-
 Branch: `agent/0013-consolidated-dev-live-qualification`
 
 Draft PR: `#11`
 
-## Scope
+## Final recovery result
 
-This run performed only the one authorized synthetic DEV deployment and the
-minimum `/exec` runtime probe. Application source, tests, manifest, navigation,
-setup logic, schema, limits, Knowledge Export, and AI/File Search logic were
-frozen. `/dev`, historical diagnosis, Matrix A/B/C, Matrix D/E, Docs, PDF,
-clipboard, Shared Drive, and Gemini File Search were not rerun.
+The versioned synthetic DEV Web App recovery is complete.
 
-The two required independent read-only reviews were completed:
-
-- deployment type/settings and one-deployment safety: PASS;
-- final Git, evidence, integrity, and secret-redaction checklist: PASS before
-  the runtime probe; the reviewer correctly identified that this report had to
-  be created after the run.
-
-## Deployment result
-
-Exactly one new versioned synthetic DEV deployment was created through the
-Apps Script deployment UI.
+Exactly one new versioned synthetic DEV deployment was created through the Apps Script deployment UI with the approved settings:
 
 - type: `Web app`;
 - description: `KSP Work 0013 DEV Web App restored`;
 - execute as: deploying user;
 - access: `Only myself`;
-- version: non-zero immutable version (version 24);
-- endpoint: confirmed as `/exec`, not `/library/`.
+- non-zero immutable version;
+- endpoint: `/exec`, not `/library/`.
 
-No Library deployment was modified, archived, or deleted. No source push or
-pull was performed.
+The generated `/exec` rendered the normal main application page.
 
-## Runtime result
+Codex's bounded browser controller could not locate the `ナレッジ検索` control within its selector deadline, so the automated run correctly stopped without retry and originally classified integrated navigation as not safely observable. This was a browser-control limitation, not observed application failure.
 
-The generated `/exec` opened once in the confirmed single-account browser
-context and the normal main page rendered. The DOM showed the normal Meeting
-page and the `ナレッジ検索` navigation control.
+The user then performed the required live interaction manually on the same recovered versioned DEV Web App and confirmed that normal same-document navigation works in both directions:
 
-The first integrated-navigation action was then attempted once:
+`ナレッジ検索 -> 面談記録 -> ナレッジ検索`
 
-- attempted step: click the normal `ナレッジ検索` button;
-- expected: same-document Knowledge Search page;
-- observed: the browser control returned a selector deadline error with no
-  matching button before a click was performed;
-- action after failure: none. No retry, refresh, alternate selector, URL
-  navigation, second hypothesis, or further matrix was attempted.
+The UI switched normally on click and did not require browser URL navigation.
 
-Classification:
+This direct user-assisted browser observation supersedes the earlier automation-only `INTEGRATED_NAVIGATION_NOT_SAFELY_OBSERVABLE` classification.
 
-`VERSIONED_EXEC_MAIN_PAGE_PASS — INTEGRATED_NAVIGATION_NOT_SAFELY_OBSERVABLE`
+Final classifications:
 
-`BLOCKER: YES`
-
-This run does not classify the application as the cause of the failed click;
-it records only that the required first browser action could not be safely
-completed and the bounded run stopped at that point.
+- versioned `/exec`: `PASS — MAIN PAGE RENDERED`;
+- integrated navigation: `PASS — USER-ASSISTED LIVE CONFIRMATION`;
+- Web App recovery: `PASS`;
+- Web App recovery blocker: `NO`.
 
 ## Integrity boundary
 
-No data-changing control was clicked after the deployment. No Meeting or
-Pitchbook registration, setup/private administrator function, trigger change,
-Knowledge Export, Docs/PDF/clipboard action, AI action, or source-file change
-was performed in this run. Therefore no authoritative mutation was observed.
+No data-changing control was used during the recovery/navigation probe. No Meeting or Pitchbook registration, setup/private administrator function, trigger change, Knowledge Export, Docs/PDF/clipboard action, AI action, source-file change, or second deployment was performed.
 
-The post-probe row-count and artifact readback was not pursued after the
-mandatory first-failure stop. Matrix D/E remain `NOT RUN`.
+Authoritative integrity is therefore `NO MUTATION OBSERVED` for the recovery actions. Full Backend/Drive/Audit integrity readback remains part of the final non-AI Matrix E qualification and is not claimed complete here.
 
 ## Repository and redaction checks
 
 - application source/tests/manifest unchanged;
-- exactly one deployment mutation performed;
-- no raw Script ID, deployment ID, resource ID, full Web App URL, account
-  identifier, cookie, token, credential, OAuth file, or local clasp mapping was
-  recorded in this report;
-- `git diff --cached --check`: PASS;
-- tracked clasp mapping files: 0;
-- changed-report scan for full Web App URLs, deployment prefixes, and email
-  addresses: 0 hits.
+- exactly one versioned DEV Web App recovery deployment was created;
+- no Library deployment was modified;
+- no source push/pull was performed;
+- no raw Script ID, deployment ID, resource ID, full Web App URL, account identifier, cookie, token, credential, OAuth file, or local clasp mapping is recorded here.
 
-## Handoff
+## Next state
 
-The `/exec` entrypoint and main-page rendering are confirmed, but integrated
-navigation is not safely observable in this bounded run. A later run must use
-a separately authorized scope; it must not infer a source defect or create a
-second deployment from this evidence.
+The Web App recovery incident is closed. Do not reopen `/dev`, deployment identity, versioned `/exec`, or Knowledge Search navigation without new contradictory evidence.
+
+Work 0013 should now resume only the remaining non-AI qualification:
+
+- Matrix D — post-hardening private administrator path;
+- Matrix E — Knowledge Export preview / Google Docs / PDF / clipboard / integrity readback.
+
+Shared Drive-specific qualification and Gemini/File Search live qualification remain separate residual external gaps.
