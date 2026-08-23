@@ -28,6 +28,8 @@ Active handoff:
 
 `docs/handoffs/0013-fast-versioned-web-app-recovery-instruction.md`
 
+Use the exact ref supplied in the Codex execution request.
+
 Durable deployment and recurrence-prevention rules:
 
 `docs/operations/apps-script-web-app-deployment.md`
@@ -67,7 +69,7 @@ Future recovery handoffs must freeze source while deployment identity is uncerta
 
 Application source, tests, manifest, navigation, setup logic, schema, limits, Knowledge Export, and AI/File Search are frozen.
 
-Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, project discovery, remote source comparison, historical navigation experiments, `/dev`, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search.
+Do not rerun Matrix A/B/C, upload sizing, parser diagnosis, project discovery, remote source comparison, historical navigation experiments, `/dev`, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini File Search.
 
 Current classification:
 
