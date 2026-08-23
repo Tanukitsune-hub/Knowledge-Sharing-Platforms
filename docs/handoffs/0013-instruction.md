@@ -6,7 +6,7 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Route: `ChatGPT-owned diagnosis and GitHub coordination; bounded authenticated recovery / verification by Codex`.
 
-Recommended Codex model: `Luna Max` for the active versioned Web App recovery run.
+Recommended Codex model: `Sol High` for the active verified versioned Web App recovery run.
 
 ## Accepted completed evidence — do not rerun
 
@@ -28,36 +28,39 @@ Recommended Codex model: `Luna Max` for the active versioned Web App recovery ru
 - `/dev` request produced a completed `doGet` execution but browser displayed the Google Drive file-open error.
 - Prior recovery attempts observed no authoritative data mutation.
 
+These facts exclude wrong project, stale remote source, missing `doGet`, multi-account context, and a server-side `doGet` exception as sufficient explanations. They do not yet prove one final root cause.
+
 Do not rerun project discovery, remote source comparison, Matrix A/B/C, upload sizing, parser diagnosis, historical navigation experiments, Matrix D/E, Docs, PDF, clipboard, Shared Drive, or Gemini/File Search.
 
-## ChatGPT correction to the recovery gate
+## Current diagnosis boundary
 
-The prior contract incorrectly treated `/dev` PASS as a mandatory prerequisite for creating a normal versioned `/exec` deployment.
+The remaining material ambiguity is limited to:
 
-`/dev` is an editor-only HEAD/test surface. The current evidence proves the request reaches the correct script and completes `doGet`, while known Apps Script behavior includes cases where the same Google Drive file-open error affects `/dev` independently of a usable versioned `/exec` deployment.
+1. an editor-only HEAD `/dev` serving defect;
+2. incorrect or ambiguous deployment entrypoint metadata;
+3. a failure between completed `doGet` and normal client bootstrap;
+4. a failure after client bootstrap begins.
 
-Therefore `/dev` failure is no longer a hard gate for `/exec` recovery.
-
-ChatGPT also reviewed the current startup source: the normal `Index` route has no automatic top-level navigation on initial load; startup client code performs `google.script.run` bootstrap calls, and the only remaining `window.location` handler is guarded behind the standalone-only `knowledge-back` control that is absent from the integrated main page.
-
-Do not change source based only on the `/dev` Drive error.
+Do not claim a narrower cause until versioned deployment metadata and `/exec` execution-startup evidence distinguish these layers.
 
 ## Active execution
 
 Use:
 
-`docs/handoffs/0013-versioned-dev-web-app-recovery-instruction.md`
+`docs/handoffs/0013-verified-versioned-web-app-recovery-instruction.md`
 
-The run must:
+The active run must:
 
-1. read existing execution history around the failed `/dev` attempt and classify whether normal client bootstrap executions followed completed `doGet`;
-2. create exactly one explicit versioned synthetic DEV Web App deployment in the already confirmed project;
-3. use `execute as deploying user` and `Only myself`;
-4. open the generated `/exec` once in the same single-account context;
-5. if the main page renders, verify same-document `ナレッジ検索 -> 面談記録 -> ナレッジ検索`;
-6. confirm no authoritative data mutation.
+1. classify whether normal client bootstrap executions followed the accepted failed `/dev` `doGet`;
+2. read the current deployment inventory by entrypoint type;
+3. create no more than one explicit versioned synthetic DEV Web App when needed;
+4. read back and prove `WEB_APP`, pinned version, `MYSELF`, `USER_DEPLOYING`, and `/exec` before opening it;
+5. open only the verified Web App entrypoint;
+6. classify browser render and `doGet` / bootstrap execution startup;
+7. only after main render PASS, verify same-document `ナレッジ検索 -> 面談記録 -> ナレッジ検索`;
+8. confirm no authoritative data mutation.
 
-If `/exec` fails, stop without another deployment or source hypothesis.
+If deployment metadata, `/exec`, or integrated navigation fails, stop without a second deployment or source hypothesis.
 
 ## Source and data freeze
 
@@ -71,13 +74,13 @@ Do not execute setup/private admin functions, Matrix D/E, Preview, Docs, PDF, cl
 
 ## Completion state
 
-If versioned `/exec`, integrated navigation, and integrity checks pass:
+If verified versioned `/exec`, integrated navigation, and integrity checks pass:
 
 `DEV VERSIONED WEB APP RESTORED — MATRIX D/E READY`
 
 `BLOCKER: NO` for Web App entrypoint recovery.
 
-The `/dev` HEAD/test defect remains a non-blocking development-environment issue unless later evidence shows it affects normal `/exec` operation.
+The `/dev` HEAD/test defect may remain a non-blocking development-environment issue if the normal versioned Web App is proven usable.
 
 Matrix D/E remain NOT RUN for a later bounded run.
 
