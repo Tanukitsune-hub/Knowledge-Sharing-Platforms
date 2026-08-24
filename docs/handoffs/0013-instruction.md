@@ -1,154 +1,113 @@
 # Work 0013 — Consolidated DEV live qualification
 
 WORK_ID: `0013`
+Dispatch ID: `0013-CODEX-01`
+BALL: `CODEX`
+STATUS: `READY`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Route: `ChatGPT-owned diagnosis / coordination; bounded authenticated DEV qualification by Codex`.
+Route: `ChatGPT-owned diagnosis / GitHub / final judgment; bounded authenticated DEV repair and qualification by Codex`.
 
-## Latest final non-AI qualification run (2026-08-24)
+Recommended Codex model: `Luna Max`.
 
-Execution source ref: `da63af75f2c90be316494918974bcb8acb24b16c`.
+## Current blocker and correction
 
-- Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`; private
-  return values were not safely observable through the available authenticated
-  editor/browser surface, and no public or debug wrapper was introduced.
-- Matrix E Preview: `FAIL — STOPPED AT FIRST APPLICATION/CONFIGURATION DEFECT`;
-  the recovered versioned `/exec` displayed `Knowledge Exports フォルダが設定されていません。`
-  after one `対象資料を確認` action.
-- Docs/PDF/clipboard/final integrity: `NOT RUN — Matrix E Preview failed`.
-- Overall: `NOT QUALIFIED — MATRIX E STOPPED AT FIRST APPLICATION/CONFIGURATION DEFECT`.
-- `BLOCKER: YES`.
-
-This run made no application source, test, deployment, public-facade, or
-external-resource repair changes. The detailed evidence is recorded in
-`docs/handoffs/0013-non-ai-final-live-qualification-report.md` and
-`docs/handoffs/0013-report.md`.
-
-Recommended Codex model: `Luna Max` for the remaining Matrix D/E qualification.
-
-## Current state
-
-The Web App recovery incident is closed.
-
-Accepted live evidence:
-
-- project identity: `PROJECT_IDENTITY_CONFIRMED`;
-- installation-state / source-family / continuity / uniqueness: PASS;
-- remote Apps Script source: `REMOTE_SOURCE_CURRENT`;
-- single-account editor context: confirmed;
-- exactly one versioned synthetic DEV deployment was created as `Web app`;
-- execute-as: deploying user;
-- access: `Only myself`;
-- versioned `/exec`: PASS — normal main page rendered;
-- integrated navigation: `PASS — USER-ASSISTED LIVE CONFIRMATION`;
-- the user manually verified `ナレッジ検索 -> 面談記録 -> ナレッジ検索` on the recovered `/exec` using normal clicks with same-document switching;
-- no authoritative mutation was observed during recovery/navigation.
-
-Codex's earlier `INTEGRATED_NAVIGATION_NOT_SAFELY_OBSERVABLE` result reflected only its browser selector limitation. It is superseded by the user's direct live browser confirmation.
-
-Web App recovery classification:
-
-`DEV VERSIONED WEB APP RESTORED — MATRIX D/E READY`
-
-Web App recovery blocker: `NO`.
-
-Work 0013 overall remains `BLOCKER: YES` only because Matrix D/E have not yet completed.
-
-Detailed recovery report:
-
-`docs/handoffs/0013-fast-versioned-web-app-recovery-report.md`
-
-## Accepted completed evidence — do not rerun
-
-- Pitchbook Date repair: PASS.
-- Pitchbook status-parser repair: PASS.
-- Matrix A `Active -> Inactive -> Active`: live PASS.
-- Matrix B: `NOT APPLICABLE TO NORMAL UI / deterministic evidence retained`.
-- Matrix C: `1 / 5 / 10 / 15 / 20 / 25 MiB`: live PASS.
-- Largest stable supported upload: `25 MiB / 26,214,400 bytes`.
-- Work 0011 Knowledge Export deterministic implementation/tests: PASS.
-- Work 0012 public-surface hardening: deterministic PASS.
-- Inline Knowledge Search implementation: focused `36/36 PASS`.
-- `npm run check` / `npm run test`: `160/160 PASS`.
-- Apps Script source / HTML / manifest / public-surface validation: PASS.
-- versioned `/exec` recovery and integrated same-document navigation: live PASS.
-
-Do not rerun or reopen:
-
-- project identity reconstruction;
-- remote source comparison;
-- `/dev` diagnosis;
-- Library/Web App deployment diagnosis;
-- versioned `/exec` recovery;
-- Knowledge Search navigation mechanisms;
-- Matrix A/B/C;
-- upload sizing;
-- parser diagnosis.
-
-Do not create another Web App deployment unless new contradictory evidence proves the recovered `/exec` unusable.
-
-## Active execution
-
-Resume only the final non-AI DEV qualification using:
-
-`docs/handoffs/0013-non-ai-final-live-qualification-instruction.md`
-
-The remaining outcome is:
-
-1. Matrix D — post-hardening private administrator path; and
-2. Matrix E — Gemini-independent Knowledge Export preview / Google Docs / PDF / clipboard / final integrity readback.
-
-The recovered versioned `/exec` is the accepted normal DEV Web App entrypoint. Do not ask the user to re-prove normal navigation before Matrix E.
-
-## Matrix D correction
-
-Use the actual private administrator entrypoints:
-
-- `src/99_EntryPoints.gs`: `getInstallationStatus_()`, `validateInstallation_()`, `setupKnowledgePlatform_()`;
-- `src/170_AiEntryPoints.gs`: `runAiSyncWorker_()`.
-
-If these private functions cannot be safely invoked with observable return values without changing source/deployment/public exposure, classify:
+Matrix D is closed as:
 
 `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`
 
-and continue Matrix E. This alone is non-blocking.
+This is explicitly non-blocking and must not stop Work 0013.
 
-Do not expose private functions publicly.
+Matrix E reached Preview and exposed the first real remaining blocker:
 
-## Remaining external categories
+`Knowledge Exports フォルダが設定されていません。`
 
-Do not execute in Work 0013 final non-AI qualification:
+ChatGPT reviewed the source and live DEV state and confirmed this is a missing Work 0011 installation-state migration, not a navigation or source-code defect.
 
-- Shared Drive-specific qualification;
-- billing-enabled Gemini / File Search qualification.
+The source contract already expects:
 
-They remain explicit residual external gaps.
+- a `Knowledge Exports` folder as a sibling of the authoritative `Private Assets Knowledge` root;
+- Backend schema version `2` / app version `0.1.2`;
+- `KNOWLEDGE_EXPORTS_FOLDER_ID` in Backend Settings;
+- `resources.knowledgeExportsFolderId` in `KSP_INSTALLATION_STATE_JSON`.
 
-If Matrix E passes, Matrix D is PASS or only the allowed private-execution-surface DEFERRED state, and no implementation blocker remains, classify:
+## ChatGPT-completed repair
+
+ChatGPT has already, in the confirmed synthetic DEV environment:
+
+- verified the knowledge-parent boundary;
+- confirmed no existing `Knowledge Exports` sibling folder existed;
+- created exactly one `Knowledge Exports` sibling folder;
+- updated Backend Settings to schema `2` and app `0.1.2`;
+- added `KNOWLEDGE_EXPORTS_FOLDER_ID`;
+- read back those Settings successfully;
+- preserved counters, source rows/files, AI settings, and `LAST_SETUP_AT`.
+
+No raw IDs/URLs are stored in GitHub/chat.
+
+## Active execution
+
+Use:
+
+`docs/handoffs/0013-CODEX-01-knowledge-export-installation-state-repair-instruction.md`
+
+Dispatch control:
+
+`docs/handoffs/0013-dispatches.md`
+
+Codex must patch only the existing `KSP_INSTALLATION_STATE_JSON` in Project Settings to register the already-created `Knowledge Exports` folder and current schema/app version, preserving all other identity/config/resource fields.
+
+Then retry Matrix E Preview once and, on PASS, continue through Google Docs, PDF, clipboard, and final integrity readback.
+
+A retry is authorized because the observed configuration blocker has been repaired; this is not an unchanged-state retry.
+
+## Accepted completed evidence — do not reopen
+
+- Project identity: PASS.
+- Remote source currentness: PASS.
+- Versioned `/exec`: PASS.
+- Integrated navigation: `PASS — USER-ASSISTED LIVE CONFIRMATION`.
+- Matrix A/B/C: accepted.
+- Upload sizing through 25 MiB: accepted.
+- Pitchbook Date/status-parser repairs: PASS.
+- Inline Knowledge Search deterministic validation: PASS.
+- Work 0011 Knowledge Export deterministic tests: PASS.
+- Matrix D: allowed non-blocking DEFERRED state; closed.
+
+Do not rerun or reopen project/deployment recovery, `/dev`, navigation, Matrix A/B/C, upload sizing, parser diagnosis, or Matrix D.
+
+## Hard boundary
+
+Do not:
+
+- change application source/tests/manifest/navigation/public facade;
+- run `setupKnowledgePlatform_()` or other private admin functions;
+- create an API executable or public wrapper;
+- create another Web App deployment;
+- modify Library deployments;
+- configure Gemini/File Search;
+- create a Shared Drive;
+- touch production/confidential data.
+
+## Completion
+
+If Matrix E passes and no implementation/data-integrity blocker remains, classify:
 
 `DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
 
-with `BLOCKER: NO`.
+`BLOCKER: NO`
 
-Do not claim `PRODUCTION READY` while Shared Drive and Gemini/File Search live qualification remain deferred.
+Residual external gaps:
 
-## Durable recurrence prevention
+- Shared Drive-specific qualification: deferred;
+- billing-enabled Gemini/File Search qualification: deferred.
 
-Apps Script deployment/recovery work must follow:
+Do not claim production readiness.
 
-`docs/operations/apps-script-web-app-deployment.md`
+Keep PR #11 Draft / Open / unmerged. ChatGPT owns final review and merge decision.
 
-The Work 0013 incident lessons are also enforced by `docs/handoffs/AGENTS.md`.
-
-Do not reopen deployment/source hypotheses without new material evidence.
-
-## Safety / delivery
-
-- DEV only; synthetic/anonymized data only.
-- No production deployment/data or confidential source material.
-- No credentials, raw IDs/URLs, account addresses, tokens, cookies, or user-specific local paths in GitHub/report/chat.
-- Application source, tests, manifest, navigation, setup logic, schema, limits, Knowledge Export logic, and AI/File Search logic remain frozen during qualification-only execution.
-- Continue on `agent/0013-consolidated-dev-live-qualification` and Draft PR #11.
-- Keep PR Draft / Open / unmerged.
-- Do not merge; ChatGPT performs final review.
+WORK_ID: `0013`
+Dispatch ID: `0013-CODEX-01`
+BALL: `CODEX`
+STATUS: `READY`
