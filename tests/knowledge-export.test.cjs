@@ -499,7 +499,9 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
   const originalMaintenanceEnvironment = ksp.kspCreateMaintenanceEnvironment_;
   const originalDrive = ksp.Drive;
   const originalDocumentApp = ksp.DocumentApp;
-  const calls = { creates: [], exports: 0, trashed: [], paragraphs: [], links: [], pageBreaks: 0 };
+  const originalScriptApp = ksp.ScriptApp;
+  const originalUrlFetchApp = ksp.UrlFetchApp;
+  const calls = { creates: [], fetches: [], trashed: [], paragraphs: [], links: [], pageBreaks: 0 };
   let createCount = 0;
   ksp.kspCreateMaintenanceEnvironment_ = () => ({
     getInstallationState() {
@@ -532,14 +534,24 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
         calls.creates.push(file);
         return file;
       },
-      export() {
-        calls.exports += 1;
-        return { getBytes: () => [37, 80, 68, 70] };
-      },
       update(_resource, fileId) {
         calls.trashed.push(fileId);
         return { id: fileId, trashed: true };
       }
+    }
+  };
+  ksp.ScriptApp = {
+    getOAuthToken() {
+      return 'synthetic-oauth-token';
+    }
+  };
+  ksp.UrlFetchApp = {
+    fetch(url, options) {
+      calls.fetches.push({ url, options });
+      return {
+        getResponseCode() { return 200; },
+        getBlob() { return { getBytes: () => [37, 80, 68, 70] }; }
+      };
     }
   };
   ksp.DocumentApp = {
@@ -587,7 +599,14 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
     });
     assert.equal(pdf.id, 'adapter-3');
     assert.equal(pdf.url, 'https://drive.google.com/open?id=adapter-3');
-    assert.equal(calls.exports, 1);
+    assert.equal(calls.fetches.length, 1);
+    assert.equal(
+      calls.fetches[0].url,
+      'https://www.googleapis.com/drive/v3/files/adapter-2/export?mimeType=application%2Fpdf'
+    );
+    assert.equal(calls.fetches[0].options.method, 'get');
+    assert.equal(calls.fetches[0].options.headers.Authorization, 'Bearer synthetic-oauth-token');
+    assert.equal(calls.fetches[0].options.muteHttpExceptions, true);
     assert.deepEqual(calls.trashed, ['adapter-2']);
     assert.ok(calls.paragraphs.includes('SECRET_MEETING_BODY'));
     assert.ok(calls.links.some((link) => link.url === 'https://drive.google.com/file/d/synthetic/view'));
@@ -599,5 +618,9 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
     else ksp.Drive = originalDrive;
     if (originalDocumentApp === undefined) delete ksp.DocumentApp;
     else ksp.DocumentApp = originalDocumentApp;
+    if (originalScriptApp === undefined) delete ksp.ScriptApp;
+    else ksp.ScriptApp = originalScriptApp;
+    if (originalUrlFetchApp === undefined) delete ksp.UrlFetchApp;
+    else ksp.UrlFetchApp = originalUrlFetchApp;
   }
 });

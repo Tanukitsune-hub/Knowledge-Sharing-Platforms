@@ -1,36 +1,33 @@
 # Work 0013 report
 
 WORK_ID: `0013`
-Dispatch ID: `0013-CODEX-02`
+Dispatch ID: `0013-CODEX-03`
 BALL: `CHATGPT`
-STATUS: `BLOCKED`
+STATUS: `COMPLETE`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-## Current state
+## Final DEV result
 
-Web App recovery, integrated navigation, Matrix A/B/C, upload sizing, Matrix D disposition, Knowledge Export installation-state repair, Preview, and Google Docs export remain accepted and closed.
+- Web App recovery and integrated navigation: accepted PASS.
+- Matrix A/B/C and upload sizing: accepted.
+- Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`; closed and non-blocking.
+- Knowledge Export installation-state repair: PASS.
+- Preview: PASS.
+- Google Docs export: PASS.
+- PDF export: PASS.
+- Clipboard: `DEFERRED — BROWSER ENVIRONMENT LIMITATION`.
+- Final authoritative integrity: PASS.
 
-Matrix D remains:
+Dispatch `0013-CODEX-03` corrected only the stale deterministic test harness, restored all required deterministic gates, synchronized the unchanged accepted PDF transport source to the confirmed synthetic DEV project, created immutable version 25, and updated the existing Web App deployment without changing its ID or security boundary.
 
-`DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`
-
-## Dispatch 0013-CODEX-02 result
-
-- Focused PDF transport regression: `PASS — 4/4`.
-- Existing Knowledge Export/UI regression: `FAIL — 17/18 PASS`.
-- `npm run check`: `NOT RUN — stopped after required deterministic failure`.
-- `git diff --check`: `NOT RUN — stopped after required deterministic failure`.
-
-Smallest decisive evidence: the existing Knowledge Export adapter-path test failed because its deterministic runtime did not define `UrlFetchApp` (`ReferenceError: UrlFetchApp is not defined`).
-
-The dispatch stopped at that required deterministic failure. No correction, second hypothesis, DEV source synchronization, Apps Script version creation, Web App deployment update, PDF live attempt, clipboard action, or final integrity readback was performed.
+The single PDF action created exactly one non-empty PDF with no duplicate and no retained temporary Google Doc. Final readback confirmed source files, Index rows, AI state, Settings, Script Properties, and triggers remained unchanged; Audit added only metadata-redacted Preview/PDF success events.
 
 ## Classification
 
-`NOT QUALIFIED — DETERMINISTIC VALIDATION FAILED BEFORE DEV SYNCHRONIZATION`
+`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
 
-`BLOCKER: YES`
+`BLOCKER: NO`
 
 Residual external gaps remain:
 
@@ -40,6 +37,6 @@ Residual external gaps remain:
 Production readiness is not claimed. PR #11 remains Draft / Open / unmerged.
 
 WORK_ID: `0013`
-Dispatch ID: `0013-CODEX-02`
+Dispatch ID: `0013-CODEX-03`
 BALL: `CHATGPT`
-STATUS: `BLOCKED`
+STATUS: `COMPLETE`

@@ -2,7 +2,67 @@
 
 WORK_ID: `0013`
 
-## Latest final non-AI qualification result (Dispatch 0013-CODEX-02, 2026-08-25)
+## Latest final non-AI qualification result (Dispatch 0013-CODEX-03, 2026-08-25)
+
+Instruction execution source ref: `dc2d36242616b716d7e8ff8ccaf1de98220d4098`.
+
+### Deterministic harness and validation
+
+- stale PDF integration harness correction: `PASS` — test-only change;
+- Knowledge Export/UI suite: `PASS — 18/18`;
+- dedicated PDF transport suite: `PASS — 4/4`;
+- `npm run check`: `PASS — 164/164`;
+- `git diff --check`: `PASS`.
+
+Application source, HTML, manifest, schema, UI/navigation, public facade,
+setup, Knowledge Export business rules, and AI/File Search code remained
+unchanged.
+
+### DEV source and deployment
+
+- exact source synchronization: `PASS` — 59/59 deployable files matched on
+  remote readback;
+- immutable Apps Script version: `PASS — version 25`;
+- existing Web App deployment update: `PASS` — deployment ID unchanged;
+- deployment boundary: `PASS — Web app / execute as deploying user / Only
+  myself`.
+
+### Matrix E completion
+
+- fresh Preview: `PASS` — Meeting `2`, authoritative text `315` characters,
+  Pitchbook `10`;
+- Google Docs export: previously accepted `PASS`; not rerun;
+- PDF export: `PASS` — one non-empty PDF, matching returned link, no duplicate;
+- temporary Google Doc cleanup: `PASS` — no additional native Doc remained;
+- clipboard: `DEFERRED — BROWSER ENVIRONMENT LIMITATION` — the normal action
+  was invoked once, but successful clipboard placement could not be observed
+  and no copy-confirmation Audit event was created;
+- final integrity readback: `PASS`.
+
+Final readback confirmed the prior Docs artifact plus exactly one new PDF,
+unchanged source files/Index/AI/Settings/Script Properties/triggers, and only
+metadata-redacted Preview/PDF success Audit events.
+
+Matrix D remains `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`.
+
+Overall classification:
+
+`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
+
+`BLOCKER: NO`
+
+Shared Drive-specific and billing-enabled Gemini/File Search qualification
+remain deferred external gaps. Production readiness is not claimed.
+
+Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
+
+Execution date: `2026-08-25`
+
+Branch: `agent/0013-consolidated-dev-live-qualification`
+
+Draft PR: `#11`
+
+## Previous final non-AI qualification result (Dispatch 0013-CODEX-02)
 
 Instruction execution source ref: `9746e3152f63f3a1f6182545c51f1010756624a5`.
 
