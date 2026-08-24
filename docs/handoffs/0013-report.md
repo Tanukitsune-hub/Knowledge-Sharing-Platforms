@@ -2,6 +2,47 @@
 
 WORK_ID: `0013`
 
+## Latest final non-AI qualification result (2026-08-24)
+
+Execution source ref: `da63af75f2c90be316494918974bcb8acb24b16c`.
+
+### Matrix D — private administrator path
+
+Result: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`.
+
+The actual private entrypoint files `src/99_EntryPoints.gs` and
+`src/170_AiEntryPoints.gs` were used for the boundary review. The authenticated
+Apps Script editor did not provide a safely observable private return-value
+surface through the available browser control; no private function execution
+was claimed as evidence. No public wrapper, debug endpoint, source change,
+deployment change, or trigger mutation was used to bypass the limitation.
+
+### Matrix E — Gemini-independent Knowledge Export
+
+Preview result: `FAIL — STOPPED AT FIRST APPLICATION/CONFIGURATION DEFECT`.
+
+Using the recovered versioned `/exec`, the `対象資料を確認` action was invoked
+once. The UI displayed `Knowledge Exports フォルダが設定されていません。`
+and no valid Preview result was returned. The qualification stopped at this
+first Matrix E defect; no retry or alternate route was used.
+
+- Google Docs export: `NOT RUN — Matrix E Preview failed`.
+- PDF export: `NOT RUN — Matrix E Preview failed`.
+- Clipboard: `NOT RUN — Matrix E Preview failed`.
+- Final integrity readback: `NOT RUN — Matrix E Preview failed`.
+
+Overall classification:
+
+`NOT QUALIFIED — MATRIX E STOPPED AT FIRST APPLICATION/CONFIGURATION DEFECT`
+
+`BLOCKER: YES`
+
+Shared Drive-specific qualification remains `DEFERRED — authorized disposable
+Shared Drive not exercised`. Gemini/File Search live qualification remains
+`DEFERRED — approved billing-enabled DEV credential required`. Production
+readiness is not claimed. Only documentation/report updates are in scope for
+this run; application source and tests remain unchanged.
+
 ## Latest bounded recovery result
 
 The authorized recovery operation was completed once at the exact requested
