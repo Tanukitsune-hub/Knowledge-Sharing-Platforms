@@ -2,7 +2,51 @@
 
 WORK_ID: `0013`
 
-## Latest final non-AI qualification result (2026-08-25)
+## Latest final non-AI qualification result (Dispatch 0013-CODEX-02, 2026-08-25)
+
+Instruction execution source ref: `9746e3152f63f3a1f6182545c51f1010756624a5`.
+
+### Deterministic PDF transport verification
+
+- Focused PDF transport regression: `PASS — 4/4`.
+- Existing Knowledge Export/UI regression: `FAIL — 17/18 PASS`.
+- `npm run check`: `NOT RUN — stopped after required deterministic failure`.
+- `git diff --check`: `NOT RUN — stopped after required deterministic failure`.
+
+Smallest decisive evidence: the existing Knowledge Export adapter-path test
+failed because its deterministic runtime did not define `UrlFetchApp`
+(`ReferenceError: UrlFetchApp is not defined`). No correction, second
+hypothesis, or expanded diagnosis was attempted.
+
+### Post-fix live qualification
+
+- DEV source synchronization: `NOT RUN — deterministic validation failed`.
+- Web App version/deployment update: `NOT RUN — deterministic validation failed`.
+- PDF export: `NOT RUN — deterministic validation failed`.
+- Clipboard: `NOT RUN — PDF was not reached`.
+- Final integrity readback: `NOT RUN — live verification was not reached`.
+
+Matrix D remains `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`.
+
+Overall classification:
+
+`NOT QUALIFIED — DETERMINISTIC VALIDATION FAILED BEFORE DEV SYNCHRONIZATION`
+
+`BLOCKER: YES`
+
+Shared Drive-specific and billing-enabled Gemini/File Search qualification
+remain deferred external gaps. No live external mutation occurred in this
+dispatch. Production readiness is not claimed.
+
+Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
+
+Execution date: `2026-08-25`
+
+Branch: `agent/0013-consolidated-dev-live-qualification`
+
+Draft PR: `#11`
+
+## Previous final non-AI qualification result (Dispatch 0013-CODEX-01)
 
 Instruction execution source ref: `7faaa1d8fb335cfad3211baaa5583704089da847`.
 

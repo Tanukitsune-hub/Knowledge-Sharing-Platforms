@@ -2,43 +2,34 @@
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
 
 This file is the current ball/source-of-truth for explicit Codex dispatches under Work 0013.
 
-## Active dispatch
+## Latest dispatch
 
 - Dispatch ID: `0013-CODEX-02`
 - Mode: `BUILD — bounded observed PDF defect repair verification`
 - Instruction: `docs/handoffs/0013-CODEX-02-pdf-export-transport-fix-verification-instruction.md`
-- BALL: `CODEX`
-- STATUS: `READY`
-- Recommended model: `Luna Max`.
-- ChatGPT root-cause diagnosis: complete.
-- ChatGPT source/test repair: committed on this branch.
-- Remaining Codex scope: deterministic validation, exact DEV sync, update the existing versioned Web App deployment once, one post-fix PDF verification, clipboard, final integrity, reporting.
+- BALL: `CHATGPT`
+- STATUS: `BLOCKED`
+- Focused PDF transport regression: `PASS — 4/4`.
+- Existing Knowledge Export/UI regression: `FAIL — 17/18 PASS`.
+- Decisive evidence: deterministic PDF adapter-path execution raised `ReferenceError: UrlFetchApp is not defined`.
+- `npm run check` / `git diff --check`: `NOT RUN — stop condition applied`.
+- DEV sync / version / deployment / PDF / clipboard / final integrity: `NOT RUN — deterministic gate failed`.
+- Completion latch: not reached; Work 0013 remains not qualified with `BLOCKER: YES`.
 
-### Single active hypothesis
+No correction, second hypothesis, external synchronization, deployment mutation, or live qualification action was performed after the deterministic failure.
 
-The live PDF failure was caused by the Apps Script Advanced Drive Service byte-content call `Drive.Files.export()` in `src/157_KnowledgeExportLiveEnvironment.gs`. Apps Script does not reliably return export byte content through that Advanced Drive call. The repair uses the Drive v3 REST export endpoint through `UrlFetchApp.fetch()` with `ScriptApp.getOAuthToken()` and reads `response.getBlob()`.
+## Previous dispatches — closed
 
-If the one post-fix live PDF attempt still fails, STOP and return to ChatGPT. Do not investigate or patch a second hypothesis in this dispatch.
-
-## Previous dispatch — closed
-
-- Dispatch ID: `0013-CODEX-01`
-- Result: `RETURNED — PDF APPLICATION DEFECT FOUND`
-- Knowledge Export installation-state repair: PASS.
-- Matrix E Preview: PASS.
-- Google Docs export: PASS.
-- PDF export: FAIL — `KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED`.
-- Clipboard/final integrity: not run because the dispatch stopped at the first PDF defect.
+- `0013-CODEX-01`: installation-state repair PASS; Preview PASS; Google Docs export PASS; PDF export failed; clipboard/final integrity not run.
 
 ## Accepted closed conclusions
 
-- Web App recovery: PASS.
-- Versioned `/exec`: PASS.
+- Web App recovery and versioned `/exec`: PASS.
 - Integrated navigation: PASS by direct user live confirmation.
 - Matrix A/B/C and upload sizing: accepted.
 - Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`; closed and non-blocking.
@@ -52,5 +43,5 @@ PR #11 must remain Draft / Open / unmerged.
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`

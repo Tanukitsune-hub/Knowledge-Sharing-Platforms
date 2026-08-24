@@ -1,7 +1,7 @@
 # Work 0013 report
 
 WORK_ID: `0013`
-Dispatch ID: `0013-CODEX-01`
+Dispatch ID: `0013-CODEX-02`
 BALL: `CHATGPT`
 STATUS: `BLOCKED`
 
@@ -9,33 +9,26 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 ## Current state
 
-Web App recovery, integrated navigation, Matrix A/B/C, upload sizing, and deterministic checks remain accepted and closed.
+Web App recovery, integrated navigation, Matrix A/B/C, upload sizing, Matrix D disposition, Knowledge Export installation-state repair, Preview, and Google Docs export remain accepted and closed.
 
-Matrix D remains closed as:
+Matrix D remains:
 
 `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`
 
-The one-time authenticated DEV configuration repair completed successfully:
+## Dispatch 0013-CODEX-02 result
 
-- only `KSP_INSTALLATION_STATE_JSON` was edited and saved once;
-- the existing Knowledge Exports resource was registered;
-- schema, release, and app versions were updated to the authorized values;
-- config, existing resources, unrelated fields, and unrelated Script Properties were preserved on readback;
-- no setup/private-admin execution, source change, trigger change, or deployment change occurred.
+- Focused PDF transport regression: `PASS — 4/4`.
+- Existing Knowledge Export/UI regression: `FAIL — 17/18 PASS`.
+- `npm run check`: `NOT RUN — stopped after required deterministic failure`.
+- `git diff --check`: `NOT RUN — stopped after required deterministic failure`.
 
-## Matrix E result
+Smallest decisive evidence: the existing Knowledge Export adapter-path test failed because its deterministic runtime did not define `UrlFetchApp` (`ReferenceError: UrlFetchApp is not defined`).
 
-- Preview: `PASS` — the prior missing-folder error was removed; the active synthetic source set returned with expected counts and no export artifact.
-- Google Docs export: `PASS` — one non-empty native document was created in Knowledge Exports; source coverage, ordering, hyperlinks, and metadata-only Audit evidence were verified.
-- PDF export: `FAIL — KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED` — one authorized attempt returned a safe failure and created no PDF artifact.
-- Clipboard: `NOT RUN — stopped at the first PDF application defect`.
-- Final integrity readback: `NOT RUN — stopped at the first PDF application defect`.
-
-The PDF failure is the first actual application defect in the resumed matrix. Per the Decision-Impact Gate and stop condition, no retry, competing hypothesis, source diagnosis, clipboard action, or final integrity qualification was performed.
+The dispatch stopped at that required deterministic failure. No correction, second hypothesis, DEV source synchronization, Apps Script version creation, Web App deployment update, PDF live attempt, clipboard action, or final integrity readback was performed.
 
 ## Classification
 
-`NOT QUALIFIED — MATRIX E STOPPED AT PDF APPLICATION DEFECT`
+`NOT QUALIFIED — DETERMINISTIC VALIDATION FAILED BEFORE DEV SYNCHRONIZATION`
 
 `BLOCKER: YES`
 
@@ -47,6 +40,6 @@ Residual external gaps remain:
 Production readiness is not claimed. PR #11 remains Draft / Open / unmerged.
 
 WORK_ID: `0013`
-Dispatch ID: `0013-CODEX-01`
+Dispatch ID: `0013-CODEX-02`
 BALL: `CHATGPT`
 STATUS: `BLOCKED`
