@@ -2,112 +2,52 @@
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Route: `ChatGPT-owned diagnosis / GitHub / final judgment; bounded authenticated DEV repair and qualification by Codex`.
 
-Recommended Codex model: `Luna Max`.
+## Dispatch result
 
-## Current blocker and correction
-
-Matrix D is closed as:
-
-`DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`
-
-This is explicitly non-blocking and must not stop Work 0013.
-
-Matrix E reached Preview and exposed the first real remaining blocker:
-
-`Knowledge Exports フォルダが設定されていません。`
-
-ChatGPT reviewed the source and live DEV state and confirmed this is a missing Work 0011 installation-state migration, not a navigation or source-code defect.
-
-The source contract already expects:
-
-- a `Knowledge Exports` folder as a sibling of the authoritative `Private Assets Knowledge` root;
-- Backend schema version `2` / app version `0.1.2`;
-- `KNOWLEDGE_EXPORTS_FOLDER_ID` in Backend Settings;
-- `resources.knowledgeExportsFolderId` in `KSP_INSTALLATION_STATE_JSON`.
-
-## ChatGPT-completed repair
-
-ChatGPT has already, in the confirmed synthetic DEV environment:
-
-- verified the knowledge-parent boundary;
-- confirmed no existing `Knowledge Exports` sibling folder existed;
-- created exactly one `Knowledge Exports` sibling folder;
-- updated Backend Settings to schema `2` and app `0.1.2`;
-- added `KNOWLEDGE_EXPORTS_FOLDER_ID`;
-- read back those Settings successfully;
-- preserved counters, source rows/files, AI settings, and `LAST_SETUP_AT`.
-
-No raw IDs/URLs are stored in GitHub/chat.
-
-## Active execution
-
-Use:
+Dispatch `0013-CODEX-01` followed:
 
 `docs/handoffs/0013-CODEX-01-knowledge-export-installation-state-repair-instruction.md`
 
-Dispatch control:
+The one-time `KSP_INSTALLATION_STATE_JSON` repair and authoritative readback passed. Matrix E Preview then passed, and Google Docs export passed its artifact/content/link/Audit checks.
 
-`docs/handoffs/0013-dispatches.md`
-
-Codex must patch only the existing `KSP_INSTALLATION_STATE_JSON` in Project Settings to register the already-created `Knowledge Exports` folder and current schema/app version, preserving all other identity/config/resource fields.
-
-Then retry Matrix E Preview once and, on PASS, continue through Google Docs, PDF, clipboard, and final integrity readback.
-
-A retry is authorized because the observed configuration blocker has been repaired; this is not an unchanged-state retry.
+The first PDF export attempt failed with application error code `KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED` and created no PDF artifact. The matrix stopped immediately. Clipboard and final integrity qualification were not run. No retry or second root-cause hypothesis was opened.
 
 ## Accepted completed evidence — do not reopen
 
-- Project identity: PASS.
-- Remote source currentness: PASS.
+- Project identity and remote source currentness: PASS.
 - Versioned `/exec`: PASS.
 - Integrated navigation: `PASS — USER-ASSISTED LIVE CONFIRMATION`.
-- Matrix A/B/C: accepted.
-- Upload sizing through 25 MiB: accepted.
-- Pitchbook Date/status-parser repairs: PASS.
-- Inline Knowledge Search deterministic validation: PASS.
-- Work 0011 Knowledge Export deterministic tests: PASS.
-- Matrix D: allowed non-blocking DEFERRED state; closed.
+- Matrix A/B/C and 25 MiB upload sizing: accepted.
+- Deterministic checks/tests: PASS.
+- Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`; closed.
+- Knowledge Export installation-state repair: PASS.
+- Matrix E Preview: PASS.
+- Google Docs export: PASS.
 
-Do not rerun or reopen project/deployment recovery, `/dev`, navigation, Matrix A/B/C, upload sizing, parser diagnosis, or Matrix D.
+## Current blocker
 
-## Hard boundary
+`PDF export — KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED`
 
-Do not:
+Do not retry, diagnose, change source, alter Script Properties, or continue Matrix E without a new bounded instruction from ChatGPT.
 
-- change application source/tests/manifest/navigation/public facade;
-- run `setupKnowledgePlatform_()` or other private admin functions;
-- create an API executable or public wrapper;
-- create another Web App deployment;
-- modify Library deployments;
-- configure Gemini/File Search;
-- create a Shared Drive;
-- touch production/confidential data.
+## Classification
 
-## Completion
+`NOT QUALIFIED — MATRIX E STOPPED AT PDF APPLICATION DEFECT`
 
-If Matrix E passes and no implementation/data-integrity blocker remains, classify:
+`BLOCKER: YES`
 
-`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
+Shared Drive-specific and billing-enabled Gemini/File Search qualification remain deferred external gaps. Production readiness is not claimed.
 
-`BLOCKER: NO`
-
-Residual external gaps:
-
-- Shared Drive-specific qualification: deferred;
-- billing-enabled Gemini/File Search qualification: deferred.
-
-Do not claim production readiness.
-
-Keep PR #11 Draft / Open / unmerged. ChatGPT owns final review and merge decision.
+Keep PR #11 Draft / Open / unmerged. ChatGPT owns any next instruction, final review, and merge decision.
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`

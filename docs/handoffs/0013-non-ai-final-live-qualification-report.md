@@ -2,37 +2,47 @@
 
 WORK_ID: `0013`
 
-## Latest final non-AI qualification result (2026-08-24)
+## Latest final non-AI qualification result (2026-08-25)
 
-Instruction execution source ref: `da63af75f2c90be316494918974bcb8acb24b16c`.
+Instruction execution source ref: `7faaa1d8fb335cfad3211baaa5583704089da847`.
 
 ### Matrix D — private administrator path
 
 Result: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`.
 
-The boundary review used `src/99_EntryPoints.gs` and `src/170_AiEntryPoints.gs`.
-The authenticated Apps Script editor did not provide a safely observable
-private return-value surface through the available browser control, so no
-private function execution was claimed. No public wrapper, debug endpoint,
-source change, deployment change, or trigger mutation was used.
+Matrix D remains accepted and closed. No private function, public/debug wrapper,
+API executable, source change, deployment change, or trigger mutation was used.
+
+### Knowledge Export installation-state repair
+
+Result: `PASS`.
+
+The identity-confirmed synthetic DEV installation was privately checked, then
+only `KSP_INSTALLATION_STATE_JSON` was edited and saved once. The existing
+Knowledge Exports resource and authorized version metadata were registered.
+Config, existing resources, unrelated fields, and unrelated Script Properties
+were preserved on the single reload/readback.
 
 ### Matrix E — Gemini-independent Knowledge Export
 
-Preview: `FAIL — STOPPED AT FIRST APPLICATION/CONFIGURATION DEFECT`.
+- Preview: `PASS` — expected active-source counts and ordering returned; no
+  export artifact was created.
+- Google Docs export: `PASS` — one non-empty native document was created in the
+  correct export folder; source coverage, ordering, explicit links, and
+  metadata-only Audit evidence were verified.
+- PDF export: `FAIL — KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED` — the one
+  authorized attempt returned a safe failure and created no PDF artifact.
+- Clipboard: `NOT RUN — stopped at the first PDF application defect`.
+- Final integrity readback: `NOT RUN — stopped at the first PDF application
+  defect`.
 
-On the recovered versioned `/exec`, `対象資料を確認` was invoked once. The
-application displayed `Knowledge Exports フォルダが設定されていません。`
-and did not return a valid Preview. Matrix E stopped at this first defect;
-there was no retry or alternate route.
-
-- Google Docs export: `NOT RUN — Matrix E Preview failed`.
-- PDF export: `NOT RUN — Matrix E Preview failed`.
-- Clipboard: `NOT RUN — Matrix E Preview failed`.
-- Final integrity readback: `NOT RUN — Matrix E Preview failed`.
+Matrix E stopped immediately at the first actual application defect. There was
+no PDF retry, second root-cause hypothesis, source diagnosis, clipboard action,
+or final integrity qualification.
 
 Overall classification:
 
-`NOT QUALIFIED — MATRIX E STOPPED AT FIRST APPLICATION/CONFIGURATION DEFECT`
+`NOT QUALIFIED — MATRIX E STOPPED AT PDF APPLICATION DEFECT`
 
 `BLOCKER: YES`
 
@@ -47,9 +57,7 @@ changed; this report records the bounded qualification result only.
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Execution date: `2026-08-23`
-
-Instruction ref: `e88482aa749665966912f9987ee3a50e0f7f3b1d`
+Execution date: `2026-08-25`
 
 Branch: `agent/0013-consolidated-dev-live-qualification`
 

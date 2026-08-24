@@ -2,36 +2,42 @@
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
 
-This file is the current ball/source-of-truth for active Codex dispatches under Work 0013.
+This file is the current ball/source-of-truth for explicit Codex dispatches under Work 0013.
 
-Earlier Work 0013 runs predate explicit Dispatch ID adoption and are retained in the historical handoff/report files. Dispatch numbering begins here with the first explicitly dispatch-controlled run; no legacy run is renumbered retroactively.
-
-## Active dispatch
+## Latest dispatch
 
 - Dispatch ID: `0013-CODEX-01`
 - Mode: `QUALIFICATION / bounded DEV configuration repair`
-- Primary Outcome: complete the missing Knowledge Export installation-state migration in the already confirmed synthetic DEV Apps Script project, then resume Matrix E through Preview, Docs, PDF, clipboard, and integrity readback.
 - Instruction: `docs/handoffs/0013-CODEX-01-knowledge-export-installation-state-repair-instruction.md`
-- Recommended model: `Luna Max`
-- BALL: `CODEX`
-- STATUS: `READY`
-- Fastest Safe Decisive Action: patch the existing `KSP_INSTALLATION_STATE_JSON` once to register the already-created `Knowledge Exports` folder and current schema/app version, then retry Preview once.
-- Non-goals: Matrix D retry, source/test/manifest changes, new Web App deployment, API executable, public wrapper, Shared Drive qualification, Gemini/File Search qualification.
-- Completion latch: if Matrix E passes with Matrix D remaining only the allowed private-execution-surface deferral and no blocker, classify Work 0013 `DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS` and stop.
+- BALL: `CHATGPT`
+- STATUS: `BLOCKED`
+- Configuration repair: `PASS`.
+- Matrix E Preview: `PASS`.
+- Google Docs export: `PASS`.
+- PDF export: `FAIL — KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED`.
+- Clipboard: `NOT RUN — stopped at PDF defect`.
+- Final integrity: `NOT RUN — stopped at PDF defect`.
+- Completion latch: not reached; Work 0013 remains not qualified with `BLOCKER: YES`.
+
+The dispatch stopped at the first actual application defect. No PDF retry, second diagnosis hypothesis, source change, Script Property re-edit, clipboard action, or final integrity qualification was performed.
 
 ## Accepted closed conclusions
 
 - Web App recovery: PASS.
 - Versioned `/exec`: PASS.
 - Integrated navigation: PASS by direct user live confirmation.
-- Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`; closed for Work 0013.
-- Knowledge Export Preview failure cause: missing Work 0011 DEV migration state for `Knowledge Exports`, not a navigation defect.
-- ChatGPT has already created the missing sibling `Knowledge Exports` folder and updated Backend Settings to schema `2` / app `0.1.2` with the export-folder setting; readback PASS.
+- Matrix A/B/C and upload sizing: accepted.
+- Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`; closed.
+- Knowledge Export installation-state repair: PASS.
+- Shared Drive-specific qualification: deferred external gap.
+- Billing-enabled Gemini/File Search qualification: deferred external gap.
+
+PR #11 must remain Draft / Open / unmerged.
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`

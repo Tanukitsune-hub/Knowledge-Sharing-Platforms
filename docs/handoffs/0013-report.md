@@ -2,85 +2,51 @@
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 ## Current state
 
-Web App recovery is complete and closed.
+Web App recovery, integrated navigation, Matrix A/B/C, upload sizing, and deterministic checks remain accepted and closed.
 
-Accepted live evidence:
-
-- project identity: confirmed;
-- remote source: current;
-- versioned `/exec`: PASS;
-- integrated navigation: `PASS — USER-ASSISTED LIVE CONFIRMATION`;
-- no authoritative mutation observed during recovery/navigation.
-
-Matrix D is closed as:
+Matrix D remains closed as:
 
 `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`
 
-This is an allowed non-blocking residual and must not stop Matrix E.
+The one-time authenticated DEV configuration repair completed successfully:
 
-## Matrix E first failure
+- only `KSP_INSTALLATION_STATE_JSON` was edited and saved once;
+- the existing Knowledge Exports resource was registered;
+- schema, release, and app versions were updated to the authorized values;
+- config, existing resources, unrelated fields, and unrelated Script Properties were preserved on readback;
+- no setup/private-admin execution, source change, trigger change, or deployment change occurred.
 
-The first `対象資料を確認` Preview attempt returned:
+## Matrix E result
 
-`Knowledge Exports フォルダが設定されていません。`
+- Preview: `PASS` — the prior missing-folder error was removed; the active synthetic source set returned with expected counts and no export artifact.
+- Google Docs export: `PASS` — one non-empty native document was created in Knowledge Exports; source coverage, ordering, hyperlinks, and metadata-only Audit evidence were verified.
+- PDF export: `FAIL — KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED` — one authorized attempt returned a safe failure and created no PDF artifact.
+- Clipboard: `NOT RUN — stopped at the first PDF application defect`.
+- Final integrity readback: `NOT RUN — stopped at the first PDF application defect`.
 
-Source/live-state review showed that the existing DEV installation state predates the Work 0011 Knowledge Export migration. The application source already expects a `Knowledge Exports` sibling folder and a `knowledgeExportsFolderId` installation-state resource.
+The PDF failure is the first actual application defect in the resumed matrix. Per the Decision-Impact Gate and stop condition, no retry, competing hypothesis, source diagnosis, clipboard action, or final integrity qualification was performed.
 
-## ChatGPT-completed DEV migration repair
+## Classification
 
-ChatGPT has now completed and read back the safe external-resource portion of the missing migration:
+`NOT QUALIFIED — MATRIX E STOPPED AT PDF APPLICATION DEFECT`
 
-- confirmed the configured knowledge parent;
-- confirmed no existing `Knowledge Exports` sibling folder existed;
-- created exactly one `Knowledge Exports` sibling folder outside the authoritative root;
-- updated Backend Settings from schema `1` / app `0.1.0` to schema `2` / app `0.1.2`;
-- added the `KNOWLEDGE_EXPORTS_FOLDER_ID` Settings row;
-- preserved operational counters, AI configuration fields, source rows/files, and `LAST_SETUP_AT`;
-- read back the resulting Settings successfully.
+`BLOCKER: YES`
 
-No raw IDs/URLs are recorded in GitHub/report/chat.
+Residual external gaps remain:
 
-The only remaining migration repair is to update the existing Apps Script Script Property `KSP_INSTALLATION_STATE_JSON` so its `resources.knowledgeExportsFolderId` points to that existing sibling folder and its schema/app version metadata reflects `2` / `0.1.2`, while preserving all other identity/config/resource fields.
+- Shared Drive-specific qualification: deferred;
+- billing-enabled Gemini/File Search qualification: deferred.
 
-## Active dispatch
-
-Instruction:
-
-`docs/handoffs/0013-CODEX-01-knowledge-export-installation-state-repair-instruction.md`
-
-Dispatch control:
-
-`docs/handoffs/0013-dispatches.md`
-
-A single Script Property edit is authorized. No setup/private admin execution, source change, new deployment, API executable, or public wrapper is authorized.
-
-After the property readback passes, one Matrix E Preview retry is authorized because the previously observed configuration blocker has changed. On Preview PASS, continue to Google Docs, PDF, clipboard, and final integrity readback.
-
-## Completion target
-
-If Matrix E passes and no implementation/data-integrity blocker remains:
-
-`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`
-
-`BLOCKER: NO`
-
-Residuals:
-
-- Shared Drive-specific behavior: deferred;
-- billing-enabled Gemini/File Search: deferred.
-
-Production readiness is not claimed.
-
-Historical deployment/navigation investigation details remain in the dedicated Work 0013 recovery reports and are not active blockers.
+Production readiness is not claimed. PR #11 remains Draft / Open / unmerged.
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
