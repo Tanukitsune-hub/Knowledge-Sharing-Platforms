@@ -1,13 +1,13 @@
 # Work 0014 — Structured meeting context foundation
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-04`
-BALL: `CODEX`
-STATUS: `BLOCKED`
+Dispatch ID: `0014-CODEX-05`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Mode: `BUILD / QUALIFICATION`
+Mode: `BUILD / INCIDENT_RECOVERY / QUALIFICATION`
 
 Primary design:
 
@@ -15,93 +15,81 @@ Primary design:
 
 Active execution instruction:
 
-`docs/handoffs/0014-CODEX-04-pitchbook-maintenance-helper-repair-instruction.md`
+`docs/handoffs/0014-CODEX-05-web-app-recovery-and-final-live-verification-instruction.md`
+
+Deployment guardrails:
+
+`docs/operations/apps-script-web-app-deployment.md`
 
 ## Primary outcome
 
-Deliver the structured Meeting/Pitchbook context foundation and prove it end-to-end in synthetic DEV.
+Deliver and prove end-to-end the structured Meeting/Pitchbook context foundation:
 
-Required product surface remains:
-
-- optional Team attribution using Option Master;
+- optional Team through Option Master;
 - optional Fund / Strategy on Meeting and Pitchbook;
-- three Meeting type checkboxes;
-- Meeting ↔ Pitchbook stable-ID association;
+- three Meeting type flags;
+- Meeting ↔ Pitchbook stable-ID relationships;
 - follow-up flag and note;
-- create/edit/search/export round-trip and migration compatibility.
+- create/edit/search/export compatibility with legacy records.
 
 ## Closed design conclusions
 
-Do not reopen without material contradiction:
-
 - keep exactly five Backend sheets;
-- Team is an Option Master type, seeded PD / AE, optional for legacy and new Meeting records;
+- Team is optional and seeded with PD / AE;
 - Fund / Strategy is optional free text, not a Fund master;
-- Meeting types use stable codes in one canonical comma-separated field;
-- Meeting↔Pitchbook relationships use immutable Document IDs in Meeting_Index, not Drive URLs or a relation sheet;
-- Follow-up is a flag plus optional note, not a workflow engine;
-- GP one-page, analytics, monthly admin checks, and legacy converter are follow-on Works;
-- Shared Drive-specific production and billing-enabled Gemini/File Search qualification are outside Work 0014.
-
-## Production storage boundary
-
-`docs/decisions/shared-drive-production-root.md` remains authoritative:
-
-- production does not use or transit through My Drive;
-- `knowledgeParentFolderId` targets an organization-controlled Shared Drive folder;
-- `Private Assets Knowledge` is created/reused beneath that folder;
-- Meeting Records and Pitchbooks are authoritative;
-- no production My Drive fallback/staging path may be introduced.
+- Meeting types use stable canonical codes;
+- relationships use immutable Pitchbook Document IDs in Meeting_Index;
+- Follow-up is a flag plus note, not a workflow engine;
+- production storage remains Shared Drive-only with no My Drive fallback;
+- GP workspace, analytics, legacy conversion, Shared Drive production qualification, and billing-enabled Gemini qualification are separate later Works.
 
 ## Accepted evidence — do not reopen
 
 - Work 0014 schema/data model and broad implementation: accepted;
-- deterministic validation before the live defect: `176/176 PASS`;
-- public facade: 23 functions;
 - schema 3 append-only/idempotent migration: PASS;
-- synthetic DEV data-plane migration and installation-state alignment: PASS/read back;
-- Web App recovery: PASS — one normal deployment, immutable version `27`, `/exec` rendered;
+- synthetic DEV migration and installation-state alignment: PASS/read back;
+- CODEX-04 Pitchbook maintenance repair: implemented;
+- local deterministic result recorded by CODEX-04: `179/179 PASS`;
+- public facade: `23`;
+- bounded repair commit: `4036690cf49555cbc308a16a464606f1da523c0b`;
+- tested Apps Script source synchronization/readback: `59/59 PASS`;
+- immutable Apps Script version `28`: exists;
 - legacy Meeting live compatibility: PASS;
 - rich Meeting create/edit/search live round-trip: PASS;
 - Meeting ↔ Pitchbook relationship live preservation: PASS;
-- the failed Pitchbook edit produced no duplicate or partial row/file mutation.
+- original failed Pitchbook save produced no duplicate, partial row update, or file corruption;
+- the Library deployment accidentally touched in CODEX-04 was restored.
 
-## CODEX-04 result
+## Remaining BLOCKER
 
-The bounded source/test repair is complete:
+No currently verified versioned Web App `/exec` exists. Consequently the repaired Pitchbook Fund / Strategy path has not been live-verified and the final authoritative integrity matrix has not run.
 
-- focused tests: `47/47 PASS`;
-- `npm run check`: `179/179 PASS`;
-- public facade: `23`;
-- `git diff --check`: PASS;
-- tested synthetic DEV source readback: `59/59 PASS`;
-- exactly one immutable version created: `28`.
+This is a deployment/control-plane and authenticated-browser prerequisite, not an unresolved source implementation hypothesis.
 
-The live Pitchbook save was not attempted. Current Apps Script deployment readback exposes the CODEX-03/CODEX-04 item as a Library entrypoint rather than an updateable Web App entrypoint, and the existing `/exec` returns page not found. A Library deployment touched by the failed CLI update was restored to its original version `27`; no new Web App deployment was created and all other deployments remain unchanged.
+The user is temporarily unavailable for the required desktop/browser interaction. Work remains paused with BALL `USER` until the user can launch CODEX-05.
 
-## ChatGPT root-cause diagnosis
+## CODEX-05 completion contract
 
-The deterministic maintenance harness masked missing production business helpers:
+When the user is present:
 
-- `src/111_MaintenancePitchbookMasterService.gs` calls `kspBuildPitchbookSavedFilename(...)`;
-- `src/120_MaintenanceLiveEnvironment.gs` calls `kspPitchbookContextMatchesRow(...)`;
-- neither helper exists in production `src` at the failing ref;
-- `tests/maintenance-test-loader.cjs` injects both helper implementations into the test VM, causing deterministic tests to pass against behavior unavailable in Apps Script runtime.
-
-The same path also compares a raw Sheets `Date` value with a normalized `YYYY-MM-DD` string, which can incorrectly classify a Fund / Strategy-only edit as a context move.
-
-This is one bounded application-defect family. Do not open a second hypothesis in CODEX-04.
-
-## Remaining blocker
-
-The required existing Web App deployment is not currently available for an in-place version update. Creating another Web App deployment was prohibited by CODEX-04, so live Pitchbook verification and final integrity remain pending.
+1. prove deployment type before any mutation;
+2. never update a Library or ambiguous deployment ID;
+3. create exactly one new synthetic DEV Web App through the editor;
+4. execute as deploying user, access `Only myself`;
+5. open the verified `/exec` once;
+6. run only the remaining Pitchbook Fund / Strategy save/reopen/search check once;
+7. verify stable Document/File/sequence/filename identity and one success Audit event;
+8. complete final integrity;
+9. stop on first failure with no second deployment or save retry.
 
 ## Completion
 
-Current classification:
+Work 0014 is complete only after CODEX-05 proves the repaired Pitchbook path live and final integrity passes.
 
-`NOT QUALIFIED — DEPLOYMENT CONTROL-PLANE BLOCKER BEFORE LIVE PITCHBOOK SAVE`
+On PASS classify:
 
-`BLOCKER: YES`
+`DEV QUALIFIED — WORK 0014 STRUCTURED CONTEXT FOUNDATION`
 
-PR #17 remains Draft / Open / unmerged until ChatGPT final review and merge decision.
+`BLOCKER: NO`
+
+PR #17 remains Draft / Open / unmerged until ChatGPT final review and merge.
