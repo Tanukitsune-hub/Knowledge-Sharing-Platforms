@@ -1,60 +1,62 @@
 # Work 0014 dispatch control
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-03`
+Dispatch ID: `0014-CODEX-04`
 BALL: `CODEX`
-STATUS: `BLOCKED`
+STATUS: `READY`
 
 Current active dispatch:
 
-- `0014-CODEX-03`
-- Mode: `QUALIFICATION / INCIDENT_RECOVERY`
-- Purpose: recover exactly one synthetic DEV Web App deployment from the frozen accepted source, then execute the bounded Work 0014 normal-UI smoke.
-- Instruction: `docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-instruction.md`.
+- `0014-CODEX-04`
+- Mode: `BUILD / QUALIFICATION`
+- Purpose: repair the single observed Pitchbook Fund / Strategy live-edit defect, then complete the deferred Pitchbook verification and final integrity readback.
+- Instruction: `docs/handoffs/0014-CODEX-04-pitchbook-maintenance-helper-repair-instruction.md`.
 - Parent/canonical instruction: `docs/handoffs/0014-instruction.md`.
-- Deployment guardrails: `docs/operations/apps-script-web-app-deployment.md`.
 - Production storage decision: `docs/decisions/shared-drive-production-root.md`.
 
 Accepted closed evidence:
 
-- Work 0014 implementation: PASS;
-- deterministic validation: `176/176 PASS`;
-- public facade: 23 functions unchanged;
-- schema 3 append-only/idempotent deterministic migration: PASS;
-- Meeting/Pitchbook/relationship/legacy deterministic behavior: PASS;
-- exact synthetic DEV source sync: `59/59 PASS`;
-- immutable Apps Script version 26: accepted pre-recovery version;
-- ChatGPT-applied synthetic DEV data-plane schema 3 migration: PASS/read back;
-- installation-state schemaVersion alignment to 3: PASS/read back;
+- Work 0014 schema/product design: accepted;
+- deterministic validation before the live defect: `176/176 PASS`;
+- schema 3 append-only/idempotent migration: PASS;
+- synthetic DEV data-plane migration and installation-state alignment: PASS/read back;
+- Web App deployment recovery: PASS — immutable version `27`, normal `/exec` PASS;
+- legacy Meeting compatibility: PASS;
+- rich Meeting create/edit/search round-trip: PASS;
+- Meeting ↔ Pitchbook relationship preservation: PASS;
 - production Shared Drive-only storage boundary: accepted and unchanged.
-
-Strategy Reset:
-
-- `0014-CODEX-02` directly observed that active deployments are Library only and no Web App `/exec` currently exists;
-- this contradicts the prior Web App-existence assumption but does not contradict application-source evidence;
-- application source remains frozen;
-- do not diagnose historical deployment disappearance;
-- user explicitly authorizes one new synthetic DEV Web App deployment.
 
 CODEX-03 result:
 
-- deployment recovery: `PASS` — one Web App deployment and one automatically generated immutable version `27`; execute-as deploying user; access `Only myself`; Library deployments unchanged;
-- main `/exec` gate: `PASS`;
-- legacy Meeting: `PASS`;
-- rich Meeting create/edit/search round-trip: `PASS`;
-- relationship preservation through temporary linked-Pitchbook inactivation and restoration: `PASS`;
-- Pitchbook Fund / Strategy: `FAIL` — the first and only save returned `管理処理を完了できませんでした。`, with no persisted value, duplicate, or partial update;
-- final integrity: `NOT RUN — stopped at the first actual application defect`;
-- classification: `NOT QUALIFIED — LIVE SMOKE STOPPED AT PITCHBOOK FUND / STRATEGY APPLICATION DEFECT`;
-- `BLOCKER: YES`.
+- Pitchbook Fund / Strategy save: `FAIL` on the first and only attempt;
+- target remained Active;
+- submitted value remained absent;
+- no duplicate or partial row/file update;
+- final integrity: not run after the stop condition;
+- classification: `NOT QUALIFIED — LIVE SMOKE STOPPED AT PITCHBOOK FUND / STRATEGY APPLICATION DEFECT`.
 
-No retry, source diagnosis, second hypothesis, or further live mutation is authorized under this dispatch.
+ChatGPT root-cause diagnosis:
 
-Report: `docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-report.md`.
+- production Pitchbook maintenance calls `kspBuildPitchbookSavedFilename(...)` and `kspPitchbookContextMatchesRow(...)`;
+- both functions exist only as injected definitions in `tests/maintenance-test-loader.cjs`, not in production `src`;
+- deterministic tests therefore masked the runtime ReferenceError;
+- raw Sheets `Date` versus normalized date-string comparison can also misclassify a Fund / Strategy-only edit as a context move.
+
+Authorized CODEX-04 repair:
+
+- add private production helpers with trailing underscores;
+- update production callers;
+- canonicalize date comparison;
+- remove the test-only business-helper injection;
+- add live-like Date-object regression coverage;
+- preserve public facade count, schema, data model, deployment ID, and all accepted evidence;
+- after deterministic PASS, sync exact tested source, create one immutable version, update the existing Web App deployment in place, run one Pitchbook save/reopen/search verification, then final integrity.
+
+Only one active Codex dispatch is authorized. No second hypothesis or second live retry is allowed in CODEX-04.
 
 PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-03`
+Dispatch ID: `0014-CODEX-04`
 BALL: `CODEX`
-STATUS: `BLOCKED`
+STATUS: `READY`
