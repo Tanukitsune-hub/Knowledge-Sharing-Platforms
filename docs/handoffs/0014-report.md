@@ -1,58 +1,77 @@
 # Work 0014 report
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-04`
-BALL: `CODEX`
-STATUS: `BLOCKED`
+Dispatch ID: `0014-CODEX-05`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
 
-## Current state
+## GitHub-verified current state
 
-The bounded Pitchbook maintenance repair is implemented and deterministically validated. The exact tested 59-file source is synchronized to synthetic DEV and immutable Apps Script version `28` exists.
+PR #17 is Draft / Open / unmerged. The branch contains the bounded Pitchbook maintenance repair and its regression tests. The repaired source has been synchronized to synthetic DEV and immutable Apps Script version `28` exists.
 
-Live re-verification is blocked before the Pitchbook save because the current deployment management UI exposes the CODEX-03/CODEX-04 deployment history as Library entrypoints, not an updateable Web App entrypoint, and the existing `/exec` returns page not found.
+The application is not yet qualified because no current deployment is positively identified as a working Web App `/exec`. Therefore the repaired Pitchbook Fund / Strategy save and final integrity remain unobserved live.
 
-## Accepted evidence
+## Accepted implementation evidence
 
-- structured Meeting/Pitchbook implementation: PASS;
-- deterministic validation before the live defect: `176/176 PASS`;
-- public facade: 23 functions;
-- append-only schema 3/idempotent migration: PASS;
-- synthetic DEV data-plane migration and installation-state alignment: PASS/read back;
-- exact source synchronization: PASS;
-- Web App deployment recovery: PASS — immutable version `27`, normal `/exec` PASS;
-- legacy Meeting live compatibility: PASS;
-- rich Meeting create/edit/search live round-trip: PASS;
-- relationship preservation live behavior: PASS;
-- failed Pitchbook save left the Active target, row/file identity, and persisted value unchanged; no duplicate or partial update.
+- structured Meeting/Pitchbook implementation: accepted;
+- schema 3 append-only/idempotent migration: PASS;
+- synthetic DEV migration and installation-state alignment: PASS/read back;
+- CODEX-03 legacy Meeting live compatibility: PASS;
+- CODEX-03 rich Meeting create/edit/search live round-trip: PASS;
+- CODEX-03 relationship preservation: PASS;
+- CODEX-04 source/test repair commit: `4036690cf49555cbc308a16a464606f1da523c0b`;
+- private production Pitchbook helpers added and callers corrected;
+- live Sheets Date comparison canonicalized;
+- test-only production business-helper injection removed;
+- local deterministic result recorded by CODEX-04: `179/179 PASS`;
+- public facade: `23`;
+- exact tested DEV source readback: `59/59 PASS`;
+- immutable Apps Script version `28`: exists;
+- original failed Pitchbook save caused no persisted value, duplicate, partial update, or file corruption.
 
-## CODEX-04 repair result
+## Independent review limitations
 
-The deterministic/runtime defect was repaired by adding private production helpers and removing the test-only helper injection:
+GitHub has no `.github/workflows` directory and no workflow run or commit status for the current head. Therefore the `179/179 PASS` result is a local Codex result, not a GitHub Actions CI result. GitHub source, commit diff, test definitions, PR metadata, and reports were independently inspected; the test suite was not independently re-executed by GitHub CI.
 
-- `kspPitchbookContextMatchesRow`
-- `kspBuildPitchbookSavedFilename`
+## CODEX-04 control-plane result
 
-The date comparison now canonicalizes live Sheets `Date` values. Fund / Strategy-only edits preserve stable identity and filename in deterministic coverage; true context moves still allocate the expected sequence and filename.
+- no positively identified Web App entrypoint was available for an in-place update;
+- an attempted update reached a Library deployment;
+- that Library deployment was immediately restored to its prior version and description;
+- deployment count and other deployments were reported unchanged;
+- live Pitchbook save: NOT RUN;
+- final integrity: NOT RUN.
 
-Validation: focused `47/47 PASS`, full `179/179 PASS`, public facade `23`, `git diff --check PASS`, independent review with no findings.
+## Problem classification
 
-## DEV/deployment result
+### BLOCKER
 
-Instruction:
+- one verified Web App `/exec` must be created;
+- the repaired Pitchbook Fund / Strategy path must be saved/reopened/searched once;
+- final authoritative integrity must pass;
+- authenticated desktop/browser participation is currently unavailable because the user cannot operate the PC.
 
-`docs/handoffs/0014-CODEX-04-pitchbook-maintenance-helper-repair-instruction.md`
+### FIX SOON
 
-- exact tested source sync/readback: `59/59 PASS`;
-- exactly one immutable version created: `28`;
-- existing Web App update: `BLOCKED — NO CURRENT WEB APP ENTRYPOINT AVAILABLE`;
-- a Library deployment touched by the failed CLI update was restored to its original version `27`; deployment count and all other deployments are unchanged;
-- live Pitchbook save: `NOT RUN`;
-- final integrity: `NOT RUN`.
+- deployment entrypoint type must be proven before any update; Library/ambiguous deployments are never update targets;
+- dispatch state must remain internally consistent and user-held while the authenticated run is paused.
 
-## Classification
+### BACKLOG
 
-`NOT QUALIFIED — DEPLOYMENT CONTROL-PLANE BLOCKER BEFORE LIVE PITCHBOOK SAVE`
+- optional GitHub Actions CI for the deterministic suite;
+- Shared Drive-specific production qualification;
+- billing-enabled Gemini/File Search qualification.
+
+## Next action
+
+Resume `0014-CODEX-05` only when the user is present. Follow:
+
+`docs/handoffs/0014-CODEX-05-web-app-recovery-and-final-live-verification-instruction.md`
+
+Current classification:
+
+`NOT QUALIFIED — FINAL AUTHENTICATED WEB APP AND PITCHBOOK VERIFICATION PENDING`
 
 `BLOCKER: YES`
 
-PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
+PR #17 remains Draft / Open / unmerged pending final live evidence and ChatGPT review.
