@@ -1,62 +1,118 @@
-# Structured Execution Handoff
+# Structured Execution Handoff — Version 4
 
-Use this template when work will be performed in a separate Codex run, worktree, machine, or agent context and the execution contract should remain durable.
+Use this template when work crosses agent runs, worktrees, machines, or external execution contexts. Delete fields that genuinely do not apply.
 
 WORK_ID: `<zero-padded 4-digit ID or Not assigned>`
+DISPATCH_ID: `<WORK_ID>-CODEX-<NN> | N/A for ChatGPT-only work>`
+MODE: `<BUILD | INCIDENT_RECOVERY | INVESTIGATION | QUALIFICATION>`
+BALL: `<CHATGPT | CODEX | USER | NONE>`
+STATUS: `<PREPARING | READY | IN_PROGRESS | ACTION_REQUIRED | RETURNED | REVIEW | ACCEPTED | BLOCKED | SUPERSEDED>`
 
-The orchestrator assigns the Work ID. Do not infer, invent, or renumber one from incomplete repository history. When the repository uses durable Work-ID records, use:
+For Codex work, create/update `docs/handoffs/<WORK_ID>-dispatches.md` under `docs/agent-governance/dispatch-control.md`.
 
-- instruction: `docs/handoffs/<WORK-ID>-instruction.md`
-- completion report: `docs/handoffs/<WORK-ID>-report.md`
+## Primary Outcome
 
-Delete fields that genuinely do not apply. Keep the handoff focused on outcome and constraints rather than prescribing every implementation step.
+State the usable user-visible or operator-visible end state.
 
-## Outcome
+## Acceptance Evidence and Hierarchy
 
-Describe the usable end state that must exist.
+List completion evidence strongest first. Identify any authorized user-assisted or native evidence that outranks automation harnesses.
 
-## Already-Decided Design Choices
+## Fastest Safe Decisive Action
 
-List decisions that should not be reopened without new material evidence.
+State the cheapest reversible action most likely to settle the next decision or restore use.
 
-## Source of Truth
+## Target Runtime, Test Data, and Side Effects
 
-Identify authoritative repository paths, documents, schemas, branches, issues, or external sources explicitly designated by the user.
+- `TARGET_RUNTIME`: actual Apps Script / Workspace / Web App / browser / Gemini surface that must work.
+- `ISOLATED_TEST_DATA`: synthetic/anonymized data and segregated folder, Spreadsheet, Doc, record, account, ID, or namespace.
+- `SIDE_EFFECT_STATE`: disabled, dry-run, guarded, test-only, or enabled triggers, billing, exposure, recipients, production data, destructive actions, and permissions.
+- `STAGING_DECISION`: `Not required`, or the material safety/regulatory/blast-radius/rollback/platform reason for a separate runtime and the unique evidence it provides.
+
+Use of the target runtime does not authorize confidential/production data, real users, billing, public exposure, destructive operations, or uncontrolled external effects.
+
+## Sources of Truth and Closed Conclusions
+
+- Authoritative paths, refs, schemas, or external systems:
+- Already-proven facts that must not be reopened without material contradictory evidence:
 
 ## Required Scope
 
-State the work that must be completed.
+State only work needed now. For `BUILD`, identify the shortest coherent target-runtime slice that should persist/read back before the feature surface expands.
 
-## Non-Goals
+## Non-Goals and Follow-ups
 
-State material adjacent work that must not be included.
+- Explicit non-goals:
+- Known follow-ups that must not block this Work:
 
-## Acceptance Criteria
+## Authorization and Write Boundaries
 
-Use observable, testable, or inspectable conditions.
+Identify allowed paths, target Apps Script/resource identity, external actions, deployment/data/exposure boundaries, approvals, and prohibited operations.
 
-## Required Validation Evidence
+## Active Hypothesis
 
-List the checks, runtime evidence, generated artifacts, screenshots, reports, or comparisons needed before completion.
+Required for `INVESTIGATION`; optional otherwise.
 
-## Write Boundaries
+- Hypothesis:
+- Confirming observation:
+- Falsifying observation:
 
-Identify allowed, restricted, generated, or out-of-scope paths when relevant.
+## Execution Budget and Strategy Reset
+
+- Retry / speculative patch / external mutation / deployment / evaluator limits:
+- Reset or escalation trigger:
+- Rollback or safe-stop route:
+
+## Required Validation
+
+### Logic Validation
+
+List focused deterministic checks of algorithms, transformations, schemas, contracts, security rules, redaction, IDs, retries, and invariants.
+
+### Target-Runtime Qualification
+
+List the smallest native Apps Script / Workspace / browser / Gemini smoke/readback required using isolated data. A mock, simulator, test loader, CI run, alternate runtime, or local synthetic harness is not a substitute for platform-dependent behavior.
+
+### Side-Effect Enablement
+
+State which effects remain disabled/guarded and the separate authorization/evidence needed to enable them.
 
 ## Delivery
 
-State branch, commit, pull-request, artifact, or reporting expectations.
+State branch, exact source ref, Apps Script synchronization/deployment boundary, commit, pull request, artifact, report, Work ID, Dispatch ID, and dispatch-register expectations.
 
-## Escalation Conditions
+## Completion Latch
 
-Escalate only when a missing decision, safety or integrity risk, architectural contradiction, unsupported external contract, or validation failure prevents safe completion.
+State the condition that closes the primary outcome:
+
+- `LOGIC_VALIDATION: PASS | FAIL | NOT RUN | NOT APPLICABLE`
+- `TARGET_RUNTIME_QUALIFICATION: PASS | FAIL | NOT RUN | NOT APPLICABLE`
+- `SIDE_EFFECT_STATE: DISABLED | GUARDED | TEST_ONLY | ENABLED | NOT APPLICABLE`
+- `READY: YES | NO`
+
+Once required evidence passes, do not add success criteria or reopen weaker evidence.
 
 ## Completion Report
 
+The report retains the same Work/Dispatch IDs and changes ownership to the next actor.
+
+Normal Codex return header:
+
+```text
+WORK_ID: <same Work ID>
+DISPATCH_ID: <same Dispatch ID>
+BALL: CHATGPT
+STATUS: RETURNED
+```
+
 Report:
 
-- completed outcome;
-- material files or components changed;
-- validation actually executed and observed;
-- blockers and non-blocking residual issues;
-- material limitations on confidence.
+- primary outcome and mode;
+- target runtime, isolated test boundary, and side-effect state;
+- logic validation actually executed;
+- target-runtime qualification actually observed;
+- material changes and exact source/deployment identity where relevant;
+- blocker status;
+- `FOLLOW_UP` / `OPTIONAL` residuals;
+- strategy resets or budget exhaustion;
+- bounded limitations on confidence.
