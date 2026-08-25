@@ -2,8 +2,8 @@
 
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
 
 Current active dispatch:
 
@@ -14,9 +14,17 @@ Current active dispatch:
 - Parent/canonical instruction: `docs/handoffs/0014-instruction.md`.
 - Inherited production storage decision: `docs/decisions/shared-drive-production-root.md` — preserve Shared Drive-only production storage and do not introduce any production My Drive fallback/staging path.
 
-Completion has not been reached. Only one active Codex dispatch is authorized for Work 0014.
+Dispatch result:
+
+- implementation and deterministic validation: `PASS`;
+- exact synthetic DEV synchronization and existing deployment update: `PASS`;
+- synthetic DEV migration/smoke: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`;
+- `BLOCKER: YES`.
+
+Completion has not been reached. `0014-CODEX-01` is closed as blocked and the ball
+returns to ChatGPT for the smallest approved administrator-execution decision.
 
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
