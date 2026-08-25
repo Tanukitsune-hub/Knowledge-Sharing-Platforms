@@ -1,13 +1,13 @@
 # Work 0014 — Structured meeting context foundation
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-02`
+Dispatch ID: `0014-CODEX-03`
 BALL: `CODEX`
-STATUS: `BLOCKED`
+STATUS: `READY`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Mode: `BUILD / QUALIFICATION`
+Mode: `BUILD / QUALIFICATION / INCIDENT_RECOVERY`
 
 Primary design:
 
@@ -15,13 +15,17 @@ Primary design:
 
 Active execution instruction:
 
-`docs/handoffs/0014-CODEX-02-dev-schema3-smoke-qualification-instruction.md`
+`docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-instruction.md`
+
+Deployment guardrails:
+
+`docs/operations/apps-script-web-app-deployment.md`
 
 ## Primary outcome
 
-Add structured Meeting/Pitchbook context required by later GP summary and analytics features while preserving legacy data and the five-sheet backend architecture, then prove the new fields end-to-end in synthetic DEV.
+Deliver the structured Meeting/Pitchbook context foundation and prove it end-to-end in synthetic DEV without changing the already-accepted application implementation.
 
-Required product surface:
+Required product surface remains:
 
 - optional Team attribution using Option Master;
 - optional Fund / Strategy on Meeting and Pitchbook;
@@ -34,93 +38,78 @@ Required product surface:
 
 Do not reopen without material contradiction:
 
-- keep the existing five Backend sheets;
+- keep exactly five Backend sheets;
 - Team is an Option Master type, seeded PD / AE, optional for legacy and new Meeting records;
-- Fund / Strategy is optional free text, not a new master;
-- Meeting types use stable codes in one canonical comma-separated column;
-- Meeting↔Pitchbook relationships are stored in Meeting_Index by immutable Document IDs, not Drive URLs or a relation sheet;
+- Fund / Strategy is optional free text, not a Fund master;
+- Meeting types use stable codes in one canonical comma-separated field;
+- Meeting↔Pitchbook relationships use immutable Document IDs in Meeting_Index, not Drive URLs or a relation sheet;
 - Follow-up is a flag plus optional note, not a workflow engine;
-- GP one-page, analytics, admin monthly checks, and legacy converter are follow-on Works;
-- Shared Drive-specific and billing-enabled Gemini live qualification are outside Work 0014.
+- GP one-page, analytics, monthly admin checks, and legacy converter are follow-on Works;
+- Shared Drive-specific production and billing-enabled Gemini/File Search qualification are outside Work 0014.
 
-## Production storage boundary inherited by Work 0014
+## Production storage boundary
 
-The accepted production storage decision is authoritative:
-
-`docs/decisions/shared-drive-production-root.md`
-
-Work 0014 must preserve this boundary even though Shared Drive-specific live qualification is out of scope:
+`docs/decisions/shared-drive-production-root.md` remains authoritative:
 
 - production does not use or transit through My Drive;
-- `knowledgeParentFolderId` points to a selected folder inside the organization-controlled Shared Drive;
-- the application creates/reuses `Private Assets Knowledge` beneath that selected folder;
-- `Meeting Records` and `Pitchbooks` remain authoritative beneath `Private Assets Knowledge`;
-- no new code may introduce a production My Drive fallback or staging path;
-- real Drive/folder IDs and URLs must not be committed.
+- `knowledgeParentFolderId` targets an organization-controlled Shared Drive folder;
+- `Private Assets Knowledge` is created/reused beneath that folder;
+- Meeting Records and Pitchbooks are authoritative;
+- no production My Drive fallback/staging path may be introduced.
 
 ## Accepted implementation evidence — do not reopen
 
-Dispatch `0014-CODEX-01` completed:
-
-- implementation across setup/schema, Meeting, Pitchbook, maintenance/search, browser draft state, Knowledge Export, and derived AI metadata: PASS;
+- Work 0014 source implementation: PASS;
 - deterministic validation: `176/176 PASS`;
-- public facade: 23 functions, unchanged;
+- public facade: 23 functions unchanged;
 - `git diff --check`: PASS;
-- deterministic schema 3 append-only/idempotent migration: PASS;
-- deterministic Meeting/Pitchbook/relationship/legacy round trips: PASS;
-- exact tested 59-file source synchronization to confirmed synthetic DEV: PASS;
-- immutable Apps Script version 26: created;
-- existing Web App deployment: updated in place; no second deployment.
+- deterministic schema-3 append-only/idempotent migration: PASS;
+- deterministic Meeting/Pitchbook/relationship/legacy behavior: PASS;
+- exact synthetic DEV source synchronization: `59/59 PASS`;
+- immutable Apps Script version `26`: exists;
+- ChatGPT-applied synthetic DEV data-plane schema-3 migration: PASS/read back;
+- `KSP_INSTALLATION_STATE_JSON.schemaVersion = 3`: PASS/read back;
+- existing rows, IDs, counters, statuses, source files, AI/Gemini settings and LAST_SETUP_AT preserved.
 
-The CODEX-01 stop was only `PRIVATE ADMIN EXECUTION SURFACE LIMITATION`, already known from Work 0013; it was not an application-source defect.
+## Strategy Reset
 
-## ChatGPT-completed synthetic DEV migration
+Dispatch `0014-CODEX-02` directly observed that the active Apps Script deployment list currently contains Library entry points only. No active Web App `/exec` exists for version 26.
 
-ChatGPT applied and read back the exact schema 3 data-plane migration required by the committed source, without calling private admin functions or changing source/deployment:
+This contradicts the earlier Web App-existence assumption, but it does not contradict application-source, schema, migration, or deterministic evidence. Only the deployment-existence conclusion is reopened.
 
-- `Meeting_Index`: appended `Team_ID`, `Fund_Strategy`, `Meeting_Type_Codes`, `Related_Pitchbook_IDs`, `Follow_Up_Required`, `Follow_Up_Note`;
-- `Pitchbook_Index`: appended `Fund_Strategy`;
-- `Option_Master`: canonical headers confirmed and missing PD/AE TEAM seeds inserted;
-- `Settings.SCHEMA_VERSION`: updated to `3`;
-- existing rows, IDs, counters, statuses, source files, AI fields, Gemini settings, and `LAST_SETUP_AT`: preserved;
-- readback: PASS.
+Do not investigate historical deployment disappearance unless the one approved recovery action fails. Application source is frozen.
 
-The first sheet migration request failed atomically because the Meeting grid had only 26 columns; no mutation occurred. ChatGPT expanded only that grid to 29 columns and then applied the migration once successfully.
+The user explicitly authorizes Codex to deploy the synthetic DEV Web App.
 
-## Remaining acceptance evidence
+## Active decisive action
 
-The bounded `0014-CODEX-02` qualification aligned the installation-state metadata successfully, but the normal-UI smoke is blocked:
+Dispatch `0014-CODEX-03` must:
 
-- installation-state alignment: PASS — `schemaVersion = 3`, one save/readback, unrelated state preserved;
-- active versioned Web App execution prerequisite: FAIL — active deployments expose Library entry points only, including immutable version 26; no active `/exec` was available;
-- legacy Meeting smoke;
-- one rich Meeting create/edit/search round-trip;
-- one Pitchbook Fund / Strategy live round-trip;
-- relationship live behavior where safely observable;
-- final integrity readback.
+1. create exactly ONE new Apps Script deployment of type `Web app`;
+2. use existing immutable version `26` — do not create version 27;
+3. execute as deploying user;
+4. restrict access to `Only myself`;
+5. leave all Library deployments untouched;
+6. confirm the resulting entrypoint is a normal `/exec` Web App;
+7. open `/exec` once and require the main page to render;
+8. only after that gate passes, complete the bounded Work 0014 synthetic DEV normal-UI smoke and final integrity readback.
 
-The five live checks remain deferred because the smoke never started. Deployment recovery/update is outside CODEX-02 and was not attempted. See `docs/handoffs/0014-CODEX-02-dev-schema3-smoke-qualification-report.md`.
+Do not create a second deployment, change source/tests/manifest/schema, change Script Properties, use `/dev` as a prerequisite, or add a public/debug/API executable surface.
 
-Do not call or expose private administrator functions. Do not change source/tests/manifest/schema design or deployment in CODEX-02.
+## Acceptance evidence remaining
 
-## Acceptance evidence
-
-Work 0014 is accepted when:
-
-- deterministic implementation evidence above remains accepted;
-- synthetic DEV structured-field smoke passes;
-- legacy Meeting/Pitchbook compatibility is retained;
-- no duplicate/corrupt source rows/files or counter regressions appear;
-- Audit stays metadata-only and does not duplicate `Follow_Up_Note` content;
-- no blocker remains.
-
-## Non-goals
-
-No new backend sheet, Fund master, dashboard, chart, reminder, production rollout, Shared Drive qualification, Gemini billing qualification, or broad refactor.
+- Web App deployment recovery PASS;
+- main-page `/exec` gate PASS;
+- legacy Meeting live compatibility PASS;
+- one rich Meeting create/edit/search round-trip PASS;
+- relationship preservation live where safely observable (lack of a safe synthetic toggle candidate may be DEFERRED/non-blocking because deterministic coverage is accepted);
+- one Pitchbook Fund / Strategy live round-trip PASS;
+- final integrity PASS;
+- no duplicate deployment/source/data mutation beyond the authorized smoke.
 
 ## Completion
 
-If CODEX-02 passes, classify:
+If the required recovery/smoke/integrity checks pass, classify:
 
 `DEV QUALIFIED — WORK 0014 STRUCTURED CONTEXT FOUNDATION`
 
