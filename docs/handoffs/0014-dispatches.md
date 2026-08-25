@@ -3,13 +3,13 @@
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-03`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 
 Current active dispatch:
 
 - `0014-CODEX-03`
 - Mode: `QUALIFICATION / INCIDENT_RECOVERY`
-- Purpose: create exactly one synthetic DEV Web App deployment from the frozen accepted source, then complete the bounded Work 0014 normal-UI smoke and final integrity checks.
+- Purpose: recover exactly one synthetic DEV Web App deployment from the frozen accepted source, then execute the bounded Work 0014 normal-UI smoke.
 - Instruction: `docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-instruction.md`.
 - Parent/canonical instruction: `docs/handoffs/0014-instruction.md`.
 - Deployment guardrails: `docs/operations/apps-script-web-app-deployment.md`.
@@ -36,22 +36,25 @@ Strategy Reset:
 - do not diagnose historical deployment disappearance;
 - user explicitly authorizes one new synthetic DEV Web App deployment.
 
-Authorized decisive action:
+CODEX-03 result:
 
-- immediately before deployment, verify latest immutable version is still 26 and saved remote source is unchanged;
-- create exactly ONE new deployment via Apps Script editor, explicitly type `Web app`;
-- Google editor is expected to auto-create exactly one new immutable version, 27, as part of that deployment;
-- execute as deploying user;
-- access `Only myself`;
-- do not manually create a version before deployment;
-- do not modify/delete Library deployments;
-- do not create a second deployment;
-- open the resulting `/exec` once and stop on first recovery failure;
-- if recovery passes, complete the bounded normal-UI Work 0014 smoke and final integrity readback.
+- deployment recovery: `PASS` — one Web App deployment and one automatically generated immutable version `27`; execute-as deploying user; access `Only myself`; Library deployments unchanged;
+- main `/exec` gate: `PASS`;
+- legacy Meeting: `PASS`;
+- rich Meeting create/edit/search round-trip: `PASS`;
+- relationship preservation through temporary linked-Pitchbook inactivation and restoration: `PASS`;
+- Pitchbook Fund / Strategy: `FAIL` — the first and only save returned `管理処理を完了できませんでした。`, with no persisted value, duplicate, or partial update;
+- final integrity: `NOT RUN — stopped at the first actual application defect`;
+- classification: `NOT QUALIFIED — LIVE SMOKE STOPPED AT PITCHBOOK FUND / STRATEGY APPLICATION DEFECT`;
+- `BLOCKER: YES`.
+
+No retry, source diagnosis, second hypothesis, or further live mutation is authorized under this dispatch.
+
+Report: `docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-report.md`.
 
 PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
 
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-03`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`

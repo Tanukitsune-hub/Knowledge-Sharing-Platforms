@@ -3,7 +3,7 @@
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-03`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -71,49 +71,39 @@ Do not reopen without material contradiction:
 - `KSP_INSTALLATION_STATE_JSON.schemaVersion = 3`: PASS/read back;
 - existing rows, IDs, counters, statuses, source files, AI/Gemini settings and LAST_SETUP_AT preserved.
 
-## Strategy Reset
+## CODEX-03 execution result
 
-Dispatch `0014-CODEX-02` directly observed that the active Apps Script deployment list currently contains Library entry points only. No active Web App `/exec` exists.
+The deployment/control-plane blocker observed by `0014-CODEX-02` is recovered:
 
-This contradicts the earlier Web App-existence assumption, but it does not contradict application-source, schema, migration, or deterministic evidence. Only deployment existence is reopened.
+- immediately before deployment, immutable version `26` remained latest and saved remote source matched the accepted 59-file tree;
+- exactly one Web App deployment was created, with execute-as deploying user and access `Only myself`;
+- Apps Script automatically created exactly one immutable version, `27`;
+- the new normal `/exec` rendered successfully;
+- all six pre-existing Library deployments remained unchanged.
 
-Application source remains frozen. The user explicitly authorizes Codex to deploy the synthetic DEV Web App.
+The bounded live smoke then produced:
 
-Current Google Apps Script editor behavior automatically creates a new immutable version when a new deployment is created. Therefore CODEX-03 must verify the latest immutable version is still 26 immediately before deployment, make no source change, and then create exactly one new Web App deployment. The expected automatically generated version is 27.
+- legacy Meeting compatibility: `PASS`;
+- rich Meeting create/edit/search round-trip: `PASS`;
+- relationship preservation through temporary linked-Pitchbook inactivation and restoration: `PASS`;
+- Pitchbook Fund / Strategy: `FAIL` on the first and only save with `管理処理を完了できませんでした。`;
+- authoritative readback after the failure: Pitchbook remained Active, Fund / Strategy remained unchanged, row count remained unchanged, and no duplicate or partial update was created;
+- final integrity: `NOT RUN — stopped at the first actual application defect`.
 
-## Active decisive action
+Application source remains frozen. No retry, source diagnosis, second hypothesis, or further live mutation is authorized under `0014-CODEX-03`.
 
-Dispatch `0014-CODEX-03` must:
+## Decisive evidence
 
-1. verify latest immutable version is still `26` and saved remote source remains unchanged;
-2. create exactly ONE new Apps Script deployment via the editor, explicitly type `Web app`;
-3. allow the editor to auto-create exactly one new immutable version, expected `27`;
-4. execute as deploying user;
-5. restrict access to `Only myself`;
-6. leave all Library deployments untouched;
-7. confirm the resulting deployment is version 27 and exposes a normal `/exec` Web App;
-8. open `/exec` once and require the main page to render;
-9. only after that gate passes, complete the bounded Work 0014 synthetic DEV normal-UI smoke and final integrity readback.
+The first Pitchbook Fund / Strategy save returned the safe UI error `管理処理を完了できませんでした。`. Backend readback showed that the submitted value was not persisted. This is sufficient to stop the live smoke without opening a second implementation hypothesis.
 
-Do not manually create a version before deployment, create a second deployment, change source/tests/manifest/schema, change Script Properties, use `/dev` as a prerequisite, or add a public/debug/API executable surface.
+Report: `docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-report.md`.
 
-## Acceptance evidence remaining
+## Qualification status
 
-- exactly one Web App deployment and one automatically generated immutable version added;
-- main-page `/exec` gate PASS;
-- legacy Meeting live compatibility PASS;
-- one rich Meeting create/edit/search round-trip PASS;
-- relationship preservation live where safely observable (lack of a safe synthetic toggle candidate may be DEFERRED/non-blocking because deterministic coverage is accepted);
-- one Pitchbook Fund / Strategy live round-trip PASS;
-- final integrity PASS;
-- no duplicate deployment/source/data mutation beyond the authorized smoke.
+`NOT QUALIFIED — LIVE SMOKE STOPPED AT PITCHBOOK FUND / STRATEGY APPLICATION DEFECT`
+
+`BLOCKER: YES`
 
 ## Completion
-
-If the required recovery/smoke/integrity checks pass, classify:
-
-`DEV QUALIFIED — WORK 0014 STRUCTURED CONTEXT FOUNDATION`
-
-`BLOCKER: NO`
 
 PR #17 remains Draft / Open / unmerged until ChatGPT final review and merge decision.
