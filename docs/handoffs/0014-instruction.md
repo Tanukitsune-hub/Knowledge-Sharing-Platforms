@@ -1,13 +1,13 @@
 # Work 0014 — Structured meeting context foundation
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-03`
+Dispatch ID: `0014-CODEX-04`
 BALL: `CODEX`
-STATUS: `BLOCKED`
+STATUS: `READY`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Mode: `BUILD / QUALIFICATION / INCIDENT_RECOVERY`
+Mode: `BUILD / QUALIFICATION`
 
 Primary design:
 
@@ -15,15 +15,11 @@ Primary design:
 
 Active execution instruction:
 
-`docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-instruction.md`
-
-Deployment guardrails:
-
-`docs/operations/apps-script-web-app-deployment.md`
+`docs/handoffs/0014-CODEX-04-pitchbook-maintenance-helper-repair-instruction.md`
 
 ## Primary outcome
 
-Deliver the structured Meeting/Pitchbook context foundation and prove it end-to-end in synthetic DEV without changing the already-accepted application implementation.
+Deliver the structured Meeting/Pitchbook context foundation and prove it end-to-end in synthetic DEV.
 
 Required product surface remains:
 
@@ -57,53 +53,63 @@ Do not reopen without material contradiction:
 - Meeting Records and Pitchbooks are authoritative;
 - no production My Drive fallback/staging path may be introduced.
 
-## Accepted implementation evidence — do not reopen
+## Accepted evidence — do not reopen
 
-- Work 0014 source implementation: PASS;
-- deterministic validation: `176/176 PASS`;
-- public facade: 23 functions unchanged;
-- `git diff --check`: PASS;
-- deterministic schema-3 append-only/idempotent migration: PASS;
-- deterministic Meeting/Pitchbook/relationship/legacy behavior: PASS;
-- exact synthetic DEV source synchronization: `59/59 PASS`;
-- immutable Apps Script version `26`: accepted pre-recovery version;
-- ChatGPT-applied synthetic DEV data-plane schema-3 migration: PASS/read back;
-- `KSP_INSTALLATION_STATE_JSON.schemaVersion = 3`: PASS/read back;
-- existing rows, IDs, counters, statuses, source files, AI/Gemini settings and LAST_SETUP_AT preserved.
+- Work 0014 schema/data model and broad implementation: accepted;
+- deterministic validation before the live defect: `176/176 PASS`;
+- public facade: 23 functions;
+- schema 3 append-only/idempotent migration: PASS;
+- synthetic DEV data-plane migration and installation-state alignment: PASS/read back;
+- Web App recovery: PASS — one normal deployment, immutable version `27`, `/exec` rendered;
+- legacy Meeting live compatibility: PASS;
+- rich Meeting create/edit/search live round-trip: PASS;
+- Meeting ↔ Pitchbook relationship live preservation: PASS;
+- the failed Pitchbook edit produced no duplicate or partial row/file mutation.
 
-## CODEX-03 execution result
+## Observed blocker
 
-The deployment/control-plane blocker observed by `0014-CODEX-02` is recovered:
+The first and only live Pitchbook Fund / Strategy save returned the safe error:
 
-- immediately before deployment, immutable version `26` remained latest and saved remote source matched the accepted 59-file tree;
-- exactly one Web App deployment was created, with execute-as deploying user and access `Only myself`;
-- Apps Script automatically created exactly one immutable version, `27`;
-- the new normal `/exec` rendered successfully;
-- all six pre-existing Library deployments remained unchanged.
+`管理処理を完了できませんでした。`
 
-The bounded live smoke then produced:
+The target remained Active, the submitted Fund / Strategy value remained absent, and row/file identity remained intact. The smoke stopped before final integrity.
 
-- legacy Meeting compatibility: `PASS`;
-- rich Meeting create/edit/search round-trip: `PASS`;
-- relationship preservation through temporary linked-Pitchbook inactivation and restoration: `PASS`;
-- Pitchbook Fund / Strategy: `FAIL` on the first and only save with `管理処理を完了できませんでした。`;
-- authoritative readback after the failure: Pitchbook remained Active, Fund / Strategy remained unchanged, row count remained unchanged, and no duplicate or partial update was created;
-- final integrity: `NOT RUN — stopped at the first actual application defect`.
+## ChatGPT root-cause diagnosis
 
-Application source remains frozen. No retry, source diagnosis, second hypothesis, or further live mutation is authorized under `0014-CODEX-03`.
+The deterministic maintenance harness masked missing production business helpers:
 
-## Decisive evidence
+- `src/111_MaintenancePitchbookMasterService.gs` calls `kspBuildPitchbookSavedFilename(...)`;
+- `src/120_MaintenanceLiveEnvironment.gs` calls `kspPitchbookContextMatchesRow(...)`;
+- neither helper exists in production `src` at the failing ref;
+- `tests/maintenance-test-loader.cjs` injects both helper implementations into the test VM, causing deterministic tests to pass against behavior unavailable in Apps Script runtime.
 
-The first Pitchbook Fund / Strategy save returned the safe UI error `管理処理を完了できませんでした。`. Backend readback showed that the submitted value was not persisted. This is sufficient to stop the live smoke without opening a second implementation hypothesis.
+The same path also compares a raw Sheets `Date` value with a normalized `YYYY-MM-DD` string, which can incorrectly classify a Fund / Strategy-only edit as a context move.
 
-Report: `docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-report.md`.
+This is one bounded application-defect family. Do not open a second hypothesis in CODEX-04.
 
-## Qualification status
+## Active repair contract
 
-`NOT QUALIFIED — LIVE SMOKE STOPPED AT PITCHBOOK FUND / STRATEGY APPLICATION DEFECT`
+Dispatch `0014-CODEX-04` must:
 
-`BLOCKER: YES`
+1. implement private trailing-underscore production helpers for Pitchbook context matching and saved-filename construction;
+2. update production callers to the private helpers;
+3. canonicalize Pitchbook date comparison for live Sheets Date values;
+4. remove the test loader's injected production business-helper definitions;
+5. add live-like Date-object regression coverage;
+6. keep the public facade at 23 and preserve schema/product behavior;
+7. run focused tests, `npm run check`, and `git diff --check`;
+8. only after deterministic PASS, sync exact tested source to synthetic DEV;
+9. create one immutable version and update the existing Web App deployment in place, without creating another deployment;
+10. retry only the previously failed Pitchbook Fund / Strategy save once, verify reopen/search and stable row/file/sequence/filename identity, then complete final integrity.
+
+If the first post-fix live save fails, stop immediately. No second retry or second diagnosis is authorized.
 
 ## Completion
+
+If deterministic validation, Pitchbook live re-verification, and final integrity PASS, classify:
+
+`DEV QUALIFIED — WORK 0014 STRUCTURED CONTEXT FOUNDATION`
+
+`BLOCKER: NO`
 
 PR #17 remains Draft / Open / unmerged until ChatGPT final review and merge decision.
