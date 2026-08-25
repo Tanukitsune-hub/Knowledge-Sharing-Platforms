@@ -66,39 +66,40 @@ Do not reopen without material contradiction:
 - deterministic schema-3 append-only/idempotent migration: PASS;
 - deterministic Meeting/Pitchbook/relationship/legacy behavior: PASS;
 - exact synthetic DEV source synchronization: `59/59 PASS`;
-- immutable Apps Script version `26`: exists;
+- immutable Apps Script version `26`: accepted pre-recovery version;
 - ChatGPT-applied synthetic DEV data-plane schema-3 migration: PASS/read back;
 - `KSP_INSTALLATION_STATE_JSON.schemaVersion = 3`: PASS/read back;
 - existing rows, IDs, counters, statuses, source files, AI/Gemini settings and LAST_SETUP_AT preserved.
 
 ## Strategy Reset
 
-Dispatch `0014-CODEX-02` directly observed that the active Apps Script deployment list currently contains Library entry points only. No active Web App `/exec` exists for version 26.
+Dispatch `0014-CODEX-02` directly observed that the active Apps Script deployment list currently contains Library entry points only. No active Web App `/exec` exists.
 
-This contradicts the earlier Web App-existence assumption, but it does not contradict application-source, schema, migration, or deterministic evidence. Only the deployment-existence conclusion is reopened.
+This contradicts the earlier Web App-existence assumption, but it does not contradict application-source, schema, migration, or deterministic evidence. Only deployment existence is reopened.
 
-Do not investigate historical deployment disappearance unless the one approved recovery action fails. Application source is frozen.
+Application source remains frozen. The user explicitly authorizes Codex to deploy the synthetic DEV Web App.
 
-The user explicitly authorizes Codex to deploy the synthetic DEV Web App.
+Current Google Apps Script editor behavior automatically creates a new immutable version when a new deployment is created. Therefore CODEX-03 must verify the latest immutable version is still 26 immediately before deployment, make no source change, and then create exactly one new Web App deployment. The expected automatically generated version is 27.
 
 ## Active decisive action
 
 Dispatch `0014-CODEX-03` must:
 
-1. create exactly ONE new Apps Script deployment of type `Web app`;
-2. use existing immutable version `26` — do not create version 27;
-3. execute as deploying user;
-4. restrict access to `Only myself`;
-5. leave all Library deployments untouched;
-6. confirm the resulting entrypoint is a normal `/exec` Web App;
-7. open `/exec` once and require the main page to render;
-8. only after that gate passes, complete the bounded Work 0014 synthetic DEV normal-UI smoke and final integrity readback.
+1. verify latest immutable version is still `26` and saved remote source remains unchanged;
+2. create exactly ONE new Apps Script deployment via the editor, explicitly type `Web app`;
+3. allow the editor to auto-create exactly one new immutable version, expected `27`;
+4. execute as deploying user;
+5. restrict access to `Only myself`;
+6. leave all Library deployments untouched;
+7. confirm the resulting deployment is version 27 and exposes a normal `/exec` Web App;
+8. open `/exec` once and require the main page to render;
+9. only after that gate passes, complete the bounded Work 0014 synthetic DEV normal-UI smoke and final integrity readback.
 
-Do not create a second deployment, change source/tests/manifest/schema, change Script Properties, use `/dev` as a prerequisite, or add a public/debug/API executable surface.
+Do not manually create a version before deployment, create a second deployment, change source/tests/manifest/schema, change Script Properties, use `/dev` as a prerequisite, or add a public/debug/API executable surface.
 
 ## Acceptance evidence remaining
 
-- Web App deployment recovery PASS;
+- exactly one Web App deployment and one automatically generated immutable version added;
 - main-page `/exec` gate PASS;
 - legacy Meeting live compatibility PASS;
 - one rich Meeting create/edit/search round-trip PASS;
