@@ -2,30 +2,32 @@
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-03`
-BALL: `CHATGPT`
-STATUS: `COMPLETE`
+BALL: `NONE`
+STATUS: `ACCEPTED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 ## Completion state
 
-Dispatch `0013-CODEX-03` followed:
+Work 0013 is accepted and closed at the DEV qualification scope.
 
-`docs/handoffs/0013-CODEX-03-test-harness-urlfetchapp-alignment-instruction.md`
+Accepted evidence:
 
-The stale deterministic PDF integration harness was aligned with the accepted authenticated Drive v3 REST transport. All deterministic gates passed. The unchanged accepted Apps Script source was synchronized to the confirmed synthetic DEV project, immutable version 25 was created, and the existing recovered Web App deployment was updated in place while preserving Web app / execute-as deploying user / Only myself.
-
-Fresh Preview and the single post-fix PDF export passed. Exactly one non-empty PDF was created, no duplicate or retained temporary Google Doc remained, and final authoritative integrity readback passed. Clipboard is the only browser-local limitation and remains `DEFERRED — BROWSER ENVIRONMENT LIMITATION` because successful clipboard placement could not be observed.
-
-## Accepted completed evidence — do not reopen
-
-- Project identity, remote source, versioned `/exec`, and integrated navigation: PASS.
-- Matrix A/B/C and 25 MiB upload sizing: accepted.
-- Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`; closed and non-blocking.
-- Knowledge Export installation-state repair: PASS.
-- Preview / Google Docs / PDF: PASS.
-- Deterministic validation: PASS.
-- Final authoritative integrity: PASS.
+- project identity and remote source currentness: PASS;
+- versioned `/exec` and integrated navigation: PASS;
+- Matrix A/B/C and upload sizing through 25 MiB: accepted;
+- Matrix D: `DEFERRED — PRIVATE ADMIN EXECUTION SURFACE LIMITATION`, closed and non-blocking;
+- Knowledge Export installation-state repair: PASS;
+- Preview / Google Docs / PDF: PASS;
+- stale PDF test harness correction: PASS;
+- Knowledge Export/UI: `18/18 PASS`;
+- dedicated PDF transport: `4/4 PASS`;
+- full deterministic validation: `164/164 PASS`;
+- `git diff --check`: PASS;
+- exact DEV source synchronization / remote readback: PASS;
+- immutable Apps Script version 25 and existing Web App deployment update: PASS, deployment ID unchanged;
+- final authoritative integrity: PASS;
+- clipboard: `DEFERRED — BROWSER ENVIRONMENT LIMITATION`, retained as an explicit non-blocking limitation.
 
 ## Classification
 
@@ -33,11 +35,20 @@ Fresh Preview and the single post-fix PDF export passed. Exactly one non-empty P
 
 `BLOCKER: NO`
 
-Shared Drive-specific and billing-enabled Gemini/File Search qualification remain deferred external gaps. Production readiness is not claimed.
+Residual external gaps remain outside the accepted Work 0013 completion boundary:
 
-Keep PR #11 Draft / Open / unmerged. ChatGPT owns final review and merge decision.
+- Shared Drive-specific qualification;
+- billing-enabled Gemini/File Search qualification.
+
+Production readiness is not claimed.
+
+## Completion latch
+
+`APPLIED`.
+
+Do not reopen Work 0013 accepted evidence or resume another Codex dispatch without new contradictory evidence or an explicit new user request. Any later Shared Drive or Gemini/File Search live qualification should be routed as a new Work with its own outcome and evidence contract.
 
 WORK_ID: `0013`
 Dispatch ID: `0013-CODEX-03`
-BALL: `CHATGPT`
-STATUS: `COMPLETE`
+BALL: `NONE`
+STATUS: `ACCEPTED`
