@@ -1,17 +1,13 @@
 function doGet(event) {
   var page = event && event.parameter ? String(event.parameter.page || '') : '';
+
   if (page === 'knowledge') {
     return HtmlService.createTemplateFromFile('KnowledgeSearch').evaluate()
       .setTitle('ナレッジ検索 | Knowledge Sharing Platforms')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
 
-  var evaluated = HtmlService.createTemplateFromFile('Index').evaluate();
-  var html = evaluated.getContent().replace(
-    '</nav>',
-    '<button id="nav-knowledge" type="button" onclick="window.location.search=\'?page=knowledge\'">ナレッジ検索</button></nav>'
-  );
-  return HtmlService.createHtmlOutput(html)
+  return HtmlService.createTemplateFromFile('Index').evaluate()
     .setTitle('Knowledge Sharing Platforms')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }

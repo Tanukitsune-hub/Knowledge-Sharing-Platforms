@@ -3,6 +3,12 @@
 .env.*
 !.env.example
 
+# Local Apps Script / clasp mappings and credentials
+.clasp.json
+.clasp.*.json
+.clasprc.json
+.clasp/
+
 # Agent and local diagnostic output
 .codex-log/
 

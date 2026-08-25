@@ -34,7 +34,7 @@ function makeEnv(options={}){
   getActor(){if(options.actorError)throw new Error('actor unavailable');return options.actor||'user@example.com';},
   readRows(id,sheet){return sheet==='GP_Master'?gpRows:sheet==='Option_Master'?optionRows:rows.map(r=>({...r}));},
   reservePitchbookBatch(id,input,selected,totalBytes,actor,nowIso){
-   const max=rows.filter(r=>r.Date===input.date&&r.GP_ID===input.gpId&&r.Asset_Class_ID===input.assetClassId&&String(r.Capital_Type_ID||'')===input.capitalTypeId).reduce((m,r)=>Math.max(m,Number(r.Sequence_No)||0),0);
+   const max=rows.filter(r=>ksp.kspCanonicalPitchbookDateKey_(r.Date)===ksp.kspCanonicalPitchbookDateKey_(input.date)&&r.GP_ID===input.gpId&&r.Asset_Class_ID===input.assetClassId&&String(r.Capital_Type_ID||'')===input.capitalTypeId).reduce((m,r)=>Math.max(m,Number(r.Sequence_No)||0),0);
    const batchId=ksp.kspFormatBatchId_(batchCounter++);
    const created=input.files.map((file,index)=>{const sequenceNo=max+index+1;const documentId=ksp.kspFormatDocumentId_(docCounter++);const savedFilename=ksp.kspBuildPitchbookFilename_(input,selected,sequenceNo,ksp.kspGetPitchbookExtension_(file.originalFilename));const row=ksp.kspBuildPitchbookPendingRow_({batchId,documentId,sequenceNo,input,selected,file,savedFilename,actor,nowIso});rows.push(row);return{...row};});
    const reservation=ksp.kspBuildPitchbookReservation_(batchId,input,created,totalBytes);reservation.createdAt=nowIso;reservations.set(batchId,reservation);return{rows:created,reservation:JSON.parse(JSON.stringify(reservation))};
@@ -59,6 +59,26 @@ async function upload(env,slot,file={name:slot.originalFilename,bytes:Buffer.fro
 test('publishes exact initial upload limits and allowed extensions',()=>{assert.equal(ksp.KSP_PITCHBOOK_LIMITS.FILE_BYTES,25*1024*1024);assert.equal(ksp.KSP_PITCHBOOK_LIMITS.FILE_COUNT,10);assert.equal(ksp.KSP_PITCHBOOK_LIMITS.TOTAL_BYTES,100*1024*1024);assert.deepEqual(Array.from(ksp.KSP_PITCHBOOK_ALLOWED_EXTENSIONS),['pdf','pptx','xlsx','docx','txt','eml']);});
 test('validates file count, size, total size, and extension',()=>{const catalog=ksp.kspBuildPitchbookCatalog_(gpRows,optionRows);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([])),catalog),/1つ以上/);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([{originalFilename:'x.pdf',sizeBytes:25*1024*1024+1}])),catalog),/25MB/);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([{originalFilename:'x.exe',sizeBytes:1}])),catalog),/対応していない/);});
 test('formats stable IDs and deterministic filenames',()=>{assert.equal(ksp.kspFormatBatchId_(1),'BAT-000001');assert.equal(ksp.kspFormatDocumentId_(12),'DOC-000012');assert.equal(ksp.kspBuildPitchbookFilename_({date:'2026-08-16'},{gp:{name:'KKR'},assetClass:{name:'Infrastructure'},capitalType:{name:'Equity'}},1,'PDF'),'2026-08-16_KKR_Infrastructure_Equity_01.PDF');});
+test('canonicalizes Date cells for fingerprints and preserves sequence across later batches',async()=>{
+ const nativeDate=new Date(Date.UTC(2026,7,16));
+ const env=makeEnv({rows:[{Document_ID:'DOC-000099',Batch_ID:'BAT-000099',Date:nativeDate,GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:'CT-1',Sequence_No:4,Original_Filename:'old.pdf',Saved_Filename:'old.pdf',Status:'Active'}]});
+ assert.equal(ksp.kspCanonicalPitchbookDateKey_(nativeDate),'2026-08-16');
+ assert.equal(ksp.kspCanonicalPitchbookDateKey_('2026-08-16'),'2026-08-16');
+ assert.equal(ksp.kspCanonicalPitchbookDateKey_('2026-08-16T00:00:00.000Z'),'2026-08-16');
+ const first=await prepare(env);
+ assert.equal(first.slots[0].sequenceNo,5);
+ const firstRow=env._debug.rows.find(row=>row.Document_ID===first.slots[0].documentId);
+ firstRow.Date=new Date(Date.UTC(2026,7,16));
+ const firstReservation=env._debug.reservations.get(first.batchId);
+ assert.equal(ksp.kspBuildPitchbookSlotFingerprint_(firstRow,firstReservation.files[0],firstReservation.totalBytes),first.slots[0].slotFingerprint);
+ const uploadResult=await upload(env,first.slots[0]);
+ assert.equal(uploadResult.ok,true);
+ assert.equal(env._debug.rows.find(row=>row.Document_ID===first.slots[0].documentId).Date.getTime(),Date.UTC(2026,7,16));
+ assert.equal(env._debug.rows.find(row=>row.Document_ID==='DOC-000099').Date,nativeDate);
+ const second=await prepare(env);
+ assert.equal(second.slots[0].sequenceNo,6);
+ assert.match(second.slots[0].savedFilename,/_06\.pdf$/);
+});
 test('reserves one batch with stable document IDs and sequences after current max',async()=>{const env=makeEnv({rows:[{Document_ID:'DOC-000099',Batch_ID:'BAT-000099',Date:'2026-08-16',GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:'CT-1',Sequence_No:4,Original_Filename:'old.pdf',Saved_Filename:'old.pdf',Status:'Active'}]});const result=await prepare(env,batchInput([{originalFilename:'a.pdf',sizeBytes:10},{originalFilename:'b.pptx',sizeBytes:10}]));assert.equal(result.ok,true);assert.equal(result.batchId,'BAT-000001');assert.deepEqual(result.slots.map(s=>s.documentId),['DOC-000001','DOC-000002']);assert.deepEqual(result.slots.map(s=>s.sequenceNo),[5,6]);assert.match(result.slots[0].savedFilename,/_05\.pdf$/);assert.equal(env._debug.rows.find(row=>row.Document_ID==='DOC-000001').AI_Index_Status,'NotIndexed');});
 test('happy path activates one slot, stores one file, and audits metadata only',async()=>{const env=makeEnv();const prepared=await prepare(env);const result=await upload(env,prepared.slots[0]);assert.equal(result.ok,true);assert.equal(env._debug.rows[0].Status,'Active');assert.equal(env._debug.files.size,1);assert.equal(env._debug.audits.length,1);const audit=JSON.stringify(env._debug.audits[0]);assert.equal(audit.includes('MDEyMzQ1Njc4OQ=='),false);assert.equal(audit.includes('base64Data'),false);});
 test('mixed result preserves successful file and marks only failing file Failed',async()=>{const env=makeEnv({failCreate:1});const prepared=await prepare(env,batchInput([{originalFilename:'a.pdf',sizeBytes:10},{originalFilename:'b.pdf',sizeBytes:10}]));const first=await upload(env,prepared.slots[0]);const second=await upload(env,prepared.slots[1]);assert.equal(first.ok,false);assert.equal(second.ok,true);assert.equal(env._debug.rows[0].Status,'Failed');assert.equal(env._debug.rows[1].Status,'Active');assert.equal(env._debug.files.size,2);});

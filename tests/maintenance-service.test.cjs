@@ -57,6 +57,22 @@ test('Pitchbook status cannot reactivate a row without authoritative file', () =
   assert.equal(result.ok,false); assert.equal(result.error.code,'PITCHBOOK_AUTHORITATIVE_FILE_MISSING');
 });
 
+test('Pitchbook status uses production parser and preserves file identity', () => {
+  const env=createFakeEnvironment();
+  const result=ksp.kspChangePitchbookStatus_(env,{documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',targetStatus:'Inactive'});
+  assert.equal(result.ok,true);
+  assert.equal(result.record.status,'Inactive');
+  assert.equal(result.record.fileId,'file-1');
+  assert.equal(result.record.fileUrl,'https://example/file-1');
+  assert.equal(env._debug.pitchbookRows[0].Status,'Inactive');
+  assert.equal(env._debug.pitchbookRows[0].AI_Index_Status,'Pending');
+  assert.equal(env._debug.audits.length,1);
+  assert.equal(env._debug.audits[0].Action,'PITCHBOOK_DEACTIVATE');
+  assert.equal(env._debug.audits[0].Result,'Success');
+  assert.equal(env._debug.audits[0].Error_Code,'');
+  assert.equal(env._debug.files.get('file-1').name,'2026-08-01_KKR_Infrastructure_01.pdf');
+});
+
 test('quick-add GP returns an existing normalized duplicate instead of adding a row', () => {
   const env=createFakeEnvironment(); const before=env._debug.gpRows.length;
   const result=ksp.kspQuickAddGp_(env,'  ＡＰＯＬＬＯ ');

@@ -50,9 +50,7 @@ function kspCreateKnowledgeExportEnvironment_() {
         };
       }
 
-      var pdfBlob = Drive.Files.export(temporaryDocumentId, 'application/pdf');
-      kspAssert_(pdfBlob && pdfBlob.getBytes && pdfBlob.getBytes().length > 0,
-        'KNOWLEDGE_EXPORT_PDF_EMPTY', 'PDFの内容が空です。');
+      var pdfBlob = kspExportKnowledgeDocumentPdf_(temporaryDocumentId);
       var pdfFile = Drive.Files.create({
         name: String(input.filename),
         mimeType: 'application/pdf',
@@ -96,6 +94,27 @@ function kspCreateKnowledgeExportEnvironment_() {
   };
 
   return environment;
+}
+
+function kspExportKnowledgeDocumentPdf_(documentId) {
+  kspAssert_(documentId, 'KNOWLEDGE_EXPORT_DOCUMENT_ID_MISSING',
+    'PDF変換対象のGoogle Docを確認できません。');
+  var url = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(documentId) +
+    '/export?mimeType=' + encodeURIComponent('application/pdf');
+  var response = UrlFetchApp.fetch(url, {
+    method: 'get',
+    headers: {
+      Authorization: 'Bearer ' + ScriptApp.getOAuthToken()
+    },
+    muteHttpExceptions: true
+  });
+  var responseCode = response.getResponseCode();
+  kspAssert_(responseCode >= 200 && responseCode < 300,
+    'KNOWLEDGE_EXPORT_PDF_EXPORT_FAILED', 'Google DocをPDFへ変換できませんでした。');
+  var blob = response.getBlob();
+  kspAssert_(blob && blob.getBytes && blob.getBytes().length > 0,
+    'KNOWLEDGE_EXPORT_PDF_EMPTY', 'PDFの内容が空です。');
+  return blob;
 }
 
 function kspValidateKnowledgeExportFolder_(folderId, expectedParentId) {

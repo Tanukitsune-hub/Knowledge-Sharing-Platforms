@@ -18,6 +18,30 @@ test('maintenance search normalizes spreadsheet Date and Time cells', () => {
   assert.equal(mapped.time, '14:30');
 });
 
+test('maintenance date mapping normalizes persisted ISO date strings', () => {
+  const mapped = ksp.kspMapPitchbookSearchResult_({
+    Document_ID: 'DOC-000001',
+    Date: '2026-08-13T00:00:00.000Z',
+    GP_ID: 'GP-1',
+    Asset_Class_ID: 'AC-1',
+    Capital_Type_ID: ''
+  }, { gp: {}, assetClass: {}, capitalType: {} });
+  assert.equal(mapped.date, '2026-08-13');
+});
+
+test('Pitchbook edit validator uses production parser and preserves invalid ID rejection', () => {
+  const env=createFakeEnvironment();
+  const catalog=ksp.kspLoadMaintenanceContext_(env).catalog;
+  const input={documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-01',gpId:'GP-000002',assetClassId:'OPT-AC-002',capitalTypeId:''};
+  const selected=ksp.kspValidatePitchbookEditInput_(input,catalog);
+  assert.equal(selected.gp.id,'GP-000002');
+  assert.equal(selected.assetClass.id,'OPT-AC-002');
+  assert.throws(
+    () => ksp.kspValidatePitchbookEditInput_({...input,documentId:'not-a-document-id'},catalog),
+    error => error && error.code === 'PITCHBOOK_DOCUMENT_ID_INVALID'
+  );
+});
+
 test('search rows sort newest first and respect limit', () => {
   const rows = [{ Meeting_ID:'MTG-000001',Date:'2026-01-01',Updated_At:'a' },{ Meeting_ID:'MTG-000002',Date:'2026-02-01',Updated_At:'b' }];
   const result = ksp.kspSearchRows_(rows, { dateFrom:'',dateTo:'',gpId:'',assetClassId:'',capitalTypeId:'',status:'',limit:1 }, row=>row.Meeting_ID);
