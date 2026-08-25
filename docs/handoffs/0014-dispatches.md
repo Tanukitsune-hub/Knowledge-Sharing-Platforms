@@ -1,50 +1,55 @@
 # Work 0014 dispatch control
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-02`
+Dispatch ID: `0014-CODEX-03`
 BALL: `CODEX`
-STATUS: `BLOCKED`
+STATUS: `READY`
 
 Current active dispatch:
 
-- `0014-CODEX-02`
-- Mode: `QUALIFICATION`
-- Purpose: complete the bounded synthetic DEV schema 3 installation-state alignment and live smoke after ChatGPT applied/read back the exact append-only data-plane migration.
-- Instruction: `docs/handoffs/0014-CODEX-02-dev-schema3-smoke-qualification-instruction.md`.
+- `0014-CODEX-03`
+- Mode: `QUALIFICATION / INCIDENT_RECOVERY`
+- Purpose: create exactly one versioned synthetic DEV Web App deployment from immutable version 26, then complete the bounded Work 0014 normal-UI smoke and final integrity checks.
+- Instruction: `docs/handoffs/0014-CODEX-03-web-app-deployment-recovery-and-smoke-instruction.md`.
 - Parent/canonical instruction: `docs/handoffs/0014-instruction.md`.
-- Inherited production storage decision: `docs/decisions/shared-drive-production-root.md` — preserve Shared Drive-only production storage and do not introduce any production My Drive fallback/staging path.
+- Deployment guardrails: `docs/operations/apps-script-web-app-deployment.md`.
+- Production storage decision: `docs/decisions/shared-drive-production-root.md`.
 
-Accepted closed evidence from `0014-CODEX-01`:
+Accepted closed evidence:
 
-- implementation and deterministic validation: `PASS — 176/176`;
-- public facade: 23 functions, unchanged;
-- append-only schema 3 migration behavior: deterministic PASS;
+- Work 0014 implementation: PASS;
+- deterministic validation: `176/176 PASS`;
+- public facade: 23 functions unchanged;
+- schema 3 append-only/idempotent deterministic migration: PASS;
 - Meeting/Pitchbook/relationship/legacy deterministic behavior: PASS;
-- exact synthetic DEV source sync and existing Web App deployment update to immutable version 26: PASS;
-- no second Web App deployment.
+- exact synthetic DEV source sync: `59/59 PASS`;
+- immutable Apps Script version 26: exists;
+- ChatGPT-applied synthetic DEV data-plane schema 3 migration: PASS/read back;
+- installation-state schemaVersion alignment to 3: PASS/read back;
+- production Shared Drive-only storage boundary: accepted and unchanged.
 
-ChatGPT-completed synthetic DEV migration:
+Strategy Reset:
 
-- Meeting_Index six Work 0014 columns appended;
-- Pitchbook_Index Fund_Strategy appended;
-- Option_Master canonical header confirmed and PD/AE TEAM seeds inserted;
-- Settings SCHEMA_VERSION set to 3;
-- existing rows, IDs, counters, AI/Gemini settings, source files, and LAST_SETUP_AT preserved;
-- readback PASS.
+- `0014-CODEX-02` directly observed that active deployments are Library only and no Web App `/exec` currently exists;
+- this contradicts the prior Web App-existence assumption but does not contradict application-source evidence;
+- application source remains frozen;
+- do not diagnose historical deployment disappearance;
+- user explicitly authorizes one new synthetic DEV Web App deployment.
 
-The previous `PRIVATE ADMIN EXECUTION SURFACE LIMITATION` is not reopened as an application-source defect. CODEX-02 must not call or expose private admin functions. It may only align the existing installation-state schema metadata through Project Settings when needed, then run the bounded normal-UI synthetic DEV smoke.
+Authorized decisive action:
 
-CODEX-02 result:
+- create exactly ONE new deployment of type `Web app` using existing immutable version 26;
+- execute as deploying user;
+- access `Only myself`;
+- do not create version 27;
+- do not modify/delete Library deployments;
+- do not create a second deployment;
+- open the resulting `/exec` once and stop on first recovery failure;
+- if recovery passes, complete the bounded normal-UI Work 0014 smoke and final integrity readback.
 
-- installation-state alignment: PASS;
-- active Web App execution prerequisite: FAIL — the active deployment list exposed only Library entry points, including immutable version 26;
-- normal-UI smoke: DEFERRED before source/data mutation;
-- deployment recovery/update remains prohibited and was not attempted;
-- report: `docs/handoffs/0014-CODEX-02-dev-schema3-smoke-qualification-report.md`.
-
-Only one active Codex dispatch is authorized. PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
+PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-02`
+Dispatch ID: `0014-CODEX-03`
 BALL: `CODEX`
-STATUS: `BLOCKED`
+STATUS: `READY`
