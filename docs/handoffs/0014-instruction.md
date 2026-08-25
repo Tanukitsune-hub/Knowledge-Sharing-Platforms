@@ -3,7 +3,7 @@
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-02`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -89,14 +89,17 @@ The first sheet migration request failed atomically because the Meeting grid had
 
 ## Remaining acceptance evidence
 
-Only the bounded `0014-CODEX-02` qualification remains:
+The bounded `0014-CODEX-02` qualification aligned the installation-state metadata successfully, but the normal-UI smoke is blocked:
 
-- align existing `KSP_INSTALLATION_STATE_JSON.schemaVersion` to `3` through Project Settings if not already current, without changing other Script Properties/config/resources;
+- installation-state alignment: PASS — `schemaVersion = 3`, one save/readback, unrelated state preserved;
+- active versioned Web App execution prerequisite: FAIL — active deployments expose Library entry points only, including immutable version 26; no active `/exec` was available;
 - legacy Meeting smoke;
 - one rich Meeting create/edit/search round-trip;
 - one Pitchbook Fund / Strategy live round-trip;
 - relationship live behavior where safely observable;
 - final integrity readback.
+
+The five live checks remain deferred because the smoke never started. Deployment recovery/update is outside CODEX-02 and was not attempted. See `docs/handoffs/0014-CODEX-02-dev-schema3-smoke-qualification-report.md`.
 
 Do not call or expose private administrator functions. Do not change source/tests/manifest/schema design or deployment in CODEX-02.
 

@@ -3,7 +3,7 @@
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-02`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 
 Current active dispatch:
 
@@ -34,9 +34,17 @@ ChatGPT-completed synthetic DEV migration:
 
 The previous `PRIVATE ADMIN EXECUTION SURFACE LIMITATION` is not reopened as an application-source defect. CODEX-02 must not call or expose private admin functions. It may only align the existing installation-state schema metadata through Project Settings when needed, then run the bounded normal-UI synthetic DEV smoke.
 
+CODEX-02 result:
+
+- installation-state alignment: PASS;
+- active Web App execution prerequisite: FAIL — the active deployment list exposed only Library entry points, including immutable version 26;
+- normal-UI smoke: DEFERRED before source/data mutation;
+- deployment recovery/update remains prohibited and was not attempted;
+- report: `docs/handoffs/0014-CODEX-02-dev-schema3-smoke-qualification-report.md`.
+
 Only one active Codex dispatch is authorized. PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
 
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-02`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
