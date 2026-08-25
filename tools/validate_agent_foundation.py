@@ -8,6 +8,8 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "AGENTS.md"
+README = ROOT / "README.md"
+DOCS_README = ROOT / "docs" / "README.md"
 WORK_CONTROL = ROOT / "docs" / "agent-governance" / "work-control.md"
 DISPATCH_CONTROL = ROOT / "docs" / "agent-governance" / "dispatch-control.md"
 HANDOFF = ROOT / "docs" / "handoff-template.md"
@@ -15,11 +17,19 @@ PR_TEMPLATE = ROOT / ".github" / "pull_request_template.md"
 TARGET_DECISION = ROOT / "docs" / "decisions" / "target-runtime-first-development.md"
 OLD_DECISION = ROOT / "docs" / "decisions" / "implementation-first-final-live-qualification.md"
 IMPLEMENTATION_PLAN = ROOT / "docs" / "planning" / "apps-script-implementation-plan.md"
+ROADMAP = ROOT / "docs" / "planning" / "mvp-and-roadmap.md"
+ARCHITECTURE = ROOT / "docs" / "architecture" / "target-architecture.md"
+RUNTIME_POLICY = ROOT / "docs" / "operations" / "runtime-policy.md"
+SECURITY = ROOT / "docs" / "governance" / "security.md"
+GEMINI = ROOT / "docs" / "ai" / "gemini-file-search.md"
+REPOSITORY_INITIALIZATION = ROOT / "docs" / "repository-initialization.md"
 DECISION_LOG = ROOT / "docs" / "decisions" / "decision-log.md"
 CHANGELOG = ROOT / "docs" / "core-rules-changelog.md"
 
 REQUIRED_PATHS = [
     AGENTS,
+    README,
+    DOCS_README,
     WORK_CONTROL,
     DISPATCH_CONTROL,
     HANDOFF,
@@ -27,8 +37,32 @@ REQUIRED_PATHS = [
     TARGET_DECISION,
     OLD_DECISION,
     IMPLEMENTATION_PLAN,
+    ROADMAP,
+    ARCHITECTURE,
+    RUNTIME_POLICY,
+    SECURITY,
+    GEMINI,
+    REPOSITORY_INITIALIZATION,
     DECISION_LOG,
     CHANGELOG,
+]
+
+ACTIVE_POLICY_PATHS = [
+    AGENTS,
+    README,
+    DOCS_README,
+    WORK_CONTROL,
+    HANDOFF,
+    PR_TEMPLATE,
+    TARGET_DECISION,
+    IMPLEMENTATION_PLAN,
+    ROADMAP,
+    ARCHITECTURE,
+    RUNTIME_POLICY,
+    SECURITY,
+    GEMINI,
+    REPOSITORY_INITIALIZATION,
+    DECISION_LOG,
 ]
 
 REQUIRED_CORE_TOKENS = [
@@ -95,6 +129,13 @@ REQUIRED_PR_TOKENS = [
     "TARGET_RUNTIME_QUALIFICATION:",
     "READY:",
     "## Work Control",
+]
+
+BANNED_CURRENT_POLICY = [
+    "DEV and PROD use separate Apps Script projects and resource sets",
+    "feature-complete後までApps Script / Workspace / Gemini実機確認を原則行わない",
+    "standard live qualification only after feature freeze",
+    "開発中は原則としてlocal / static / mock / contract validationだけを行う",
 ]
 
 
@@ -193,6 +234,89 @@ def main() -> int:
         errors,
     )
 
+    roadmap = ROADMAP.read_text(encoding="utf-8")
+    require_tokens(
+        roadmap,
+        [
+            "shortest coherent production-source vertical slice",
+            "actual target runtime",
+            "isolated synthetic/anonymized test data/resources",
+            "LOGIC_VALIDATION",
+            "TARGET_RUNTIME_QUALIFICATION",
+        ],
+        "roadmap",
+        errors,
+    )
+
+    architecture = ARCHITECTURE.read_text(encoding="utf-8")
+    require_tokens(
+        architecture,
+        [
+            "A separate DEV/Staging runtime is optional",
+            "Production business helpers must exist in production source",
+            "Target-runtime qualification",
+            "Work 0014",
+        ],
+        "target architecture",
+        errors,
+    )
+
+    runtime_policy = RUNTIME_POLICY.read_text(encoding="utf-8")
+    require_tokens(
+        runtime_policy,
+        [
+            "A separate DEV/Staging runtime is not the default",
+            "Isolated test data/resources",
+            "Consequential effects",
+            "LOGIC_VALIDATION",
+            "TARGET_RUNTIME_QUALIFICATION",
+        ],
+        "runtime policy",
+        errors,
+    )
+
+    security = SECURITY.read_text(encoding="utf-8")
+    require_tokens(
+        security,
+        [
+            "Target runtime is not production exposure",
+            "Production business helpers must exist in production source",
+            "Current policy redacts",
+            "LOGIC_VALIDATION",
+            "TARGET_RUNTIME_QUALIFICATION",
+        ],
+        "security baseline",
+        errors,
+    )
+
+    gemini = GEMINI.read_text(encoding="utf-8")
+    require_tokens(
+        gemini,
+        [
+            "Target runtime, test data, and side effects",
+            "Current policy redacts the question/additional-instruction text",
+            "LOGIC_VALIDATION",
+            "TARGET_RUNTIME_QUALIFICATION",
+            "SIDE_EFFECT_STATE",
+        ],
+        "Gemini design",
+        errors,
+    )
+
+    repository_initialization = REPOSITORY_INITIALIZATION.read_text(encoding="utf-8")
+    require_tokens(
+        repository_initialization,
+        [
+            "Default BUILD work to the actual target runtime",
+            "Separate staging decision",
+            "Logic validation",
+            "Target-runtime qualification",
+            "python tools/validate_agent_foundation.py",
+        ],
+        "repository initialization",
+        errors,
+    )
+
     decision_log = DECISION_LOG.read_text(encoding="utf-8")
     require_tokens(
         decision_log,
@@ -208,13 +332,13 @@ def main() -> int:
     changelog = CHANGELOG.read_text(encoding="utf-8")
     require_tokens(changelog, ["## 2.2 — 2026-08-26", "target-runtime-first"], "Core changelog", errors)
 
-    banned_current_policy = [
-        "DEV and PROD use separate Apps Script projects and resource sets",
-        "feature-complete後までApps Script / Workspace / Gemini実機確認を原則行わない",
-    ]
-    for token in banned_current_policy:
-        if token in agents or token in plan:
-            errors.append(f"current active guidance contains superseded policy: {token}")
+    for path in ACTIVE_POLICY_PATHS:
+        text = path.read_text(encoding="utf-8")
+        for token in BANNED_CURRENT_POLICY:
+            if token in text:
+                errors.append(
+                    f"{path.relative_to(ROOT)} contains superseded active-policy text: {token}"
+                )
 
     if errors:
         for error in errors:
@@ -223,7 +347,7 @@ def main() -> int:
 
     print(
         "PASS: KSP agent foundation is compact, target-runtime-first, "
-        "dispatch-traceable, and explicit about data/side-effect boundaries"
+        "dispatch-traceable, security-aligned, and explicit about data/side-effect boundaries"
     )
     return 0
 
