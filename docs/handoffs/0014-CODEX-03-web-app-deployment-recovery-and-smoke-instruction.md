@@ -17,7 +17,7 @@ Rationale: application implementation, deterministic validation, source synchron
 
 ## Primary outcome
 
-Restore one normal versioned synthetic DEV Web App `/exec` execution surface using the already-tested immutable Apps Script version `26`, then complete the previously deferred Work 0014 normal-UI smoke and integrity checks.
+Restore one normal versioned synthetic DEV Web App `/exec` execution surface from the already-tested/frozen source, then complete the previously deferred Work 0014 normal-UI smoke and integrity checks.
 
 ## Strategy Reset
 
@@ -29,7 +29,7 @@ New direct evidence from `0014-CODEX-02` contradicts the earlier assumption that
 
 Preserve all accepted evidence below. Reopen only the Web App deployment existence conclusion.
 
-Do not perform root-cause archaeology for why the previous Web App deployment disappeared. The fastest safe decisive action is the repository-approved recovery procedure in:
+Do not perform root-cause archaeology for why the previous Web App deployment disappeared. Follow:
 
 `docs/operations/apps-script-web-app-deployment.md`
 
@@ -47,19 +47,27 @@ Do not perform root-cause archaeology for why the previous Web App deployment di
 - relationship behavior deterministic coverage: PASS.
 - legacy compatibility: PASS.
 - exact `59/59` source synchronization to the identity-confirmed synthetic DEV Apps Script project: PASS.
-- immutable Apps Script version `26`: exists and is the only source version authorized for this dispatch.
+- immutable Apps Script version `26`: accepted pre-recovery source version.
 - ChatGPT-applied synthetic DEV data-plane schema-3 migration: PASS/read back.
 - `KSP_INSTALLATION_STATE_JSON.schemaVersion = 3`: PASS/read back in CODEX-02.
 - production Shared Drive-only storage decision remains accepted and unchanged; this dispatch is synthetic DEV only.
 
+## Current Google deployment-versioning rule
+
+Google Apps Script editor automatically creates a new immutable version when a new deployment is created. Therefore a new Web App deployment through the approved editor UI is expected to create version `27` from the currently saved/frozen source.
+
+Before deployment, verify the latest immutable version is still `26`. If another version already exists, STOP and return to ChatGPT before creating a deployment.
+
+No source edit, save/push change, or ref synchronization is authorized before deployment. The new version must therefore represent the already-tested/frozen saved source.
+
 ## Source freeze
 
-Application source, tests, manifest, schema design, public facade, Script Properties other than already-aligned state, backend data model, and deployment code are FROZEN.
+Application source, tests, manifest, schema design, public facade, Script Properties, backend data model, and deployment code are FROZEN.
 
 Do not:
 
 - edit any `.gs`, `.html`, manifest, test, or schema source;
-- create a new Apps Script version;
+- manually create a version before deployment;
 - push or pull source;
 - change Script Properties;
 - create API executable or public/debug wrapper;
@@ -72,25 +80,24 @@ Do not:
 
 The user explicitly authorizes Codex to deploy the synthetic DEV Web App.
 
-Using the already identity-confirmed Apps Script project and the confirmed single-account editor context:
+Use the already identity-confirmed Apps Script project and the confirmed single-account editor context.
 
-1. open the deployment manager;
-2. create exactly ONE new deployment;
-3. deployment type: `Web app`;
-4. version: existing immutable version `26` — do not create version 27;
-5. execute as: deploying user;
-6. access: `Only myself` for this synthetic DEV qualification;
-7. use a concise synthetic DEV description, with no private IDs/URLs in GitHub/report;
-8. save once;
-9. read back deployment metadata and confirm:
+1. Verify latest immutable version is `26` and the remote saved source is still the accepted Work 0014 source. Do not modify it.
+2. Open `Deploy` → `New deployment` in the Apps Script editor.
+3. Select deployment type `Web app` explicitly.
+4. Execute as: deploying user.
+5. Access: `Only myself` for this synthetic DEV qualification.
+6. Use one concise synthetic DEV description; no private IDs/URLs in GitHub/report.
+7. Deploy exactly once. Google is expected to create exactly one new immutable version, `27`, as part of this new deployment.
+8. Read back deployment metadata and confirm:
+   - exactly one new deployment was added;
    - entrypoint type is Web App, not Library;
-   - it references version 26;
-   - execute-as / access match the above boundary;
-   - it exposes a normal `/exec` endpoint.
+   - deployment version is `27`;
+   - execute-as/access match the required boundary;
+   - it exposes a normal `/exec` endpoint;
+   - existing Library deployments are unchanged.
 
-Never delete or modify existing Library deployments.
-
-If deployment creation fails, or the resulting deployment is not a versioned Web App `/exec`, STOP. Do not create a second deployment and do not change source.
+If the latest pre-deploy version is not `26`, the resulting new version is not `27`, deployment creation fails, or the resulting entrypoint is not a versioned Web App `/exec`, STOP. Do not create a second deployment and do not change source.
 
 ## Web App recovery gate
 
@@ -115,8 +122,6 @@ Only after the recovery gate passes, continue the normal-UI smoke on the same `/
 - verify the new optional Work 0014 fields are blank/unset where expected;
 - confirm the record remains readable/editable;
 - do not alter unrelated legacy content.
-
-PASS: legacy compatibility remains intact live.
 
 ### B. Rich Meeting create
 
@@ -165,7 +170,7 @@ Do not rerun upload-size qualification.
 Read back and confirm:
 
 - no duplicate Meeting/Pitchbook rows or files;
-- expected ID counters advanced only by the smoke actions actually performed;
+- expected ID counters advanced only by smoke actions actually performed;
 - legacy rows remain intact;
 - exactly five Backend sheets remain;
 - schema-3 headers remain canonical;
@@ -173,7 +178,7 @@ Read back and confirm:
 - no unexpected AI/store/trigger mutation;
 - Audit contains only expected metadata-level events;
 - Follow_Up_Note text is not duplicated into Audit metadata/body;
-- the new Web App deployment is the only deployment added in this dispatch;
+- exactly one Web App deployment and one automatically generated version were added in this dispatch;
 - existing Library deployments remain untouched.
 
 ## Stop conditions
@@ -192,9 +197,7 @@ If Web App recovery, required normal-UI smoke, and final integrity PASS, classif
 
 A relationship-toggle DEFERRED due to lack of a safe synthetic candidate is allowed and non-blocking.
 
-Shared Drive-specific production qualification and billing-enabled Gemini/File Search qualification remain outside Work 0014.
-
-Production readiness is not claimed.
+Shared Drive-specific production qualification and billing-enabled Gemini/File Search qualification remain outside Work 0014. Production readiness is not claimed.
 
 ## Reporting / delivery
 
@@ -217,6 +220,7 @@ Completion response must contain only:
 - Work ID;
 - Dispatch ID;
 - Web App deployment recovery result;
+- created version result;
 - main-page `/exec` gate result;
 - legacy Meeting smoke result;
 - rich Meeting round-trip result;
