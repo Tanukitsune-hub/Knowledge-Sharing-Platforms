@@ -1,67 +1,63 @@
 # Work 0014 dispatch control
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-04`
-BALL: `CODEX`
-STATUS: `BLOCKED`
+Dispatch ID: `0014-CODEX-05`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
 
-Current dispatch result:
+## Current active dispatch
 
-- `0014-CODEX-04`
-- Mode: `BUILD / QUALIFICATION`
-- Purpose: repair the single observed Pitchbook Fund / Strategy live-edit defect, then complete the deferred Pitchbook verification and final integrity readback.
-- Instruction: `docs/handoffs/0014-CODEX-04-pitchbook-maintenance-helper-repair-instruction.md`.
+- Dispatch: `0014-CODEX-05`
+- Mode: `INCIDENT_RECOVERY / QUALIFICATION`
+- Purpose: create one verified synthetic DEV Web App, run the one remaining Pitchbook Fund / Strategy live check, and complete final integrity.
+- Instruction: `docs/handoffs/0014-CODEX-05-web-app-recovery-and-final-live-verification-instruction.md`.
 - Parent/canonical instruction: `docs/handoffs/0014-instruction.md`.
+- Deployment guardrails: `docs/operations/apps-script-web-app-deployment.md`.
 - Production storage decision: `docs/decisions/shared-drive-production-root.md`.
 
-Accepted closed evidence:
+The user is temporarily unable to operate the authenticated desktop/browser environment. Do not begin CODEX-05 until the user is present. Resume this same Dispatch ID when the user launches the run.
+
+## Accepted closed evidence
 
 - Work 0014 schema/product design: accepted;
-- deterministic validation before the live defect: `176/176 PASS`;
 - schema 3 append-only/idempotent migration: PASS;
+- CODEX-04 source/test repair: PASS;
+- local deterministic result recorded by CODEX-04: `179/179 PASS`;
+- public facade: `23`;
+- Pitchbook helper repair commit: `4036690cf49555cbc308a16a464606f1da523c0b`;
+- exact tested DEV source readback: `59/59 PASS`;
+- immutable Apps Script version `28`: exists;
 - synthetic DEV data-plane migration and installation-state alignment: PASS/read back;
-- Web App deployment recovery: PASS — immutable version `27`, normal `/exec` PASS;
 - legacy Meeting compatibility: PASS;
 - rich Meeting create/edit/search round-trip: PASS;
 - Meeting ↔ Pitchbook relationship preservation: PASS;
+- original failed Pitchbook save caused no duplicate, partial update, or file/row corruption;
+- the Library deployment accidentally touched in CODEX-04 was restored; the one-time post-fix Pitchbook save remains unused;
 - production Shared Drive-only storage boundary: accepted and unchanged.
 
-CODEX-03 result:
+## CODEX-04 result
 
-- Pitchbook Fund / Strategy save: `FAIL` on the first and only attempt;
-- target remained Active;
-- submitted value remained absent;
-- no duplicate or partial row/file update;
-- final integrity: not run after the stop condition;
-- classification: `NOT QUALIFIED — LIVE SMOKE STOPPED AT PITCHBOOK FUND / STRATEGY APPLICATION DEFECT`.
+- bounded source/test repair: PASS;
+- source synchronization/readback: PASS;
+- immutable version `28`: created;
+- Web App update: blocked because no positively identified `WEB_APP` entrypoint existed;
+- an attempted update reached a Library deployment and was immediately restored;
+- live Pitchbook save and final integrity: NOT RUN;
+- classification: `NOT QUALIFIED — DEPLOYMENT CONTROL-PLANE BLOCKER BEFORE LIVE PITCHBOOK SAVE`.
 
-ChatGPT root-cause diagnosis:
+## CODEX-05 decision
 
-- production Pitchbook maintenance calls `kspBuildPitchbookSavedFilename(...)` and `kspPitchbookContextMatchesRow(...)`;
-- both functions exist only as injected definitions in `tests/maintenance-test-loader.cjs`, not in production `src`;
-- deterministic tests therefore masked the runtime ReferenceError;
-- raw Sheets `Date` versus normalized date-string comparison can also misclassify a Fund / Strategy-only edit as a context move.
+- application source/tests/schema are frozen;
+- never update a deployment unless authoritative metadata proves `WEB_APP` and `/exec`;
+- Library or ambiguous deployment IDs are never update targets;
+- create exactly one new Web App through the editor, execute as deploying user, access `Only myself`;
+- run only the remaining Pitchbook Fund / Strategy save/reopen/search check once;
+- then complete final integrity;
+- stop on first failure; no second deployment, save retry, or source hypothesis.
 
-CODEX-04 result:
-
-- source/test repair: PASS;
-- focused tests: `47/47 PASS`;
-- full deterministic validation: `179/179 PASS`;
-- public facade: `23`;
-- exact tested DEV source readback: `59/59 PASS`;
-- immutable Apps Script version `28`: PASS, exactly one created;
-- existing Web App in-place update: `BLOCKED — NO CURRENT WEB APP ENTRYPOINT AVAILABLE`;
-- Library deployment changed by the failed CLI update: restored to original version `27`, with all other deployments unchanged;
-- live Pitchbook save: `NOT RUN`;
-- final integrity: `NOT RUN`.
-
-Classification: `NOT QUALIFIED — DEPLOYMENT CONTROL-PLANE BLOCKER BEFORE LIVE PITCHBOOK SAVE`.
-
-`BLOCKER: YES`
-
-PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
+PR #17 remains Draft / Open / unmerged pending final live evidence and ChatGPT review.
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+Dispatch ID: `0014-CODEX-05`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
