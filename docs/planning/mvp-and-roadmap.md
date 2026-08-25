@@ -6,11 +6,13 @@
 
 蓄積・修正・運用管理、Gemini File Search retrieval、Knowledge Search 5モードは採用済み。採用済み事項を実装時に理由なく未決定へ戻さない。
 
-実装状況: Works 0004–0011は実装・マージ済み。Work 0012は公開surface、safe-error、Export資源上限、source link integrity、prompt readabilityのhardeningを完了した。release versionは`0.1.2`で、Work IDとは別に管理する。Work 0010–0011のDEV実機qualificationは未観測項目を残す。
+実装状況: Works 0004–0012は実装・マージ済み。Work 0013はsynthetic DEVでWeb App、Matrix A/C、Knowledge Export Preview/Docs/PDF、最終integrityをqualificationし、`DEV QUALIFIED WITH RESIDUAL EXTERNAL GAPS`としてmainへマージ済み。Shared Drive固有挙動とbilling-enabled Gemini/File Search実機qualificationは外部残余として別Workへ分離する。release versionはWork IDとは別に管理する。
+
+Work 0014からPhase 3として、後続のGPサマリー・面談実績分析に必要な構造化Meeting contextを追加する。
 
 ## Phase 1 — Accumulation and maintenance
 
-Status: Implemented and merged (Works 0004–0007); final DEV qualification evidence remains separate.
+Status: Implemented and merged (Works 0004–0007); accepted DEV qualification evidence is recorded under Work 0013.
 
 採用済み:
 
@@ -40,7 +42,7 @@ Status: Implemented and merged (Works 0004–0007); final DEV qualification evid
 
 ## Phase 2 — Gemini knowledge retrieval
 
-Status: Implemented and merged (Works 0008–0010); Gemini / Workspace live qualification remains environment-dependent.
+Status: Implemented and merged (Works 0008–0012); deterministic behavior and Gemini-independent export are qualified, while billing-enabled Gemini / File Search live qualification remains environment-dependent.
 
 ```text
 Shared Drive authoritative records
@@ -120,6 +122,31 @@ All modes use the same retrieval / citation layer and must surface insufficient 
 - embedded attachments are not auto-indexed.
 - `.msg` is initially out of scope.
 
+## Phase 3 — Structured relationship and monitoring foundation
+
+Status: Work 0014 planned; implementation not yet started.
+
+Work 0014 establishes the record-level fields required before GP summaries and analytics are built:
+
+- optional Team attribution via existing Option Master, seeded with PD / AE and permitting unset values;
+- optional Fund / Strategy on Meeting and Pitchbook;
+- Meeting type checkboxes for annual review / office visit / AGM;
+- stable-ID Meeting ↔ Pitchbook relationships without adding a new backend sheet;
+- follow-up flag and note;
+- corresponding create/edit/search/export metadata paths with legacy compatibility.
+
+Authoritative design:
+
+`docs/planning/work0014-structured-meeting-context.md`
+
+After the foundation is accepted, preferred sequence is:
+
+- Work 0015: GP workspace / one-page summary and relationship views;
+- Work 0016: meeting-activity analytics plus monthly administrative check workflow;
+- later: legacy converter / bulk ingestion and remaining external production qualification.
+
+Do not build GP/analytics views over ad-hoc text before Work 0014 structured fields exist.
+
 ## Delivery sequence
 
 ### Phase 1 implementation
@@ -136,8 +163,15 @@ All modes use the same retrieval / citation layer and must surface insufficient 
 - Work 0010: four preset modes + production qualification
 - Work 0011: Gemini-independent Knowledge Export, external-AI prompt handoff, and setup migration
 - Work 0012: public-surface security hardening, safe errors, export bounds/link integrity, and deterministic regression enforcement
+- Work 0013: consolidated DEV live qualification, Web App recovery, export migration repair, and PDF transport repair
 
-Detailed scope / acceptance / routing: `docs/planning/apps-script-implementation-plan.md`
+### Phase 3 implementation
+
+- Work 0014: structured Meeting/Pitchbook context foundation
+- Work 0015: GP workspace / one-page summary
+- Work 0016: meeting activity analytics / monthly administrative checks
+
+Detailed historical scope / acceptance / routing: `docs/planning/apps-script-implementation-plan.md`.
 
 ## Knowledge Export / external-AI handoff
 
@@ -203,7 +237,7 @@ AI query audit includes:
 - Success / Failure
 - cited source IDs when available
 
-Do not duplicate generated answers, retrieved chunks, embeddings, Meeting full text, or Pitchbook content into Audit Spreadsheet.
+Do not duplicate generated answers, retrieved chunks, embeddings, Meeting full text, Pitchbook content, or follow-up free text into Audit Spreadsheet.
 
 ## Implementation-time validation — design already decided
 
@@ -224,7 +258,7 @@ These are validations, not open product decisions:
 
 ## Genuine remaining implementation choices
 
-Only the following remain genuinely open:
+Only the following remain genuinely open for the existing Phase 2 AI runtime:
 
 - concrete Gemini Flash model ID
 - approved production credential storage / provider
@@ -241,6 +275,7 @@ The following are decided and should not be reopened without new material eviden
 - 15-minute sync
 - six initial formats
 - five Knowledge Search modes
+- five-sheet Backend remains the baseline; Work 0014 relationships use stable IDs in appended columns rather than a new relation sheet
 
 ## Validation gates
 
@@ -274,6 +309,18 @@ The following are decided and should not be reopened without new material eviden
 - Flash-only behavior
 - AI outage isolation from authoritative save
 - no confidential data / credential leakage
+
+### Phase 3 / Work 0014
+
+- append-only schema migration / setup idempotency
+- legacy Meeting/Pitchbook compatibility
+- Team seed and maintenance behavior
+- structured Meeting create/edit/search round-trip
+- Fund / Strategy Pitchbook create/edit/retry/search round-trip
+- stable Meeting↔Pitchbook relation behavior
+- follow-up and Meeting type filters
+- export metadata / Audit redaction
+- synthetic DEV live smoke after deterministic PASS
 
 ## Planning rule
 
