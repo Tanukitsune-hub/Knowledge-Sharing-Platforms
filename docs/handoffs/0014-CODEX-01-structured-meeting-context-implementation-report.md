@@ -76,4 +76,3 @@ qualification remain outside scope.
 The smallest next decision is for ChatGPT to provide an already-approved private
 administrator execution surface for the one idempotent migration, or to issue a
 new bounded dispatch that explicitly authorizes a different migration mechanism.
-

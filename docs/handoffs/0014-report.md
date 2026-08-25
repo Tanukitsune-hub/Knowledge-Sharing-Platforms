@@ -24,4 +24,3 @@ Implementation evidence and the decisive stop condition are recorded in:
 `docs/handoffs/0014-CODEX-01-structured-meeting-context-implementation-report.md`
 
 PR #17 remains Draft / Open / unmerged for ChatGPT review.
-
