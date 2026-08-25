@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { ksp, catalogRows, createFakeEnvironment } = require('./maintenance-test-fixture.cjs');
 test('maintenance bootstrap returns options and both Master tables', () => {
   const result=ksp.kspGetPhase1MaintenanceBootstrap_(createFakeEnvironment());
-  assert.equal(result.ok,true); assert.equal(result.options.gps.length,3); assert.ok(result.options.gps.some(item=>item.status==='Inactive')); assert.equal(result.masters.gps.length,3); assert.equal(result.masters.options.length,4);
+  assert.equal(result.ok,true); assert.equal(result.options.gps.length,3); assert.ok(result.options.gps.some(item=>item.status==='Inactive')); assert.equal(result.masters.gps.length,3); assert.equal(result.masters.options.length,5); assert.equal(result.options.teams[0].name,'PD');
 });
 
 test('Meeting search returns mapped display names', () => {
@@ -144,4 +144,32 @@ test('Phase 1 diagnostics expose Actor fallback kind without exposing the Actor 
   const result=ksp.kspGetPhase1Diagnostics_(env);
   assert.equal(result.ok,true);assert.equal(result.actor.kind,'UNIDENTIFIED');assert.equal(result.actor.warningCount,1);
   assert.equal(Object.hasOwn(result.actor,'value'),false);
+});
+
+test('rich Meeting search and edit round-trip structured context without follow-up Audit content', () => {
+  const meeting={Meeting_ID:'MTG-000010',Date:'2026-08-10',Time:'',Location_ID:'',GP_ID:'GP-000002',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up',Doc_File_ID:'doc-rich',Doc_URL:'https://example/doc-rich',Saved_Filename:'rich',Status:'Active',Version:1,Updated_At:'2026-08-10T00:00:00.000Z',AI_Index_Status:'Indexed'};
+  const env=createFakeEnvironment({meetingRows:[meeting],documents:{'doc-rich':{name:'rich',text:'日付: 2026-08-10\nGP: KKR\nAsset Class: Infrastructure\n\n面談内容:\nlegacy body'}}});
+  const search=ksp.kspSearchMeetingRecords_(env,{teamId:'OPT-TEAM-001',fundStrategy:'alpha',meetingTypeCode:'OFFICE_VISIT',followUpOnly:true});
+  assert.equal(search.ok,true);assert.equal(search.records.length,1);assert.equal(search.records[0].teamName,'PD');assert.deepEqual(Array.from(search.records[0].relatedPitchbookIds),['DOC-000001']);
+  const opened=ksp.kspGetMeetingMaintenanceRecord_(env,'MTG-000010');assert.equal(opened.ok,true);assert.equal(opened.record.followUpNote,'private follow-up');assert.ok(opened.record.relatedPitchbooks.some(item=>item.id==='DOC-000001'));
+  const updated=ksp.kspUpdateMeetingMaintenance_(env,{meetingId:'MTG-000010',expectedVersion:1,date:'2026-08-11',gpId:'GP-000002',assetClassId:'OPT-AC-002',teamId:'OPT-TEAM-001',fundStrategy:'Fund Alpha II',meetingTypeCodes:['ANNUAL_GENERAL_MEETING'],relatedPitchbookIds:['DOC-000001'],followUpRequired:true,followUpNote:'new private note',notes:'edited body'});
+  assert.equal(updated.ok,true,JSON.stringify(updated));assert.equal(updated.record.fundStrategy,'Fund Alpha II');assert.deepEqual(Array.from(updated.record.meetingTypeCodes),['ANNUAL_GENERAL_MEETING']);assert.equal(JSON.stringify(env._debug.audits).includes('new private note'),false);
+});
+
+test('existing linked Pitchbook remains available after inactivation', () => {
+  const choices=ksp.kspBuildMaintenanceRelatedPitchbookChoices_([
+    {Document_ID:'DOC-000001',Date:'2026-08-01',GP_ID:'GP-000002',Asset_Class_ID:'OPT-AC-002',Status:'Inactive',Saved_Filename:'linked.pdf'},
+    {Document_ID:'DOC-000002',Date:'2026-08-02',GP_ID:'GP-000002',Asset_Class_ID:'OPT-AC-002',Status:'Active',Saved_Filename:'active.pdf'},
+    {Document_ID:'DOC-000003',Date:'2026-08-03',GP_ID:'GP-000001',Asset_Class_ID:'OPT-AC-002',Status:'Active',Saved_Filename:'mismatch.pdf'}
+  ],'GP-000002','OPT-AC-002',['DOC-000001']);
+  assert.deepEqual(Array.from(choices,item=>item.id),['DOC-000002','DOC-000001']);
+  assert.equal(choices.find(item=>item.id==='DOC-000001').preserved,true);
+});
+
+test('Pitchbook Fund Strategy survives edit/search and legacy blank remains valid', () => {
+  const env=createFakeEnvironment();
+  const updated=ksp.kspUpdatePitchbookMaintenance_(env,{documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-01',gpId:'GP-000002',assetClassId:'OPT-AC-002',capitalTypeId:'',fundStrategy:'Infra Fund IV'});
+  assert.equal(updated.ok,true);assert.equal(updated.record.fundStrategy,'Infra Fund IV');
+  const found=ksp.kspSearchPitchbookRecords_(env,{fundStrategy:'fund iv'});assert.equal(found.ok,true);assert.equal(found.records.length,1);
+  const legacy=ksp.kspSearchPitchbookRecords_(createFakeEnvironment(),{fundStrategy:''});assert.equal(legacy.ok,true);assert.equal(legacy.records.length,2);
 });

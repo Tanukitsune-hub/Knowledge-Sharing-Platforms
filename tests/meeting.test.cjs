@@ -40,7 +40,9 @@ function createMasterRows() {
       { Option_ID: 'CT-EQ', Type: 'CAPITAL_TYPE', Name: 'Equity', Sort_Order: 1, Status: 'Active' },
       { Option_ID: 'CT-DEBT', Type: 'CAPITAL_TYPE', Name: 'Debt', Sort_Order: 2, Status: 'Active' },
       { Option_ID: 'LOC-ONLINE', Type: 'LOCATION', Name: 'オンライン', Sort_Order: 1, Status: 'Active' },
-      { Option_ID: 'LOC-INACTIVE', Type: 'LOCATION', Name: 'Inactive', Sort_Order: 2, Status: 'Inactive' }
+      { Option_ID: 'LOC-INACTIVE', Type: 'LOCATION', Name: 'Inactive', Sort_Order: 2, Status: 'Inactive' },
+      { Option_ID: 'TEAM-PD', Type: 'TEAM', Name: 'PD', Sort_Order: 1, Status: 'Active' },
+      { Option_ID: 'TEAM-OFF', Type: 'TEAM', Name: 'Former Team', Sort_Order: 2, Status: 'Inactive' }
     ]
   };
 }
@@ -52,13 +54,13 @@ function createFakeEnvironment(options = {}) {
   let docCounter = 1;
   let failIndexRemaining = options.failIndexOnce ? 1 : 0;
   const documents = [];
-  const rows = { Meeting_Index: [], Audit_Log: [] };
+  const rows = { Meeting_Index: [], Pitchbook_Index: (options.pitchbookRows || []).map((row)=>structuredClone(row)), Audit_Log: [] };
   const state = { config: { environment: 'DEV' }, resources: { backendSpreadsheetId: 'backend-1', auditSpreadsheetId: 'audit-1', meetingRecordsFolderId: 'meeting-folder-1' } };
   return {
     nowIso() { nowCounter += 1; return `2026-08-16T00:00:${String(nowCounter).padStart(2, '0')}.000Z`; },
     getActor() { if (options.actorThrows) throw new Error('actor unavailable'); return options.actor === undefined ? 'TEMP_USER:test-key' : options.actor; },
     getInstallationState() { return options.missingInstallation ? null : structuredClone(state); },
-    readRows(spreadsheetId, sheetName) { if (sheetName === 'GP_Master') return structuredClone(master.gps); if (sheetName === 'Option_Master') return structuredClone(master.options); if (sheetName === 'Meeting_Index') return structuredClone(rows.Meeting_Index); return []; },
+    readRows(spreadsheetId, sheetName) { if (sheetName === 'GP_Master') return structuredClone(master.gps); if (sheetName === 'Option_Master') return structuredClone(master.options); if (sheetName === 'Meeting_Index') return structuredClone(rows.Meeting_Index); if (sheetName === 'Pitchbook_Index') return structuredClone(rows.Pitchbook_Index); return []; },
     getCounterValue() { return counter; },
     allocateCounter() { if (options.failCounter) throw Object.assign(new Error('counter failure'), { code: 'COUNTER_FAIL' }); return counter++; },
     findRowByKey(spreadsheetId, sheetName, keyColumn, keyValue) { return rows[sheetName].find((row) => String(row[keyColumn]) === String(keyValue)) || null; },
@@ -174,7 +176,7 @@ test('Meeting notes never appear in Index or Audit payload', () => {
 
 test('bootstrap response exposes active options and 24-hour draft contract', () => {
   const result = ksp.kspGetMeetingBootstrapData_(createFakeEnvironment());
-  assert.equal(result.ok, true); assert.equal(result.draftTtlMs, 86_400_000); assert.deepEqual(Array.from(result.sharedContextFields), ['date','gpId','assetClassId','capitalTypeId']); assert.equal(result.options.gps.length, 2);
+  assert.equal(result.ok, true); assert.equal(result.draftTtlMs, 86_400_000); assert.deepEqual(Array.from(result.sharedContextFields), ['date','gpId','assetClassId','capitalTypeId','fundStrategy']); assert.equal(result.options.gps.length, 2); assert.deepEqual(Array.from(result.options.teams,item=>item.name),['PD']);
 });
 
 test('UI preserves shared context, stores retry context, and clears it on changes', () => {
@@ -190,8 +192,69 @@ test('UI preserves shared context, stores retry context, and clears it on change
   assert.doesNotMatch(clearMeetingLine, /safeStorageRemove\(KSP_SHARED_DRAFT_KEY\)/);
   assert.match(clearMeetingLine, /writeEnvelope\(KSP_SHARED_DRAFT_KEY/);
   assert.match(html, /入力内容は保持されています/);
+  ['meeting-teamId','meeting-fundStrategy','meeting-relatedPitchbookIds','meeting-followUpRequired','meeting-followUpNote','pitchbook-fundStrategy'].forEach(id=>assert.match(html,new RegExp(id)));
+  ['ANNUAL_REVIEW','OFFICE_VISIT','ANNUAL_GENERAL_MEETING'].forEach(code=>assert.match(html,new RegExp(code)));
+  assert.match(html,/SHARED_FIELDS=\['date','gpId','assetClassId','capitalTypeId','fundStrategy'\]/);
+  assert.match(html, /addEventListener\('change',\(\)=>refreshMeetingRelatedPitchbooks\(\[\]\)\)/);
   assert.match(html, /function kspSafeDriveUrl/);
   assert.match(html, /function kspSanitizeStatusHtml/);
   assert.ok(html.includes('return /^https:\\/\\/(?:drive|docs)\\.google\\.com\\//.test(candidate)'));
   assert.match(html, /innerHTML=kspSanitizeStatusHtml\(message\)/);
+});
+
+test('rich Meeting fields normalize, persist, render, and keep follow-up note out of Audit', () => {
+  const pitchbookRows = [
+    { Document_ID:'DOC-000002', Date:'2026-08-15', GP_ID:'GP-1', Asset_Class_ID:'AC-INFRA', Status:'Active', Saved_Filename:'newer.pdf' },
+    { Document_ID:'DOC-000001', Date:'2026-08-14', GP_ID:'GP-1', Asset_Class_ID:'AC-INFRA', Status:'Active', Saved_Filename:'older.pdf' },
+    { Document_ID:'DOC-000003', Date:'2026-08-16', GP_ID:'GP-2', Asset_Class_ID:'AC-INFRA', Status:'Active', Saved_Filename:'wrong-gp.pdf' }
+  ];
+  const env = createFakeEnvironment({ pitchbookRows });
+  const result = ksp.kspRegisterMeeting_(env, minimalInput({
+    teamId:'TEAM-PD', fundStrategy:'Fund Alpha',
+    meetingTypeCodes:['OFFICE_VISIT','ANNUAL_REVIEW','OFFICE_VISIT'],
+    relatedPitchbookIds:['DOC-000002','DOC-000001','DOC-000002'],
+    followUpRequired:true, followUpNote:'private follow-up', notes:'body'
+  }));
+  assert.equal(result.ok,true,JSON.stringify(result));
+  const row=env._debug.rows.Meeting_Index[0];
+  assert.equal(row.Team_ID,'TEAM-PD'); assert.equal(row.Fund_Strategy,'Fund Alpha');
+  assert.equal(row.Meeting_Type_Codes,'ANNUAL_REVIEW,OFFICE_VISIT');
+  assert.equal(row.Related_Pitchbook_IDs,'DOC-000001,DOC-000002');
+  assert.equal(row.Follow_Up_Required,true); assert.equal(row.Follow_Up_Note,'private follow-up');
+  assert.match(env._debug.documents[0].text,/Team: PD/); assert.match(env._debug.documents[0].text,/Fund \/ Strategy: Fund Alpha/);
+  assert.match(env._debug.documents[0].text,/要フォロー: はい/);
+  assert.equal(JSON.stringify(env._debug.rows.Audit_Log).includes('private follow-up'),false);
+});
+
+test('Meeting types and related Pitchbook writes fail closed', () => {
+  const env=createFakeEnvironment({pitchbookRows:[{Document_ID:'DOC-000001',Date:'2026-08-14',GP_ID:'GP-2',Asset_Class_ID:'AC-INFRA',Status:'Active'}]});
+  const unknown=ksp.kspRegisterMeeting_(env,minimalInput({meetingTypeCodes:['UNKNOWN']}));
+  assert.equal(unknown.ok,false); assert.equal(unknown.error.code,'MEETING_TYPE_CODE_INVALID');
+  const mismatch=ksp.kspRegisterMeeting_(env,minimalInput({relatedPitchbookIds:['DOC-000001']}));
+  assert.equal(mismatch.ok,false); assert.equal(mismatch.error.code,'MEETING_RELATED_PITCHBOOK_UNAVAILABLE');
+  assert.equal(env._debug.rows.Meeting_Index.length,0);
+});
+
+test('related Pitchbook choices normalize Date cells and sort by Date then Document ID', () => {
+  const choices = ksp.kspBuildRelatedPitchbookChoices_([
+    { Document_ID:'DOC-000002', Date:new Date('2026-08-15T00:00:00.000Z'), GP_ID:'GP-1', Asset_Class_ID:'AC-INFRA', Status:'Active' },
+    { Document_ID:'DOC-000001', Date:new Date('2026-08-15T12:00:00.000Z'), GP_ID:'GP-1', Asset_Class_ID:'AC-INFRA', Status:'Active' },
+    { Document_ID:'DOC-000003', Date:new Date('2026-08-14T00:00:00.000Z'), GP_ID:'GP-1', Asset_Class_ID:'AC-INFRA', Status:'Active' }
+  ], 'GP-1', 'AC-INFRA', []);
+  assert.deepEqual(Array.from(choices, choice => choice.id), ['DOC-000001','DOC-000002','DOC-000003']);
+  assert.deepEqual(Array.from(choices, choice => choice.date), ['2026-08-15','2026-08-15','2026-08-14']);
+});
+
+test('legacy Meeting retry fingerprint remains valid only when new fields are blank', () => {
+  const env=createFakeEnvironment({failIndexOnce:true});
+  const input=minimalInput({notes:'legacy'});
+  const first=ksp.kspRegisterMeeting_(env,input);
+  const normalized=ksp.kspNormalizeMeetingInput_(input);
+  const legacy=ksp.kspBuildLegacyMeetingRequestFingerprint_(normalized);
+  const retry=ksp.kspRegisterMeeting_(env,{...input,retryMeetingId:first.retry.meetingId,retryFingerprint:legacy});
+  assert.equal(retry.ok,true,JSON.stringify(retry));
+  const changed=createFakeEnvironment({failIndexOnce:true});
+  const failed=ksp.kspRegisterMeeting_(changed,input);
+  const rejected=ksp.kspRegisterMeeting_(changed,{...input,fundStrategy:'new',retryMeetingId:failed.retry.meetingId,retryFingerprint:legacy});
+  assert.equal(rejected.ok,false); assert.equal(rejected.error.code,'MEETING_RETRY_REQUEST_CHANGED');
 });

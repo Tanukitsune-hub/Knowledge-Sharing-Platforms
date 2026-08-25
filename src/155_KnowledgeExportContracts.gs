@@ -299,7 +299,12 @@ function kspBuildKnowledgeExportSource_(sourceType, row) {
     String(row.Original_Filename || ''),
     String(row.GP_ID || ''),
     String(row.Asset_Class_ID || ''),
-    String(row.Capital_Type_ID || '')
+    String(row.Capital_Type_ID || ''),
+    String(row.Team_ID || ''),
+    String(row.Fund_Strategy || ''),
+    String(row.Meeting_Type_Codes || ''),
+    String(row.Related_Pitchbook_IDs || ''),
+    String(kspToBoolean_(row.Follow_Up_Required, false))
   ].join('\u001f');
   return {
     sourceType: sourceType,
@@ -369,7 +374,8 @@ function kspKnowledgeExportCatalogToken_(catalog) {
   return kspKnowledgeExportHash_(JSON.stringify({
     gps: (value.gps || []).map(function (item) { return [item.id, item.name, item.status]; }),
     assetClasses: (value.assetClasses || []).map(function (item) { return [item.id, item.name, item.status]; }),
-    capitalTypes: (value.capitalTypes || []).map(function (item) { return [item.id, item.name, item.status]; })
+    capitalTypes: (value.capitalTypes || []).map(function (item) { return [item.id, item.name, item.status]; }),
+    teams: (value.teams || []).map(function (item) { return [item.id, item.name, item.status]; })
   }));
 }
 
@@ -438,7 +444,7 @@ function kspBuildKnowledgeExportFilename_(input, nowIso, outputType) {
 }
 
 function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, title) {
-  var safeMaps = maps || { gp: {}, assetClass: {}, capitalType: {}, location: {} };
+  var safeMaps = maps || { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {} };
   var meetingSections = (meetings || []).map(function (item) {
     var row = item.source.row;
     var lines = [
@@ -452,6 +458,12 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
     if (row.Location_ID) lines.push('Location: ' + (safeMaps.location[String(row.Location_ID)] || String(row.Location_ID)));
     if (row.Counterparty) lines.push('Counterparty: ' + String(row.Counterparty));
     if (row.Internal_Participants) lines.push('Internal Participants: ' + String(row.Internal_Participants));
+    if (row.Team_ID) lines.push('Team: ' + (safeMaps.team[String(row.Team_ID)] || String(row.Team_ID)));
+    if (row.Fund_Strategy) lines.push('Fund / Strategy: ' + String(row.Fund_Strategy));
+    var meetingTypes = kspMeetingTypeLabels_(row.Meeting_Type_Codes);
+    if (meetingTypes.length) lines.push('Meeting Type: ' + meetingTypes.join(', '));
+    if (kspToBoolean_(row.Follow_Up_Required, false)) lines.push('要フォロー: はい');
+    if (row.Related_Pitchbook_IDs) lines.push('Related Pitchbook IDs: ' + String(row.Related_Pitchbook_IDs));
     lines.push('Authoritative Google Doc: ' + String(item.source.canonicalUrl || row.Doc_URL || ''));
     return {
       heading: 'Meeting ' + item.source.sourceId + ' / ' + item.source.date,
@@ -468,6 +480,7 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
       'GP: ' + (safeMaps.gp[String(row.GP_ID || '')] || String(row.GP_ID || '')),
       'Asset Class: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || '')),
       row.Capital_Type_ID ? 'Equity / Debt: ' + (safeMaps.capitalType[String(row.Capital_Type_ID)] || String(row.Capital_Type_ID)) : '',
+      row.Fund_Strategy ? 'Fund / Strategy: ' + String(row.Fund_Strategy) : '',
       'Saved filename: ' + filename,
       'File extension: ' + kspKnowledgeExportExtension_(filename),
       'Authoritative Drive link: ' + String(item.source.canonicalUrl || row.File_URL || '')

@@ -29,7 +29,8 @@ function kspBuildMaintenanceCatalog_(gpRows, optionRows) {
     gps: gps,
     assetClasses: byType(KSP_OPTION_TYPES.ASSET_CLASS),
     capitalTypes: byType(KSP_OPTION_TYPES.CAPITAL_TYPE),
-    locations: byType(KSP_OPTION_TYPES.LOCATION)
+    locations: byType(KSP_OPTION_TYPES.LOCATION),
+    teams: byType(KSP_OPTION_TYPES.TEAM)
   };
 }
 

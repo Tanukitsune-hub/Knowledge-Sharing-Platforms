@@ -38,6 +38,7 @@ function kspBuildPitchbookPendingRow_(params) {
     GP_ID: options.input.gpId,
     Asset_Class_ID: options.input.assetClassId,
     Capital_Type_ID: options.input.capitalTypeId,
+    Fund_Strategy: options.input.fundStrategy,
     Sequence_No: options.sequenceNo,
     File_ID: '',
     File_URL: '',
@@ -57,6 +58,16 @@ function kspBuildPitchbookPendingRow_(params) {
 }
 
 function kspBuildPitchbookSlotFingerprint_(row, reservedFile, totalBytes) {
+  var descriptor = reservedFile || {};
+  var canonical = [
+    row.Batch_ID, row.Document_ID, kspCanonicalPitchbookDateKey_(row.Date), row.GP_ID, row.Asset_Class_ID,
+    row.Capital_Type_ID, row.Fund_Strategy, row.Sequence_No, row.Original_Filename, row.Saved_Filename,
+    descriptor.sizeBytes, descriptor.mimeType, totalBytes
+  ].map(function (value) { return String(value || ''); }).join('\u001f');
+  return kspFnv1aHex_(canonical);
+}
+
+function kspBuildLegacyPitchbookSlotFingerprint_(row, reservedFile, totalBytes) {
   var descriptor = reservedFile || {};
   var canonical = [
     row.Batch_ID, row.Document_ID, kspCanonicalPitchbookDateKey_(row.Date), row.GP_ID, row.Asset_Class_ID,

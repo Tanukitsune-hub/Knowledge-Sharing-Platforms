@@ -9,6 +9,7 @@ function kspBuildPitchbookAuditRow_(params) {
     GP_ID: row.GP_ID || '',
     Asset_Class_ID: row.Asset_Class_ID || '',
     Capital_Type_ID: row.Capital_Type_ID || '',
+    Fund_Strategy: row.Fund_Strategy || '',
     Sequence_No: row.Sequence_No || '',
     File_ID: row.File_ID || '',
     File_URL: row.File_URL || '',

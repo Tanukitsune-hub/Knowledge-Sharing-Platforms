@@ -42,6 +42,10 @@ function kspNormalizeRecordSearch_(input) {
     gpId: kspMaintenanceTrim_(source.gpId),
     assetClassId: kspMaintenanceTrim_(source.assetClassId),
     capitalTypeId: kspMaintenanceTrim_(source.capitalTypeId),
+    teamId: kspMaintenanceTrim_(source.teamId),
+    fundStrategy: kspMaintenanceTrim_(source.fundStrategy),
+    meetingTypeCode: kspMaintenanceTrim_(source.meetingTypeCode),
+    followUpOnly: kspToBoolean_(source.followUpOnly, false),
     status: kspMaintenanceTrim_(source.status),
     limit: source.limit === null || source.limit === undefined || source.limit === ''
       ? KSP_MAINTENANCE_LIMITS.DEFAULT_RESULTS : Number(source.limit)
@@ -60,6 +64,10 @@ function kspValidateRecordSearch_(search) {
   }
   kspAssert_(search.limit > 0 && search.limit <= KSP_MAINTENANCE_LIMITS.MAX_RESULTS,
     'SEARCH_LIMIT_INVALID', '検索件数上限が不正です。');
+  if (search.meetingTypeCode) {
+    kspAssert_(['ANNUAL_REVIEW', 'OFFICE_VISIT', 'ANNUAL_GENERAL_MEETING'].indexOf(search.meetingTypeCode) !== -1,
+      'SEARCH_MEETING_TYPE_INVALID', 'Meeting type filterが不正です。');
+  }
   return search;
 }
 
@@ -93,6 +101,39 @@ function kspMaintenancePositiveInteger_(value, fallback) {
     ? numberValue : fallback;
 }
 
+function kspMaintenanceSplitCodes_(value) {
+  return String(value || '').split(',').map(function (item) { return item.trim(); }).filter(Boolean);
+}
+
+function kspMaintenanceMeetingTypeLabels_(value) {
+  var labels = {
+    ANNUAL_REVIEW: '定例年1回',
+    OFFICE_VISIT: '先方オフィス訪問',
+    ANNUAL_GENERAL_MEETING: '年次総会'
+  };
+  return kspMaintenanceSplitCodes_(value).map(function (code) { return labels[code] || code; });
+}
+
+function kspBuildMaintenanceRelatedPitchbookChoices_(rows, gpId, assetClassId, existingIds) {
+  var preserved = {};
+  (existingIds || []).forEach(function (id) { preserved[String(id)] = true; });
+  return (rows || []).filter(function (row) {
+    var id = String(row.Document_ID || '');
+    return id && (preserved[id] || (String(row.Status || '') === KSP_STATUS.ACTIVE &&
+      String(row.GP_ID || '') === String(gpId || '') &&
+      String(row.Asset_Class_ID || '') === String(assetClassId || '')));
+  }).map(function (row) {
+    return {
+      id: String(row.Document_ID || ''), date: kspMaintenanceCellText_(row.Date, 'date'),
+      gpId: String(row.GP_ID || ''), assetClassId: String(row.Asset_Class_ID || ''),
+      title: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
+      status: String(row.Status || ''), preserved: Boolean(preserved[String(row.Document_ID || '')])
+    };
+  }).sort(function (left, right) {
+    return right.date.localeCompare(left.date) || left.id.localeCompare(right.id);
+  });
+}
+
 function kspRecordMatchesSearch_(row, search) {
   var date = kspMaintenanceCellText_(row.Date, 'date');
   if (search.dateFrom && date < search.dateFrom) return false;
@@ -100,6 +141,10 @@ function kspRecordMatchesSearch_(row, search) {
   if (search.gpId && String(row.GP_ID || '') !== search.gpId) return false;
   if (search.assetClassId && String(row.Asset_Class_ID || '') !== search.assetClassId) return false;
   if (search.capitalTypeId && String(row.Capital_Type_ID || '') !== search.capitalTypeId) return false;
+  if (search.teamId && String(row.Team_ID || '') !== search.teamId) return false;
+  if (search.fundStrategy && String(row.Fund_Strategy || '').toLocaleLowerCase('ja').indexOf(search.fundStrategy.toLocaleLowerCase('ja')) === -1) return false;
+  if (search.meetingTypeCode && kspMaintenanceSplitCodes_(row.Meeting_Type_Codes).indexOf(search.meetingTypeCode) === -1) return false;
+  if (search.followUpOnly && !kspToBoolean_(row.Follow_Up_Required, false)) return false;
   if (search.status && String(row.Status || '') !== search.status) return false;
   return true;
 }
@@ -121,23 +166,25 @@ function kspSearchRows_(rows, search, mapper) {
 }
 
 function kspBuildCatalogMaps_(catalog) {
-  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {} };
+  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {} };
   (catalog.gps || []).forEach(function (item) { maps.gp[item.id] = item.name; });
   (catalog.assetClasses || []).forEach(function (item) { maps.assetClass[item.id] = item.name; });
   (catalog.capitalTypes || []).forEach(function (item) { maps.capitalType[item.id] = item.name; });
   (catalog.locations || []).forEach(function (item) { maps.location[item.id] = item.name; });
+  (catalog.teams || []).forEach(function (item) { maps.team[item.id] = item.name; });
   return maps;
 }
 
 function kspBuildAllMasterMaps_(gpRows, optionRows) {
-  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {} };
+  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {} };
   (gpRows || []).forEach(function (row) {
     if (row.GP_ID) maps.gp[String(row.GP_ID)] = String(row.GP_Name || '');
   });
   (optionRows || []).forEach(function (row) {
     var target = String(row.Type || '') === KSP_OPTION_TYPES.ASSET_CLASS ? maps.assetClass
       : String(row.Type || '') === KSP_OPTION_TYPES.CAPITAL_TYPE ? maps.capitalType
-      : String(row.Type || '') === KSP_OPTION_TYPES.LOCATION ? maps.location : null;
+      : String(row.Type || '') === KSP_OPTION_TYPES.LOCATION ? maps.location
+      : String(row.Type || '') === KSP_OPTION_TYPES.TEAM ? maps.team : null;
     if (target && row.Option_ID) target[String(row.Option_ID)] = String(row.Name || '');
   });
   return maps;
@@ -156,6 +203,14 @@ function kspMapMeetingSearchResult_(row, maps) {
     capitalTypeName: maps.capitalType[String(row.Capital_Type_ID || '')] || '',
     locationId: String(row.Location_ID || ''),
     locationName: maps.location[String(row.Location_ID || '')] || '',
+    teamId: String(row.Team_ID || ''),
+    teamName: (maps.team || {})[String(row.Team_ID || '')] || '',
+    fundStrategy: String(row.Fund_Strategy || ''),
+    meetingTypeCodes: kspMaintenanceSplitCodes_(row.Meeting_Type_Codes),
+    meetingTypeLabels: kspMaintenanceMeetingTypeLabels_(row.Meeting_Type_Codes),
+    relatedPitchbookIds: kspMaintenanceSplitCodes_(row.Related_Pitchbook_IDs),
+    followUpRequired: kspToBoolean_(row.Follow_Up_Required, false),
+    followUpNote: String(row.Follow_Up_Note || ''),
     counterparty: String(row.Counterparty || ''),
     internalParticipants: String(row.Internal_Participants || ''),
     documentId: String(row.Doc_File_ID || ''),
@@ -178,6 +233,7 @@ function kspMapPitchbookSearchResult_(row, maps) {
     assetClassName: maps.assetClass[String(row.Asset_Class_ID || '')] || '',
     capitalTypeId: String(row.Capital_Type_ID || ''),
     capitalTypeName: maps.capitalType[String(row.Capital_Type_ID || '')] || '',
+    fundStrategy: String(row.Fund_Strategy || ''),
     sequenceNo: Number(row.Sequence_No || 0),
     fileId: String(row.File_ID || ''),
     fileUrl: String(row.File_URL || ''),
@@ -211,14 +267,27 @@ function kspParseMeetingDocumentText_(text) {
     capitalTypeName: values['Equity / Debt'] || '',
     counterparty: values['面談相手'] || '',
     internalParticipants: values['当社側'] || '',
+    followUpNote: values['フォローアップメモ'] || '',
     notes: notes
   };
 }
 
 function kspNormalizeMeetingEditInput_(input) {
   var normalized = kspNormalizeMeetingInput_(input);
+  var source = input && typeof input === 'object' ? input : {};
   normalized.meetingId = kspMaintenanceTrim_(input && input.meetingId);
   normalized.expectedVersion = Number(input && input.expectedVersion);
+  normalized.teamId = kspMaintenanceTrim_(source.teamId);
+  normalized.fundStrategy = kspMaintenanceTrim_(source.fundStrategy);
+  normalized.meetingTypeCodes = typeof kspNormalizeMeetingTypeCodes_ === 'function'
+    ? kspNormalizeMeetingTypeCodes_(source.meetingTypeCodes)
+    : kspMaintenanceSplitCodes_(source.meetingTypeCodes).join(',');
+  normalized.relatedPitchbookIds = typeof kspNormalizeRelatedPitchbookIds_ === 'function'
+    ? kspNormalizeRelatedPitchbookIds_(source.relatedPitchbookIds)
+    : kspMaintenanceSplitCodes_(source.relatedPitchbookIds).sort().join(',');
+  normalized.followUpRequired = kspToBoolean_(source.followUpRequired, false);
+  normalized.followUpNote = source.followUpNote === null || source.followUpNote === undefined
+    ? '' : String(source.followUpNote).replace(/\r\n?/g, '\n').replace(/\u0000/g, '');
   delete normalized.retryMeetingId;
   delete normalized.retryFingerprint;
   return normalized;
@@ -228,6 +297,10 @@ function kspValidateMeetingEditInput_(input, catalog) {
   kspParseMeetingId_(input.meetingId);
   kspAssert_(Number.isFinite(input.expectedVersion) && input.expectedVersion > 0 && Math.floor(input.expectedVersion) === input.expectedVersion,
     'MEETING_EXPECTED_VERSION_INVALID', 'Meeting Versionが不正です。');
+  kspAssert_(input.fundStrategy.length <= 500, 'MEETING_FUND_STRATEGY_TOO_LONG',
+    'Fund / Strategyは500文字以内で入力してください。');
+  kspAssert_(input.followUpNote.length <= 2000, 'MEETING_FOLLOW_UP_NOTE_TOO_LONG',
+    'フォローアップメモは2,000文字以内で入力してください。');
   return kspValidateMeetingInput_(input, catalog);
 }
 
@@ -239,6 +312,12 @@ function kspBuildMeetingEditedRow_(currentRow, input, actor, nowIso, filename) {
   updated.GP_ID = input.gpId;
   updated.Asset_Class_ID = input.assetClassId;
   updated.Capital_Type_ID = input.capitalTypeId;
+  updated.Team_ID = input.teamId;
+  updated.Fund_Strategy = input.fundStrategy;
+  updated.Meeting_Type_Codes = input.meetingTypeCodes;
+  updated.Related_Pitchbook_IDs = input.relatedPitchbookIds;
+  updated.Follow_Up_Required = input.followUpRequired;
+  updated.Follow_Up_Note = input.followUpNote;
   updated.Counterparty = input.counterparty;
   updated.Internal_Participants = input.internalParticipants;
   updated.Saved_Filename = filename;
@@ -258,7 +337,8 @@ function kspNormalizePitchbookEditInput_(input) {
     date: kspMaintenanceTrim_(source.date),
     gpId: kspMaintenanceTrim_(source.gpId),
     assetClassId: kspMaintenanceTrim_(source.assetClassId),
-    capitalTypeId: kspMaintenanceTrim_(source.capitalTypeId)
+    capitalTypeId: kspMaintenanceTrim_(source.capitalTypeId),
+    fundStrategy: kspMaintenanceTrim_(source.fundStrategy)
   };
 }
 
@@ -266,6 +346,8 @@ function kspValidatePitchbookEditInput_(input, catalog) {
   kspParseDocumentId_(input.documentId);
   kspAssert_(input.expectedUpdatedAt, 'PITCHBOOK_EXPECTED_UPDATED_AT_REQUIRED', '更新トークンがありません。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付が不正です。');
+  kspAssert_(String(input.fundStrategy || '').length <= 500,
+    'PITCHBOOK_FUND_STRATEGY_TOO_LONG', 'Fund / Strategyは500文字以内で入力してください。');
   var selected = {
     gp: kspRequireCatalogItem_(catalog.gps, input.gpId,
       'PITCHBOOK_GP_UNAVAILABLE', '選択されたGPは利用できません。'),
@@ -293,6 +375,7 @@ function kspBuildPitchbookEditedRow_(currentRow, input, actor, nowIso, sequenceN
   updated.GP_ID = input.gpId;
   updated.Asset_Class_ID = input.assetClassId;
   updated.Capital_Type_ID = input.capitalTypeId;
+  updated.Fund_Strategy = input.fundStrategy;
   updated.Sequence_No = sequenceNo;
   updated.Saved_Filename = filename;
   updated.Updated_At = nowIso;
@@ -323,7 +406,7 @@ function kspNextGpId_(rows) {
 }
 
 function kspOptionPrefix_(type) {
-  var prefixes = { ASSET_CLASS: 'AC', CAPITAL_TYPE: 'CT', LOCATION: 'LOC' };
+  var prefixes = { ASSET_CLASS: 'AC', CAPITAL_TYPE: 'CT', LOCATION: 'LOC', TEAM: 'TEAM' };
   kspAssert_(prefixes[type], 'OPTION_TYPE_INVALID', 'Option Typeが不正です。');
   return prefixes[type];
 }
@@ -417,6 +500,9 @@ function kspMeetingAuditSnapshot_(row) {
     Meeting_ID: row.Meeting_ID || '', Date: row.Date || '', Time: row.Time || '',
     Location_ID: row.Location_ID || '', GP_ID: row.GP_ID || '',
     Asset_Class_ID: row.Asset_Class_ID || '', Capital_Type_ID: row.Capital_Type_ID || '',
+    Team_ID: row.Team_ID || '', Fund_Strategy: row.Fund_Strategy || '',
+    Meeting_Type_Codes: row.Meeting_Type_Codes || '', Related_Pitchbook_IDs: row.Related_Pitchbook_IDs || '',
+    Follow_Up_Required: kspToBoolean_(row.Follow_Up_Required, false),
     Counterparty: row.Counterparty || '', Internal_Participants: row.Internal_Participants || '',
     Doc_File_ID: row.Doc_File_ID || '', Doc_URL: row.Doc_URL || '',
     Saved_Filename: row.Saved_Filename || '', Status: row.Status || '',
@@ -428,7 +514,7 @@ function kspPitchbookAuditSnapshot_(row) {
   return {
     Document_ID: row.Document_ID || '', Batch_ID: row.Batch_ID || '', Date: row.Date || '',
     GP_ID: row.GP_ID || '', Asset_Class_ID: row.Asset_Class_ID || '',
-    Capital_Type_ID: row.Capital_Type_ID || '', Sequence_No: Number(row.Sequence_No || 0),
+    Capital_Type_ID: row.Capital_Type_ID || '', Fund_Strategy: row.Fund_Strategy || '', Sequence_No: Number(row.Sequence_No || 0),
     File_ID: row.File_ID || '', File_URL: row.File_URL || '',
     Original_Filename: row.Original_Filename || '', Saved_Filename: row.Saved_Filename || '',
     Status: row.Status || '', Updated_At: row.Updated_At || ''

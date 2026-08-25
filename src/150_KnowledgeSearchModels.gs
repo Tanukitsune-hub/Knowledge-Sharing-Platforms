@@ -4,6 +4,7 @@ function kspBuildKnowledgeSearchCatalog_(gpRows, optionRows) {
     gps: kspDeepClone_(catalog.gps || []),
     assetClasses: kspDeepClone_(catalog.assetClasses || []),
     capitalTypes: kspDeepClone_(catalog.capitalTypes || []),
+    teams: kspDeepClone_(catalog.teams || []),
     sourceTypes: [
       { id: KSP_AI_SOURCE_TYPES.MEETING, name: 'Meeting' },
       { id: KSP_AI_SOURCE_TYPES.PITCHBOOK, name: 'Pitchbook' }

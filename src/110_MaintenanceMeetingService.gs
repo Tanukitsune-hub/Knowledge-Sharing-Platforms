@@ -55,7 +55,7 @@ function kspGetPhase1MaintenanceBootstrap_(environment) {
       appVersion: KSP_MAINTENANCE_APP_VERSION,
       options: kspBuildMeetingBootstrapResponse_(context.catalog).options,
       statuses: [KSP_STATUS.ACTIVE, KSP_STATUS.INACTIVE, KSP_PITCHBOOK_STATUS.PENDING, KSP_PITCHBOOK_STATUS.FAILED],
-      optionTypes: [KSP_OPTION_TYPES.ASSET_CLASS, KSP_OPTION_TYPES.CAPITAL_TYPE, KSP_OPTION_TYPES.LOCATION],
+      optionTypes: [KSP_OPTION_TYPES.ASSET_CLASS, KSP_OPTION_TYPES.CAPITAL_TYPE, KSP_OPTION_TYPES.LOCATION, KSP_OPTION_TYPES.TEAM],
       masters: kspBuildMasterResponse_(context.gpRows, context.optionRows)
     };
   } catch (error) {
@@ -83,7 +83,11 @@ function kspSearchMeetingRecords_(environment, rawSearch) {
 function kspSearchPitchbookRecords_(environment, rawSearch) {
   try {
     var context = kspLoadMaintenanceContext_(environment);
-    var search = kspValidateRecordSearch_(kspNormalizeRecordSearch_(rawSearch));
+    var search = kspNormalizeRecordSearch_(rawSearch);
+    search.teamId = '';
+    search.meetingTypeCode = '';
+    search.followUpOnly = false;
+    search = kspValidateRecordSearch_(search);
     var maps = kspBuildAllMasterMaps_(context.gpRows, context.optionRows);
     return {
       ok: true,
@@ -106,6 +110,9 @@ function kspGetMeetingMaintenanceRecord_(environment, meetingId) {
     var maps = kspBuildAllMasterMaps_(context.gpRows, context.optionRows);
     var record = kspMapMeetingSearchResult_(row, maps);
     record.notes = parsed.notes;
+    record.relatedPitchbooks = kspBuildMaintenanceRelatedPitchbookChoices_(
+      context.pitchbookRows, row.GP_ID, row.Asset_Class_ID, record.relatedPitchbookIds
+    );
     return { ok: true, workId: KSP_MAINTENANCE_WORK_ID, record: record };
   } catch (error) {
     return kspMaintenanceFailure_(error);
@@ -122,12 +129,20 @@ function kspUpdateMeetingMaintenance_(environment, rawInput) {
   try {
     context = kspLoadMaintenanceContext_(environment);
     var input = kspNormalizeMeetingEditInput_(rawInput);
-    var selected = kspValidateMeetingEditInput_(input, context.catalog);
     claim = environment.claimRecordEdit(
       'Meeting', input.meetingId, KSP_SHEET_NAMES.MEETING_INDEX,
       'Meeting_ID', 'Version', input.expectedVersion, environment.nowIso(), KSP_MAINTENANCE_LIMITS.EDIT_CLAIM_TTL_MS
     );
     currentRow = claim.row;
+    var currentTeamId = String(currentRow.Team_ID || '');
+    context.catalog.teams = (context.catalog.teams || []).filter(function (team) {
+      return String(team.status || '') === KSP_STATUS.ACTIVE || String(team.id || '') === currentTeamId;
+    });
+    context.catalog.relatedPitchbooks = kspBuildMaintenanceRelatedPitchbookChoices_(
+      context.pitchbookRows, input.gpId, input.assetClassId,
+      kspMaintenanceSplitCodes_(currentRow.Related_Pitchbook_IDs)
+    );
+    var selected = kspValidateMeetingEditInput_(input, context.catalog);
     kspAssert_(String(currentRow.Status || '') === KSP_STATUS.ACTIVE,
       'MEETING_NOT_ACTIVE', 'Activeな面談だけ編集できます。');
     var filename = kspBuildMeetingFilename_(input, selected, input.meetingId);

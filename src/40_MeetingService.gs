@@ -1,6 +1,18 @@
 function kspGetMeetingBootstrapData_(environment) {
   try {
     var context = kspLoadMeetingRuntimeContext_(environment);
+    context.catalog.relatedPitchbooks = (context.pitchbookRows || []).filter(function (row) {
+      return String(row.Status || '') === KSP_STATUS.ACTIVE;
+    }).map(function (row) {
+      return {
+        id: String(row.Document_ID || ''), date: kspMeetingCellDate_(row.Date),
+        gpId: String(row.GP_ID || ''), assetClassId: String(row.Asset_Class_ID || ''),
+        title: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
+        status: String(row.Status || ''), preserved: false
+      };
+    }).sort(function (left, right) {
+      return right.date.localeCompare(left.date) || left.id.localeCompare(right.id);
+    });
     return kspBuildMeetingBootstrapResponse_(context.catalog);
   } catch (error) {
     return { ok: false, workId: KSP_MEETING_WORK_ID, error: { code: kspGetErrorCode_(error), message: kspSafePublicErrorMessage_(kspGetErrorCode_(error), 'MEETING') } };
@@ -12,7 +24,7 @@ function kspRegisterMeeting_(environment, rawInput) {
   var warnings = [];
   var actor = kspGetMeetingActorSafely_(environment, warnings);
   var context = null;
-  var normalizedInput = kspNormalizeMeetingInput_(rawInput);
+  var normalizedInput = null;
   var selected = null;
   var meetingId = '';
   var filename = '';
@@ -20,12 +32,19 @@ function kspRegisterMeeting_(environment, rawInput) {
   var documentInfo = null;
 
   try {
+    normalizedInput = kspNormalizeMeetingInput_(rawInput);
     context = kspLoadMeetingRuntimeContext_(environment);
+    context.catalog.relatedPitchbooks = kspBuildRelatedPitchbookChoices_(
+      context.pitchbookRows, normalizedInput.gpId, normalizedInput.assetClassId, []
+    );
     selected = kspValidateMeetingInput_(normalizedInput, context.catalog);
     fingerprint = kspBuildMeetingRequestFingerprint_(normalizedInput);
 
     if (normalizedInput.retryMeetingId) {
-      kspAssert_(normalizedInput.retryFingerprint === fingerprint, 'MEETING_RETRY_REQUEST_CHANGED',
+      var retryFingerprintMatches = normalizedInput.retryFingerprint === fingerprint ||
+        (kspMeetingUsesOnlyLegacyFields_(normalizedInput) &&
+          normalizedInput.retryFingerprint === kspBuildLegacyMeetingRequestFingerprint_(normalizedInput));
+      kspAssert_(retryFingerprintMatches, 'MEETING_RETRY_REQUEST_CHANGED',
         '入力内容が変更されたため、以前のMeeting IDでは再試行できません。');
       meetingId = normalizedInput.retryMeetingId;
       var allocatedSequence = kspParseMeetingId_(meetingId);
@@ -110,11 +129,13 @@ function kspLoadMeetingRuntimeContext_(environment) {
 
   var gpRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER);
   var optionRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER);
+  var pitchbookRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX);
   return {
     state: state,
     backendSpreadsheetId: backendSpreadsheetId,
     auditSpreadsheetId: auditSpreadsheetId,
     meetingRecordsFolderId: meetingRecordsFolderId,
+    pitchbookRows: pitchbookRows,
     catalog: kspBuildMeetingCatalog_(gpRows, optionRows)
   };
 }
