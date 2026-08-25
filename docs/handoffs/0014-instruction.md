@@ -3,7 +3,7 @@
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-04`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -66,13 +66,18 @@ Do not reopen without material contradiction:
 - Meeting ↔ Pitchbook relationship live preservation: PASS;
 - the failed Pitchbook edit produced no duplicate or partial row/file mutation.
 
-## Observed blocker
+## CODEX-04 result
 
-The first and only live Pitchbook Fund / Strategy save returned the safe error:
+The bounded source/test repair is complete:
 
-`管理処理を完了できませんでした。`
+- focused tests: `47/47 PASS`;
+- `npm run check`: `179/179 PASS`;
+- public facade: `23`;
+- `git diff --check`: PASS;
+- tested synthetic DEV source readback: `59/59 PASS`;
+- exactly one immutable version created: `28`.
 
-The target remained Active, the submitted Fund / Strategy value remained absent, and row/file identity remained intact. The smoke stopped before final integrity.
+The live Pitchbook save was not attempted. Current Apps Script deployment readback exposes the CODEX-03/CODEX-04 item as a Library entrypoint rather than an updateable Web App entrypoint, and the existing `/exec` returns page not found. A Library deployment touched by the failed CLI update was restored to its original version `27`; no new Web App deployment was created and all other deployments remain unchanged.
 
 ## ChatGPT root-cause diagnosis
 
@@ -87,29 +92,16 @@ The same path also compares a raw Sheets `Date` value with a normalized `YYYY-MM
 
 This is one bounded application-defect family. Do not open a second hypothesis in CODEX-04.
 
-## Active repair contract
+## Remaining blocker
 
-Dispatch `0014-CODEX-04` must:
-
-1. implement private trailing-underscore production helpers for Pitchbook context matching and saved-filename construction;
-2. update production callers to the private helpers;
-3. canonicalize Pitchbook date comparison for live Sheets Date values;
-4. remove the test loader's injected production business-helper definitions;
-5. add live-like Date-object regression coverage;
-6. keep the public facade at 23 and preserve schema/product behavior;
-7. run focused tests, `npm run check`, and `git diff --check`;
-8. only after deterministic PASS, sync exact tested source to synthetic DEV;
-9. create one immutable version and update the existing Web App deployment in place, without creating another deployment;
-10. retry only the previously failed Pitchbook Fund / Strategy save once, verify reopen/search and stable row/file/sequence/filename identity, then complete final integrity.
-
-If the first post-fix live save fails, stop immediately. No second retry or second diagnosis is authorized.
+The required existing Web App deployment is not currently available for an in-place version update. Creating another Web App deployment was prohibited by CODEX-04, so live Pitchbook verification and final integrity remain pending.
 
 ## Completion
 
-If deterministic validation, Pitchbook live re-verification, and final integrity PASS, classify:
+Current classification:
 
-`DEV QUALIFIED — WORK 0014 STRUCTURED CONTEXT FOUNDATION`
+`NOT QUALIFIED — DEPLOYMENT CONTROL-PLANE BLOCKER BEFORE LIVE PITCHBOOK SAVE`
 
-`BLOCKER: NO`
+`BLOCKER: YES`
 
 PR #17 remains Draft / Open / unmerged until ChatGPT final review and merge decision.

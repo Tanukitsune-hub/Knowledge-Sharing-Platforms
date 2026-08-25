@@ -3,9 +3,9 @@
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-04`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 
-Current active dispatch:
+Current dispatch result:
 
 - `0014-CODEX-04`
 - Mode: `BUILD / QUALIFICATION`
@@ -42,17 +42,22 @@ ChatGPT root-cause diagnosis:
 - deterministic tests therefore masked the runtime ReferenceError;
 - raw Sheets `Date` versus normalized date-string comparison can also misclassify a Fund / Strategy-only edit as a context move.
 
-Authorized CODEX-04 repair:
+CODEX-04 result:
 
-- add private production helpers with trailing underscores;
-- update production callers;
-- canonicalize date comparison;
-- remove the test-only business-helper injection;
-- add live-like Date-object regression coverage;
-- preserve public facade count, schema, data model, deployment ID, and all accepted evidence;
-- after deterministic PASS, sync exact tested source, create one immutable version, update the existing Web App deployment in place, run one Pitchbook save/reopen/search verification, then final integrity.
+- source/test repair: PASS;
+- focused tests: `47/47 PASS`;
+- full deterministic validation: `179/179 PASS`;
+- public facade: `23`;
+- exact tested DEV source readback: `59/59 PASS`;
+- immutable Apps Script version `28`: PASS, exactly one created;
+- existing Web App in-place update: `BLOCKED — NO CURRENT WEB APP ENTRYPOINT AVAILABLE`;
+- Library deployment changed by the failed CLI update: restored to original version `27`, with all other deployments unchanged;
+- live Pitchbook save: `NOT RUN`;
+- final integrity: `NOT RUN`.
 
-Only one active Codex dispatch is authorized. No second hypothesis or second live retry is allowed in CODEX-04.
+Classification: `NOT QUALIFIED — DEPLOYMENT CONTROL-PLANE BLOCKER BEFORE LIVE PITCHBOOK SAVE`.
+
+`BLOCKER: YES`
 
 PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
 

@@ -3,13 +3,13 @@
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-04`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 
 ## Current state
 
-The structured Meeting/Pitchbook implementation, schema 3 migration, Web App recovery, legacy Meeting smoke, rich Meeting round-trip, and relationship behavior remain accepted.
+The bounded Pitchbook maintenance repair is implemented and deterministically validated. The exact tested 59-file source is synchronized to synthetic DEV and immutable Apps Script version `28` exists.
 
-The only active blocker is the first live Pitchbook Fund / Strategy metadata save.
+Live re-verification is blocked before the Pitchbook save because the current deployment management UI exposes the CODEX-03/CODEX-04 deployment history as Library entrypoints, not an updateable Web App entrypoint, and the existing `/exec` returns page not found.
 
 ## Accepted evidence
 
@@ -25,39 +25,34 @@ The only active blocker is the first live Pitchbook Fund / Strategy metadata sav
 - relationship preservation live behavior: PASS;
 - failed Pitchbook save left the Active target, row/file identity, and persisted value unchanged; no duplicate or partial update.
 
-## Root cause fixed for the next dispatch
+## CODEX-04 repair result
 
-ChatGPT confirmed that the deterministic maintenance loader injects two production-named Pitchbook helpers that do not exist in the production `src` tree:
+The deterministic/runtime defect was repaired by adding private production helpers and removing the test-only helper injection:
 
 - `kspPitchbookContextMatchesRow`
 - `kspBuildPitchbookSavedFilename`
 
-The live service calls those missing helpers, while tests pass against the injected copies. The same path compares a raw Sheets `Date` object with a normalized date string, potentially treating a Fund / Strategy-only edit as a context move.
+The date comparison now canonicalizes live Sheets `Date` values. Fund / Strategy-only edits preserve stable identity and filename in deterministic coverage; true context moves still allocate the expected sequence and filename.
 
-This explains the deterministic/live discrepancy and the safe `UNEXPECTED_ERROR` boundary.
+Validation: focused `47/47 PASS`, full `179/179 PASS`, public facade `23`, `git diff --check PASS`, independent review with no findings.
 
-## Active dispatch
+## DEV/deployment result
 
 Instruction:
 
 `docs/handoffs/0014-CODEX-04-pitchbook-maintenance-helper-repair-instruction.md`
 
-CODEX-04 is authorized only to:
-
-- productionize the two helpers as private trailing-underscore functions;
-- update their callers;
-- canonicalize the date comparison;
-- remove the test-loader business-helper injection;
-- add live-like regression coverage;
-- run deterministic validation;
-- after PASS, synchronize exact source, version-update the existing Web App deployment, run one Pitchbook save/reopen/search verification, and complete final integrity.
-
-No second hypothesis or second live retry is authorized.
+- exact tested source sync/readback: `59/59 PASS`;
+- exactly one immutable version created: `28`;
+- existing Web App update: `BLOCKED — NO CURRENT WEB APP ENTRYPOINT AVAILABLE`;
+- a Library deployment touched by the failed CLI update was restored to its original version `27`; deployment count and all other deployments are unchanged;
+- live Pitchbook save: `NOT RUN`;
+- final integrity: `NOT RUN`.
 
 ## Classification
 
-`REPAIR READY — PITCHBOOK MAINTENANCE TEST/RUNTIME CONTRACT`
+`NOT QUALIFIED — DEPLOYMENT CONTROL-PLANE BLOCKER BEFORE LIVE PITCHBOOK SAVE`
 
-`BLOCKER: YES` until CODEX-04 live verification and final integrity pass.
+`BLOCKER: YES`
 
 PR #17 remains Draft / Open / unmerged pending ChatGPT final review.
