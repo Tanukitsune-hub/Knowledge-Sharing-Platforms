@@ -43,6 +43,21 @@ Do not reopen without material contradiction:
 - GP one-page, analytics, admin monthly checks, and legacy converter are follow-on Works;
 - Shared Drive-specific and billing-enabled Gemini live qualification are outside Work 0014.
 
+## Production storage boundary inherited by Work 0014
+
+The accepted production storage decision is authoritative:
+
+`docs/decisions/shared-drive-production-root.md`
+
+Work 0014 must preserve this boundary even though Shared Drive-specific live qualification is out of scope:
+
+- production does not use or transit through My Drive;
+- `knowledgeParentFolderId` points to a selected folder inside the organization-controlled Shared Drive;
+- the application creates/reuses `Private Assets Knowledge` beneath that selected folder;
+- `Meeting Records` and `Pitchbooks` remain authoritative beneath `Private Assets Knowledge`;
+- no new code may introduce a production My Drive fallback or staging path;
+- real Drive/folder IDs and URLs must not be committed.
+
 ## Acceptance evidence
 
 - append-only idempotent schema/setup migration;
