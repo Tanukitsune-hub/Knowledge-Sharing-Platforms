@@ -31,7 +31,7 @@ function kspUpdatePitchbookMaintenance_(environment, rawInput) {
     if (kspPitchbookContextChanged_(currentRow, input)) {
       sequenceNo = environment.reservePitchbookEditSequence(claim, input);
     }
-    var filename = kspBuildPitchbookSavedFilename(input, selected, sequenceNo, currentRow.Original_Filename);
+    var filename = kspBuildPitchbookSavedFilename_(input, selected, sequenceNo, currentRow.Original_Filename);
     fileSnapshot = environment.getDriveFileSnapshot(String(currentRow.File_ID));
     environment.renameDriveFile(String(currentRow.File_ID), filename);
     var nowIso = environment.nowIso();

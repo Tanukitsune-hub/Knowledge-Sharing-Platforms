@@ -100,7 +100,7 @@ function createFakeEnvironment(options = {}) {
       return { ...row };
     },
     reservePitchbookEditSequence(_claim, input) {
-      const max = pitchbookRows.filter(r => r.Document_ID !== input.documentId && ksp.kspPitchbookContextMatchesRow(r, input))
+      const max = pitchbookRows.filter(r => r.Document_ID !== input.documentId && ksp.kspPitchbookContextMatchesRow_(r, input))
         .reduce((m, r) => Math.max(m, Number(r.Sequence_No || 0)), 0);
       return max + 1;
     },

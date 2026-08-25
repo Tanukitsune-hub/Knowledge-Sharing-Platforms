@@ -363,10 +363,20 @@ function kspValidatePitchbookEditInput_(input, catalog) {
 }
 
 function kspPitchbookContextChanged_(currentRow, input) {
-  return String(currentRow.Date || '') !== input.date ||
-    String(currentRow.GP_ID || '') !== input.gpId ||
-    String(currentRow.Asset_Class_ID || '') !== input.assetClassId ||
-    String(currentRow.Capital_Type_ID || '') !== input.capitalTypeId;
+  return !kspPitchbookContextMatchesRow_(currentRow, input);
+}
+
+function kspPitchbookContextMatchesRow_(row, input) {
+  return kspCanonicalPitchbookDateKey_(row.Date) === kspCanonicalPitchbookDateKey_(input.date) &&
+    String(row.GP_ID || '') === input.gpId &&
+    String(row.Asset_Class_ID || '') === input.assetClassId &&
+    String(row.Capital_Type_ID || '') === input.capitalTypeId;
+}
+
+function kspBuildPitchbookSavedFilename_(input, selected, sequenceNo, originalFilename) {
+  return kspBuildPitchbookFilename_(
+    input, selected, sequenceNo, kspGetPitchbookExtension_(originalFilename)
+  );
 }
 
 function kspBuildPitchbookEditedRow_(currentRow, input, actor, nowIso, sequenceNo, filename) {

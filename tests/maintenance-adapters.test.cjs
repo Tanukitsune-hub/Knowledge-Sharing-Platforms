@@ -63,10 +63,9 @@ function kspCreateMeetingEnvironment_(){return{
   readRows:function(id,name){var sheet=SpreadsheetApp.openById(id).getSheetByName(name);var headers=kspReadHeadersFromSheet_(sheet);return kspReadObjectsFromSheet_(sheet,headers);},
   appendRow:function(id,name,row){var sheet=SpreadsheetApp.openById(id).getSheetByName(name);var headers=kspReadHeadersFromSheet_(sheet);kspAppendObjectsToSheet_(sheet,headers,[row]);}
 };}
-function kspPitchbookContextMatchesRow(row,input){return String(row.Date||'')===input.date&&String(row.GP_ID||'')===input.gpId&&String(row.Asset_Class_ID||'')===input.assetClassId&&String(row.Capital_Type_ID||'')===input.capitalTypeId;}
 `;
   new vm.Script(bootstrap).runInContext(context);
-  for(const file of ['100_MaintenanceCore.gs','120_MaintenanceLiveEnvironment.gs','121_MaintenanceLiveHelpers.gs'])new vm.Script(fs.readFileSync(path.join(__dirname,'..','src',file),'utf8'),{filename:file}).runInContext(context);
+  for(const file of ['00_Core.gs','30_MeetingCore.gs','62_PitchbookIdentity.gs','100_MaintenanceCore.gs','120_MaintenanceLiveEnvironment.gs','121_MaintenanceLiveHelpers.gs'])new vm.Script(fs.readFileSync(path.join(__dirname,'..','src',file),'utf8'),{filename:file}).runInContext(context);
 
   function addSpreadsheet(id,sheets){spreadsheets.set(id,new FakeSpreadsheet(sheets));}
   return {context,properties,spreadsheets,files,docs,addSpreadsheet,FakeSheet};

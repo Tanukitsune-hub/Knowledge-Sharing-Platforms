@@ -42,7 +42,23 @@ test('Meeting status update rejects stale version and otherwise increments Versi
 test('Pitchbook context move allocates destination next sequence and preserves File ID', () => {
   const env=createFakeEnvironment();
   const result=ksp.kspUpdatePitchbookMaintenance_(env,{documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-02',gpId:'GP-000001',assetClassId:'OPT-AC-001',capitalTypeId:''});
-  assert.equal(result.ok,true); assert.equal(result.record.fileId,'file-1'); assert.equal(result.record.sequenceNo,2); assert.match(result.record.savedFilename,/_02\.pdf$/);
+  assert.equal(result.ok,true); assert.equal(result.record.documentId,'DOC-000001'); assert.equal(result.record.fileId,'file-1'); assert.equal(result.record.sequenceNo,2); assert.equal(result.record.savedFilename,'2026-08-02_Apollo_PE_02.pdf');
+});
+
+test('Pitchbook Fund Strategy-only edit preserves stable identity, sequence, and filename for a live Date row', () => {
+  const env=createFakeEnvironment({pitchbookRows:[{
+    Document_ID:'DOC-000001',Batch_ID:'BAT-000001',Date:new Date(Date.UTC(2026,7,1)),GP_ID:'GP-000002',
+    Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',Sequence_No:1,File_ID:'file-1',File_URL:'https://example/file-1',
+    Original_Filename:'source.pdf',Saved_Filename:'2026-08-01_KKR_Infrastructure_01.pdf',Status:'Active',
+    Updated_At:'2026-08-01T00:00:00.000Z',Updated_By:'old',AI_Index_Status:'Indexed',AI_Last_Error:'',Fund_Strategy:''
+  }]});
+  const result=ksp.kspUpdatePitchbookMaintenance_(env,{documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-01',gpId:'GP-000002',assetClassId:'OPT-AC-002',capitalTypeId:'',fundStrategy:'Infra Fund IV'});
+  assert.equal(result.ok,true,JSON.stringify(result));
+  assert.equal(result.record.documentId,'DOC-000001');
+  assert.equal(result.record.fileId,'file-1');
+  assert.equal(result.record.sequenceNo,1);
+  assert.equal(result.record.savedFilename,'2026-08-01_KKR_Infrastructure_01.pdf');
+  assert.equal(env._debug.files.get('file-1').name,'2026-08-01_KKR_Infrastructure_01.pdf');
 });
 
 test('stale Pitchbook metadata update is rejected without renaming file', () => {

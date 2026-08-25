@@ -161,7 +161,7 @@ function kspCreateMaintenanceEnvironment_() {
       var rows = environment.readRows(spreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX);
       var maximum = rows.reduce(function (maxValue, row) {
         if (String(row.Document_ID || '') === String(input.documentId)) return maxValue;
-        return kspPitchbookContextMatchesRow(row, input)
+        return kspPitchbookContextMatchesRow_(row, input)
           ? Math.max(maxValue, Number(row.Sequence_No || 0)) : maxValue;
       }, 0);
       var properties = scriptProperties.getProperties();
@@ -207,7 +207,7 @@ function kspCreateMaintenanceEnvironment_() {
   environment.getNextPitchbookSequenceForContext = function (input, excludedDocumentId, rows) {
     return (rows || []).reduce(function (maxValue, row) {
       if (String(row.Document_ID || '') === String(excludedDocumentId || '')) return maxValue;
-      return kspPitchbookContextMatchesRow(row, input)
+      return kspPitchbookContextMatchesRow_(row, input)
         ? Math.max(maxValue, Number(row.Sequence_No || 0)) : maxValue;
     }, 0) + 1;
   };

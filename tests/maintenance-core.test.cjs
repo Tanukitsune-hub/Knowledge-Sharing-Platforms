@@ -1,6 +1,18 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { ksp, catalogRows, createFakeEnvironment } = require('./maintenance-test-fixture.cjs');
+
+test('maintenance harness uses private production Pitchbook business helpers', () => {
+  const loaderSource = fs.readFileSync(path.join(__dirname, 'maintenance-test-loader.cjs'), 'utf8');
+  assert.doesNotMatch(loaderSource, /function\s+kspPitchbookContextMatchesRow\s*\(/);
+  assert.doesNotMatch(loaderSource, /function\s+kspBuildPitchbookSavedFilename\s*\(/);
+  assert.equal(typeof ksp.kspPitchbookContextMatchesRow_, 'function');
+  assert.equal(typeof ksp.kspBuildPitchbookSavedFilename_, 'function');
+  assert.equal(typeof ksp.kspPitchbookContextMatchesRow, 'undefined');
+  assert.equal(typeof ksp.kspBuildPitchbookSavedFilename, 'undefined');
+});
 test('optional search filters and date bounds work', () => {
   const search = ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ dateFrom: '2026-08-01', dateTo: '2026-08-31', gpId: 'GP-1' }));
   assert.equal(ksp.kspRecordMatchesSearch_({ Date: '2026-08-10', GP_ID: 'GP-1' }, search), true);
@@ -67,6 +79,13 @@ test('pitchbook context change is detected and edited row preserves stable ident
   assert.equal(ksp.kspPitchbookContextChanged_(current,input),true);
   const updated=ksp.kspBuildPitchbookEditedRow_(current,input,'actor','now',4,'new.pdf');
   assert.equal(updated.Document_ID,'DOC-000001'); assert.equal(updated.File_ID,'file'); assert.equal(updated.Sequence_No,4);
+});
+
+test('live-like Pitchbook Date object matches unchanged normalized context', () => {
+  const current={Date:new Date(Date.UTC(2026,7,1)),GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:''};
+  const input={date:'2026-08-01',gpId:'GP-1',assetClassId:'AC-1',capitalTypeId:''};
+  assert.equal(ksp.kspPitchbookContextMatchesRow_(current,input),true);
+  assert.equal(ksp.kspPitchbookContextChanged_(current,input),false);
 });
 
 test('master normalization detects NFKC and case-insensitive duplicates', () => {
