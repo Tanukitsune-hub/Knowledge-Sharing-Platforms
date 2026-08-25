@@ -31,7 +31,7 @@ The single post-fix PDF action created exactly one non-empty PDF with no duplica
 - `git diff --check`: PASS.
 - exact DEV source synchronization / 59-of-59 remote readback: PASS.
 - existing Web App deployment: version 25, deployment ID unchanged, `Web app / deploying user / Only myself` preserved.
-- no GitHub Actions run was associated with the final commit; hosted CI is not required for this accepted DEV qualification because the repository-local validation and direct runtime evidence passed.
+- no GitHub Actions run was associated with the final commit; hosted CI is not required for this accepted DEV qualification because repository-local validation and direct runtime evidence passed.
 
 ## Classification
 
