@@ -233,16 +233,18 @@ Current preferred order:
    - use the current private/personal-PC environment with synthetic or otherwise non-confidential test data;
    - prove actual Gemini/File Search indexing, metadata filters, five search modes, citations, Drive/source traceability, failure isolation, and operational guardrails;
    - billing/credentials and any consequential external effects remain separately authorized;
-   - this phase is intentionally before historical bulk ingestion so the target index/metadata/search contract is proven before loading large legacy volumes.
+   - this phase is intentionally before historical migration so the target index/metadata/search contract is proven before loading significant legacy volumes.
 
-5. **Legacy converter / bulk ingestion**
-   - design and implement bulk conversion/import after the Gemini/File Search contract is proven;
-   - ingest historical Word/Excel/TXT/PDF/other accepted source formats into the established authoritative structure;
-   - preserve source traceability, stable IDs, deduplication, legacy compatibility, and rebuildable AI indexing;
-   - do not make production migration the first test of the converter.
+5. **Historical-material migration — manual-first, automation only where justified**
+   - historical records are known to exist in highly varied formats and structures, so a universal bulk converter is not a required product outcome;
+   - default approach may be manual entry through the normal application when that is safer, clearer, and cheaper than handling many one-off formats;
+   - after personal-PC Gemini/File Search qualification, inspect the actual historical corpus and choose among manual, hybrid, or bounded automated ingestion;
+   - automate only repeatable subsets where source structure is sufficiently consistent and the expected time/quality benefit clearly exceeds exception-handling and maintenance cost;
+   - if automation is used, preserve source traceability, stable IDs, deduplication, legacy compatibility, and rebuildable AI indexing, and validate on bounded non-production batches before broader use;
+   - do not build a generalized legacy converter merely because it was previously listed on the roadmap.
 
 6. **Final production-environment qualification and rollout readiness**
-   - this is the final qualification phase, after product features, personal-PC Gemini/File Search qualification, and bulk-ingestion capability are ready;
+   - this is the final qualification phase, after product features, personal-PC Gemini/File Search qualification, and the selected historical-migration approach are ready;
    - qualify the actual company Shared Drive hierarchy, permissions, organization-controlled Apps Script Web App, Backend/Audit boundaries, production data/access model, cleanup/rollback, and operational controls;
    - qualify production Gemini/File Search credentials/billing/index/query/citations as part of the final environment readiness where authorized;
    - enable real users, confidential/production data, scheduled triggers, production billing, and broad rollout only under explicit scoped authorization and evidence;
@@ -255,11 +257,11 @@ The governing sequence is therefore:
   -> 0016 analytics / monthly checks
   -> remaining high-value product enhancements
   -> personal-PC Gemini / File Search qualification
-  -> legacy converter / bulk ingestion
+  -> historical migration (manual / hybrid / selective automation)
   -> final production-environment qualification / rollout readiness
 ```
 
-Do not move historical bulk ingestion ahead of the personal-PC Gemini/File Search qualification unless new evidence shows the search/index contract no longer affects ingestion design. Do not move production qualification ahead of the preceding product and migration work merely for schedule convenience.
+Do not move historical migration ahead of the personal-PC Gemini/File Search qualification unless new evidence shows the search/index contract no longer affects migration design. Do not make converter automation a prerequisite for production qualification when manual migration is the selected safe approach. Do not move production qualification ahead of the preceding product and migration decisions merely for schedule convenience.
 
 ## 10. Genuine remaining choices
 
@@ -271,7 +273,7 @@ Only choices that materially affect a current outcome remain open, including:
 - concrete Gemini model / credential / billing route for the personal-PC qualification;
 - observed retry batch size, backoff, rate-limit, indexing-volume, and cost guardrails;
 - lower safe upload limit if actual Apps Script behavior requires it;
-- legacy converter input-format and deduplication details when bulk ingestion is selected;
+- historical-material migration method: manual, hybrid, or selective automation based on actual source diversity and repeatability;
 - final production rollout/permission/cleanup/rollback route;
 - whether a specific high-risk migration or concurrency campaign uniquely requires separate staging.
 
