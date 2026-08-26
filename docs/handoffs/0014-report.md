@@ -1,82 +1,96 @@
 # Work 0014 report
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-05`
-BALL: `CHATGPT`
-STATUS: `BLOCKED`
+Dispatch ID: `0014-CODEX-06`
+BALL: `CODEX`
+STATUS: `READY`
 
-## Current state
+## GitHub-verified current state
 
-PR #17 is Draft / Open / unmerged. The branch contains the bounded Pitchbook maintenance repair and its regression tests. The repaired source was synchronized to synthetic DEV, and immutable Apps Script versions `28` and `29` exist.
+PR #17 is Draft / Open / unmerged. CODEX-05 created a valid private synthetic DEV Web App and version `29`. The Fund / Strategy save succeeded exactly once and authoritative Backend/Audit readback is intact.
 
-CODEX-05 created exactly one private synthetic DEV Web App deployment and its `/exec` rendered normally. The one authorized Pitchbook Fund / Strategy save succeeded and authoritative readback preserved Document_ID, File_ID, Sequence_No, filename, and Active status while appending exactly one successful metadata-level Audit event.
+Work 0014 remains incomplete only because the exact post-save Pitchbook search returned zero rows and the final integrity matrix has not run.
 
-The application remains unqualified because the one authorized post-save search returned zero rows under the same retained Date/GP/Asset Class/Equity/Active filters that had returned the target before saving. The record remained present and Active in Backend readback. Reopen verification and the broader final integrity matrix were stopped at this first application/search failure.
-
-## Accepted implementation evidence
+## Accepted evidence
 
 - structured Meeting/Pitchbook implementation: accepted;
 - schema 3 append-only/idempotent migration: PASS;
 - synthetic DEV migration and installation-state alignment: PASS/read back;
-- CODEX-03 legacy Meeting live compatibility: PASS;
-- CODEX-03 rich Meeting create/edit/search live round-trip: PASS;
-- CODEX-03 relationship preservation: PASS;
-- CODEX-04 source/test repair commit: `4036690cf49555cbc308a16a464606f1da523c0b`;
-- private production Pitchbook helpers added and callers corrected;
-- live Sheets Date comparison canonicalized;
-- test-only production business-helper injection removed;
+- legacy Meeting live compatibility: PASS;
+- rich Meeting create/edit/search live round-trip: PASS;
+- relationship preservation: PASS;
+- CODEX-04 source/test repair: implemented;
 - local deterministic result recorded by CODEX-04: `179/179 PASS`;
 - public facade: `23`;
-- exact tested DEV source readback: `59/59 PASS`;
-- immutable Apps Script version `28`: exists;
-- original failed Pitchbook save caused no persisted value, duplicate, partial update, or file corruption.
+- source synchronization/readback: `59/59 PASS`;
+- CODEX-05 private Web App/version `29`/main `/exec`: PASS;
+- Pitchbook Fund / Strategy save exactly once: PASS;
+- saved value and stable Document/File/sequence/filename/Active identity: PASS;
+- unique target row and no duplicate/partial mutation: PASS;
+- exactly one successful metadata-level `PITCHBOOK_UPDATE` Audit event: PASS.
 
-## Independent review limitations
+## Independent GitHub/Drive review
 
-GitHub has no `.github/workflows` directory and no workflow run or commit status for the current head. Therefore the `179/179 PASS` result is a local Codex result, not a GitHub Actions CI result. GitHub source, commit diff, test definitions, PR metadata, and reports were independently inspected; the test suite was not independently re-executed by GitHub CI.
+GitHub source, branch, commit, PR, handoffs, and current code paths were inspected. The repository still has no GitHub Actions workflow or status check, so the reported deterministic PASS remains local Codex evidence rather than GitHub CI evidence.
 
-## CODEX-05 result
+Direct Backend/Audit readback confirmed:
 
-- deployment preflight and exact source readback: `PASS`;
-- exactly one new private Web App deployment: `PASS`;
-- automatically generated immutable version `29`: `PASS`;
-- main `/exec` rendering: `PASS`;
-- Pitchbook Fund / Strategy save exactly once: `PASS`;
-- stable Document/File/sequence/filename/Active identity: `PASS`;
-- exactly one successful metadata-level `PITCHBOOK_UPDATE` Audit event: `PASS`;
-- post-save search: `FAIL — zero rows under the retained exact filters`;
-- reopen/round-trip UI verification: `NOT RUN`;
-- final authoritative integrity: `NOT RUN — completion latch stopped at the first failure`.
+- the target remains one Active row with the saved Fund / Strategy value;
+- all exact non-Date search identifiers remain unchanged;
+- the success Audit event lists `Date,Fund_Strategy,Updated_At` as changed even though the logical Date was not edited;
+- before-Audit Date is a timestamp/Date representation and after-Audit Date is a `YYYY-MM-DD` string for the same logical day;
+- the live Date cell is a numeric Google Sheets Date;
+- the spreadsheet and Apps Script manifest are both `Asia/Tokyo`.
+
+Code inspection confirmed:
+
+- `kspMaintenanceCellText_()` and `kspCanonicalPitchbookDateKey_()` use UTC getters for Date objects;
+- exact search filters use that derived date key;
+- Pitchbook metadata commit rewrites the whole row through `setValues`;
+- Pitchbook status also rewrites the whole row;
+- Meeting status already uses partial-field writes specifically to preserve untouched Date/Time cells.
+
+## Root-cause classification
+
+Active hypothesis:
+
+`PITCHBOOK_DATE_REPRESENTATION_DRIFT_ON_FULL_ROW_WRITE`
+
+Confidence: high.
+
+The save altered the Date cell's runtime/storage representation while retaining the same displayed logical day. The search path then applied representation-sensitive UTC calendar-day extraction. This is the only search field with direct evidence of an unintended post-save change.
 
 ## Problem classification
 
 ### BLOCKER
 
-- the repaired Pitchbook must remain searchable after a Fund / Strategy-only save;
-- reopen/round-trip UI verification must pass;
-- final authoritative integrity must pass under a new authorized handoff.
+- timezone-aware business-date canonicalization;
+- partial Pitchbook edit/status writes preserving untouched Date and unrelated cells;
+- logical Date Audit comparison;
+- deterministic post-save exact-search regression;
+- one read-only exact search/reopen after deployment update;
+- final authoritative integrity.
 
 ### FIX SOON
 
-- preserve the successful one-time save evidence and avoid a second save or deployment under CODEX-05;
-- diagnose or repair the post-save search failure only under a new explicit instruction.
+- add durable test guidance for configured-timezone Date cells and no unrelated Date/Time rewrites.
 
 ### BACKLOG
 
-- optional GitHub Actions CI for the deterministic suite;
+- optional GitHub Actions CI;
 - Shared Drive-specific production qualification;
 - billing-enabled Gemini/File Search qualification.
 
-## Next action
+## Active handoff
 
-Review the blocked CODEX-05 report:
+`docs/handoffs/0014-CODEX-06-pitchbook-date-roundtrip-search-repair-instruction.md`
 
-`docs/handoffs/0014-CODEX-05-web-app-recovery-and-final-live-verification-report.md`
+CODEX-06 must not save the target again. The accepted saved value will be verified through one read-only exact search and one reopen after the bounded repair.
 
 Current classification:
 
-`NOT QUALIFIED — PITCHBOOK POST-SAVE SEARCH FAILED`
+`REPAIR READY — PITCHBOOK DATE ROUND-TRIP / POST-SAVE SEARCH`
 
 `BLOCKER: YES`
 
-PR #17 remains Draft / Open / unmerged pending final live evidence and ChatGPT review.
+PR #17 remains Draft / Open / unmerged pending CODEX-06 and ChatGPT final review.
