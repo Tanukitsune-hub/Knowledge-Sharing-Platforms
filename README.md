@@ -1,27 +1,47 @@
 # Knowledge Sharing Platforms
 
-プライベートアセット領域のMeeting recordsとPitchbook / source materialsを、少ない運用負荷で蓄積し、検索・整理・要約・比較できるようにするナレッジ基盤です。
+プライベートアセット領域のMeeting recordsとPitchbook / source materialsを、少ない運用負荷で蓄積し、検索・整理・要約・比較できるようにするGoogle Workspace / Apps Script-firstのナレッジ基盤です。
 
 ## Status
 
-Works 0004–0011は実装・マージ済みです。Work 0012では、Apps Scriptの公開ファサード境界、Knowledge Exportの資源上限・リンク整合性、公開エラーの秘匿、および決定論的回帰検証をhardeningしました。アプリケーションrelease versionは`0.1.2`です。
+Meeting / Pitchbook登録・maintenance、Masters、Audit、Gemini File Search foundation、5モードKnowledge Search、Knowledge Export、Apps Script public-surface hardening等のproduction sourceはGitHubで管理されています。
 
-Work 0010–0011で定義されたDEVのブラウザ / Shared Drive / Docs / PDF / Gemini実機qualificationは、環境依存の確認項目として引き続き未観測です。本書は本番デプロイ完了を意味しません。
+Active Work 0014 / PR #17はstructured Meeting/Pitchbook context foundationとbounded repairを扱っています。このWorkは既存のevidence boundaryで完了または安全停止し、その後の新規Workから2026-08-26のTarget-Runtime-First policyを標準適用します。
 
-採用済み:
+本READMEはproduction rollout、production data投入、real-user access、Gemini billing、trigger enablement、permission qualificationの完了を意味しません。
 
-- Google Workspace / Apps Script-first runtime
-- Shared Drive authoritative source
-- 5-sheet backend
-- separate restricted Audit Spreadsheet
-- Meeting / Pitchbook registration + maintenance
-- Gemini File Search hosted retrieval
-- one configured Gemini Flash model
-- 15-minute AI sync
-- six initial source formats
-- five-mode Knowledge Search
-- Gemini-independent Knowledge Export: Active Meeting本文、Pitchbook metadata / authoritative link、Google Docs / PDF
-- ChatGPT-led development + Codex residual implementation
+## Development policy
+
+別DEV runtimeを先に完成させてから本番へ移植することを標準としません。
+
+```text
+bounded preflight
+→ shortest coherent vertical slice in production source paths
+→ actual Apps Script / Workspace / Web App target runtime
+→ isolated synthetic or anonymized test data/resources
+→ guarded side effects
+→ focused LOGIC_VALIDATION
+→ bounded TARGET_RUNTIME_QUALIFICATION
+→ expand only after native readback passes
+→ separately authorize production data/users/billing/triggers/destructive effects
+```
+
+Target runtimeとproduction data / rolloutは別です。実際のApps Script / Workspace behaviorを早期に確認しつつ、confidential data、real users、billing、triggers、public exposure、physical delete、bulk mutation、migration、permission changesは個別にguardします。
+
+Separate DEV/Stagingは、対象runtime内のresource isolationやfeature/side-effect guardでは得られないmaterial safety、regulatory、blast-radius、rollback、concurrency、scale、cost、またはplatform evidenceがある場合だけ採用します。
+
+Report separately:
+
+```text
+LOGIC_VALIDATION
+TARGET_RUNTIME_QUALIFICATION
+SIDE_EFFECT_STATE
+READY
+```
+
+CI、mock、simulator、alternate runtime、synthetic harness、test loaderだけのPASSは、Apps Script / Workspace / browser / Gemini readinessではありません。
+
+Detailed decision: [Target-Runtime-First Development](docs/decisions/target-runtime-first-development.md)
 
 ## Product overview
 
@@ -37,13 +57,13 @@ Apps Script HTML Service Web App
   └─ Master Management
       |
       v
-Google Apps Script
+Google Apps Script V8
       |
  +----+------------------------------+
  |                                   |
  v                                   v
 Backend Spreadsheet             Google Shared Drive
-5 sheets                        authoritative sources
+5 baseline sheets               authoritative sources
                                      |
                                      v
                               Gemini File Search
@@ -52,7 +72,7 @@ Backend Spreadsheet             Google Shared Drive
                               Gemini Flash
                                      |
                                      v
-                        output + citations + Drive links
+                        grounded output + citations
 
 Separate Restricted Audit Spreadsheet
 ```
@@ -65,9 +85,9 @@ Private Assets Knowledge
 └─ Pitchbooks
 ```
 
-年 / GP / Asset Class等のsubfolderは作らずflat storageとする。
+Shared Drive source folders remain simple and authoritative. Gemini File Search is derived and rebuildable.
 
-Backend Spreadsheet:
+Backend baseline:
 
 1. `GP_Master`
 2. `Option_Master`
@@ -75,26 +95,26 @@ Backend Spreadsheet:
 4. `Pitchbook_Index`
 5. `Settings`
 
-通常利用者はbackend / Audit Spreadsheetを直接操作しない。
+Schema evolution is append-only where practical. Stable IDs are used instead of row numbers. Normal users do not directly edit backend / Audit / File Search resources.
 
 ## Meeting records
 
-Required:
+Required baseline:
 
-- 日付
+- Date
 - GP
 - Asset Class
 
-Optional:
+Optional baseline:
 
-- 時間
-- 面談場所
+- Time
+- Location
 - Equity / Debt
-- 面談相手
-- 当社側
-- 面談内容
+- Counterparty
+- Internal Participants
+- Notes
 
-Meeting bodyはGoogle Docsを正本とし、`Meeting_Index`へ全文duplicateしない。
+Meeting body is authoritative in Google Docs and is not duplicated into `Meeting_Index`.
 
 Fixed ID example:
 
@@ -108,51 +128,53 @@ Filename:
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX
 ```
 
-Timeはfilenameへ入れず、Equity / Debt未選択時はそのsegmentを省略する。
+Time is excluded. Optional segments are omitted when absent. Later accepted structured fields and relationships use append-only schema evolution and stable IDs.
 
 ## Pitchbooks / source materials
 
 - drag & drop / multiple files
 - required: file, Date, GP, Asset Class
-- optional: Equity / Debt
+- optional baseline: Equity / Debt
 - 25MB/file
 - maximum 10 files per selection
 - maximum 100MB total per selection
-- Apps Script generated filename
-- sequence starts at `_01` and continues from existing maximum
+- stable Document ID / Batch ID
+- sequence starts at `_01` and continues from destination maximum
+- file-granular partial success and idempotent retry
 
 ```text
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext
 ```
 
-25MBでもApps Script実機上限が確認された場合は、複雑なupload architectureを追加するより安全な低い上限へ変更することを優先する。
+If actual Apps Script behavior requires a lower safe upload limit, lower the limit before adding complex transport architecture.
 
 ## Masters / drafts / maintenance
 
-- GP: immutable ID, mutable display name, Active/Inactive, alphabetical display, quick-add
-- Option Master: Location / Asset Class / Equity-Debt, Sort Order, Active/Inactive
-- all users may add / rename / reorder / deactivate / reactivate allowed Masters
-- shared browser context: Date / GP / Asset Class / Equity-Debt
-- text / selection drafts retained for 24h in same browser
-- past-record filters: Date From/To, GP, Asset Class, Equity/Debt, Status
-- logical Active / Inactive / Reactivate instead of normal-user physical deletion
-- same Meeting concurrent edits use optimistic locking
+- GP: immutable ID, mutable display name, Active/Inactive, quick-add with normalized duplicate check
+- Option Master: stable IDs, Sort Order, Active/Inactive
+- authorized users may add / rename / reorder / deactivate / reactivate allowed Masters
+- shared browser context for accepted common Meeting/Pitchbook fields
+- text / selection drafts retained for 24h in the same browser
+- past-record filters use stable IDs where applicable
+- logical Active / Inactive / Reactivate rather than normal-user physical deletion
+- Meeting concurrent edits use Version / Updated At optimistic locking
+- LockService is limited to short consistency-critical sections
 
 ## Audit model
 
 Audit logs are stored in a separate Google Spreadsheet under a Restricted admin-only control folder.
 
-Initial Web App does not need an Audit Viewer or custom password screen. Drive sharing permissions are the direct access control.
+Initial Web App does not require an Audit Viewer or custom password screen. Drive sharing permissions are the access boundary.
 
 Actor attribution is best-effort:
 
-1. email when available
-2. otherwise `TEMP_USER:<temporary active user key>` when available
-3. otherwise `UNIDENTIFIED`
+1. email when safely available;
+2. `TEMP_USER:<temporary active user key>` when available;
+3. `UNIDENTIFIED`.
 
-Persistent personal identification is not a production requirement. Audit is primarily for operational trace, change history, AI-use trace, and failure investigation.
+Missing persistent personal identification must not block normal operations. Audit is operational trace, change history, AI-use trace, and failure-investigation evidence—not strict non-repudiation.
 
-Audit retention: 5 years.
+Audit retention: five years.
 
 ## Gemini knowledge retrieval
 
@@ -166,16 +188,14 @@ Gemini Flash = grounded synthesis
 Accepted baseline:
 
 - one Gemini File Search Store initially
-- exact filtering via Custom Metadata
-- semantic retrieval via File Search managed embeddings
+- exact filtering through Custom Metadata
+- semantic retrieval through File Search-managed embeddings
 - no custom Vector DB / embedding pipeline / tag taxonomy / Knowledge Graph initially
-- Web App authorized users share access to all Active indexed sources
-- no per-user / per-file retrieval ACL initially
-- one configured Gemini Flash model
-- no user model selector / Deep mode
-- 15-minute Apps Script AI sync worker
-- AI failure never rolls back authoritative registration
-- citations must return users to the correct Drive source
+- authorized Web App users share access to Active indexed sources
+- one configured Gemini Flash model when approved
+- bounded Apps Script AI sync worker
+- AI failure never rolls back authoritative source capture
+- citations return users to the correct Drive source
 
 Initial AI-searchable formats:
 
@@ -188,7 +208,9 @@ Initial AI-searchable formats:
 .eml
 ```
 
-`.eml` original remains in Drive; normalized Subject / From / To / Cc / Date / Body text is indexed. Embedded attachments are not auto-indexed. `.msg` is initially out of scope.
+`.eml` original remains in Drive; normalized Subject / From / To / Cc / Date / Body is indexed. Embedded attachments are not automatically indexed. `.msg` is initially out of scope.
+
+Billing-enabled Gemini/File Search operation and confidential source indexing require explicit authorization.
 
 ## Knowledge Search target UX
 
@@ -196,32 +218,23 @@ Initial AI-searchable formats:
 自由質問 | 要約 | 時系列 | 比較 | 面談準備
 ```
 
-`自由質問` is default.
-
-Shared filters:
-
-- Date From / To
-- GP
-- Asset Class
-- Equity / Debt
-- Source Type: Meeting / Pitchbook
-
-All five modes share one File Search / metadata / semantic retrieval / Gemini Flash / citation path. Presets change prompt/output template only.
+`自由質問` is default. All modes share one File Search / metadata / semantic retrieval / Gemini Flash / citation path. Presets change prompt/output template only. Insufficient evidence must be stated rather than invented.
 
 ## Knowledge Export / external-AI handoff
 
-- Backend Indexの`Status = Active`だけを対象にする。
-- Meetingは正本Google Doc本文を取り込み、Pitchbookは本文を複製せずmetadataとauthoritative Drive linkだけを出力する。
-- Meeting 50件超、Pitchbook 200件超、またはMeeting本文250,000文字超はサーバー側で書き出しを停止する。件数超過時はMeeting Docを読み取らない。
-- Google Docs / PDFは設定済みのKnowledge Exports sibling folderへ生成し、原資料リンクはstable file IDから検証・生成する。
-- 外部AI向け5モードpromptはMaster表示名とstable IDを併記する。prompt本文、原文、回答、chunk、bytesはAuditへ保存しない。
-- Exportは正本の派生コピーであり、権限ドリフトと無期限蓄積のリスクがある。production前にfolder permission equivalenceとretention運用を実機確認する。
+- only Active Backend Index rows are eligible;
+- Meeting uses authoritative Google Doc text;
+- Pitchbook body is not duplicated; metadata and authoritative Drive link are exported;
+- server-side count/character limits stop oversized exports before unnecessary Meeting Doc reads;
+- Google Docs / PDF are derived copies under the configured Knowledge Exports folder;
+- links are bound to stable file IDs and written as explicit Docs hyperlinks;
+- provider-neutral five-mode prompts use Master display names plus stable IDs;
+- prompt text, source bodies, answers, chunks, embeddings, and bytes are excluded from Audit;
+- permission equivalence and retention/deletion behavior require target-runtime evidence before production rollout.
 
-## Apps Script setup
+## Apps Script setup and public surface
 
-Normal setup is Apps Script-first.
-
-Administrator/editor runs (normal users cannot call these through `google.script.run`):
+Editor-only/private setup functions:
 
 ```text
 setupKnowledgePlatform_()
@@ -229,61 +242,62 @@ validateInstallation_()
 getInstallationStatus_()
 ```
 
-Setup creates / reuses / migrates:
+Setup is idempotent create / reuse / migration / repair. It manages knowledge folders, backend/Audit resources, baseline sheets, seeds, Settings/schema, and authorized triggers. It is not exposed through `google.script.run`.
 
-- knowledge folders
-- backend Spreadsheet
-- separate Audit Spreadsheet
-- five backend sheets
-- Master seeds
-- Settings / schema version
-- required triggers
+Only the canonical normal-user facade is top-level/browser-callable. Setup, status, validation, retention, manual sync, diagnostics, trigger handlers, raw adapters, and destructive helpers remain private.
 
-Setup is idempotent and is also the repair / migration path.
+Production business behavior must exist in production source. Test loaders may not inject missing production-named helpers and then treat the harness PASS as native readiness.
 
-## Apps Script public surface
+## Validation commands
 
-Apps Script HTML Serviceでは、top-level関数は末尾`_`がない限りbrowserから呼び出せます。`ksp` prefixはprivacy boundaryではありません。通常利用者向けの公開関数は、Web Appが実際に使用するfacade allowlistだけです。setup、status、validation、retention、manual sync、diagnostics、trigger handler、Drive / Docs / Sheets adapterはprivate関数として保持します。
+```text
+npm run check
+git diff --check
+python tools/validate_agent_foundation.py
+```
 
-公開surfaceの回帰検証は`npm run check`に含まれる`public-surface` validatorで実行します。
+Run targeted deterministic tests first. Run the canonical suite when change risk justifies it. Then obtain the smallest native Apps Script / Workspace / browser / Gemini evidence that local tests cannot prove.
 
-## Development sequence
+## Work control
 
-- Work 0004: Apps Script scaffold + idempotent setup
-- Work 0005: Meeting vertical slice
-- Work 0006: Pitchbook vertical slice
-- Work 0007: maintenance / concurrency / Masters / Phase 1 qualification
-- Work 0008: Gemini File Search thin slice + 自由質問
-- Work 0009: 15-minute sync + six formats + EML
-- Work 0010: four presets + production qualification
-- Work 0011: Knowledge Export / external-AI prompt handoff
-- Work 0012: public-surface security hardening and reliability validation
+- Work ID tracks one stable outcome/theme.
+- Each distinct Codex execution request receives `<WORK_ID>-CODEX-<NN>`.
+- `BALL` and `STATUS` are tracked in the Work dispatch register and PR body.
+- Active Work state belongs in handoffs/PRs, not root AGENTS or this README.
 
-ChatGPT owns design / GitHub / review / completion. Codex is used for residual implementation, testing, runtime validation, and debugging.
+See:
+
+- [Work Control](docs/agent-governance/work-control.md)
+- [Dispatch Control](docs/agent-governance/dispatch-control.md)
+- [Handoff Template](docs/handoff-template.md)
 
 ## Design principles
 
 1. Keep authoritative storage simple.
 2. Separate source of truth from AI index.
-3. Prefer metadata for exact filters and embeddings for semantic search.
-4. Every AI output must trace back to source.
-5. AI failure must not stop source capture.
-6. Do not add architecture merely to preserve an arbitrary upload limit or identity requirement.
-7. Do not add custom Vector DB, ACL system, Agent framework, or model router until a concrete need is demonstrated.
+3. Use metadata for exact filters and embeddings for semantic search.
+4. Trace AI output back to source.
+5. Do not let AI failure stop source capture.
+6. Prove the actual target runtime early with the shortest coherent slice.
+7. Isolate test data/resources and guard effects rather than maintaining a drifting parallel environment by default.
+8. Do not add architecture merely to preserve arbitrary limits or theoretical future needs.
 
 ## Documentation
 
 - [Documentation index](docs/README.md)
 - [Product Vision](docs/product/vision.md)
 - [Target Architecture](docs/architecture/target-architecture.md)
-- [Planning Baseline](docs/planning/mvp-and-roadmap.md)
 - [Apps Script Implementation Plan](docs/planning/apps-script-implementation-plan.md)
-- [Runtime / Operations](docs/operations/runtime-policy.md)
+- [Runtime Policy](docs/operations/runtime-policy.md)
+- [Target-Runtime-First Decision](docs/decisions/target-runtime-first-development.md)
+- [Decision Log](docs/decisions/decision-log.md)
 - [Gemini File Search](docs/ai/gemini-file-search.md)
 - [Security](docs/governance/security.md)
 - [Audit / Actor Decision](docs/decisions/audit-access-and-user-attribution.md)
 - [Upload Limit Decision](docs/decisions/pitchbook-upload-limits.md)
+- [Work Control](docs/agent-governance/work-control.md)
+- [Dispatch Control](docs/agent-governance/dispatch-control.md)
 
 ## Repository data policy
 
-公開GitHubには設計、source code、匿名化 / 合成test dataのみを保存する。実Meeting、Pitchbook、個人情報、未公開deal情報、API keys、credentials、internal IDs、private URLsを保存しない。
+GitHub stores design, production source code, and synthetic/anonymized test data only. Do not commit real Meeting records, Pitchbooks, personal information, non-public deal information, API keys, credentials, organization-specific IDs, deployment IDs, private URLs, or local machine mappings.

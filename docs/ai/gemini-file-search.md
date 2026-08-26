@@ -1,30 +1,30 @@
 # Gemini File Search Retrieval Design
 
-## Status
+Current as of: 2026-08-26
 
 Status: Accepted
 
-This document defines the AI retrieval / answering layer on top of the authoritative Google Workspace source layer.
+This document defines the AI retrieval/answering layer on top of the authoritative Google Workspace source layer.
 
-Shared Drive remains authoritative. Gemini File Search is derived and rebuildable.
+Shared Drive remains authoritative. Gemini File Search is derived/rebuildable. Billing-enabled runtime use and confidential-source indexing remain separately authorized under `docs/decisions/target-runtime-first-development.md` and `docs/governance/security.md`.
 
-## Goal
+## 1. Goal
 
-Allow users to ask questions, summarize, organize chronologically, compare, and prepare for meetings across accumulated Meeting records and Pitchbook/source materials, with grounded outputs, citations, and Drive links.
+Allow authorized users to ask questions, summarize, organize chronologically, compare, and prepare for meetings across accumulated Meeting records and Pitchbook/source materials, with grounded outputs, citations, and authoritative Drive links.
 
-## Core architecture
+## 2. Core architecture
 
 ```text
 Google Shared Drive authoritative sources
   ├─ Meeting Records
   └─ Pitchbooks / source materials
           |
-          | 15-minute derived sync
+          | bounded derived sync
           v
 Gemini File Search Store
   ├─ managed chunks
   ├─ managed embeddings
-  └─ custom metadata
+  └─ Custom Metadata
           |
           v
 Configured Gemini Flash
@@ -41,28 +41,57 @@ Apps Script Knowledge Search
 Grounded output + citations + Drive links
 ```
 
-## Core principles
+## 3. Core principles
 
-1. Shared Drive is the system of record.
-2. Start with one File Search Store across all Asset Classes.
-3. Let File Search manage chunking / embeddings / semantic retrieval.
-4. Use exact human-controlled metadata for filters.
-5. Do not add custom Vector DB, embedding pipeline, keyword taxonomy, Knowledge Graph, or Agent framework initially.
-6. Only Active sources are available to normal retrieval.
-7. All authorized Web App users share access to all Active indexed sources initially.
-8. Every output must preserve traceability to original Drive source.
-9. AI indexing failure never invalidates authoritative registration.
-10. Use one configured Gemini Flash model with no user model selector / Deep mode.
+1. Shared Drive is the source of truth.
+2. Start with one File Search Store across accepted Asset Classes.
+3. Let File Search manage chunking, embeddings, and semantic retrieval.
+4. Use stable human-controlled metadata for exact filters.
+5. Do not add a custom Vector DB, embedding pipeline, keyword taxonomy, Knowledge Graph, Agent framework, or model router initially.
+6. Only Active sources are normally retrievable.
+7. Authorized Web App users share the accepted common Active-source boundary initially.
+8. Every output preserves traceability to the original Drive source.
+9. AI indexing/query failure never invalidates authoritative registration or maintenance.
+10. Use one approved/configured Gemini Flash model with no user model selector/Deep mode.
+11. Real confidential data is indexed only through an approved environment and explicit authorization.
+12. A mock/fixture/test loader proves only request/response logic; actual Store, billing, permissions, formats, filters, citations, and retention require target-runtime evidence.
 
-## Source indexing
+## 4. Target runtime, test data, and side effects
+
+### Target runtime
+
+AI capability must ultimately work through:
+
+- the actual Apps Script/Workspace production source path;
+- the approved Gemini/File Search API environment;
+- the configured Store/model/credential path;
+- actual source upload/index/query/citation behavior;
+- the final Web App/browser result path.
+
+### Isolated qualification data
+
+Use synthetic or appropriately anonymized Meeting/Pitchbook sources and clearly segregated test Drive resources, Store documents, stable IDs, metadata, and records.
+
+### Guarded side effects
+
+Keep these separately disabled/guarded until authorized:
+
+- billing-enabled Gemini/File Search calls;
+- confidential source upload/indexing;
+- scheduled/installable sync triggers;
+- broad user exposure;
+- derived-document deletion/retention operations;
+- production Store migration or replacement.
+
+A separate AI DEV/Staging environment is optional only when it provides unique material safety or evidence not achievable through isolated resources and bounded calls in the approved target environment.
+
+## 5. Source indexing
 
 ### Meeting
 
-Google Docs remain authoritative.
+The Google Doc remains authoritative. Apps Script reads the compact authoritative text and uploads a derived representation to File Search. The derived AI copy can be deleted/rebuilt without affecting the Doc.
 
-Apps Script reads compact Meeting text and uploads a derived text representation to File Search. The AI copy can be deleted / rebuilt without affecting source Doc.
-
-### Pitchbook / source materials
+### Pitchbook/source materials
 
 Initial supported extensions:
 
@@ -75,7 +104,7 @@ Initial supported extensions:
 .eml
 ```
 
-Initial product upload limit:
+Initial product limits:
 
 ```text
 25MB / file
@@ -83,22 +112,20 @@ Initial product upload limit:
 100MB total / selection
 ```
 
-The AI indexing path only needs to qualify the accepted <=25MB/file product path. 100MB/file transport is not an initial requirement.
+The AI path only needs to support the accepted product path. If <=25MB is impractical in actual Apps Script/File Search behavior, lower the product limit before adding dedicated transport architecture.
 
-If <=25MB still proves impractical in Apps Script, lower the product limit before adding dedicated upload architecture.
+Unsupported source formats may remain valid Shared Drive records with `NotIndexed`.
 
 ### Outlook EML
 
-- keep original `.eml` in Shared Drive
-- index normalized UTF-8 text containing available Subject / From / To / Cc / Date / Body
-- convert HTML body to readable text
-- do not auto-index embedded attachments
-- register important attachments separately
-- `.msg` is initially out of scope
+- keep original `.eml` in Shared Drive;
+- index normalized UTF-8 text containing available Subject/From/To/Cc/Date/Body;
+- convert HTML body to readable text;
+- do not automatically index embedded attachments;
+- register material attachments separately;
+- `.msg` remains initially out of scope.
 
-Unsupported source formats may remain valid Shared Drive records but use `NotIndexed`.
-
-## Custom metadata
+## 6. Custom Metadata
 
 Initial metadata:
 
@@ -116,111 +143,102 @@ drive_url
 saved_filename
 ```
 
-Use stable IDs for exact filtering. Display names are presentation metadata.
+Use stable IDs for exact filtering. Display names are presentation metadata. Missing optional fields are absent/null. UI-only `未選択` is never persisted.
 
-Do not store `未選択`. Missing optional metadata is absent / null.
+Later accepted structured fields are added append-only and use stable IDs.
 
-## Access model
+## 7. Access model
 
-Initial retrieval access is intentionally simple.
+- only authorized Web App users may use Knowledge Search;
+- all such users share the accepted common Active-source access boundary initially;
+- no per-user/per-GP/per-file retrieval ACL initially;
+- internet-public access is not assumed;
+- differentiated source permissions require a new explicit architecture/security decision.
 
-- authorized Web App users may use Knowledge Search
-- all such users may retrieve across all Active indexed sources
-- no per-user / per-GP / per-file retrieval ACL initially
-- internet-public access is not assumed
-- if differentiated source permissions become necessary, treat that as a new architecture requirement
+The actual Web App access setting, executing identity, Store/credential ownership, and source permissions are target-runtime release evidence.
 
-## Knowledge Search UI
+## 8. Knowledge Search UI
 
-### Modes
+Modes:
 
 ```text
 自由質問 | 要約 | 時系列 | 比較 | 面談準備
 ```
 
-`自由質問` is default.
+`自由質問` is default. All modes share one Store, metadata-filter builder, semantic retrieval path, configured Flash model, and citation mapping. Presets change prompt/output structure only.
 
-All modes use the same Store / metadata filters / semantic retrieval / configured Flash / citation mapping. Presets change prompt / output template only.
+Shared filters include accepted Date, GP, Asset Class, Capital Type, Source Type, and later structured fields. `未選択` means no filter and is omitted from persisted/query metadata.
 
-### Shared filters
+Instruction behavior:
 
-- Date From / To
-- GP
-- Asset Class
-- Equity / Debt
-- Source Type: Meeting / Pitchbook
+- 自由質問: a natural-language question is required;
+- preset modes: the same area becomes optional `追加指示`;
+- presets work without additional instruction when the selected metadata scope is sufficient.
 
-Dropdowns show UI-only `未選択` initially. `未選択` means no filter and is never persisted.
-
-### Instruction field
-
-- 自由質問: natural-language question is required
-- preset modes: same area becomes optional `追加指示`
-- presets must work without additional instruction when metadata scope is sufficient
-
-## Mode contracts
+## 9. Mode contracts
 
 ### 自由質問
 
-- direct grounded answer
-- supporting points
-- uncertainty / insufficient evidence note when applicable
-- citations + Drive links
+- direct grounded answer;
+- supporting points;
+- uncertainty/insufficient evidence note;
+- citations and Drive links.
 
 ### 要約
 
-- main themes / findings
-- material facts / viewpoints
-- supported changes / contradictions
-- concise takeaways
-- citations
+- cross-source synthesis;
+- main themes/findings;
+- material facts/viewpoints;
+- supported changes/contradictions;
+- concise takeaways;
+- citations.
 
-Synthesize across sources; do not simply concatenate per-document summaries.
+Do not merely concatenate per-document summaries.
 
 ### 時系列
 
-- dated / period chronology
-- change vs prior periods
-- continuity
-- evidence gaps
-- citations per material period / change
+- dated/period chronology;
+- change versus prior periods;
+- continuity;
+- evidence gaps;
+- citations per material period/change.
 
-Do not infer a change merely because different documents mention different topics.
+Do not infer change merely because different documents mention different topics.
 
 ### 比較
 
-- compare GP / source / period / strategy on common dimensions
-- compact comparison table when useful
-- opportunities / risks / outlook / valuation / returns where supported
-- agreements / disagreements
-- citations per target
+- common-dimension comparison across selected targets/periods;
+- compact table where useful;
+- supported opportunities/risks/outlook/valuation/returns;
+- agreements/disagreements;
+- citations per target.
 
-Multi-select UI is optional future refinement, not an architecture requirement.
+Multi-select UI remains an optional refinement, not an architecture requirement.
 
 ### 面談準備
 
-- recent meetings / sources
-- key statements / updates
-- changes since prior discussions
-- unresolved topics
-- items to reconfirm
-- suggested next questions
-- citations / Drive links
+- recent meetings/sources;
+- key statements/updates;
+- changes since prior discussions;
+- unresolved topics;
+- reconfirmation points;
+- suggested next questions;
+- citations/Drive links.
 
-When a specific GP is required, UI should prompt for GP selection rather than produce an over-broad brief.
+When a specific GP is required, prompt for selection rather than produce an over-broad brief.
 
-## Retrieval flow
+## 10. Retrieval and answer flow
 
 ```text
-Mode + question / additional instruction
+Mode + question/additional instruction
    |
-   +--> metadata filters
-   |
-   v
-Gemini File Search semantic retrieval
+   +--> exact metadata filters
    |
    v
-Relevant chunks
+File Search semantic retrieval
+   |
+   v
+Relevant grounded chunks
    |
    v
 Configured Gemini Flash
@@ -232,48 +250,45 @@ Mode-specific output template
 Grounded output + citations + Drive links
 ```
 
-## Answer behavior
+All modes:
 
-All modes must:
+- use retrieved knowledge-base sources only;
+- distinguish grounded fact from synthesis/inference;
+- surface uncertainty/insufficient evidence;
+- identify source records used;
+- link to authoritative Drive sources;
+- do not expose model routing/deep-analysis controls initially.
 
-- use retrieved knowledge-base sources only
-- distinguish grounded facts from synthesis / inference
-- surface uncertainty / insufficient evidence
-- show source records used
-- link to authoritative Drive source
+## 11. Synchronization lifecycle
 
-Do not expose model selection or deep-analysis routing initially.
+### Registration
 
-## Synchronization lifecycle
-
-### New registration
-
-1. save authoritative source + backend Index
-2. set AI status `Pending`
-3. return registration success immediately
-4. scheduled worker indexes source
-5. success → `Indexed`
-6. failure → `Failed`, no authoritative rollback
+1. save authoritative source and Backend Index;
+2. set AI state `Pending`;
+3. return registration success independently of AI;
+4. bounded worker/direct handler indexes the source;
+5. success → `Indexed`;
+6. failure → `Failed` without authoritative rollback.
 
 ### Update
 
-- keep stable Meeting ID / Document ID / Drive source
-- set AI synchronization state
-- remove / supersede previous AI Document
-- index latest source + metadata
-- avoid duplicate active AI Documents
+- preserve stable Meeting ID/Document ID/Drive source;
+- mark synchronization state;
+- remove/supersede previous AI Document;
+- index current source/metadata;
+- prevent duplicate active AI Documents.
 
 ### Inactivation
 
-Remove corresponding File Search Document from normal retrieval.
+Remove the corresponding File Search Document from normal retrieval.
 
 ### Reactivation
 
-Re-index current authoritative source.
+Re-index the current authoritative source.
 
-## Backend AI fields
+## 12. Backend AI fields and settings
 
-Add to `Meeting_Index` and `Pitchbook_Index`:
+Meeting/Pitchbook indexes:
 
 ```text
 AI_Document_Name
@@ -286,13 +301,10 @@ AI_Last_Error
 States:
 
 ```text
-NotIndexed
-Pending
-Indexed
-Failed
+NotIndexed / Pending / Indexed / Failed
 ```
 
-## Settings
+Settings:
 
 ```text
 GEMINI_FILE_SEARCH_STORE_NAME
@@ -301,97 +313,118 @@ AI_SYNC_ENABLED
 AI_SYNC_INTERVAL_MINUTES
 ```
 
-Initial sync interval: 15 minutes.
+Initial intended sync interval is 15 minutes, but actual trigger enablement is a separately authorized side effect. Direct/private handler execution may be used for bounded qualification before installing a schedule.
 
-Credentials are never stored in user-facing Sheets, source files, or GitHub.
+Credentials never appear in user-facing Sheets, source files, generated exports, Audit, browser responses, or GitHub.
 
-## Sync execution
+## 13. Retry and cost controls
 
-- Apps Script time-driven worker every 15 minutes
-- process Pending / retryable Failed
-- stable source IDs + stored AI references make retry idempotent
-- permanent / unsupported failures are not retried indefinitely
-- do not create duplicate AI Documents for same current source revision
-- UI may indicate up to ~15 minutes until new / updated source becomes searchable
+- process bounded batches;
+- retry only retryable failures;
+- use bounded exponential backoff;
+- do not retry permanent/unsupported failures indefinitely;
+- store stable AI references and content hash for idempotency;
+- do not create duplicate active AI Documents for one current source revision;
+- define observed batch size/rate-limit/cost guardrails before production rollout;
+- do not enable broad triggers or billing merely to prove pure request-mapping logic.
 
-Retry batch size / backoff / cost guardrail values are implementation-time choices.
+## 14. Audit
 
-## Audit
+Every Knowledge Search execution writes bounded metadata to the separate Restricted Audit Spreadsheet.
 
-Every Knowledge Search execution is written to the separate restricted Audit Spreadsheet.
+Actor: email → `TEMP_USER:<key>` → `UNIDENTIFIED`.
 
-Actor attribution is best-effort:
-
-1. email if available
-2. otherwise `TEMP_USER:<temporary key>` if available
-3. otherwise `UNIDENTIFIED`
-
-AI query audit includes:
+Allowed AI query metadata:
 
 ```text
 Timestamp
 Actor
 Search mode
-Question / additional instruction
 Date From / To
-GP filter
-Asset Class filter
-Equity / Debt filter
-Source Type filter
+GP / Asset Class / Capital Type / Source Type filters
 Configured model ID
 Result
 Cited source IDs when available
-Short error when applicable
+Safe error code/message when applicable
 ```
 
-Do not store generated answer text, retrieved chunk text, embeddings, or full source contents in Audit Spreadsheet.
+Current policy redacts the question/additional-instruction text. Do not store generated answers, retrieved chunks, embeddings, full source content, raw provider payloads, credentials, or private runtime identifiers.
 
-Persistent actual-user identity is not required for initial production operation.
+Persistent user identity is not required for normal operation.
 
-## Security
+## 15. Security and release boundary
 
-- use only company-approved Gemini / Google Cloud environment for real confidential data
-- credentials are server-side only
-- Web App access is common initial retrieval boundary
-- File Search derived data follows retention / deletion requirements
-- Inactive / deletion workflows explicitly remove derived AI Documents where required
-- Audit Spreadsheet is directly accessible only to admins through Google Drive permissions
+Before production AI release establish the applicable items:
 
-## Validation before release
+- company-approved Gemini/Google Cloud environment;
+- server-side credential ownership/storage/rotation;
+- intended users may access the accepted Active-source universe;
+- derived data retention/deletion handling;
+- citation/Drive-link correctness;
+- Inactive exclusion and Reactivate behavior;
+- Restricted Audit access;
+- AI outage isolation from authoritative operations;
+- exact Apps Script/deployment/Store/resource identity;
+- production data/users/billing/triggers explicitly authorized;
+- rollback/safe-stop and bounded cleanup routes.
 
-At minimum validate:
+## 16. Validation
 
-- Meeting indexing / retrieval
-- `.pdf / .pptx / .xlsx / .docx / .txt / .eml` paths
-- EML normalization and no auto-indexing of attachments
-- <=25MB practical product path
-- 15-minute worker / retry
-- metadata filtering
-- `未選択` omits filter
-- common Active-source access for authorized users
-- citation → correct source / Drive URL
-- update → re-index without duplicate active AI Document
-- Inactive exclusion / Reactivate restoration
-- AI failure does not rollback authoritative registration
-- retry idempotency
-- audit fields are written without answer / chunk duplication
-- configured Flash model used with no user model selector
-- no confidential content / credentials leak to GitHub or inappropriate logs
+### Logic validation
 
-## Non-goals
+- request/response mapping;
+- metadata-filter determinism;
+- `未選択` omission;
+- state transitions;
+- retry/idempotency/content hash;
+- EML normalization;
+- citation/source-ID mapping;
+- safe errors/redaction;
+- no answer/chunk/question/source duplication into Audit;
+- shared retrieval path across five modes.
 
-- custom Vector DB
-- custom embedding service
-- manual keyword taxonomy
-- Knowledge Graph
-- per-user / per-source AI ACL
-- multiple user-selectable models
-- Deep mode / model routing
-- strict persistent user identity
-- Web App Audit Viewer
-- 100MB/file upload support
-- `.msg` parsing
-- automatic EML attachment indexing
-- autonomous investment decisions
-- automatic rewriting of official Meeting records
-- public-web enrichment inside same retrieval request
+### Target-runtime qualification
+
+Use isolated synthetic/anonymized sources to observe, when in scope:
+
+- actual Store/model/credential path;
+- Meeting indexing/retrieval;
+- each supported format and EML behavior;
+- accepted practical file-size path;
+- actual metadata filtering;
+- citation → correct authoritative Drive source;
+- update/re-index without duplicate active AI Document;
+- Inactive exclusion/Reactivate restoration;
+- bounded worker/direct-handler behavior;
+- trigger behavior only when authorized;
+- AI failure isolation;
+- Audit metadata/redaction;
+- Web App/browser output behavior;
+- derived-data deletion/retention and access boundary.
+
+Report separately:
+
+```text
+LOGIC_VALIDATION
+TARGET_RUNTIME_QUALIFICATION
+SIDE_EFFECT_STATE
+READY
+```
+
+A fixture/mock/test loader/CI pass is not evidence of an API, permission, file parser, Store behavior, citation, billing path, trigger, or deletion result that the actual target did not execute.
+
+## 17. Non-goals
+
+- custom Vector DB or embedding service;
+- manual keyword taxonomy or Knowledge Graph;
+- per-user/per-source AI ACL initially;
+- multiple user-selectable models;
+- Deep mode/model routing;
+- strict persistent identity;
+- Web App Audit Viewer;
+- 100MB/file support;
+- `.msg` parsing;
+- automatic EML attachment indexing;
+- autonomous investment decisions;
+- automatic rewriting of official Meeting records;
+- public-web enrichment inside the same retrieval request.

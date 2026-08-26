@@ -1,8 +1,21 @@
 # Core Rules Changelog
 
-This changelog records behavioral changes to the bounded Core Rules in root `AGENTS.md`. It exists so repositories previously created from this template can evaluate and adopt changes selectively without overwriting their Repository-Specific Rules.
+This changelog records behavioral changes to the bounded Core Rules in root `AGENTS.md`. The canonical universal wording is maintained in `Tanukitsune-hub/dev-repo-template`; repository-specific adoption does not overwrite local architecture or product contracts.
 
-Wording-only edits with no behavioral effect may be omitted.
+## 2.2 — 2026-08-26
+
+- Replaced the legacy 1.2 Core body with the compact outcome-controlled Core 2.2 contract.
+- Made target-runtime-first development the default for new `BUILD` Work after active Work 0014 closes or safely stops.
+- Separated the actual Apps Script / Workspace / Web App target runtime from production/confidential data, real users, billing, triggers, public exposure, destructive operations, and other consequential effects.
+- Added isolated test-data/resource and side-effect boundaries.
+- Added a material-justification gate for a separate DEV/Staging runtime.
+- Separated `LOGIC_VALIDATION`, `TARGET_RUNTIME_QUALIFICATION`, `SIDE_EFFECT_STATE`, and `READY` in handoffs, PRs, and completion reports.
+- Added Work Control and Dispatch Control routes and moved transient historical Work state out of root `AGENTS.md`.
+- Added a mechanical foundation validator and explicit supersession of the former feature-complete → final DEV live qualification policy.
+
+Historical Works and their evidence remain valid for what they observed. Adoption is prospective and does not interrupt Work 0014's active evidence boundary.
+
+Canonical template publication: `Tanukitsune-hub/dev-repo-template` merge `9a68a1647bb6269ab6e838613f3cf0df9cbb1f21`.
 
 ## 1.2 — 2026-08-12
 

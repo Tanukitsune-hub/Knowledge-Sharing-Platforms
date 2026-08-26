@@ -1,269 +1,174 @@
 # Repository Initialization and Re-Profile Guide
 
-Use this guide when a repository is first generated from the development template or when material changes make its existing Repository-Specific Rules unreliable.
-
-The output is a concise, verified profile inside root `AGENTS.md`, not a completed copy of every section below. Delete or omit anything that does not materially improve agent execution.
+Use this guide when material change makes the current Repository-Specific Rules unreliable. The output is a concise verified profile in root `AGENTS.md`, not a copy of this questionnaire.
 
 ## Operating rules
 
-- Inspect the repository and explicit project requirements before writing rules.
-- Use verified repository facts, executable configuration, observed behavior, or explicit user requirements.
-- Do not invent architecture, commands, versions, constraints, or conventions to fill a field.
-- Use `Not established` when a fact is genuinely unknown and not required for safe work.
-- Prefer source-of-truth paths and routing over duplicated explanations.
-- Keep detailed procedures in focused documentation or reusable Skills.
-- When repository configuration and existing guidance disagree, investigate which is stale instead of blindly copying either.
-- Do not mark the profile `ACTIVE` while placeholder tokens remain.
+- Inspect the repository and explicit requirements before writing instructions.
+- Use verified facts, executable configuration, observed behavior, or explicit user requirements.
+- Use `Not established` when an unknown is not required for safe work.
+- Prefer source paths and routes over duplicated explanations.
+- Do not activate a profile with unresolved placeholders.
+- Keep active Work state and incident chronology outside root `AGENTS.md`.
+- Default BUILD work to the actual target runtime with isolated test data/resources and guarded side effects.
+- Do not create a separate DEV/Staging runtime without a material justification under `docs/decisions/target-runtime-first-development.md`.
 
-## 1. Purpose and boundaries
+## 1. Outcome and work control
 
-Determine:
+Identify:
 
-- the outcome this repository exists to produce;
-- the primary user or consumer;
-- primary deliverables;
-- owned responsibilities;
-- important in-scope work;
-- explicit non-goals and neighboring systems owned elsewhere.
+- the repository's user-visible purpose and primary deliverables;
+- material scope and non-goals;
+- likely work modes;
+- strongest acceptable evidence for UI, Apps Script, Workspace, browser, Gemini, security, and data-integrity behavior;
+- the shortest coherent target-runtime slice that can prove the architecture early;
+- external-action authorization boundaries;
+- incident mitigations and rollback paths.
 
-A useful purpose statement lets an agent distinguish necessary implementation from scope expansion.
+Route task-level execution to `docs/agent-governance/work-control.md`; do not encode temporary attempt budgets, active Work status, or hypotheses in the root profile.
 
-## 2. Sources of truth
+## 2. Sources of truth and project map
 
-Identify authoritative locations for:
-
-- application or model behavior;
-- configuration;
-- schemas, contracts, and persisted formats;
-- generated artifacts and their editable sources;
-- user-facing documentation;
-- external systems or documents explicitly designated as authoritative.
-
-Distinguish authored source, generated output, cache, fixture, example, and external reference. If an output is generated, record what must be edited and how the output is regenerated.
-
-## 3. Project map
+Identify authoritative locations for application behavior, configuration, schemas, generated artifacts, documentation, and explicitly designated external systems.
 
 List only paths needed for safe navigation:
 
-| Path | Responsibility | Write Policy / Notes |
+| Path | Responsibility | Write policy |
 |---|---|---|
 | `<path>` | `<responsibility>` | `<source / generated / restricted / other>` |
 
-Include important entry points, core modules, schemas, tests, generators, and integration boundaries. Do not create a complete file inventory.
+Distinguish production source, generated output, cache, fixture, example, isolated test resource, historical evidence, and external reference.
 
-## 4. Architecture and responsibility boundaries
+For this repository, verify current routes at minimum for product, architecture, implementation plan, runtime policy, target-runtime decision, security, decision log, handoffs, and validation.
 
-Record:
+## 3. Architecture, boundaries, and invariants
 
-- major components and their ownership;
-- dependency or data-flow direction;
-- where orchestration ends and domain logic begins;
-- which component is the sole source of truth for each important concern;
-- boundaries whose violation would create duplication, inconsistent behavior, or architectural drift.
+Record major components, dependency direction, responsibility boundaries, and durable testable invariants. Link maintained architecture documents when the explanation no longer fits concisely.
 
-Prefer a link to maintained architecture documentation when the explanation no longer fits concisely in `AGENTS.md`.
+Include separation between:
 
-## 5. Architecture and domain invariants
+- production source and test-only helpers;
+- target runtime and local/simulated harnesses;
+- isolated test data/resources and authoritative production data;
+- deployment state and user/public exposure;
+- guarded side effects and enabled side effects;
+- Shared Drive authoritative sources and Gemini-derived/rebuildable index;
+- normal-user public facade and private/editor-only Apps Script functions.
 
-Write only durable truths that can be tested or inspected, for example:
+## 4. Target runtime, data, and exact commands
 
-- financial identities or model relationships;
-- valid state transitions;
-- dependency direction;
-- schema compatibility;
-- ordering and idempotency guarantees;
-- public API or file-format contracts;
-- authored-versus-generated ownership;
-- separation between runtime and deployment concerns.
-
-Do not record preferences, aspirations, or temporary implementation choices as invariants.
-
-## 6. Runtime, toolchain, and environment
+Derive commands from executable configuration rather than convention.
 
 Record:
 
-- language and runtime;
-- supported versions when material;
-- package or dependency manager;
-- primary platform assumptions;
-- required local applications;
-- external services;
-- environment restrictions;
-- environment-variable names and purpose, never secret values.
+- actual Apps Script project/runtime, Workspace APIs, Web App deployment shape, browser behavior, and approved Gemini/File Search path;
+- supported runtime/toolchain versions when material;
+- isolated test-data namespace, folder, Spreadsheet, Doc, account, resource, stable ID, or record prefix;
+- side-effect controls such as dry-run, inactive deployment, test recipients, disabled triggers, allowlists, bounded counts, exact-ID checks, or cleanup route;
+- setup and synchronization;
+- targeted and full logic tests;
+- lint/static/diff checks;
+- target-runtime smoke/native/manual qualification;
+- safety and concurrency constraints.
 
-Use a small table for external services or settings only when it improves clarity.
+Do not label a local simulator, mock, test loader, CI runner, alternate Apps Script project, My Drive substitute, or alternate office suite as the target runtime unless the delivered capability will actually operate there.
 
-## 7. Exact commands
+## 5. Separate staging decision
 
-Derive canonical commands from executable repository configuration such as a task runner, `Makefile`, package scripts, project files, or CI.
+The default is `Not required`. A separate DEV/Staging runtime needs a recorded material reason, such as:
 
-Record as applicable:
+- unacceptable irreversible data blast radius despite isolated data and guarded effects;
+- legal, regulatory, security, tenant, or segregation requirements;
+- migration, concurrency, scale, public routing, or rollback that cannot be exercised safely in the target runtime;
+- material Gemini billing, rate-limit, availability, or operator disruption;
+- a platform that cannot safely isolate test resources or feature exposure;
+- an explicit user requirement.
 
-- setup;
-- build;
-- targeted tests;
-- full test suite;
-- lint and formatting;
-- type or static checks;
-- runtime or smoke tests;
-- native-application or manual validation;
-- generation or synchronization commands.
+State the unique evidence the extra environment provides, its differences from the target, synchronization method, and retirement condition. Do not maintain a second environment that cannot faithfully reproduce required functions, APIs, permissions, Workspace object shapes, persistence, rendering, or deployment behavior.
 
-Do not invent conventional commands. State when each command applies and whether it is safe to run concurrently.
+## 6. Risk-based validation
 
-## 8. Validation matrix
+Define the evidence needed by change type:
 
-Define risk-based expectations:
-
-| Change Type | Required Validation | Expected Evidence |
-|---|---|---|
-| Small isolated logic change | `<validation>` | `<evidence>` |
-| Cross-component change | `<validation>` | `<evidence>` |
-| Schema or contract change | `<validation>` | `<evidence>` |
-| Generated artifact change | `<validation>` | `<evidence>` |
-| Release or final integration | `<validation>` | `<evidence>` |
-
-Adapt rows to the repository. Do not require every possible check for every change.
-
-## 9. Generated files and derived artifacts
-
-For each material artifact, record:
-
-| Artifact / Path | Generated From | Regeneration Method | Manual Editing |
+| Change type | Logic validation | Target-runtime qualification | Side-effect boundary |
 |---|---|---|---|
-| `<artifact>` | `<source>` | `<command or procedure>` | `<allowed / prohibited>` |
+| Small isolated pure logic | targeted deterministic test | `N/A` or focused smoke when runtime coupling exists | explicit state |
+| Meeting/Pitchbook cross-component | schema/validation/ID/retry regression | isolated create, persist, reopen, search/readback | production data/users guarded |
+| Schema or durable contract | migration/idempotency/invariants | exact resource migration/readback | destructive migration disabled unless authorized |
+| Drive/Docs/browser integration | mapping/link/state tests | actual parent/link/object/browser evidence | broad exposure/cleanup guarded |
+| Gemini/File Search | request/filter/citation contract | authorized synthetic index/query/citation | billing/confidential indexing guarded |
+| Trigger/worker | handler/idempotency tests | authorized trigger or direct-handler runtime evidence | trigger disabled until authorized |
+| Production rollout | full relevant logic suite | exact target, permissions, data/access, rollback evidence | explicitly enabled effects only |
 
-Also decide whether generated artifacts are committed, whether deterministic reproduction is expected, and whether native recalculation, rendering, signing, or comparison with checked-in references is required.
+Do not require every possible check for every change. Do not infer target-runtime readiness from logic-only evidence.
 
-## 10. External and durable contracts
+## 7. Generated artifacts and durable contracts
 
-Record compatibility requirements for applicable surfaces:
+For each material artifact, state its editable source, regeneration method, commit policy, and whether native rendering/readback is required.
 
-- public APIs;
-- CLI interfaces;
-- spreadsheet, file, and database schemas;
-- external payloads;
-- user-visible configuration;
-- persisted state;
-- released behavior;
-- integration contracts.
+Record compatibility obligations only for actually released or supported Apps Script facade functions, schemas, files, configuration, persisted state, export formats, and links.
 
-Be explicit about which compatibility boundary is released or supported. Do not create speculative compatibility obligations.
+## 8. Traps and restricted operations
 
-## 11. Known traps and failure modes
+Capture mistakes a competent agent could still make:
 
-Capture repository-specific mistakes that a competent agent could still reasonably make:
-
-| Trap / Symptom | Cause or Risk | Correct Handling |
+| Trap or symptom | Cause or risk | Correct handling |
 |---|---|---|
-| `<trap>` | `<cause>` | `<handling>` |
+| Test loader passes while Apps Script fails | helper/shape exists only in harness | require production-source helper and target-runtime smoke/readback |
+| Source appears correct but wrong remote project is mutated | project identity not independently proven | read back exact Script/resource/deployment identity before write |
+| My Drive check is treated as Shared Drive evidence | runtime semantics differ | record Shared Drive behavior as unobserved unless actually exercised |
+| Trigger/setup is enabled during a feature smoke | side effect is coupled to implementation | keep effect disabled/guarded and authorize separately |
+| Name-only cleanup selects wrong resource | ambiguous identity | use exact IDs, parent, count, allowlist, and bounded cleanup |
 
-Good entries include misleading commands, generated files that look editable, hidden coupling, platform-specific behavior, unusual test setup, legacy failures, and tempting but incorrect fixes.
+Identify production deployment, destructive scripts, migrations, authentication/authorization, billing, triggers, secrets, confidential data, permissions, and other high-risk areas.
 
-Do not use this as a general bug backlog.
+Do not use this section as a bug backlog or incident diary.
 
-## 12. Restricted or high-risk areas
+## 9. Workflow and instruction routing
 
-Identify paths or operations needing extra care, such as:
-
-- production deployment configuration;
-- migrations or destructive scripts;
-- authentication and authorization;
-- financial calculation engines;
-- signed or regulated artifacts;
-- compatibility layers;
-- secrets or private data;
-- costly or irreversible external actions.
-
-State the restriction and why it matters.
-
-## 13. GitHub, branch, and CI rules
-
-Record only repository-specific additions to Core Rules:
-
-- default development branch when material;
-- required checks;
-- release workflow;
-- workflows with special meaning;
-- known infrastructure-only failures;
-- branch, commit, or pull-request conventions.
-
-Do not duplicate generic Git safety guidance.
-
-## 14. Documentation and decision records
-
-Identify documentation that must stay synchronized with implementation:
-
-- architecture;
-- decisions;
-- product or model specifications;
-- validation records;
-- durable handoffs;
-- user-facing documentation.
-
-Create documentation only when it preserves knowledge that is not obvious from the code or executable configuration.
-
-## 15. Workflow and Skill routing
-
-Route repeatable work instead of copying the procedure into `AGENTS.md`:
-
-| Situation | Skill / Documentation / Procedure |
-|---|---|
-| `<task type>` | `<skill or path>` |
-
-Use routes only when they materially improve consistency. Verify referenced paths exist.
-
-## 16. Nested instructions and overrides
+Record focused routes for architecture, decisions, validation, handoffs, Skills, generated docs, and nested instructions.
 
 Use:
 
-- nested `AGENTS.md` for durable rules applying to a subtree;
-- `AGENTS.override.md` when the regular instruction file in that same directory must be intentionally replaced.
+- `docs/agent-governance/work-control.md` for modes and evidence;
+- `docs/agent-governance/dispatch-control.md` for Work/Dispatch ownership;
+- `docs/decisions/target-runtime-first-development.md` for environment/data/side-effect policy;
+- nested `AGENTS.md` for durable subtree rules;
+- `AGENTS.override.md` only for intentional same-directory replacement;
+- the canonical shared knowledge hook instead of copying cross-repository lessons;
+- GitHub issues or follow-up lists for tangential work.
 
-Record each local instruction file and scope in the root profile. Keep critical root rules compact so the combined instruction chain stays within agent context limits.
+## 10. Repository-specific completion and review
 
-After adding or changing instruction files, start a new Codex run and verify which sources are active.
+Add only requirements not already covered by Core Rules, such as:
 
-## 17. Code review rules
+- exact Apps Script/source/target identity;
+- Workspace persist/readback;
+- Shared Drive parentage/permission behavior;
+- public-facade privacy boundary;
+- schema/setup idempotency;
+- Audit redaction/access;
+- Gemini citation/source traceability;
+- side-effect state and rollout authorization.
 
-Add rules only when they describe repository-specific behavior to flag, a safe path, or an accepted exception.
-
-Good review rules are:
-
-- concrete;
-- attributable to a diff;
-- focused on behavior, invariants, contracts, security, or reliability;
-- located in the closest applicable instruction file.
-
-Leave mechanical formatting and lint checks to automation.
-
-## 18. Repository-specific completion and escalation
-
-Add only requirements that materially affect whether work is safe and usable:
-
-- native application validation;
-- generated artifact regeneration;
-- schema synchronization;
-- compatibility evidence;
-- manual runtime checks;
-- required documentation updates.
-
-Add repository-specific escalation conditions only when normal implementation cannot safely proceed.
+Behavior-oriented code-review rules belong near affected code. Leave mechanical formatting and lint checks to automation.
 
 ## Activation checklist
 
-Change `REPOSITORY_RULES_STATUS` to `ACTIVE` only when all applicable items pass:
+Set `REPOSITORY_RULES_STATUS: ACTIVE` only when:
 
-- [ ] Project purpose, primary user, deliverables, scope, and material non-goals are clear.
-- [ ] Sources of truth and editable-versus-generated ownership are verified.
-- [ ] The project map covers important entry points, tests, generators, and integration boundaries.
-- [ ] Material architecture boundaries and invariants are recorded or routed to maintained documentation.
-- [ ] Runtime, environment, and exact commands are verified from executable configuration.
-- [ ] Validation expectations are risk-based and evidence-oriented.
-- [ ] Generated artifacts and durable contracts are addressed where applicable.
-- [ ] Known traps and high-risk areas have been reviewed.
-- [ ] Workflow, documentation, Skill, and local-instruction routes exist and are valid.
-- [ ] Repository-specific code review, completion, and escalation rules are included only where necessary.
-- [ ] No `<placeholder>` tokens remain in the Repository-Specific Rules section.
-- [ ] The project README has replaced generic template boilerplate.
-- [ ] A new agent run confirms the intended instruction sources are active.
+- [ ] purpose, primary user, deliverables, scope, and non-goals are clear;
+- [ ] sources of truth and project map are verified;
+- [ ] architecture boundaries and invariants are recorded or routed;
+- [ ] actual target runtime and deployment shape are named;
+- [ ] isolated test-data/resources and side-effect controls are defined;
+- [ ] separate staging is rejected by default or materially justified;
+- [ ] exact commands and environment assumptions are verified;
+- [ ] logic validation and target-runtime qualification are distinguished;
+- [ ] generated artifacts and durable contracts are addressed;
+- [ ] high-risk operations, rollback routes, and known traps are reviewed;
+- [ ] documentation, knowledge, handoff, dispatch, and local-instruction routes exist;
+- [ ] no placeholder tokens remain in the active profile;
+- [ ] the README is project-specific;
+- [ ] `python tools/validate_agent_foundation.py` passes;
+- [ ] a fresh agent run confirms the intended instruction chain.

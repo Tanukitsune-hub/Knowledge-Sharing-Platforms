@@ -4,7 +4,8 @@
   "private": true,
   "description": "Local validation tooling for the Apps Script Knowledge Sharing Platforms project.",
   "scripts": {
-    "check": "node scripts/validate-apps-script.cjs && node scripts/validate-public-surface.cjs && node --test tests/*.test.cjs",
+    "check": "python tools/validate_agent_foundation.py && node scripts/validate-apps-script.cjs && node scripts/validate-public-surface.cjs && node --test tests/*.test.cjs",
+    "check:agent-foundation": "python tools/validate_agent_foundation.py",
     "test": "node --test tests/*.test.cjs"
   },
   "engines": {
