@@ -4,10 +4,19 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+function formatDateInTimeZone(value, timezone) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(value);
+  const byType = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day}`;
+}
+
 function loadMaintenance() {
   const context = vm.createContext({
     console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp,
-    Error, TypeError, Set, Map, Intl
+    Error, TypeError, Set, Map, Intl,
+    Utilities: { formatDate: formatDateInTimeZone }
   });
   const bootstrap = `
 var KSP_STATUS=Object.freeze({ACTIVE:'Active',INACTIVE:'Inactive'});
@@ -17,7 +26,7 @@ var KSP_AUDIT_RESULTS=Object.freeze({SUCCESS:'Success',FAILURE:'Failure'});
 var KSP_SHEET_NAMES=Object.freeze({GP_MASTER:'GP_Master',OPTION_MASTER:'Option_Master',MEETING_INDEX:'Meeting_Index',PITCHBOOK_INDEX:'Pitchbook_Index',AUDIT_LOG:'Audit_Log'});
 var KSP_RESOURCE_KEYS=Object.freeze({BACKEND_SPREADSHEET:'backendSpreadsheetId',AUDIT_SPREADSHEET:'auditSpreadsheetId'});
 var KSP_OPTION_TYPES=Object.freeze({LOCATION:'LOCATION',ASSET_CLASS:'ASSET_CLASS',CAPITAL_TYPE:'CAPITAL_TYPE',TEAM:'TEAM'});
-var KSP_DEFAULTS=Object.freeze({LOCK_TIMEOUT_MS:30000});
+var KSP_DEFAULTS=Object.freeze({LOCK_TIMEOUT_MS:30000,TIMEZONE:'Asia/Tokyo'});
 function kspDeepClone_(value){return value===undefined?undefined:JSON.parse(JSON.stringify(value));}
 function kspAssert_(condition,code,message){if(!condition){var error=new Error(message);error.code=code;throw error;}}
 function kspGetErrorCode_(error,fallback){return error&&error.code?String(error.code):(fallback||'UNEXPECTED_ERROR');}

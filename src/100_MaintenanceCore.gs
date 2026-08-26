@@ -87,7 +87,7 @@ function kspMaintenanceCellText_(value, kind) {
   }
   if (isNaN(value.getTime())) return '';
   if (kind === 'date') {
-    return [value.getUTCFullYear(), String(value.getUTCMonth() + 1).padStart(2, '0'), String(value.getUTCDate()).padStart(2, '0')].join('-');
+    return kspCanonicalPitchbookDateKey_(value);
   }
   if (kind === 'time') {
     return [String(value.getUTCHours()).padStart(2, '0'), String(value.getUTCMinutes()).padStart(2, '0')].join(':');
@@ -522,7 +522,7 @@ function kspMeetingAuditSnapshot_(row) {
 
 function kspPitchbookAuditSnapshot_(row) {
   return {
-    Document_ID: row.Document_ID || '', Batch_ID: row.Batch_ID || '', Date: row.Date || '',
+    Document_ID: row.Document_ID || '', Batch_ID: row.Batch_ID || '', Date: kspCanonicalPitchbookDateKey_(row.Date),
     GP_ID: row.GP_ID || '', Asset_Class_ID: row.Asset_Class_ID || '',
     Capital_Type_ID: row.Capital_Type_ID || '', Fund_Strategy: row.Fund_Strategy || '', Sequence_No: Number(row.Sequence_No || 0),
     File_ID: row.File_ID || '', File_URL: row.File_URL || '',

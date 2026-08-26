@@ -54,3 +54,38 @@ function kspMaintenanceWriteSheetFields_(sheet, headers, rowNumber, fields) {
     );
   });
 }
+
+function kspMaintenanceWriteSheetFieldsWithRollback_(sheet, headers, rowNumber, fields, beforeRow) {
+  var changes = Object.keys(fields).map(function (header) {
+    var columnIndex = headers.indexOf(header);
+    kspAssert_(columnIndex !== -1, 'SHEET_HEADER_MISSING', 'Sheet header not found: ' + header);
+    return {
+      columnIndex: columnIndex,
+      before: beforeRow[header] === undefined || beforeRow[header] === null ? '' : beforeRow[header],
+      after: fields[header] === undefined || fields[header] === null ? '' : fields[header]
+    };
+  });
+  var attempted = [];
+  try {
+    changes.forEach(function (change) {
+      attempted.push(change);
+      sheet.getRange(rowNumber, change.columnIndex + 1).setValue(change.after);
+    });
+  } catch (error) {
+    var rollbackError = null;
+    for (var index = attempted.length - 1; index >= 0; index -= 1) {
+      try {
+        var change = attempted[index];
+        sheet.getRange(rowNumber, change.columnIndex + 1).setValue(change.before);
+      } catch (restoreError) {
+        rollbackError = rollbackError || restoreError;
+      }
+    }
+    if (rollbackError) {
+      var failure = new Error('Pitchbook partial write rollback failed.');
+      failure.code = 'PITCHBOOK_PARTIAL_WRITE_ROLLBACK_FAILED';
+      throw failure;
+    }
+    throw error;
+  }
+}

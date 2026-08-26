@@ -42,6 +42,7 @@ function createFakeEnvironment(options = {}) {
   const optionRows = cat.options.map(x => ({ ...x }));
   const audits = [];
   const claims = new Map();
+  const pitchbookWrites = [];
 
   function nowIso() {
     tick += 1;
@@ -99,6 +100,20 @@ function createFakeEnvironment(options = {}) {
       claims.delete(claim.claimKey);
       return { ...row };
     },
+    commitClaimedPitchbookEdit(claim, id, expected, updated) {
+      if (!this.isRecordEditClaimOwned(claim)) { const e = new Error('lost'); e.code = 'RECORD_EDIT_CLAIM_LOST'; throw e; }
+      if (options.commitError) { const e = new Error('commit failed'); e.code = 'COMMIT_FAILED'; throw e; }
+      const row = find(pitchbookRows, 'Document_ID', id);
+      if (String(row.Updated_At) !== String(expected)) { const e = new Error('stale'); e.code = 'STALE_RECORD_VERSION'; throw e; }
+      const fields = {};
+      if (ksp.kspCanonicalPitchbookDateKey_(row.Date) !== ksp.kspCanonicalPitchbookDateKey_(updated.Date)) fields.Date = updated.Date;
+      ['GP_ID','Asset_Class_ID','Capital_Type_ID','Fund_Strategy','Sequence_No','Saved_Filename','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error']
+        .forEach(key => { if (String(row[key] ?? '') !== String(updated[key] ?? '') || ['Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'].includes(key)) fields[key] = updated[key] ?? ''; });
+      Object.assign(row, fields);
+      pitchbookWrites.push(Object.keys(fields));
+      claims.delete(claim.claimKey);
+      return { ...row };
+    },
     reservePitchbookEditSequence(_claim, input) {
       const max = pitchbookRows.filter(r => r.Document_ID !== input.documentId && ksp.kspPitchbookContextMatchesRow_(r, input))
         .reduce((m, r) => Math.max(m, Number(r.Sequence_No || 0)), 0);
@@ -142,7 +157,7 @@ function createFakeEnvironment(options = {}) {
       row.Updated_At = now; row.Updated_By = actor; return { before, after: { ...row } };
     },
     deleteAuditRowsBefore(_id, cutoff) { const before = audits.length; for (let i=audits.length-1;i>=0;i--) if (audits[i].Event_Timestamp < cutoff) audits.splice(i,1); return { deletedRows: before-audits.length }; },
-    _debug: { meetingRows, pitchbookRows, gpRows, optionRows, documents, files, audits, claims }
+    _debug: { meetingRows, pitchbookRows, gpRows, optionRows, documents, files, audits, claims, pitchbookWrites }
   };
   return env;
 }

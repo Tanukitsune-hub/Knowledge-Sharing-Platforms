@@ -30,6 +30,15 @@ test('maintenance search normalizes spreadsheet Date and Time cells', () => {
   assert.equal(mapped.time, '14:30');
 });
 
+test('Pitchbook business dates use the configured Asia Tokyo timezone', () => {
+  const utcMidnight = new Date('2026-08-13T00:00:00.000Z');
+  const tokyoMidnight = new Date('2026-08-12T15:00:00.000Z');
+  assert.equal(ksp.kspCanonicalPitchbookDateKey_(utcMidnight), '2026-08-13');
+  assert.equal(ksp.kspCanonicalPitchbookDateKey_(tokyoMidnight), '2026-08-13');
+  assert.equal(ksp.kspMaintenanceCellText_(utcMidnight, 'date'), '2026-08-13');
+  assert.equal(ksp.kspMaintenanceCellText_(tokyoMidnight, 'date'), '2026-08-13');
+});
+
 test('maintenance date mapping normalizes persisted ISO date strings', () => {
   const mapped = ksp.kspMapPitchbookSearchResult_({
     Document_ID: 'DOC-000001',
@@ -104,6 +113,12 @@ test('maintenance audit snapshots exclude Meeting notes and file content', () =>
   const pitch=ksp.kspPitchbookAuditSnapshot_({Document_ID:'DOC-000001',base64Data:'secret',File_ID:'file'});
   assert.equal(JSON.stringify(meeting).includes('secret'),false);
   assert.equal(JSON.stringify(pitch).includes('secret'),false);
+});
+
+test('Pitchbook Audit snapshots compare Date objects by logical business date', () => {
+  const before = ksp.kspPitchbookAuditSnapshot_({ Date: new Date('2026-08-12T15:00:00.000Z'), Fund_Strategy: '' });
+  const after = ksp.kspPitchbookAuditSnapshot_({ Date: '2026-08-13', Fund_Strategy: 'Fund Delta' });
+  assert.deepEqual(Array.from(ksp.kspChangedMetadataFields_(before, after)), ['Fund_Strategy']);
 });
 
 test('five-year retention cutoff is deterministic', () => {

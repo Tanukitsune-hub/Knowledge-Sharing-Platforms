@@ -67,6 +67,14 @@ test('stale Pitchbook metadata update is rejected without renaming file', () => 
   assert.equal(result.ok,false); assert.equal(result.error.code,'STALE_RECORD_VERSION'); assert.deepEqual(env._debug.files.get('file-1'),before);
 });
 
+test('failed Pitchbook metadata commit restores filename and releases the edit claim', () => {
+  const env=createFakeEnvironment({commitError:true}); const before={...env._debug.files.get('file-1')};
+  const result=ksp.kspUpdatePitchbookMaintenance_(env,{documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-02',gpId:'GP-000001',assetClassId:'OPT-AC-001',capitalTypeId:''});
+  assert.equal(result.ok,false);
+  assert.deepEqual(env._debug.files.get('file-1'),before);
+  assert.equal(env._debug.claims.size,0);
+});
+
 test('Pitchbook status cannot reactivate a row without authoritative file', () => {
   const env=createFakeEnvironment({pitchbookRows:[{Document_ID:'DOC-000003',Batch_ID:'BAT-3',Date:'2026-08-01',GP_ID:'GP-000001',Asset_Class_ID:'OPT-AC-001',Capital_Type_ID:'',Sequence_No:1,File_ID:'',File_URL:'',Original_Filename:'x.pdf',Saved_Filename:'x.pdf',Status:'Inactive',Updated_At:'t'}]});
   const result=ksp.kspChangePitchbookStatus_(env,{documentId:'DOC-000003',expectedUpdatedAt:'t',targetStatus:'Active'});
@@ -188,4 +196,31 @@ test('Pitchbook Fund Strategy survives edit/search and legacy blank remains vali
   assert.equal(updated.ok,true);assert.equal(updated.record.fundStrategy,'Infra Fund IV');
   const found=ksp.kspSearchPitchbookRecords_(env,{fundStrategy:'fund iv'});assert.equal(found.ok,true);assert.equal(found.records.length,1);
   const legacy=ksp.kspSearchPitchbookRecords_(createFakeEnvironment(),{fundStrategy:''});assert.equal(legacy.ok,true);assert.equal(legacy.records.length,2);
+});
+
+test('Pitchbook Fund Strategy-only edit preserves Sheets Date and remains exactly searchable after round-trip', () => {
+  const rawDate=new Date('2026-07-31T15:00:00.000Z');
+  const row={Document_ID:'DOC-000001',Batch_ID:'BAT-000001',Date:rawDate,GP_ID:'GP-000002',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'OPT-CT-001',Sequence_No:1,File_ID:'file-1',File_URL:'https://example/file-1',Original_Filename:'source.pdf',Saved_Filename:'2026-08-01_KKR_Infrastructure_Equity_01.pdf',Status:'Active',Created_At:'2026-08-01T00:00:00.000Z',Updated_At:'2026-08-01T00:00:00.000Z',Created_By:'creator',Updated_By:'old',AI_Index_Status:'Indexed',AI_Last_Error:'',Fund_Strategy:''};
+  const env=createFakeEnvironment({pitchbookRows:[row]});
+  const updated=ksp.kspUpdatePitchbookMaintenance_(env,{documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-01',gpId:'GP-000002',assetClassId:'OPT-AC-002',capitalTypeId:'OPT-CT-001',fundStrategy:'Infra Fund IV'});
+  assert.equal(updated.ok,true,JSON.stringify(updated));
+  assert.equal(env._debug.pitchbookRows[0].Date,rawDate);
+  assert.equal(env._debug.pitchbookWrites.length,1);
+  assert.equal(env._debug.pitchbookWrites[0].includes('Date'),false);
+  const found=ksp.kspSearchPitchbookRecords_(env,{dateFrom:'2026-08-01',dateTo:'2026-08-01',gpId:'GP-000002',assetClassId:'OPT-AC-002',capitalTypeId:'OPT-CT-001',status:'Active'});
+  assert.equal(found.ok,true);assert.equal(found.records.length,1);assert.equal(found.records[0].fundStrategy,'Infra Fund IV');
+  assert.equal(env._debug.audits.length,1);
+  assert.equal(env._debug.audits[0].Changed_Fields.split(',').includes('Date'),false);
+});
+
+test('true Pitchbook date and context change writes Date, allocates sequence and remains searchable', () => {
+  const target={Document_ID:'DOC-000001',Batch_ID:'BAT-000001',Date:new Date('2026-07-31T15:00:00.000Z'),GP_ID:'GP-000002',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'OPT-CT-001',Sequence_No:1,File_ID:'file-1',File_URL:'https://example/file-1',Original_Filename:'source.pdf',Saved_Filename:'old.pdf',Status:'Active',Updated_At:'2026-08-01T00:00:00.000Z',AI_Index_Status:'Indexed',Fund_Strategy:''};
+  const existing={Document_ID:'DOC-000002',Batch_ID:'BAT-000002',Date:new Date('2026-08-01T15:00:00.000Z'),GP_ID:'GP-000001',Asset_Class_ID:'OPT-AC-001',Capital_Type_ID:'OPT-CT-001',Sequence_No:4,File_ID:'file-2',Original_Filename:'other.pdf',Saved_Filename:'other.pdf',Status:'Inactive',Updated_At:'other'};
+  const env=createFakeEnvironment({pitchbookRows:[target,existing]});
+  const updated=ksp.kspUpdatePitchbookMaintenance_(env,{documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-02',gpId:'GP-000001',assetClassId:'OPT-AC-001',capitalTypeId:'OPT-CT-001',fundStrategy:'Fund Delta'});
+  assert.equal(updated.ok,true,JSON.stringify(updated));
+  assert.equal(updated.record.date,'2026-08-02');assert.equal(updated.record.sequenceNo,5);assert.equal(updated.record.savedFilename,'2026-08-02_Apollo_PE_Equity_05.pdf');
+  assert.equal(env._debug.pitchbookWrites[0].includes('Date'),true);
+  const found=ksp.kspSearchPitchbookRecords_(env,{dateFrom:'2026-08-02',dateTo:'2026-08-02',gpId:'GP-000001',assetClassId:'OPT-AC-001',capitalTypeId:'OPT-CT-001',status:'Active'});
+  assert.equal(found.records.length,1);assert.equal(found.records[0].documentId,'DOC-000001');
 });

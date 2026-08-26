@@ -80,11 +80,7 @@ function kspBuildLegacyPitchbookSlotFingerprint_(row, reservedFile, totalBytes) 
 function kspCanonicalPitchbookDateKey_(value) {
   if (value instanceof Date) {
     if (isNaN(value.getTime())) return '';
-    return [
-      value.getUTCFullYear(),
-      String(value.getUTCMonth() + 1).padStart(2, '0'),
-      String(value.getUTCDate()).padStart(2, '0')
-    ].join('-');
+    return Utilities.formatDate(value, KSP_DEFAULTS.TIMEZONE, 'yyyy-MM-dd');
   }
   var text = value === null || value === undefined ? '' : String(value).trim();
   var isoDate = /^(\d{4}-\d{2}-\d{2})(?:T|$)/.exec(text);
