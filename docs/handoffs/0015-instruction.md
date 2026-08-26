@@ -1,8 +1,8 @@
 # Work 0015 — GP workspace / one-page summary
 
 WORK_ID: `0015`
-DISPATCH_ID: `0015-CODEX-01`
-MODE: `BUILD`
+DISPATCH_ID: `0015-CODEX-02`
+MODE: `BUILD / QUALIFICATION`
 BALL: `CODEX`
 STATUS: `READY`
 
@@ -14,7 +14,7 @@ Primary design:
 
 Active execution instruction:
 
-`docs/handoffs/0015-CODEX-01-gp-workspace-implementation-instruction.md`
+`docs/handoffs/0015-CODEX-02-finalize-readonly-qualification-and-delivery-instruction.md`
 
 ## Primary Outcome
 
@@ -30,29 +30,44 @@ The user must be able to select any GP and see:
 - Meeting ↔ Pitchbook relationships resolved by stable IDs;
 - browser-native print / Save as PDF brief.
 
-## Acceptance Evidence and Hierarchy
+## Accepted CODEX-01 Evidence
 
-1. authenticated target-runtime browser renders the workspace from the exact tested source;
-2. an existing synthetic GP returns the expected authoritative structured data and exact counts;
-3. accepted Meeting↔Pitchbook relationship and follow-up state render correctly;
-4. print-only A4 brief is bounded and reaches the browser print surface without Drive artifacts;
-5. Backend/Audit/Drive/Script Property readback proves the workspace is read-only;
-6. deterministic aggregation/client/public-surface tests pass;
-7. `npm run check` and `git diff --check` pass.
+Do not reopen:
+
+- `LOGIC_VALIDATION: PASS — 203/203`;
+- public facade: `24`;
+- exact tested source synchronization and immutable Apps Script version `31`;
+- existing verified private Web App updated in place;
+- GP Workspace screen and selected synthetic GP data: PASS;
+- relationship and follow-up display: PASS;
+- bounded print-only DOM/CSS: PASS;
+- print button reached the browser's normal native print surface: PASS.
+
+The product design requires browser-native `window.print()` and permits Save as PDF; it does not require automation to save a PDF, operate a printer, or inspect the Windows print-dialog internals. The CODEX-01 handoff explicitly classified an unobservable native dialog as an automation limitation when invocation was observed.
+
+Therefore the print/PDF brief acceptance item is closed:
+
+`PRINT / PDF BRIEF: PASS — NATIVE PRINT SURFACE REACHED`
+
+## Remaining Completion Evidence
+
+1. preserve and validate the exact CODEX-01 local source/test tree;
+2. complete one fresh read-only before/after integrity comparison without invoking print again;
+3. prove application-data side effects remain disabled;
+4. create reports;
+5. commit, push, and update Draft PR #20.
 
 ## Fastest Safe Decisive Action
 
-Build one vertical slice only:
+Resume the same local checkout, preserve the uncommitted GP Workspace changes, run the deterministic checks once, perform one read-only GP Workspace call with authoritative before/after snapshots, then deliver to GitHub.
 
-`GP selector -> getGpWorkspaceData(gpId) -> workspace render -> print-only brief -> authenticated browser readback`.
-
-Do not build analytics, a GP profile database, AI summaries, or new persistence.
+Do not resync or redeploy Apps Script version `31`.
 
 ## Target Runtime, Test Data, and Side Effects
 
 - `TARGET_RUNTIME`: the existing authenticated Apps Script Web App and supported browser.
-- `ISOLATED_TEST_DATA`: reuse accepted synthetic Work 0014 records; avoid creating new records if possible.
-- `SIDE_EFFECT_STATE`: application data writes disabled. After deterministic PASS, source sync + one immutable version + in-place update of the positively identified existing private Web App are allowed.
+- `ISOLATED_TEST_DATA`: accepted synthetic Work 0014 records.
+- `SIDE_EFFECT_STATE`: application data writes disabled. Version `31` deployment evidence is already accepted; CODEX-02 authorizes no further deployment mutation.
 - `STAGING_DECISION`: Not required.
 
 ## Sources of Truth and Closed Conclusions
@@ -69,7 +84,7 @@ Closed conclusions:
 - exactly five Backend sheets remain the architecture baseline;
 - no GP profile master or Fund master is needed for Work 0015;
 - Work 0015 is read-only presentation/aggregation;
-- browser-native print / Save as PDF is sufficient; do not create Drive report artifacts;
+- browser-native print-surface invocation is sufficient; no Drive report artifact or OS-dialog qualification is required;
 - charts/time-series analytics belong to Work 0016.
 
 ## Required Scope
@@ -82,7 +97,8 @@ Closed conclusions:
 - compact follow-up view;
 - dedicated print-only A4 landscape brief;
 - safe error/link handling;
-- public facade expected count increases by exactly one from the accepted Work 0014 baseline.
+- public facade count exactly `24`;
+- final read-only integrity and complete GitHub delivery.
 
 ## Non-Goals and Follow-ups
 
@@ -97,7 +113,8 @@ Non-goals:
 - schema migration/new Backend sheet/database;
 - Drive-generated report artifacts;
 - Gemini/File Search;
-- production rollout.
+- production rollout;
+- native print-dialog or physical/PDF-save qualification.
 
 Follow-up:
 
@@ -110,60 +127,57 @@ Follow-up:
 
 Allowed:
 
-- scoped source/tests/docs on the Work 0015 branch;
-- exact source sync after deterministic PASS;
-- exactly one immutable Apps Script version;
-- in-place update of the positively identified existing private Web App deployment.
+- preserve and commit the existing scoped local source/tests/docs;
+- exact deterministic validation;
+- one read-only GP Workspace call with authoritative before/after readback;
+- report/PR updates.
 
 Prohibited:
 
+- discarding expected uncommitted CODEX-01 work;
+- another Apps Script sync/version/deployment update;
 - new Web App deployment;
 - Library deployment mutation;
-- Backend/Audit row mutation for workspace qualification;
-- Drive source mutation;
+- Backend/Audit row mutation;
+- Drive source mutation or generated report artifact;
 - Script Property changes;
 - trigger changes;
+- print dialog re-test;
 - production data/users/billing/permissions;
 - private IDs/URLs in GitHub/report.
 
 ## Execution Budget and Strategy Reset
 
-- implementation hypotheses: one coherent design, no architecture reopening absent contradiction;
-- deployment mutation: one version + one in-place Web App update maximum;
-- browser qualification: one GP selection/render, one print-surface check, one integrity readback; repeat only if the first attempt is invalidated by a clear harness/session failure rather than an application result;
-- reset if a second distinct application hypothesis is required, the read-only invariant is violated, or current target identity cannot be proven.
+- deterministic validation: one exact-tree run;
+- target-runtime integrity: one before/after read-only comparison;
+- print: no further invocation;
+- deployment: zero mutations;
+- reset if expected local changes are missing, an authoritative mutation is observed, or a second architecture is required.
 
 ## Required Validation
 
 ### Logic Validation
 
-- GP identity / Active-Inactive behavior;
-- exact counts independent of UI caps;
-- deterministic logical-date ordering;
-- Fund / Strategy aggregation;
-- recent list caps + omitted counts;
-- follow-up filtering;
-- stable relationship resolution, Inactive preservation, unresolved-ID visibility;
-- legacy blanks;
-- URL safety/redaction;
-- print brief limits;
-- public facade expected count +1;
-- canonical full suite and diff hygiene.
+Run focused GP Workspace tests if available, then:
+
+- `npm run check`;
+- `git diff --check`.
+
+Expected result: `203/203 PASS`, public facade `24`.
 
 ### Target-Runtime Qualification
 
-Using existing synthetic data:
+Accepted screen/print evidence remains closed. Complete only final read-only integrity:
 
-- open updated existing `/exec`;
-- open GP Workspace;
-- select one synthetic GP with accepted Work 0014 Meeting/Pitchbook relationship/follow-up data;
-- verify header, exact counts, lists, follow-up, relationship resolution, safe links;
-- verify print brief and browser print surface;
-- perform authoritative readback proving no Backend/Audit/Drive/Script Property/trigger mutation.
+- capture authoritative before snapshot;
+- invoke/load the GP Workspace once for the same synthetic GP;
+- capture authoritative after snapshot;
+- prove no Backend/Audit/Drive/Script Property/trigger/AI mutation;
+- confirm deployment remains version `31`.
 
 ### Side-Effect Enablement
 
-Application data side effects remain disabled. This Work does not authorize production rollout, Gemini billing/indexing, triggers, or permission changes.
+Application data side effects remain disabled. This Work does not authorize production rollout, Gemini billing/indexing, triggers, permission changes, or Drive report generation.
 
 ## Delivery
 
@@ -171,22 +185,23 @@ Branch:
 
 `agent/0015-gp-workspace-one-page-summary`
 
-Draft PR: create before Codex execution and keep Draft / Open / unmerged until ChatGPT final review.
+Draft PR #20 remains Draft / Open / unmerged until ChatGPT final review.
 
 Codex must create:
 
-`docs/handoffs/0015-CODEX-01-gp-workspace-implementation-report.md`
+- `docs/handoffs/0015-CODEX-01-gp-workspace-implementation-report.md`;
+- `docs/handoffs/0015-CODEX-02-finalize-readonly-qualification-and-delivery-report.md`;
 
-and update canonical status/dispatch/PR body before return.
+and update canonical report/dispatch/PR status before return.
 
 ## Completion Latch
 
 Work 0015 closes when:
 
 - `LOGIC_VALIDATION: PASS`;
-- `TARGET_RUNTIME_QUALIFICATION: PASS`;
+- `TARGET_RUNTIME_QUALIFICATION: PASS` for screen/read model, relationships/follow-up, native print-surface invocation, and read-only integrity;
 - `SIDE_EFFECT_STATE: DISABLED` for application data and unauthorized external effects;
 - `READY: YES`;
 - no BLOCKER remains.
 
-Once these pass, do not add new dashboard/analytics criteria to Work 0015.
+Once these pass, do not add native-dialog, PDF-file, dashboard, or analytics criteria to Work 0015.
