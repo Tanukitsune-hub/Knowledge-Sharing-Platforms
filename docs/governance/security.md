@@ -1,40 +1,65 @@
 # Security and Information Handling Baseline
 
-## Status
+Current as of: 2026-08-26
 
-本書は、Knowledge Sharing Platformsの蓄積基盤とGemini File Search検索レイヤーに適用する初期セキュリティ / 情報管理方針を定める。
+Status: Active
 
-Works 0004–0011は実装・マージ済みで、Work 0012はApps Script public-surface、safe-error、Export link integrityのhardeningを完了した。release versionは`0.1.2`。Work 0010–0011のDEV実機qualificationとpermission equivalence確認は未観測であり、本番承認とは別である。
+This document defines the security and information-handling boundary for authoritative Google Workspace storage, the Apps Script Web App, Knowledge Export, and Gemini File Search.
 
-## Baseline requirements
+Delivery policy: `docs/decisions/target-runtime-first-development.md`
 
-1. 実際のMeeting、Pitchbook、未公開投資情報、個人情報、credentialを公開GitHubへ保存しない。
-2. 実データの正本は組織管理下のGoogle Workspace / Shared Driveに置く。
-3. 個人Drive、個人API key、個人所有credentialへ恒久依存しない。
-4. Gemini File SearchはShared Drive正本を置き換えず、再生成可能な派生AI indexとする。
-5. 実データをGemini API / File Searchへ送る本番構成は、会社承認済みGoogle Cloud / Gemini環境だけを使用する。
-6. API key / credentialをGitHub、client HTML、利用者向けSheets、原資料へ保存しない。
-7. Inactive資料を通常AI検索へ返さない。
-8. AI回答から元Shared Drive原資料へ戻れるtraceabilityを維持する。
-9. AI回答 / 要約を原資料確認なしに正式記録や投資判断として自動確定しない。
-10. AI indexing障害で正本登録 / 修正をrollbackしない。
+Runtime policy: `docs/operations/runtime-policy.md`
 
-## Common access boundary
+## 1. Baseline requirements
 
-初期版ではWeb App自体を共通アクセス境界とする。
+1. Do not commit real Meeting content, Pitchbooks, non-public investment information, personal information, credentials, private URLs, organization-specific runtime IDs, or local mappings to GitHub.
+2. Authoritative production data remains in organization-controlled Google Workspace / Shared Drive.
+3. Do not create a durable dependency on personal Drive, personal API keys, or personally owned credentials.
+4. Gemini File Search is derived/rebuildable and never replaces the Shared Drive source of truth.
+5. Real confidential data may be sent to Gemini/File Search only through a company-approved Google Cloud/Gemini environment and an explicitly authorized Work.
+6. Credentials are server-side only and never returned to browser code, stored in source files, user-facing Sheets, generated artifacts, or Audit.
+7. Inactive sources are excluded from normal retrieval.
+8. AI/Export output preserves traceability to authoritative Drive sources.
+9. AI output is not automatically promoted to an official record or investment decision without source review.
+10. AI failure never rolls back or corrupts authoritative registration/maintenance.
+11. Runtime evidence uses isolated synthetic/anonymized data and segregated resources until production-data use is separately authorized.
+12. Consequential effects remain disabled or guarded until their own authorization and evidence exist.
 
-- Web App利用を許可された利用者は、すべてのActive Meeting / Pitchbook / source materialを検索・参照できる。
-- 利用者別、GP別、file別のretrieval ACLを初期版に実装しない。
-- インターネット一般公開を前提としない。
-- 将来、利用者ごとにsource accessを分離する要件が生じた場合だけ、新しいsecurity / architecture requirementとして再設計する。
+## 2. Target runtime is not production exposure
 
-## Apps Script server-function boundary
+The actual Apps Script / Workspace / Web App runtime should be exercised early, but this does not authorize:
 
-Apps Script HTML Serviceでは、top-level server functionは末尾`_`がない限り`google.script.run`から呼び出せる。`ksp` prefixやUI上の非表示は認証・認可境界にならない。通常利用者向けの公開関数は、実際のWeb App routeだけを列挙したcanonical facade allowlistに限定し、setup、validation、status、retention、manual sync、diagnostics、trigger、raw Drive / Docs / Sheets helperはprivate関数にする。`scripts/validate-public-surface.cjs`を`npm run check`へ組み込み、destructive helperの公開を回帰として失敗させる。
+- production/confidential data;
+- real users or broad Web App exposure;
+- billing-enabled Gemini/File Search operation;
+- installable triggers;
+- external recipients;
+- physical delete, bulk mutation, retention purge, or migration;
+- irreversible permission changes.
 
-Public responsesはbackend / audit / folder / store IDs、credential state、private URLs、raw API payload、stack、source bodyを返さない。公開エラーは固定safe catalogと非機密error codeを使用する。詳細な実装エラーは通常利用者へ返さず、Auditにもsource contentやprompt本文を保存しない。
+Use synthetic/anonymized records and clearly segregated test folders, Spreadsheets, Docs, files, IDs, accounts, or namespaces. Read back exact target/resource identity before mutation.
 
-通常利用者向けfacadeは次だけである。
+A separate DEV/Staging runtime is not a security requirement by default. Use one only when isolation/guards in the target runtime cannot adequately address material legal, regulatory, tenant, segregation, blast-radius, rollback, concurrency, scale, cost, or platform risk.
+
+## 3. Common access boundary
+
+Initial Web App access is intentionally simple:
+
+- only authorized organization users may access the Web App;
+- authorized users share the accepted common access boundary across Active Meeting/Pitchbook sources;
+- no per-user/per-GP/per-file retrieval ACL initially;
+- internet-public access is not assumed;
+- differentiated source permissions require a new explicit security/architecture decision.
+
+The deployment target, executing identity, access setting, and version are read back before release or permission-changing operations.
+
+## 4. Apps Script server-function boundary
+
+In Apps Script HTML Service, an unprotected top-level function can be callable through `google.script.run`; naming with a `ksp` prefix or hiding a UI control is not an authorization boundary.
+
+Only the canonical normal-user facade is browser-callable. Setup, validation, installation status, retention, manual sync, diagnostics, trigger handlers, raw Drive/Docs/Sheets adapters, credential helpers, and destructive operations remain private/editor-only.
+
+Current normal-user facade:
 
 ```text
 doGet
@@ -48,142 +73,199 @@ getKnowledgeSearchBootstrapData / searchKnowledge
 previewKnowledgeExport / createKnowledgeExport / getKnowledgeExportPrompt / recordKnowledgeExportPromptCopy
 ```
 
-## Web App execution and actor attribution
+`scripts/validate-public-surface.cjs` runs through `npm run check` and must fail when an internal/destructive helper becomes public.
 
-- 初期構成は、組織管理下のデプロイ主体としてWeb Appを実行し、Sheets / Shared Drive / Gemini API等のbackend権限をアプリ側へ集約する方式を第一選択とする。
-- 実利用者emailが取得できる場合はAudit Actorとして記録する。
-- emailが取得できない場合は、取得可能なら`Session.getTemporaryActiveUserKey()`を匿名Actorとして利用する。
-- どちらも利用できない場合は`UNIDENTIFIED`を許容する。
-- 恒久的な本人識別ができないことだけを理由に本番運用を停止しない。
-- Temporary Active User Keyは恒久IDや本人確認手段として扱わない。
+Public responses must not expose backend/Audit/folder/store IDs, credential state, private URLs, raw provider payloads, stack traces, source bodies beyond the authorized result, or administrator-only diagnostics. Use a fixed safe error catalog and non-sensitive error codes.
 
-詳細Decision: `docs/decisions/audit-access-and-user-attribution.md`
+## 5. Project/resource identity and remote writes
 
-## Credentials
+Source parity alone does not prove the identity of the remote Apps Script project or Workspace resources.
 
-Credentialの具体的保管方式は会社環境で実装時に確定するが、以下を必須とする。
+Before synchronization, deployment, setup, migration, cleanup, or permission changes:
 
-- organization-approved ownership
-- server-side only
-- no hard-coded secret in repository
-- no secret returned to browser
-- rotation可能な構成
+- read back the exact Script project/deployment/resource IDs;
+- verify expected parentage, type, ownership/access, and bounded record/file counts where material;
+- fail on ambiguous name-only candidates;
+- use stored IDs first;
+- do not silently fall back from required Shared Drive behavior to My Drive;
+- do not store the verified identifiers in GitHub.
 
-## Master permissions
+Production business helpers must exist in production source. A test loader or harness must not inject missing production-named behavior and then be treated as a security or readiness pass.
 
-- GP Master、Asset Class、Equity / Debt、面談場所のMaster変更は全利用者に許可する。
-- 追加、名称変更、並び替え、無効化、再有効化を許可する。
-- 物理削除は通常操作に含めない。
-- 名称変更 / 無効化には確認ダイアログを表示する。
-- Master変更を監査ログへ記録する。
+## 6. Web App execution and Actor attribution
 
-## Audit policy
+Initial preference is execution as an organization-controlled deployer so backend permissions are centralized.
+
+Actor resolution:
+
+1. safe user email if available;
+2. `TEMP_USER:<temporary active user key>` if available;
+3. `UNIDENTIFIED`.
+
+Rules:
+
+- missing email/persistent identity must not block normal operations;
+- a temporary key is neither a permanent identity nor authentication factor;
+- Actor supports operational trace, not strict non-repudiation;
+- the access boundary remains Google/Workspace permissions and Web App configuration.
+
+Detailed decision: `docs/decisions/audit-access-and-user-attribution.md`.
+
+## 7. Credentials and billing
+
+Credentials must use:
+
+- organization-approved ownership/provider;
+- server-side-only storage;
+- no hard-coded secret in repository;
+- no browser return or user-facing Sheet exposure;
+- a rotation/revocation route;
+- least privilege appropriate to the approved architecture.
+
+Billing-enabled Gemini/File Search target-runtime checks require explicit authorization, a synthetic/non-confidential source unless real-data use is separately approved, bounded call volume, and cost/rate-limit guardrails.
+
+## 8. Master and record permissions
+
+Accepted authorized-user operations:
+
+- GP/Option Master add, rename, reorder, deactivate, reactivate;
+- Meeting/Pitchbook create, search, update, deactivate, reactivate.
+
+Controls:
+
+- no normal-user physical deletion;
+- rename/deactivate confirmation;
+- stable IDs rather than row/order identity;
+- optimistic locking for same-Meeting edits;
+- short LockService critical sections;
+- file-granular Pitchbook retry with duplicate prevention;
+- bounded Audit event for material mutation.
+
+Destructive cleanup, bulk changes, migrations, and retention purges require exact-ID/count boundaries, separate authorization, and rollback/safe-stop planning.
+
+## 9. Audit policy
 
 ### Purpose
 
-初期監査の目的は厳格な本人否認防止ではなく、運用トラブル追跡、変更履歴、AI利用状況、失敗調査である。
-
-### Retention
-
-- 監査ログは5年間保持する。
-- 5年超のログは定期処理で削除する。
+Audit supports operational trace, change history, AI-use trace, and failure investigation. It is not a strict non-repudiation system.
 
 ### Storage and access
 
-- 通常backend 5シートとは別のAudit Spreadsheetへ保存する。
-- Audit Spreadsheetは管理者専用control folderへ置く。
-- Drive共有設定はRestrictedを基本とし、許可された管理者だけが直接閲覧できる状態にする。
-- 通常利用者へAudit Spreadsheetを共有しない。
-- 初期版ではWeb App内Audit Viewerを実装しない。
-- 独自password / Sheet protectionを主要アクセス制御にせず、Google Drive共有権限をアクセス境界とする。
+- separate Spreadsheet under a Restricted admin-only control folder;
+- no direct normal-user access;
+- no initial Web App Audit Viewer;
+- Google Drive permissions, not a custom password, form the access boundary;
+- five-year retention with bounded authorized cleanup.
 
-### Scope
+### Minimum events
 
-少なくとも以下を記録する。
+- Meeting register/update/deactivate/reactivate;
+- Pitchbook register/retry/update/deactivate/reactivate/failure;
+- Master add/rename/reorder/deactivate/reactivate;
+- AI index/re-index/remove/retry/failure;
+- all Knowledge Search modes;
+- Knowledge Export create/prompt-copy metadata;
+- setup/migration/permission/trigger events when material.
 
-- Meeting: register / update / deactivate / reactivate
-- Pitchbook: register / retry / metadata update / deactivate / reactivate / failure
-- Master: add / rename / reorder / deactivate / reactivate
-- AI layer: index / re-index / delete / retry / failure
-- Knowledge Search: 全5モード実行
+### Data minimization
 
-通常ログ項目:
+Allowed bounded metadata includes timestamp, Actor, operation, target stable ID/type, result, changed field names, safe before/after metadata where justified, Batch ID, filter/mode metadata, configured model ID, cited source IDs, and a safe error code/message.
 
-- timestamp
-- Actor
-- Action
-- Target type / ID
-- Success / Failure
-- changed fields
-- before / after metadata when applicable
-- Batch ID when applicable
-- short error information when applicable
+Do not store:
 
-AI query追加項目:
+- credentials or credential state;
+- private runtime IDs/URLs not needed for bounded administration;
+- source bodies or uploaded bytes;
+- prompts/questions/additional instructions unless a separate approved requirement exists;
+- generated answers;
+- retrieved chunks;
+- embeddings;
+- raw provider payloads;
+- stack traces containing sensitive state.
 
-- Search mode
-- mode / filter metadata（Question / additional instruction本文は保存しない）
-- Date From / To
-- GP / Asset Class / Equity-Debt / Source Type filters
-- configured Flash model ID
-- cited source IDs when available
+## 10. Knowledge Export derived-copy risk
 
-Gemini回答全文、retrieved chunk全文、Embedding、Meeting本文全文、Pitchbook内容を監査ログへ複製しない。
+Knowledge Export creates derived Google Docs/PDF artifacts that may include Meeting text and Pitchbook metadata/authoritative links.
 
-## Knowledge Export derived-copy risk
+Before production rollout, use isolated resources in the actual target runtime to establish:
 
-Knowledge Exportは`Knowledge Exports` sibling folderへ生成する派生コピーである。Meeting本文を含むGoogle Docs / PDFと、Pitchbook metadata / authoritative linkを作成するため、原本のアクセス権と同等以上に広い共有設定を許可しない。setupは親境界を検証するが、Workspaceの実効permission equivalence、共有リンク設定、削除・保持運用はDEVで確認してからproductionへ進める。自動expiry、履歴管理、削除UIは現行スコープ外であり、無期限蓄積を運用上のリスクとして扱う。
+- the exact destination folder and parentage;
+- permission equivalence or a narrower access boundary than the source;
+- link correctness and source-ID binding;
+- retention/deletion/cleanup ownership;
+- no unintended public/shared-link exposure;
+- bounded count/character guards before expensive reads.
 
-## Gemini File Search data handling
+Automatic expiry, a new export database, and an export-management UI remain out of scope. Until an approved lifecycle exists, indefinite accumulation is an explicit operational risk.
 
-- Shared Drive: authoritative source
-- File Search Store: derived retrieval index
-- Google-managed chunks / embeddingsを利用し、初期版で独自Vector DBへ機密データを追加複製しない。
-- Custom Metadataにはretrieval / citationに必要な固定ID、分類、Drive URL等だけを入れる。
-- `未選択`等のUI状態をmetadataへ保存しない。
-- File SearchからDocumentを削除してもShared Drive正本には影響させない。
+## 11. Gemini File Search data handling
 
-## Logical deletion and AI synchronization
+- Shared Drive is authoritative;
+- File Search Store is derived/rebuildable;
+- use Google-managed chunks/embeddings rather than duplicating confidential data into a custom vector system initially;
+- Custom Metadata contains only stable identifiers/classifications/links needed for retrieval and citation;
+- UI-only states such as `未選択` are not persisted;
+- deleting a File Search Document must not delete the Shared Drive source;
+- Inactive removes normal retrieval availability;
+- Reactivate re-indexes the current authoritative source;
+- sync/query failures are isolated from authoritative source operations.
 
-- 通常利用者はMeeting、Pitchbook、GP、Optionを物理削除せずActive / Inactiveで管理する。
-- Meeting / PitchbookをInactive化した場合、対応File Search Documentを削除する。
-- Reactivate時は現在のShared Drive正本をre-indexする。
-- AI syncは15分おきのtime-driven workerで処理し、正本登録 / 更新の完了をGemini成功に依存させない。
+## 12. Initial AI baseline
 
-## Initial AI baseline
+- one approved/configured Gemini Flash model;
+- no user model selector or Deep mode;
+- initial formats: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`;
+- original EML remains in Drive and normalized Subject/From/To/Cc/Date/Body is indexed;
+- EML attachments are not automatically indexed;
+- `.msg` is initially out of scope;
+- 100MB/file support is not required;
+- retry is bounded and idempotent;
+- no duplicate active AI Document for the same current source revision.
 
-- Gemini Flash系1モデルのみを使用する。
-- 利用者向けmodel selector / Deep modeを設けない。
-- initial AI-searchable formats: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`
-- `.eml`は原本をDriveへ保存し、Subject / From / To / Cc / Date / Body等を抽出したtextをindexする。
-- `.eml`添付は自動indexしない。
-- `.msg`は初期対象外とする。
+## 13. Release blockers
 
-## Release blockers for AI layer
+Do not release AI search or production-data indexing unless the applicable items are established:
 
-以下が確認できない場合はAI検索を本番リリースしない。
+- company-approved Google Cloud/Gemini environment;
+- safe server-side credential ownership/storage/rotation;
+- approved common source-access boundary for intended users;
+- retention/deletion handling for derived File Search data;
+- citations/Drive links return to the correct authoritative source;
+- Inactive sources are excluded;
+- Audit Spreadsheet is inaccessible to ordinary users;
+- AI failure cannot corrupt authoritative records;
+- exact target/deployment/resource identity is verified;
+- real data/users/billing/triggers/permissions are explicitly authorized;
+- rollback/safe-stop route exists for the rollout.
 
-- 会社承認済みGemini API / Google Cloud利用環境
-- credentialの安全なserver-side保管
-- Web App利用者全員が全Active検索対象へアクセスしてよいこと
-- File Search派生データの保持 / 削除運用
-- citationから正しい原資料へ戻れること
-- Inactive資料が通常検索に混入しないこと
-- Audit Spreadsheetが通常利用者から直接閲覧できないこと
-- AI障害が正本データを破損させないこと
+User email availability itself is not a release blocker.
 
-実利用者emailを取得できること自体はrelease blockerではない。
+## 14. Validation and readiness
 
-## GitHub data policy
+Report separately:
 
-GitHub上のtestには匿名化または合成データのみを使用する。実在のGP等を使う場合も、機密Meeting内容、credential、private URL等を含めない。
+```text
+LOGIC_VALIDATION
+TARGET_RUNTIME_QUALIFICATION
+SIDE_EFFECT_STATE
+READY
+```
+
+Security logic validation includes public-surface enforcement, safe-error mapping, redaction, schema/ID invariants, authorization guards, bounded mutations, retry/idempotency, and Audit minimization.
+
+Target-runtime security qualification includes actual deployment/access settings, project/resource identity, Shared Drive parentage/permissions, Web App/browser behavior, Audit restriction, generated-artifact permissions, Gemini credential/billing path, citation links, and authorized trigger behavior.
+
+CI/mock/simulator/test-loader success is not proof of a target permission, identity, function, object shape, deployment, billing path, or access boundary it did not exercise.
+
+## 15. GitHub data policy
+
+Only production source, design/governance, and synthetic/anonymized test fixtures belong in GitHub. A fixture may use realistic labels only when it contains no confidential Meeting content, personal information, credential, private URL, organization-specific ID, or non-public deal information.
 
 ## References
 
-- `docs/product/vision.md`
 - `docs/architecture/target-architecture.md`
-- `docs/planning/mvp-and-roadmap.md`
 - `docs/planning/apps-script-implementation-plan.md`
-- `docs/ai/gemini-file-search.md`
 - `docs/operations/runtime-policy.md`
+- `docs/decisions/target-runtime-first-development.md`
 - `docs/decisions/audit-access-and-user-attribution.md`
+- `docs/ai/gemini-file-search.md`

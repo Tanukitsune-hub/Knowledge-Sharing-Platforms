@@ -1,203 +1,256 @@
-# Runtime and Operations Policy
+# Runtime Policy
 
-## Status
+Current as of: 2026-08-26
 
-本書は、蓄積・呼び出し・修正機能および採用済みGemini File Search検索レイヤーを実運用するための確定運用ルールを記録する。
+Status: Active
 
-採用済み仕様と実装時検証を混同しない。実機確認が必要という理由だけで、確定済み仕様を未決定として扱わない。
+Authoritative delivery boundary: `docs/decisions/target-runtime-first-development.md`
 
-Works 0004–0011は実装・マージ済みで、Work 0012は公開surfaceとExport reliabilityのhardeningを完了した。release versionは`0.1.2`。Work 0010–0011のDEV実機qualificationは別途未観測として管理する。
+Security boundary: `docs/governance/security.md`
 
-## Draft retention
+Architecture boundary: `docs/architecture/target-architecture.md`
 
-- Meeting、Pitchbook登録、共有コンテキストの未登録入力は利用者ブラウザ内で保持する。
-- サイドバー画面切替だけでは下書きや選択済みファイルを消さない。
-- テキスト・選択値の下書きは同じブラウザで24時間保持し、自動復元できるようにする。
-- 24時間を超えた下書きは自動復元対象外とする。
-- ページ再読込 / タブ終了後のPitchbookファイル本体は復元しない。Metadataは復元し、ファイルだけ再選択する。
-- `下書きをクリア`操作を用意する。
-- 下書き本文をSheets / Shared Driveへ自動保存しない。
+## 1. Operating principle
 
-## Pitchbook / source-material upload limits
+Knowledge Sharing Platforms runs as an organization-controlled Google Apps Script HTML Service Web App backed by Google Workspace resources and, when authorized, Gemini File Search.
 
-初期上限:
+The application should fail explicitly and safely rather than silently guessing resource identity, weakening integrity, or presenting partial failure as success.
 
-```text
-25MB / file
-10 files / selection
-100MB / selection total
-```
+Development and qualification use the actual target runtime and production source paths with isolated synthetic/anonymized data and guarded side effects. A separate DEV/Staging runtime is not the default and requires the material justification defined in `docs/decisions/target-runtime-first-development.md`.
 
-- client-sideとserver-sideで同じ条件を検証する。
-- 複数ファイルはfile-granularに処理し、1つの巨大requestへまとめることを前提にしない。
-- 25MB以内でもApps Script実機上限が確認された場合は、architectureを複雑化して上限を維持するより安全な低い上限へ変更することを優先する。
-- 初期版で100MB/file専用chunk uploadやCloud fallbackを実装しない。
+Target runtime is not production data or rollout. Confidential data, real users, billing, triggers, broad exposure, destructive writes, migration, and permission changes remain separately controlled.
 
-詳細Decision: `docs/decisions/pitchbook-upload-limits.md`
+## 2. Runtime and resource identity
 
-## Initial AI-searchable formats
+Target runtime includes:
 
-```text
-.pdf
-.pptx
-.xlsx
-.docx
-.txt
-.eml
-```
+- organization-controlled Apps Script V8 project
+- final Web App execution/deployment shape
+- Google Drive / Shared Drive / Sheets / Docs semantics
+- supported browser behavior
+- approved Gemini / File Search environment when that capability is in scope
 
-- `.eml`はShared Driveへ原本保存し、AI indexにはSubject / From / To / Cc / Date / Body等を抽出したUTF-8テキスト表現を使用する。
-- `.eml`内の添付ファイルは自動indexせず、必要な添付は別資料として登録する。
-- `.msg`は初期対応外とする。
-- AI検索非対応形式でも、許容されたShared Drive原資料として保存すること自体は妨げない。AI対象外は`NotIndexed`として区別する。
+Resource rules:
 
-## Partial failure and retry
+- stored exact resource ID first;
+- exact-name lookup only when no stored ID exists;
+- ambiguous candidates fail rather than guess;
+- target IDs, parentage, count, and relevant status are read back before mutation;
+- real IDs, private URLs, credentials, and organization-specific paths are never committed to GitHub;
+- no silent fallback from required Shared Drive production behavior to My Drive.
 
-複数Pitchbookの一括登録はfile-granularに状態管理する。
+## 3. Data and side-effect boundary
 
-### Identity and state
+### Isolated test data/resources
 
-- 一括登録ごとに固定`Batch_ID`を発行する。
-- 各ファイルに固定`Document_ID`と連番を割り当てる。
-- Pitchbook状態は少なくとも`Pending / Active / Failed / Inactive`を区別する。
-- 一度発行したDocument ID、Batch ID、連番を再利用しない。
+- synthetic or appropriately anonymized data only;
+- clearly identifiable test folder, Spreadsheet, Doc, file, record, stable ID, metadata, account, or namespace;
+- no test rows/files mixed into authoritative production records;
+- cleanup is bounded by exact IDs/parent/count and does not use broad name-only deletion;
+- source/resource configuration changes require readback before execution.
 
-### Failure behavior
+### Consequential effects
 
-- 1ファイルが失敗しても、他ファイルの処理を可能な範囲で継続する。
-- 正常登録済みファイルをバッチ全体の失敗でrollbackしない。
-- 失敗ファイルは`Failed`として記録し、ファイル単位の結果を表示する。
-- 失敗分だけ再試行できる。
-- retryでは同じDocument IDと予約済み連番を使用し、重複recordを作らない。
-- 欠番は詰め直さない。
-- Drive保存とIndex更新の途中で失敗した場合は、retry前に既存File ID / Document IDを確認し、二重Drive file / Index rowを作らない。
+The following are disabled, guarded, test-only, or explicitly enabled per Work:
 
-## Web App execution and actor attribution
+- installable triggers;
+- billing-enabled Gemini / File Search operations;
+- confidential source indexing;
+- real external recipients;
+- broad Web App/user access or public exposure;
+- physical delete / bulk update / retention purge;
+- production data migration;
+- irreversible permission changes.
 
-- 初期本番構成は、組織管理下のデプロイ主体としてWeb Appを実行し、Sheets / Shared Drive / Gemini APIへのバックエンド権限をアプリ側へ集約する方式を第一選択とする。
-- 恒久運用を個人所有のアカウント / credentialへ依存させない。
-- 実利用者emailを取得できる場合は監査Actorとして記録する。
-- emailを取得できない場合は`Session.getTemporaryActiveUserKey()`を利用できれば`TEMP_USER:<key>`として記録する。
-- どちらも利用できない場合は`UNIDENTIFIED`を許容する。
-- Actorを恒久的に本人特定できないことだけを理由に、登録・変更・AI検索を失敗させたりPROD-ready判定を拒否したりしない。
-- Temporary Active User Keyは匿名の運用トレース用であり、恒久的な本人識別子として扱わない。
+Use dry-run, exact-ID allowlist, bounded count, inactive deployment, test recipient, idempotent setup, retry identity, and rollback routes where practical.
 
-### Apps Script public surface
+## 4. Web App execution and access
 
-HTML Serviceのtop-level関数は末尾`_`がない限りbrowser-callableである。`ksp` prefixはprivacy boundaryではない。通常利用者に公開するのはcanonical facade allowlistだけとし、setup、installation status / validation、retention、manual AI sync、diagnostics、trigger、Drive / Docs / Sheets adapterはprivate関数にする。public-surface validatorを`npm run check`で実行し、予期しない公開関数を回帰として拒否する。
+- Initial preference: Web App executes as the organization-controlled deploying account so backend access is centralized.
+- Access is restricted to authorized organization users; internet-public access is not assumed.
+- The exact normal-user browser-callable facade is allowlisted.
+- Setup, status, validation, retention, manual sync, diagnostics, trigger handlers, raw adapters, and destructive helpers remain private or editor-only.
+- `setupKnowledgePlatform_()` is never exposed through `google.script.run`.
+- Deployment version/security changes require explicit Work authorization and exact target/deployment readback.
 
-editor-only setup functions are `setupKnowledgePlatform_()`, `validateInstallation_()`, and `getInstallationStatus_()`. Normal users must not receive backend, audit, folder, store, credential, stack, or raw API details.
+## 5. Setup and migration
 
-詳細Decision: `docs/decisions/audit-access-and-user-attribution.md`
-
-## Master permissions
-
-- GP Master、Asset Class、Equity / Debt、面談場所のMaster変更は全利用者に許可する。
-- 追加、名称変更、並び替え、無効化、再有効化を許可する。
-- 物理削除は通常操作として提供しない。
-- 名称変更 / 無効化は確認ダイアログを表示する。
-- 重複名称チェックを行う。
-- Master変更は監査ログへ記録する。
-
-## AI retrieval access
-
-- Web App利用を許可された利用者はKnowledge Searchを利用できる。
-- 初期版では全利用者がFile Search Store内のすべてのActive Meeting / Pitchbook / source materialを検索できる。
-- GP別、file別、利用者別AI retrieval ACLは初期実装に含めない。
-- インターネット一般公開を前提とせず、Web App自体の利用許可範囲を共通アクセス境界とする。
-
-## Knowledge Search modes
-
-採用済みTarget UX:
+Editor-only/private entry points:
 
 ```text
-自由質問 | 要約 | 時系列 | 比較 | 面談準備
+setupKnowledgePlatform_()
+validateInstallation_()
+getInstallationStatus_()
 ```
 
-- `自由質問`をdefault modeとする。
-- 5モードは同じFile Search Store、Metadata Filter、semantic retrieval、Gemini Flash、Citation / Drive link処理を共有する。
-- preset modeでは質問欄を任意の`追加指示`として利用できる。
-- 5モード構成自体は採用済みであり、段階実装を理由に未決定扱いしない。
+Setup behavior:
 
-## Knowledge Export operations
+- create / reuse / forward-migrate / repair;
+- idempotent by stable IDs and `SCHEMA_VERSION`;
+- preserve user-mutated Masters, counters, records, files, and accepted configuration;
+- append schema columns rather than reorder/delete durable data;
+- seed by stable ID only when missing;
+- trigger deduplication by handler + event type;
+- no generic production reset or destructive teardown;
+- trigger creation occurs only when the side-effect boundary authorizes it.
 
-- Backend IndexのActive rowsだけを対象にする。
-- Meeting 50件超 / Pitchbook 200件超はexact count後にhard-stopし、Meeting Docsを読み取らない。
-- Meeting本文250,000文字超もartifact作成前に停止する。
-- Meeting `Doc_URL`と`Doc_File_ID`、Pitchbook `File_URL`と`File_ID`を検証し、accessibleな原本からcanonical linkを生成する。不一致やtrashed/folder原本はexport全体を失敗させる。
-- Google Docsではsource linkを明示的なhyperlinkとして書き込む。PDFはsource-link textを保持する。
-- Export creationはactor + preview fingerprint + output typeの短期idempotencyと、preview / Search / creationのbounded throttleを使う。
-- `Knowledge Exports`は正本の派生コピーであり、permission driftと無期限蓄積のリスクがある。自動expiryは現行スコープ外で、production前にpermission equivalenceと削除・保持手順を確認する。
+## 6. Actor and user identification
 
-## AI synchronization
+Actor resolution priority:
 
-- 正本登録 / 更新を先に完了し、AI index同期は非同期派生処理とする。
-- 登録 / 更新時はAI状態を`Pending`とし、利用者操作をGemini同期完了まで待たせない。
-- Apps Script time-driven workerを15分おきに実行する。
-- workerは`Pending`とretryable `Failed`を処理する。
-- retryはstable source IDとFile Search Document参照を使ってidempotentにする。
-- unsupported / permanent failureを無限retryしない。
-- 新規 / 更新情報はAI検索反映まで最大15分程度かかる場合がある旨をUIで案内できるようにする。
-- AI index障害を理由にShared Drive / backend Indexの正本登録をrollbackしない。
+1. safe user email if available;
+2. temporary active user key, stored as `TEMP_USER:<key>`;
+3. `UNIDENTIFIED`.
 
-## AI model policy
+Rules:
 
-- 初期版はGemini Flash系モデル1つだけを使用する。
-- 利用者向けmodel selector、Deep mode、上位モデル切替を設けない。
-- concrete model IDは`Settings.AI_DEFAULT_MODEL`で管理し、コードへ固定しない。
+- missing email or persistent identity must not fail normal operations;
+- a temporary key may rotate;
+- Actor is operational trace, not strict non-repudiation;
+- Audit may not store credentials, source bodies, prompts/answers, chunks, embeddings, or uploaded bytes.
 
-## Audit log
+## 7. Locking and concurrency
 
-### Storage and access
+Use `LockService` only for short consistency-critical sections:
 
-- 監査ログは通常backendの5シートとは別のAudit Spreadsheetへ保存する。
-- Audit Spreadsheetは管理者専用control folderへ置く。
-- control folder / Audit SpreadsheetのDrive共有はRestrictedを基本とし、許可された管理者だけが直接閲覧できる状態にする。
-- 通常利用者へAudit Spreadsheetを共有しない。
-- 初期版ではWeb App内にAudit Viewerを実装しない。管理者は必要時にSpreadsheetを直接開く。
-- 独自passwordやSheet保護を主アクセス制御にせず、Google Drive共有権限をアクセス境界とする。
-- 監査ログは5年間保持し、5年を超えたログは定期処理で削除する。
-- `Settings`に`AUDIT_LOG_SPREADSHEET_ID`等の参照設定を保持できる。
+- ID counter increment;
+- Pitchbook sequence reservation;
+- Master mutation;
+- one-time setup/migration state transition;
+- trigger registry mutation;
+- retention cleanup batch acquisition.
 
-### Logged events
+Do not hold locks during:
 
-少なくとも以下を記録する。
+- file upload;
+- Google Docs body generation;
+- Gemini calls;
+- long Drive operations;
+- browser waiting;
+- broad batch processing.
 
-- Meeting: register / update / deactivate / reactivate
-- Pitchbook: register / retry / metadata update / deactivate / reactivate / failure
-- GP / Option Master: add / rename / reorder / deactivate / reactivate
-- AI index: index / re-index / delete / retry / failure
-- Knowledge Search: 全5モード実行
+Meeting edits use optimistic locking through Version / Updated At. Return a clear conflict instead of silently overwriting.
 
-通常操作の基本ログ項目:
+## 8. Pitchbook retry and partial success
 
-- Event timestamp
-- Actor
-- Action
-- Target type
-- Target ID
-- Result: Success / Failure
-- Changed fields
-- Before / After metadata when applicable
-- Batch ID when applicable
-- Error code / short error message when applicable
+Each file has stable:
 
-AI queryでは追加で少なくとも以下を記録する。
+- Batch ID;
+- Document ID;
+- reserved sequence;
+- retry identity.
 
-- Search mode
-- mode / filter metadata（Question / additional instruction本文はcurrent hardeningで保存しない）
-- Date From / To
-- GP filter
-- Asset Class filter
-- Equity / Debt filter
-- Source Type filter
-- Configured Flash model ID
-- Cited source IDs when available
+Rules:
 
-Gemini回答全文、retrieved chunk全文、Embedding、Meeting本文全文、Pitchbook内容は監査ログへ複製しない。
+- successful files remain successful when another file fails;
+- failed-file retry reuses identity and does not create duplicate Drive file or Index row;
+- context move preserves Document ID and Drive File ID;
+- physical cleanup occurs only when the target artifact is exact and bounded;
+- no batch-level rollback that deletes successful authoritative records.
 
-## Operational principle
+## 9. Audit
 
-利用者操作は簡単に保ちつつ、失敗時のdata loss回避、duplicate防止、変更 / AI利用の運用トレースを優先する。
+Audit is stored in a separate Restricted Spreadsheet under the configured control folder.
 
-実利用者の恒久的本人識別、細かなアクセス制御、Web App内Audit Viewer、複数AIモデル等は、実運用で必要性が確認されるまで追加しない。
+Minimum metadata:
+
+- timestamp;
+- Actor;
+- operation;
+- target stable ID;
+- result;
+- changed field names or bounded metadata;
+- error category / safe message where applicable.
+
+Retention:
+
+- five years;
+- periodic bounded cleanup;
+- no normal-user direct access;
+- initial Web App Audit Viewer is not required.
+
+## 10. AI sync and provider behavior
+
+AI indexing is asynchronous and never part of the authoritative source transaction.
+
+States:
+
+```text
+NotIndexed / Pending / Indexed / Failed
+```
+
+Rules:
+
+- authoritative Meeting/Pitchbook save succeeds independently of AI;
+- worker processes bounded batches;
+- retry uses exponential backoff / bounded attempts;
+- permanent errors stop retrying;
+- content hash prevents unnecessary duplicate indexing;
+- Inactive removes retrieval availability;
+- Reactivate re-indexes current source;
+- answer path uses configured Flash model only and returns citations/Drive links;
+- provider/client errors are normalized into safe application errors;
+- billing-enabled target-runtime qualification requires explicit authorization.
+
+## 11. UI and error handling
+
+Normal UI receives concise actionable errors such as:
+
+- required-field validation;
+- duplicate Master;
+- optimistic-lock conflict;
+- upload size/count limit;
+- inaccessible source;
+- partial Pitchbook failure;
+- AI temporarily unavailable;
+- stale preview;
+- permission/authorization required.
+
+The UI does not receive secrets, raw Script Properties, internal stack traces, confidential source content beyond authorized output, or admin-only resource details.
+
+## 12. Validation and readiness
+
+Report separately:
+
+```text
+LOGIC_VALIDATION: PASS | FAIL | NOT RUN | NOT APPLICABLE
+TARGET_RUNTIME_QUALIFICATION: PASS | FAIL | NOT RUN | NOT APPLICABLE
+SIDE_EFFECT_STATE: DISABLED | GUARDED | TEST_ONLY | ENABLED | NOT APPLICABLE
+READY: YES | NO
+```
+
+Logic validation covers algorithms, schemas, contracts, redaction, IDs, retries, and invariants.
+
+Target-runtime qualification covers actual Apps Script / Workspace / browser / Gemini behavior that local harnesses cannot prove, using exact tested source and isolated data/resources.
+
+A helper, function, API, permission, data shape, or service available only in a mock/test loader is not target capability. CI/mock/simulator/alternate-runtime PASS alone does not establish runtime readiness.
+
+Run the smallest native create/persist/reopen/search/readback path early, fix incompatibilities, then expand the feature surface.
+
+## 13. Production rollout
+
+Production rollout is a separate authorized outcome and may require:
+
+- approved target project / deployment / executing account;
+- Shared Drive/control-folder permissions;
+- production data/access boundary;
+- approved credentials and billing route;
+- trigger enablement;
+- rollback and cleanup route;
+- final security/permission/native evidence;
+- user communication and operator documentation.
+
+A feature Work may be complete while production data, users, billing, or triggers remain disabled when rollout is not its primary outcome.
+
+## 14. Active and historical Work
+
+- Active Work follows its committed handoff, dispatch register, and PR body.
+- Work 0014 finishes or safely stops under PR #17's existing evidence boundary.
+- New Work after Work 0014 applies target-runtime-first prospectively.
+- Historical DEV/synthetic evidence remains valid only for the behavior actually observed; it does not prove unobserved Shared Drive, permission, billing, trigger, or production-data behavior.
+
+## 15. Final operational principle
+
+Prefer a narrow, explicit, inspectable production code path with early target-runtime readback over a parallel test environment that can drift from the actual Apps Script / Workspace system.
+
+Preserve data, stable IDs, source traceability, restricted Audit access, safe errors, and explicit side-effect authorization before convenience or artificial test completion.

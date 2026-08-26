@@ -1,48 +1,52 @@
 # Apps Script-first Implementation Plan
 
-Work ID: 0003 (historical planning document; current implementation status is tracked by Works 0004–0012)
+Work ID: 0003 (historical planning origin; current Work status is tracked by active handoffs and pull requests)
 
-Date: 2026-08-16
+Initial date: 2026-08-16
 
-Status: Accepted implementation plan; Works 0004–0011 merged and Work 0012 hardening implemented. Release version: `0.1.2`.
+Current policy date: 2026-08-26
 
-Work 0010–0011 browser / Workspace / Gemini qualification remains a separate environment-dependent evidence track. Work 0012 deterministic public-surface, export-integrity, safe-error, and regression checks do not claim those live checks passed.
+Status: Active implementation plan under `docs/decisions/target-runtime-first-development.md`
+
+The former feature-complete → final DEV qualification sequence is superseded. Historical Works 0004–0014 and their evidence remain valid records and are not rewritten.
 
 ## 1. Goal
 
-採用済みKnowledge Sharing Platforms設計を、Apps Script中心で機能実装を先に連続して進め、feature-complete後に実機qualificationをまとめて行う方式で完成させる。
+Knowledge Sharing Platformsを、Google Apps Script / Google Workspace / Shared Drive / Gemini File Searchを最終runtimeとする単一のproduction-shaped applicationとして完成させる。
 
-開発全体はChatGPTが所有し、GitHub上の設計、scope、Work ID、handoff、review、completionを管理する。Codexは非自明なApps Script実装、local test、最終実機検証、runtime debugging等、ChatGPTだけでは安全に完了できない残作業へ限定して使用する。
+今後は別DEV runtimeの完成を中間ゴールにせず、最短のend-to-end sliceをactual target runtimeで早期に実行する。logic testsは維持しつつ、test harnessだけに存在するhelper、data shape、permission、API、browser behaviorをproduction readinessと誤認しない。
 
 本番利用者 / 管理者にNode.js、clasp、外部server等を要求せず、通常導入はApps Script / Google Workspaceで完結させる。
 
-## 2. Core delivery principle
+## 2. Current delivery principle
 
-標準フローは以下とする。
+標準フロー:
 
 ```text
-Design fixed
+bounded preflight
    ↓
-Implement features continuously
+shortest coherent vertical slice in production source path
    ↓
-Local / static / mock / contract tests
+actual target runtime + isolated test data/resources
    ↓
-Feature complete
+focused LOGIC_VALIDATION
    ↓
-Feature freeze
+bounded TARGET_RUNTIME_QUALIFICATION
    ↓
-Final DEV live qualification
+fix observed incompatibility before expanding scope
    ↓
-Fix only observed defects
-   ↓
-Production readiness
+separately authorize production data / users / billing / triggers / destructive effects
 ```
 
-開発途中ではApps Script / Shared Drive / Geminiのlive validationを原則として行わない。
+原則:
 
-例外は、公式仕様・mock・contract testだけでは解消できず、実装継続が安全に不可能なBLOCKERがある場合の最小live probeのみとする。
+- 実装開始前の調査は、target runtime、既決仕様、write boundary、最初のsliceを確定するのに必要な範囲に限定する。
+- feature-completeまでApps Script / Workspace / browser evidenceを後ろ倒ししない。
+- target runtimeを使うこととproduction/confidential dataやreal usersを使うことを混同しない。
+- 別DEV/Staging runtimeは、対象runtime内のresource isolationやguardでは得られないmaterial safety / regulatory / blast-radius / rollback / concurrency / scale / cost / platform evidenceがある場合のみ採用する。
+- CI、mock、fixture、simulator、test loader、alternate runtimeのPASSだけでruntime-dependent WorkをREADYにしない。
 
-Detailed decision: `docs/decisions/implementation-first-final-live-qualification.md`
+Detailed decision: `docs/decisions/target-runtime-first-development.md`
 
 ## 3. Target runtime
 
@@ -58,7 +62,7 @@ Apps Script HTML Service Web App
   └─ Master Management
       |
       v
-Google Apps Script
+Google Apps Script V8
       |
  +----+------------------------------+
  |                                   |
@@ -78,75 +82,89 @@ Backend Spreadsheet             Shared Drive sources
 Separate restricted Audit Spreadsheet
 ```
 
-## 4. Responsibility model
+Actual Apps Script, Web App deployment shape, Drive / Sheets / Docs behavior, browser behavior, Gemini API behavior, and Shared Drive behavior are target-runtime concerns. A local JavaScript harness may verify pure logic but cannot substitute for them.
+
+## 4. Runtime, data, and side-effect boundary
+
+### TARGET_RUNTIME
+
+- organization-controlled standalone Apps Script project
+- final Apps Script V8 source and manifest
+- final Web App execution/deployment shape
+- Google Workspace APIs and Shared Drive semantics
+- supported browser UI behavior
+- company-approved Gemini / File Search environment when that capability is in scope
+
+### ISOLATED_TEST_DATA
+
+- synthetic or appropriately anonymized data only
+- clearly identifiable test folders, Spreadsheets, Documents, records, IDs, metadata, account, or namespace
+- exact resource IDs read back before mutation; do not select by guess or ambiguous name
+- no real folder IDs, Drive IDs, deployment IDs, private URLs, account identifiers, or credentials in GitHub
+- no test records mixed into authoritative production records
+
+### SIDE_EFFECT_STATE
+
+The following remain separately disabled, guarded, test-only, or explicitly authorized:
+
+- installable triggers
+- billing-enabled Gemini / File Search operations
+- confidential source indexing
+- external recipients
+- broad Web App access or public exposure
+- physical delete / bulk update / retention purge
+- production data migration
+- irreversible permission changes
+
+Use existing idempotency, exact-ID checks, bounded counts, allowlists, inactive deployment, test recipient, dry-run, and rollback routes where practical.
+
+## 5. Responsibility model
 
 ### ChatGPT
 
-- outcome / scope / design / acceptance
+- user outcome / scope / accepted design / completion
 - GitHub source of truth
-- Work ID / handoff / PR / Issue coordination
-- implementation ambiguity resolution before Codex
-- safe documentation / configuration updates
+- Work ID / Dispatch ID / handoff / PR coordination
+- target runtime, test-data, side-effect, and authorization boundary
+- ambiguity resolution before external execution
 - Codex result review
-- BLOCKER / FIX SOON / BACKLOG classification
-- final completion judgment
+- BLOCKER / FOLLOW_UP / OPTIONAL classification
+- final readiness judgment
 
 ### Codex
 
-Codex is used only for residual work requiring:
+Use only for work that benefits from repository/runtime access, including:
 
-- non-trivial Apps Script implementation
-- multi-file local edits
-- test harness and executable validation
-- clasp / DEV Apps Script synchronization when useful
-- final Google Workspace / Gemini API live qualification
-- code + runtime debugging
+- non-trivial Apps Script / HTML implementation
+- multi-file edits
+- focused deterministic tests
+- exact-source Apps Script synchronization
+- bounded target-runtime smoke/readback
+- runtime defect diagnosis and repair
+- final diff and regression validation
 
-### Model routing
+Do not make implementation wait for a separate environment unless the handoff records a material staging justification.
 
-- Default: Luna Max — bounded implementation, tests, routine debugging / verification
-- Sol High — unresolved cross-cutting Gemini / permission / runtime diagnosis where architecture-level reasoning is materially useful
-- Sol Max — only exceptional hard-to-reverse architecture change or critical final review
+## 6. Setup and manual prerequisites
 
-Every Codex run must read applicable `AGENTS.md` first and actively use subagents according to repository policy.
+Manual administrator work is limited to organization / OAuth / deployment boundaries:
 
-## 5. Apps Script-first setup
+1. create or select the organization-controlled target Apps Script project;
+2. link the approved Google Cloud project;
+3. enable Advanced Drive Service / Drive API;
+4. prepare the Shared Drive knowledge parent folder;
+5. prepare a restricted control folder for backend / Audit resources;
+6. complete initial OAuth consent;
+7. create or update the authorized Web App deployment;
+8. configure approved Gemini / Google Cloud credentials only when AI qualification is authorized.
 
-### 5.1 Manual prerequisites
+The application does not silently create Shared Drives, Cloud projects, organization approvals, credentials, OAuth consent, or Web App deployments.
 
-管理者の手動作業は組織 / OAuth / deployment境界に限定する。
+Organization-specific IDs and credentials remain outside source control. Initial setup uses approved runtime configuration / Script Properties.
 
-1. organization-controlled standalone Apps Script projectを作成 / 指定
-2. standard Google Cloud projectを紐付け
-3. Advanced Drive Service / Drive APIを有効化
-4. Shared Drive上のknowledge parent folderを用意
-5. backend / auditを置く管理者専用control folderを用意し、Drive共有をRestrictedにする
-6. 初回OAuth consent
-7. Web App deploymentを作成し、許可された利用者へ公開
-8. Gemini phase開始時に会社承認済みGemini API / Google Cloud環境とcredentialを設定
+## 7. Setup entry points and safety
 
-これらは最終live qualification開始時まで原則として要求しない。開発中はコード、mock、fixture、contract testで進める。
-
-初期構成はWeb Appをデプロイ主体として実行し、backend権限をアプリ側へ集約する方式を第一選択とする。実利用者emailを取得できることは本番条件にしない。
-
-### 5.2 Bootstrap configuration
-
-組織固有IDやcredentialをsource codeへ埋め込まず、Script Propertiesの`BOOTSTRAP_CONFIG_JSON`から初期化する。
-
-```json
-{
-  "environment": "DEV",
-  "knowledgeParentFolderId": "...",
-  "controlFolderId": "...",
-  "adminEmails": ["admin@example.com"],
-  "timezone": "Asia/Tokyo",
-  "aiSyncEnabled": false
-}
-```
-
-credentialはbootstrap JSONへ入れない。
-
-### 5.3 Setup entry points
+Editor-only/private entry points:
 
 ```text
 setupKnowledgePlatform_()
@@ -154,9 +172,9 @@ validateInstallation_()
 getInstallationStatus_()
 ```
 
-These are editor-only/private Apps Script entry points. The normal-user Web App cannot call them through `google.script.run`; the public facade is enforced by the repository validator.
+Normal users cannot call them through `google.script.run`.
 
-`setupKnowledgePlatform_()`は次をcreate / reuse / migrateする。
+`setupKnowledgePlatform_()` creates / reuses / migrates / repairs:
 
 - `Private Assets Knowledge / Meeting Records / Pitchbooks`
 - Backend Spreadsheet
@@ -164,380 +182,161 @@ These are editor-only/private Apps Script entry points. The normal-user Web App 
 - `GP_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings`
 - Master seeds
 - schema version / settings
-- required installable triggers
+- required installable triggers only when the side-effect boundary authorizes them
 
-Setupはidempotentとする。2回目以降をrepair / migration pathとして使えるようにする。
+Safety rules:
 
-### 5.4 Setup safety
+- stored resource ID first;
+- exact-name search only when no stored ID exists;
+- ambiguous duplicate candidates fail rather than guess;
+- forward migration by `SCHEMA_VERSION`;
+- stable-ID seed upsert;
+- trigger deduplication by handler + type;
+- no generic production reset or destructive teardown;
+- exact target/resource readback before mutation.
 
-- stored resource IDを優先する
-- IDがない場合だけconfigured parent内をexact nameで検索する
-- duplicate candidateが複数ある場合は推測で選ばずfailureにする
-- `SCHEMA_VERSION`によるforward migrationを使う
-- seedはstable IDでupsertする
-- triggerはhandler + typeでdeduplicateする
-- generic production reset / destructive teardownを提供しない
-
-## 6. Resource topology
-
-```text
-Shared Drive parent
-└─ Private Assets Knowledge
-   ├─ Meeting Records
-   └─ Pitchbooks
-
-Restricted admin-only control folder
-├─ Knowledge Platform Backend   (Spreadsheet: 5 sheets)
-└─ Knowledge Platform Audit     (separate Spreadsheet)
-```
-
-通常利用者にはbackend / Audit Spreadsheetを直接操作させない。
-
-Audit SpreadsheetはDrive共有権限で管理者限定にする。初期版ではWeb App内Audit Viewerや独自password認証を実装しない。
-
-## 7. Actor / audit model
-
-Audit Actorはbest-effortとする。
-
-1. emailを安全に取得できる場合: email
-2. email不可、temporary active user key可: `TEMP_USER:<key>`
-3. どちらも不可: `UNIDENTIFIED`
-
-恒久的本人識別ができないことはrelease blockerではない。
-
-監査の目的はoperation trace / change history / failure investigationであり、strict non-repudiationではない。
-
-詳細: `docs/decisions/audit-access-and-user-attribution.md`
-
-## 8. Upload policy
-
-初期上限:
-
-```text
-25MB / file
-10 files / selection
-100MB / selection total
-```
-
-- client / server両方で同じ上限を検証する
-- file-granularに処理する
-- 100MB/file専用chunk uploadやCloud fallbackは初期実装に含めない
-- 25MBでもApps Script実機上限が確認された場合は、architecture追加より上限引下げを優先する
-
-詳細: `docs/decisions/pitchbook-upload-limits.md`
-
-## 9. Runtime source strategy
+## 8. Runtime source strategy
 
 - Apps Script V8 compatible plain JavaScript
-- `.gs / .html / appsscript.json`をGitHubで管理
-- TypeScript / bundler / frameworkをruntime必須にしない
-- Advanced Drive Serviceと必要最小限OAuth scopeをmanifestで管理
-- Apps Script service依存を薄いadapterへ分離する
-- pure logicは軽量local testで検証可能にする
-- external servicesはmock / fixture / contract test可能な境界に置く
-- claspはdeveloper / Codex用の任意tooling
-- GitHub Actionsはfinal / integration validation中心
+- `.gs / .html / appsscript.json` managed in GitHub
+- no production-required TypeScript / bundler / framework / external server
+- clasp is optional developer/Codex tooling
+- Apps Script service dependencies remain behind thin adapters where practical
+- pure logic remains locally testable
+- external services use mocks / fixtures / contract tests for deterministic coverage
+- production business helpers must live in production source; test loaders may not inject missing production behavior
+- native `Date`, Blob, Drive object, permission, browser, and service behavior must be represented by target-runtime evidence where material
 
-Initial module boundaries:
+## 9. Prospective Work slicing
 
-```text
-Web entry / HTML rendering
-Setup / schema migration
-Configuration / settings
-Actor / authorization
-Drive repository
-Sheet repository
-Document generation
-Meeting service
-Pitchbook service
-Master service
-Audit service
-AI sync worker
-Gemini File Search client
-Knowledge Search service / templates
-Validation / diagnostics
-```
+Each new feature or repair should identify the smallest coherent slice that can be persisted and read back in the target runtime.
 
-## 10. Environment strategy
+Typical slice order:
 
-- DEV / PRODは別Apps Script project、deployment、Shared Drive resources、backend / audit Spreadsheetを使う
-- DEVは匿名化 / 合成データのみ
-- PRODへ実データを投入する前にfinal DEV live qualificationを完了する
-- production credential / resource IDをGitHubへ保存しない
+1. schema / contract change;
+2. production service path;
+3. one UI or editor entry path;
+4. one create/update operation using isolated data;
+5. persisted readback / reopen / search;
+6. focused regression;
+7. broader surfaces only after the slice passes.
 
-## 11. Implementation sequence
+Examples:
 
-### Work 0004 — Scaffold, setup engine, and local foundation
+- Meeting field: schema + create + reopen + search before export/AI expansion
+- Pitchbook field: prepare/upload or maintenance + persisted readback before broad batch cases
+- AI metadata: one synthetic source index/query/citation path before all formats/modes
+- trigger behavior: private handler logic first; actual trigger enablement remains separately authorized
+- file/permission behavior: one isolated source and exact-ID readback before batch expansion
 
-Route: Codex implementation after ChatGPT handoff
-Recommended model: Luna Max
+Do not define “test environment completion” as a user outcome.
 
-Outcome:
+## 10. Validation strategy
 
-- Apps Script scaffold / manifest
-- bootstrap config contract
-- editor-only `setupKnowledgePlatform_ / validateInstallation_ / getInstallationStatus_`
-- folder / backend / audit / 5-sheet adapters
-- schema / migration / Master seed / trigger registry logic
-- structured setup report
-- mockable Apps Script service adapters
-- local tests for schema, migration, filename normalization, seed upsert, trigger deduplication
+### LOGIC_VALIDATION
 
-Acceptance:
+Use focused deterministic checks for:
 
-- setup logic passes local tests against mocks / fixtures
-- second-run idempotency is proven in tests
-- duplicate / inaccessible resource becomes explicit failure
-- secrets / real data are not stored in GitHub
-- no live Apps Script deployment required for completion
-
-### Work 0005 — Meeting feature implementation
-
-Recommended model: Luna Max
-
-Outcome:
-
-- Web App shell / navigation
-- Meeting registration
-- shared browser context
-- Google Docs generation logic
-- Meeting_Index persistence logic
-- stable Meeting ID / deterministic filename
-- 24h draft retention
-- audit event
-- past Meeting search / edit / Active / Inactive / Reactivate
-- optimistic-lock behavior
-
-Acceptance:
-
-- Date / GP / Asset Class-only registration path passes tests
-- optional fields / line breaks map correctly into generated Doc representation
-- Meeting body is not duplicated into Index
-- draft survives modeled failure paths
-- Actor failure does not block save
-- stale save is rejected by Version tests
-- no live Workspace write required for completion
-
-### Work 0006 — Pitchbook feature implementation
-
-Recommended model: Luna Max
-
-Outcome:
-
-- drag & drop / multiple files UI logic
-- 25MB/file, 10 files, 100MB total validation
-- Batch ID / Document ID / sequence
-- Drive save / rename orchestration logic
-- Pitchbook_Index
-- file-granular status / retry
-- past Pitchbook search / metadata edit / Active / Inactive / Reactivate
-- audit event
-
-Acceptance:
-
-- UI / server upload-limit logic agrees
-- sequence / context-move behavior passes tests
-- one-file failure does not rollback successful files
-- retry does not create duplicate modeled Drive file / Index row
-- no live Drive upload required for completion
-
-### Work 0007 — Masters, audit, concurrency, and Phase 1 code-complete
-
-Recommended model: Luna Max
-
-Outcome:
-
-- GP / Option Master management
-- quick-add / duplicate normalization
-- LockService critical-section abstraction
-- restricted Audit Spreadsheet integration logic
-- best-effort Actor fallback
-- five-year audit-retention cleanup logic
-- Phase 1 local integration suite
-
-Acceptance:
-
-- Master add / rename / reorder / deactivate / reactivate passes tests
-- audit payloads and redaction rules pass
-- email / temp key / UNIDENTIFIED paths all work
-- modeled concurrency / retry cases preserve invariants
-- Phase 1 is code-complete without live deployment
-
-### Work 0008 — Gemini File Search client, sync engine, and free question implementation
-
-Recommended model: Luna Max
-
-Outcome:
-
-- credential provider boundary
-- File Search Store client
-- Meeting text / source indexing request mapping
-- AI status fields
-- metadata filter builder
-- Pending / Failed / Indexed state transitions
-- 15-minute worker logic
-- idempotent re-index / delete / reactivate logic
-- `自由質問`
-- citation / Drive link mapping
-- AI query audit
-- mocked Gemini API fixtures / contract tests
-
-Acceptance:
-
-- request / response mappings pass fixture-based contract tests
-- metadata filters are deterministic
-- retry / re-index does not create duplicate modeled active AI Documents
-- Inactive removes modeled retrieval availability
-- AI failure does not rollback authoritative save
-- answer / retrieved chunks are not copied into audit
-- no live Gemini request required for completion
-
-### Work 0009 — Six formats, EML, four presets, feature freeze
-
-Recommended model: Luna Max
-
-Outcome:
-
-- `.pdf / .pptx / .xlsx / .docx / .txt / .eml` source handling logic
-- EML Subject / From / To / Cc / Date / Body normalization
-- embedded EML attachments excluded from automatic indexing
-- `要約 / 時系列 / 比較 / 面談準備`
-- one shared retrieval / citation path across all five modes
-- mode-specific prompt / output templates
-- local end-to-end integration suite with mocks / fixtures
-- operator / deployment documentation draft
-- feature freeze candidate
-
-Acceptance:
-
-- all six format paths are represented in tests / fixtures
-- EML normalization passes representative cases
-- five modes share the same retrieval service
-- insufficient-evidence behavior is enforced in templates
-- citations map to modeled source IDs / Drive links
-- full local/static suite passes
-- feature-complete status is reached before live qualification
-
-### Work 0010 — Final DEV live qualification and defect remediation
-
-Recommended model: Luna Max; use Sol High only if a material cross-cutting runtime issue remains unresolved
-
-This is the first standard live-validation Work.
-
-Outcome:
-
-- create / configure DEV Apps Script / Google Workspace resources
-- run `setupKnowledgePlatform_()` live from the editor or authorized setup path
-- deploy DEV Web App
-- Meeting end-to-end live validation
-- Pitchbook end-to-end live validation and practical upload-limit confirmation
-- Master / Past Records / concurrency live checks
-- restricted Audit Spreadsheet check
-- best-effort Actor behavior observation
-- Gemini File Search Store / indexing / query live validation
-- six formats / EML live path validation
-- 15-minute worker / retry / re-index / Inactive / Reactivate validation
-- five Knowledge Search modes
-- citation / Drive link verification
-- AI outage-isolation check
-- fix observed defects within scope
-- final operator / production setup documentation
-
-Acceptance:
-
-- primary workflows work end-to-end in DEV
-- setup is idempotent live
-- accepted practical upload limit is observed; lower it if needed rather than add architecture
-- six source formats have observed evidence
-- five modes use one retrieval path
-- citations return to correct Drive sources
-- Audit Spreadsheet remains restricted
-- AI failure cannot corrupt authoritative records
-- no BLOCKER remains for approved production deployment
-
-### Work 0011 — Knowledge Export and external-AI handoff
-
-Implemented and merged as a Gemini-independent path. It resolves Active sources from the Backend Index, creates Google Docs / PDF derived outputs, preserves Meeting authoritative text, emits Pitchbook metadata/link lists, supports five neutral prompt modes, migrates Knowledge Exports setup, and writes metadata-only Audit records. Live Docs/PDF placement, hyperlink behavior, permission equivalence, and clipboard behavior remain qualification evidence rather than assumed results.
-
-### Work 0012 — Apps Script public-surface and reliability hardening
-
-Implemented and validated with deterministic tests. The canonical normal-user facade is allowlisted and all other top-level functions are private; legacy AI triggers migrate to the private handler; `npm run check` enforces the boundary. Export count hard-stops precede Meeting Doc reads, source IDs bind to links/files, generated Docs receive explicit hyperlinks, prompts use readable Master names, and public errors/Audit are redacted. Synthetic data only is used for the focused validation.
-
-## 12. Validation strategy
-
-### During Works 0004–0012
-
-Run local / static validation only by default:
-
-- syntax / static checks
-- pure unit tests
-- schema / migration tests
-- ID / sequence tests
-- filename normalization tests
-- filter / validation tests
-- partial-failure / retry idempotency tests
-- audit payload / redaction tests
-- Actor fallback tests
-- EML normalization tests
-- Gemini request / response contract tests using mocks / fixtures
-- UI logic tests where practical
+- syntax / static validation
+- schema / migration / idempotent setup
+- public-surface allowlist
+- ID / sequence / filename normalization
+- validation / filtering / shared draft state
+- retry / partial failure / optimistic locking
+- audit payload / redaction / safe errors
+- Actor fallback
+- EML parsing / normalization
+- Gemini request / response / metadata mapping
+- Knowledge Export limits / link integrity / prompt generation
 - representative regression tests
 
-Do not routinely:
+Run the canonical repository check after targeted checks when change risk justifies it:
 
-- deploy DEV Apps Script
-- write live Shared Drive / Sheets / Docs
-- call Gemini File Search live
-- wait for live 15-minute triggers
-- run live OAuth / permission qualification
+```text
+npm run check
+git diff --check
+```
 
-### Work 0010–0011 final live qualification
+### TARGET_RUNTIME_QUALIFICATION
 
-Run one consolidated qualification cycle after feature freeze.
+Run the smallest native evidence required for the changed slice, such as:
 
-When a defect is found, fix it and rerun affected cases plus one representative regression. Repeat the full matrix only if a common foundation materially changes.
+- exact tested source synchronized to the intended Apps Script project;
+- one immutable version/deployment update where deployment is in scope;
+- create / persist / reopen / edit / search / link readback;
+- actual Sheets `Date` / Drive file / Docs link / browser state behavior;
+- actual Shared Drive parentage or permission behavior when material;
+- Gemini index/query/citation behavior only when billing and credentials are authorized;
+- final count / ID / duplicate / audit integrity readback.
 
-Hosted CI unavailability alone is not a blocker.
+Do not repeat every deterministic test in Apps Script. Native evidence should settle runtime-dependent decisions that local tests cannot.
 
-## 13. Genuine implementation choices
+### Reporting
 
-Remaining choices are limited to:
+```text
+LOGIC_VALIDATION: PASS | FAIL | NOT RUN | NOT APPLICABLE
+TARGET_RUNTIME_QUALIFICATION: PASS | FAIL | NOT RUN | NOT APPLICABLE
+SIDE_EFFECT_STATE: DISABLED | GUARDED | TEST_ONLY | ENABLED | NOT APPLICABLE
+READY: YES | NO
+```
 
-- concrete Gemini Flash model ID
-- organization-approved production credential storage / provider
-- retry batch size / backoff / rate-limit / cost guardrail values
-- comparison mode multi-select UI need
+Record application defect, target-runtime capability gap, automation limitation, infrastructure failure, and deferred side effect separately.
 
-The following are not open decisions:
+## 11. Historical implementation map
 
-- actual-user email is not mandatory
-- Web App internal Audit Viewer is not required initially
-- Audit Spreadsheet is separate and Drive-restricted
-- upload limit is 25MB/file, 10 files, 100MB total unless final live qualification proves a lower safe limit is needed
-- 100MB/file transport / Cloud fallback is not initial scope
-- routine/live qualification remains deferred or environment-limited for the affected Work 0010–0011 matrices
+The following Works remain historical implementation/evidence routes, not the current delivery sequence:
 
-## 14. Stop / escalation conditions
+- 0004: Apps Script scaffold + idempotent setup
+- 0005: Meeting vertical slice
+- 0006: Pitchbook vertical slice
+- 0007: maintenance / concurrency / Masters
+- 0008: Gemini File Search foundation + free question
+- 0009: six formats / EML / five modes
+- 0010: consolidated synthetic DEV qualification
+- 0011: Gemini-independent Knowledge Export / external-AI handoff
+- 0012: Apps Script public-surface and reliability hardening
+- 0013: DEV qualification / recovery history
+- 0014: structured Meeting/Pitchbook context foundation and current bounded repair
 
-Before Work 0010, stop only when implementation cannot safely continue because official documentation / mocks / contract tests cannot resolve a material API ambiguity.
+Work 0014 finishes or safely stops under its existing PR #17 evidence boundary. New Work applies this plan prospectively.
 
-During Work 0010, stop only when:
+## 12. Remaining genuine choices
 
-- approved Gemini permission / credential is unavailable for safe validation
-- accepted Apps Script / Gemini design is shown infeasible by reproducible evidence
-- data loss / duplicate authoritative records / confidential-data exposure cannot be prevented
-- required change materially alters Shared Drive / Index contracts
+Only decisions that materially affect the outcome remain open, including:
 
-Do not stop because:
+- concrete approved Gemini model / credential / billing route when AI live qualification begins;
+- retry batch size / backoff / rate-limit / cost guardrails based on observed runtime behavior;
+- safe practical upload limit if actual Apps Script behavior requires a lower value;
+- specific rollout / permission / cleanup route when production data and users are introduced;
+- whether a future high-risk migration or concurrency campaign uniquely requires a separate staging runtime.
 
-- user email cannot be obtained
-- temporary actor key rotates
-- hosted CI is unavailable
-- 25MB limit must be lowered to a safer practical value
-- optional UX improvements remain
+Already accepted product contracts are not reopened merely because target-runtime qualification is pending.
 
-## 15. Completion condition
+## 13. Stop and strategy-reset conditions
 
-Implementation is done when feature-complete code and Work 0012 hardening pass local/static validation. Production readiness additionally requires the separate DEV live qualification to show primary workflows, permission boundaries, Docs/PDF links, citations, Audit restriction, and AI failure isolation end-to-end; those unobserved checks must not be claimed as passed.
+Stop or reset when:
+
+- target identity / authorization cannot be established safely;
+- continuation would require confidential/production data, broad exposure, billing, trigger enablement, destructive cleanup, or permission change outside authorization;
+- the same failure class persists after bounded materially different attempts;
+- a test helper / mock / alternate runtime is supplying behavior absent from production source or target runtime;
+- the required change materially contradicts Shared Drive / Index / security contracts;
+- evidence-sensitive qualification would be contaminated by retry;
+- the next proposed action does not change acceptance, next action, safety, cost, integrity, or reversibility.
+
+Do not stop merely because user email is unavailable, a temporary Actor key rotates, hosted CI is unavailable, an optional feature remains, or a lower safe upload limit is observed.
+
+## 14. Completion condition
+
+A runtime-dependent Work is complete when:
+
+- the usable outcome exists in production source paths;
+- required logic validation passes;
+- required target-runtime smoke/readback passes using isolated data/resources;
+- side-effect state is explicit;
+- no unresolved BLOCKER remains;
+- non-blocking residuals are routed without expanding current scope.
+
+Production rollout additionally requires the authorization, data/access boundary, credential, permission, rollback, and side-effect evidence applicable to that rollout. A Work may be complete with production data/users/triggers/billing still disabled when rollout is not the primary outcome.
 
 Work ID: 0003
