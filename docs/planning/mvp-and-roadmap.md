@@ -211,28 +211,69 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised. It doe
 
 Work 0014 closes under PR #17's accepted synthetic-DEV evidence boundary. New Work applies the 2026-08-26 target-runtime-first policy prospectively.
 
-## 9. Next product Works
+## 9. Ordered product and rollout sequence
 
-Preferred sequence after Work 0014:
+Current preferred order:
 
-- Work 0015: GP workspace / one-page summary and Meeting↔Pitchbook relationship views;
-- Work 0016: meeting-activity analytics plus monthly administrative check workflow;
-- later: legacy converter / bulk ingestion;
-- later: Shared Drive-specific production qualification and production permission/rollout work;
-- later: billing-enabled Gemini/File Search live qualification when credentials/billing are authorized.
+1. **Work 0015 — GP Workspace / one-page summary**
+   - GP-centric summary, relationship, follow-up, and print/PDF view.
 
-Do not build GP/analytics views over ad-hoc text when the accepted Work 0014 structured fields are available.
+2. **Work 0016 — meeting-activity analytics + monthly administrative checks**
+   - monthly / quarterly / annual / fiscal-year / cumulative views;
+   - GP / Asset Class / Team slices;
+   - monthly Meeting list and administrative completion checks.
+
+3. **Post-0016 product-enhancement tranche — finish useful user-facing ideas before AI rollout**
+   - prioritize remaining product/UX ideas one Work at a time based on direct user value;
+   - current candidates include richer follow-up management (owner / due date / completion / reminder only if still desired), richer GP/relationship views, comparison/multi-select UX where useful, and other bounded operational improvements discovered through actual use;
+   - do not assign permanent Work IDs until each outcome is selected and scoped;
+   - do not let speculative enhancements block moving to Gemini once the remaining high-value product backlog is exhausted.
+
+4. **Personal-PC Gemini / File Search qualification**
+   - use the current private/personal-PC environment with synthetic or otherwise non-confidential test data;
+   - prove actual Gemini/File Search indexing, metadata filters, five search modes, citations, Drive/source traceability, failure isolation, and operational guardrails;
+   - billing/credentials and any consequential external effects remain separately authorized;
+   - this phase is intentionally before historical bulk ingestion so the target index/metadata/search contract is proven before loading large legacy volumes.
+
+5. **Legacy converter / bulk ingestion**
+   - design and implement bulk conversion/import after the Gemini/File Search contract is proven;
+   - ingest historical Word/Excel/TXT/PDF/other accepted source formats into the established authoritative structure;
+   - preserve source traceability, stable IDs, deduplication, legacy compatibility, and rebuildable AI indexing;
+   - do not make production migration the first test of the converter.
+
+6. **Final production-environment qualification and rollout readiness**
+   - this is the final qualification phase, after product features, personal-PC Gemini/File Search qualification, and bulk-ingestion capability are ready;
+   - qualify the actual company Shared Drive hierarchy, permissions, organization-controlled Apps Script Web App, Backend/Audit boundaries, production data/access model, cleanup/rollback, and operational controls;
+   - qualify production Gemini/File Search credentials/billing/index/query/citations as part of the final environment readiness where authorized;
+   - enable real users, confidential/production data, scheduled triggers, production billing, and broad rollout only under explicit scoped authorization and evidence;
+   - production readiness is declared only here, not by earlier personal-PC or synthetic qualification.
+
+The governing sequence is therefore:
+
+```text
+0015 GP Workspace
+  -> 0016 analytics / monthly checks
+  -> remaining high-value product enhancements
+  -> personal-PC Gemini / File Search qualification
+  -> legacy converter / bulk ingestion
+  -> final production-environment qualification / rollout readiness
+```
+
+Do not move historical bulk ingestion ahead of the personal-PC Gemini/File Search qualification unless new evidence shows the search/index contract no longer affects ingestion design. Do not move production qualification ahead of the preceding product and migration work merely for schedule convenience.
 
 ## 10. Genuine remaining choices
 
 Only choices that materially affect a current outcome remain open, including:
 
-- concrete approved Gemini model/credential/billing route;
-- observed retry batch size, backoff, rate-limit, and cost guardrails;
+- which post-0016 product enhancement has the highest immediate user value;
+- whether richer follow-up workflow fields/automation are still desired when that Work is selected;
+- whether comparison multi-select or other advanced GP/search UX is justified by actual use;
+- concrete Gemini model / credential / billing route for the personal-PC qualification;
+- observed retry batch size, backoff, rate-limit, indexing-volume, and cost guardrails;
 - lower safe upload limit if actual Apps Script behavior requires it;
-- production rollout/permission/cleanup route for real data/users;
-- whether a specific high-risk migration or concurrency campaign uniquely requires separate staging;
-- comparison multi-select UI only if demonstrated user value justifies it.
+- legacy converter input-format and deduplication details when bulk ingestion is selected;
+- final production rollout/permission/cleanup/rollback route;
+- whether a specific high-risk migration or concurrency campaign uniquely requires separate staging.
 
 Do not reopen accepted Apps Script-first runtime, Shared Drive authority, separate Restricted Audit, best-effort Actor, five modes, six initial formats, one derived File Search Store, or source-traceability requirements without new material evidence.
 
