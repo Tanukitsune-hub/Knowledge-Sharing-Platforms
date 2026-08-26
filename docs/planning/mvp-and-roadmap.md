@@ -223,15 +223,118 @@ Current preferred order:
    - GP / Asset Class / Team slices;
    - monthly Meeting list and administrative completion checks.
 
-3. **Post-0016 product-enhancement tranche — finish useful user-facing ideas before AI rollout**
-   - prioritize remaining product/UX ideas one Work at a time based on direct user value;
-   - current candidates include richer follow-up management (owner / due date / completion / reminder only if still desired), richer GP/relationship views, comparison/multi-select UX where useful, and other bounded operational improvements discovered through actual use;
-   - do not assign permanent Work IDs until each outcome is selected and scoped;
-   - do not let speculative enhancements block moving to Gemini once the remaining high-value product backlog is exhausted.
+3. **Post-0016 product-enhancement tranche — selected user-facing improvements before AI rollout**
+
+   Current product decisions:
+
+   - **Do not build a richer follow-up workflow as a planned standalone feature.** Follow-up management is handled separately outside this application; the current flag/note is sufficient for knowledge recall unless future use proves otherwise.
+   - **Do not plan a standalone static GP-comparison dashboard at this stage.** Structured factual comparison should be covered by Work 0016 / entity-level views, while narrative multi-entity comparison should be handled by Knowledge Search once Gemini/File Search is live. Reconsider a static side-by-side dashboard only if actual use demonstrates a gap.
+   - **GP Workspace enhancement is not a standalone Work yet.** It should evolve naturally through the entity hierarchy, relationship explorer, and strategy-level views below rather than duplicating them.
+
+   Selected high-value candidates:
+
+   ### A. Counterparty hierarchy + flexible Meeting classification / filters — selected
+
+   The current Meeting model is GP-centric, but actual Meetings may also be with LPs / asset owners, parent/group companies, internal Nippon Life departments, consultants/gatekeepers, or other counterparties.
+
+   Preferred UX direction:
+
+   ```text
+   Counterparty type / group
+        -> GP
+        -> LP / Asset Owner
+        -> Nippon Life
+        -> Parent / Group Company
+        -> Consultant / Gatekeeper
+        -> Other
+
+   Then a dependent second selector:
+        GP              -> individual GP
+        LP / Asset Owner -> individual LP / asset owner
+        Nippon Life      -> individual department
+        etc.
+   ```
+
+   Requirements when scoped:
+
+   - top-level classifications and entity lists must be extensible rather than hard-coded to only the examples above;
+   - do not duplicate GP names into a second master when the existing GP Master can remain authoritative for GP-type counterparties;
+   - evolve Meeting validation so GP is conditionally required only when the selected counterparty class is GP, rather than forcing a synthetic GP onto non-GP Meetings;
+   - preserve existing GP-linked Meeting history and GP Workspace behavior;
+   - expose the new hierarchy consistently to Meeting registration/edit/search, Work 0016 analytics where relevant, downstream metadata, and later Gemini/File Search filters;
+   - retain free-text person/contact fields separately from the organization/department identity.
+
+   The exact master/storage design is intentionally deferred to the dedicated Work; prefer the smallest stable-ID hierarchy that preserves the five-sheet baseline if practical, but do not contort the data model merely to avoid a justified master evolution.
+
+   ### B. Relationship Explorer — selected
+
+   Strengthen navigation across the accepted stable relationships rather than adding new semantic data:
+
+   - Meeting -> linked Pitchbooks;
+   - Pitchbook -> all Meetings that reference it (reverse lookup);
+   - entity/GP -> combined related Meeting/Pitchbook context;
+   - Fund / Strategy -> related Meetings and Pitchbooks when that value exists;
+   - preserve Inactive and unresolved relationship targets visibly;
+   - support direct click-through to authoritative Meeting Docs / Pitchbook files;
+   - consider a unified chronological activity stream when it improves navigation without duplicating Work 0016 analytics.
+
+   This is a non-AI relationship/navigation feature and should use existing stable IDs.
+
+   ### C. Fund / Strategy workspace — candidate, decision pending
+
+   Intended shape if adopted:
+
+   ```text
+   GP / entity
+     -> Fund / Strategy A
+        -> latest Meeting
+        -> Meeting count
+        -> Pitchbook count
+        -> follow-up count
+        -> recent Meetings / Pitchbooks
+        -> relationships
+     -> Fund / Strategy B
+        -> ...
+   ```
+
+   The primary intent is to see the strategies/funds associated with one GP/entity and understand the status/activity of each without opening records one by one.
+
+   Initial grouping should respect the current free-text `Fund_Strategy` contract. Exact-text fragmentation (`Fund V` vs `Fund 5`) is a known limitation; do not introduce a Fund Master until actual data quality shows that normalization value exceeds the additional maintenance burden.
+
+   ### D. Knowledge Search structured filters — selected
+
+   Extend search filters beyond the current Date / GP / Asset Class / Capital Type / Source Type baseline to use accepted structured metadata, including as applicable:
+
+   - counterparty type / group;
+   - specific counterparty entity / department;
+   - Team;
+   - Fund / Strategy;
+   - Meeting Type;
+   - Follow-up flag;
+   - existing GP / Asset Class / Capital Type / Source Type / Date.
+
+   The counterparty hierarchy should be implemented before or together with these filters so search does not remain artificially GP-only.
+
+   Deterministic normal search/filter behavior may be implemented before Gemini qualification. The same stable metadata should then flow into File Search custom metadata and Knowledge Search after personal-PC Gemini/File Search is authorized.
+
+   ### E. AI multi-entity comparison — selected for the Gemini phase, not a pre-Gemini standalone Work
+
+   The user should eventually be able to select multiple counterparties / GPs and ask for comparison in Knowledge Search, for example:
+
+   - compare recent discussion themes;
+   - compare strategy/fund positioning;
+   - compare outstanding questions/follow-up context;
+   - compare changes over time;
+   - cite the source Meetings/Pitchbooks used for each conclusion.
+
+   This should normally satisfy the need for a general GP-comparison experience. A separate static GP comparison screen is not planned unless the AI comparison plus Work 0016 structured analytics leave a demonstrated gap.
+
+   Do not assign permanent Work IDs for A-E until each outcome is selected for execution and scoped against the then-current product state.
 
 4. **Personal-PC Gemini / File Search qualification**
    - use the current private/personal-PC environment with synthetic or otherwise non-confidential test data;
    - prove actual Gemini/File Search indexing, metadata filters, five search modes, citations, Drive/source traceability, failure isolation, and operational guardrails;
+   - include the selected AI multi-entity comparison and the then-accepted counterparty/structured metadata in qualification scope where their prerequisite product work is complete;
    - billing/credentials and any consequential external effects remain separately authorized;
    - this phase is intentionally before historical migration so the target index/metadata/search contract is proven before loading significant legacy volumes.
 
@@ -255,8 +358,11 @@ The governing sequence is therefore:
 ```text
 0015 GP Workspace
   -> 0016 analytics / monthly checks
-  -> remaining high-value product enhancements
-  -> personal-PC Gemini / File Search qualification
+  -> counterparty hierarchy + flexible classification/filters
+  -> relationship explorer
+  -> Fund / Strategy workspace if adopted
+  -> remaining bounded product/UX improvements
+  -> personal-PC Gemini / File Search + AI multi-entity comparison
   -> historical migration (manual / hybrid / selective automation)
   -> final production-environment qualification / rollout readiness
 ```
@@ -267,9 +373,10 @@ Do not move historical migration ahead of the personal-PC Gemini/File Search qua
 
 Only choices that materially affect a current outcome remain open, including:
 
-- which post-0016 product enhancement has the highest immediate user value;
-- whether richer follow-up workflow fields/automation are still desired when that Work is selected;
-- whether comparison multi-select or other advanced GP/search UX is justified by actual use;
+- final counterparty hierarchy/master representation and whether the five-sheet baseline remains the simplest coherent storage model;
+- exact top-level counterparty categories and their initial seed values;
+- whether the Fund / Strategy workspace is useful enough to implement as a separate Work after the relationship explorer;
+- whether any residual GP/Entity Workspace enhancement remains after the counterparty hierarchy, relationship explorer, and Fund / Strategy view are implemented;
 - concrete Gemini model / credential / billing route for the personal-PC qualification;
 - observed retry batch size, backoff, rate-limit, indexing-volume, and cost guardrails;
 - lower safe upload limit if actual Apps Script behavior requires it;
