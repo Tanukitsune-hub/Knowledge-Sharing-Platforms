@@ -2,14 +2,16 @@
 
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-05`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
 
-## GitHub-verified current state
+## Current state
 
-PR #17 is Draft / Open / unmerged. The branch contains the bounded Pitchbook maintenance repair and its regression tests. The repaired source has been synchronized to synthetic DEV and immutable Apps Script version `28` exists.
+PR #17 is Draft / Open / unmerged. The branch contains the bounded Pitchbook maintenance repair and its regression tests. The repaired source was synchronized to synthetic DEV, and immutable Apps Script versions `28` and `29` exist.
 
-The application is not yet qualified because no current deployment is positively identified as a working Web App `/exec`. Therefore the repaired Pitchbook Fund / Strategy save and final integrity remain unobserved live.
+CODEX-05 created exactly one private synthetic DEV Web App deployment and its `/exec` rendered normally. The one authorized Pitchbook Fund / Strategy save succeeded and authoritative readback preserved Document_ID, File_ID, Sequence_No, filename, and Active status while appending exactly one successful metadata-level Audit event.
+
+The application remains unqualified because the one authorized post-save search returned zero rows under the same retained Date/GP/Asset Class/Equity/Active filters that had returned the target before saving. The record remained present and Active in Backend readback. Reopen verification and the broader final integrity matrix were stopped at this first application/search failure.
 
 ## Accepted implementation evidence
 
@@ -33,28 +35,31 @@ The application is not yet qualified because no current deployment is positively
 
 GitHub has no `.github/workflows` directory and no workflow run or commit status for the current head. Therefore the `179/179 PASS` result is a local Codex result, not a GitHub Actions CI result. GitHub source, commit diff, test definitions, PR metadata, and reports were independently inspected; the test suite was not independently re-executed by GitHub CI.
 
-## CODEX-04 control-plane result
+## CODEX-05 result
 
-- no positively identified Web App entrypoint was available for an in-place update;
-- an attempted update reached a Library deployment;
-- that Library deployment was immediately restored to its prior version and description;
-- deployment count and other deployments were reported unchanged;
-- live Pitchbook save: NOT RUN;
-- final integrity: NOT RUN.
+- deployment preflight and exact source readback: `PASS`;
+- exactly one new private Web App deployment: `PASS`;
+- automatically generated immutable version `29`: `PASS`;
+- main `/exec` rendering: `PASS`;
+- Pitchbook Fund / Strategy save exactly once: `PASS`;
+- stable Document/File/sequence/filename/Active identity: `PASS`;
+- exactly one successful metadata-level `PITCHBOOK_UPDATE` Audit event: `PASS`;
+- post-save search: `FAIL — zero rows under the retained exact filters`;
+- reopen/round-trip UI verification: `NOT RUN`;
+- final authoritative integrity: `NOT RUN — completion latch stopped at the first failure`.
 
 ## Problem classification
 
 ### BLOCKER
 
-- one verified Web App `/exec` must be created;
-- the repaired Pitchbook Fund / Strategy path must be saved/reopened/searched once;
-- final authoritative integrity must pass;
-- authenticated desktop/browser participation is currently unavailable because the user cannot operate the PC.
+- the repaired Pitchbook must remain searchable after a Fund / Strategy-only save;
+- reopen/round-trip UI verification must pass;
+- final authoritative integrity must pass under a new authorized handoff.
 
 ### FIX SOON
 
-- deployment entrypoint type must be proven before any update; Library/ambiguous deployments are never update targets;
-- dispatch state must remain internally consistent and user-held while the authenticated run is paused.
+- preserve the successful one-time save evidence and avoid a second save or deployment under CODEX-05;
+- diagnose or repair the post-save search failure only under a new explicit instruction.
 
 ### BACKLOG
 
@@ -64,13 +69,13 @@ GitHub has no `.github/workflows` directory and no workflow run or commit status
 
 ## Next action
 
-Resume `0014-CODEX-05` only when the user is present. Follow:
+Review the blocked CODEX-05 report:
 
-`docs/handoffs/0014-CODEX-05-web-app-recovery-and-final-live-verification-instruction.md`
+`docs/handoffs/0014-CODEX-05-web-app-recovery-and-final-live-verification-report.md`
 
 Current classification:
 
-`NOT QUALIFIED — FINAL AUTHENTICATED WEB APP AND PITCHBOOK VERIFICATION PENDING`
+`NOT QUALIFIED — PITCHBOOK POST-SAVE SEARCH FAILED`
 
 `BLOCKER: YES`
 

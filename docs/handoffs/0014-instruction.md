@@ -2,8 +2,8 @@
 
 WORK_ID: `0014`
 Dispatch ID: `0014-CODEX-05`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CHATGPT`
+STATUS: `BLOCKED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -60,36 +60,26 @@ Deliver and prove end-to-end the structured Meeting/Pitchbook context foundation
 - original failed Pitchbook save produced no duplicate, partial row update, or file corruption;
 - the Library deployment accidentally touched in CODEX-04 was restored.
 
+## CODEX-05 execution result
+
+Deployment recovery and the main-page gate passed. CODEX-05 created exactly one private synthetic DEV Web App, Apps Script created automatic immutable version `29`, and the new `/exec` rendered normally.
+
+The one authorized Pitchbook Fund / Strategy save also succeeded. Backend and Audit readback confirmed the new value, stable Document_ID/File_ID/Sequence_No/filename/Active status, a unique target row, and exactly one successful metadata-level `PITCHBOOK_UPDATE` event.
+
+The post-save search failed: the same retained exact filters that returned the target before saving returned zero rows afterward, while Backend still contained one Active target row with the same logical date and identity. Reopen verification and final authoritative integrity were stopped at this first failure.
+
 ## Remaining BLOCKER
 
-No currently verified versioned Web App `/exec` exists. Consequently the repaired Pitchbook Fund / Strategy path has not been live-verified and the final authoritative integrity matrix has not run.
+Work 0014 remains blocked on the post-save search/reopen behavior and the unexecuted final authoritative integrity matrix.
 
-This is a deployment/control-plane and authenticated-browser prerequisite, not an unresolved source implementation hypothesis.
-
-The user is temporarily unavailable for the required desktop/browser interaction. Work remains paused with BALL `USER` until the user can launch CODEX-05.
-
-## CODEX-05 completion contract
-
-When the user is present:
-
-1. prove deployment type before any mutation;
-2. never update a Library or ambiguous deployment ID;
-3. create exactly one new synthetic DEV Web App through the editor;
-4. execute as deploying user, access `Only myself`;
-5. open the verified `/exec` once;
-6. run only the remaining Pitchbook Fund / Strategy save/reopen/search check once;
-7. verify stable Document/File/sequence/filename identity and one success Audit event;
-8. complete final integrity;
-9. stop on first failure with no second deployment or save retry.
+Do not resume CODEX-05, repeat the save, create another deployment, or open a source hypothesis without a new explicit handoff.
 
 ## Completion
 
-Work 0014 is complete only after CODEX-05 proves the repaired Pitchbook path live and final integrity passes.
+Current classification:
 
-On PASS classify:
+`NOT QUALIFIED — PITCHBOOK POST-SAVE SEARCH FAILED`
 
-`DEV QUALIFIED — WORK 0014 STRUCTURED CONTEXT FOUNDATION`
-
-`BLOCKER: NO`
+`BLOCKER: YES`
 
 PR #17 remains Draft / Open / unmerged until ChatGPT final review and merge.
