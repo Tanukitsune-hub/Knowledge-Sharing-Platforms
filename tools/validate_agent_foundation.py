@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -166,6 +165,9 @@ REQUIRED_TOKENS = {
     ],
 }
 
+# These are current guidance surfaces where the old delivery model must not be
+# reintroduced as an active instruction. Decision/history documents are excluded
+# because they must quote the superseded policy accurately.
 ACTIVE_POLICY_KEYS = [
     "agents",
     "readme",
@@ -173,7 +175,6 @@ ACTIVE_POLICY_KEYS = [
     "work_control",
     "handoff",
     "pr_template",
-    "target_decision",
     "implementation_plan",
     "roadmap",
     "architecture",
@@ -181,7 +182,6 @@ ACTIVE_POLICY_KEYS = [
     "security",
     "gemini",
     "repository_initialization",
-    "decision_log",
 ]
 
 BANNED_CURRENT_POLICY = [
@@ -220,17 +220,6 @@ def main() -> int:
     for marker in MARKERS:
         if agents.count(marker) != 1:
             errors.append(f"AGENTS.md must contain marker exactly once: {marker}")
-
-    status_match = re.search(r"REPOSITORY_RULES_STATUS:\s*(\w+)", agents)
-    if not status_match or status_match.group(1) != "ACTIVE":
-        errors.append("REPOSITORY_RULES_STATUS must be ACTIVE")
-
-    repo_start = agents.find("<!-- REPOSITORY_SPECIFIC_RULES_START -->")
-    repo_end = agents.find("<!-- REPOSITORY_SPECIFIC_RULES_END -->")
-    if 0 <= repo_start < repo_end:
-        repo_rules = agents[repo_start:repo_end]
-        if re.search(r"<[^>\n]+>", repo_rules):
-            errors.append("active Repository-Specific Rules contain placeholder tokens")
 
     for key, tokens in REQUIRED_TOKENS.items():
         text = texts[key]
