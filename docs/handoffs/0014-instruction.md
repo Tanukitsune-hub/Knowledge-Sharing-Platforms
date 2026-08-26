@@ -1,13 +1,13 @@
 # Work 0014 — Structured meeting context foundation
 
 WORK_ID: `0014`
-Dispatch ID: `0014-CODEX-05`
-BALL: `CHATGPT`
-STATUS: `BLOCKED`
+Dispatch ID: `0014-CODEX-06`
+BALL: `CODEX`
+STATUS: `READY`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Mode: `BUILD / INCIDENT_RECOVERY / QUALIFICATION`
+Mode: `BUILD / QUALIFICATION`
 
 Primary design:
 
@@ -15,7 +15,7 @@ Primary design:
 
 Active execution instruction:
 
-`docs/handoffs/0014-CODEX-05-web-app-recovery-and-final-live-verification-instruction.md`
+`docs/handoffs/0014-CODEX-06-pitchbook-date-roundtrip-search-repair-instruction.md`
 
 Deployment guardrails:
 
@@ -48,38 +48,56 @@ Deliver and prove end-to-end the structured Meeting/Pitchbook context foundation
 - Work 0014 schema/data model and broad implementation: accepted;
 - schema 3 append-only/idempotent migration: PASS;
 - synthetic DEV migration and installation-state alignment: PASS/read back;
-- CODEX-04 Pitchbook maintenance repair: implemented;
+- CODEX-04 Pitchbook helper/runtime repair: implemented;
 - local deterministic result recorded by CODEX-04: `179/179 PASS`;
 - public facade: `23`;
-- bounded repair commit: `4036690cf49555cbc308a16a464606f1da523c0b`;
-- tested Apps Script source synchronization/readback: `59/59 PASS`;
-- immutable Apps Script version `28`: exists;
+- exact Apps Script source readback: `59/59 PASS`;
 - legacy Meeting live compatibility: PASS;
 - rich Meeting create/edit/search live round-trip: PASS;
 - Meeting ↔ Pitchbook relationship live preservation: PASS;
-- original failed Pitchbook save produced no duplicate, partial row update, or file corruption;
-- the Library deployment accidentally touched in CODEX-04 was restored.
+- CODEX-05 created exactly one private synthetic DEV Web App and version `29`; `/exec` rendered normally;
+- CODEX-05 Pitchbook Fund / Strategy save succeeded exactly once;
+- authoritative Backend and Audit proved the saved value, stable Document/File/sequence/filename/Active identity, unique row, and exactly one successful `PITCHBOOK_UPDATE` event;
+- no duplicate or partial row/file mutation occurred.
 
-## CODEX-05 execution result
+The saved value is accepted. No second Pitchbook save is required or authorized for completion.
 
-Deployment recovery and the main-page gate passed. CODEX-05 created exactly one private synthetic DEV Web App, Apps Script created automatic immutable version `29`, and the new `/exec` rendered normally.
+## Observed blocker
 
-The one authorized Pitchbook Fund / Strategy save also succeeded. Backend and Audit readback confirmed the new value, stable Document_ID/File_ID/Sequence_No/filename/Active status, a unique target row, and exactly one successful metadata-level `PITCHBOOK_UPDATE` event.
+The exact Date / GP / Asset Class / Capital Type / Active search returned the target before saving and zero rows after the successful save. The record remained present and Active in Backend.
 
-The post-save search failed: the same retained exact filters that returned the target before saving returned zero rows afterward, while Backend still contained one Active target row with the same logical date and identity. Reopen verification and final authoritative integrity were stopped at this first failure.
+Reopen and final authoritative integrity remain pending.
 
-## Remaining BLOCKER
+## ChatGPT root-cause conclusion
 
-Work 0014 remains blocked on the post-save search/reopen behavior and the unexecuted final authoritative integrity matrix.
+Active hypothesis: `PITCHBOOK_DATE_REPRESENTATION_DRIFT_ON_FULL_ROW_WRITE`.
 
-Do not resume CODEX-05, repeat the save, create another deployment, or open a source hypothesis without a new explicit handoff.
+A Fund / Strategy-only update unexpectedly recorded `Date` as changed. Audit showed the same logical day moving from a Date/timestamp representation to a date-only string. The row commit and Pitchbook status paths write complete rows, while search and Pitchbook identity derive Date-object keys with UTC getters. The live spreadsheet and Apps Script use `Asia/Tokyo`.
+
+This creates a representation-sensitive calendar-day comparison and explains why all non-Date search fields remained stable while the exact result disappeared only after the save.
+
+## Active repair contract
+
+CODEX-06 must:
+
+1. use the configured application timezone for Date-object calendar-day canonicalization;
+2. apply the canonical key consistently to search, mapping, and Pitchbook context comparison;
+3. use partial Pitchbook edit/status writes so unchanged Date and unrelated cells are not rewritten;
+4. compare logical Date values in Audit metadata;
+5. add deterministic timezone/date-roundtrip/post-save-search regressions;
+6. keep schema, product surface, public facade, data, and deployment access boundary unchanged;
+7. after deterministic PASS, update the positively identified existing Web App deployment in place to one new immutable version;
+8. perform one read-only exact search and one reopen—without saving again;
+9. complete final integrity.
+
+If the active hypothesis is disproved or the exact read-only search still fails, stop for Strategy Reset. Do not broaden filters or open a second hypothesis in CODEX-06.
 
 ## Completion
 
-Current classification:
+If deterministic validation, exact search/reopen, and final integrity PASS, classify:
 
-`NOT QUALIFIED — PITCHBOOK POST-SAVE SEARCH FAILED`
+`DEV QUALIFIED — WORK 0014 STRUCTURED CONTEXT FOUNDATION`
 
-`BLOCKER: YES`
+`BLOCKER: NO`
 
 PR #17 remains Draft / Open / unmerged until ChatGPT final review and merge.
