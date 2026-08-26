@@ -1,0 +1,55 @@
+<script>
+const KSP_GP_PRINT_LIMITS={fundStrategies:8,recentMeetings:5,recentPitchbooks:5,followUps:5,relationships:5,relationshipTargets:3};
+let gpWorkspaceData=null,gpWorkspaceRequestSequence=0;
+
+function populateGpWorkspaceOptions(gps){
+  const select=el('gp-workspace-gpId'),current=select.value;
+  select.innerHTML='<option value="">未選択</option>';
+  (gps||[]).forEach(gp=>{const option=document.createElement('option');option.value=gp.id;option.textContent=gp.name+(gp.status==='Inactive'?'（Inactive）':'');select.appendChild(option)});
+  if([...select.options].some(option=>option.value===current))select.value=current;
+}
+function gpWorkspaceText(value){const text=String(value==null?'':value).trim();return text||'—'}
+function gpWorkspaceMore(count){return Number(count||0)>0?'<div class="gp-more">+'+escapeHtml(count)+' more</div>':''}
+function gpWorkspaceLink(url,label){const safe=kspSafeDriveUrl(url);return safe?'<a class="small-link" href="'+escapeHtml(safe)+'" target="_blank" rel="noopener">'+escapeHtml(label)+'</a>':'—'}
+function gpWorkspaceStatusClass(status){return status==='Active'?'Active':status==='Inactive'?'Inactive':status==='Pending'?'Pending':status==='Failed'?'Failed':''}
+function gpWorkspaceBadge(status){return '<span class="badge '+gpWorkspaceStatusClass(status)+'">'+escapeHtml(gpWorkspaceText(status))+'</span>'}
+function gpWorkspaceContext(record){return [record.assetClassName,record.capitalTypeName,record.fundStrategy].filter(Boolean).map(escapeHtml).join('<br>')||'—'}
+
+function renderGpWorkspace(data){
+  gpWorkspaceData=data;
+  el('gp-workspace-name').textContent=data.gp.name;
+  el('gp-workspace-id').textContent=data.gp.id;
+  el('gp-workspace-gp-status').className='badge '+gpWorkspaceStatusClass(data.gp.status);
+  el('gp-workspace-gp-status').textContent=data.gp.status;
+  const s=data.summary;
+  el('gp-workspace-summary').innerHTML=[['Meetings',s.meetingTotal+' / Active '+s.meetingActive],['Pitchbooks',s.pitchbookTotal+' / Active '+s.pitchbookActive],['要フォロー',s.activeFollowUpCount],['Last Meeting',gpWorkspaceText(s.lastMeetingDate)]].map(item=>'<div class="card gp-summary-card"><span>'+escapeHtml(item[0])+'</span><strong>'+escapeHtml(item[1])+'</strong></div>').join('');
+  el('gp-workspace-funds').innerHTML=((data.fundStrategies||[]).map(item=>'<div class="gp-list-row"><strong>'+escapeHtml(item.text)+'</strong><span>M '+escapeHtml(item.meetingCount)+' / P '+escapeHtml(item.pitchbookCount)+' / '+escapeHtml(gpWorkspaceText(item.latestDate))+'</span></div>').join('')||'<div class="empty-cell">該当なし</div>')+gpWorkspaceMore(data.omittedCounts.fundStrategies);
+  el('gp-workspace-followups').innerHTML=((data.followUps||[]).map(item=>'<div class="gp-list-row"><strong>'+escapeHtml(item.date)+' / '+escapeHtml(item.meetingId)+'</strong><span>'+escapeHtml([item.fundStrategy,item.teamName?'Team: '+item.teamName:''].filter(Boolean).join(' / ')||'—')+'</span><span>'+escapeHtml(gpWorkspaceText(item.followUpNote))+'</span><span>'+gpWorkspaceLink(item.documentUrl,'Doc')+'</span></div>').join('')||'<div class="empty-cell">該当なし</div>')+gpWorkspaceMore(data.omittedCounts.followUps);
+  el('gp-workspace-meetings').innerHTML=(data.recentMeetings||[]).map(item=>'<tr><td>'+escapeHtml(gpWorkspaceText(item.date))+'</td><td>'+gpWorkspaceContext(item)+'</td><td>'+escapeHtml((item.meetingTypeLabels||[]).join(' / ')||'—')+(item.teamName?'<br><span class="hint">Team: '+escapeHtml(item.teamName)+'</span>':'')+'<br><span class="hint">関連Pitchbook: '+escapeHtml((item.relatedPitchbookIds||[]).length)+'</span>'+(item.followUpRequired?'<br><span class="badge Pending">要フォロー</span>':'')+'</td><td>'+gpWorkspaceBadge(item.status)+'</td><td>'+gpWorkspaceLink(item.documentUrl,'Doc')+'</td></tr>').join('')||'<tr><td colspan="5" class="empty-cell">該当なし</td></tr>';
+  el('gp-workspace-meetings-more').innerHTML=gpWorkspaceMore(data.omittedCounts.recentMeetings);
+  el('gp-workspace-pitchbooks').innerHTML=(data.recentPitchbooks||[]).map(item=>'<tr><td>'+escapeHtml(gpWorkspaceText(item.date))+'</td><td>'+gpWorkspaceContext(item)+'</td><td>'+escapeHtml(gpWorkspaceText(item.savedFilename))+'</td><td>'+gpWorkspaceBadge(item.status)+'</td><td>'+gpWorkspaceLink(item.fileUrl,'開く')+'</td></tr>').join('')||'<tr><td colspan="5" class="empty-cell">該当なし</td></tr>';
+  el('gp-workspace-pitchbooks-more').innerHTML=gpWorkspaceMore(data.omittedCounts.recentPitchbooks);
+  el('gp-workspace-relationships').innerHTML=((data.relationships||[]).map(item=>'<div class="gp-relationship-row"><div><strong>'+escapeHtml(item.date)+' / '+escapeHtml(item.meetingId)+'</strong>'+(item.fundStrategy?'<br><span class="hint">'+escapeHtml(item.fundStrategy)+'</span>':'')+'</div><div>'+item.pitchbooks.map(target=>target.unresolved?'<span class="badge Failed">未解決: '+escapeHtml(target.documentId)+'</span>':'<span class="gp-related-item">'+escapeHtml(target.documentId)+' / '+escapeHtml(gpWorkspaceText(target.savedFilename))+' '+gpWorkspaceBadge(target.status)+' '+gpWorkspaceLink(target.fileUrl,'開く')+'</span>').join('')+'</div></div>').join('')||'<div class="empty-cell">該当なし</div>')+gpWorkspaceMore(data.omittedCounts.relationships);
+  renderGpWorkspacePrint(data);
+  el('gp-workspace-content').classList.remove('hidden-panel');
+  el('gp-workspace-print-button').disabled=false;
+}
+
+function gpPrintSection(title,items,renderer,totalOmitted){return '<section class="gp-print-section"><h3>'+escapeHtml(title)+'</h3>'+items.map(renderer).join('')+gpWorkspaceMore(totalOmitted)+'</section>'}
+function renderGpWorkspacePrint(data){
+  const s=data.summary;
+  const limit=(key,items)=>({items:(items||[]).slice(0,KSP_GP_PRINT_LIMITS[key]),more:Math.max(0,(items||[]).length-KSP_GP_PRINT_LIMITS[key])+Number(data.omittedCounts[key]||0)});
+  const funds=limit('fundStrategies',data.fundStrategies),meetings=limit('recentMeetings',data.recentMeetings),pitchbooks=limit('recentPitchbooks',data.recentPitchbooks),followups=limit('followUps',data.followUps),relationships=limit('relationships',data.relationships);
+  el('gp-workspace-print').innerHTML='<header class="gp-print-header"><div><h1>'+escapeHtml(data.gp.name)+'</h1><span>'+escapeHtml(data.gp.id)+' / '+escapeHtml(data.gp.status)+'</span></div><div class="gp-print-summary"><span>Meetings <b>'+escapeHtml(s.meetingTotal)+'</b></span><span>Pitchbooks <b>'+escapeHtml(s.pitchbookTotal)+'</b></span><span>要フォロー <b>'+escapeHtml(s.activeFollowUpCount)+'</b></span><span>Last <b>'+escapeHtml(gpWorkspaceText(s.lastMeetingDate))+'</b></span></div></header>'+gpPrintSection('Fund / Strategy',funds.items,item=>'<div class="gp-print-row"><b>'+escapeHtml(item.text)+'</b><span>M '+escapeHtml(item.meetingCount)+' / P '+escapeHtml(item.pitchbookCount)+' / '+escapeHtml(gpWorkspaceText(item.latestDate))+'</span></div>',funds.more)+gpPrintSection('Meetings',meetings.items,item=>'<div class="gp-print-row"><b>'+escapeHtml(item.date)+' / '+escapeHtml(item.meetingId)+'</b><span>'+escapeHtml([item.assetClassName,item.fundStrategy].filter(Boolean).join(' / ')||'—')+'</span></div>',meetings.more)+gpPrintSection('Pitchbooks',pitchbooks.items,item=>'<div class="gp-print-row"><b>'+escapeHtml(item.date)+' / '+escapeHtml(item.documentId)+'</b><span>'+escapeHtml(gpWorkspaceText(item.savedFilename))+'</span></div>',pitchbooks.more)+gpPrintSection('要フォロー',followups.items,item=>'<div class="gp-print-row"><b>'+escapeHtml(item.date)+' / '+escapeHtml(item.meetingId)+'</b><span class="gp-print-clamp">'+escapeHtml(gpWorkspaceText(item.followUpNote))+'</span></div>',followups.more)+gpPrintSection('Meeting ↔ Pitchbook',relationships.items,item=>{const targets=(item.pitchbooks||[]).slice(0,KSP_GP_PRINT_LIMITS.relationshipTargets),targetMore=Math.max(0,(item.pitchbooks||[]).length-targets.length);return '<div class="gp-print-row"><b>'+escapeHtml(item.date)+' / '+escapeHtml(item.meetingId)+'</b><span>'+targets.map(target=>escapeHtml(target.documentId)+(target.unresolved?' (未解決)':' ('+escapeHtml(target.status)+')')).join('<br>')+(targetMore?'<br>+'+escapeHtml(targetMore)+' more':'')+'</span></div>'},relationships.more);
+}
+
+async function loadGpWorkspace(gpId){
+  const requestSequence=++gpWorkspaceRequestSequence;
+  gpWorkspaceData=null;el('gp-workspace-content').classList.add('hidden-panel');el('gp-workspace-print-button').disabled=true;clearStatus('gp-workspace-status');
+  if(!gpId){el('gp-workspace-print').innerHTML='';return}
+  showStatus('gp-workspace-status','info','読み込んでいます。');
+  try{const result=await serverCall('getGpWorkspaceData',gpId);if(requestSequence!==gpWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'GP Workspaceを読み込めませんでした。');renderGpWorkspace(result);showStatus('gp-workspace-status','success','GP Workspaceを表示しました。')}catch(error){if(requestSequence===gpWorkspaceRequestSequence)showStatus('gp-workspace-status','error',error.message||String(error))}
+}
+el('gp-workspace-gpId').addEventListener('change',event=>loadGpWorkspace(event.target.value));
+el('gp-workspace-print-button').onclick=()=>{if(gpWorkspaceData)window.print()};
+</script>

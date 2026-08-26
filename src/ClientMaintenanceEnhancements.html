@@ -18,13 +18,16 @@ function applyMaintenanceMasterData(masters) {
   maintenanceBootstrap=maintenanceBootstrap||{};
   maintenanceBootstrap.masters=masters||{gps:[],options:[]};
   renderMasters(maintenanceBootstrap.masters);
+  populateGpWorkspaceOptions(maintenanceBootstrap.masters.gps||[]);
   populateMaintenanceSelects(maintenanceOptionSets(maintenanceBootstrap.masters,false));
   populateSharedOptions(maintenanceOptionSets(maintenanceBootstrap.masters,true));
 }
 
 function bootstrapMaintenance(result) {
   if(!result||!result.ok){
-    showStatus('masters-status','error',result&&result.error?result.error.message:'保守機能を読み込めませんでした。');
+    const message=result&&result.error?result.error.message:'保守機能を読み込めませんでした。';
+    showStatus('masters-status','error',message);
+    showStatus('gp-workspace-status','error',message);
     return;
   }
   maintenanceBootstrap=result;

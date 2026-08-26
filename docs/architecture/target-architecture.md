@@ -176,7 +176,7 @@ Rules:
 - no generic production reset or destructive teardown;
 - no organization-specific IDs, private URLs, credentials, or local mappings in GitHub.
 
-Production source must contain every production business helper. A test loader may not inject a missing production-named function and then treat the harness PASS as runtime readiness.
+Production business helpers must exist in production source. A test loader may not inject a missing production-named function and then treat the harness PASS as runtime readiness.
 
 ## 5. Meeting contract
 

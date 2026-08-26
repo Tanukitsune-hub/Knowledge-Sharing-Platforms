@@ -16,6 +16,7 @@
         <button id="nav-pitchbook" type="button">Pitchbook</button>
         <button id="nav-meeting-past" type="button">過去面談</button>
         <button id="nav-pitchbook-past" type="button">過去資料</button>
+        <button id="nav-gp-workspace" type="button">GP Workspace</button>
         <button id="nav-masters" type="button">マスター管理</button>
         <button id="nav-knowledge" type="button">ナレッジ検索</button>
       </nav>
@@ -66,10 +67,13 @@
     </section>
 
     <?!= include_('MaintenancePages'); ?>
+    <?!= include_('GpWorkspacePage'); ?>
     <?!= include_('KnowledgeSearchPage'); ?>
+    <div id="gp-workspace-print" class="gp-workspace-print print-only" aria-hidden="true"></div>
   </main>
 
 <?!= include_('ClientCore'); ?>
+<?!= include_('ClientGpWorkspace'); ?>
 <?!= include_('ClientKnowledgeSearch'); ?>
 <script>
 function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,gpId:el('meeting-gpId').value,assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,teamId:el('meeting-teamId').value,fundStrategy:el('meeting-fundStrategy').value,meetingTypeCodes:meetingTypeValues('meeting'),relatedPitchbookIds:selectedOptionValues('meeting-relatedPitchbookIds'),followUpRequired:el('meeting-followUpRequired').checked,followUpNote:el('meeting-followUpNote').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}

@@ -10,6 +10,7 @@ const index = fs.readFileSync(path.join(root, 'src', 'Index.html'), 'utf8');
 const clientCore = fs.readFileSync(path.join(root, 'src', 'ClientCore.html'), 'utf8');
 const standalone = fs.readFileSync(path.join(root, 'src', 'KnowledgeSearch.html'), 'utf8');
 const knowledgePage = fs.readFileSync(path.join(root, 'src', 'KnowledgeSearchPage.html'), 'utf8');
+const gpWorkspacePage = fs.readFileSync(path.join(root, 'src', 'GpWorkspacePage.html'), 'utf8');
 
 test('Knowledge Search navigation is an integrated same-document showPage page', () => {
   assert.match(index, /<button id="nav-knowledge"[^>]*type="button">ナレッジ検索<\/button>/);
@@ -34,7 +35,17 @@ test('Knowledge Search navigation is an integrated same-document showPage page',
   assert.doesNotMatch(webApp, /\.replace\(/);
 });
 
-test('showPage switches Knowledge Search and Meeting without changing the document', () => {
+test('GP Workspace navigation is an integrated same-document page', () => {
+  assert.match(index, /<button id="nav-gp-workspace"[^>]*type="button">GP Workspace<\/button>/);
+  assert.match(index, /include_\('GpWorkspacePage'\)/);
+  assert.match(index, /include_\('ClientGpWorkspace'\)/);
+  assert.match(clientCore, /'gp-workspace':document\.getElementById\('page-gp-workspace'\)/);
+  assert.match(gpWorkspacePage, /<section id="page-gp-workspace" class="page">/);
+  const ids = Array.from(gpWorkspacePage.matchAll(/\bid="([^"]+)"/g), match => match[1]);
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('showPage switches Knowledge Search, GP Workspace, and Meeting without changing the document', () => {
   const script = clientCore.match(/<script>([\s\S]*?)<\/script>/);
   assert.ok(script);
   const nodes = new Map();
@@ -72,7 +83,14 @@ test('showPage switches Knowledge Search and Meeting without changing the docume
   assert.equal(node('nav-knowledge').classList.contains('active'), true);
   assert.equal(node('nav-meeting').classList.contains('active'), false);
 
+  context.showPage('gp-workspace');
+  assert.equal(node('page-gp-workspace').classList.contains('active'), true);
+  assert.equal(node('page-knowledge').classList.contains('active'), false);
+  assert.equal(node('nav-gp-workspace').classList.contains('active'), true);
+  assert.equal(node('nav-knowledge').classList.contains('active'), false);
+
   context.showPage('meeting');
+  assert.equal(node('page-gp-workspace').classList.contains('active'), false);
   assert.equal(node('page-knowledge').classList.contains('active'), false);
   assert.equal(node('page-meeting').classList.contains('active'), true);
   assert.equal(node('nav-knowledge').classList.contains('active'), false);

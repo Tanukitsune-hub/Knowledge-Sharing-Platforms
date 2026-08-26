@@ -1,0 +1,22 @@
+<section id="page-gp-workspace" class="page">
+  <div class="card">
+    <div class="section-heading">
+      <div><h2>GP Workspace</h2><p class="hint">GPごとの構造化された記録を読み取り専用で表示します。</p></div>
+      <button id="gp-workspace-print-button" class="action secondary" type="button" disabled>印刷 / PDF</button>
+    </div>
+    <div class="field gp-workspace-selector"><label for="gp-workspace-gpId">GP</label><select id="gp-workspace-gpId"><option value="">未選択</option></select></div>
+    <div id="gp-workspace-status" class="status" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="gp-workspace-content" class="gp-workspace-content hidden-panel">
+    <div class="card gp-workspace-header"><div><h2 id="gp-workspace-name"></h2><p id="gp-workspace-id" class="hint"></p></div><span id="gp-workspace-gp-status" class="badge"></span></div>
+    <div id="gp-workspace-summary" class="gp-summary-grid"></div>
+    <div class="gp-workspace-grid">
+      <section class="card"><h3>Fund / Strategy</h3><div id="gp-workspace-funds" class="gp-compact-list"></div></section>
+      <section class="card"><h3>要フォロー</h3><div id="gp-workspace-followups" class="gp-compact-list"></div></section>
+    </div>
+    <section class="card"><h3>Recent Meetings</h3><div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>Context</th><th>Type / Team</th><th>Status</th><th>原本</th></tr></thead><tbody id="gp-workspace-meetings"></tbody></table></div><div id="gp-workspace-meetings-more"></div></section>
+    <section class="card"><h3>Recent Pitchbooks</h3><div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>Context</th><th>ファイル</th><th>Status</th><th>原本</th></tr></thead><tbody id="gp-workspace-pitchbooks"></tbody></table></div><div id="gp-workspace-pitchbooks-more"></div></section>
+    <section class="card"><h3>Meeting ↔ Pitchbook</h3><div id="gp-workspace-relationships" class="gp-relationship-list"></div></section>
+  </div>
+</section>
