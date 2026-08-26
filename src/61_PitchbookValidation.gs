@@ -5,6 +5,7 @@ function kspNormalizePitchbookBatchInput_(input) {
     gpId: kspTrimPitchbookField_(source.gpId),
     assetClassId: kspTrimPitchbookField_(source.assetClassId),
     capitalTypeId: kspTrimPitchbookField_(source.capitalTypeId),
+    fundStrategy: kspTrimPitchbookField_(source.fundStrategy),
     files: Array.isArray(source.files) ? source.files.map(kspNormalizePitchbookFileDescriptor_) : []
   };
 }
@@ -52,6 +53,8 @@ function kspValidatePitchbookBatchInput_(input, catalog) {
   kspAssert_(input.gpId, 'PITCHBOOK_GP_REQUIRED', 'GPは必須です。');
   kspAssert_(input.assetClassId, 'PITCHBOOK_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
+  kspAssert_(String(input.fundStrategy || '').length <= KSP_PITCHBOOK_FUND_STRATEGY_MAX_LENGTH,
+    'PITCHBOOK_FUND_STRATEGY_TOO_LONG', 'Fund / Strategyは500文字以内で入力してください。');
   kspAssert_(input.files.length >= 1, 'PITCHBOOK_FILE_REQUIRED', 'ファイルを1つ以上選択してください。');
   kspAssert_(input.files.length <= KSP_PITCHBOOK_LIMITS.FILE_COUNT, 'PITCHBOOK_FILE_COUNT_EXCEEDED',
     '1回に選択できるファイルは10件までです。');
@@ -114,7 +117,10 @@ function kspValidatePitchbookUploadInput_(input, row, reservation) {
     '選択されたファイル名が予約済みslotと一致しません。');
   kspAssert_(String(row.Status) !== KSP_PITCHBOOK_STATUS.INACTIVE, 'PITCHBOOK_SLOT_INACTIVE',
     'Inactiveな資料へアップロードできません。');
-  kspAssert_(kspBuildPitchbookSlotFingerprint_(row, reservedFile, reservation.totalBytes) === input.slotFingerprint, 'PITCHBOOK_SLOT_FINGERPRINT_CONFLICT',
+  var currentFingerprint = kspBuildPitchbookSlotFingerprint_(row, reservedFile, reservation.totalBytes);
+  var legacyFingerprint = !String(row.Fund_Strategy || '')
+    ? kspBuildLegacyPitchbookSlotFingerprint_(row, reservedFile, reservation.totalBytes) : '';
+  kspAssert_(currentFingerprint === input.slotFingerprint || legacyFingerprint === input.slotFingerprint, 'PITCHBOOK_SLOT_FINGERPRINT_CONFLICT',
     'Upload slotの内容が変更されています。');
   kspAssert_(Number(reservedFile.sizeBytes) === input.sizeBytes, 'PITCHBOOK_FILE_SIZE_MISMATCH',
     '選択されたファイルサイズが予約時と一致しません。');

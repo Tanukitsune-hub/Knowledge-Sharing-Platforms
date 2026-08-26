@@ -7,6 +7,10 @@
       <div class="field"><label for="meeting-past-gpId">GP</label><select id="meeting-past-gpId"><option value="">未選択</option></select></div>
       <div class="field"><label for="meeting-past-assetClassId">Asset Class</label><select id="meeting-past-assetClassId"><option value="">未選択</option></select></div>
       <div class="field"><label for="meeting-past-capitalTypeId">Equity / Debt</label><select id="meeting-past-capitalTypeId"><option value="">未選択</option></select></div>
+      <div class="field"><label for="meeting-past-teamId">Team</label><select id="meeting-past-teamId"><option value="">未選択</option></select></div>
+      <div class="field"><label for="meeting-past-fundStrategy">Fund / Strategy</label><input id="meeting-past-fundStrategy" maxlength="500"></div>
+      <div class="field"><label for="meeting-past-meetingTypeCode">Meeting Type</label><select id="meeting-past-meetingTypeCode"><option value="">未選択</option><option value="ANNUAL_REVIEW">定例年1回</option><option value="OFFICE_VISIT">先方オフィス訪問</option><option value="ANNUAL_GENERAL_MEETING">年次総会</option></select></div>
+      <div class="field"><label><input id="meeting-past-followUpOnly" type="checkbox"> 要フォローのみ</label></div>
       <div class="field"><label for="meeting-past-filterStatus">Status</label><select id="meeting-past-filterStatus"><option value="">未選択</option><option>Active</option><option>Inactive</option></select></div>
     </div>
     <div class="actions"><span class="hint">最大100件を新しい順で表示します。</span><button id="meeting-past-search" class="action primary" type="button">検索</button></div>
@@ -24,6 +28,12 @@
         <div class="field"><label class="required" for="meeting-edit-gpId">GP</label><select id="meeting-edit-gpId" required><option value="">未選択</option></select></div>
         <div class="field"><label class="required" for="meeting-edit-assetClassId">Asset Class</label><select id="meeting-edit-assetClassId" required><option value="">未選択</option></select></div>
         <div class="field"><label for="meeting-edit-capitalTypeId">Equity / Debt</label><select id="meeting-edit-capitalTypeId"><option value="">未選択</option></select></div>
+        <div class="field"><label for="meeting-edit-teamId">Team</label><select id="meeting-edit-teamId"><option value="">未選択</option></select></div>
+        <div class="field"><label for="meeting-edit-fundStrategy">Fund / Strategy</label><input id="meeting-edit-fundStrategy" maxlength="500"></div>
+        <div class="field full"><label>Meeting Type</label><div class="checkbox-row"><label><input type="checkbox" data-meeting-type="meeting-edit" value="ANNUAL_REVIEW"> 定例年1回</label><label><input type="checkbox" data-meeting-type="meeting-edit" value="OFFICE_VISIT"> 先方オフィス訪問</label><label><input type="checkbox" data-meeting-type="meeting-edit" value="ANNUAL_GENERAL_MEETING"> 年次総会</label></div></div>
+        <div class="field full"><label for="meeting-edit-relatedPitchbookIds">関連Pitchbook</label><select id="meeting-edit-relatedPitchbookIds" multiple size="5"></select></div>
+        <div class="field"><label><input id="meeting-edit-followUpRequired" type="checkbox"> 要フォロー</label></div>
+        <div class="field full"><label for="meeting-edit-followUpNote">フォローアップメモ</label><textarea id="meeting-edit-followUpNote" maxlength="2000"></textarea></div>
         <div class="field"><label for="meeting-edit-counterparty">面談相手</label><input id="meeting-edit-counterparty" maxlength="500"></div>
         <div class="field"><label for="meeting-edit-internalParticipants">当社側</label><input id="meeting-edit-internalParticipants" maxlength="500"></div>
         <div class="field full"><label for="meeting-edit-notes">面談内容</label><textarea id="meeting-edit-notes" maxlength="20000"></textarea></div>
@@ -43,6 +53,7 @@
       <div class="field"><label for="pitchbook-past-gpId">GP</label><select id="pitchbook-past-gpId"><option value="">未選択</option></select></div>
       <div class="field"><label for="pitchbook-past-assetClassId">Asset Class</label><select id="pitchbook-past-assetClassId"><option value="">未選択</option></select></div>
       <div class="field"><label for="pitchbook-past-capitalTypeId">Equity / Debt</label><select id="pitchbook-past-capitalTypeId"><option value="">未選択</option></select></div>
+      <div class="field"><label for="pitchbook-past-fundStrategy">Fund / Strategy</label><input id="pitchbook-past-fundStrategy" maxlength="500"></div>
       <div class="field"><label for="pitchbook-past-filterStatus">Status</label><select id="pitchbook-past-filterStatus"><option value="">未選択</option><option>Active</option><option>Pending</option><option>Failed</option><option>Inactive</option></select></div>
     </div>
     <div class="actions"><span class="hint">最大100件を新しい順で表示します。</span><button id="pitchbook-past-search" class="action primary" type="button">検索</button></div>
@@ -58,6 +69,7 @@
         <div class="field"><label class="required" for="pitchbook-edit-gpId">GP</label><select id="pitchbook-edit-gpId" required><option value="">未選択</option></select></div>
         <div class="field"><label class="required" for="pitchbook-edit-assetClassId">Asset Class</label><select id="pitchbook-edit-assetClassId" required><option value="">未選択</option></select></div>
         <div class="field"><label for="pitchbook-edit-capitalTypeId">Equity / Debt</label><select id="pitchbook-edit-capitalTypeId"><option value="">未選択</option></select></div>
+        <div class="field"><label for="pitchbook-edit-fundStrategy">Fund / Strategy</label><input id="pitchbook-edit-fundStrategy" maxlength="500"></div>
       </div>
       <div class="actions"><span class="hint">別の命名コンテキストへ移る場合は移動先の次番号を使用します。</span><button class="action primary" type="submit">変更を保存</button></div>
     </form>
@@ -74,7 +86,7 @@
         <div class="table-wrap"><table class="data-table"><thead><tr><th>GP</th><th>Status</th><th>操作</th></tr></thead><tbody id="gp-master-results"></tbody></table></div>
       </section>
       <section><h3>Option Master</h3>
-        <form id="option-add-form" class="inline-form"><select id="option-add-type"><option value="ASSET_CLASS">Asset Class</option><option value="CAPITAL_TYPE">Equity / Debt</option><option value="LOCATION">面談場所</option></select><input id="option-add-name" maxlength="200" placeholder="選択肢名"><button class="action primary" type="submit">追加</button></form>
+        <form id="option-add-form" class="inline-form"><select id="option-add-type"><option value="ASSET_CLASS">Asset Class</option><option value="CAPITAL_TYPE">Equity / Debt</option><option value="LOCATION">面談場所</option><option value="TEAM">Team</option></select><input id="option-add-name" maxlength="200" placeholder="選択肢名"><button class="action primary" type="submit">追加</button></form>
         <div class="table-wrap"><table class="data-table"><thead><tr><th>Type</th><th>名称</th><th>順序</th><th>Status</th><th>操作</th></tr></thead><tbody id="option-master-results"></tbody></table></div>
       </section>
     </div>

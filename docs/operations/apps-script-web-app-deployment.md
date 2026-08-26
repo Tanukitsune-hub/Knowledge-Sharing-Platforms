@@ -4,13 +4,13 @@
 
 This document is the durable operating rule for Apps Script project identity, source synchronization, versioning, deployment, and Web App recovery in this repository.
 
-It records the Work 0013 incident lessons and prevents future agents from changing application code while the actual uncertainty is project, account, version, deployment, or entrypoint state.
+It records the Work 0013 and Work 0014 incident lessons and prevents future agents from changing application code or the wrong deployment while the actual uncertainty is project, account, version, deployment, or entrypoint state.
 
-## Work 0013 incident summary
+## Incident lessons
 
-The application was previously usable through an Apps Script Web App. During Work 0013, a Knowledge Search navigation failure led to repeated source-level hypotheses before the runtime identity chain had been fixed.
+The application was previously usable through an Apps Script Web App. During Work 0013, a Knowledge Search navigation failure led to repeated source-level hypotheses before the runtime identity chain had been fixed. During Work 0014, an attempted in-place deployment update reached a Library deployment because the target was not positively proven to be a Web App entrypoint before mutation.
 
-The following execution mistakes materially increased the investigation time:
+The following execution mistakes materially increased risk or investigation time:
 
 1. Application navigation code was changed before the exact chain of repository ref, Apps Script project, saved remote source, version, deployment, entrypoint type, URL, and browser account was fixed.
 2. Deterministic source tests were treated as stronger evidence for live behavior than they actually provide.
@@ -18,7 +18,8 @@ The following execution mistakes materially increased the investigation time:
 4. The absence of a local `.clasp.json` was initially treated as proof that project identity could not be recovered, although it is only a local mapping.
 5. The editor-only `/dev` test endpoint was incorrectly used as a mandatory prerequisite for a normal versioned `/exec` deployment.
 6. Several bounded runs changed or reconsidered navigation mechanisms before the deployment and serving layers were conclusively classified.
-7. Reports accumulated faster than the underlying runtime state was simplified.
+7. A deployment description, historical expectation, or deployment ID was treated as sufficient identity even though current entrypoint type had not been proven.
+8. Reports accumulated faster than the underlying runtime state was simplified.
 
 These were process and evidence-ordering failures. They do not establish that the application architecture or Apps Script Web Apps are inherently unable to support the required product.
 
@@ -45,6 +46,8 @@ Examples:
 
 - matching source does not prove the correct deployment;
 - a deployment description does not prove a `WEB_APP` entrypoint;
+- an immutable version does not prove a Web App exists;
+- a remembered or historical `/exec` does not prove the endpoint is currently active;
 - a completed `doGet` does not prove the client rendered;
 - a deterministic UI test does not prove live browser behavior;
 - a `/dev` failure does not by itself prove a versioned `/exec` failure;
@@ -75,6 +78,28 @@ For normal application recovery:
 - never update or delete Library deployments merely to recover the Web App;
 - create at most one recovery deployment per bounded run.
 
+## Mandatory entrypoint proof before mutation
+
+Before any CLI, API, or editor update to an existing deployment:
+
+1. read current authoritative deployment metadata;
+2. positively prove the target entrypoint type is `WEB_APP`;
+3. positively prove the target exposes the intended `/exec` endpoint;
+4. verify execute-as, access, description, and version separately;
+5. record the pre-mutation deployment inventory privately for rollback comparison.
+
+A deployment ID, description, version number, historical URL, or prior report is never sufficient by itself.
+
+If the target is Library, ambiguous, absent, or does not expose `/exec`:
+
+- do not issue an update command to that deployment;
+- do not update a candidate merely because its description resembles the Web App;
+- do not convert, repurpose, delete, or archive the Library deployment;
+- use one explicitly authorized new Web App deployment through the editor instead;
+- stop if a new Web App deployment is not authorized.
+
+Any accidental mutation to a non-Web-App deployment must be restored immediately, independently read back, documented, and followed by a Strategy Reset before another deployment action.
+
 ## `/dev` and `/exec`
 
 - `/dev` is an editor-only HEAD/test surface.
@@ -88,15 +113,16 @@ For normal application recovery:
 When project identity and remote source currentness are already proven:
 
 1. Use the confirmed single-account editor context.
-2. Create exactly one new deployment of type `Web app`.
-3. Use the approved description, execute-as, and access settings.
-4. Confirm the resulting deployment is a versioned Web App and exposes `/exec`.
-5. Open the generated `/exec` once.
-6. If the main page renders, verify the minimum normal navigation path.
-7. Confirm no authoritative data mutation.
-8. Stop on the first failure; do not create a second deployment or change source in the same run.
+2. Inventory deployments and apply the mandatory entrypoint proof rule.
+3. If no verified Web App exists, create exactly one new deployment explicitly typed `Web app`.
+4. Use the approved description, execute-as, and access settings.
+5. Confirm the resulting deployment is a versioned Web App and exposes `/exec`.
+6. Open the generated `/exec` once.
+7. If the main page renders, verify only the minimum authorized live path.
+8. Confirm no unauthorized authoritative data mutation.
+9. Stop on the first failure; do not create a second deployment or change source in the same run.
 
-Do not add diagnostic phases that do not change the decision to create and test the one permitted versioned Web App.
+Do not add diagnostic phases that do not change the next decision.
 
 ## Evidence hierarchy
 
@@ -120,27 +146,28 @@ Clearly label inference and never promote it to confirmed root cause without run
 
 Every Apps Script deployment or recovery handoff must state:
 
-- exact Git ref;
+- exact Git ref or accepted source commit;
 - already-proven project and source evidence;
 - whether application source is frozen;
 - the one allowed deployment mutation;
 - deployment type, execute-as, and access;
+- mandatory entrypoint proof before any existing-deployment update;
 - live acceptance path;
 - authoritative integrity checks;
-- explicit one-deployment and stop-on-first-failure rules.
+- explicit one-deployment and stop-on-first-failure rules;
+- current BALL when authenticated user participation is required.
 
 The handoff must reference this document and must not repeat historical investigations that no longer affect the next action.
 
-## Work 0013 current decision
+## Current recovery principle
 
-The shortest safe recovery action is:
+When source and project identity are already proven but no verified Web App exists, the shortest safe action is:
 
 - do not change application source;
-- create exactly one versioned synthetic DEV Web App in the already confirmed project;
+- do not update any Library or ambiguous deployment;
+- create exactly one versioned synthetic DEV Web App through the editor;
 - execute as the deploying user;
 - restrict access to the deploying user;
-- open the generated `/exec` once;
-- verify the normal main page and same-document Knowledge Search navigation;
-- verify no authoritative mutation.
-
-The separate `/dev` Drive error remains diagnostic evidence but does not block this versioned recovery action.
+- read back `WEB_APP` plus `/exec` before opening it;
+- verify only the remaining accepted live path;
+- verify no unauthorized authoritative mutation.

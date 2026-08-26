@@ -1,6 +1,18 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { ksp, catalogRows, createFakeEnvironment } = require('./maintenance-test-fixture.cjs');
+
+test('maintenance harness uses private production Pitchbook business helpers', () => {
+  const loaderSource = fs.readFileSync(path.join(__dirname, 'maintenance-test-loader.cjs'), 'utf8');
+  assert.doesNotMatch(loaderSource, /function\s+kspPitchbookContextMatchesRow\s*\(/);
+  assert.doesNotMatch(loaderSource, /function\s+kspBuildPitchbookSavedFilename\s*\(/);
+  assert.equal(typeof ksp.kspPitchbookContextMatchesRow_, 'function');
+  assert.equal(typeof ksp.kspBuildPitchbookSavedFilename_, 'function');
+  assert.equal(typeof ksp.kspPitchbookContextMatchesRow, 'undefined');
+  assert.equal(typeof ksp.kspBuildPitchbookSavedFilename, 'undefined');
+});
 test('optional search filters and date bounds work', () => {
   const search = ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ dateFrom: '2026-08-01', dateTo: '2026-08-31', gpId: 'GP-1' }));
   assert.equal(ksp.kspRecordMatchesSearch_({ Date: '2026-08-10', GP_ID: 'GP-1' }, search), true);
@@ -16,6 +28,15 @@ test('maintenance search normalizes spreadsheet Date and Time cells', () => {
   const mapped = ksp.kspMapMeetingSearchResult_({ Meeting_ID: 'MTG-000001', Date: dateCell, Time: timeCell }, { gp: {}, assetClass: {}, capitalType: {}, location: {} });
   assert.equal(mapped.date, '2026-08-14');
   assert.equal(mapped.time, '14:30');
+});
+
+test('Pitchbook business dates use the configured Asia Tokyo timezone', () => {
+  const utcMidnight = new Date('2026-08-13T00:00:00.000Z');
+  const tokyoMidnight = new Date('2026-08-12T15:00:00.000Z');
+  assert.equal(ksp.kspCanonicalPitchbookDateKey_(utcMidnight), '2026-08-13');
+  assert.equal(ksp.kspCanonicalPitchbookDateKey_(tokyoMidnight), '2026-08-13');
+  assert.equal(ksp.kspMaintenanceCellText_(utcMidnight, 'date'), '2026-08-13');
+  assert.equal(ksp.kspMaintenanceCellText_(tokyoMidnight, 'date'), '2026-08-13');
 });
 
 test('maintenance date mapping normalizes persisted ISO date strings', () => {
@@ -69,6 +90,13 @@ test('pitchbook context change is detected and edited row preserves stable ident
   assert.equal(updated.Document_ID,'DOC-000001'); assert.equal(updated.File_ID,'file'); assert.equal(updated.Sequence_No,4);
 });
 
+test('live-like Pitchbook Date object matches unchanged normalized context', () => {
+  const current={Date:new Date(Date.UTC(2026,7,1)),GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:''};
+  const input={date:'2026-08-01',gpId:'GP-1',assetClassId:'AC-1',capitalTypeId:''};
+  assert.equal(ksp.kspPitchbookContextMatchesRow_(current,input),true);
+  assert.equal(ksp.kspPitchbookContextChanged_(current,input),false);
+});
+
 test('master normalization detects NFKC and case-insensitive duplicates', () => {
   const rows=[{GP_ID:'GP-000001',GP_Name:'ＡＰＯＬＬＯ'}];
   assert.equal(ksp.kspFindNormalizedMasterDuplicate_(rows,'GP','', 'apollo','').GP_ID,'GP-000001');
@@ -85,6 +113,12 @@ test('maintenance audit snapshots exclude Meeting notes and file content', () =>
   const pitch=ksp.kspPitchbookAuditSnapshot_({Document_ID:'DOC-000001',base64Data:'secret',File_ID:'file'});
   assert.equal(JSON.stringify(meeting).includes('secret'),false);
   assert.equal(JSON.stringify(pitch).includes('secret'),false);
+});
+
+test('Pitchbook Audit snapshots compare Date objects by logical business date', () => {
+  const before = ksp.kspPitchbookAuditSnapshot_({ Date: new Date('2026-08-12T15:00:00.000Z'), Fund_Strategy: '' });
+  const after = ksp.kspPitchbookAuditSnapshot_({ Date: '2026-08-13', Fund_Strategy: 'Fund Delta' });
+  assert.deepEqual(Array.from(ksp.kspChangedMetadataFields_(before, after)), ['Fund_Strategy']);
 });
 
 test('five-year retention cutoff is deterministic', () => {

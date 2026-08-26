@@ -232,6 +232,8 @@ test('defines exactly five baseline backend sheets', () => {
   ]);
   assert.ok(schemas.Meeting_Index.includes('AI_Index_Status'));
   assert.ok(schemas.Pitchbook_Index.includes('Original_Filename'));
+  assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-6)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note']);
+  assert.equal(schemas.Pitchbook_Index.at(-1), 'Fund_Strategy');
 });
 
 test('defines a separate audit log schema', () => {
@@ -249,6 +251,8 @@ test('master seed IDs are stable and unique', () => {
   assert.equal(new Set(optionIds).size, optionIds.length);
   assert.ok(gpIds.includes('GP-000019'));
   assert.ok(optionIds.includes('OPT-AC-003'));
+  assert.ok(optionIds.includes('OPT-TEAM-001'));
+  assert.ok(optionIds.includes('OPT-TEAM-002'));
 });
 
 test('normalizes future generated filename segments predictably', () => {
@@ -293,6 +297,38 @@ test('seed insertion does not overwrite mutable existing master values', () => {
   assert.equal(rows.find((row) => row.GP_ID === 'GP-000001').Status, 'Inactive');
 });
 
+test('Work 0014 Meeting migration appends fields without rewriting legacy rows', () => {
+  const env = createFakeEnvironment();
+  const backend = env.createSpreadsheet('control', 'Knowledge Platform Backend');
+  const currentHeaders = Array.from(ksp.kspGetBackendSchemas_().Meeting_Index);
+  const legacyHeaders = currentHeaders.slice(0, -6);
+  env.ensureSheet(backend.id, 'Meeting_Index', legacyHeaders);
+  const sheet = env._debug.spreadsheets.get(backend.id).sheets.get('Meeting_Index');
+  const legacyRow = { Meeting_ID:'MTG-000321', Status:'Active', AI_Index_Status:'Indexed', Version:7 };
+  sheet.rows.push(legacyRow);
+
+  const first = env.ensureSheet(backend.id, 'Meeting_Index', currentHeaders);
+  const second = env.ensureSheet(backend.id, 'Meeting_Index', currentHeaders);
+  assert.equal(first.action, 'migrated');
+  assert.deepEqual(first.addedHeaders, currentHeaders.slice(-6));
+  assert.equal(second.action, 'reused');
+  assert.equal(sheet.rows[0], legacyRow);
+  assert.deepEqual(sheet.rows[0], { Meeting_ID:'MTG-000321', Status:'Active', AI_Index_Status:'Indexed', Version:7 });
+});
+
+test('TEAM seed repair inserts only missing IDs and preserves user mutations', () => {
+  const env=createFakeEnvironment(); const backend=env.createSpreadsheet('control','Backend');
+  const headers=['Option_ID','Type','Name','Sort_Order','Status','Created_At','Updated_At','Created_By','Updated_By'];
+  env.ensureSheet(backend.id,'Option_Master',headers);
+  env.insertMissingRows(backend.id,'Option_Master','Option_ID',[{Option_ID:'OPT-TEAM-001',Type:'TEAM',Name:'User PD',Sort_Order:9,Status:'Inactive'}]);
+  const result=env.insertMissingRows(backend.id,'Option_Master','Option_ID',ksp.kspBuildOptionSeedRows_('now').filter(row=>row.Type==='TEAM'));
+  assert.deepEqual(result,{inserted:1,skipped:1});
+  const rows=env._debug.spreadsheets.get(backend.id).sheets.get('Option_Master').rows;
+  const existing=rows.find(row=>row.Option_ID==='OPT-TEAM-001');
+  assert.equal(existing.Name,'User PD'); assert.equal(existing.Sort_Order,9); assert.equal(existing.Status,'Inactive');
+  assert.equal(rows.filter(row=>row.Type==='TEAM').length,2);
+});
+
 function bootstrap() {
   return JSON.stringify({
     environment: 'DEV',
@@ -324,11 +360,11 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const exportsFolder = env._debug.resources.get(state.resources.knowledgeExportsFolderId);
   assert.equal(exportsFolder.name, 'Knowledge Exports');
   assert.deepEqual(exportsFolder.parents, ['knowledge-parent']);
-  assert.equal(state.schemaVersion, 2);
+  assert.equal(state.schemaVersion, 3);
   assert.equal(backend.sheets.size, 5);
   assert.equal(audit.sheets.size, 1);
   assert.equal(backend.sheets.get('GP_Master').rows.length, 30);
-  assert.equal(backend.sheets.get('Option_Master').rows.length, 14);
+  assert.equal(backend.sheets.get('Option_Master').rows.length, 16);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'AUDIT_LOG_SPREADSHEET_ID').Value, state.resources.auditSpreadsheetId);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'KNOWLEDGE_EXPORTS_FOLDER_ID').Value, state.resources.knowledgeExportsFolderId);
 });
@@ -347,7 +383,7 @@ test('second setup reuses all resources and does not duplicate seeds', () => {
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
   const backend = env._debug.spreadsheets.get(state.resources.backendSpreadsheetId);
   assert.equal(backend.sheets.get('GP_Master').rows.length, 30);
-  assert.equal(backend.sheets.get('Option_Master').rows.length, 14);
+  assert.equal(backend.sheets.get('Option_Master').rows.length, 16);
 });
 
 test('multiple exact-name candidates fail explicitly', () => {
@@ -372,11 +408,17 @@ test('second setup preserves operational counters and future AI configuration', 
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
   const settings = env._debug.spreadsheets.get(state.resources.backendSpreadsheetId).sheets.get('Settings').rows;
   settings.find((row) => row.Key === 'NEXT_MEETING_ID').Value = '42';
+  settings.find((row) => row.Key === 'NEXT_DOCUMENT_ID').Value = '43';
+  settings.find((row) => row.Key === 'NEXT_BATCH_ID').Value = '44';
+  settings.find((row) => row.Key === 'GEMINI_FILE_SEARCH_STORE_NAME').Value = 'stores/synthetic';
   settings.find((row) => row.Key === 'AI_DEFAULT_MODEL').Value = 'gemini-flash-selected-later';
 
   const second = ksp.kspRunSetup_(env);
   assert.equal(second.ok, true, JSON.stringify(second.errors));
   assert.equal(settings.find((row) => row.Key === 'NEXT_MEETING_ID').Value, '42');
+  assert.equal(settings.find((row) => row.Key === 'NEXT_DOCUMENT_ID').Value, '43');
+  assert.equal(settings.find((row) => row.Key === 'NEXT_BATCH_ID').Value, '44');
+  assert.equal(settings.find((row) => row.Key === 'GEMINI_FILE_SEARCH_STORE_NAME').Value, 'stores/synthetic');
   assert.equal(settings.find((row) => row.Key === 'AI_DEFAULT_MODEL').Value, 'gemini-flash-selected-later');
 });
 

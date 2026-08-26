@@ -1,5 +1,5 @@
 function kspBuildAiMasterMaps_(gpRows, optionRows) {
-  var maps = { gps: {}, assetClasses: {}, capitalTypes: {} };
+  var maps = { gps: {}, assetClasses: {}, capitalTypes: {}, teams: {} };
   (gpRows || []).forEach(function (row) {
     if (row && row.GP_ID) maps.gps[String(row.GP_ID)] = String(row.GP_Name || row.GP_ID);
   });
@@ -8,6 +8,7 @@ function kspBuildAiMasterMaps_(gpRows, optionRows) {
     var target = null;
     if (String(row.Type) === 'ASSET_CLASS') target = maps.assetClasses;
     if (String(row.Type) === 'CAPITAL_TYPE') target = maps.capitalTypes;
+    if (String(row.Type) === 'TEAM') target = maps.teams;
     if (target) target[String(row.Option_ID)] = String(row.Name || row.Option_ID);
   });
   return maps;
@@ -30,6 +31,12 @@ function kspBuildMeetingAiSource_(row, maps, text, contentHash) {
     assetClassName: maps.assetClasses[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
     capitalTypeId: String(row.Capital_Type_ID || ''),
     capitalTypeName: maps.capitalTypes[String(row.Capital_Type_ID || '')] || String(row.Capital_Type_ID || ''),
+    teamId: String(row.Team_ID || ''),
+    teamName: (maps.teams || {})[String(row.Team_ID || '')] || String(row.Team_ID || ''),
+    fundStrategy: String(row.Fund_Strategy || ''),
+    meetingTypeCodes: String(row.Meeting_Type_Codes || ''),
+    relatedPitchbookIds: String(row.Related_Pitchbook_IDs || ''),
+    followUpRequired: kspToBoolean_(row.Follow_Up_Required, false),
     driveUrl: String(row.Doc_URL || ''),
     savedFilename: String(row.Saved_Filename || row.Meeting_ID),
     displayName: String(row.Saved_Filename || row.Meeting_ID) + '.txt',
@@ -61,6 +68,7 @@ function kspBuildPitchbookAiSource_(row, maps, text, contentHash) {
     assetClassName: maps.assetClasses[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
     capitalTypeId: String(row.Capital_Type_ID || ''),
     capitalTypeName: maps.capitalTypes[String(row.Capital_Type_ID || '')] || String(row.Capital_Type_ID || ''),
+    fundStrategy: String(row.Fund_Strategy || ''),
     driveUrl: String(row.File_URL || ''),
     savedFilename: String(row.Saved_Filename || row.Original_Filename || row.Document_ID),
     displayName: String(row.Saved_Filename || row.Original_Filename || row.Document_ID),

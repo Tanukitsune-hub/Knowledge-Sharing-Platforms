@@ -10,7 +10,8 @@ function catalogRows() {
       { Option_ID: 'OPT-AC-001', Type: 'ASSET_CLASS', Name: 'PE', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' },
       { Option_ID: 'OPT-AC-002', Type: 'ASSET_CLASS', Name: 'Infrastructure', Sort_Order: 2, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' },
       { Option_ID: 'OPT-CT-001', Type: 'CAPITAL_TYPE', Name: 'Equity', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' },
-      { Option_ID: 'OPT-LOC-001', Type: 'LOCATION', Name: 'オンライン', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' }
+      { Option_ID: 'OPT-LOC-001', Type: 'LOCATION', Name: 'オンライン', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' },
+      { Option_ID: 'OPT-TEAM-001', Type: 'TEAM', Name: 'PD', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' }
     ]
   };
 }
@@ -41,6 +42,7 @@ function createFakeEnvironment(options = {}) {
   const optionRows = cat.options.map(x => ({ ...x }));
   const audits = [];
   const claims = new Map();
+  const pitchbookWrites = [];
 
   function nowIso() {
     tick += 1;
@@ -65,8 +67,8 @@ function createFakeEnvironment(options = {}) {
       if (id === 'backend') {
         if (sheet === 'GP_Master') return ['GP_ID','GP_Name','Status','Created_At','Updated_At','Created_By','Updated_By'];
         if (sheet === 'Option_Master') return ['Option_ID','Type','Name','Sort_Order','Status','Created_At','Updated_At','Created_By','Updated_By'];
-        if (sheet === 'Meeting_Index') return ['Meeting_ID','Date','Time','Location_ID','GP_ID','Asset_Class_ID','Capital_Type_ID','Counterparty','Internal_Participants','Doc_File_ID','Doc_URL','Saved_Filename','Status','Version','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error'];
-        if (sheet === 'Pitchbook_Index') return ['Document_ID','Batch_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','File_URL','Original_Filename','Saved_Filename','Status','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error'];
+        if (sheet === 'Meeting_Index') return ['Meeting_ID','Date','Time','Location_ID','GP_ID','Asset_Class_ID','Capital_Type_ID','Counterparty','Internal_Participants','Doc_File_ID','Doc_URL','Saved_Filename','Status','Version','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note'];
+        if (sheet === 'Pitchbook_Index') return ['Document_ID','Batch_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','File_URL','Original_Filename','Saved_Filename','Status','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Fund_Strategy'];
         if (sheet === 'Settings') return ['Key','Value','Description','Updated_At'];
       }
       if (id === 'audit' && sheet === 'Audit_Log') return ['Event_Timestamp','Actor','Action','Target_Type','Target_ID','Result','Changed_Fields','Before_Metadata_JSON','After_Metadata_JSON','Batch_ID','Error_Code','Error_Message','Search_Mode','Question_Or_Instruction','Date_From','Date_To','GP_Filter','Asset_Class_Filter','Capital_Type_Filter','Source_Type_Filter','Model_ID','Cited_Source_IDs'];
@@ -98,8 +100,22 @@ function createFakeEnvironment(options = {}) {
       claims.delete(claim.claimKey);
       return { ...row };
     },
+    commitClaimedPitchbookEdit(claim, id, expected, updated) {
+      if (!this.isRecordEditClaimOwned(claim)) { const e = new Error('lost'); e.code = 'RECORD_EDIT_CLAIM_LOST'; throw e; }
+      if (options.commitError) { const e = new Error('commit failed'); e.code = 'COMMIT_FAILED'; throw e; }
+      const row = find(pitchbookRows, 'Document_ID', id);
+      if (String(row.Updated_At) !== String(expected)) { const e = new Error('stale'); e.code = 'STALE_RECORD_VERSION'; throw e; }
+      const fields = {};
+      if (ksp.kspCanonicalPitchbookDateKey_(row.Date) !== ksp.kspCanonicalPitchbookDateKey_(updated.Date)) fields.Date = updated.Date;
+      ['GP_ID','Asset_Class_ID','Capital_Type_ID','Fund_Strategy','Sequence_No','Saved_Filename','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error']
+        .forEach(key => { if (String(row[key] ?? '') !== String(updated[key] ?? '') || ['Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'].includes(key)) fields[key] = updated[key] ?? ''; });
+      Object.assign(row, fields);
+      pitchbookWrites.push(Object.keys(fields));
+      claims.delete(claim.claimKey);
+      return { ...row };
+    },
     reservePitchbookEditSequence(_claim, input) {
-      const max = pitchbookRows.filter(r => r.Document_ID !== input.documentId && ksp.kspPitchbookContextMatchesRow(r, input))
+      const max = pitchbookRows.filter(r => r.Document_ID !== input.documentId && ksp.kspPitchbookContextMatchesRow_(r, input))
         .reduce((m, r) => Math.max(m, Number(r.Sequence_No || 0)), 0);
       return max + 1;
     },
@@ -141,7 +157,7 @@ function createFakeEnvironment(options = {}) {
       row.Updated_At = now; row.Updated_By = actor; return { before, after: { ...row } };
     },
     deleteAuditRowsBefore(_id, cutoff) { const before = audits.length; for (let i=audits.length-1;i>=0;i--) if (audits[i].Event_Timestamp < cutoff) audits.splice(i,1); return { deletedRows: before-audits.length }; },
-    _debug: { meetingRows, pitchbookRows, gpRows, optionRows, documents, files, audits, claims }
+    _debug: { meetingRows, pitchbookRows, gpRows, optionRows, documents, files, audits, claims, pitchbookWrites }
   };
   return env;
 }

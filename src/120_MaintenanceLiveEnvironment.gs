@@ -161,7 +161,7 @@ function kspCreateMaintenanceEnvironment_() {
       var rows = environment.readRows(spreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX);
       var maximum = rows.reduce(function (maxValue, row) {
         if (String(row.Document_ID || '') === String(input.documentId)) return maxValue;
-        return kspPitchbookContextMatchesRow(row, input)
+        return kspPitchbookContextMatchesRow_(row, input)
           ? Math.max(maxValue, Number(row.Sequence_No || 0)) : maxValue;
       }, 0);
       var properties = scriptProperties.getProperties();
@@ -204,10 +204,54 @@ function kspCreateMaintenanceEnvironment_() {
     }
   };
 
+  environment.commitClaimedPitchbookEdit = function (
+    claim, documentId, expectedUpdatedAt, updatedRow
+  ) {
+    var lock = kspMaintenanceAcquireLock_('Pitchbook edit commit');
+    try {
+      var stored = kspSafeParseJson_(scriptProperties.getProperty(claim.claimKey), claim.claimKey);
+      kspAssert_(stored && stored.claimToken === claim.claimToken,
+        'RECORD_EDIT_CLAIM_LOST', '編集権の有効期限が切れました。');
+      var state = environment.getInstallationState();
+      var spreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
+      var found = kspMaintenanceFindSheetRow_(
+        spreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX, 'Document_ID', documentId
+      );
+      kspAssert_(found, 'RECORD_NOT_FOUND', '更新対象が見つかりません。');
+      kspAssert_(String(found.row.Updated_At || '') === String(expectedUpdatedAt || ''),
+        'STALE_RECORD_VERSION', '他の利用者が先に更新しています。最新情報を読み直してください。');
+
+      var fields = {};
+      if (kspCanonicalPitchbookDateKey_(found.row.Date) !== kspCanonicalPitchbookDateKey_(updatedRow.Date)) {
+        fields.Date = updatedRow.Date;
+      }
+      [
+        'GP_ID', 'Asset_Class_ID', 'Capital_Type_ID', 'Fund_Strategy',
+        'Sequence_No', 'Saved_Filename'
+      ].forEach(function (header) {
+        if (String(found.row[header] || '') !== String(updatedRow[header] || '')) {
+          fields[header] = updatedRow[header];
+        }
+      });
+      fields.Updated_At = updatedRow.Updated_At;
+      fields.Updated_By = updatedRow.Updated_By;
+      fields.AI_Index_Status = updatedRow.AI_Index_Status;
+      fields.AI_Last_Error = updatedRow.AI_Last_Error;
+
+      kspMaintenanceWriteSheetFieldsWithRollback_(
+        found.sheet, found.headers, found.rowNumber, fields, found.row
+      );
+      scriptProperties.deleteProperty(claim.claimKey);
+      return Object.assign({}, found.row, fields);
+    } finally {
+      lock.releaseLock();
+    }
+  };
+
   environment.getNextPitchbookSequenceForContext = function (input, excludedDocumentId, rows) {
     return (rows || []).reduce(function (maxValue, row) {
       if (String(row.Document_ID || '') === String(excludedDocumentId || '')) return maxValue;
-      return kspPitchbookContextMatchesRow(row, input)
+      return kspPitchbookContextMatchesRow_(row, input)
         ? Math.max(maxValue, Number(row.Sequence_No || 0)) : maxValue;
     }, 0) + 1;
   };
@@ -267,14 +311,20 @@ function kspCreateMaintenanceEnvironment_() {
         kspAssert_(String(found.row.File_ID || ''), 'PITCHBOOK_AUTHORITATIVE_FILE_MISSING',
           'Drive原本がない資料はActiveに戻せません。');
       }
-      var before = kspDeepClone_(found.row);
-      var after = kspDeepClone_(found.row);
+      var before = Object.assign({}, found.row);
+      var after = Object.assign({}, found.row);
       after.Status = targetStatus;
       after.Updated_At = nowIso;
       after.Updated_By = actor;
       after.AI_Index_Status = KSP_AI_INDEX_STATUS.PENDING;
       after.AI_Last_Error = '';
-      kspMaintenanceWriteSheetRow_(found.sheet, found.headers, found.rowNumber, after);
+      kspMaintenanceWriteSheetFieldsWithRollback_(found.sheet, found.headers, found.rowNumber, {
+        Status: after.Status,
+        Updated_At: after.Updated_At,
+        Updated_By: after.Updated_By,
+        AI_Index_Status: after.AI_Index_Status,
+        AI_Last_Error: after.AI_Last_Error
+      }, found.row);
       return { before: before, after: after };
     } finally {
       lock.releaseLock();

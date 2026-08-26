@@ -31,14 +31,13 @@ function kspUpdatePitchbookMaintenance_(environment, rawInput) {
     if (kspPitchbookContextChanged_(currentRow, input)) {
       sequenceNo = environment.reservePitchbookEditSequence(claim, input);
     }
-    var filename = kspBuildPitchbookSavedFilename(input, selected, sequenceNo, currentRow.Original_Filename);
+    var filename = kspBuildPitchbookSavedFilename_(input, selected, sequenceNo, currentRow.Original_Filename);
     fileSnapshot = environment.getDriveFileSnapshot(String(currentRow.File_ID));
     environment.renameDriveFile(String(currentRow.File_ID), filename);
     var nowIso = environment.nowIso();
     var updatedRow = kspBuildPitchbookEditedRow_(currentRow, input, actor, nowIso, sequenceNo, filename);
-    var committed = environment.commitClaimedRowEdit(
-      claim, KSP_SHEET_NAMES.PITCHBOOK_INDEX, 'Document_ID', input.documentId,
-      'Updated_At', input.expectedUpdatedAt, updatedRow
+    var committed = environment.commitClaimedPitchbookEdit(
+      claim, input.documentId, input.expectedUpdatedAt, updatedRow
     );
     kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
       timestamp: environment.nowIso(), actor: actor, action: KSP_MAINTENANCE_ACTIONS.PITCHBOOK_UPDATE,

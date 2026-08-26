@@ -1,6 +1,6 @@
 # Planning Baseline and Roadmap
 
-Current as of: 2026-08-26
+Current as of: 2026-08-27
 
 Status: Active product/roadmap baseline
 
@@ -207,11 +207,23 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised. It doe
 - 0011: Gemini-independent Knowledge Export / external-AI handoff;
 - 0012: public-surface / reliability hardening;
 - 0013: qualification / recovery history;
-- 0014: structured Meeting/Pitchbook context foundation and bounded repair.
+- 0014: structured Meeting/Pitchbook context foundation, qualified in authenticated synthetic DEV under PR #17.
 
-Work 0014 completes or safely stops under PR #17's existing evidence boundary. New Work applies the 2026-08-26 policy prospectively.
+Work 0014 closes under PR #17's accepted synthetic-DEV evidence boundary. New Work applies the 2026-08-26 target-runtime-first policy prospectively.
 
-## 9. Genuine remaining choices
+## 9. Next product Works
+
+Preferred sequence after Work 0014:
+
+- Work 0015: GP workspace / one-page summary and Meeting↔Pitchbook relationship views;
+- Work 0016: meeting-activity analytics plus monthly administrative check workflow;
+- later: legacy converter / bulk ingestion;
+- later: Shared Drive-specific production qualification and production permission/rollout work;
+- later: billing-enabled Gemini/File Search live qualification when credentials/billing are authorized.
+
+Do not build GP/analytics views over ad-hoc text when the accepted Work 0014 structured fields are available.
+
+## 10. Genuine remaining choices
 
 Only choices that materially affect a current outcome remain open, including:
 
@@ -224,6 +236,6 @@ Only choices that materially affect a current outcome remain open, including:
 
 Do not reopen accepted Apps Script-first runtime, Shared Drive authority, separate Restricted Audit, best-effort Actor, five modes, six initial formats, one derived File Search Store, or source-traceability requirements without new material evidence.
 
-## 10. Planning rule
+## 11. Planning rule
 
 Keep the authoritative layer simple and inspectable. Use the actual target runtime early, isolate test data/resources, and guard consequential effects. Do not add a second environment, database, ACL system, Agent framework, Knowledge Graph, model router, upload architecture, or automated lifecycle system unless it changes a material decision that the accepted design cannot safely settle.

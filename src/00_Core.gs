@@ -2,7 +2,7 @@ var KSP_COMPONENT_WORK_ID = '0004';
 var KSP_RELEASE_VERSION = '0.1.2';
 var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
 var KSP_APP_VERSION = KSP_RELEASE_VERSION;
-var KSP_SCHEMA_VERSION = 2;
+var KSP_SCHEMA_VERSION = 3;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
@@ -221,6 +221,11 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   MEETING_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
   MEETING_DATE_INVALID: '日付の形式を確認してください。',
   MEETING_TIME_INVALID: '時刻の形式を確認してください。',
+  MEETING_TYPE_CODE_INVALID: 'Meeting Typeを確認してください。',
+  MEETING_TEAM_UNAVAILABLE: '選択されたTeamを確認してください。',
+  MEETING_RELATED_PITCHBOOK_UNAVAILABLE: '選択された関連Pitchbookを確認してください。',
+  MEETING_FUND_STRATEGY_TOO_LONG: 'Fund / Strategyは500文字以内で入力してください。',
+  MEETING_FOLLOW_UP_NOTE_TOO_LONG: 'フォローアップメモは2,000文字以内で入力してください。',
   MEETING_NOT_FOUND: '指定されたMeetingを確認できません。',
   MEETING_RETRY_REQUEST_CHANGED: '入力内容が変更されたため、再試行できません。',
   MEETING_RETRY_CONFLICT: '同じMeeting IDに別の登録内容があります。',
@@ -229,6 +234,7 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   PITCHBOOK_GP_REQUIRED: 'GPを選択してください。',
   PITCHBOOK_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
   PITCHBOOK_FILE_REQUIRED: 'ファイルを選択してください。',
+  PITCHBOOK_FUND_STRATEGY_TOO_LONG: 'Fund / Strategyは500文字以内で入力してください。',
   PITCHBOOK_BATCH_INVALID: 'Pitchbook登録内容を確認してください。',
   PITCHBOOK_FILE_SIZE_EXCEEDED: 'ファイルサイズの上限を超えています。',
   PITCHBOOK_TOTAL_SIZE_EXCEEDED: '合計ファイルサイズの上限を超えています。',
@@ -344,7 +350,9 @@ function kspGetBackendSchemas_() {
     'Capital_Type_ID', 'Counterparty', 'Internal_Participants', 'Doc_File_ID',
     'Doc_URL', 'Saved_Filename', 'Status', 'Version', 'Created_At', 'Updated_At',
     'Created_By', 'Updated_By', 'AI_Document_Name', 'AI_Index_Status',
-    'AI_Indexed_At', 'AI_Content_Hash', 'AI_Last_Error'
+    'AI_Indexed_At', 'AI_Content_Hash', 'AI_Last_Error',
+    'Team_ID', 'Fund_Strategy', 'Meeting_Type_Codes', 'Related_Pitchbook_IDs',
+    'Follow_Up_Required', 'Follow_Up_Note'
   ];
 
   schemas[KSP_SHEET_NAMES.PITCHBOOK_INDEX] = [
@@ -352,7 +360,7 @@ function kspGetBackendSchemas_() {
     'Capital_Type_ID', 'Sequence_No', 'File_ID', 'File_URL', 'Original_Filename',
     'Saved_Filename', 'Status', 'Created_At', 'Updated_At', 'Created_By',
     'Updated_By', 'AI_Document_Name', 'AI_Index_Status', 'AI_Indexed_At',
-    'AI_Content_Hash', 'AI_Last_Error'
+    'AI_Content_Hash', 'AI_Last_Error', 'Fund_Strategy'
   ];
 
   schemas[KSP_SHEET_NAMES.SETTINGS] = [
@@ -424,7 +432,9 @@ function kspGetOptionSeedDefinitions_() {
     ['OPT-LOC-003', 'LOCATION', 'セミナー / カンファレンス', 3],
     ['OPT-LOC-004', 'LOCATION', 'オンライン', 4],
     ['OPT-LOC-005', 'LOCATION', '会食', 5],
-    ['OPT-LOC-006', 'LOCATION', 'その他', 6]
+    ['OPT-LOC-006', 'LOCATION', 'その他', 6],
+    ['OPT-TEAM-001', 'TEAM', 'PD', 1],
+    ['OPT-TEAM-002', 'TEAM', 'AE', 2]
   ];
 }
 

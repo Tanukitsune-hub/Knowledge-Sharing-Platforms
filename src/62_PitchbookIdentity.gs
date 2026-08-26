@@ -38,6 +38,7 @@ function kspBuildPitchbookPendingRow_(params) {
     GP_ID: options.input.gpId,
     Asset_Class_ID: options.input.assetClassId,
     Capital_Type_ID: options.input.capitalTypeId,
+    Fund_Strategy: options.input.fundStrategy,
     Sequence_No: options.sequenceNo,
     File_ID: '',
     File_URL: '',
@@ -60,6 +61,16 @@ function kspBuildPitchbookSlotFingerprint_(row, reservedFile, totalBytes) {
   var descriptor = reservedFile || {};
   var canonical = [
     row.Batch_ID, row.Document_ID, kspCanonicalPitchbookDateKey_(row.Date), row.GP_ID, row.Asset_Class_ID,
+    row.Capital_Type_ID, row.Fund_Strategy, row.Sequence_No, row.Original_Filename, row.Saved_Filename,
+    descriptor.sizeBytes, descriptor.mimeType, totalBytes
+  ].map(function (value) { return String(value || ''); }).join('\u001f');
+  return kspFnv1aHex_(canonical);
+}
+
+function kspBuildLegacyPitchbookSlotFingerprint_(row, reservedFile, totalBytes) {
+  var descriptor = reservedFile || {};
+  var canonical = [
+    row.Batch_ID, row.Document_ID, kspCanonicalPitchbookDateKey_(row.Date), row.GP_ID, row.Asset_Class_ID,
     row.Capital_Type_ID, row.Sequence_No, row.Original_Filename, row.Saved_Filename,
     descriptor.sizeBytes, descriptor.mimeType, totalBytes
   ].map(function (value) { return String(value || ''); }).join('\u001f');
@@ -69,11 +80,7 @@ function kspBuildPitchbookSlotFingerprint_(row, reservedFile, totalBytes) {
 function kspCanonicalPitchbookDateKey_(value) {
   if (value instanceof Date) {
     if (isNaN(value.getTime())) return '';
-    return [
-      value.getUTCFullYear(),
-      String(value.getUTCMonth() + 1).padStart(2, '0'),
-      String(value.getUTCDate()).padStart(2, '0')
-    ].join('-');
+    return Utilities.formatDate(value, KSP_DEFAULTS.TIMEZONE, 'yyyy-MM-dd');
   }
   var text = value === null || value === undefined ? '' : String(value).trim();
   var isoDate = /^(\d{4}-\d{2}-\d{2})(?:T|$)/.exec(text);
