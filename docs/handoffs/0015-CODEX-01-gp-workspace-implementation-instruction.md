@@ -3,22 +3,40 @@
 WORK_ID: `0015`
 DISPATCH_ID: `0015-CODEX-01`
 MODE: `BUILD`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Route: `C — bounded production-source UI/service implementation plus authenticated target-runtime qualification`.
+This dispatch has returned and is superseded for remaining execution by:
 
-Recommended model: `Luna Max` — the product/data design is fixed and the remaining work is scoped implementation, testing, deployment update, and browser verification.
+`docs/handoffs/0015-CODEX-02-finalize-readonly-qualification-and-delivery-instruction.md`
 
-## Primary Outcome
+## Execution Outcome
+
+Accepted evidence from CODEX-01:
+
+- `LOGIC_VALIDATION: PASS — 203/203`;
+- public facade: exactly `24`;
+- exact tested source synchronized to the confirmed Apps Script target;
+- immutable Apps Script version `31`;
+- existing verified private Web App updated in place;
+- GP Workspace page/read model: PASS;
+- relationship/follow-up rendering: PASS;
+- bounded print-only brief: PASS;
+- print button reached the normal browser print surface: PASS.
+
+CODEX-01 stopped because Computer Use could not safely observe or close the Windows native print dialog. This is an automation limitation, not an application failure. The original execution contract below explicitly required native-dialog internals to be classified separately once the print invocation was observed.
+
+No final integrity readback, report, commit, push, or PR update was completed in CODEX-01. Do not resume this dispatch or invoke print again. Use CODEX-02 for the remaining read-only integrity and GitHub delivery.
+
+## Original Primary Outcome
 
 Implement the Work 0015 read-only GP Workspace and prove one useful GP-centric end-to-end slice in the existing authenticated Apps Script Web App.
 
 An authorized user must be able to select a GP and see a compact summary, Fund / Strategy context, recent Meetings/Pitchbooks, open follow-ups, resolved Meeting↔Pitchbook relationships, and a bounded A4 landscape print/PDF brief.
 
-## Acceptance Evidence and Hierarchy
+## Original Acceptance Evidence and Hierarchy
 
 Strongest first:
 
@@ -32,7 +50,7 @@ Strongest first:
 
 Browser/native evidence outranks mocks for render, print, actual Apps Script object shapes, and side-effect absence.
 
-## Fastest Safe Decisive Action
+## Original Fastest Safe Decisive Action
 
 Implement only this vertical slice:
 
@@ -182,7 +200,7 @@ Workspace service and client use must not mutate:
 
 No workspace-view Audit event is required in this Work.
 
-## Suggested implementation boundaries
+## Suggested Implementation Boundaries
 
 Use repository conventions; the following is a preferred shape, not a requirement if an equally small existing pattern is better:
 
@@ -194,7 +212,7 @@ Use repository conventions; the following is a preferred shape, not a requiremen
 
 Do not refactor unrelated navigation, maintenance, search, export, or AI code.
 
-## Deterministic validation
+## Deterministic Validation
 
 Add focused tests before the full suite.
 
@@ -237,7 +255,7 @@ Only after deterministic PASS:
 
 Use the updated existing `/exec`.
 
-### Native browser smoke
+### Native Browser Smoke
 
 Use one existing synthetic GP that already has Work 0014 structured data. Do not create/edit/save source records for this smoke.
 
@@ -256,7 +274,7 @@ Verify once:
 - print brief contains the expected bounded sections;
 - print button reaches the browser's normal print surface; cancel/close without saving a file if needed.
 
-### Final read-only integrity
+### Final Read-Only Integrity
 
 Compare before/after authoritative state and prove workspace use caused no change to:
 
