@@ -1,10 +1,10 @@
 # Work 0016 — Counterparty entity foundation
 
 WORK_ID: `0016`
-DISPATCH_ID: `0016-CODEX-01`
-MODE: `BUILD`
-BALL: `CHATGPT`
-STATUS: `BLOCKED — STRATEGY RESET REQUIRED`
+DISPATCH_ID: `0016-CODEX-02`
+MODE: `BUILD / QUALIFICATION`
+BALL: `CODEX`
+STATUS: `READY`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -12,185 +12,104 @@ Primary design: `docs/planning/work0016-counterparty-entity-foundation.md`
 
 Authoritative decision: `docs/decisions/counterparty-entity-classification.md`
 
-## Primary Outcome
+Active execution instruction:
 
-Replace the Meeting workflow's global GP requirement with one structured two-stage identity:
+`docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-instruction.md`
+
+## Primary outcome
+
+Replace the global Meeting GP requirement with the accepted two-stage identity:
 
 `Counterparty Type -> Counterparty Entity`
 
-while preserving legacy GP Meetings, stable IDs, files, relationships, five-sheet Backend, and the existing Pitchbook GP contract.
+and prove it end-to-end for one legacy GP Meeting and one new non-GP Meeting in the existing authenticated private Apps Script Web App.
 
-The result must be usable end-to-end in the existing private Apps Script Web App for both:
+## Completion evidence
 
-1. an existing legacy GP Meeting; and
-2. one synthetic non-GP Meeting with a Related GP and explicit Pitchbook relationship.
+Work is complete only when all are true:
 
-## Acceptance Evidence — strongest first
+1. final source passes focused tests, `npm run check`, `git diff --check`, and public facade remains `24`;
+2. exact tested source is synchronized/read back, one immutable version is created, and the existing private `WEB_APP` is updated in place;
+3. schema 4 and blank-only legacy GP migration are aligned/read back idempotently in the synthetic target;
+4. one legacy GP Meeting retains stable identity and resolves its new Counterparty fields;
+5. exactly one non-GP Entity and Meeting persist/reopen/edit/search with one Related GP and explicit Pitchbook relationship;
+6. filename, Doc, Index, Audit, Export, and deterministic AI metadata agree;
+7. final integrity shows only expected guarded mutations and no duplicate/unexpected state.
 
-1. actual authenticated target Web App persists/reopens/searches one synthetic non-GP Meeting through the exact production source path;
-2. an existing legacy GP Meeting migrates/readbacks correctly without changing its stable Meeting ID, Doc/File identity, status, or authoritative source;
-3. one non-GP entity is added through the normal Master path and remains stable/reusable;
-4. Related GP -> eligible Pitchbook relationship works and survives reopen/edit/search;
-5. Index / Meeting Doc / filename / Audit metadata / Knowledge Export metadata / deterministic AI metadata agree;
-6. final integrity proves five sheets only, no duplicates, expected counters only, no unexpected Drive/Settings/Script Property/trigger/AI side effects;
-7. focused regressions plus canonical `npm run check` and `git diff --check` pass.
+Logic-only PASS is insufficient.
 
-Logic-only or mock-only PASS cannot replace target-runtime evidence.
+## Closed conclusions
 
-## Fastest Safe Decisive Action
+- exactly five Backend sheets;
+- GP entities remain in `GP_Master`;
+- non-GP entities use category-specific `Option_Master` Types;
+- no Entity/Counterparty/relation sheet;
+- stable composite entity identity is `Counterparty_Type + ':' + Counterparty_ID`;
+- existing `Counterparty` remains person/role free text;
+- legacy GP rows are backfilled only when new fields are blank;
+- Pitchbook remains GP-required;
+- Related Pitchbook relationships remain in `Meeting_Index.Related_Pitchbook_IDs`;
+- no follow-up workflow, analytics, Entity Workspace, live Gemini qualification, or production rollout in this Work.
 
-Implement the entire accepted Work 0016 contract in one bounded vertical slice rather than splitting schema, UI, search, and migration into separate Works.
+## Accepted CODEX-01 evidence
 
-Sequence:
+- coherent broad implementation is present;
+- deterministic result recorded locally: `211/211 PASS`;
+- public facade: `24`;
+- schema/migration, legacy GP, non-GP, relationship, search/edit/reopen, GP Workspace, Export/Audit/AI metadata logic: deterministic PASS;
+- one saved-source sync occurred before final review fixes;
+- no immutable version or deployment update;
+- target Web App remains version `31`;
+- no target data/trigger/permission/AI-store mutation;
+- target-runtime qualification and final integrity: not run.
 
-`schema/migration -> production contracts -> registration/edit/search UI -> relationship propagation -> Export/AI metadata -> deterministic validation -> one exact source sync/version/in-place Web App update -> bounded legacy + non-GP runtime qualification -> final integrity -> report`.
+## ChatGPT final pre-sync review findings
 
-## Required Scope
+CODEX-02 must close these before synchronization:
 
-Follow the detailed Work plan without reopening its fixed design. The implementation includes at minimum:
+1. `kspMeetingCellDate_()` must use the configured `Asia/Tokyo` logical-date contract rather than UTC calendar getters, with a Sheets-like Date regression;
+2. Counterparty code `GP` must display as the accepted `GP / 運用会社` label everywhere relevant;
+3. Related Pitchbook registration guidance must describe the actual `Related GP + Asset Class` rule;
+4. Counterparty quick-add must clear stale Meeting retry state before saving the changed draft.
 
-- append-only Meeting_Index columns `Counterparty_Type`, `Counterparty_ID`, `Related_GP_IDs`;
-- one schema-version increment with idempotent forward migration;
-- legacy GP backfill only where new fields are blank;
-- fixed Counterparty category codes and dependent select behavior;
-- GP entities from existing `GP_Master`;
-- non-GP entities from category-specific `Option_Master` Types;
-- category-aware quick-add using existing Master mutation rules;
-- existing `Counterparty` free text retained as `面談相手（氏名・役職）`;
-- Related GP canonical stable-ID list, with primary GP auto-inclusion for GP Meetings;
-- Meeting create/retry/edit/reopen/search round-trip;
-- new Meeting filename uses Counterparty display name rather than assuming GP;
-- new/edited Meeting Docs contain Counterparty type/name, Related GP context, and person/role text when present;
-- legacy `GP:` Meeting Docs remain readable;
-- Related Pitchbook candidates use same Asset Class plus GP present in `Related_GP_IDs`;
-- existing Inactive/unresolved/out-of-current-scope relationships remain preserved;
-- browser shared-state rules from the accepted decision;
-- GP Workspace remains correct for GP Meetings;
-- Knowledge Export metadata propagation;
-- deterministic AI metadata adds `entity_key`, `counterparty_type`, `counterparty_id`, `counterparty_name`, `related_gp_ids` without making live Gemini/File Search calls;
-- Audit remains metadata-only and does not duplicate Follow-up note or source body;
-- safe public errors and intentional public-facade changes only if truly required.
+Do not sync until these fixes and the final relevant diff review pass.
 
-## Closed Conclusions — do not reopen
+## Authorization and boundary
 
-- exactly five Backend sheets; no Entity/Counterparty/relation sheet;
-- no Fund / Strategy Master;
-- Pitchbook remains GP-required in Work 0016;
-- follow-up remains `required + note`, not a task workflow;
-- static GP comparison is not part of this Work;
-- non-GP entities use Option Master rather than a new database;
-- Counterparty category codes are fixed product codes, not user-editable Master rows;
-- legacy source Docs/files are not bulk-renamed/re-written merely by migration;
-- no automatic alias/merge across similarly named organizations;
-- no live/billing-enabled Gemini/File Search qualification;
-- no production rollout.
+After deterministic PASS, CODEX-02 may:
 
-## Authorization / Side-effect Boundary
+- synchronize exact tested source once;
+- create one immutable version;
+- update the same positively identified private Web App in place;
+- align synthetic schema 4 and only the corresponding installation-state schemaVersion;
+- add one synthetic non-GP Entity and Meeting and edit it once;
+- write only expected metadata-level Audit/state changes.
 
-Authorized after deterministic PASS only:
+It may not:
 
-- synchronize the exact tested Apps Script source to the already identified private target project;
-- create one immutable Apps Script version;
-- update the existing positively identified private WEB_APP deployment in place;
-- perform the bounded synthetic schema/data operations required by the target-runtime qualification.
+- create another Web App deployment;
+- touch Library deployments;
+- use confidential/company data;
+- change broad permissions;
+- enable triggers;
+- call billing-enabled Gemini/File Search;
+- physically delete or bulk migrate data;
+- perform production rollout.
 
-Not authorized:
+## Current status
 
-- confidential/company data;
-- broad user access or permission changes;
-- new Web App deployment;
-- Library deployment mutation;
-- Gemini/File Search billing/index/query calls;
-- installable trigger enablement;
-- physical deletion;
-- broad/bulk historical migration;
-- production rollout.
+`LOGIC_VALIDATION: PASS` for the CODEX-01 local tree, subject to rerun after the four final repairs.
 
-Use exact-ID/readback guardrails and do not expose private runtime identifiers in GitHub reports.
+`TARGET_RUNTIME_QUALIFICATION: NOT RUN`
 
-## Deterministic Validation
+`SIDE_EFFECT_STATE: BOUNDED — stale saved-source sync only; version/deployment/data unchanged`
 
-Use the detailed matrix in the Work plan. At minimum prove:
+`READY: NO`
 
-- category validation + category-to-Master mapping;
-- stable non-GP Option ID behavior and allowed option Types;
-- schema migration/backfill idempotency;
-- legacy GP compatibility;
-- GP mirror / non-GP blank GP behavior;
-- composite entity identity;
-- Related GP canonicalization and auto-inclusion;
-- relationship candidate logic and preserved existing links;
-- create/retry/edit/search/readback;
-- filename and Doc metadata;
-- shared-draft behavior;
-- GP Workspace compatibility;
-- Export/AI metadata propagation;
-- Audit redaction;
-- public surface;
-- `npm run check`;
-- `git diff --check`.
+`BLOCKER: YES`
 
-Do not weaken assertions to obtain PASS.
-
-## Target-Runtime Qualification
-
-After deterministic PASS, perform one bounded end-to-end campaign in the existing private target Web App:
-
-1. verify exact project and existing WEB_APP identity before mutation;
-2. sync exact tested source once, read back exact match;
-3. create one immutable version and update the same existing WEB_APP in place;
-4. run idempotent schema migration once and verify rerun safety without duplicated/changed durable data;
-5. reopen one existing legacy GP Meeting and prove the new fields resolve as GP / existing GP ID / Related GP without changing stable source identity;
-6. add exactly one synthetic non-GP entity through the normal Master path;
-7. create exactly one synthetic non-GP Meeting with one Related GP and one matching Related Pitchbook;
-8. reopen it, edit one non-identity field once, and search it using Counterparty Type + Counterparty Entity + Related GP;
-9. verify filename, Doc metadata, Index row, Audit metadata, relationship IDs, and GP Workspace compatibility for an existing GP;
-10. run final integrity/readback.
-
-Keep retries bounded. Do not create multiple synthetic Meetings to chase UI/harness noise.
-
-## Execution Budget / Strategy Reset
-
-- one implementation architecture;
-- one main deterministic repair loop per concrete failure class;
-- one source sync;
-- one immutable Apps Script version for the passing source;
-- one in-place Web App deployment update;
-- one legacy GP runtime case;
-- one non-GP synthetic entity + Meeting runtime case;
-- at most one edit of that synthetic Meeting during qualification.
-
-Strategy Reset if:
-
-- the five-sheet design becomes infeasible;
-- legacy GP compatibility requires destructive rewrite;
-- target identity/deployment is ambiguous;
-- the same runtime failure class repeats after one materially different fix;
-- a second storage/identity architecture appears necessary;
-- target-runtime evidence contradicts the accepted Counterparty model.
-
-Do not reset for browser harness limitations that do not indicate an application defect.
-
-## Completion Latch
-
-Complete only when:
-
-- `LOGIC_VALIDATION: PASS`;
-- `TARGET_RUNTIME_QUALIFICATION: PASS`;
-- `SIDE_EFFECT_STATE` is explicitly bounded/guarded;
-- no BLOCKER remains;
-- all scoped source/tests/docs are committed and pushed;
-- Draft PR remains open/unmerged for ChatGPT final review;
-- canonical report and dispatch state are updated.
-
-Expected final classification on success:
+Active ball is CODEX-02. On full PASS apply:
 
 `DEV QUALIFIED — WORK 0016 COUNTERPARTY ENTITY FOUNDATION`
 
-Production readiness is not claimed.
-
-## Current execution status
-
-`0016-CODEX-01` completed the local vertical slice and deterministic validation at `211/211 PASS`, with public facade `24`. The single authorized Apps Script source synchronization was then consumed. Final independent review found four UI/contract defects; they were repaired and revalidated locally, but the corrected source was not synchronized a second time.
-
-No immutable version or deployment update was created, the existing private Web App remains on version 31, and the authenticated runtime campaign was not run. A fresh bounded dispatch is required to resume from corrected-source synchronization. See `docs/handoffs/0016-CODEX-01-counterparty-entity-foundation-report.md`.
+Keep PR #21 Draft / Open / unmerged for ChatGPT final review.
