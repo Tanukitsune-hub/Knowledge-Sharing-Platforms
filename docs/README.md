@@ -21,6 +21,7 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - `architecture/target-architecture.md` — end-to-end architecture and boundaries
 - `planning/mvp-and-roadmap.md` — active Work sequence and rollout order
 - `planning/apps-script-implementation-plan.md` — target-runtime-first implementation/validation plan
+- `planning/post0015-spec-impact-and-implementation-sequence.md` — cross-cutting source/schema/UI/search/AI impact matrix
 
 ### Counterparty/entity decision and Work plans
 
