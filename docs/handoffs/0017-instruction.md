@@ -3,8 +3,8 @@
 WORK_ID: `0017`
 DISPATCH_ID: `0017-CODEX-02`
 MODE: `BUILD / QUALIFICATION`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `NONE`
+STATUS: `QUALIFIED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -12,7 +12,7 @@ Primary plan:
 
 `docs/planning/work0017-meeting-activity-analytics.md`
 
-Active residual instruction:
+Final execution instruction:
 
 `docs/handoffs/0017-CODEX-02-counterparty-type-filter-finalization-instruction.md`
 
@@ -46,20 +46,25 @@ Do not reopen absent direct contradiction:
 - final integrity otherwise PASS;
 - no Gemini/File Search call or trigger enablement.
 
-## Remaining BLOCKER
+## CODEX-02 finalization
 
-CODEX-01 runtime evidence showed the Counterparty Type filter control contained only `未選択`.
+ChatGPT's one-key repair was verified: the client now reads
+`filterOptions.counterpartyTypes`, matching the server response contract, and the
+UI regression passes.
 
-GitHub review proved a one-key mismatch:
-
-```text
-server: filterOptions.counterpartyTypes
-client: filterOptions.counterpartyType
-```
-
-Because Counterparty Type is a required user filter, Work 0017 is not yet accepted/merged.
-
-ChatGPT has already applied the minimal branch repair and regression. CODEX-02 owns only deterministic revalidation, one corrected source synchronization/version/in-place Web App update, direct UI filter verification, final integrity, report/commit/push/PR update.
+- focused Activity Analytics suite: `8/8 PASS`;
+- canonical `npm run check`: `231/231 PASS`;
+- public facade: `26`; exact source readback: `67/67`;
+- immutable version `37` was created once and the same private Web App was
+  updated in place with Web app / deploying-user / Only myself settings;
+- the live Counterparty Type filter contained `GP` and `LP_ASSET_OWNER`,
+  narrowed correctly to one target, and cleared back to the four-Meeting
+  baseline;
+- Counterparty Type (`GP: 3`, `LP_ASSET_OWNER: 1`) to Team
+  (`OPT-TEAM-001: 2`, `未設定: 2`) remained correct;
+- final read-only integrity passed with five Backend sheets, schema 5, unchanged
+  records/files/settings/counters/AI state, 64 Audit rows, zero triggers, and
+  unchanged Library deployments.
 
 ## Completion latch
 
@@ -75,3 +80,5 @@ BLOCKER: NO
 ```
 
 PR #23 remains Draft / Open / unmerged until ChatGPT final review.
+
+Completion Latch: `APPLIED`.

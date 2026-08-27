@@ -1,61 +1,60 @@
-# Work 0017 — Meeting activity analytics and monthly administrative checks report
+# Work 0017 report
 
 WORK_ID: `0017`
-ACTIVE_DISPATCH_ID: `0017-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+DISPATCH_ID: `0017-CODEX-02`
+BALL: `NONE`
+STATUS: `ACCEPTED`
 
-## Current result
+## Final classification
 
-Work 0017 is functionally qualified except for one user-facing filter option defect discovered in CODEX-01 target-runtime evidence.
+`DEV QUALIFIED — WORK 0017 MEETING ACTIVITY ANALYTICS`
 
-Accepted CODEX-01 evidence:
+- `LOGIC_VALIDATION: PASS — focused 8/8; canonical 231/231`;
+- `TARGET_RUNTIME_QUALIFICATION: PASS`;
+- `SIDE_EFFECT_STATE: GUARDED`;
+- `READY: YES`;
+- `BLOCKER: NO`.
 
-- `LOGIC_VALIDATION: PASS` — focused suites `36/36`, canonical validation `230/230`;
-- schema 5, exactly five Backend sheets;
-- monthly series, Counterparty Type -> Team breakdown, FY2026 aggregation, exact one-Meeting drill: PASS;
-- binary `月次管理反映済み` true/reload/false path with two metadata-only Audit events: PASS;
-- no normal Meeting Version/Updated/Doc/follow-up/AI mutation from the admin check: PASS;
-- public facade `26`;
-- Apps Script version `36` was deployed in CODEX-01;
-- final integrity otherwise PASS;
-- no Gemini/File Search call or trigger enablement.
+## CODEX-02 evidence
 
-## GitHub-verified residual defect
+- ChatGPT's client repair is present: `filterOptions.counterpartyTypes` is used
+  by `ClientActivityAnalytics.html`;
+- the UI regression asserts the server/client option-key contract and rejects
+  the obsolete singular key;
+- exact tested source was synchronized once and read back as `67/67` matching
+  files;
+- immutable Apps Script version `37` was created once;
+- the same positively identified private Web App was updated in place, retaining
+  Web app type, deploying-user execution, and Only myself access;
+- no second Web App deployment was created and Library deployments were not
+  changed.
 
-The deployed Counterparty Type filter showed only `未選択`.
+## Target-runtime evidence
 
-GitHub review confirmed the exact cause:
+- Counterparty Type options contained `未選択`, `GP`, and `LP_ASSET_OWNER`;
+- `LP_ASSET_OWNER` selection returned one matching Meeting in the headline and
+  exactly one drill row, then clearing returned the four-Meeting baseline;
+- Counterparty Type breakdown remained `GP: 3` and `LP_ASSET_OWNER: 1`;
+- Team breakdown remained `OPT-TEAM-001: 2` and `未設定: 2`.
 
-```text
-server response: filterOptions.counterpartyTypes
-client lookup:    filterOptions.counterpartyType
-```
+## Final integrity
 
-This violates the Work requirement that Counterparty Type be available as a user filter, so Work 0017 is not yet accepted/merged.
+- Backend remained exactly five sheets with schema 5 and canonical headers;
+- Meeting_Index remained four unique rows and Pitchbook_Index remained sixteen
+  rows with stable identity references;
+- GP Master, Option Master, Settings, source files/records, counters, statuses,
+  AI metadata, and the existing two admin-check Audit events were unchanged;
+- Audit remained at 64 rows; Analytics reads added no Audit event;
+- Script Properties remained DEV / Asia/Tokyo / schema 5 with the existing
+  resource mapping and AI sync disabled;
+- trigger count remained zero; no Gemini/File Search call or permission
+  mutation occurred.
 
-## ChatGPT repair
+## Reports
 
-ChatGPT directly corrected the client option key and added a UI contract regression on the existing branch. No Apps Script/runtime mutation was performed by ChatGPT.
+- `docs/handoffs/0017-CODEX-01-activity-analytics-and-admin-check-report.md`;
+- `docs/handoffs/0017-CODEX-02-counterparty-type-filter-finalization-report.md`.
 
-Remaining dispatch:
+Completion Latch: `APPLIED`.
 
-`docs/handoffs/0017-CODEX-02-counterparty-type-filter-finalization-instruction.md`
-
-## Classification
-
-- `BLOCKER`: corrected Counterparty Type filter must be deterministically validated and proven in the actual Web App before merge;
-- `FIX SOON`: none beyond that bounded repair;
-- `BACKLOG`: GitHub Actions CI and later production/Gemini qualification remain outside this Work.
-
-Current:
-
-```text
-LOGIC_VALIDATION: PASS for CODEX-01 baseline; corrected branch revalidation pending
-TARGET_RUNTIME_QUALIFICATION: BLOCKED — final filter verification required
-SIDE_EFFECT_STATE: GUARDED
-READY: NO
-BLOCKER: YES
-```
-
-PR #23 remains Draft / Open / unmerged.
+PR #23 remains Draft / Open / unmerged for ChatGPT final review and merge.

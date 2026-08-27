@@ -108,14 +108,24 @@ App deployment was created, and Library deployments were left untouched.
 - no duplicate Meeting row/file, permission mutation, Library deployment
   mutation, or unexpected counter/resource mutation was observed.
 
-## Non-blocking follow-up
+## CODEX-02 finalization
 
-The deployed client currently renders only `未選択` in the Counterparty Type
-filter control even though the server breakdown and deterministic filter logic
-return the available type values. This is a minor client option-key mapping
-follow-up, not part of the required target-runtime campaign (which requires the
-Counterparty Type → Team breakdown switch), and no second source sync/version or
-deployment was made after the one-time delivery gate.
+CODEX-02 verified the ChatGPT client repair and closed the remaining
+Counterparty Type filter defect. The repaired client reads
+`filterOptions.counterpartyTypes`, and its UI contract regression passes.
+
+- focused Activity Analytics suite: `8/8 PASS`;
+- canonical `npm run check`: `231/231 PASS`;
+- public facade: `26`; exact tested source readback: `67/67`;
+- immutable version `37` was created once and the same private Web App was
+  updated in place with Web app / deploying-user / Only myself settings;
+- the live filter showed `GP` and `LP_ASSET_OWNER`, narrowed to one target for
+  `LP_ASSET_OWNER`, restored to four after clearing, and retained the
+  Counterparty Type (`GP: 3`, `LP_ASSET_OWNER: 1`) to Team (`OPT-TEAM-001: 2`,
+  `未設定: 2`) dimension behavior;
+- final read-only integrity remained PASS: five Backend sheets, schema 5,
+  unchanged records/files/settings/counters/AI state, 64 Audit rows, zero
+  triggers, and unchanged Library deployments.
 
 ## Delivery
 
