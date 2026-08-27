@@ -22,11 +22,11 @@ This Work is a presentation/read model. It must not add persistent product field
 
 ## Why this is next
 
-Work 0014 made Team, Fund / Strategy, Meeting types, stable Meeting↔Pitchbook links, and follow-up fields authoritative and searchable. Work 0015 should now turn that structure into a useful GP-centric view before broader time-series analytics in Work 0016.
+Work 0014 made Team, Fund / Strategy, Meeting types, stable Meeting↔Pitchbook links, and follow-up fields authoritative and searchable. Work 0015 turns that structure into a useful GP-centric view before the later counterparty/entity and analytics expansion.
 
-The preferred sequence is therefore:
+The current post-0015 sequence is:
 
-`0014 structured records -> 0015 GP workspace -> 0016 activity analytics/admin checks`.
+`0014 structured records -> 0015 GP workspace -> 0016 counterparty entity foundation -> 0017 activity analytics/admin checks`.
 
 ## Product shape
 
@@ -58,7 +58,7 @@ Use exact full-record counts, not counts from truncated UI lists:
 - 要フォロー — Active Meeting rows where `Follow_Up_Required` is true;
 - Last Meeting — most recent logical Meeting date, or `—`.
 
-Do not add time-series charts here; those belong to Work 0016.
+Do not add time-series charts here; those belong to Work 0017 after the Work 0016 counterparty/entity foundation.
 
 #### Fund / Strategy
 
@@ -298,4 +298,4 @@ Do not implement in Work 0015:
 
 ## Follow-on
 
-After Work 0015 acceptance, proceed to Work 0016 for meeting-activity analytics and the monthly administrative check workflow.
+After Work 0015 acceptance, proceed to Work 0016 for the Counterparty entity foundation. Meeting activity analytics and the monthly administrative check workflow follow in Work 0017.
