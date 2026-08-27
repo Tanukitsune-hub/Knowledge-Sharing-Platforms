@@ -13,8 +13,10 @@ STATUS: `READY`
 - purpose: deliver Activity Analytics plus the single binary `月次管理反映済み` admin check as one vertical slice;
 - recommended model: `Luna Max` — architecture, schema, temporal contract, metrics, dimensions, and mutation boundaries are already fixed;
 - branch: `agent/0017-meeting-activity-analytics`;
-- Draft PR: assigned after initial handoff commit;
-- instruction: `docs/handoffs/0017-CODEX-01-activity-analytics-and-admin-check-instruction.md`.
+- Draft PR: `#23`;
+- instruction: `docs/handoffs/0017-CODEX-01-activity-analytics-and-admin-check-instruction.md`;
+- accepted main/source baseline: `b127b9d3c717998738f2acd775dc0b3c99bb5457`;
+- actual exact execution ref is the final PR #23 head supplied in the ChatGPT dispatch prompt after handoff activation metadata is complete.
 
 ## Accepted predecessor evidence
 
