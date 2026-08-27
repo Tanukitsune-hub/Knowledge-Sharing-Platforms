@@ -9,9 +9,11 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Branch: `agent/0017-meeting-activity-analytics`
 
-Draft PR: `TO_BE_ASSIGNED`
+Draft PR: `#23`
 
-Exact ref: `TO_BE_UPDATED_AFTER_PR_SETUP`
+Accepted main/source baseline: `b127b9d3c717998738f2acd775dc0b3c99bb5457`
+
+Exact execution ref: use the final PR #23 head supplied in the ChatGPT dispatch prompt after this activation metadata commit. Do not execute from an older branch ref.
 
 Mode: `BUILD / QUALIFICATION`
 
@@ -27,7 +29,7 @@ Read all applicable `AGENTS.md` / `AGENTS.override.md`, then:
 2. `docs/planning/work0017-meeting-activity-analytics.md`;
 3. `docs/decisions/temporal-data-contract.md`;
 4. `docs/handoffs/0022-report.md` and the Work 0022 detailed report;
-5. existing Activity/maintenance/navigation/public-surface source and tests.
+5. existing maintenance/navigation/public-surface source and tests.
 
 Architecture is settled. Do not redesign the Counterparty model, temporal contract, five-sheet Backend, or monthly check into a workflow engine.
 
