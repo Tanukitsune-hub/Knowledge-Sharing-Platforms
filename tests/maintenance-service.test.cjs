@@ -21,7 +21,7 @@ test('Meeting update preserves ID/Doc, increments Version, updates Doc, and audi
 
 test('Meeting update Audit serializes equivalent Sheets Date and Time values canonically', () => {
   const env=createFakeEnvironment({meetingRows:[{
-    Meeting_ID:'MTG-000001', Date:new Date('2026-08-26T15:00:00.000Z'), Time:new Date(Date.UTC(1899,11,30,14,30)),
+    Meeting_ID:'MTG-000001', Date:new Date('2026-08-26T15:00:00.000Z'), Time:new Date(Date.UTC(1899,11,30,5,30)),
     Location_ID:'', GP_ID:'GP-000002', Asset_Class_ID:'OPT-AC-002', Capital_Type_ID:'', Counterparty:'',
     Internal_Participants:'Before', Doc_File_ID:'doc-1', Doc_URL:'https://example/doc-1',
     Saved_Filename:'2026-08-27_KKR_Infrastructure_MTG-000001', Status:'Active', Version:2,

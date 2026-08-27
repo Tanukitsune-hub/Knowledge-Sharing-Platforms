@@ -83,12 +83,7 @@ function kspMeetingTypeLabels_(canonicalCodes) {
 }
 
 function kspMeetingCellDate_(value) {
-  if (value instanceof Date) {
-    if (isNaN(value.getTime())) return '';
-    return kspCanonicalPitchbookDateKey_(value);
-  }
-  var match = /^(\d{4}-\d{2}-\d{2})(?:T|$)/.exec(String(value || '').trim());
-  return match ? match[1] : '';
+  return kspCanonicalBusinessDate_(value);
 }
 
 function kspBuildRelatedPitchbookChoices_(rows, relatedGpIds, assetClassId, existingIds) {
@@ -373,22 +368,6 @@ function kspRequireCatalogItem_(items, id, code, message) {
   return found;
 }
 
-function kspIsValidDateKey_(value) {
-  var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ''));
-  if (!match) {
-    return false;
-  }
-  var year = Number(match[1]);
-  var month = Number(match[2]);
-  var day = Number(match[3]);
-  var date = new Date(Date.UTC(year, month - 1, day));
-  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
-}
-
-function kspIsValidTimeValue_(value) {
-  return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(value || ''));
-}
-
 function kspFormatMeetingId_(sequenceNumber) {
   var sequence = Number(sequenceNumber);
   kspAssert_(Number.isFinite(sequence) && sequence > 0 && Math.floor(sequence) === sequence,
@@ -563,8 +542,8 @@ function kspBuildMeetingIndexRow_(input, selected, meetingId, documentInfo, file
 
 function kspMeetingIndexRowMatchesRequest_(row, input, filename) {
   if (!row) return false;
-  return String(row.Date || '') === input.date &&
-    String(row.Time || '') === input.time &&
+  return kspCanonicalBusinessDate_(row.Date) === input.date &&
+    kspCanonicalBusinessTime_(row.Time) === input.time &&
     String(row.Location_ID || '') === input.locationId &&
     String(row.GP_ID || '') === input.gpId &&
     kspMeetingCounterpartyType_(row) === input.counterpartyType &&
@@ -599,16 +578,17 @@ function kspMeetingInfoFromIndexRow_(row) {
 function kspBuildMeetingAuditRow_(params) {
   var options = params || {};
   var metadata = options.metadata || {};
+  var auditMetadata = kspMeetingAuditMetadata_(metadata);
   return {
-    Event_Timestamp: options.timestamp || '',
+    Event_Timestamp: kspCanonicalInstantIso_(options.timestamp),
     Actor: options.actor || 'UNIDENTIFIED',
     Action: KSP_MEETING_ACTIONS.CREATE,
     Target_Type: 'Meeting',
     Target_ID: options.meetingId || '',
     Result: options.result || KSP_AUDIT_RESULTS.FAILURE,
-    Changed_Fields: options.result === KSP_AUDIT_RESULTS.SUCCESS ? kspGetNonEmptyMeetingMetadataFields_(metadata).join(',') : '',
+    Changed_Fields: options.result === KSP_AUDIT_RESULTS.SUCCESS ? kspGetNonEmptyMeetingMetadataFields_(auditMetadata).join(',') : '',
     Before_Metadata_JSON: '',
-    After_Metadata_JSON: options.result === KSP_AUDIT_RESULTS.SUCCESS ? JSON.stringify(kspMeetingAuditMetadata_(metadata)) : '',
+    After_Metadata_JSON: options.result === KSP_AUDIT_RESULTS.SUCCESS ? JSON.stringify(auditMetadata) : '',
     Batch_ID: '',
     Error_Code: options.errorCode || '',
     Error_Message: options.errorCode ? kspSafePublicErrorMessage_(options.errorCode, 'MEETING') : '',
@@ -628,8 +608,8 @@ function kspBuildMeetingAuditRow_(params) {
 function kspMeetingAuditMetadata_(metadata) {
   return {
     Meeting_ID: metadata.Meeting_ID || '',
-    Date: metadata.Date || '',
-    Time: metadata.Time || '',
+    Date: kspCanonicalBusinessDate_(metadata.Date),
+    Time: kspCanonicalBusinessTime_(metadata.Time),
     Location_ID: metadata.Location_ID || '',
     GP_ID: metadata.GP_ID || '',
     Counterparty_Type: metadata.Counterparty_Type || '',

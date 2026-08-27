@@ -1,6 +1,6 @@
 const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
-function formatDateInTimeZone(value,timezone){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(value);const byType=Object.fromEntries(parts.map(part=>[part.type,part.value]));return`${byType.year}-${byType.month}-${byType.day}`;}
+function formatDateInTimeZone(value,timezone,pattern){const parts=new Intl.DateTimeFormat('en-CA',pattern==='HH:mm'?{timeZone:timezone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}:{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(value);const byType=Object.fromEntries(parts.map(part=>[part.type,part.value]));return pattern==='HH:mm'?`${byType.hour}:${byType.minute}`:`${byType.year}-${byType.month}-${byType.day}`;}
 const context=vm.createContext({console,JSON,Object,Array,String,Number,Boolean,Date,Math,RegExp,Error,TypeError,Set,Map,Intl,Utilities:{formatDate:formatDateInTimeZone}});
 vm.runInContext(`
 var KSP_STATUS={ACTIVE:'Active',INACTIVE:'Inactive'};
@@ -12,7 +12,6 @@ function kspDeepClone_(v){return v===undefined?undefined:JSON.parse(JSON.stringi
 function kspAssert_(c,code,message){if(!c){var e=new Error(message);e.code=code;throw e;}}
 function kspGetErrorCode_(e){return e&&e.code?String(e.code):'UNEXPECTED_ERROR';}
 function kspNormalizeGeneratedNameSegment_(v){return v==null?'':String(v).replace(/[\\u0000-\\u001f\\u007f]/g,'').replace(/[\\\\/&]/g,'').trim().replace(/\\s+/g,'_').replace(/_+/g,'_').replace(/^_+|_+$/g,'');}
-function kspIsValidDateKey_(value){var m=/^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(value||''));if(!m)return false;var y=Number(m[1]),mo=Number(m[2]),d=Number(m[3]),date=new Date(Date.UTC(y,mo-1,d));return date.getUTCFullYear()===y&&date.getUTCMonth()===mo-1&&date.getUTCDate()===d;}
 function kspRequireCatalogItem_(items,id,code,message){var found=(items||[]).filter(function(x){return String(x.id)===String(id);})[0];kspAssert_(found,code,message);return found;}
 function kspBuildMeetingCatalog_(gpRows,optionRows){
  var gps=(gpRows||[]).filter(r=>String(r.Status)==='Active').map(r=>({id:String(r.GP_ID),name:String(r.GP_Name)}));
@@ -22,6 +21,7 @@ function kspBuildMeetingCatalog_(gpRows,optionRows){
 }
 `,context);
 new vm.Script(fs.readFileSync(path.join(root,'src','00_Core.gs'),'utf8'),{filename:'00_Core.gs'}).runInContext(context);
+new vm.Script(fs.readFileSync(path.join(root,'src','05_TemporalContracts.gs'),'utf8'),{filename:'05_TemporalContracts.gs'}).runInContext(context);
 for(const file of fs.readdirSync(path.join(root,'src')).filter((file)=>/^(?:6|7)\d_.*\.gs$/.test(file)).sort())new vm.Script(fs.readFileSync(path.join(root,'src',file),'utf8'),{filename:file}).runInContext(context);
 const ksp=context;
 const gpRows=[{GP_ID:'GP-1',GP_Name:'KKR',Status:'Active'}];

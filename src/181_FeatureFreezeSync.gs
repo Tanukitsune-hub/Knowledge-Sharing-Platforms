@@ -5,7 +5,7 @@ function kspBuildFeatureFreezePitchbookSource_(row, maps, payload, contentHash, 
   var source = {
     sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
     sourceId: String(row.Document_ID),
-    dateKey: String(row.Date || ''),
+    dateKey: kspCanonicalBusinessDate_(row.Date),
     gpId: String(row.GP_ID || ''),
     gpName: maps.gps[String(row.GP_ID || '')] || String(row.GP_ID || ''),
     entityKey: 'GP:' + String(row.GP_ID || ''),
@@ -53,7 +53,8 @@ function kspFfIsAiWorkEligible_(item, nowIso, settings) {
   if (aiStatus !== KSP_AI_INDEX_STATUS.FAILED) return false;
   var lastError = kspParseAiLastError_(row.AI_Last_Error);
   if (lastError.permanent || !lastError.retryable || lastError.attempt >= settings.maxRetryAttempts) return false;
-  return !lastError.nextAttemptAt || lastError.nextAttemptAt <= nowIso;
+  return !lastError.nextAttemptAt ||
+    kspTemporalInstantComparisonKey_(lastError.nextAttemptAt) <= kspTemporalInstantComparisonKey_(nowIso);
 }
 
 function kspFfSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
@@ -70,8 +71,8 @@ function kspFfSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
     var leftInactive = String(left.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
     var rightInactive = String(right.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
     if (leftInactive !== rightInactive) return leftInactive - rightInactive;
-    var leftTime = String(left.row.Updated_At || left.row.Created_At || '');
-    var rightTime = String(right.row.Updated_At || right.row.Created_At || '');
+    var leftTime = kspTemporalInstantComparisonKey_(left.row.Updated_At || left.row.Created_At);
+    var rightTime = kspTemporalInstantComparisonKey_(right.row.Updated_At || right.row.Created_At);
     if (leftTime !== rightTime) return leftTime.localeCompare(rightTime);
     return kspAiSourceKey_(left.sourceType, left.sourceId).localeCompare(kspAiSourceKey_(right.sourceType, right.sourceId));
   });

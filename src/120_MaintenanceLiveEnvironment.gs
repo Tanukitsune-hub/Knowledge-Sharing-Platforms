@@ -97,7 +97,9 @@ function kspCreateMaintenanceEnvironment_() {
     try {
       var claimKey = kspMaintenanceClaimKey_(entity, recordId);
       var existingClaim = kspSafeParseJson_(scriptProperties.getProperty(claimKey), claimKey);
-      var nowMs = Date.parse(nowIso);
+      var canonicalNowIso = kspCanonicalInstantIso_(nowIso);
+      kspAssert_(canonicalNowIso, 'RECORD_EDIT_NOW_INVALID', '編集処理の基準日時が不正です。');
+      var nowMs = new Date(canonicalNowIso).getTime();
       if (existingClaim && Number(existingClaim.expiresAtMs || 0) > nowMs) {
         var busyError = new Error('このレコードは別の編集処理中です。少し待って再試行してください。');
         busyError.code = 'RECORD_EDIT_IN_PROGRESS';
@@ -107,7 +109,10 @@ function kspCreateMaintenanceEnvironment_() {
       var spreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
       var found = kspMaintenanceFindSheetRow_(spreadsheetId, sheetName, keyColumn, recordId);
       kspAssert_(found, 'RECORD_NOT_FOUND', '編集対象が見つかりません。');
-      kspAssert_(String(found.row[tokenColumn]) === String(expectedToken),
+      kspAssert_((tokenColumn === 'Updated_At'
+        ? kspTemporalInstantComparisonKey_(found.row[tokenColumn])
+        : String(found.row[tokenColumn])) === (tokenColumn === 'Updated_At'
+          ? kspTemporalInstantComparisonKey_(expectedToken) : String(expectedToken)),
         'STALE_RECORD_VERSION', '他の利用者が先に更新しています。最新情報を読み直してください。');
       var claimToken = Utilities.getUuid();
       var claim = {
@@ -194,7 +199,10 @@ function kspCreateMaintenanceEnvironment_() {
       var spreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
       var found = kspMaintenanceFindSheetRow_(spreadsheetId, sheetName, keyColumn, keyValue);
       kspAssert_(found, 'RECORD_NOT_FOUND', '更新対象が見つかりません。');
-      kspAssert_(String(found.row[tokenColumn]) === String(expectedToken),
+      kspAssert_((tokenColumn === 'Updated_At'
+        ? kspTemporalInstantComparisonKey_(found.row[tokenColumn])
+        : String(found.row[tokenColumn])) === (tokenColumn === 'Updated_At'
+          ? kspTemporalInstantComparisonKey_(expectedToken) : String(expectedToken)),
         'STALE_RECORD_VERSION', '他の利用者が先に更新しています。最新情報を読み直してください。');
       kspMaintenanceWriteSheetRow_(found.sheet, found.headers, found.rowNumber, updatedRow);
       scriptProperties.deleteProperty(claim.claimKey);
@@ -218,11 +226,11 @@ function kspCreateMaintenanceEnvironment_() {
         spreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX, 'Document_ID', documentId
       );
       kspAssert_(found, 'RECORD_NOT_FOUND', '更新対象が見つかりません。');
-      kspAssert_(String(found.row.Updated_At || '') === String(expectedUpdatedAt || ''),
+      kspAssert_(kspTemporalInstantComparisonKey_(found.row.Updated_At) === kspTemporalInstantComparisonKey_(expectedUpdatedAt),
         'STALE_RECORD_VERSION', '他の利用者が先に更新しています。最新情報を読み直してください。');
 
       var fields = {};
-      if (kspCanonicalPitchbookDateKey_(found.row.Date) !== kspCanonicalPitchbookDateKey_(updatedRow.Date)) {
+      if (kspCanonicalBusinessDate_(found.row.Date) !== kspCanonicalBusinessDate_(updatedRow.Date)) {
         fields.Date = updatedRow.Date;
       }
       [
@@ -265,7 +273,10 @@ function kspCreateMaintenanceEnvironment_() {
       var spreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
       var found = kspMaintenanceFindSheetRow_(spreadsheetId, sheetName, keyColumn, keyValue);
       kspAssert_(found, 'RECORD_NOT_FOUND', '対象レコードが見つかりません。');
-      kspAssert_(String(found.row[tokenColumn]) === String(expectedToken),
+      kspAssert_((tokenColumn === 'Updated_At'
+        ? kspTemporalInstantComparisonKey_(found.row[tokenColumn])
+        : String(found.row[tokenColumn])) === (tokenColumn === 'Updated_At'
+          ? kspTemporalInstantComparisonKey_(expectedToken) : String(expectedToken)),
         'STALE_RECORD_VERSION', '他の利用者が先に更新しています。');
       if (sheetName === KSP_SHEET_NAMES.MEETING_INDEX && targetStatus === KSP_STATUS.ACTIVE) {
         kspAssert_(String(found.row.Doc_File_ID || ''), 'MEETING_AUTHORITATIVE_DOCUMENT_MISSING',
@@ -305,7 +316,7 @@ function kspCreateMaintenanceEnvironment_() {
         spreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX, 'Document_ID', documentId
       );
       kspAssert_(found, 'PITCHBOOK_NOT_FOUND', 'Pitchbookが見つかりません。');
-      kspAssert_(String(found.row.Updated_At || '') === String(expectedUpdatedAt || ''),
+      kspAssert_(kspTemporalInstantComparisonKey_(found.row.Updated_At) === kspTemporalInstantComparisonKey_(expectedUpdatedAt),
         'STALE_RECORD_VERSION', '他の利用者が先に更新しています。');
       if (targetStatus === KSP_STATUS.ACTIVE) {
         kspAssert_(String(found.row.File_ID || ''), 'PITCHBOOK_AUTHORITATIVE_FILE_MISSING',
@@ -431,7 +442,7 @@ function kspCreateMaintenanceEnvironment_() {
     var rowNumbers = [];
     values.forEach(function (row, index) {
       var value = row[timestampIndex];
-      var iso = value instanceof Date ? value.toISOString() : String(value || '');
+      var iso = kspCanonicalInstantIso_(value);
       if (iso && iso < cutoffIso) rowNumbers.push(index + 2);
     });
     rowNumbers.sort(function (a, b) { return b - a; }).forEach(function (rowNumber) {

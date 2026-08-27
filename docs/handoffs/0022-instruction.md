@@ -3,7 +3,7 @@
 WORK_ID: `0022`
 Dispatch ID: `0022-CODEX-01`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `COMPLETE`
 
 Mode: `BUILD / QUALIFICATION`
 
@@ -35,7 +35,9 @@ Work 0016 is accepted and merged:
 - BLOCKER NO;
 - Completion Latch applied.
 
-This Work branch was created from the post-acceptance main roadmap where Work 0022 is current and the temporal decision is accepted.
+This Work branch was created from the post-acceptance main roadmap where Work 0022 was current and the temporal decision was accepted. The bounded
+CODEX-01 execution is complete; the contract below remains the authoritative
+scope and evidence boundary for the delivered change.
 
 ## Primary outcome
 
@@ -135,7 +137,9 @@ Complete only when:
 - report/status/PR are updated;
 - ChatGPT reviews and merges the final PR.
 
-Expected successful classification:
+## CODEX-01 completion status
+
+The expected classification was achieved:
 
 `DEV QUALIFIED — WORK 0022 TEMPORAL DATA CONTRACT HARDENING`
 

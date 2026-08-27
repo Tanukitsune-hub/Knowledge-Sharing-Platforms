@@ -5,13 +5,25 @@ const path = require('node:path');
 const vm = require('node:vm');
 const crypto = require('node:crypto');
 
+function formatDateInTimeZone(value, timezone, pattern) {
+  const options = pattern === 'HH:mm'
+    ? { timeZone: timezone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }
+    : { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' };
+  const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(value);
+  const byType = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return pattern === 'HH:mm'
+    ? byType.hour + ':' + byType.minute
+    : byType.year + '-' + byType.month + '-' + byType.day;
+}
+
 function loadAppsScript(rootDir) {
   const Utilities = {
     DigestAlgorithm: { SHA_256: 'SHA_256' },
     Charset: { UTF_8: 'UTF_8' },
     computeDigest(_algorithm, value) {
       return Array.from(crypto.createHash('sha256').update(String(value), 'utf8').digest());
-    }
+    },
+    formatDate: formatDateInTimeZone
   };
   const context = vm.createContext({
     console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp,

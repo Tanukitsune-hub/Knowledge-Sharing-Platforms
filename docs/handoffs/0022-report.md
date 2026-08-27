@@ -3,11 +3,26 @@
 WORK_ID: `0022`
 Dispatch ID: `0022-CODEX-01`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `COMPLETE`
 
 ## Current result
 
-Work 0016 is accepted/merged and the activation gate is closed. Work 0022 has not yet changed production source or runtime state; it is ready for one cross-cutting implementation/qualification dispatch.
+Work 0022 is complete. The repository-wide temporal contract was implemented,
+deterministically validated, synchronized once to the confirmed synthetic DEV
+project, released as immutable version `35`, and qualified through the bounded
+authenticated runtime campaign.
+
+`DEV QUALIFIED — WORK 0022 TEMPORAL DATA CONTRACT HARDENING`
+
+`LOGIC_VALIDATION: PASS`
+
+`TARGET_RUNTIME_QUALIFICATION: PASS`
+
+`SIDE_EFFECT_STATE: GUARDED`
+
+`READY: YES`
+
+`BLOCKER: NO`
 
 ## GitHub activation state
 
@@ -33,25 +48,29 @@ Confirmed current risk patterns include:
 - Apps Script and `KSP_DEFAULTS` both specify `Asia/Tokyo`;
 - deterministic fixtures remain partly string-biased relative to actual Sheets `Date` objects.
 
-## Required next action
+## Completed execution
 
-Execute `0022-CODEX-01` exactly once as the active dispatch:
+`0022-CODEX-01` completed exactly once as the active dispatch:
 
-- full-tree temporal inventory;
-- generic Business Date / Business Time / Instant contract;
-- migrate all confirmed current boundaries;
-- add static temporal validator to `npm run check`;
-- mixed-representation regressions;
-- bounded private Web App qualification;
-- report/commit/push/PR update.
+- full-tree inventory and generic Business Date / Business Time / Instant
+  contract;
+- confirmed boundary migration and static temporal enforcement;
+- mixed-representation regressions and `npm run check`;
+- one exact source synchronization, version `35`, and in-place private Web App
+  update;
+- bounded synthetic DEV edit, exact search, Knowledge Export Preview, Workspace,
+  Audit, and integrity readback;
+- report, status, commit, push, and Draft PR update.
+
+Detailed evidence: `docs/handoffs/0022-CODEX-01-temporal-contract-hardening-report.md`.
 
 ## Current classification
 
-`LOGIC_VALIDATION: NOT RUN`
+`LOGIC_VALIDATION: PASS`
 
-`TARGET_RUNTIME_QUALIFICATION: NOT RUN`
+`TARGET_RUNTIME_QUALIFICATION: PASS`
 
-`SIDE_EFFECT_STATE: DISABLED`
+`SIDE_EFFECT_STATE: GUARDED`
 
 `READY: YES`
 

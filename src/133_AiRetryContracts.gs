@@ -45,7 +45,9 @@ function kspCalculateAiRetryAt_(nowIso, attempt, settings) {
     safeSettings.retryMaxMinutes,
     safeSettings.retryBaseMinutes * Math.pow(2, exponent)
   );
-  return new Date(new Date(nowIso).getTime() + delayMinutes * 60 * 1000).toISOString();
+  var baseIso = kspCanonicalInstantIso_(nowIso);
+  kspAssert_(baseIso, 'AI_RETRY_NOW_INVALID', 'AI retry基準日時が不正です。');
+  return kspCanonicalInstantIso_(new Date(new Date(baseIso).getTime() + delayMinutes * 60 * 1000));
 }
 
 function kspIsAiErrorRetryable_(error) {

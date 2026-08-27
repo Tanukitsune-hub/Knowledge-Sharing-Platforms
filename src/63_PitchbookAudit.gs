@@ -5,7 +5,7 @@ function kspBuildPitchbookAuditRow_(params) {
   var metadata = {
     Batch_ID: row.Batch_ID || '',
     Document_ID: row.Document_ID || '',
-    Date: row.Date || '',
+    Date: kspCanonicalBusinessDate_(row.Date),
     GP_ID: row.GP_ID || '',
     Asset_Class_ID: row.Asset_Class_ID || '',
     Capital_Type_ID: row.Capital_Type_ID || '',
@@ -18,7 +18,7 @@ function kspBuildPitchbookAuditRow_(params) {
     Status: row.Status || ''
   };
   return {
-    Event_Timestamp: options.timestamp || '',
+    Event_Timestamp: kspCanonicalInstantIso_(options.timestamp),
     Actor: options.actor || 'UNIDENTIFIED',
     Action: options.action || KSP_PITCHBOOK_ACTIONS.REGISTER,
     Target_Type: 'Pitchbook',

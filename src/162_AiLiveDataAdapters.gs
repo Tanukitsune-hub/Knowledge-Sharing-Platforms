@@ -67,11 +67,14 @@ function kspClaimAiSourceLive_(scriptProperties, sourceType, sourceId, nowIso, t
   try {
     var key = KSP_AI_PROPERTY_KEYS.SOURCE_CLAIM_PREFIX + kspAiSourceKey_(sourceType, sourceId);
     var existing = kspSafeParseJson_(scriptProperties.getProperty(key), key);
-    var nowMillis = new Date(nowIso).getTime();
-    if (existing && nowMillis - new Date(existing.claimedAt).getTime() < ttlMillis) return null;
+    var canonicalNowIso = kspCanonicalInstantIso_(nowIso);
+    var nowMillis = canonicalNowIso ? new Date(canonicalNowIso).getTime() : NaN;
+    var claimedAtIso = existing ? kspCanonicalInstantIso_(existing.claimedAt) : '';
+    var claimedAtMillis = claimedAtIso ? new Date(claimedAtIso).getTime() : NaN;
+    if (existing && Number.isFinite(nowMillis) && Number.isFinite(claimedAtMillis) && nowMillis - claimedAtMillis < ttlMillis) return null;
     var token = Utilities.getUuid();
-    scriptProperties.setProperty(key, JSON.stringify({ token: token, claimedAt: nowIso }));
-    return { token: token, claimedAt: nowIso };
+    scriptProperties.setProperty(key, JSON.stringify({ token: token, claimedAt: canonicalNowIso }));
+    return { token: token, claimedAt: canonicalNowIso };
   } finally {
     lock.releaseLock();
   }

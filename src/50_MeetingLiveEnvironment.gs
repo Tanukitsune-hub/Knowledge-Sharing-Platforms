@@ -1,7 +1,7 @@
 function kspCreateMeetingEnvironment_() {
   var scriptProperties = PropertiesService.getScriptProperties();
   return {
-    nowIso: function () { return new Date().toISOString(); },
+    nowIso: function () { return kspCanonicalInstantIso_(new Date()); },
     getInstallationState: function () {
       var raw = scriptProperties.getProperty(KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON);
       return kspSafeParseJson_(raw, KSP_PROPERTY_KEYS.INSTALLATION_STATE_JSON) || null;

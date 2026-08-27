@@ -4,12 +4,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function formatDateInTimeZone(value, timezone) {
-  const parts = new Intl.DateTimeFormat('en-CA', {
+function formatDateInTimeZone(value, timezone, pattern) {
+  const parts = new Intl.DateTimeFormat('en-CA', pattern === 'HH:mm' ? {
+    timeZone: timezone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+  } : {
     timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit'
   }).formatToParts(value);
   const byType = Object.fromEntries(parts.map(part => [part.type, part.value]));
-  return `${byType.year}-${byType.month}-${byType.day}`;
+  return pattern === 'HH:mm' ? `${byType.hour}:${byType.minute}` : `${byType.year}-${byType.month}-${byType.day}`;
 }
 
 class FakeRange {
@@ -73,7 +75,7 @@ function kspCreateMeetingEnvironment_(){return{
 };}
 `;
   new vm.Script(bootstrap).runInContext(context);
-  for(const file of ['00_Core.gs','30_MeetingCore.gs','62_PitchbookIdentity.gs','100_MaintenanceCore.gs','120_MaintenanceLiveEnvironment.gs','121_MaintenanceLiveHelpers.gs'])new vm.Script(fs.readFileSync(path.join(__dirname,'..','src',file),'utf8'),{filename:file}).runInContext(context);
+  for(const file of ['00_Core.gs','05_TemporalContracts.gs','30_MeetingCore.gs','62_PitchbookIdentity.gs','100_MaintenanceCore.gs','120_MaintenanceLiveEnvironment.gs','121_MaintenanceLiveHelpers.gs'])new vm.Script(fs.readFileSync(path.join(__dirname,'..','src',file),'utf8'),{filename:file}).runInContext(context);
 
   function addSpreadsheet(id,sheets){spreadsheets.set(id,new FakeSpreadsheet(sheets));}
   return {context,properties,spreadsheets,files,docs,addSpreadsheet,FakeSheet};

@@ -50,7 +50,7 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
     add({
       sourceType: KSP_AI_SOURCE_TYPES.MEETING,
       sourceId: String(row.Meeting_ID || ''),
-      date: String(row.Date || ''),
+      date: kspCanonicalBusinessDate_(row.Date),
       driveUrl: String(row.Doc_URL || ''),
       savedFilename: String(row.Saved_Filename || row.Meeting_ID || ''),
       status: String(row.Status || ''),
@@ -62,7 +62,7 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
     add({
       sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
       sourceId: String(row.Document_ID || ''),
-      date: String(row.Date || ''),
+      date: kspCanonicalBusinessDate_(row.Date),
       driveUrl: String(row.File_URL || ''),
       savedFilename: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
       status: String(row.Status || ''),
@@ -134,7 +134,7 @@ function kspBuildKnowledgeSearchAuditRow_(params) {
   var input = options.input || {};
   var sourceIds = (options.citations || []).map(function (citation) { return citation.sourceId; });
   return {
-    Event_Timestamp: options.timestamp || '',
+    Event_Timestamp: kspCanonicalInstantIso_(options.timestamp),
     Actor: options.actor || 'UNIDENTIFIED',
     Action: 'AI_QUERY',
     Target_Type: 'KnowledgeSearch',

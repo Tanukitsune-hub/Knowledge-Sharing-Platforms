@@ -3,7 +3,7 @@
 WORK_ID: `0022`
 Dispatch ID: `0022-CODEX-01`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `COMPLETE`
 
 ## Current state
 
@@ -19,7 +19,9 @@ Active dispatch:
 - Draft PR: `#22`;
 - implementation source baseline before final handoff-only metadata commits: `df40f0629f9c52e78936820a9e83e51dd9ce9e85`.
 
-The actual execution ref is the current PR #22 head supplied in the ChatGPT dispatch prompt. Changes after the source baseline above are handoff/status documentation only.
+The actual execution ref was the current PR #22 head supplied in the ChatGPT
+dispatch prompt. The dispatch completed with scoped source, test, instruction,
+and report changes.
 
 ## Accepted predecessor evidence
 
@@ -47,9 +49,25 @@ Do not reopen Work 0016 except for a material contradiction. Work 0022 may refac
 - bounded private Web App qualification;
 - no historical rewrite, schema expansion, Gemini call, trigger, or production rollout.
 
-Only one active Codex dispatch is permitted.
+## Completion
+
+`0022-CODEX-01` completed with:
+
+- full-tree inventory recorded;
+- generic temporal contract and confirmed boundary migration implemented;
+- deterministic validation `222/222 PASS` and public facade `24`;
+- exact tested source readback `63/63 PASS`;
+- existing private Web App updated in place to immutable version `35`;
+- bounded synthetic DEV Meeting edit, exact date search, Knowledge Export
+  Preview, Workspace, Audit, and final integrity PASS;
+- no new deployment, trigger, Script Property, schema, AI/store, or Library
+  deployment mutation;
+- report: `docs/handoffs/0022-CODEX-01-temporal-contract-hardening-report.md`;
+- PR `#22` remains Draft / Open / unmerged.
+
+Only one active Codex dispatch is permitted, and no active dispatch remains.
 
 WORK_ID: `0022`
 Dispatch ID: `0022-CODEX-01`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `COMPLETE`
