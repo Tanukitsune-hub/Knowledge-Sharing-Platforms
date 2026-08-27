@@ -1,37 +1,39 @@
 # Target Architecture
 
-Current as of: 2026-08-26
+Current as of: 2026-08-27
 
 Status: Active
 
 This document defines the accepted end-to-end architecture and responsibility boundaries. Delivery/qualification policy is governed by `docs/decisions/target-runtime-first-development.md`.
 
-Google Workspace is the authoritative operating layer. Gemini File Search is a derived/rebuildable retrieval layer. Implementation is Apps Script-first and target-runtime-first: production source paths are exercised early in the actual target runtime with isolated test data/resources and guarded side effects.
+Google Workspace is authoritative. Gemini File Search is derived/rebuildable. Production source paths are exercised in the actual target runtime with isolated data/resources and guarded effects.
 
 ## 1. Architecture overview
 
 ```text
 Authorized users
         |
-        | organization-controlled Web App
         v
 Apps Script HTML Service Web App
   ├─ Meeting: New / Past
   ├─ Pitchbook: New / Past
+  ├─ GP / Entity Workspace
+  ├─ Activity Analytics
+  ├─ Relationship Explorer
   ├─ Knowledge Search
   │    └─ 自由質問 / 要約 / 時系列 / 比較 / 面談準備
   └─ Master Management
         |
         v
 Google Apps Script V8
-  ├─ browser state / validation
-  ├─ Docs generation / update
+  ├─ validation / drafts / safe facade
+  ├─ Docs generation and update
   ├─ source upload / rename / numbering
-  ├─ master / index maintenance
-  ├─ concurrency / retry
-  ├─ audit event write
+  ├─ Masters / Index maintenance
+  ├─ concurrency / retry / schema migration
+  ├─ Audit metadata
   ├─ Knowledge Export
-  └─ Gemini File Search sync / query
+  └─ Gemini File Search sync/query
         |
    +----+----------------------------------+
    |                                       |
@@ -56,54 +58,35 @@ Separate Restricted Audit Spreadsheet
 
 ### Target runtime
 
-The delivered system must work in:
+The delivered system must work through:
 
-- the organization-controlled Apps Script V8 project/runtime;
-- the final Web App execution/deployment shape;
+- organization-controlled Apps Script V8 project/runtime;
+- intended Web App execution/deployment shape;
 - Google Drive / Shared Drive / Sheets / Docs semantics;
 - supported browser behavior;
-- the company-approved Gemini/File Search environment when AI capability is in scope.
+- approved Gemini/File Search environment when AI capability is in scope.
 
-A local JavaScript harness, test loader, CI runner, alternate Apps Script project, My Drive substitute, or mock is not the target runtime merely because it can execute similar code.
+Mocks, CI, test loaders, alternate Apps Script projects, or My Drive substitutes do not prove target capabilities they did not execute.
 
 ### Isolated test data/resources
 
-Target-runtime qualification uses synthetic or appropriately anonymized data and clearly identified test folders, Spreadsheets, Docs, files, records, accounts, stable IDs, or namespaces. Test records do not mix with authoritative production records.
+Qualification uses synthetic or appropriately anonymized data and clearly identified test folders, Sheets, Docs, files, records, IDs, accounts, Store documents, or namespaces. Test records do not mix with authoritative production records.
 
 ### Guarded side effects
 
-The following remain separately disabled, guarded, test-only, or explicitly authorized:
+Production/confidential data, real users, broad access, billing, triggers, physical delete, bulk migration, retention purge, and irreversible permission changes remain separately disabled/guarded until authorized.
 
-- installable triggers;
-- Gemini/File Search billing-enabled operations;
-- confidential source indexing;
-- real users / broad Web App exposure;
-- external recipients;
-- physical delete / bulk mutation / retention purge;
-- production migration;
-- irreversible permission changes.
-
-Using the actual target runtime does not itself authorize production data or rollout.
-
-### Separate staging
-
-A separate DEV/Staging runtime is optional, not architectural default. It requires a material safety, regulatory, segregation, blast-radius, migration, rollback, concurrency, scale, cost, or platform reason that cannot be addressed through isolated resources and guarded effects in the actual target runtime.
-
-If used, its unique evidence, differences from the target, synchronization route, and retirement condition must be recorded. It cannot establish readiness for target capabilities it does not faithfully reproduce.
+A separate DEV/Staging runtime is optional, not the default. It requires a material safety, regulatory, segregation, blast-radius, rollback, concurrency, scale, cost, or platform reason that cannot be addressed through isolation and guards.
 
 ## 3. Responsibility boundaries
 
-### Apps Script Web App
+### Web App
 
-The Web App is the normal-user interface. Users do not directly edit backend, Audit Spreadsheet, or File Search state.
+The Web App is the normal-user interface. Only the explicit allowlisted facade is browser-callable. Setup, validation, installation status, diagnostics, triggers, raw adapters, retention, and destructive helpers remain private/editor-only.
 
-Only the canonical normal-user facade is top-level/browser-callable. Setup, validation, installation status, retention, manual sync, diagnostics, trigger handlers, raw Drive/Docs/Sheets adapters, and destructive helpers remain private/editor-only. A `ksp` prefix is not a privacy boundary.
-
-The public-surface validator in `npm run check` enforces this boundary.
+Production business helpers must exist in production source. A test loader may not supply missing production behavior.
 
 ### Shared Drive
-
-Authoritative source layout:
 
 ```text
 Private Assets Knowledge
@@ -111,14 +94,12 @@ Private Assets Knowledge
 └─ Pitchbooks
 ```
 
-- Meeting Google Doc is the authoritative body record.
+- Meeting Google Doc is authoritative for body text.
 - Original Pitchbook/source file is authoritative.
-- File Search and Knowledge Export are derived copies and never replace source authority.
-- Folder structure remains simple unless a concrete operating requirement justifies change.
+- File Search and Knowledge Export are derived and rebuildable.
+- Source folders remain flat unless a concrete operating requirement changes the decision.
 
-### Backend Spreadsheet
-
-Baseline sheets:
+### Five-sheet Backend
 
 1. `GP_Master`
 2. `Option_Master`
@@ -126,30 +107,29 @@ Baseline sheets:
 4. `Pitchbook_Index`
 5. `Settings`
 
-Stable IDs—not row numbers or sort positions—are durable identity. Schema evolution is append-only where practical.
+Stable IDs—not row numbers, filenames, URLs, or sort positions—are durable identity. Schema evolution is append-only where practical. No relation/entity/analytics sheet is added without a new explicit decision.
 
-### Audit Spreadsheet
+### Restricted Audit
 
-Audit is a separate Spreadsheet under a Restricted admin-only control folder.
+Audit is a separate Spreadsheet under a restricted control folder.
 
-- normal users receive no direct access;
-- initial Web App has no Audit Viewer;
-- Drive permissions, not a custom password, form the access boundary;
-- retention is five years;
-- Audit stores bounded metadata, not source bodies, prompts/answers, chunks, embeddings, uploaded bytes, secrets, or private runtime IDs.
+- no direct ordinary-user access;
+- Drive permissions form the boundary;
+- bounded metadata only;
+- no Meeting body, Follow-up note, question, answer, source body, chunks, embeddings, uploaded bytes, secrets, or private runtime IDs.
 
 ### Gemini File Search
 
 - one derived/rebuildable Store initially;
-- Custom Metadata handles exact filtering;
-- managed embeddings/semantic retrieval handle relevance;
+- Custom Metadata handles exact filters;
+- managed chunking/embeddings handle relevance;
 - only Active sources are normally retrievable;
-- AI indexing/query failure never rolls back authoritative source capture;
-- grounded outputs preserve source IDs, citations, and Drive links.
+- AI failure never rolls back authoritative capture;
+- grounded outputs preserve stable source IDs, citations, and Drive links.
 
-## 4. Apps Script setup and project identity
+## 4. Setup and project identity
 
-Editor-only/private entry points:
+Private editor entry points:
 
 ```text
 setupKnowledgePlatform_()
@@ -157,225 +137,215 @@ validateInstallation_()
 getInstallationStatus_()
 ```
 
-Setup creates/reuses/migrates/repairs:
-
-- knowledge folders;
-- backend and Audit Spreadsheets;
-- baseline sheets;
-- schema/Settings;
-- Master seeds;
-- required triggers only when trigger enablement is authorized.
+Setup creates/reuses/migrates/repairs folders, five Backend sheets, Audit Spreadsheet, Masters, schemas, Settings, and authorized triggers.
 
 Rules:
 
-- use stored exact resource IDs first;
-- use exact-name lookup only when no stored ID exists;
-- fail on ambiguous candidates rather than guess;
-- read back exact Apps Script project, deployment, resource IDs, parentage, and status before mutation;
+- stored exact resource ID first;
+- exact-name lookup only without stored ID;
+- fail on ambiguity;
+- read back project/deployment/resource identity before mutation;
 - preserve stable IDs and user-mutated durable data;
-- no generic production reset or destructive teardown;
-- no organization-specific IDs, private URLs, credentials, or local mappings in GitHub.
+- no generic destructive reset;
+- no private IDs, URLs, credentials, or local mappings in GitHub.
 
-Production business helpers must exist in production source. A test loader may not inject a missing production-named function and then treat the harness PASS as runtime readiness.
+## 5. Counterparty entity architecture
 
-## 5. Meeting contract
+Detailed decision:
 
-Required baseline:
+`docs/decisions/counterparty-entity-classification.md`
 
-- Date;
-- GP;
-- Asset Class.
+### Category and entity
 
-Optional baseline:
-
-- Time;
-- Location;
-- Equity / Debt;
-- Counterparty;
-- Internal Participants;
-- Notes.
-
-Later accepted structured fields and relations use stable IDs and append-only schema changes.
-
-Fixed ID example:
+Meeting identity evolves to:
 
 ```text
-MTG-000123
+Counterparty_Type
+Counterparty_ID
 ```
 
-Filename:
+Fixed category codes:
 
 ```text
-YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX
+GP
+LP_ASSET_OWNER
+NISSAY_INTERNAL
+GROUP_COMPANY
+CONSULTANT_GATEKEEPER
+OTHER
 ```
 
-Time is excluded and absent optional segments are omitted. Meeting body remains only in the authoritative Google Doc, not duplicated into `Meeting_Index`.
+Storage:
 
-## 6. Pitchbook/source contract
+- GP entities: existing `GP_Master`;
+- non-GP entities: category-specific `Option_Master` Types;
+- composite stable identity: `Counterparty_Type + ':' + Counterparty_ID`.
 
-Required baseline: file, Date, GP, Asset Class.
+No Entity/Counterparty sheet is introduced.
 
-Optional baseline: Equity / Debt.
+### Meeting schema
 
-Filename:
+Work 0016 appends to `Meeting_Index`:
 
 ```text
-YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext
+Counterparty_Type
+Counterparty_ID
+Related_GP_IDs
 ```
 
-Rules:
+Existing `GP_ID` remains for compatibility.
 
-- sequence starts at `01`;
-- later additions use destination-context current max + 1;
-- historical gaps are not closed;
-- Document ID and Drive File ID remain stable through metadata edits;
-- filename punctuation is normalized;
-- batch processing is file-granular;
-- retry reuses Batch ID / Document ID / reserved sequence and prevents duplicate Drive/Index records.
+- GP Meeting: Counterparty ID and GP_ID mirror the same GP.
+- non-GP Meeting: GP_ID may be blank; Related GP context is held in `Related_GP_IDs`.
+- existing `Counterparty` free text remains personal-name/role information, not organization identity.
+- legacy GP rows are backfilled only when new fields are blank.
 
-Initial limits:
+### Meeting required contract
+
+Prospective required fields:
 
 ```text
-25MB / file
-10 files / selection
-100MB total / selection
+Date
+Counterparty Type
+Counterparty Entity
+Asset Class
 ```
 
-If actual Apps Script behavior requires a lower safe limit, lower it before adding complex upload infrastructure.
+Optional fields include Time, Location, Equity/Debt, Team, Fund/Strategy, Meeting Types, Related GPs, Related Pitchbooks, Follow-up, person/role text, internal participants, and body notes.
 
-## 7. Shared browser state, drafts, and maintenance
-
-Meeting and Pitchbook share accepted common context such as Date, GP, Asset Class, and Capital Type. Registration success keeps shared values and clears page-specific values only.
-
-Text/selection drafts persist for 24h in the same browser. File handles need not survive reload/tab close.
-
-Normal lifecycle is Active / Inactive / Reactivate. Physical deletion is not a normal-user operation.
-
-Meeting edits preserve Meeting ID/Doc and use Version/Updated At optimistic locking. Pitchbook edits preserve Document ID/Drive File ID.
-
-## 8. Masters and durable identities
-
-GP Master:
-
-- immutable GP ID;
-- mutable display name;
-- Active/Inactive;
-- normalized duplicate check;
-- quick-add where accepted.
-
-Option Master:
-
-- immutable Option ID;
-- accepted Types such as Location, Asset Class, Capital Type, Team, and later approved fields;
-- mutable display name / Sort Order / Active/Inactive.
-
-Authorized users may add, rename, reorder, deactivate, and reactivate allowed Masters. Rename/deactivate requires confirmation and Audit.
-
-## 9. Core persisted contracts
-
-`Created_By` / `Updated_By` use best-effort Actor representation: email → `TEMP_USER:<key>` → `UNIDENTIFIED`.
-
-Baseline AI fields on Meeting/Pitchbook indexes:
+### Filename and Doc
 
 ```text
-AI_Document_Name
-AI_Index_Status
-AI_Indexed_At
-AI_Content_Hash
-AI_Last_Error
+YYYY-MM-DD_Counterparty_AssetClass_Equity-or-Debt_MTG-XXXXXX
 ```
 
-AI states:
+Docs include counterparty type/name, Related GPs, and person/role when present. Migration does not bulk-rename or rewrite existing Docs/files.
+
+## 6. Pitchbook architecture
+
+Pitchbook remains GP-oriented in the selected roadmap.
+
+Required:
 
 ```text
-NotIndexed / Pending / Indexed / Failed
+file
+Date
+GP
+Asset Class
 ```
 
-Settings include the approved Store/model/sync configuration but never secret values in user-facing sheets or GitHub.
+Optional: Equity/Debt, Fund/Strategy.
 
-## 10. Concurrency and retry
+Stable Document ID, Batch ID, File ID, persistent sequence, partial success, retry, and filename rules remain accepted.
 
-Use LockService only around short consistency-critical writes:
+Work 0016 does not generalize Pitchbook ownership to non-GP entities. A later explicit decision is required if actual use needs it.
 
-- ID counters;
-- sequence reservation;
-- Master mutation;
-- one-time setup/migration state;
-- trigger registry;
-- bounded retention cleanup acquisition.
+## 7. Relationship architecture
 
-Do not hold locks during file uploads, Docs generation, Gemini calls, long Drive operations, browser waits, or broad batches.
-
-Same-Meeting edits use optimistic locking. Pitchbook partial success is preserved. Retry is idempotent and duplicate-safe.
-
-## 11. Web App access and Actor
-
-Initial common access boundary:
-
-- authorized Web App users may access accepted Active source records;
-- no per-user/per-GP/per-file retrieval ACL initially;
-- internet-public access is not assumed;
-- organization-controlled deployer execution is the initial preference to centralize backend permissions.
-
-Actor resolution:
-
-1. safe email if available;
-2. `TEMP_USER:<key>` when available;
-3. `UNIDENTIFIED`.
-
-Missing persistent identity does not block normal operation.
-
-## 12. AI synchronization and formats
-
-Authoritative save completes independently of AI:
+Canonical relationship:
 
 ```text
-Authoritative save
-      |
-      v
-AI_Index_Status = Pending
-      |
-      v
-bounded Apps Script worker
-      |
-      +--> Indexed
-      └--> Failed -> retry when retryable
+Meeting_Index.Related_Pitchbook_IDs
 ```
 
-- stable source IDs and stored AI references make retry idempotent;
-- permanent failures are not retried indefinitely;
-- Inactive removes normal retrieval availability;
-- Reactivate re-indexes the current authoritative source;
-- content hash prevents unnecessary duplicate indexing.
+Related Pitchbook choices for a Meeting use:
 
-Initial formats:
+- matching Asset Class;
+- Pitchbook GP present in Meeting `Related_GP_IDs`;
+- Active for new selection.
+
+Existing Inactive, unresolved, or now-out-of-scope links remain visible and preserved.
+
+Work 0018 provides forward/reverse traversal by scanning/indexing this field. No relation sheet and no relationship inference by name/date/text.
+
+## 8. Masters and maintenance
+
+### GP Master
+
+Immutable GP ID, mutable display name, Active/Inactive, normalized duplicate check, quick-add.
+
+### Option Master
+
+Existing Types include Location, Asset Class, Capital Type, Team. Work 0016 adds:
 
 ```text
-.pdf / .pptx / .xlsx / .docx / .txt / .eml
+COUNTERPARTY_LP
+COUNTERPARTY_NISSAY_DEPARTMENT
+COUNTERPARTY_GROUP_COMPANY
+COUNTERPARTY_CONSULTANT_GATEKEEPER
+COUNTERPARTY_OTHER
 ```
 
-EML original remains in Drive; normalized Subject/From/To/Cc/Date/Body is indexed. Embedded attachments are not automatically indexed. `.msg` is initially out of scope.
+All use stable Option ID, display name, Sort Order, Active/Inactive, and existing Audit rules. No real department/entity seeds are guessed.
 
-## 13. Knowledge Search and Export
+## 9. Workspaces and analytics
 
-Knowledge Search modes:
+- Work 0015: GP Workspace / print brief.
+- Work 0017: activity analytics and narrow monthly administrative check.
+- Work 0018: bidirectional Relationship Explorer.
+- Work 0019: Entity Workspace, direct versus Related GP activity, unified timeline, exact Fund/Strategy drill-down.
+
+Analytics reads `Meeting_Index`, not Meeting Doc bodies. It starts after entity foundation so dimensions are not GP-only.
+
+Follow-up stays an informational flag/note; task owners/deadlines/completion/reminders are not part of this platform.
+
+## 10. Browser state and maintenance
+
+Always shared between Meeting/Pitchbook:
 
 ```text
-自由質問 | 要約 | 時系列 | 比較 | 面談準備
+Date
+Asset Class
+Equity / Debt
+Fund / Strategy
 ```
 
-All modes share one Store/metadata/semantic retrieval/model/citation path. Presets change prompt/output template only. Outputs distinguish grounded facts, synthesis, uncertainty, and insufficient evidence.
+GP is shared only for a GP-counterparty Meeting. A non-GP Meeting does not infer Pitchbook GP from Related GPs.
 
-Knowledge Export:
+Drafts persist 24h in one browser. Normal lifecycle is Active/Inactive/Reactivate. Stable IDs and optimistic locking remain durable.
 
-- uses only Active Backend Index rows;
-- includes authoritative Meeting text;
-- includes Pitchbook metadata and authoritative stable-ID-bound links, not Pitchbook body duplication;
-- enforces count/character limits before expensive reads;
-- writes explicit source hyperlinks in generated Docs/PDF text;
-- produces provider-neutral prompts;
-- stores Audit metadata only;
-- remains a derived-copy boundary requiring permission and retention evidence before production rollout.
+## 11. AI metadata architecture
+
+Meeting AI metadata evolves append-only to include:
+
+```text
+entity_key
+counterparty_type
+counterparty_id
+counterparty_name
+related_gp_ids
+```
+
+Pitchbook derives:
+
+```text
+counterparty_type = GP
+counterparty_id = GP_ID
+entity_key = GP:<GP_ID>
+```
+
+Existing metadata—source ID/type, date, GP, Asset Class, Capital Type, Team, Fund/Strategy, Meeting Type, Follow-up, Drive URL—remains.
+
+Related GP is multi-valued. Exact encoding/filter behavior is decided from actual File Search behavior in Work 0020/0021; comma substring matching is not treated as exact.
+
+## 12. Gemini qualification and search
+
+Work 0020 qualifies a bounded personal-PC core using an isolated Store and synthetic/non-confidential sources:
+
+- one Meeting and one Pitchbook;
+- index/query/citation;
+- update/inactivate/reactivate/delete/rebuild;
+- costs, retries, rate limits, retention, and cleanup.
+
+Work 0021 expands to structured filters, five modes, 2–5 entity comparison, and accepted formats.
+
+Static GP comparison is not a separate product. Numeric comparison belongs to analytics; qualitative comparison belongs to Gemini.
+
+## 13. Historical migration and production
+
+Historical migration is manual-first. Selective automation is used only for repeatable subsets with clear benefit.
+
+Final company production qualification occurs last and includes Shared Drive parentage/permissions, company Web App, Backend/Audit boundaries, production Gemini credentials/billing, real users, retention/cleanup/rollback, and authorized triggers.
 
 ## 14. Validation architecture
 
@@ -388,12 +358,24 @@ SIDE_EFFECT_STATE
 READY
 ```
 
-Logic validation covers schemas, transformations, IDs, filenames, filters, retry, concurrency, redaction, security rules, and contracts.
+Logic validation covers schemas, transformations, identities, filenames, filters, relationships, retry, concurrency, redaction, security, and contracts.
 
 Target-runtime qualification covers actual Apps Script, Workspace object shapes, persistence, Shared Drive parentage/permissions, Docs links, browser behavior, Gemini indexing/query/citations, and authorized trigger behavior.
 
-The normal implementation proof is the shortest isolated create/persist/reopen/search/readback path. Broader feature expansion follows after the native slice passes.
+The normal implementation proof is the shortest isolated create/persist/reopen/search/readback path.
 
-## 15. Historical Work map
+## 15. Work sequence
 
-Works 0004–0014 remain historical implementation/evidence routes. Work 0014 completes or safely stops under PR #17's existing evidence boundary. New Work follows the current target-runtime-first plan in `docs/planning/apps-script-implementation-plan.md`.
+Work 0014 is accepted historical evidence. Current/planned sequence:
+
+```text
+0015 GP Workspace
+→ 0016 Counterparty entity foundation
+→ 0017 analytics / monthly checks
+→ 0018 Relationship Explorer
+→ 0019 Entity Workspace / Fund-Strategy drill-down
+→ 0020 personal-PC Gemini core
+→ 0021 structured filters / multi-entity comparison
+→ historical migration
+→ final production qualification
+```
