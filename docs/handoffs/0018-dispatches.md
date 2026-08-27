@@ -13,8 +13,10 @@ STATUS: `READY`
 - purpose: implement and qualify the read-only Relationship Explorer as one vertical slice;
 - recommended model: `Luna Max` — relationship identity, read-only boundary, filters, and target-runtime campaign are settled;
 - branch: `agent/0018-relationship-explorer`;
-- Draft PR: assigned after initial handoff commits;
-- instruction: `docs/handoffs/0018-CODEX-01-relationship-explorer-instruction.md`.
+- Draft PR: `#24`;
+- instruction: `docs/handoffs/0018-CODEX-01-relationship-explorer-instruction.md`;
+- accepted main baseline: `a4b04d2ae122a92cc3400bb1251a6e5070c1899f`;
+- exact execution ref: final PR #24 head supplied in the ChatGPT dispatch prompt after activation metadata commits.
 
 ## Accepted predecessor evidence
 
