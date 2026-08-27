@@ -4,12 +4,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function formatDateInTimeZone(value, timezone) {
-  const parts = new Intl.DateTimeFormat('en-CA', {
+function formatDateInTimeZone(value, timezone, pattern) {
+  const parts = new Intl.DateTimeFormat('en-CA', pattern === 'HH:mm' ? {
+    timeZone: timezone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+  } : {
     timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit'
   }).formatToParts(value);
   const byType = Object.fromEntries(parts.map(part => [part.type, part.value]));
-  return `${byType.year}-${byType.month}-${byType.day}`;
+  return pattern === 'HH:mm' ? `${byType.hour}:${byType.minute}` : `${byType.year}-${byType.month}-${byType.day}`;
 }
 
 function loadMaintenance() {
@@ -32,13 +34,11 @@ function kspAssert_(condition,code,message){if(!condition){var error=new Error(m
 function kspGetErrorCode_(error,fallback){return error&&error.code?String(error.code):(fallback||'UNEXPECTED_ERROR');}
 function kspUniqueStrings_(values){var seen={};return values.filter(function(value){var key=String(value);if(seen[key])return false;seen[key]=true;return true;});}
 function kspSafeParseJson_(text,label){if(text===null||text===undefined||text==='')return null;try{return JSON.parse(text);}catch(error){throw new Error((label||'JSON')+' is not valid JSON: '+error.message);}}
-function kspIsValidDateKey_(value){var match=/^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(value||''));if(!match)return false;var year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);var date=new Date(Date.UTC(year,month-1,day));return date.getUTCFullYear()===year&&date.getUTCMonth()===month-1&&date.getUTCDate()===day;}
-function kspIsValidTimeValue_(value){return /^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(String(value||''));}
 function kspNormalizeGeneratedNameSegment_(value){if(value===null||value===undefined)return '';return String(value).replace(/[\\u0000-\\u001f\\u007f]/g,'').replace(/[\\\\/&]/g,'').trim().replace(/\\s+/g,'_').replace(/_+/g,'_').replace(/^_+|_+$/g,'');}
 function kspGetAuditSchema_(){return{Audit_Log:['Event_Timestamp','Actor','Action','Target_Type','Target_ID','Result','Changed_Fields','Before_Metadata_JSON','After_Metadata_JSON','Batch_ID','Error_Code','Error_Message','Search_Mode','Question_Or_Instruction','Date_From','Date_To','GP_Filter','Asset_Class_Filter','Capital_Type_Filter','Source_Type_Filter','Model_ID','Cited_Source_IDs']};}
 `;
   new vm.Script(bootstrap, { filename: 'base-stubs.js' }).runInContext(context);
-  for (const file of ['61_PitchbookValidation.gs', '62_PitchbookIdentity.gs', '00_Core.gs', '30_MeetingCore.gs', '100_MaintenanceCore.gs', '110_MaintenanceMeetingService.gs', '111_MaintenancePitchbookMasterService.gs', '112_MaintenanceServiceHelpers.gs', '125_GpWorkspaceService.gs']) {
+  for (const file of ['00_Core.gs', '05_TemporalContracts.gs', '61_PitchbookValidation.gs', '62_PitchbookIdentity.gs', '30_MeetingCore.gs', '100_MaintenanceCore.gs', '110_MaintenanceMeetingService.gs', '111_MaintenancePitchbookMasterService.gs', '112_MaintenanceServiceHelpers.gs', '125_GpWorkspaceService.gs']) {
     new vm.Script(fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;

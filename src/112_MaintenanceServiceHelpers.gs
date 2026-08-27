@@ -79,11 +79,11 @@ function kspRequireSingleRow_(rows, keyColumn, keyValue, notFoundCode) {
 function kspBuildMasterResponse_(gpRows, optionRows) {
   var gps = (gpRows || []).map(function (row) {
     return { id: String(row.GP_ID || ''), name: String(row.GP_Name || ''),
-      status: String(row.Status || ''), updatedAt: String(row.Updated_At || '') };
+      status: String(row.Status || ''), updatedAt: kspCanonicalInstantIso_(row.Updated_At) };
   }).sort(function (left, right) { return left.name.toLocaleLowerCase('en').localeCompare(right.name.toLocaleLowerCase('en'), 'en'); });
   var options = (optionRows || []).map(function (row) {
     return { id: String(row.Option_ID || ''), type: String(row.Type || ''), name: String(row.Name || ''),
-      sortOrder: Number(row.Sort_Order || 0), status: String(row.Status || ''), updatedAt: String(row.Updated_At || '') };
+      sortOrder: Number(row.Sort_Order || 0), status: String(row.Status || ''), updatedAt: kspCanonicalInstantIso_(row.Updated_At) };
   }).sort(function (left, right) {
     if (left.type !== right.type) return left.type.localeCompare(right.type);
     if (left.sortOrder !== right.sortOrder) return left.sortOrder - right.sortOrder;

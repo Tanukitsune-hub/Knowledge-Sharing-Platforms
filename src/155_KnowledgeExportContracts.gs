@@ -168,11 +168,11 @@ function kspValidateKnowledgeExportOutputType_(outputType) {
 }
 
 function kspKnowledgeExportDate_(value) {
-  return kspMaintenanceCellText_(value, 'date');
+  return kspCanonicalBusinessDate_(value);
 }
 
 function kspKnowledgeExportUpdatedAt_(value) {
-  return kspMaintenanceCellText_(value, 'iso');
+  return kspCanonicalInstantIso_(value);
 }
 
 function kspIsKnowledgeExportDriveUrl_(value) {
@@ -291,7 +291,7 @@ function kspBuildKnowledgeExportSource_(sourceType, row) {
     kspKnowledgeExportUpdatedAt_(row.Updated_At),
     String(row.Doc_File_ID || row.File_ID || ''),
     String(row.Doc_URL || row.File_URL || ''),
-    String(row.Time || ''),
+    kspCanonicalBusinessTime_(row.Time),
     String(row.Location_ID || ''),
     String(row.Counterparty || ''),
     String(row.Internal_Participants || ''),
@@ -442,7 +442,7 @@ function kspBuildKnowledgeExportFilename_(input, nowIso, outputType) {
     var segment = kspNormalizeGeneratedNameSegment_(value);
     if (segment) parts.push(segment);
   });
-  var timestamp = String(nowIso || '').replace(/[^0-9]/g, '').slice(0, 14);
+  var timestamp = kspCanonicalInstantIso_(nowIso).replace(/[^0-9]/g, '').slice(0, 14);
   if (timestamp) parts.push(timestamp);
   var name = parts.join('_').slice(0, 140);
   return outputType === KSP_KNOWLEDGE_EXPORT_OUTPUT_TYPES.PDF ? name + '.pdf' : name;
@@ -466,7 +466,7 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
     if (relatedGpIds.length) lines.push('Related GP: ' + relatedGpIds.map(function (id) {
       return (safeMaps.gp || {})[id] || id;
     }).join(', '));
-    if (row.Time) lines.push('Time: ' + kspMaintenanceCellText_(row.Time, 'time'));
+    if (row.Time) lines.push('Time: ' + kspCanonicalBusinessTime_(row.Time));
     if (row.Capital_Type_ID) lines.push('Equity / Debt: ' + (safeMaps.capitalType[String(row.Capital_Type_ID)] || String(row.Capital_Type_ID)));
     if (row.Location_ID) lines.push('Location: ' + (safeMaps.location[String(row.Location_ID)] || String(row.Location_ID)));
     if (row.Counterparty) lines.push('Counterparty: ' + String(row.Counterparty));
@@ -568,7 +568,7 @@ function kspBuildKnowledgeExportAuditRow_(params) {
   metadata.meetingCharacterCount = Number(counts.meetingCharacterCount || 0);
   metadata.pitchbookCount = Number(counts.pitchbookCount || 0);
   return {
-    Event_Timestamp: options.timestamp || '',
+    Event_Timestamp: kspCanonicalInstantIso_(options.timestamp),
     Actor: options.actor || 'UNIDENTIFIED',
     Action: options.action || KSP_KNOWLEDGE_EXPORT_ACTIONS.PREVIEW,
     Target_Type: 'KnowledgeExport',

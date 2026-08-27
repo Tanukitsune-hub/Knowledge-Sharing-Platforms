@@ -85,23 +85,10 @@ function kspMaintenanceTrim_(value) {
 }
 
 function kspMaintenanceCellText_(value, kind) {
-  if (value === null || value === undefined) return '';
-  if (!(value instanceof Date)) {
-    var text = String(value || '');
-    if (kind === 'date') {
-      var isoDate = /^(\d{4}-\d{2}-\d{2})(?:T|$)/.exec(text.trim());
-      if (isoDate && kspIsValidDateKey_(isoDate[1])) return isoDate[1];
-    }
-    return text;
-  }
-  if (isNaN(value.getTime())) return '';
-  if (kind === 'date') {
-    return kspCanonicalPitchbookDateKey_(value);
-  }
-  if (kind === 'time') {
-    return [String(value.getUTCHours()).padStart(2, '0'), String(value.getUTCMinutes()).padStart(2, '0')].join(':');
-  }
-  return value.toISOString();
+  if (kind === 'date') return kspCanonicalBusinessDate_(value);
+  if (kind === 'time') return kspCanonicalBusinessTime_(value);
+  if (kind === 'iso') return kspCanonicalInstantIso_(value);
+  return value === null || value === undefined ? '' : String(value);
 }
 
 function kspMaintenancePositiveInteger_(value, fallback) {
@@ -177,7 +164,9 @@ function kspSearchRows_(rows, search, mapper) {
     .sort(function (left, right) {
       var dateCompare = kspMaintenanceCellText_(right.Date, 'date').localeCompare(kspMaintenanceCellText_(left.Date, 'date'));
       if (dateCompare !== 0) return dateCompare;
-      var updateCompare = String(right.Updated_At || '').localeCompare(String(left.Updated_At || ''));
+      var updateCompare = kspTemporalInstantComparisonKey_(right.Updated_At).localeCompare(
+        kspTemporalInstantComparisonKey_(left.Updated_At)
+      );
       if (updateCompare !== 0) return updateCompare;
       return String(left.Meeting_ID || left.Document_ID || '').localeCompare(
         String(right.Meeting_ID || right.Document_ID || '')
@@ -411,7 +400,7 @@ function kspPitchbookContextChanged_(currentRow, input) {
 }
 
 function kspPitchbookContextMatchesRow_(row, input) {
-  return kspCanonicalPitchbookDateKey_(row.Date) === kspCanonicalPitchbookDateKey_(input.date) &&
+  return kspCanonicalBusinessDate_(row.Date) === kspCanonicalBusinessDate_(input.date) &&
     String(row.GP_ID || '') === input.gpId &&
     String(row.Asset_Class_ID || '') === input.assetClassId &&
     String(row.Capital_Type_ID || '') === input.capitalTypeId;
@@ -536,7 +525,7 @@ function kspValidateMasterMutation_(input) {
 function kspBuildMaintenanceAuditRow_(params) {
   var options = params || {};
   return {
-    Event_Timestamp: options.timestamp || '',
+    Event_Timestamp: kspCanonicalInstantIso_(options.timestamp),
     Actor: options.actor || 'UNIDENTIFIED',
     Action: options.action || '',
     Target_Type: options.targetType || '',
@@ -569,28 +558,28 @@ function kspMeetingAuditSnapshot_(row) {
     Counterparty: row.Counterparty || '', Internal_Participants: row.Internal_Participants || '',
     Doc_File_ID: row.Doc_File_ID || '', Doc_URL: row.Doc_URL || '',
     Saved_Filename: row.Saved_Filename || '', Status: row.Status || '',
-    Version: Number(row.Version || 0), Updated_At: row.Updated_At || ''
+    Version: Number(row.Version || 0), Updated_At: kspCanonicalInstantIso_(row.Updated_At)
   };
 }
 
 function kspPitchbookAuditSnapshot_(row) {
   return {
-    Document_ID: row.Document_ID || '', Batch_ID: row.Batch_ID || '', Date: kspCanonicalPitchbookDateKey_(row.Date),
+    Document_ID: row.Document_ID || '', Batch_ID: row.Batch_ID || '', Date: kspCanonicalBusinessDate_(row.Date),
     GP_ID: row.GP_ID || '', Asset_Class_ID: row.Asset_Class_ID || '',
     Capital_Type_ID: row.Capital_Type_ID || '', Fund_Strategy: row.Fund_Strategy || '', Sequence_No: Number(row.Sequence_No || 0),
     File_ID: row.File_ID || '', File_URL: row.File_URL || '',
     Original_Filename: row.Original_Filename || '', Saved_Filename: row.Saved_Filename || '',
-    Status: row.Status || '', Updated_At: row.Updated_At || ''
+    Status: row.Status || '', Updated_At: kspCanonicalInstantIso_(row.Updated_At)
   };
 }
 
 function kspMasterAuditSnapshot_(entity, row) {
   if (entity === KSP_MASTER_ENTITY.GP) {
-    return { GP_ID: row.GP_ID || '', GP_Name: row.GP_Name || '', Status: row.Status || '', Updated_At: row.Updated_At || '' };
+    return { GP_ID: row.GP_ID || '', GP_Name: row.GP_Name || '', Status: row.Status || '', Updated_At: kspCanonicalInstantIso_(row.Updated_At) };
   }
   return {
     Option_ID: row.Option_ID || '', Type: row.Type || '', Name: row.Name || '',
-    Sort_Order: Number(row.Sort_Order || 0), Status: row.Status || '', Updated_At: row.Updated_At || ''
+    Sort_Order: Number(row.Sort_Order || 0), Status: row.Status || '', Updated_At: kspCanonicalInstantIso_(row.Updated_At)
   };
 }
 
@@ -627,9 +616,10 @@ function kspBuildSchemaDiagnostic_(expectedSchemas, actualBySheet) {
 }
 
 function kspAuditRetentionCutoff_(nowIso, years) {
-  var now = new Date(nowIso);
-  kspAssert_(!Number.isNaN(now.getTime()), 'AUDIT_RETENTION_NOW_INVALID', '基準日時が不正です。');
+  var canonicalNowIso = kspCanonicalInstantIso_(nowIso);
+  kspAssert_(canonicalNowIso, 'AUDIT_RETENTION_NOW_INVALID', '基準日時が不正です。');
+  var now = new Date(canonicalNowIso);
   var cutoff = new Date(now.getTime());
   cutoff.setUTCFullYear(cutoff.getUTCFullYear() - Number(years || KSP_AUDIT_RETENTION_YEARS));
-  return cutoff.toISOString();
+  return kspCanonicalInstantIso_(cutoff);
 }

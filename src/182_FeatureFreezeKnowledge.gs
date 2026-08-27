@@ -135,7 +135,7 @@ function kspBuildFeatureFreezeAuditRow_(params) {
   var input = options.input || {};
   var sourceIds = (options.citations || []).map(function (citation) { return citation.sourceId; });
   return {
-    Event_Timestamp: options.timestamp || '', Actor: options.actor || 'UNIDENTIFIED',
+    Event_Timestamp: kspCanonicalInstantIso_(options.timestamp), Actor: options.actor || 'UNIDENTIFIED',
     Action: 'AI_QUERY', Target_Type: 'KnowledgeSearch', Target_ID: options.interactionId || '',
     Result: options.result || KSP_AUDIT_RESULTS.FAILURE,
     Changed_Fields: '', Before_Metadata_JSON: '', After_Metadata_JSON: '', Batch_ID: '',

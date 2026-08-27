@@ -5,10 +5,12 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 function loadMeetingSource(rootDir) {
-  function formatDateInTimeZone(value, timezone) {
-    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(value);
+  function formatDateInTimeZone(value, timezone, pattern) {
+    const parts = new Intl.DateTimeFormat('en-CA', pattern === 'HH:mm'
+      ? { timeZone: timezone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }
+      : { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(value);
     const byType = Object.fromEntries(parts.map(part => [part.type, part.value]));
-    return `${byType.year}-${byType.month}-${byType.day}`;
+    return pattern === 'HH:mm' ? `${byType.hour}:${byType.minute}` : `${byType.year}-${byType.month}-${byType.day}`;
   }
   const context = vm.createContext({ console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp, Error, TypeError, Set, Map, Intl, Utilities: { formatDate: formatDateInTimeZone } });
   const prelude = `
@@ -26,7 +28,7 @@ function loadMeetingSource(rootDir) {
     function kspNormalizeGeneratedNameSegment_(value) { if (value === null || value === undefined) return ''; return String(value).replace(/[\\u0000-\\u001f\\u007f]/g, '').replace(/[\\\\/&]/g, '').trim().replace(/\\s+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, ''); }
   `;
   new vm.Script(prelude, { filename: 'test-prelude.gs' }).runInContext(context);
-  for (const file of ['00_Core.gs','62_PitchbookIdentity.gs','30_MeetingCore.gs','40_MeetingService.gs','50_MeetingLiveEnvironment.gs','90_WebApp.gs']) {
+  for (const file of ['00_Core.gs','05_TemporalContracts.gs','62_PitchbookIdentity.gs','30_MeetingCore.gs','40_MeetingService.gs','50_MeetingLiveEnvironment.gs','90_WebApp.gs']) {
     new vm.Script(fs.readFileSync(path.join(rootDir, 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;

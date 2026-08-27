@@ -45,7 +45,7 @@ test('non-GP Option types allocate stable type-specific IDs', () => {
 test('maintenance search normalizes spreadsheet Date and Time cells', () => {
   const search = ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ dateFrom: '2026-08-14', dateTo: '2026-08-15' }));
   const dateCell = new Date(Date.UTC(2026, 7, 14));
-  const timeCell = new Date(Date.UTC(1899, 11, 30, 14, 30));
+  const timeCell = new Date(Date.UTC(1899, 11, 30, 5, 30));
   assert.equal(ksp.kspRecordMatchesSearch_({ Date: dateCell }, search), true);
   const mapped = ksp.kspMapMeetingSearchResult_({ Meeting_ID: 'MTG-000001', Date: dateCell, Time: timeCell }, { gp: {}, assetClass: {}, capitalType: {}, location: {} });
   assert.equal(mapped.date, '2026-08-14');
@@ -145,7 +145,7 @@ test('Meeting Audit snapshots canonicalize Sheets Date and equivalent time value
   const before = ksp.kspMeetingAuditSnapshot_({
     Meeting_ID: 'MTG-000001',
     Date: new Date('2026-08-26T15:00:00.000Z'),
-    Time: new Date(Date.UTC(1899, 11, 30, 14, 30)),
+    Time: new Date(Date.UTC(1899, 11, 30, 5, 30)),
     Internal_Participants: 'Before',
     Version: 2,
     Updated_At: '2026-08-27T00:00:00.000Z',

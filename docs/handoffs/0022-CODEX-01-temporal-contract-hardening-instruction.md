@@ -2,16 +2,12 @@
 
 WORK_ID: `0022`
 Dispatch ID: `0022-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `PREPARING — DO NOT RUN BEFORE ACTIVATION`
+BALL: `CODEX`
+STATUS: `READY`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
-Branch: `ACTIVATION_REQUIRED`
-
-Draft PR: `ACTIVATION_REQUIRED`
-
-Exact ref: `ACTIVATION_REQUIRED — final accepted main after Work 0016 merge`
+Branch: `agent/0022-temporal-data-contract-hardening`
 
 Mode: `BUILD / QUALIFICATION`
 
@@ -19,21 +15,9 @@ Route: `C — cross-cutting source hardening, static enforcement, exact source s
 
 Recommended model: `Sol High`.
 
-## Activation requirement
+## Activation evidence
 
-This instruction is prepared but not executable yet.
-
-Start only after ChatGPT changes the header to:
-
-- BALL `CODEX`;
-- STATUS `READY`;
-- a concrete implementation branch;
-- a concrete Draft PR;
-- an exact accepted main SHA containing final Work 0016.
-
-Do not run in parallel with Work 0016 CODEX-04.
-
-## Read first
+Work 0016 is accepted and merged. Its accepted final source and the Work 0022 decision/plan are both present on the current main baseline.
 
 Read all applicable `AGENTS.md` / `AGENTS.override.md`, then:
 

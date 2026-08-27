@@ -3,7 +3,7 @@ function kspCreateAppsScriptEnvironment_() {
 
   return {
     nowIso: function () {
-      return new Date().toISOString();
+      return kspCanonicalInstantIso_(new Date());
     },
 
     acquireScriptLock: function (timeoutMs) {

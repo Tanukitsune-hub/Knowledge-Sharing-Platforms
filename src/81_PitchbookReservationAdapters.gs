@@ -17,7 +17,7 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
       var batchSequence = kspReadPositiveSettingValue_(batchSetting, 'NEXT_BATCH_ID');
       var documentSequence = kspReadPositiveSettingValue_(documentSetting, 'NEXT_DOCUMENT_ID');
       var maxSequence = existingRows.reduce(function (maximum, row) {
-        var sameContext = kspCanonicalPitchbookDateKey_(row.Date) === kspCanonicalPitchbookDateKey_(input.date) &&
+        var sameContext = kspCanonicalBusinessDate_(row.Date) === kspCanonicalBusinessDate_(input.date) &&
           String(row.GP_ID || '') === input.gpId &&
           String(row.Asset_Class_ID || '') === input.assetClassId &&
           String(row.Capital_Type_ID || '') === input.capitalTypeId;

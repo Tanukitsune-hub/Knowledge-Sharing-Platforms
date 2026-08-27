@@ -26,3 +26,5 @@ Scope: files under `src/`.
 - Subagents remain mandatory, but for bounded Luna defect work they are limited to independent hypothesis verification and patch/regression review, not competing root-cause exploration.
 - Release version remains `0.1.2` unless an observed defect repair materially changes the application release contract; qualification-only evidence does not by itself require a version bump.
 - Preserve the accepted Gemini-independent Knowledge Export contract: resolve Active sources from the Backend Index and keep Audit metadata-only and content-redacted.
+- Use `kspCanonicalBusinessDate_`, `kspCanonicalBusinessTime_`, and `kspCanonicalInstantIso_` at temporal boundaries. Business Date/Time values use the configured `KSP_DEFAULTS.TIMEZONE`; Created/Updated/Audit/AI timestamps use UTC ISO milliseconds.
+- Do not derive Business Date/Time with UTC or local calendar getters, serialize physical Sheets Date/Time values directly, or add feature-specific temporal parsing algorithms. Preserve untouched physical cells during metadata-only writes.

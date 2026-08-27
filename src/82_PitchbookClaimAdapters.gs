@@ -15,9 +15,11 @@ function kspAttachPitchbookClaimAdapters_(meetingEnvironment, scriptProperties) 
       if (file.fileId) {
         return { claimToken: '', fileInfo: { id: file.fileId, url: file.fileUrl || '', reused: true } };
       }
+      var canonicalNowIso = kspCanonicalInstantIso_(nowIso);
       if (file.uploadState === 'UPLOADING' && file.claimedAt) {
-        var claimedAtMs = new Date(file.claimedAt).getTime();
-        var nowMs = new Date(nowIso).getTime();
+        var claimedAtIso = kspCanonicalInstantIso_(file.claimedAt);
+        var claimedAtMs = claimedAtIso ? new Date(claimedAtIso).getTime() : NaN;
+        var nowMs = canonicalNowIso ? new Date(canonicalNowIso).getTime() : NaN;
         if (Number.isFinite(claimedAtMs) && Number.isFinite(nowMs) && nowMs - claimedAtMs < KSP_PITCHBOOK_UPLOAD_CLAIM_TTL_MS) {
           var inProgress = new Error('同じファイルのアップロードが進行中です。少し待って再試行してください。');
           inProgress.code = 'PITCHBOOK_UPLOAD_IN_PROGRESS';
@@ -26,7 +28,7 @@ function kspAttachPitchbookClaimAdapters_(meetingEnvironment, scriptProperties) 
       }
       file.uploadState = 'UPLOADING';
       file.claimToken = Utilities.getUuid();
-      file.claimedAt = nowIso;
+      file.claimedAt = canonicalNowIso;
       scriptProperties.setProperty(key, JSON.stringify(reservation));
       return { claimToken: file.claimToken, fileInfo: null };
     } finally {
@@ -38,7 +40,7 @@ function kspAttachPitchbookClaimAdapters_(meetingEnvironment, scriptProperties) 
     kspUpdatePitchbookReservationClaim_(scriptProperties, batchId, documentId, claimToken, function (file) {
       file.uploadState = 'UPLOADED';
       file.claimToken = '';
-      file.claimedAt = nowIso;
+      file.claimedAt = kspCanonicalInstantIso_(nowIso);
       file.fileId = fileInfo.id;
       file.fileUrl = fileInfo.url || '';
     });
@@ -48,7 +50,7 @@ function kspAttachPitchbookClaimAdapters_(meetingEnvironment, scriptProperties) 
     kspUpdatePitchbookReservationClaim_(scriptProperties, batchId, documentId, claimToken, function (file) {
       file.uploadState = 'FAILED';
       file.claimToken = '';
-      file.claimedAt = nowIso;
+      file.claimedAt = kspCanonicalInstantIso_(nowIso);
       file.lastError = String(errorMessage || '');
     });
   };

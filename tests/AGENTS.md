@@ -12,3 +12,5 @@ Scope: files under `tests/` and `scripts/`.
 - Metadata-only updates must assert that unrelated Date/Time columns are not written.
 - Read-only workspace tests must prove exact full-set counts separately from capped display arrays and reject write/audit/AI adapter use.
 - The canonical local command is `npm run check`.
+- Temporal regressions must load the production canonical helpers, cover mixed Sheets Date/string values in `Asia/Tokyo`, and distinguish Business Date/Time from UTC Instant and named Duration values.
+- Do not reproduce production temporal parsing or formatting in a test loader; stubbing `Utilities.formatDate` is an external adapter boundary only.
