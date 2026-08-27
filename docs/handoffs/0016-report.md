@@ -2,60 +2,67 @@
 
 WORK_ID: `0016`
 ACTIVE_DISPATCH_ID: `0016-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `NONE`
+STATUS: `QUALIFIED`
 
-## Current result
+## Final classification
 
-Work 0016 is functionally complete through non-GP create/reopen/edit/search and Knowledge Export Preview, but target-runtime qualification is not yet complete because the latest successful Meeting update Audit falsely reported `Date` as changed during an `Internal_Participants`-only edit.
+`DEV QUALIFIED — WORK 0016 COUNTERPARTY ENTITY FOUNDATION`
 
-## Accepted evidence
+- `LOGIC_VALIDATION: PASS` — deterministic validation `215/215`;
+- `TARGET_RUNTIME_QUALIFICATION: PASS` — existing private synthetic DEV Web App;
+- `SIDE_EFFECT_STATE: GUARDED`;
+- `READY: YES`;
+- `BLOCKER: NO`.
 
-- schema 4 / five Backend sheets / installation-state schemaVersion 4: PASS;
-- legacy GP compatibility: PASS;
+## Accepted Work 0016 evidence
+
+- append-only schema 4 migration and installation-state schema version 4: PASS;
+- exactly five Backend sheets with canonical headers: PASS;
+- legacy GP Meeting compatibility: PASS;
+- one synthetic LP / Asset Owner Entity and one synthetic non-GP Meeting: PASS;
+- non-GP Meeting create, reopen, edit, save, and exact search: PASS;
+- Related GP and matching Related Pitchbook behavior: PASS;
 - GP Workspace compatibility: PASS;
-- exactly one synthetic LP / Asset Owner Entity and one synthetic non-GP Meeting exist;
-- non-GP create/reopen/edit/save: PASS;
-- stable Meeting identity and Version 2 readback: PASS;
-- Related GP / matching Related Pitchbook: PASS;
-- exact Type + Entity + Related GP search: PASS;
-- Knowledge Export Preview/read-only Doc metadata: PASS;
-- deterministic entity/counterparty/Related GP metadata: PASS;
-- source body and Follow-up note remain absent from Audit;
-- CODEX-03 focused `21/21`, canonical `213/213`, `git diff --check` PASS;
-- public facade `24`;
-- exact deployable-source readback `62/62`;
-- current private Web App immutable version `33`;
-- no Gemini/File Search call or trigger enablement.
+- Knowledge Export Preview and deterministic entity/counterparty/Related GP
+  metadata: PASS;
+- public facade: `24` public entry points;
+- exact tested source readback: `62/62` files;
+- immutable Apps Script version `34` and existing private Web App update in place:
+  PASS;
+- no Gemini/File Search call and no trigger enablement.
 
-## GitHub-verified blocker
+## CODEX-04 final repair
 
-`src/100_MaintenanceCore.gs::kspMeetingAuditSnapshot_()` snapshots Meeting `Date` and `Time` as raw values. A live Sheets row may therefore contain a Date object while the committed edit row contains equivalent normalized strings. `kspChangedMetadataFields_()` compares serialized values and reports a false change.
+The Meeting Audit snapshot now serializes Date and Time through
+`kspMaintenanceCellText_()` with the authoritative logical-date/time forms.
+`kspChangedMetadataFields_()` was not changed globally.
 
-The same file already canonicalizes Pitchbook Audit dates, and maintenance read models already normalize Meeting Date/Time. This is a narrow representation-integrity defect, not an architecture or Counterparty-model defect.
+Focused regressions and the target-runtime edit prove that an
+Internal_Participants-only update does not report Date or Time as changed. The
+latest Audit event includes exactly `Internal_Participants,Version,Updated_At`,
+with canonical Before/After Date values. Meeting body and Follow-up note content
+remain absent from Audit. The earlier malformed CODEX-03 Audit row was preserved
+unchanged as historical evidence.
 
-## Classification
+The existing synthetic Meeting was edited exactly once more: the same Meeting
+advanced from Version 2 to Version 3, with stable identity, source file, filename,
+status, relationship, and other structured fields.
 
-- BLOCKER: Meeting Audit Date/Time representation must be canonicalized and proven in target runtime;
-- FIX SOON: none outside that repair;
-- BACKLOG: hosted GitHub Actions CI, personal-PC Gemini/File Search qualification, final company production qualification.
+## Final integrity
 
-## Next action
+- Backend sheet count, schema headers, IDs, counters, statuses, source files, and
+  AI settings remain valid;
+- no duplicate Entity, Meeting, source file, filename, or relationship record;
+- Audit contains exactly one new successful update and all prior rows remain
+  intact;
+- `AI_SYNC_ENABLED` remains false;
+- no Script Property, trigger, Library deployment, or unrelated data mutation;
+- no production rollout is claimed.
 
-Execute `0016-CODEX-04` from the latest branch ref. It must apply only the Audit representation repair, verify deterministic regressions, synchronize/version/update the same Web App once, reuse the existing Meeting for one additional verification edit, and complete final integrity.
+Shared Drive-specific production qualification and billing-enabled Gemini/File
+Search qualification remain residual external gaps.
 
-The malformed CODEX-03 Audit row must remain unchanged as historical qualification evidence.
+PR #21 remains Draft / Open / unmerged for ChatGPT final review and merge.
 
-Current classification:
-
-`LOGIC_VALIDATION: PASS`
-
-`TARGET_RUNTIME_QUALIFICATION: BLOCKED — FINAL AUDIT REPRESENTATION FIX REQUIRED`
-
-`SIDE_EFFECT_STATE: GUARDED`
-
-`READY: NO`
-
-`BLOCKER: YES`
-
-PR #21 remains Draft / Open / unmerged.
+Completion latch applied. No further CODEX-04 qualification action is required.

@@ -556,7 +556,8 @@ function kspBuildMaintenanceAuditRow_(params) {
 
 function kspMeetingAuditSnapshot_(row) {
   return {
-    Meeting_ID: row.Meeting_ID || '', Date: row.Date || '', Time: row.Time || '',
+    Meeting_ID: row.Meeting_ID || '', Date: kspMaintenanceCellText_(row.Date, 'date'),
+    Time: kspMaintenanceCellText_(row.Time, 'time'),
     Location_ID: row.Location_ID || '', GP_ID: row.GP_ID || '',
     Counterparty_Type: kspMeetingCounterpartyType_(row),
     Counterparty_ID: kspMeetingCounterpartyId_(row),

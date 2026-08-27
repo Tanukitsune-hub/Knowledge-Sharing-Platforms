@@ -19,6 +19,33 @@ test('Meeting update preserves ID/Doc, increments Version, updates Doc, and audi
   assert.equal(JSON.stringify(env._debug.audits).includes('secret'),false);
 });
 
+test('Meeting update Audit serializes equivalent Sheets Date and Time values canonically', () => {
+  const env=createFakeEnvironment({meetingRows:[{
+    Meeting_ID:'MTG-000001', Date:new Date('2026-08-26T15:00:00.000Z'), Time:new Date(Date.UTC(1899,11,30,14,30)),
+    Location_ID:'', GP_ID:'GP-000002', Asset_Class_ID:'OPT-AC-002', Capital_Type_ID:'', Counterparty:'',
+    Internal_Participants:'Before', Doc_File_ID:'doc-1', Doc_URL:'https://example/doc-1',
+    Saved_Filename:'2026-08-27_KKR_Infrastructure_MTG-000001', Status:'Active', Version:2,
+    Created_At:'2026-08-01T00:00:00.000Z', Updated_At:'2026-08-27T00:00:00.000Z', Updated_By:'old',
+    AI_Document_Name:'', AI_Index_Status:'Indexed', AI_Indexed_At:'', AI_Content_Hash:'', AI_Last_Error:'',
+    Follow_Up_Required:true, Follow_Up_Note:'private follow-up'
+  }]});
+  const result=ksp.kspUpdateMeetingMaintenance_(env,{
+    meetingId:'MTG-000001', expectedVersion:2, date:'2026-08-27', time:'14:30', locationId:'',
+    gpId:'GP-000002', assetClassId:'OPT-AC-002', capitalTypeId:'', counterparty:'',
+    internalParticipants:'After', followUpRequired:true, followUpNote:'private follow-up', notes:'private body'
+  });
+  assert.equal(result.ok,true,JSON.stringify(result));
+  assert.equal(env._debug.audits.length,1);
+  const audit=env._debug.audits[0];
+  assert.equal(audit.Action,'MEETING_UPDATE');
+  assert.deepEqual(audit.Changed_Fields.split(','),['Internal_Participants','Version','Updated_At']);
+  const before=JSON.parse(audit.Before_Metadata_JSON); const after=JSON.parse(audit.After_Metadata_JSON);
+  assert.equal(before.Date,'2026-08-27'); assert.equal(after.Date,'2026-08-27');
+  assert.equal(before.Time,'14:30'); assert.equal(after.Time,'14:30');
+  assert.equal(Object.hasOwn(before,'Follow_Up_Note'),false); assert.equal(Object.hasOwn(after,'Follow_Up_Note'),false);
+  assert.equal(JSON.stringify({before,after}).includes('private'),false);
+});
+
 test('stale Meeting update is rejected without mutating the document', () => {
   const env=createFakeEnvironment(); const before={...env._debug.documents.get('doc-1')};
   const result=ksp.kspUpdateMeetingMaintenance_(env,{meetingId:'MTG-000001',expectedVersion:99,date:'2026-08-03',gpId:'GP-000002',assetClassId:'OPT-AC-002',notes:'new'});

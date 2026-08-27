@@ -3,8 +3,8 @@
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-04`
 MODE: `BUILD / QUALIFICATION`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `NONE`
+STATUS: `QUALIFIED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -40,24 +40,24 @@ Do not reopen absent material contradiction:
 - existing private Web App updated in place to immutable version `33`;
 - no Gemini/File Search call or trigger enablement.
 
-## Remaining BLOCKER
+## Resolved final Audit issue
 
-The CODEX-03 `Internal_Participants`-only Meeting edit produced a successful Audit event whose `Changed_Fields` incorrectly included `Date`. The Before/After values were the same Asia/Tokyo business date represented as a Sheets Date/ISO value versus `YYYY-MM-DD`.
+The CODEX-03 `Internal_Participants`-only Meeting edit produced a successful Audit event whose `Changed_Fields` incorrectly included `Date`. The Before/After values were the same Asia/Tokyo business date represented as a Sheets Date/ISO value versus `YYYY-MM-DD`. That historical Audit row remains unchanged.
 
-GitHub review confirms `kspMeetingAuditSnapshot_()` snapshots Meeting `Date` and `Time` as raw cell values, while `kspChangedMetadataFields_()` compares serialized values. Pitchbook Audit and maintenance read models already canonicalize these representations.
+CODEX-04 changed only `kspMeetingAuditSnapshot_()` so Meeting `Date` and `Time` use the existing `kspMaintenanceCellText_()` normalization. `kspChangedMetadataFields_()` remains unchanged globally. The latest target-runtime Audit event excludes Date and Time and includes exactly `Internal_Participants,Version,Updated_At`.
 
-## CODEX-04 scope
+## CODEX-04 completed scope
 
 Only:
 
-1. canonicalize Meeting Audit Date/Time through existing authoritative maintenance normalization helpers;
-2. add focused regressions including a Sheets-like Date row and equivalent Time representation;
-3. run focused tests, `npm run check`, `git diff --check`, public facade check;
-4. synchronize exact tested source once;
-5. create one immutable version and update the same private Web App in place;
-6. reuse the existing synthetic Meeting for exactly one additional non-identity edit;
-7. prove the new Audit event excludes unchanged Date/Time and includes the actual edited field plus expected Version/Updated_At;
-8. complete final integrity.
+1. canonicalize Meeting Audit Date/Time through existing authoritative maintenance normalization helpers: PASS;
+2. add focused regressions including a Sheets-like Date row and equivalent Time representation: PASS;
+3. run focused tests, `npm run check`, `git diff --check`, public facade check: PASS (`82/82`, `215/215`, facade `24`);
+4. synchronize exact tested source once and read it back exactly: PASS (`62/62`);
+5. create one immutable version and update the same private Web App in place: PASS (version `34`);
+6. reuse the existing synthetic Meeting for exactly one additional non-identity edit: PASS (Version 2 -> 3);
+7. prove the new Audit event excludes unchanged Date/Time and includes the actual edited field plus expected Version/Updated_At: PASS;
+8. complete final integrity: PASS.
 
 The malformed CODEX-03 Audit row is historical qualification evidence. Do not edit/delete/repair it.
 
@@ -79,5 +79,5 @@ Keep PR #21 Draft / Open / unmerged for ChatGPT final review.
 
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `NONE`
+STATUS: `QUALIFIED`
