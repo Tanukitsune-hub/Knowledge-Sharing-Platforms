@@ -6,7 +6,7 @@ Status: Active product/roadmap baseline
 
 Current delivery follows `docs/decisions/target-runtime-first-development.md` and `docs/planning/apps-script-implementation-plan.md`.
 
-Accepted product design is not reopened merely because target-runtime qualification is pending. Conversely, implementation or logic-test completion is not native readiness without required Apps Script / Workspace / browser / Gemini evidence.
+Accepted product design is not reopened merely because later production qualification remains pending. Logic-only completion is never substituted for required target-runtime evidence.
 
 ## 1. Product baseline
 
@@ -17,6 +17,7 @@ Knowledge Sharing Platforms provides or is implementing:
 - GP / Option Masters and append-only structured fields;
 - read-only GP Workspace with bounded browser-native print/PDF brief;
 - hierarchical Counterparty Type -> Entity Meeting classification;
+- repository-wide Business Date / Business Time / Instant temporal contract;
 - separate Restricted Audit Spreadsheet and best-effort Actor;
 - Shared Drive as authoritative source;
 - Gemini File Search as derived/rebuildable retrieval index;
@@ -41,6 +42,7 @@ Work IDs and application release versions are separate. Historical Works remain 
 - Google Doc is authoritative for Meeting body;
 - original Drive file is authoritative for Pitchbook/source material;
 - AI/Export layers are derived and rebuildable;
+- Business Date/Time semantics are independent of physical Sheets cell representation;
 - no new database, relation sheet, Vector DB, Knowledge Graph, or broad workflow engine without a new explicit decision.
 
 ## 3. Current delivery path
@@ -72,7 +74,7 @@ READY: YES | NO
 
 A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 
-## 4. Historical Work map
+## 4. Historical / accepted Work map
 
 - 0004: scaffold + setup engine;
 - 0005: Meeting vertical slice;
@@ -86,37 +88,14 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 - 0013: qualification / recovery history;
 - 0014: structured Meeting/Pitchbook context foundation, qualified and merged under PR #17;
 - 0015: GP Workspace / one-page summary, qualified and merged under PR #20;
-- 0016: Counterparty entity foundation, qualified and merged under PR #21.
+- 0016: Counterparty entity foundation, qualified and merged under PR #21;
+- 0022: repository-wide temporal data contract hardening, qualified and merged under PR #22.
 
 ## 5. Current Work
 
-### Work 0022 — Temporal data contract hardening
-
-Status: active next Work after accepted/merged Work 0016; execute before Work 0017 analytics.
-
-Decision:
-
-`docs/decisions/temporal-data-contract.md`
-
-Detailed plan:
-
-`docs/planning/work0022-temporal-data-contract-hardening.md`
-
-Outcome:
-
-- classify Business Date, Business Time, Instant, and Duration as separate temporal kinds;
-- establish one generic production implementation for `YYYY-MM-DD`, `HH:mm`, and UTC ISO timestamp normalization;
-- remove or reduce feature-specific Date/Time algorithms to thin compatibility wrappers;
-- propagate the contract through registration, maintenance, Audit, search/sort, Knowledge Export, deterministic AI metadata, workspaces, relationships, and diagnostics;
-- add a temporal-contract static validator to `npm run check`;
-- prove mixed Sheets `Date` objects / canonical strings / ISO timestamps behave identically;
-- avoid historical Date/Time cell rewrites and preserve untouched physical cells.
-
-This Work was assigned ID 0022 after 0017–0021 were already reserved, but it executes before analytics because period bucketing must not be built on unstable temporal representations.
-
-## 6. Implementation-ready sequence
-
 ### Work 0017 — Meeting activity analytics + monthly administrative checks
+
+Status: current next implementation Work after accepted/merged Work 0022.
 
 Detailed plan:
 
@@ -131,7 +110,9 @@ Outcome:
 
 The exact label/state model for the administrative check is confirmed at Work kickoff. Default is one binary `月次管理反映済み` flag rather than a generic workflow engine.
 
-Work 0017 consumes the accepted Work 0022 Business Date contract for every period and fiscal-year calculation. It must not create another date parsing/bucketing implementation.
+Work 0017 must consume the accepted Work 0022 temporal contract for every period and fiscal-year calculation. It must not create another date parsing/bucketing implementation.
+
+## 6. Implementation-ready sequence
 
 ### Work 0018 — Relationship Explorer
 
@@ -255,8 +236,8 @@ Production readiness is declared only here.
 ```text
 0015 GP Workspace [ACCEPTED]
   -> 0016 Counterparty entity foundation [ACCEPTED]
-  -> 0022 temporal data contract hardening [CURRENT]
-  -> 0017 analytics / monthly checks
+  -> 0022 temporal data contract hardening [ACCEPTED]
+  -> 0017 analytics / monthly checks [CURRENT]
   -> 0018 Relationship Explorer
   -> 0019 Entity Workspace / Fund-Strategy drill-down
   -> 0020 personal-PC Gemini/File Search core
