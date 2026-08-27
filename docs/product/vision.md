@@ -1,46 +1,99 @@
 # Product Vision
 
+Current as of: 2026-08-27
+
+Status: Active
+
 ## Purpose
 
 プライベートアセット領域のMeeting recordsとPitchbook / source materialsを、利用者の入力負荷を抑えながら継続的に蓄積し、後から検索・修正・整理・要約・比較できる状態を作る。
 
-Google Workspaceを正本・運用基盤とし、その上にGemini File Searchを再生成可能な検索レイヤーとして載せる、シンプルな業務ツールを目指す。
+Google Workspaceを正本・運用基盤とし、その上にGemini File Searchを再生成可能な検索レイヤーとして載せる、シンプルで監査可能な業務ツールを目指す。
 
-## Current implementation status
+## Current product state
 
-Works 0004–0011は実装・マージ済みで、Work 0012は通常利用者向けApps Script公開ファサードとKnowledge Exportの安全性をhardeningした。アプリケーションrelease versionは`0.1.2`である。Work 0010–0011のDEV実機qualification（Shared Drive固有挙動、Docs/PDFリンク、Gemini、clipboard等）は未観測の項目を残しており、本番デプロイ完了とは扱わない。
+Works 0004–0014はmainへ統合済みで、Meeting/Pitchbook登録・maintenance、Masters、Audit、Knowledge Export、構造化Meeting context等が実装・qualifiedされている。Work 0015はGP Workspace / one-page summaryを扱う。
+
+これらはpersonal/synthetic target-runtime evidenceであり、会社Shared Drive、本番権限、real users、confidential data、production Gemini billing、scheduled triggersを含む本番ready宣言ではない。
 
 ## Core user experience
 
 通常利用者は、組織管理下の1つのApps Script HTML Service Web Appを共通URLから利用する。
 
-主要画面:
+主要surface:
 
-1. `面談記録` — 新規登録 / 過去記録
-2. `Pitchbook` — 新規登録 / 過去資料
-3. `ナレッジ検索`
-4. `マスター管理`
+1. `面談記録` — 新規登録 / 過去記録 / edit / lifecycle
+2. `Pitchbook` — 新規登録 / 過去資料 / edit / lifecycle
+3. `GP / Entity Workspace`
+4. `Activity Analytics`
+5. `Relationship Explorer`
+6. `ナレッジ検索`
+7. `マスター管理`
 
-通常利用者はbackend Sheets、Audit Spreadsheet、File Searchを直接操作しない。
+Surfaceは実装順に追加する。通常利用者はbackend Sheets、Restricted Audit Spreadsheet、File Search Storeを直接操作しない。
 
 ## Meeting records
 
-Required:
+### Current accepted record fields
 
-- 日付
+Required baseline before Work 0016:
+
+- Date
 - GP
 - Asset Class
 
-Optional:
+Accepted optional structured fields include:
 
-- 時間
-- 面談場所
+- Time
+- Location
 - Equity / Debt
+- Team
+- Fund / Strategy
+- Meeting Type
+- Related Pitchbooks
+- 要フォロー / note
 - 面談相手
 - 当社側
-- 面談内容
+- Meeting body
 
-Apps Scriptが軽量Google Docsへ入力済み項目を`項目: 値`形式でミラーする。Meeting bodyはDocsを正本とし、`Meeting_Index`へ全文duplicateしない。
+### Prospective counterparty contract
+
+Work 0016 replaces the global GP requirement with:
+
+```text
+Date
+Counterparty Type
+Counterparty Entity
+Asset Class
+```
+
+Counterparty Types:
+
+```text
+GP / 運用会社
+LP / Asset Owner
+日本生命
+グループ会社
+Consultant / Gatekeeper
+その他
+```
+
+The user first selects a category and then an entity in that category.
+
+- GP entities use existing `GP_Master`.
+- Non-GP entities use category-specific types in existing `Option_Master`.
+- No new Entity/Counterparty sheet is added.
+- Existing free-text `Counterparty` remains a person/role field and is relabeled `面談相手（氏名・役職）`.
+- `Related_GP_IDs` allows non-GP Meetings to retain relevant manager context.
+- Existing legacy GP Meetings are migrated without changing Meeting ID, Doc File ID, or source file.
+
+Detailed decision:
+
+`docs/decisions/counterparty-entity-classification.md`
+
+### Authoritative Meeting representation
+
+The Meeting body is authoritative in Google Docs and is not duplicated into `Meeting_Index`.
 
 Fixed Meeting ID example:
 
@@ -48,15 +101,17 @@ Fixed Meeting ID example:
 MTG-000123
 ```
 
-Filename:
+Prospective filename:
 
 ```text
-YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX
+YYYY-MM-DD_Counterparty_AssetClass_Equity-or-Debt_MTG-XXXXXX
 ```
 
-Timeはfilenameへ含めず、Equity / Debt未選択時はそのsegmentを省略する。
+Time is excluded. Optional segments are omitted. Legacy GP-based filenames remain valid and are not bulk-renamed by migration.
 
 ## Pitchbooks / source materials
+
+Pitchbook remains manager/source-material oriented in the current roadmap.
 
 Required:
 
@@ -68,59 +123,92 @@ Required:
 Optional:
 
 - Equity / Debt
+- Fund / Strategy
 
 Features:
 
-- drag & drop / multiple files
-- generated filename
-- sequence starts at `_01`
-- later additions continue from existing maximum
-- 25MB/file
-- 10 files/selection
-- 100MB total/selection
+- drag & drop / multiple files;
+- stable Document ID / Batch ID;
+- generated filename;
+- persistent destination-context sequence starting at `_01`;
+- 25MB/file;
+- 10 files/selection;
+- 100MB total/selection;
+- file-granular partial success and idempotent retry.
 
 ```text
 YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext
 ```
 
-25MBでもApps Script実機制約が確認された場合は、upload architectureを複雑化するより安全な低い上限へ変更することを優先する。
+Work 0016 does not generalize Pitchbook ownership to non-GP entities. That is reconsidered only if actual use demonstrates a material need.
 
-## Shared registration context
+## Registration context and drafts
 
-Meeting / Pitchbook間で以下をbrowser state共有する。
+Meeting and Pitchbook always share browser state for:
 
 - Date
-- GP
 - Asset Class
 - Equity / Debt
+- Fund / Strategy
 
-画面切替 / registration successで共通4項目を自動消去しない。page-specific inputだけを成功時にclearする。text / selection draftは同一browserで24h保持する。
+GP is shared only when Meeting Counterparty Type is `GP`. A non-GP Meeting does not automatically assign a Related GP to the Pitchbook form.
+
+Registration success keeps shared values and clears page-specific values only. Text/selection draft persists for 24h in the same browser. File handles need not survive reload/tab close.
 
 ## Past records and corrections
 
-Meeting / Pitchbookともoptional filtersで過去記録を検索できる。
+Meeting/Pitchbook filters remain optional and stable-ID based where applicable.
+
+Meeting filters evolve to include:
 
 - Date From / To
-- GP
+- Counterparty Type
+- Counterparty Entity
+- Related GP
 - Asset Class
 - Equity / Debt
+- Team
+- Fund / Strategy
+- Meeting Type
+- 要フォロー
 - Status
 
-固定Meeting ID / Document ID / Drive File IDを維持しながらedit / rename / Index syncする。通常操作はActive / Inactive / Reactivateを使用する。
+Fixed Meeting ID / Document ID / Drive File ID are preserved through maintenance. Normal lifecycle is Active / Inactive / Reactivate rather than physical deletion.
 
 ## Masters
 
-- GP: immutable GP ID, mutable name, Active/Inactive, alphabetical display, quick-add
-- Location / Asset Class / Equity-Debt: Option Master, immutable Option ID, Sort Order, Active/Inactive
-- all users may add / rename / reorder / deactivate / reactivate allowed Masters
-- rename / deactivate requires confirmation + audit event
-- normal-user physical deletion is not provided
+### GP Master
 
-Initial Asset Classes:
+- immutable GP ID;
+- mutable display name;
+- Active / Inactive;
+- alphabetical display;
+- normalized duplicate check / quick-add.
+
+### Option Master
+
+Existing and planned types use immutable Option ID, mutable display name, Sort Order, and Active / Inactive.
+
+Current types:
 
 ```text
-PE / VC / Infrastructure / Real Estate / PD / その他
+Location
+Asset Class
+Capital Type
+Team
 ```
+
+Work 0016 adds category-specific non-GP counterparty types:
+
+```text
+LP / Asset Owner
+日本生命部署
+グループ会社
+Consultant / Gatekeeper
+その他
+```
+
+Users may maintain allowed Masters through the existing audit/confirmation rules. Real department/entity names are not guessed as seeds.
 
 ## Authoritative storage
 
@@ -132,7 +220,7 @@ Private Assets Knowledge
 
 Keep source folders flat.
 
-Backend Spreadsheet:
+Backend remains exactly five sheets:
 
 1. `GP_Master`
 2. `Option_Master`
@@ -140,29 +228,29 @@ Backend Spreadsheet:
 4. `Pitchbook_Index`
 5. `Settings`
 
-Audit logs are stored in a separate Restricted admin-only Spreadsheet.
+Schema evolution is append-only where practical. Audit remains a separate Restricted admin-only Spreadsheet.
 
-## Audit and access model
+## Workspaces, relationships, and analytics
 
-Initial Web App users share access to all Active sources. Do not implement per-user / per-file retrieval ACLs initially. Internet-public access is not assumed.
+### GP Workspace
 
-Actor attribution is best-effort:
+Work 0015 provides a GP-centric snapshot, recent records, Fund / Strategy context, follow-ups, relationships, and browser-native one-page print/PDF brief.
 
-1. email if available
-2. otherwise temporary active user key if available
-3. otherwise `UNIDENTIFIED`
+### Activity Analytics
 
-Persistent actual-user identification is not required for production operation.
+After counterparty classification is authoritative, Work 0017 provides monthly/quarterly/yearly/fiscal/custom/cumulative activity views by Counterparty, Related GP, Asset Class, Team, and Meeting Type, plus a narrow monthly administrative check.
 
-Audit Spreadsheet is restricted by Google Drive sharing permissions and opened directly by admins when needed. Initial Web App does not require an Audit Viewer or custom password screen.
+### Relationship Explorer
 
-## Knowledge Export / external-AI handoff
+Work 0018 provides bidirectional Meeting ↔ Pitchbook traversal using `Meeting_Index.Related_Pitchbook_IDs` as the only canonical relationship. Inactive/unresolved links remain visible. No relation sheet and no inferred links.
 
-Knowledge ExportはGemini資格情報に依存せず、Backend Indexで`Active`の資料を解決する。Meetingは正本Google Doc本文を含め、Pitchbookは本文を複製せずmetadataとstable File IDに結び付いたauthoritative Drive linkだけを含める。Google DocsまたはPDFをKnowledge Exports sibling folderへ生成する。
+### Entity Workspace / Fund Strategy
 
-サーバーはMeeting 50件超、Pitchbook 200件超、またはMeeting本文250,000文字超で処理を停止し、件数超過時にはMeeting Docを読み取らない。5モードの外部AI向けpromptはGP、Asset Class、Equity / Debtの表示名とstable IDを併記する。Prompt本文、原文、回答、chunk、embedding、bytesはAuditへ保存しない。
+Work 0019 generalizes GP Workspace to all Counterparty Types and adds exact-text Fund / Strategy aggregation/drill-down. Similar free-text variants are not silently fuzzy-merged.
 
-Exportは正本の派生コピーであり、権限設定のドリフトと無期限蓄積のリスクを持つ。permission equivalenceとretention運用はproduction前にDEVで確認する。
+### Follow-up boundary
+
+The application retains `要フォロー + note` so search and Meeting preparation can recall unresolved matters. Owner/deadline/completion/reminder workflow is not implemented because task execution is managed elsewhere.
 
 ## Knowledge retrieval with Gemini
 
@@ -175,18 +263,16 @@ Gemini Flash = grounded synthesis / summary / comparison
 
 Accepted baseline:
 
-- one Gemini File Search Store initially
-- Custom Metadata for exact filtering
-- File Search managed embeddings for semantic retrieval
-- no custom Vector DB / embedding pipeline / tag taxonomy / Knowledge Graph initially
-- only Active records retrievable
-- one configured Gemini Flash model
-- no model selector / Deep mode
-- 15-minute AI sync worker
-- AI indexing failure never rolls back authoritative registration
-- every grounded output links back to source
+- one File Search Store initially;
+- stable Custom Metadata for exact filtering;
+- managed embeddings/chunking;
+- only Active records normally retrievable;
+- one approved/configured Flash model;
+- AI failure never rolls back authoritative capture;
+- citations map to stable source records and Drive links;
+- no custom Vector DB / embedding pipeline / Knowledge Graph / model router initially.
 
-Initial AI-searchable formats:
+Initial formats:
 
 ```text
 .pdf
@@ -197,82 +283,86 @@ Initial AI-searchable formats:
 .eml
 ```
 
-EML original remains in Drive; normalized Subject / From / To / Cc / Date / Body is indexed. Embedded attachments are not auto-indexed. `.msg` is initially out of scope.
+EML original remains in Drive; normalized headers/body are indexed. Embedded attachments are not auto-indexed. `.msg` remains out of scope.
 
 ## Knowledge Search target UX
+
+Modes:
 
 ```text
 自由質問 | 要約 | 時系列 | 比較 | 面談準備
 ```
 
-`自由質問` is default.
+Structured filters evolve to include Date, Counterparty Type/Entity, Related GP where exact API behavior permits, Asset Class, Equity/Debt, Team, Fund / Strategy, Meeting Type, follow-up, and Source Type.
 
-Shared filters:
+Comparison mode, after personal-PC Gemini core qualification, accepts 2–5 selected entities across categories. This replaces a separate static GP comparison dashboard.
 
-- Date From / To
-- GP
-- Asset Class
-- Equity / Debt
-- Source Type: Meeting / Pitchbook
+All modes share one retrieval/citation layer, show sources, distinguish grounded fact from synthesis, and surface insufficient evidence rather than inventing content.
 
-5 modes share one retrieval / citation layer; presets change prompt/output template only.
+## Knowledge Export / external-AI handoff
 
-Mode purpose:
+Knowledge Export is independent from Gemini credentials.
 
-- 自由質問: grounded Q&A
-- 要約: cross-source synthesis
-- 時系列: chronology + change / continuity
-- 比較: common-dimension comparison
-- 面談準備: recent information, changes, unresolved topics, reconfirmation points, next questions
+- only Active Backend rows are eligible;
+- Meeting includes authoritative Google Doc text;
+- Pitchbook body is not duplicated; metadata and authoritative Drive link are exported;
+- count/character limits stop oversized exports before unnecessary reads;
+- Google Docs/PDF artifacts are derived copies under Knowledge Exports;
+- prompts support the five modes;
+- source bodies, prompts, answers, chunks, embeddings, and bytes are excluded from Audit.
 
-All modes show source citations / Drive links and surface insufficient evidence rather than inventing content.
+Counterparty/Entity and Related GP metadata are propagated when present.
 
-## Apps Script-first setup
+## Personal-PC Gemini qualification
 
-Administrator runs idempotent setup functions to create / reuse / validate Workspace resources.
+Work 0020 first proves one isolated Store, one Meeting, one Pitchbook, indexing/query/citation/update/inactivate/reactivate/delete/rebuild, and operational cost/rate-limit/retention guardrails using synthetic/non-confidential data.
+
+Work 0021 then expands to structured filters, five modes, accepted formats, and AI multi-entity comparison.
+
+This precedes significant historical migration so index/metadata contracts are proven before loading volume.
+
+## Historical-material migration
+
+Historical materials are highly heterogeneous. The default may be normal manual entry.
+
+After personal-PC Gemini qualification, choose among:
 
 ```text
-setupKnowledgePlatform_()
-validateInstallation_()
-getInstallationStatus_()
+manual
+hybrid/manual-assisted
+selective automation for repeatable subsets
 ```
 
-These are editor-only/private Apps Script entry points; normal users cannot call them through `google.script.run`.
+A universal converter is not a required product outcome.
 
-Normal production setup does not require Node.js, clasp, external server, custom DB, or manual construction of all Sheets / triggers / Master seeds.
+## Final production qualification
+
+Final production readiness is assessed only after product features, personal-PC Gemini/File Search, and the selected historical migration approach are ready.
+
+It includes company Shared Drive parentage/permissions, organization-controlled Apps Script Web App, Backend/Audit boundaries, production credentials/billing/index/query/citations, real users, cleanup/rollback, retention, and authorized trigger behavior.
+
+## Governing sequence
+
+```text
+0015 GP Workspace
+→ 0016 Counterparty entity foundation
+→ 0017 analytics / monthly checks
+→ 0018 Relationship Explorer
+→ 0019 Entity Workspace / Fund-Strategy drill-down
+→ 0020 personal-PC Gemini/File Search core
+→ 0021 structured filters / multi-entity comparison
+→ historical migration
+→ final production qualification
+```
 
 ## Principles
 
-- simplicity first
-- authoritative source and AI index are separate
-- users interact through one Web App
-- do not over-structure free-form Meeting notes
-- use shared Masters only where normalization matters
-- keep Drive flat; classify through metadata
-- exact filters via metadata, semantic relevance via embeddings
-- every AI output must trace back to source
-- AI failure must not block source capture
-- do not add architecture to preserve arbitrary upload limits or user-identification requirements
-
-## Explicit non-goals for initial product
-
-- AppSheet-based UI
-- separate external web frontend
-- Wiki / SNS / Like / comments
-- mailbox-wide automatic ingestion
-- custom Vector DB / embedding infrastructure
-- Knowledge Graph
-- complex tag taxonomy
-- per-user / per-file AI ACL
-- multiple user-selectable AI models
-- Web App internal Audit Viewer
-- custom audit password authentication
-- strict persistent user identity / non-repudiation
-- Outlook `.msg`
-- automatic EML attachment indexing
-- AI autonomous investment decisions
-- public-web enrichment inside same retrieval request
-
-## Current phase
-
-Implementation-ready planning. Product design is largely settled; remaining work is implementation, runtime validation, and a small number of concrete settings described in `docs/planning/apps-script-implementation-plan.md`.
+- simplicity first;
+- authoritative source and AI index are separate;
+- use shared Masters only where normalization matters;
+- keep Drive flat; classify through metadata;
+- use stable IDs for exact filters and relationships;
+- every AI output traces to source;
+- AI failure does not block source capture;
+- no architecture merely to preserve arbitrary limits or speculative future needs;
+- target-runtime evidence is obtained through the shortest coherent isolated slice.
