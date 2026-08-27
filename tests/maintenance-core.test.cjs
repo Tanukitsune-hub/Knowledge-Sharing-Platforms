@@ -4,10 +4,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { ksp, catalogRows, createFakeEnvironment } = require('./maintenance-test-fixture.cjs');
 
-test('maintenance harness uses private production Pitchbook business helpers', () => {
+test('maintenance harness uses production Meeting and private Pitchbook business helpers', () => {
   const loaderSource = fs.readFileSync(path.join(__dirname, 'maintenance-test-loader.cjs'), 'utf8');
   assert.doesNotMatch(loaderSource, /function\s+kspPitchbookContextMatchesRow\s*\(/);
   assert.doesNotMatch(loaderSource, /function\s+kspBuildPitchbookSavedFilename\s*\(/);
+  assert.doesNotMatch(loaderSource, /function\s+kspNormalizeMeetingInput_\s*\(/);
+  assert.doesNotMatch(loaderSource, /function\s+kspBuildMeetingCatalog_\s*\(/);
+  assert.doesNotMatch(loaderSource, /function\s+kspValidateMeetingInput_\s*\(/);
+  assert.match(loaderSource, /'30_MeetingCore\.gs'/);
   assert.equal(typeof ksp.kspPitchbookContextMatchesRow_, 'function');
   assert.equal(typeof ksp.kspBuildPitchbookSavedFilename_, 'function');
   assert.equal(typeof ksp.kspPitchbookContextMatchesRow, 'undefined');
@@ -18,6 +22,24 @@ test('optional search filters and date bounds work', () => {
   assert.equal(ksp.kspRecordMatchesSearch_({ Date: '2026-08-10', GP_ID: 'GP-1' }, search), true);
   assert.equal(ksp.kspRecordMatchesSearch_({ Date: '2026-09-01', GP_ID: 'GP-1' }, search), false);
   assert.throws(() => ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ dateFrom: '2026-09-01', dateTo: '2026-08-01' })), /From日付/);
+});
+
+test('Counterparty search uses exact typed entity and Related GP membership with legacy GP fallback', () => {
+  const typed={Date:'2026-08-10',GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-1,GP-12'};
+  const exact=ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({counterpartyType:'LP_ASSET_OWNER',counterpartyId:'OPT-CPLP-001',relatedGpId:'GP-1'}));
+  assert.equal(ksp.kspRecordMatchesSearch_(typed,exact),true);
+  assert.equal(ksp.kspRecordMatchesSearch_(typed,{...exact,relatedGpId:'GP'}),false);
+  assert.throws(()=>ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({counterpartyId:'OPT-CPLP-001'})),error=>error.code==='SEARCH_COUNTERPARTY_TYPE_REQUIRED');
+  const legacy={Date:'2026-08-10',GP_ID:'GP-1'};
+  assert.equal(ksp.kspMeetingCounterpartyType_(legacy),'GP');
+  assert.equal(ksp.kspMeetingCounterpartyId_(legacy),'GP-1');
+  assert.equal(ksp.kspMeetingRelatedGpIds_(legacy),'GP-1');
+});
+
+test('non-GP Option types allocate stable type-specific IDs', () => {
+  assert.equal(ksp.kspNextOptionId_([], 'COUNTERPARTY_LP'),'OPT-CPLP-001');
+  assert.equal(ksp.kspNextOptionId_([{Option_ID:'OPT-CPLP-004',Type:'COUNTERPARTY_LP'}], 'COUNTERPARTY_LP'),'OPT-CPLP-005');
+  assert.equal(ksp.kspNextOptionId_([], 'COUNTERPARTY_OTHER'),'OPT-CPOT-001');
 });
 
 test('maintenance search normalizes spreadsheet Date and Time cells', () => {
@@ -109,10 +131,48 @@ test('next stable Master IDs preserve existing maximum', () => {
 });
 
 test('maintenance audit snapshots exclude Meeting notes and file content', () => {
-  const meeting=ksp.kspMeetingAuditSnapshot_({Meeting_ID:'MTG-000001',Notes:'secret',Doc_File_ID:'doc'});
+  const meeting=ksp.kspMeetingAuditSnapshot_({
+    Meeting_ID:'MTG-000001', Notes:'secret body', Follow_Up_Note:'secret follow-up', Doc_File_ID:'doc'
+  });
   const pitch=ksp.kspPitchbookAuditSnapshot_({Document_ID:'DOC-000001',base64Data:'secret',File_ID:'file'});
   assert.equal(JSON.stringify(meeting).includes('secret'),false);
+  assert.equal(Object.hasOwn(meeting,'Notes'),false);
+  assert.equal(Object.hasOwn(meeting,'Follow_Up_Note'),false);
   assert.equal(JSON.stringify(pitch).includes('secret'),false);
+});
+
+test('Meeting Audit snapshots canonicalize Sheets Date and equivalent time values', () => {
+  const before = ksp.kspMeetingAuditSnapshot_({
+    Meeting_ID: 'MTG-000001',
+    Date: new Date('2026-08-26T15:00:00.000Z'),
+    Time: new Date(Date.UTC(1899, 11, 30, 14, 30)),
+    Internal_Participants: 'Before',
+    Version: 2,
+    Updated_At: '2026-08-27T00:00:00.000Z',
+    Notes: 'confidential body',
+    Follow_Up_Note: 'confidential follow-up'
+  });
+  const after = ksp.kspMeetingAuditSnapshot_({
+    Meeting_ID: 'MTG-000001',
+    Date: '2026-08-27',
+    Time: '14:30',
+    Internal_Participants: 'After',
+    Version: 3,
+    Updated_At: '2026-08-27T00:01:00.000Z',
+    Notes: 'confidential body changed',
+    Follow_Up_Note: 'confidential follow-up changed'
+  });
+
+  assert.equal(before.Date, '2026-08-27');
+  assert.equal(after.Date, '2026-08-27');
+  assert.equal(before.Time, '14:30');
+  assert.equal(after.Time, '14:30');
+  assert.deepEqual(Array.from(ksp.kspChangedMetadataFields_(before, after)), [
+    'Internal_Participants', 'Version', 'Updated_At'
+  ]);
+  assert.equal(Object.hasOwn(before, 'Follow_Up_Note'), false);
+  assert.equal(Object.hasOwn(after, 'Follow_Up_Note'), false);
+  assert.equal(JSON.stringify({ before, after }).includes('confidential'), false);
 });
 
 test('Pitchbook Audit snapshots compare Date objects by logical business date', () => {

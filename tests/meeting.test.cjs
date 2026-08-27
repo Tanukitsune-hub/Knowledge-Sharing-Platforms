@@ -5,13 +5,18 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 function loadMeetingSource(rootDir) {
-  const context = vm.createContext({ console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp, Error, TypeError, Set, Map });
+  function formatDateInTimeZone(value, timezone) {
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(value);
+    const byType = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    return `${byType.year}-${byType.month}-${byType.day}`;
+  }
+  const context = vm.createContext({ console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp, Error, TypeError, Set, Map, Intl, Utilities: { formatDate: formatDateInTimeZone } });
   const prelude = `
     var KSP_STATUS = Object.freeze({ ACTIVE: 'Active', INACTIVE: 'Inactive' });
     var KSP_AI_INDEX_STATUS = Object.freeze({ NOT_INDEXED: 'NotIndexed', PENDING: 'Pending', INDEXED: 'Indexed', FAILED: 'Failed' });
     var KSP_SHEET_NAMES = Object.freeze({ GP_MASTER: 'GP_Master', OPTION_MASTER: 'Option_Master', MEETING_INDEX: 'Meeting_Index', SETTINGS: 'Settings', AUDIT_LOG: 'Audit_Log' });
     var KSP_RESOURCE_KEYS = Object.freeze({ MEETING_RECORDS: 'meetingRecordsFolderId', BACKEND_SPREADSHEET: 'backendSpreadsheetId', AUDIT_SPREADSHEET: 'auditSpreadsheetId' });
-    var KSP_DEFAULTS = Object.freeze({ LOCK_TIMEOUT_MS: 30000 });
+    var KSP_DEFAULTS = Object.freeze({ LOCK_TIMEOUT_MS: 30000, TIMEZONE: 'Asia/Tokyo' });
     var KSP_PROPERTY_KEYS = Object.freeze({ INSTALLATION_STATE_JSON: 'KSP_INSTALLATION_STATE_JSON' });
     function kspAssert_(condition, code, message) { if (!condition) { var error = new Error(message); error.code = code; throw error; } }
     function kspGetErrorCode_(error, fallback) { return error && error.code ? String(error.code) : (fallback || 'UNEXPECTED_ERROR'); }
@@ -21,7 +26,7 @@ function loadMeetingSource(rootDir) {
     function kspNormalizeGeneratedNameSegment_(value) { if (value === null || value === undefined) return ''; return String(value).replace(/[\\u0000-\\u001f\\u007f]/g, '').replace(/[\\\\/&]/g, '').trim().replace(/\\s+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, ''); }
   `;
   new vm.Script(prelude, { filename: 'test-prelude.gs' }).runInContext(context);
-  for (const file of ['00_Core.gs','30_MeetingCore.gs','40_MeetingService.gs','50_MeetingLiveEnvironment.gs','90_WebApp.gs']) {
+  for (const file of ['00_Core.gs','62_PitchbookIdentity.gs','30_MeetingCore.gs','40_MeetingService.gs','50_MeetingLiveEnvironment.gs','90_WebApp.gs']) {
     new vm.Script(fs.readFileSync(path.join(rootDir, 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;
@@ -42,7 +47,8 @@ function createMasterRows() {
       { Option_ID: 'LOC-ONLINE', Type: 'LOCATION', Name: 'オンライン', Sort_Order: 1, Status: 'Active' },
       { Option_ID: 'LOC-INACTIVE', Type: 'LOCATION', Name: 'Inactive', Sort_Order: 2, Status: 'Inactive' },
       { Option_ID: 'TEAM-PD', Type: 'TEAM', Name: 'PD', Sort_Order: 1, Status: 'Active' },
-      { Option_ID: 'TEAM-OFF', Type: 'TEAM', Name: 'Former Team', Sort_Order: 2, Status: 'Inactive' }
+      { Option_ID: 'TEAM-OFF', Type: 'TEAM', Name: 'Former Team', Sort_Order: 2, Status: 'Inactive' },
+      { Option_ID: 'OPT-CPLP-001', Type: 'COUNTERPARTY_LP', Name: 'Synthetic Asset Owner', Sort_Order: 1, Status: 'Active' }
     ]
   };
 }
@@ -101,7 +107,7 @@ test('minimal Meeting registration creates document, Index row, and audit event'
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(result.meeting.id, 'MTG-000001');
   assert.equal(result.meeting.filename, '2026-08-16_KKR_Infrastructure_MTG-000001');
-  assert.equal(env._debug.documents[0].text, '日付: 2026-08-16\nGP: KKR\nAsset Class: Infrastructure');
+  assert.equal(env._debug.documents[0].text, '日付: 2026-08-16\n面談先区分: GP / 運用会社\n面談先: KKR\n関連GP: KKR\nAsset Class: Infrastructure');
   assert.equal(env._debug.rows.Meeting_Index.length, 1);
   assert.equal(env._debug.rows.Meeting_Index[0].AI_Index_Status, 'Pending');
   assert.equal(Object.hasOwn(env._debug.rows.Meeting_Index[0], 'Notes'), false);
@@ -114,7 +120,7 @@ test('optional fields render compact Docs text and preserve note line breaks', (
   const result = ksp.kspRegisterMeeting_(env, minimalInput({ time: '10:30', locationId: 'LOC-ONLINE', capitalTypeId: 'CT-EQ', counterparty: 'Jane Smith', internalParticipants: 'Kondo', notes: 'First line\r\nSecond line' }));
   assert.equal(result.ok, true);
   assert.equal(result.meeting.filename, '2026-08-16_KKR_Infrastructure_Equity_MTG-000012');
-  assert.equal(env._debug.documents[0].text, ['日付: 2026-08-16','時間: 10:30','面談場所: オンライン','GP: KKR','Asset Class: Infrastructure','Equity / Debt: Equity','面談相手: Jane Smith','当社側: Kondo','','面談内容:','First line','Second line'].join('\n'));
+  assert.equal(env._debug.documents[0].text, ['日付: 2026-08-16','時間: 10:30','面談場所: オンライン','面談先区分: GP / 運用会社','面談先: KKR','関連GP: KKR','Asset Class: Infrastructure','Equity / Debt: Equity','面談相手（氏名・役職）: Jane Smith','当社側: Kondo','','面談内容:','First line','Second line'].join('\n'));
   assert.equal(env._debug.rows.Audit_Log[0].After_Metadata_JSON.includes('First line'), false);
 });
 
@@ -176,13 +182,22 @@ test('Meeting notes never appear in Index or Audit payload', () => {
 
 test('bootstrap response exposes active options and 24-hour draft contract', () => {
   const result = ksp.kspGetMeetingBootstrapData_(createFakeEnvironment());
-  assert.equal(result.ok, true); assert.equal(result.draftTtlMs, 86_400_000); assert.deepEqual(Array.from(result.sharedContextFields), ['date','gpId','assetClassId','capitalTypeId','fundStrategy']); assert.equal(result.options.gps.length, 2); assert.deepEqual(Array.from(result.options.teams,item=>item.name),['PD']);
+  assert.equal(result.ok, true); assert.equal(result.draftTtlMs, 86_400_000); assert.deepEqual(Array.from(result.sharedContextFields), ['date','assetClassId','capitalTypeId','fundStrategy']); assert.equal(result.options.gps.length, 2); assert.deepEqual(Array.from(result.options.teams,item=>item.name),['PD']); assert.equal(result.options.counterpartyTypes.length,6); assert.equal(result.options.counterpartyTypes.find(item=>item.code==='NISSAY_INTERNAL').label,'日本生命');
+});
+
+test('Meeting Date cells use the configured Asia Tokyo business date', () => {
+  const sheetsDate = new Date('2026-08-28T15:00:00.000Z');
+  assert.equal(ksp.kspMeetingCellDate_(sheetsDate), '2026-08-29');
+  assert.equal(ksp.kspMeetingCellDate_('2026-08-29'), '2026-08-29');
 });
 
 test('UI preserves shared context, stores retry context, and clears it on changes', () => {
   const html = [
     fs.readFileSync(path.join(root, 'src', 'Index.html'), 'utf8'),
-    fs.readFileSync(path.join(root, 'src', 'ClientCore.html'), 'utf8')
+    fs.readFileSync(path.join(root, 'src', 'ClientCore.html'), 'utf8'),
+    fs.readFileSync(path.join(root, 'src', 'ClientMaintenance.html'), 'utf8'),
+    fs.readFileSync(path.join(root, 'src', 'ClientMaintenanceEnhancements.html'), 'utf8'),
+    fs.readFileSync(path.join(root, 'src', 'MaintenancePages.html'), 'utf8')
   ].join('\n');
   assert.match(html, /KSP_SHARED_DRAFT_KEY/); assert.match(html, /KSP_MEETING_DRAFT_KEY/); assert.match(html, /KSP_MEETING_RETRY_KEY/); assert.match(html, /24\s*\*\s*60\s*\*\s*60\s*\*\s*1000/);
   assert.match(html, /payload\.retryMeetingId\s*=\s*retryContext\.meetingId/); assert.match(html, /clearRetryContext\(\);\s*saveDraft\(\);?/);
@@ -194,12 +209,61 @@ test('UI preserves shared context, stores retry context, and clears it on change
   assert.match(html, /入力内容は保持されています/);
   ['meeting-teamId','meeting-fundStrategy','meeting-relatedPitchbookIds','meeting-followUpRequired','meeting-followUpNote','pitchbook-fundStrategy'].forEach(id=>assert.match(html,new RegExp(id)));
   ['ANNUAL_REVIEW','OFFICE_VISIT','ANNUAL_GENERAL_MEETING'].forEach(code=>assert.match(html,new RegExp(code)));
-  assert.match(html,/SHARED_FIELDS=\['date','gpId','assetClassId','capitalTypeId','fundStrategy'\]/);
-  assert.match(html, /addEventListener\('change',\(\)=>refreshMeetingRelatedPitchbooks\(\[\]\)\)/);
+  assert.match(html,/SHARED_FIELDS=\['date','assetClassId','capitalTypeId','fundStrategy'\]/);
+  assert.match(html, /meeting-relatedGpIds/);
+  assert.match(html, /ensurePrimaryGpRelated/);
+  assert.match(html, /GP',label:'GP \/ 運用会社'/);
+  assert.match(html, /関連GPのいずれか \+ Asset Classに一致するActive資料/);
+  assert.match(html, /clearRetryContext\(\);refreshMeetingCounterpartyEntities\([^\n]+saveMeetingDraft\(\)/);
+  assert.match(html, /meeting-relatedGpIds'\)\.addEventListener\('change',[^\n]+clearRetryContext\(\);saveMeetingDraft\(\)/);
+  assert.match(html, /const gpNode=el\(page\+'-gpId'\);/);
+  assert.doesNotMatch(html, /shared\.gpId=result\.gp\.id/);
+  assert.match(html, /ensureMeetingEditPrimaryGpRelated/);
+  assert.match(html, /meeting-edit-counterpartyId'\)\.addEventListener\('change',[^\n]+ensureMeetingEditPrimaryGpRelated\(\)/);
+  assert.match(html, /NISSAY_INTERNAL',label:'日本生命'/);
+  assert.doesNotMatch(html, /NISSAY_INTERNAL',label:'日本生命内'/);
   assert.match(html, /function kspSafeDriveUrl/);
   assert.match(html, /function kspSanitizeStatusHtml/);
   assert.ok(html.includes('return /^https:\\/\\/(?:drive|docs)\\.google\\.com\\//.test(candidate)'));
   assert.match(html, /innerHTML=kspSanitizeStatusHtml\(message\)/);
+});
+
+function extractClientFunction(source, name) {
+  const start = source.indexOf(`function ${name}(`);
+  assert.notEqual(start, -1, `${name} must exist in production client source`);
+  const next = source.indexOf('\nfunction ', start + 1);
+  return source.slice(start, next === -1 ? source.length : next);
+}
+
+test('client edit identity populates live hidden values and preserves a safe fallback', () => {
+  const source = fs.readFileSync(path.join(root, 'src', 'ClientMaintenance.html'), 'utf8');
+  const nodes = {};
+  for (const id of ['meeting-edit-meetingId', 'meeting-edit-expectedVersion']) {
+    nodes[id] = {
+      value: '',
+      defaultValue: '',
+      attributes: {},
+      setAttribute(name, value) { this.attributes[name] = String(value); },
+      getAttribute(name) { return this.attributes[name] ?? null; }
+    };
+  }
+  const context = vm.createContext({ String, Number, el(id) { return nodes[id]; } });
+  new vm.Script([
+    'let meetingEditIdentity={meetingId:"",expectedVersion:0};',
+    extractClientFunction(source, 'setMeetingEditIdentity'),
+    extractClientFunction(source, 'readMeetingEditIdentity')
+  ].join('\n'), { filename: 'client-edit-state.test.js' }).runInContext(context);
+
+  vm.runInContext("setMeetingEditIdentity({meetingId:'MTG-TEST-001',version:1})", context);
+  assert.equal(nodes['meeting-edit-meetingId'].value, 'MTG-TEST-001');
+  assert.equal(nodes['meeting-edit-meetingId'].getAttribute('value'), 'MTG-TEST-001');
+  assert.equal(nodes['meeting-edit-expectedVersion'].value, '1');
+  assert.equal(nodes['meeting-edit-expectedVersion'].getAttribute('value'), '1');
+  assert.equal(JSON.stringify(vm.runInContext('readMeetingEditIdentity()', context)), JSON.stringify({ meetingId: 'MTG-TEST-001', expectedVersion: 1 }));
+
+  nodes['meeting-edit-meetingId'].value = '';
+  nodes['meeting-edit-expectedVersion'].value = '';
+  assert.equal(JSON.stringify(vm.runInContext('readMeetingEditIdentity()', context)), JSON.stringify({ meetingId: 'MTG-TEST-001', expectedVersion: 1 }));
 });
 
 test('rich Meeting fields normalize, persist, render, and keep follow-up note out of Audit', () => {
@@ -257,4 +321,33 @@ test('legacy Meeting retry fingerprint remains valid only when new fields are bl
   const failed=ksp.kspRegisterMeeting_(changed,input);
   const rejected=ksp.kspRegisterMeeting_(changed,{...input,fundStrategy:'new',retryMeetingId:failed.retry.meetingId,retryFingerprint:legacy});
   assert.equal(rejected.ok,false); assert.equal(rejected.error.code,'MEETING_RETRY_REQUEST_CHANGED');
+});
+
+test('non-GP Meeting persists typed entity, Related GP and matching Pitchbook without GP mirror', () => {
+  const env = createFakeEnvironment({ pitchbookRows: [
+    { Document_ID:'DOC-000001', Date:'2026-08-15', GP_ID:'GP-1', Asset_Class_ID:'AC-INFRA', Status:'Active', Saved_Filename:'matching.pdf' },
+    { Document_ID:'DOC-000002', Date:'2026-08-16', GP_ID:'GP-2', Asset_Class_ID:'AC-INFRA', Status:'Active', Saved_Filename:'other.pdf' }
+  ] });
+  const result = ksp.kspRegisterMeeting_(env, minimalInput({
+    gpId:'', counterpartyType:'LP_ASSET_OWNER', counterpartyId:'OPT-CPLP-001',
+    relatedGpIds:['GP-1'], relatedPitchbookIds:['DOC-000001'], followUpNote:'never audit this'
+  }));
+  assert.equal(result.ok,true,JSON.stringify(result));
+  const row=env._debug.rows.Meeting_Index[0];
+  assert.equal(row.GP_ID,'');
+  assert.equal(row.Counterparty_Type,'LP_ASSET_OWNER');
+  assert.equal(row.Counterparty_ID,'OPT-CPLP-001');
+  assert.equal(row.Related_GP_IDs,'GP-1');
+  assert.match(result.meeting.filename,/Synthetic_Asset_Owner/);
+  assert.match(env._debug.documents[0].text,/面談先: Synthetic Asset Owner/);
+  assert.doesNotMatch(JSON.stringify(env._debug.rows.Audit_Log),/never audit this/);
+});
+
+test('Counterparty and Related GP writes fail closed while primary GP is auto included', () => {
+  const catalog=ksp.kspBuildMeetingCatalog_(createMasterRows().gps,createMasterRows().options);
+  const gp=ksp.kspNormalizeMeetingInput_(minimalInput({counterpartyType:'GP',counterpartyId:'GP-1',relatedGpIds:[]}));
+  assert.equal(gp.gpId,'GP-1');assert.equal(gp.relatedGpIds,'GP-1');
+  assert.throws(()=>ksp.kspNormalizeMeetingInput_(minimalInput({relatedGpIds:['GP-1','GP-1']})),error=>error.code==='MEETING_RELATED_GP_DUPLICATE');
+  assert.throws(()=>ksp.kspValidateMeetingInput_(ksp.kspNormalizeMeetingInput_(minimalInput({gpId:'',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'GP-1'})),catalog),error=>error.code==='MEETING_COUNTERPARTY_ENTITY_UNAVAILABLE');
+  assert.throws(()=>ksp.kspValidateMeetingInput_(ksp.kspNormalizeMeetingInput_(minimalInput({gpId:'',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'OPT-CPLP-001',relatedGpIds:['GP-UNKNOWN']})),catalog),error=>error.code==='MEETING_RELATED_GP_INVALID');
 });

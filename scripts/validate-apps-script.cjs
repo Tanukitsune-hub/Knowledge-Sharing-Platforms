@@ -33,7 +33,8 @@ if(fs.existsSync(path.join(sourceDir,'Index.html'))){
   for(const token of [
     'id="meeting-form"','id="pitchbook-form"','pitchbook-drop-zone','preparePitchbookBatch','uploadPitchbookFile',
     '25*1024*1024','KSP_PITCHBOOK_SLOT_KEY','id="page-meeting-past"','id="page-pitchbook-past"','id="page-masters"',
-    'meeting-quick-add-gp','pitchbook-quick-add-gp','searchMeetingRecords','updateMeetingMaintenance',
+    'meeting-quick-add-counterparty','meeting-counterpartyType','meeting-counterpartyId','meeting-relatedGpIds',
+    'pitchbook-quick-add-gp','searchMeetingRecords','updateMeetingMaintenance',
     'mutateMaster','quickAddGp','getPhase1MaintenanceBootstrapData','include_'
   ])if(!allSource.includes(token))throw new Error(`Source surface missing token: ${token}`);
 }

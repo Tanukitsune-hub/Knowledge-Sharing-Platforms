@@ -40,7 +40,8 @@ function catalogRows() {
       { Option_ID: 'OPT-AC-001', Type: 'ASSET_CLASS', Name: 'PE', Sort_Order: 1, Status: 'Active' },
       { Option_ID: 'OPT-AC-002', Type: 'ASSET_CLASS', Name: 'Infrastructure', Sort_Order: 2, Status: 'Active' },
       { Option_ID: 'OPT-CT-001', Type: 'CAPITAL_TYPE', Name: 'Equity', Sort_Order: 1, Status: 'Active' },
-      { Option_ID: 'OPT-TEAM-001', Type: 'TEAM', Name: 'PD', Sort_Order: 1, Status: 'Active' }
+      { Option_ID: 'OPT-TEAM-001', Type: 'TEAM', Name: 'PD', Sort_Order: 1, Status: 'Active' },
+      { Option_ID: 'OPT-CPLP-001', Type: 'COUNTERPARTY_LP', Name: 'Synthetic Asset Owner', Sort_Order: 1, Status: 'Active' }
     ]
   };
 }
@@ -304,13 +305,21 @@ test('creation preserves Meeting bodies and exports Pitchbook metadata and links
 
 test('Knowledge Export includes structured Meeting and Pitchbook metadata but not follow-up note Audit content', () => {
   const env=createFakeEnvironment({
-    meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up'})],
+    meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-000002',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up'})],
     pitchbookRows:[pitchbookRow('DOC-000001','2026-08-01',{File_ID:'file-1',Fund_Strategy:'Fund Beta'})]
   });
   const input=baseInput();const preview=ksp.kspRunKnowledgeExportPreview_(env,input);const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
   assert.equal(result.ok,true,JSON.stringify(result));const text=ksp.kspBuildKnowledgeExportPlainText_(env._debug.artifacts[0].model);
-  assert.match(text,/Team: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/Meeting Type: 定例年1回, 先方オフィス訪問/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.match(text,/Fund \/ Strategy: Fund Beta/);
+  assert.match(text,/Counterparty Type: LP \/ Asset Owner/);assert.match(text,/Counterparty Entity: Synthetic Asset Owner/);assert.match(text,/Related GP: KKR/);assert.match(text,/Team: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/Meeting Type: 定例年1回, 先方オフィス訪問/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.match(text,/Fund \/ Strategy: Fund Beta/);
   assert.equal(JSON.stringify(env._debug.audits).includes('private follow-up'),false);
+});
+
+test('entity-only Meeting changes invalidate a Knowledge Export preview fingerprint',()=>{
+  const env=createFakeEnvironment({meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',Counterparty_Type:'GP',Counterparty_ID:'GP-000002',Related_GP_IDs:'GP-000002'})],pitchbookRows:[]});
+  const input=baseInput({sourceType:'Meeting'});const preview=ksp.kspRunKnowledgeExportPreview_(env,input);
+  env._debug.meetingRows[0].Related_GP_IDs='GP-000001,GP-000002';
+  const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
+  assert.equal(result.ok,false);assert.equal(result.error.code,'KNOWLEDGE_EXPORT_PREVIEW_STALE');
 });
 
 test('creation is idempotent for the same preview fingerprint and output type', () => {

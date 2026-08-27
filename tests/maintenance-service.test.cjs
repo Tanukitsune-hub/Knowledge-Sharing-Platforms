@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { ksp, catalogRows, createFakeEnvironment } = require('./maintenance-test-fixture.cjs');
 test('maintenance bootstrap returns options and both Master tables', () => {
   const result=ksp.kspGetPhase1MaintenanceBootstrap_(createFakeEnvironment());
-  assert.equal(result.ok,true); assert.equal(result.options.gps.length,3); assert.ok(result.options.gps.some(item=>item.status==='Inactive')); assert.equal(result.masters.gps.length,3); assert.equal(result.masters.options.length,5); assert.equal(result.options.teams[0].name,'PD');
+  assert.equal(result.ok,true); assert.equal(result.options.gps.length,3); assert.ok(result.options.gps.some(item=>item.status==='Inactive')); assert.equal(result.masters.gps.length,3); assert.equal(result.masters.options.length,6); assert.equal(result.options.teams[0].name,'PD'); assert.equal(result.options.counterpartyTypes.length,6);
 });
 
 test('Meeting search returns mapped display names', () => {
@@ -17,6 +17,33 @@ test('Meeting update preserves ID/Doc, increments Version, updates Doc, and audi
   assert.equal(result.ok,true); assert.equal(result.record.meetingId,'MTG-000001'); assert.equal(result.record.documentId,'doc-1'); assert.equal(result.record.version,2);
   assert.match(env._debug.documents.get('doc-1').text,/secret\nnotes/);
   assert.equal(JSON.stringify(env._debug.audits).includes('secret'),false);
+});
+
+test('Meeting update Audit serializes equivalent Sheets Date and Time values canonically', () => {
+  const env=createFakeEnvironment({meetingRows:[{
+    Meeting_ID:'MTG-000001', Date:new Date('2026-08-26T15:00:00.000Z'), Time:new Date(Date.UTC(1899,11,30,14,30)),
+    Location_ID:'', GP_ID:'GP-000002', Asset_Class_ID:'OPT-AC-002', Capital_Type_ID:'', Counterparty:'',
+    Internal_Participants:'Before', Doc_File_ID:'doc-1', Doc_URL:'https://example/doc-1',
+    Saved_Filename:'2026-08-27_KKR_Infrastructure_MTG-000001', Status:'Active', Version:2,
+    Created_At:'2026-08-01T00:00:00.000Z', Updated_At:'2026-08-27T00:00:00.000Z', Updated_By:'old',
+    AI_Document_Name:'', AI_Index_Status:'Indexed', AI_Indexed_At:'', AI_Content_Hash:'', AI_Last_Error:'',
+    Follow_Up_Required:true, Follow_Up_Note:'private follow-up'
+  }]});
+  const result=ksp.kspUpdateMeetingMaintenance_(env,{
+    meetingId:'MTG-000001', expectedVersion:2, date:'2026-08-27', time:'14:30', locationId:'',
+    gpId:'GP-000002', assetClassId:'OPT-AC-002', capitalTypeId:'', counterparty:'',
+    internalParticipants:'After', followUpRequired:true, followUpNote:'private follow-up', notes:'private body'
+  });
+  assert.equal(result.ok,true,JSON.stringify(result));
+  assert.equal(env._debug.audits.length,1);
+  const audit=env._debug.audits[0];
+  assert.equal(audit.Action,'MEETING_UPDATE');
+  assert.deepEqual(audit.Changed_Fields.split(','),['Internal_Participants','Version','Updated_At']);
+  const before=JSON.parse(audit.Before_Metadata_JSON); const after=JSON.parse(audit.After_Metadata_JSON);
+  assert.equal(before.Date,'2026-08-27'); assert.equal(after.Date,'2026-08-27');
+  assert.equal(before.Time,'14:30'); assert.equal(after.Time,'14:30');
+  assert.equal(Object.hasOwn(before,'Follow_Up_Note'),false); assert.equal(Object.hasOwn(after,'Follow_Up_Note'),false);
+  assert.equal(JSON.stringify({before,after}).includes('private'),false);
 });
 
 test('stale Meeting update is rejected without mutating the document', () => {
@@ -170,6 +197,13 @@ test('Phase 1 diagnostics expose Actor fallback kind without exposing the Actor 
   assert.equal(Object.hasOwn(result.actor,'value'),false);
 });
 
+test('non-GP Counterparty Entity uses existing Option Master mutation path',()=>{
+  const env=createFakeEnvironment();
+  const result=ksp.kspMutateMaster_(env,{entity:'OPTION',action:'ADD',type:'COUNTERPARTY_OTHER',name:'Synthetic Other Entity'});
+  assert.equal(result.ok,true,JSON.stringify(result));assert.equal(result.record.Type,'COUNTERPARTY_OTHER');assert.match(result.record.Option_ID,/^OPT-CPOT-/);
+  assert.equal(result.masters.options.some(item=>item.type==='COUNTERPARTY_OTHER'&&item.name==='Synthetic Other Entity'),true);
+});
+
 test('rich Meeting search and edit round-trip structured context without follow-up Audit content', () => {
   const meeting={Meeting_ID:'MTG-000010',Date:'2026-08-10',Time:'',Location_ID:'',GP_ID:'GP-000002',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up',Doc_File_ID:'doc-rich',Doc_URL:'https://example/doc-rich',Saved_Filename:'rich',Status:'Active',Version:1,Updated_At:'2026-08-10T00:00:00.000Z',AI_Index_Status:'Indexed'};
   const env=createFakeEnvironment({meetingRows:[meeting],documents:{'doc-rich':{name:'rich',text:'日付: 2026-08-10\nGP: KKR\nAsset Class: Infrastructure\n\n面談内容:\nlegacy body'}}});
@@ -188,6 +222,18 @@ test('existing linked Pitchbook remains available after inactivation', () => {
   ],'GP-000002','OPT-AC-002',['DOC-000001']);
   assert.deepEqual(Array.from(choices,item=>item.id),['DOC-000002','DOC-000001']);
   assert.equal(choices.find(item=>item.id==='DOC-000001').preserved,true);
+  const unresolved=ksp.kspBuildMaintenanceRelatedPitchbookChoices_([],['GP-000002'],'OPT-AC-002',['DOC-009999']);
+  assert.equal(unresolved.length,1);assert.equal(unresolved[0].id,'DOC-009999');assert.equal(unresolved[0].preserved,true);assert.equal(unresolved[0].unresolved,true);
+});
+
+test('non-GP Meeting reopens, edits and searches by typed entity plus Related GP',()=>{
+  const meeting={Meeting_ID:'MTG-000020',Date:'2026-08-10',Time:'',Location_ID:'',GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-000001',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',Related_Pitchbook_IDs:'DOC-000020',Doc_File_ID:'doc-non-gp',Doc_URL:'https://example/doc-non-gp',Saved_Filename:'synthetic',Status:'Active',Version:1,Updated_At:'2026-08-10T00:00:00.000Z',AI_Index_Status:'Indexed'};
+  const pitchbook={Document_ID:'DOC-000020',Batch_ID:'BAT-000020',Date:'2026-08-09',GP_ID:'GP-000001',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',Sequence_No:1,File_ID:'file-20',File_URL:'https://example/file-20',Original_Filename:'source.pdf',Saved_Filename:'matching.pdf',Status:'Active',Updated_At:'2026-08-09T00:00:00.000Z'};
+  const env=createFakeEnvironment({meetingRows:[meeting],pitchbookRows:[pitchbook],documents:{'doc-non-gp':{name:'synthetic',text:'日付: 2026-08-10\n面談先区分: LP / Asset Owner\n面談先: Synthetic Asset Owner\n関連GP: Apollo\nAsset Class: Infrastructure\n\n面談内容:\nbody'}}});
+  const opened=ksp.kspGetMeetingMaintenanceRecord_(env,'MTG-000020');assert.equal(opened.ok,true);assert.equal(opened.record.counterpartyEntityName,'Synthetic Asset Owner');assert.deepEqual(Array.from(opened.record.relatedGpIds),['GP-000001']);assert.ok(opened.record.relatedPitchbooks.some(item=>item.id==='DOC-000020'));
+  const updated=ksp.kspUpdateMeetingMaintenance_(env,{meetingId:'MTG-000020',expectedVersion:1,date:'2026-08-10',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'OPT-CPLP-001',relatedGpIds:['GP-000001'],assetClassId:'OPT-AC-002',fundStrategy:'Synthetic strategy',relatedPitchbookIds:['DOC-000020'],notes:'edited'});
+  assert.equal(updated.ok,true,JSON.stringify(updated));assert.equal(updated.record.gpId,'');assert.equal(updated.record.counterpartyType,'LP_ASSET_OWNER');
+  const found=ksp.kspSearchMeetingRecords_(env,{counterpartyType:'LP_ASSET_OWNER',counterpartyId:'OPT-CPLP-001',relatedGpId:'GP-000001'});assert.equal(found.ok,true);assert.equal(found.records.length,1);assert.equal(found.records[0].fundStrategy,'Synthetic strategy');
 });
 
 test('Pitchbook Fund Strategy survives edit/search and legacy blank remains valid', () => {

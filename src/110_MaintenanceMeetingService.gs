@@ -55,7 +55,10 @@ function kspGetPhase1MaintenanceBootstrap_(environment) {
       appVersion: KSP_MAINTENANCE_APP_VERSION,
       options: kspBuildMeetingBootstrapResponse_(context.catalog).options,
       statuses: [KSP_STATUS.ACTIVE, KSP_STATUS.INACTIVE, KSP_PITCHBOOK_STATUS.PENDING, KSP_PITCHBOOK_STATUS.FAILED],
-      optionTypes: [KSP_OPTION_TYPES.ASSET_CLASS, KSP_OPTION_TYPES.CAPITAL_TYPE, KSP_OPTION_TYPES.LOCATION, KSP_OPTION_TYPES.TEAM],
+      optionTypes: [KSP_OPTION_TYPES.ASSET_CLASS, KSP_OPTION_TYPES.CAPITAL_TYPE, KSP_OPTION_TYPES.LOCATION,
+        KSP_OPTION_TYPES.TEAM, KSP_OPTION_TYPES.COUNTERPARTY_LP, KSP_OPTION_TYPES.COUNTERPARTY_NISSAY_DEPARTMENT,
+        KSP_OPTION_TYPES.COUNTERPARTY_GROUP_COMPANY, KSP_OPTION_TYPES.COUNTERPARTY_CONSULTANT_GATEKEEPER,
+        KSP_OPTION_TYPES.COUNTERPARTY_OTHER],
       masters: kspBuildMasterResponse_(context.gpRows, context.optionRows)
     };
   } catch (error) {
@@ -111,7 +114,7 @@ function kspGetMeetingMaintenanceRecord_(environment, meetingId) {
     var record = kspMapMeetingSearchResult_(row, maps);
     record.notes = parsed.notes;
     record.relatedPitchbooks = kspBuildMaintenanceRelatedPitchbookChoices_(
-      context.pitchbookRows, row.GP_ID, row.Asset_Class_ID, record.relatedPitchbookIds
+      context.pitchbookRows, record.relatedGpIds, row.Asset_Class_ID, record.relatedPitchbookIds
     );
     return { ok: true, workId: KSP_MAINTENANCE_WORK_ID, record: record };
   } catch (error) {
@@ -138,8 +141,16 @@ function kspUpdateMeetingMaintenance_(environment, rawInput) {
     context.catalog.teams = (context.catalog.teams || []).filter(function (team) {
       return String(team.status || '') === KSP_STATUS.ACTIVE || String(team.id || '') === currentTeamId;
     });
+    var currentCounterpartyKey = kspMeetingCounterpartyType_(currentRow) + ':' + kspMeetingCounterpartyId_(currentRow);
+    context.catalog.counterpartyEntities = (context.catalog.counterpartyEntities || []).filter(function (entity) {
+      return String(entity.status || '') === KSP_STATUS.ACTIVE || entity.entityKey === currentCounterpartyKey;
+    });
+    var currentRelatedGps = kspMaintenanceSplitCodes_(kspMeetingRelatedGpIds_(currentRow));
+    context.catalog.gps = (context.catalog.gps || []).filter(function (gp) {
+      return String(gp.status || '') === KSP_STATUS.ACTIVE || currentRelatedGps.indexOf(String(gp.id || '')) !== -1;
+    });
     context.catalog.relatedPitchbooks = kspBuildMaintenanceRelatedPitchbookChoices_(
-      context.pitchbookRows, input.gpId, input.assetClassId,
+      context.pitchbookRows, input.relatedGpIds, input.assetClassId,
       kspMaintenanceSplitCodes_(currentRow.Related_Pitchbook_IDs)
     );
     var selected = kspValidateMeetingEditInput_(input, context.catalog);

@@ -298,6 +298,9 @@ function kspBuildKnowledgeExportSource_(sourceType, row) {
     String(row.Saved_Filename || ''),
     String(row.Original_Filename || ''),
     String(row.GP_ID || ''),
+    kspMeetingCounterpartyType_(row),
+    kspMeetingCounterpartyId_(row),
+    kspMeetingRelatedGpIds_(row),
     String(row.Asset_Class_ID || ''),
     String(row.Capital_Type_ID || ''),
     String(row.Team_ID || ''),
@@ -375,7 +378,9 @@ function kspKnowledgeExportCatalogToken_(catalog) {
     gps: (value.gps || []).map(function (item) { return [item.id, item.name, item.status]; }),
     assetClasses: (value.assetClasses || []).map(function (item) { return [item.id, item.name, item.status]; }),
     capitalTypes: (value.capitalTypes || []).map(function (item) { return [item.id, item.name, item.status]; }),
-    teams: (value.teams || []).map(function (item) { return [item.id, item.name, item.status]; })
+    teams: (value.teams || []).map(function (item) { return [item.id, item.name, item.status]; }),
+    counterpartyTypes: (value.counterpartyTypes || []).map(function (item) { return [item.code, item.label, item.optionType]; }),
+    counterpartyEntities: (value.counterpartyEntities || []).map(function (item) { return [item.type, item.id, item.name, item.status]; })
   }));
 }
 
@@ -444,15 +449,23 @@ function kspBuildKnowledgeExportFilename_(input, nowIso, outputType) {
 }
 
 function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, title) {
-  var safeMaps = maps || { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {} };
+  var safeMaps = maps || { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} };
   var meetingSections = (meetings || []).map(function (item) {
     var row = item.source.row;
+    var counterpartyType = kspMeetingCounterpartyType_(row);
+    var counterpartyId = kspMeetingCounterpartyId_(row);
+    var definition = kspCounterpartyTypeDefinition_(counterpartyType);
+    var relatedGpIds = kspMaintenanceSplitCodes_(kspMeetingRelatedGpIds_(row));
     var lines = [
       'Meeting ID: ' + item.source.sourceId,
       'Date: ' + item.source.date,
-      'GP: ' + (safeMaps.gp[String(row.GP_ID || '')] || String(row.GP_ID || '')),
+      'Counterparty Type: ' + (definition ? definition.label : counterpartyType),
+      'Counterparty Entity: ' + ((safeMaps.counterparty || {})[counterpartyType + ':' + counterpartyId] || counterpartyId),
       'Asset Class: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''))
     ];
+    if (relatedGpIds.length) lines.push('Related GP: ' + relatedGpIds.map(function (id) {
+      return (safeMaps.gp || {})[id] || id;
+    }).join(', '));
     if (row.Time) lines.push('Time: ' + kspMaintenanceCellText_(row.Time, 'time'));
     if (row.Capital_Type_ID) lines.push('Equity / Debt: ' + (safeMaps.capitalType[String(row.Capital_Type_ID)] || String(row.Capital_Type_ID)));
     if (row.Location_ID) lines.push('Location: ' + (safeMaps.location[String(row.Location_ID)] || String(row.Location_ID)));

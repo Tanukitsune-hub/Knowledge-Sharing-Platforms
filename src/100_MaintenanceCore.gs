@@ -40,6 +40,9 @@ function kspNormalizeRecordSearch_(input) {
     dateFrom: kspMaintenanceTrim_(source.dateFrom),
     dateTo: kspMaintenanceTrim_(source.dateTo),
     gpId: kspMaintenanceTrim_(source.gpId),
+    counterpartyType: kspMaintenanceTrim_(source.counterpartyType),
+    counterpartyId: kspMaintenanceTrim_(source.counterpartyId),
+    relatedGpId: kspMaintenanceTrim_(source.relatedGpId),
     assetClassId: kspMaintenanceTrim_(source.assetClassId),
     capitalTypeId: kspMaintenanceTrim_(source.capitalTypeId),
     teamId: kspMaintenanceTrim_(source.teamId),
@@ -68,6 +71,12 @@ function kspValidateRecordSearch_(search) {
     kspAssert_(['ANNUAL_REVIEW', 'OFFICE_VISIT', 'ANNUAL_GENERAL_MEETING'].indexOf(search.meetingTypeCode) !== -1,
       'SEARCH_MEETING_TYPE_INVALID', 'Meeting type filterが不正です。');
   }
+  if (search.counterpartyType) {
+    kspAssert_(Boolean(kspCounterpartyTypeDefinition_(search.counterpartyType)),
+      'SEARCH_COUNTERPARTY_TYPE_INVALID', '面談先区分filterが不正です。');
+  }
+  kspAssert_(!search.counterpartyId || search.counterpartyType,
+    'SEARCH_COUNTERPARTY_TYPE_REQUIRED', '面談先filterには面談先区分が必要です。');
   return search;
 }
 
@@ -114,13 +123,16 @@ function kspMaintenanceMeetingTypeLabels_(value) {
   return kspMaintenanceSplitCodes_(value).map(function (code) { return labels[code] || code; });
 }
 
-function kspBuildMaintenanceRelatedPitchbookChoices_(rows, gpId, assetClassId, existingIds) {
+function kspBuildMaintenanceRelatedPitchbookChoices_(rows, relatedGpIds, assetClassId, existingIds) {
   var preserved = {};
+  var related = {};
+  (Array.isArray(relatedGpIds) ? relatedGpIds : kspMaintenanceSplitCodes_(relatedGpIds))
+    .forEach(function (id) { related[String(id)] = true; });
   (existingIds || []).forEach(function (id) { preserved[String(id)] = true; });
-  return (rows || []).filter(function (row) {
+  var choices = (rows || []).filter(function (row) {
     var id = String(row.Document_ID || '');
     return id && (preserved[id] || (String(row.Status || '') === KSP_STATUS.ACTIVE &&
-      String(row.GP_ID || '') === String(gpId || '') &&
+      related[String(row.GP_ID || '')] &&
       String(row.Asset_Class_ID || '') === String(assetClassId || '')));
   }).map(function (row) {
     return {
@@ -132,6 +144,13 @@ function kspBuildMaintenanceRelatedPitchbookChoices_(rows, gpId, assetClassId, e
   }).sort(function (left, right) {
     return right.date.localeCompare(left.date) || left.id.localeCompare(right.id);
   });
+  var resolved = {};
+  choices.forEach(function (item) { resolved[item.id] = true; });
+  Object.keys(preserved).filter(function (id) { return !resolved[id]; }).sort().forEach(function (id) {
+    choices.push({ id: id, date: '', gpId: '', assetClassId: '', title: id,
+      status: '', preserved: true, unresolved: true });
+  });
+  return choices;
 }
 
 function kspRecordMatchesSearch_(row, search) {
@@ -139,6 +158,9 @@ function kspRecordMatchesSearch_(row, search) {
   if (search.dateFrom && date < search.dateFrom) return false;
   if (search.dateTo && date > search.dateTo) return false;
   if (search.gpId && String(row.GP_ID || '') !== search.gpId) return false;
+  if (search.counterpartyType && kspMeetingCounterpartyType_(row) !== search.counterpartyType) return false;
+  if (search.counterpartyId && kspMeetingCounterpartyId_(row) !== search.counterpartyId) return false;
+  if (search.relatedGpId && kspMaintenanceSplitCodes_(kspMeetingRelatedGpIds_(row)).indexOf(search.relatedGpId) === -1) return false;
   if (search.assetClassId && String(row.Asset_Class_ID || '') !== search.assetClassId) return false;
   if (search.capitalTypeId && String(row.Capital_Type_ID || '') !== search.capitalTypeId) return false;
   if (search.teamId && String(row.Team_ID || '') !== search.teamId) return false;
@@ -166,19 +188,23 @@ function kspSearchRows_(rows, search, mapper) {
 }
 
 function kspBuildCatalogMaps_(catalog) {
-  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {} };
+  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} };
   (catalog.gps || []).forEach(function (item) { maps.gp[item.id] = item.name; });
   (catalog.assetClasses || []).forEach(function (item) { maps.assetClass[item.id] = item.name; });
   (catalog.capitalTypes || []).forEach(function (item) { maps.capitalType[item.id] = item.name; });
   (catalog.locations || []).forEach(function (item) { maps.location[item.id] = item.name; });
   (catalog.teams || []).forEach(function (item) { maps.team[item.id] = item.name; });
+  (catalog.counterpartyEntities || []).forEach(function (item) { maps.counterparty[item.type + ':' + item.id] = item.name; });
   return maps;
 }
 
 function kspBuildAllMasterMaps_(gpRows, optionRows) {
-  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {} };
+  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} };
   (gpRows || []).forEach(function (row) {
-    if (row.GP_ID) maps.gp[String(row.GP_ID)] = String(row.GP_Name || '');
+    if (row.GP_ID) {
+      maps.gp[String(row.GP_ID)] = String(row.GP_Name || '');
+      maps.counterparty['GP:' + String(row.GP_ID)] = String(row.GP_Name || '');
+    }
   });
   (optionRows || []).forEach(function (row) {
     var target = String(row.Type || '') === KSP_OPTION_TYPES.ASSET_CLASS ? maps.assetClass
@@ -186,17 +212,29 @@ function kspBuildAllMasterMaps_(gpRows, optionRows) {
       : String(row.Type || '') === KSP_OPTION_TYPES.LOCATION ? maps.location
       : String(row.Type || '') === KSP_OPTION_TYPES.TEAM ? maps.team : null;
     if (target && row.Option_ID) target[String(row.Option_ID)] = String(row.Name || '');
+    var definition = KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(function (item) {
+      return item.optionType === String(row.Type || '');
+    })[0];
+    if (definition && row.Option_ID) maps.counterparty[definition.code + ':' + String(row.Option_ID)] = String(row.Name || '');
   });
   return maps;
 }
 
 function kspMapMeetingSearchResult_(row, maps) {
+  var counterpartyType = kspMeetingCounterpartyType_(row);
+  var counterpartyId = kspMeetingCounterpartyId_(row);
+  var relatedGpIds = kspMaintenanceSplitCodes_(kspMeetingRelatedGpIds_(row));
   return {
     meetingId: String(row.Meeting_ID || ''),
     date: kspMaintenanceCellText_(row.Date, 'date'),
     time: kspMaintenanceCellText_(row.Time, 'time'),
     gpId: String(row.GP_ID || ''),
     gpName: maps.gp[String(row.GP_ID || '')] || '',
+    counterpartyType: counterpartyType,
+    counterpartyId: counterpartyId,
+    counterpartyEntityName: (maps.counterparty || {})[counterpartyType + ':' + counterpartyId] || '',
+    relatedGpIds: relatedGpIds,
+    relatedGpNames: relatedGpIds.map(function (id) { return maps.gp[id] || id; }),
     assetClassId: String(row.Asset_Class_ID || ''),
     assetClassName: maps.assetClass[String(row.Asset_Class_ID || '')] || '',
     capitalTypeId: String(row.Capital_Type_ID || ''),
@@ -263,9 +301,12 @@ function kspParseMeetingDocumentText_(text) {
     time: values['時間'] || '',
     locationName: values['面談場所'] || '',
     gpName: values.GP || '',
+    counterpartyTypeLabel: values['面談先区分'] || '',
+    counterpartyEntityName: values['面談先'] || values.GP || '',
+    relatedGpNames: values['関連GP'] || values.GP || '',
     assetClassName: values['Asset Class'] || '',
     capitalTypeName: values['Equity / Debt'] || '',
-    counterparty: values['面談相手'] || '',
+    counterparty: values['面談相手（氏名・役職）'] || values['面談相手'] || '',
     internalParticipants: values['当社側'] || '',
     followUpNote: values['フォローアップメモ'] || '',
     notes: notes
@@ -310,6 +351,9 @@ function kspBuildMeetingEditedRow_(currentRow, input, actor, nowIso, filename) {
   updated.Time = input.time;
   updated.Location_ID = input.locationId;
   updated.GP_ID = input.gpId;
+  updated.Counterparty_Type = input.counterpartyType;
+  updated.Counterparty_ID = input.counterpartyId;
+  updated.Related_GP_IDs = input.relatedGpIds;
   updated.Asset_Class_ID = input.assetClassId;
   updated.Capital_Type_ID = input.capitalTypeId;
   updated.Team_ID = input.teamId;
@@ -416,7 +460,12 @@ function kspNextGpId_(rows) {
 }
 
 function kspOptionPrefix_(type) {
-  var prefixes = { ASSET_CLASS: 'AC', CAPITAL_TYPE: 'CT', LOCATION: 'LOC', TEAM: 'TEAM' };
+  var prefixes = {
+    ASSET_CLASS: 'AC', CAPITAL_TYPE: 'CT', LOCATION: 'LOC', TEAM: 'TEAM',
+    COUNTERPARTY_LP: 'CPLP', COUNTERPARTY_NISSAY_DEPARTMENT: 'CPND',
+    COUNTERPARTY_GROUP_COMPANY: 'CPGC', COUNTERPARTY_CONSULTANT_GATEKEEPER: 'CPCG',
+    COUNTERPARTY_OTHER: 'CPOT'
+  };
   kspAssert_(prefixes[type], 'OPTION_TYPE_INVALID', 'Option Typeが不正です。');
   return prefixes[type];
 }
@@ -507,8 +556,12 @@ function kspBuildMaintenanceAuditRow_(params) {
 
 function kspMeetingAuditSnapshot_(row) {
   return {
-    Meeting_ID: row.Meeting_ID || '', Date: row.Date || '', Time: row.Time || '',
+    Meeting_ID: row.Meeting_ID || '', Date: kspMaintenanceCellText_(row.Date, 'date'),
+    Time: kspMaintenanceCellText_(row.Time, 'time'),
     Location_ID: row.Location_ID || '', GP_ID: row.GP_ID || '',
+    Counterparty_Type: kspMeetingCounterpartyType_(row),
+    Counterparty_ID: kspMeetingCounterpartyId_(row),
+    Related_GP_IDs: kspMeetingRelatedGpIds_(row),
     Asset_Class_ID: row.Asset_Class_ID || '', Capital_Type_ID: row.Capital_Type_ID || '',
     Team_ID: row.Team_ID || '', Fund_Strategy: row.Fund_Strategy || '',
     Meeting_Type_Codes: row.Meeting_Type_Codes || '', Related_Pitchbook_IDs: row.Related_Pitchbook_IDs || '',

@@ -124,6 +124,17 @@ function createFakeEnvironment(options = {}) {
       }
       return { action: 'reused', addedHeaders: [], columnCount: existing.headers.length };
     },
+    backfillMeetingCounterpartyFields(spreadsheetId) {
+      const sheet = spreadsheets.get(spreadsheetId).sheets.get('Meeting_Index');
+      let updated = 0;
+      for (const row of sheet.rows) {
+        const patch = ksp.kspBuildLegacyMeetingCounterpartyBackfill_(row);
+        if (!patch) continue;
+        Object.assign(row, patch);
+        updated += 1;
+      }
+      return { scanned: sheet.rows.length, updated };
+    },
     insertMissingRows(spreadsheetId, sheetName, keyColumn, rows) {
       const sheet = spreadsheets.get(spreadsheetId).sheets.get(sheetName);
       const keys = new Set(sheet.rows.map((row) => String(row[keyColumn])));
@@ -232,7 +243,7 @@ test('defines exactly five baseline backend sheets', () => {
   ]);
   assert.ok(schemas.Meeting_Index.includes('AI_Index_Status'));
   assert.ok(schemas.Pitchbook_Index.includes('Original_Filename'));
-  assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-6)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note']);
+  assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-9)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs']);
   assert.equal(schemas.Pitchbook_Index.at(-1), 'Fund_Strategy');
 });
 
@@ -329,6 +340,18 @@ test('TEAM seed repair inserts only missing IDs and preserves user mutations', (
   assert.equal(rows.filter(row=>row.Type==='TEAM').length,2);
 });
 
+test('Work 0016 legacy Meeting backfill is blank-only and idempotent', () => {
+  const legacy={GP_ID:'GP-000001',Counterparty_Type:'',Counterparty_ID:'',Related_GP_IDs:'',Version:7,Updated_At:'stable',AI_Index_Status:'Indexed'};
+  const first=ksp.kspBuildLegacyMeetingCounterpartyBackfill_(legacy);
+  assert.deepEqual(JSON.parse(JSON.stringify(first)),{Counterparty_Type:'GP',Counterparty_ID:'GP-000001',Related_GP_IDs:'GP-000001'});
+  const migrated={...legacy,...first};
+  assert.equal(ksp.kspBuildLegacyMeetingCounterpartyBackfill_(migrated),null);
+  assert.equal(migrated.Version,7);assert.equal(migrated.Updated_At,'stable');assert.equal(migrated.AI_Index_Status,'Indexed');
+  assert.equal(ksp.kspBuildLegacyMeetingCounterpartyBackfill_({GP_ID:'GP-000001',Counterparty_Type:'OTHER',Counterparty_ID:'OPT-CPOT-001',Related_GP_IDs:'GP-000002'}),null);
+  assert.equal(ksp.kspBuildLegacyMeetingCounterpartyBackfill_({GP_ID:'GP-000001',Counterparty_Type:'OTHER',Counterparty_ID:'',Related_GP_IDs:''}),null);
+  assert.equal(ksp.kspBuildLegacyMeetingCounterpartyBackfill_({GP_ID:''}),null);
+});
+
 function bootstrap() {
   return JSON.stringify({
     environment: 'DEV',
@@ -360,7 +383,7 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const exportsFolder = env._debug.resources.get(state.resources.knowledgeExportsFolderId);
   assert.equal(exportsFolder.name, 'Knowledge Exports');
   assert.deepEqual(exportsFolder.parents, ['knowledge-parent']);
-  assert.equal(state.schemaVersion, 3);
+  assert.equal(state.schemaVersion, 4);
   assert.equal(backend.sheets.size, 5);
   assert.equal(audit.sheets.size, 1);
   assert.equal(backend.sheets.get('GP_Master').rows.length, 30);

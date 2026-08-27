@@ -25,12 +25,26 @@ function kspBuildMaintenanceCatalog_(gpRows, optionRows) {
         return left.name.localeCompare(right.name, 'ja');
       });
   }
+  var counterpartyEntities = gps.map(function (gp) {
+    return { id: gp.id, type: 'GP', name: gp.name, status: gp.status, optionType: '', entityKey: 'GP:' + gp.id };
+  });
+  KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(function (definition) { return definition.optionType; })
+    .forEach(function (definition) {
+      byType(definition.optionType).forEach(function (option) {
+        counterpartyEntities.push({ id: option.id, type: definition.code, name: option.name,
+          status: option.status, optionType: definition.optionType, entityKey: definition.code + ':' + option.id });
+      });
+    });
   return {
     gps: gps,
     assetClasses: byType(KSP_OPTION_TYPES.ASSET_CLASS),
     capitalTypes: byType(KSP_OPTION_TYPES.CAPITAL_TYPE),
     locations: byType(KSP_OPTION_TYPES.LOCATION),
-    teams: byType(KSP_OPTION_TYPES.TEAM)
+    teams: byType(KSP_OPTION_TYPES.TEAM),
+    counterpartyTypes: KSP_COUNTERPARTY_TYPE_DEFINITIONS.map(function (definition) {
+      return { code: definition.code, label: definition.label, optionType: definition.optionType };
+    }),
+    counterpartyEntities: counterpartyEntities
   };
 }
 

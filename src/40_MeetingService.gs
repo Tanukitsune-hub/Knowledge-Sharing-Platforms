@@ -35,7 +35,7 @@ function kspRegisterMeeting_(environment, rawInput) {
     normalizedInput = kspNormalizeMeetingInput_(rawInput);
     context = kspLoadMeetingRuntimeContext_(environment);
     context.catalog.relatedPitchbooks = kspBuildRelatedPitchbookChoices_(
-      context.pitchbookRows, normalizedInput.gpId, normalizedInput.assetClassId, []
+      context.pitchbookRows, normalizedInput.relatedGpIds, normalizedInput.assetClassId, []
     );
     selected = kspValidateMeetingInput_(normalizedInput, context.catalog);
     fingerprint = kspBuildMeetingRequestFingerprint_(normalizedInput);
