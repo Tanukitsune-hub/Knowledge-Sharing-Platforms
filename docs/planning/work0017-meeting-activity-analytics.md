@@ -2,7 +2,7 @@
 
 WORK_ID: `0017`
 
-Status: Planned after Work 0016
+Status: Implementation-ready after accepted Work 0016 and Work 0022
 
 Mode: `BUILD`
 
@@ -17,9 +17,11 @@ The user can understand:
 - which counterparties / GPs / Asset Classes / Teams drove activity;
 - which monthly records still require the agreed administrative step.
 
-## Dependency
+## Dependencies / closed foundations
 
-Work 0016 must be accepted first. Analytics is built on:
+Work 0016 and Work 0022 are accepted and completion-latched.
+
+Analytics is built on:
 
 ```text
 Counterparty_Type
@@ -31,6 +33,8 @@ Meeting_Type_Codes
 Date
 Status
 ```
+
+Every period/filter/bucket calculation must consume the accepted Work 0022 temporal contract. Do not add another date parser or fiscal-year date algorithm outside the analytics bucketing logic.
 
 Do not implement a GP-only analytics model and later retrofit entity categories.
 
@@ -47,7 +51,20 @@ Custom date range
 Cumulative from selected start date
 ```
 
-All date bucketing uses the configured `Asia/Tokyo` logical Meeting date.
+All bucketing uses canonical Business Date in configured `Asia/Tokyo`.
+
+Fiscal-year labels use the starting year: `FY2026` means `2026-04-01` through `2027-03-31`.
+
+For deterministic initial behavior:
+
+- Monthly -> `YYYY-MM` buckets;
+- Calendar quarter -> `YYYY-Q1..Q4` buckets;
+- Calendar year -> `YYYY` buckets;
+- Fiscal year -> `FYyyyy` buckets;
+- Custom date range -> exact-date (`YYYY-MM-DD`) buckets inside the selected inclusive range;
+- Cumulative -> monthly buckets from the selected start date, with running Meeting count.
+
+Do not add adaptive/automatic granularity in this Work.
 
 ## Metrics
 
@@ -55,8 +72,10 @@ Initial metrics:
 
 - Meeting count;
 - Active Meeting count;
-- distinct counterparty count;
-- optional open-follow-up count as a secondary informational metric only.
+- distinct counterparty count using stable composite entity identity;
+- open-follow-up count as a secondary informational metric only.
+
+Metrics are computed from the full matching row set before display caps.
 
 Do not turn follow-up into a task workflow.
 
@@ -74,7 +93,7 @@ Meeting Type
 Status
 ```
 
-`未設定` remains a valid bucket for legacy/unset Team or optional metadata.
+`未設定` remains a valid bucket for legacy/unset optional metadata.
 
 Views should permit:
 
@@ -90,24 +109,24 @@ Avoid a highly configurable BI-builder UI. Provide a small set of clear controls
 Initial chart set:
 
 1. time-series Meeting count;
-2. category/entity breakdown for the selected range;
+2. selected-dimension breakdown for the selected range;
 3. cumulative count when cumulative mode is selected.
 
-Use browser-native chart rendering already acceptable to the repository or a small dependency-free implementation. Do not introduce an external dashboard service.
+Use dependency-free browser rendering (HTML/CSS/SVG as appropriate). Do not introduce an external dashboard/chart service or library solely for this Work.
 
 Charts must have accessible tabular equivalents and honest empty/truncated states.
 
-## Monthly administrative check
+## Monthly administrative check — confirmed contract
 
-The page includes a selected-month Meeting list with one lightweight persistent completion control per Meeting.
-
-Before implementation, confirm the exact business label. Default proposal:
+Business label is confirmed for this Work as:
 
 ```text
 月次管理反映済み
 ```
 
-Default persistence is intentionally minimal:
+It is exactly one binary state. Do not add Not Applicable, multiple checks, workflow states, assignments, deadlines, reminders, or task management.
+
+Append to `Meeting_Index`:
 
 ```text
 Admin_Check_Completed
@@ -115,9 +134,17 @@ Admin_Check_Updated_At
 Admin_Check_Updated_By
 ```
 
-These columns are append-only on `Meeting_Index`, blank/false for legacy rows, and Audit only metadata-level changes.
+Semantics:
 
-If the real process requires multiple independent checks or a Not Applicable state, stop at Work kickoff and revise the contract before schema implementation. Do not silently turn one checkbox into a generic workflow engine.
+- legacy blank `Admin_Check_Completed` reads as false;
+- new state is written as a boolean-compatible value through the existing Sheets conventions;
+- `Admin_Check_Updated_At` is canonical Instant UTC ISO;
+- `Admin_Check_Updated_By` uses the existing best-effort Actor contract;
+- admin-check mutation must not change Meeting identity, Meeting `Version`, Meeting `Updated_At`, Doc/file content, AI index state, follow-up content, or unrelated fields;
+- use a narrow optimistic concurrency contract based on the current admin-check state/token rather than reusing the normal Meeting edit mutation;
+- Audit records metadata-only before/after admin-check state and actor/timestamp; no Meeting body or Follow-up note content.
+
+The schema change is append-only and therefore increments `KSP_SCHEMA_VERSION` once.
 
 ## Data and performance model
 
@@ -138,38 +165,45 @@ Add one `Activity Analytics` page containing:
 - time-series chart/table;
 - selected-dimension breakdown;
 - underlying Meeting list;
-- monthly admin check section when a month is selected.
+- monthly admin-check section when a month is selected.
 
 Clicking a Meeting opens the existing authoritative Doc or maintenance record. No duplicate Meeting content is stored in the analytics response.
 
 ## Public surface
 
-Prefer one bounded read facade and one narrow admin-check mutation facade rather than many browser-callable functions.
+Prefer exactly one bounded read facade and one narrow admin-check mutation facade.
 
-Any new public functions must be explicitly allowlisted and safe-error wrapped. Analytics reads must not Audit every page view. Administrative check mutations must Audit the changed state.
+Any new public functions must be explicitly allowlisted and safe-error wrapped. Analytics reads must not Audit page views. Administrative check mutations must Audit the changed state.
+
+Expected public-facade delta is `+2` unless implementation can safely reuse an already-approved facade without broadening its contract.
 
 ## Shortest target-runtime slice
 
-1. render one monthly series from existing synthetic records;
-2. switch one dimension between Counterparty Type and Team;
-3. drill to the exact underlying Meeting list;
-4. toggle one synthetic Meeting's administrative check once;
-5. reopen and confirm persistence/Audit;
-6. restore the synthetic check to its baseline if the qualification contract requires a clean final state;
-7. verify no Meeting Doc/source file/AI state mutation.
+1. migrate the exact existing synthetic Backend to the new append-only schema once;
+2. render one monthly series from existing synthetic records;
+3. switch one dimension between Counterparty Type and Team;
+4. drill to the exact underlying Meeting list;
+5. set one existing synthetic Meeting's `月次管理反映済み` from false/blank to true exactly once;
+6. reopen and confirm persistence plus one metadata-only Audit event;
+7. set it back to its baseline false state exactly once if needed for a clean final state, and account for the second Audit event explicitly;
+8. verify no Meeting Doc/source file/Meeting Version/AI state mutation;
+9. complete final schema/data/integrity readback.
 
 ## Logic validation
 
+- Work 0022 canonical Business Date is the only temporal input contract;
 - Asia/Tokyo month/quarter/year/fiscal-year bucketing;
 - cumulative series;
 - all dimension filters and `未設定` buckets;
 - exact counts independent of display caps;
 - stable ordering and omitted counts;
 - no Doc-body reads;
-- administrative check validation/optimistic update/Audit;
+- administrative check validation/concurrency/Audit;
+- admin check does not increment Meeting Version or mark AI Pending;
 - accessible table equivalent;
 - safe empty/error states;
 - public surface;
+- schema migration/idempotency;
 - `npm run check` and `git diff --check`.
 
 ## Non-goals
