@@ -2,76 +2,83 @@
 
 WORK_ID: `0022`
 Dispatch ID: `0022-CODEX-01`
-BALL: `CODEX`
-STATUS: `COMPLETE`
+BALL: `NONE`
+STATUS: `ACCEPTED / MERGED`
 
-## Current result
-
-Work 0022 is complete. The repository-wide temporal contract was implemented,
-deterministically validated, synchronized once to the confirmed synthetic DEV
-project, released as immutable version `35`, and qualified through the bounded
-authenticated runtime campaign.
+## Final classification
 
 `DEV QUALIFIED — WORK 0022 TEMPORAL DATA CONTRACT HARDENING`
 
-`LOGIC_VALIDATION: PASS`
+- `LOGIC_VALIDATION: PASS` — canonical validation `222/222`;
+- focused temporal/maintenance regressions `68/68 PASS`;
+- temporal static validator: PASS;
+- `TARGET_RUNTIME_QUALIFICATION: PASS`;
+- `SIDE_EFFECT_STATE: GUARDED`;
+- `READY: YES`;
+- `BLOCKER: NO`.
 
-`TARGET_RUNTIME_QUALIFICATION: PASS`
+PR #22 was independently reviewed by ChatGPT and merged to `main` with merge commit `3eb5e4d26e32cc8356748e1f1728bac8b1dd9866`.
 
-`SIDE_EFFECT_STATE: GUARDED`
+## Accepted implementation
 
-`READY: YES`
+- one private repository-wide temporal helper family in `src/05_TemporalContracts.gs`;
+- Business Date canonical form: `YYYY-MM-DD` in `KSP_DEFAULTS.TIMEZONE`;
+- Business Time canonical form: `HH:mm` in `KSP_DEFAULTS.TIMEZONE`;
+- Instant canonical form: UTC ISO-8601 with milliseconds;
+- ambiguous locale date/time text fails closed;
+- feature-specific Date/Time algorithms are removed or thin delegates;
+- Meeting, Pitchbook, Maintenance, Search, Audit, Knowledge Export, AI metadata, retry/claim, workspace/relationship, and diagnostic boundaries use the shared contract;
+- physical Sheets Date/Time cells may remain mixed string/Date representations and are not bulk rewritten;
+- historical Audit rows remain immutable.
 
-`BLOCKER: NO`
+## Static enforcement
 
-## GitHub activation state
+`npm run check` now executes `scripts/validate-temporal-contract.cjs`.
 
-- branch: `agent/0022-temporal-data-contract-hardening`;
-- Draft PR: `#22`;
-- implementation source baseline: `df40f0629f9c52e78936820a9e83e51dd9ce9e85`;
-- branch was created from accepted post-0016 main;
-- Work 0016 PR #21 merged with merge commit `d77f4c8919b6aeb7e6bea1be76f4e5bd558df5b1`;
-- Work 0016 private Web App version `34`, BLOCKER NO, Completion Latch applied.
+The validator enforces the shared temporal contract, including:
 
-The implementation source baseline above predates only subsequent Work 0022 handoff/status metadata commits; no production source differs because of those metadata commits.
+- exactly one production definition for the canonical Business Date/Time/Instant helpers;
+- no UTC/local calendar getters for Business Date/Time derivation outside explicitly allowed instant/duration logic;
+- no known raw Date/Time serialization at Audit/Export/AI/search boundaries;
+- legacy temporal helpers remain thin delegates;
+- test loaders use production temporal logic rather than shadow implementations;
+- required mixed-representation regression coverage exists;
+- Apps Script manifest timezone remains `Asia/Tokyo`.
 
-## GitHub-reviewed basis
+Public facade remains `24`.
 
-Confirmed current risk patterns include:
+## Accepted target-runtime evidence
 
-- configured-timezone Date behavior exists under the feature-specific `kspCanonicalPitchbookDateKey_()` name;
-- Meeting and Maintenance Date paths depend on feature-specific wrappers;
-- Maintenance Business Time currently derives clock values with UTC getters;
-- Work 0016 exposed equivalent Date representations as false changes in Audit;
-- core and feature-freeze AI source builders serialize `dateKey` from raw row values;
-- Knowledge Export has canonical Date filtering but raw temporal values remain in revision-token/serialization paths;
-- Apps Script and `KSP_DEFAULTS` both specify `Asia/Tokyo`;
-- deterministic fixtures remain partly string-biased relative to actual Sheets `Date` objects.
+- exact tested source readback: `63/63` normalized files;
+- immutable Apps Script version `35`;
+- same existing private Web App updated in place; no new Web App deployment or Library mutation;
+- Backend remained exactly five sheets and schema version `4`;
+- existing synthetic Meeting reused for one harmless edit, Version `3 -> 4`;
+- Date/Time were untouched and remained semantically stable;
+- exact date-range search returned exactly one target;
+- latest Meeting Audit excluded Date/Time from `Changed_Fields`, used canonical temporal values, and excluded Meeting body and Follow-up note;
+- Knowledge Export Preview returned one Meeting without creating a Docs/PDF artifact;
+- GP Workspace/relationship and Pitchbook read-only views displayed canonical dates;
+- deterministic AI metadata used canonical temporal values while `AI_SYNC_ENABLED` remained false;
+- no Gemini/File Search call, trigger enablement, Script Property drift, schema expansion, historical rewrite, or unrelated data mutation.
 
-## Completed execution
+## Residual external gaps
 
-`0022-CODEX-01` completed exactly once as the active dispatch:
+Not BLOCKER for Work 0022:
 
-- full-tree inventory and generic Business Date / Business Time / Instant
-  contract;
-- confirmed boundary migration and static temporal enforcement;
-- mixed-representation regressions and `npm run check`;
-- one exact source synchronization, version `35`, and in-place private Web App
-  update;
-- bounded synthetic DEV edit, exact search, Knowledge Export Preview, Workspace,
-  Audit, and integrity readback;
-- report, status, commit, push, and Draft PR update.
+- Shared Drive-specific production qualification;
+- billing-enabled Gemini/File Search qualification;
+- final company production rollout/readiness.
 
-Detailed evidence: `docs/handoffs/0022-CODEX-01-temporal-contract-hardening-report.md`.
+Production readiness is not claimed by this Work.
 
-## Current classification
+## Completion latch
 
-`LOGIC_VALIDATION: PASS`
+Accepted evidence and the repository-wide temporal contract are closed. Do not reopen Work 0022 absent a material contradiction.
 
-`TARGET_RUNTIME_QUALIFICATION: PASS`
+The next product Work is Work 0017 — Meeting activity analytics / monthly administrative checks — and it must consume this accepted temporal contract rather than create independent date parsing or period bucketing rules.
 
-`SIDE_EFFECT_STATE: GUARDED`
-
-`READY: YES`
-
-`BLOCKER: NO`
+WORK_ID: `0022`
+Dispatch ID: `0022-CODEX-01`
+BALL: `NONE`
+STATUS: `ACCEPTED / MERGED`
