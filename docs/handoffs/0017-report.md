@@ -3,7 +3,7 @@
 WORK_ID: `0017`
 DISPATCH_ID: `0017-CODEX-02`
 BALL: `NONE`
-STATUS: `ACCEPTED`
+STATUS: `ACCEPTED / MERGED / COMPLETE`
 
 ## Final classification
 
@@ -15,46 +15,38 @@ STATUS: `ACCEPTED`
 - `READY: YES`;
 - `BLOCKER: NO`.
 
-## CODEX-02 evidence
+## Accepted delivery
 
-- ChatGPT's client repair is present: `filterOptions.counterpartyTypes` is used
-  by `ClientActivityAnalytics.html`;
-- the UI regression asserts the server/client option-key contract and rejects
-  the obsolete singular key;
-- exact tested source was synchronized once and read back as `67/67` matching
-  files;
-- immutable Apps Script version `37` was created once;
-- the same positively identified private Web App was updated in place, retaining
-  Web app type, deploying-user execution, and Only myself access;
-- no second Web App deployment was created and Library deployments were not
-  changed.
+- Activity Analytics supports monthly / quarter / calendar year / fiscal year / custom range / cumulative views;
+- Counterparty Type / Entity, Related GP, Asset Class, Team, Meeting Type, and Status filters are implemented;
+- exact drill lists and bounded omitted counts are implemented;
+- the binary `月次管理反映済み` control persists independently from normal Meeting Version/Updated/Doc/AI state;
+- Backend remains exactly five sheets with schema 5 and the three append-only `Admin_Check_*` columns;
+- analytics reads `Meeting_Index` only and does not read Meeting Doc bodies;
+- public facade is `26`;
+- exact tested source readback `67/67`;
+- immutable Apps Script version `37` is active on the same private Web App.
 
-## Target-runtime evidence
+## CODEX-02 closure evidence
 
-- Counterparty Type options contained `未選択`, `GP`, and `LP_ASSET_OWNER`;
-- `LP_ASSET_OWNER` selection returned one matching Meeting in the headline and
-  exactly one drill row, then clearing returned the four-Meeting baseline;
+- ChatGPT's client repair is present: `filterOptions.counterpartyTypes` is used by `ClientActivityAnalytics.html`;
+- the UI regression asserts the server/client option-key contract and rejects the obsolete singular key;
+- live Counterparty Type options contained `未選択`, `GP`, and `LP_ASSET_OWNER`;
+- selecting `LP_ASSET_OWNER` returned one matching Meeting in the headline and exactly one drill row; clearing restored the four-Meeting baseline;
 - Counterparty Type breakdown remained `GP: 3` and `LP_ASSET_OWNER: 1`;
-- Team breakdown remained `OPT-TEAM-001: 2` and `未設定: 2`.
+- Team breakdown remained `OPT-TEAM-001: 2` and `未設定: 2`;
+- final integrity remained PASS: five sheets, schema 5, four unique Meeting rows, sixteen Pitchbook rows, 64 Audit rows, zero triggers, AI sync disabled, no Gemini/File Search call, no Library or permission mutation.
 
-## Final integrity
+## GitHub closure
 
-- Backend remained exactly five sheets with schema 5 and canonical headers;
-- Meeting_Index remained four unique rows and Pitchbook_Index remained sixteen
-  rows with stable identity references;
-- GP Master, Option Master, Settings, source files/records, counters, statuses,
-  AI metadata, and the existing two admin-check Audit events were unchanged;
-- Audit remained at 64 rows; Analytics reads added no Audit event;
-- Script Properties remained DEV / Asia/Tokyo / schema 5 with the existing
-  resource mapping and AI sync disabled;
-- trigger count remained zero; no Gemini/File Search call or permission
-  mutation occurred.
+- PR #23: merged / closed;
+- implementation head: `2670b8515e34197b3a34426ff41256f1ed1259ce`;
+- merge commit: `0ed52ef16d8fcc267127fad85979eabf771075a9`.
 
-## Reports
+Detailed reports:
 
 - `docs/handoffs/0017-CODEX-01-activity-analytics-and-admin-check-report.md`;
 - `docs/handoffs/0017-CODEX-02-counterparty-type-filter-finalization-report.md`.
 
 Completion Latch: `APPLIED`.
-
-PR #23 remains Draft / Open / unmerged for ChatGPT final review and merge.
+No further Work 0017 dispatch is required absent a material contradiction.
