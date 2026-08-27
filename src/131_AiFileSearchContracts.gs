@@ -38,6 +38,11 @@ function kspBuildAiCustomMetadata_(source) {
   addString('date_key', source.dateKey);
   addString('gp_id', source.gpId);
   addString('gp_name', source.gpName);
+  addString('entity_key', source.entityKey);
+  addString('counterparty_type', source.counterpartyType);
+  addString('counterparty_id', source.counterpartyId);
+  addString('counterparty_name', source.counterpartyName);
+  addString('related_gp_ids', source.relatedGpIds);
   addString('asset_class_id', source.assetClassId);
   addString('asset_class_name', source.assetClassName);
   addString('capital_type_id', source.capitalTypeId);

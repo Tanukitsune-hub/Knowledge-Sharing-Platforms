@@ -3,8 +3,8 @@
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-01`
 MODE: `BUILD`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED — STRATEGY RESET REQUIRED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -188,3 +188,9 @@ Expected final classification on success:
 `DEV QUALIFIED — WORK 0016 COUNTERPARTY ENTITY FOUNDATION`
 
 Production readiness is not claimed.
+
+## Current execution status
+
+`0016-CODEX-01` completed the local vertical slice and deterministic validation at `211/211 PASS`, with public facade `24`. The single authorized Apps Script source synchronization was then consumed. Final independent review found four UI/contract defects; they were repaired and revalidated locally, but the corrected source was not synchronized a second time.
+
+No immutable version or deployment update was created, the existing private Web App remains on version 31, and the authenticated runtime campaign was not run. A fresh bounded dispatch is required to resume from corrected-source synchronization. See `docs/handoffs/0016-CODEX-01-counterparty-entity-foundation-report.md`.

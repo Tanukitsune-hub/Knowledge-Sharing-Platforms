@@ -132,7 +132,9 @@ function kspBuildGpWorkspaceData_(gpId, gpRows, optionRows, meetingRows, pitchbo
   var gpRow = matches[0];
   var maps = kspBuildAllMasterMaps_(gpRows || [], optionRows || []);
   var selectedMeetings = (meetingRows || []).filter(function (row) {
-    return String(row.GP_ID || '') === normalizedGpId;
+    return kspMeetingCounterpartyType_(row) === 'GP' &&
+      kspMeetingCounterpartyId_(row) === normalizedGpId &&
+      String(row.GP_ID || '') === normalizedGpId;
   });
   var selectedPitchbooks = (pitchbookRows || []).filter(function (row) {
     return String(row.GP_ID || '') === normalizedGpId;

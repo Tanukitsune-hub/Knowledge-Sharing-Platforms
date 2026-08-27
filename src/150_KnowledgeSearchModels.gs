@@ -5,6 +5,8 @@ function kspBuildKnowledgeSearchCatalog_(gpRows, optionRows) {
     assetClasses: kspDeepClone_(catalog.assetClasses || []),
     capitalTypes: kspDeepClone_(catalog.capitalTypes || []),
     teams: kspDeepClone_(catalog.teams || []),
+    counterpartyTypes: kspDeepClone_(catalog.counterpartyTypes || []),
+    counterpartyEntities: kspDeepClone_(catalog.counterpartyEntities || []),
     sourceTypes: [
       { id: KSP_AI_SOURCE_TYPES.MEETING, name: 'Meeting' },
       { id: KSP_AI_SOURCE_TYPES.PITCHBOOK, name: 'Pitchbook' }

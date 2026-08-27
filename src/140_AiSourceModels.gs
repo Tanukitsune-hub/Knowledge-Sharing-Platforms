@@ -1,7 +1,10 @@
 function kspBuildAiMasterMaps_(gpRows, optionRows) {
-  var maps = { gps: {}, assetClasses: {}, capitalTypes: {}, teams: {} };
+  var maps = { gps: {}, assetClasses: {}, capitalTypes: {}, teams: {}, counterparties: {} };
   (gpRows || []).forEach(function (row) {
-    if (row && row.GP_ID) maps.gps[String(row.GP_ID)] = String(row.GP_Name || row.GP_ID);
+    if (row && row.GP_ID) {
+      maps.gps[String(row.GP_ID)] = String(row.GP_Name || row.GP_ID);
+      maps.counterparties['GP:' + String(row.GP_ID)] = String(row.GP_Name || row.GP_ID);
+    }
   });
   (optionRows || []).forEach(function (row) {
     if (!row || !row.Option_ID) return;
@@ -10,6 +13,10 @@ function kspBuildAiMasterMaps_(gpRows, optionRows) {
     if (String(row.Type) === 'CAPITAL_TYPE') target = maps.capitalTypes;
     if (String(row.Type) === 'TEAM') target = maps.teams;
     if (target) target[String(row.Option_ID)] = String(row.Name || row.Option_ID);
+    var counterpartyDefinition = KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(function (item) {
+      return item.optionType === String(row.Type || '');
+    })[0];
+    if (counterpartyDefinition) maps.counterparties[counterpartyDefinition.code + ':' + String(row.Option_ID)] = String(row.Name || row.Option_ID);
   });
   return maps;
 }
@@ -21,12 +28,19 @@ function kspAiSourceKey_(sourceType, sourceId) {
 function kspBuildMeetingAiSource_(row, maps, text, contentHash) {
   kspAssert_(row && row.Meeting_ID, 'AI_MEETING_ROW_INVALID', 'Meeting row is invalid.');
   kspAssert_(row.Doc_File_ID, 'AI_MEETING_DOC_MISSING', 'Meeting Google Doc is missing.');
+  var counterpartyType = kspMeetingCounterpartyType_(row);
+  var counterpartyId = kspMeetingCounterpartyId_(row);
   return {
     sourceType: KSP_AI_SOURCE_TYPES.MEETING,
     sourceId: String(row.Meeting_ID),
     dateKey: String(row.Date || ''),
     gpId: String(row.GP_ID || ''),
     gpName: maps.gps[String(row.GP_ID || '')] || String(row.GP_ID || ''),
+    entityKey: counterpartyType + ':' + counterpartyId,
+    counterpartyType: counterpartyType,
+    counterpartyId: counterpartyId,
+    counterpartyName: (maps.counterparties || {})[counterpartyType + ':' + counterpartyId] || counterpartyId,
+    relatedGpIds: kspMeetingRelatedGpIds_(row),
     assetClassId: String(row.Asset_Class_ID || ''),
     assetClassName: maps.assetClasses[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
     capitalTypeId: String(row.Capital_Type_ID || ''),
@@ -64,6 +78,11 @@ function kspBuildPitchbookAiSource_(row, maps, text, contentHash) {
     dateKey: String(row.Date || ''),
     gpId: String(row.GP_ID || ''),
     gpName: maps.gps[String(row.GP_ID || '')] || String(row.GP_ID || ''),
+    entityKey: 'GP:' + String(row.GP_ID || ''),
+    counterpartyType: 'GP',
+    counterpartyId: String(row.GP_ID || ''),
+    counterpartyName: maps.gps[String(row.GP_ID || '')] || String(row.GP_ID || ''),
+    relatedGpIds: String(row.GP_ID || ''),
     assetClassId: String(row.Asset_Class_ID || ''),
     assetClassName: maps.assetClasses[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
     capitalTypeId: String(row.Capital_Type_ID || ''),

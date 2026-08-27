@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { ksp, catalogRows, createFakeEnvironment } = require('./maintenance-test-fixture.cjs');
 test('maintenance bootstrap returns options and both Master tables', () => {
   const result=ksp.kspGetPhase1MaintenanceBootstrap_(createFakeEnvironment());
-  assert.equal(result.ok,true); assert.equal(result.options.gps.length,3); assert.ok(result.options.gps.some(item=>item.status==='Inactive')); assert.equal(result.masters.gps.length,3); assert.equal(result.masters.options.length,5); assert.equal(result.options.teams[0].name,'PD');
+  assert.equal(result.ok,true); assert.equal(result.options.gps.length,3); assert.ok(result.options.gps.some(item=>item.status==='Inactive')); assert.equal(result.masters.gps.length,3); assert.equal(result.masters.options.length,6); assert.equal(result.options.teams[0].name,'PD'); assert.equal(result.options.counterpartyTypes.length,6);
 });
 
 test('Meeting search returns mapped display names', () => {
@@ -170,6 +170,13 @@ test('Phase 1 diagnostics expose Actor fallback kind without exposing the Actor 
   assert.equal(Object.hasOwn(result.actor,'value'),false);
 });
 
+test('non-GP Counterparty Entity uses existing Option Master mutation path',()=>{
+  const env=createFakeEnvironment();
+  const result=ksp.kspMutateMaster_(env,{entity:'OPTION',action:'ADD',type:'COUNTERPARTY_OTHER',name:'Synthetic Other Entity'});
+  assert.equal(result.ok,true,JSON.stringify(result));assert.equal(result.record.Type,'COUNTERPARTY_OTHER');assert.match(result.record.Option_ID,/^OPT-CPOT-/);
+  assert.equal(result.masters.options.some(item=>item.type==='COUNTERPARTY_OTHER'&&item.name==='Synthetic Other Entity'),true);
+});
+
 test('rich Meeting search and edit round-trip structured context without follow-up Audit content', () => {
   const meeting={Meeting_ID:'MTG-000010',Date:'2026-08-10',Time:'',Location_ID:'',GP_ID:'GP-000002',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up',Doc_File_ID:'doc-rich',Doc_URL:'https://example/doc-rich',Saved_Filename:'rich',Status:'Active',Version:1,Updated_At:'2026-08-10T00:00:00.000Z',AI_Index_Status:'Indexed'};
   const env=createFakeEnvironment({meetingRows:[meeting],documents:{'doc-rich':{name:'rich',text:'日付: 2026-08-10\nGP: KKR\nAsset Class: Infrastructure\n\n面談内容:\nlegacy body'}}});
@@ -188,6 +195,18 @@ test('existing linked Pitchbook remains available after inactivation', () => {
   ],'GP-000002','OPT-AC-002',['DOC-000001']);
   assert.deepEqual(Array.from(choices,item=>item.id),['DOC-000002','DOC-000001']);
   assert.equal(choices.find(item=>item.id==='DOC-000001').preserved,true);
+  const unresolved=ksp.kspBuildMaintenanceRelatedPitchbookChoices_([],['GP-000002'],'OPT-AC-002',['DOC-009999']);
+  assert.equal(unresolved.length,1);assert.equal(unresolved[0].id,'DOC-009999');assert.equal(unresolved[0].preserved,true);assert.equal(unresolved[0].unresolved,true);
+});
+
+test('non-GP Meeting reopens, edits and searches by typed entity plus Related GP',()=>{
+  const meeting={Meeting_ID:'MTG-000020',Date:'2026-08-10',Time:'',Location_ID:'',GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-000001',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',Related_Pitchbook_IDs:'DOC-000020',Doc_File_ID:'doc-non-gp',Doc_URL:'https://example/doc-non-gp',Saved_Filename:'synthetic',Status:'Active',Version:1,Updated_At:'2026-08-10T00:00:00.000Z',AI_Index_Status:'Indexed'};
+  const pitchbook={Document_ID:'DOC-000020',Batch_ID:'BAT-000020',Date:'2026-08-09',GP_ID:'GP-000001',Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',Sequence_No:1,File_ID:'file-20',File_URL:'https://example/file-20',Original_Filename:'source.pdf',Saved_Filename:'matching.pdf',Status:'Active',Updated_At:'2026-08-09T00:00:00.000Z'};
+  const env=createFakeEnvironment({meetingRows:[meeting],pitchbookRows:[pitchbook],documents:{'doc-non-gp':{name:'synthetic',text:'日付: 2026-08-10\n面談先区分: LP / Asset Owner\n面談先: Synthetic Asset Owner\n関連GP: Apollo\nAsset Class: Infrastructure\n\n面談内容:\nbody'}}});
+  const opened=ksp.kspGetMeetingMaintenanceRecord_(env,'MTG-000020');assert.equal(opened.ok,true);assert.equal(opened.record.counterpartyEntityName,'Synthetic Asset Owner');assert.deepEqual(Array.from(opened.record.relatedGpIds),['GP-000001']);assert.ok(opened.record.relatedPitchbooks.some(item=>item.id==='DOC-000020'));
+  const updated=ksp.kspUpdateMeetingMaintenance_(env,{meetingId:'MTG-000020',expectedVersion:1,date:'2026-08-10',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'OPT-CPLP-001',relatedGpIds:['GP-000001'],assetClassId:'OPT-AC-002',fundStrategy:'Synthetic strategy',relatedPitchbookIds:['DOC-000020'],notes:'edited'});
+  assert.equal(updated.ok,true,JSON.stringify(updated));assert.equal(updated.record.gpId,'');assert.equal(updated.record.counterpartyType,'LP_ASSET_OWNER');
+  const found=ksp.kspSearchMeetingRecords_(env,{counterpartyType:'LP_ASSET_OWNER',counterpartyId:'OPT-CPLP-001',relatedGpId:'GP-000001'});assert.equal(found.ok,true);assert.equal(found.records.length,1);assert.equal(found.records[0].fundStrategy,'Synthetic strategy');
 });
 
 test('Pitchbook Fund Strategy survives edit/search and legacy blank remains valid', () => {

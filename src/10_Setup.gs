@@ -26,6 +26,12 @@ function kspRunSetup_(environment) {
       report
     );
 
+    var meetingBackfillResult = environment.backfillMeetingCounterpartyFields(
+      resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET]
+    );
+    kspAddAction_(report, 'migration', KSP_SHEET_NAMES.MEETING_INDEX + ':counterparty-entity',
+      meetingBackfillResult.updated ? 'migrated' : 'reused', meetingBackfillResult);
+
     var nowIso = environment.nowIso();
     var gpResult = environment.insertMissingRows(
       resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
@@ -83,6 +89,21 @@ function kspRunSetup_(environment) {
       environment.releaseScriptLock(lock);
     }
   }
+}
+
+function kspBuildLegacyMeetingCounterpartyBackfill_(row) {
+  var source = row || {};
+  var gpId = String(source.GP_ID || '').trim();
+  if (!gpId) return null;
+  var type = String(source.Counterparty_Type || '').trim();
+  var entityId = String(source.Counterparty_ID || '').trim();
+  var relatedGpIds = String(source.Related_GP_IDs || '').trim();
+  if ((type && type !== 'GP') || (entityId && entityId !== gpId)) return null;
+  var patch = {};
+  if (!type) patch.Counterparty_Type = 'GP';
+  if (!entityId) patch.Counterparty_ID = gpId;
+  if (!relatedGpIds) patch.Related_GP_IDs = gpId;
+  return Object.keys(patch).length ? patch : null;
 }
 
 function kspResolveAllResources_(environment, storedResources, config, report) {

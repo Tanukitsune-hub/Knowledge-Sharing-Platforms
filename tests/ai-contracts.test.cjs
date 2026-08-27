@@ -4,10 +4,12 @@ test('builds official Store create contract',()=>{
 });
 
 test('builds upload metadata with traceability and no blank option metadata',()=>{
-  const m=plain(ksp.kspBuildFileSearchUploadMetadata_({sourceType:'Meeting',sourceId:'MTG-1',dateKey:'2026-01-01',gpId:'GP-1',gpName:'KKR',assetClassId:'AC-1',assetClassName:'Infrastructure',capitalTypeId:'',capitalTypeName:'',driveUrl:'https://drive',savedFilename:'x',contentHash:'abc',displayName:'x.txt',mimeType:'text/plain'}));
+  const m=plain(ksp.kspBuildFileSearchUploadMetadata_({sourceType:'Meeting',sourceId:'MTG-1',dateKey:'2026-01-01',gpId:'',gpName:'',entityKey:'LP_ASSET_OWNER:OPT-CPLP-001',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'OPT-CPLP-001',counterpartyName:'Synthetic Asset Owner',relatedGpIds:'GP-1',assetClassId:'AC-1',assetClassName:'Infrastructure',capitalTypeId:'',capitalTypeName:'',driveUrl:'https://drive',savedFilename:'x',contentHash:'abc',displayName:'x.txt',mimeType:'text/plain'}));
   assert.equal(m.displayName,'x.txt');
   assert.equal(m.customMetadata.some(x=>x.key==='source_id'&&x.stringValue==='MTG-1'),true);
   assert.equal(m.customMetadata.some(x=>x.key==='capital_type_id'),false);
+  assert.equal(m.customMetadata.some(x=>x.key==='entity_key'&&x.stringValue==='LP_ASSET_OWNER:OPT-CPLP-001'),true);
+  assert.equal(m.customMetadata.some(x=>x.key==='related_gp_ids'&&x.stringValue==='GP-1'),true);
 });
 
 test('metadata filter is deterministic, escaped, and omits blanks',()=>{
@@ -59,8 +61,12 @@ test('query audit stores filters/model/cited IDs but no question, answer, or chu
 });
 
 test('Meeting source model includes stable metadata and authoritative text only in transient source',()=>{
-  const source=plain(ksp.kspBuildMeetingAiSource_(baseContext().meetingRows[0],{gps:{'GP-1':'KKR'},assetClasses:{'AC-1':'Infrastructure'},capitalTypes:{'CT-1':'Equity'}},'body','hash'));
+  const source=plain(ksp.kspBuildMeetingAiSource_(baseContext().meetingRows[0],{gps:{'GP-1':'KKR'},counterparties:{'GP:GP-1':'KKR'},assetClasses:{'AC-1':'Infrastructure'},capitalTypes:{'CT-1':'Equity'}},'body','hash'));
   assert.equal(source.sourceId,'MTG-000001');assert.equal(source.driveUrl,'https://drive.test/meeting-1');assert.equal(source.text,'body');assert.equal(source.contentHash,'hash');
+  assert.equal(source.entityKey,'GP:GP-1');assert.equal(source.relatedGpIds,'GP-1');
+  const nonGp=plain(ksp.kspBuildMeetingAiSource_({...baseContext().meetingRows[0],GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-1'},
+    {gps:{'GP-1':'KKR'},counterparties:{'LP_ASSET_OWNER:OPT-CPLP-001':'Synthetic Asset Owner'},assetClasses:{'AC-1':'Infrastructure'},capitalTypes:{'CT-1':'Equity'}},'body','hash'));
+  assert.equal(nonGp.entityKey,'LP_ASSET_OWNER:OPT-CPLP-001');assert.equal(nonGp.counterpartyName,'Synthetic Asset Owner');assert.equal(nonGp.gpId,'');
 });
 
 test('selects inactive cleanup before active work and respects batch size',()=>{

@@ -2,7 +2,7 @@ var KSP_COMPONENT_WORK_ID = '0004';
 var KSP_RELEASE_VERSION = '0.1.2';
 var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
 var KSP_APP_VERSION = KSP_RELEASE_VERSION;
-var KSP_SCHEMA_VERSION = 3;
+var KSP_SCHEMA_VERSION = 4;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
@@ -217,6 +217,12 @@ function kspGetErrorCode_(error, fallback) {
 
 var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   MEETING_DATE_REQUIRED: '日付を入力してください。',
+  MEETING_COUNTERPARTY_TYPE_REQUIRED: '面談先区分を選択してください。',
+  MEETING_COUNTERPARTY_TYPE_INVALID: '面談先区分を確認してください。',
+  MEETING_COUNTERPARTY_ENTITY_REQUIRED: '面談先を選択してください。',
+  MEETING_COUNTERPARTY_ENTITY_UNAVAILABLE: '選択された面談先を確認してください。',
+  MEETING_RELATED_GP_INVALID: '関連GPを確認してください。',
+  MEETING_RELATED_GP_DUPLICATE: '関連GPに重複があります。',
   MEETING_GP_REQUIRED: 'GPを選択してください。',
   MEETING_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
   MEETING_DATE_INVALID: '日付の形式を確認してください。',
@@ -355,7 +361,8 @@ function kspGetBackendSchemas_() {
     'Created_By', 'Updated_By', 'AI_Document_Name', 'AI_Index_Status',
     'AI_Indexed_At', 'AI_Content_Hash', 'AI_Last_Error',
     'Team_ID', 'Fund_Strategy', 'Meeting_Type_Codes', 'Related_Pitchbook_IDs',
-    'Follow_Up_Required', 'Follow_Up_Note'
+    'Follow_Up_Required', 'Follow_Up_Note',
+    'Counterparty_Type', 'Counterparty_ID', 'Related_GP_IDs'
   ];
 
   schemas[KSP_SHEET_NAMES.PITCHBOOK_INDEX] = [

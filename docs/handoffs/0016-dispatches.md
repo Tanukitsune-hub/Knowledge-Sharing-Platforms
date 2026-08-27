@@ -2,12 +2,12 @@
 
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED — STRATEGY RESET REQUIRED`
 
 ## Active dispatch
 
-### 0016-CODEX-01 — READY
+### 0016-CODEX-01 — BLOCKED
 
 - mode: `BUILD`;
 - purpose: implement the full Counterparty entity foundation as one coherent vertical slice;
@@ -16,6 +16,9 @@ STATUS: `READY`
 - instruction: `docs/handoffs/0016-CODEX-01-counterparty-entity-foundation-instruction.md`;
 - canonical design: `docs/planning/work0016-counterparty-entity-foundation.md`;
 - authoritative decision: `docs/decisions/counterparty-entity-classification.md`.
+- deterministic result: `211/211 PASS`, public facade `24`;
+- blocker: final-review repairs were made after the single authorized source synchronization, so corrected source was not synchronized again and target-runtime qualification was not run;
+- report: `docs/handoffs/0016-CODEX-01-counterparty-entity-foundation-report.md`.
 
 Only one Codex dispatch is active for this Work.
 
@@ -23,5 +26,5 @@ Only one Codex dispatch is active for this Work.
 
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `BLOCKED — STRATEGY RESET REQUIRED`

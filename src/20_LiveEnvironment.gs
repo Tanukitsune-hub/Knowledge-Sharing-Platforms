@@ -150,6 +150,25 @@ function kspCreateAppsScriptEnvironment_() {
       sheet.setFrozenRows(1);
       return { action: created ? 'created' : 'reused', addedHeaders: [], columnCount: actualHeaders.length };
     },
+    backfillMeetingCounterpartyFields: function (spreadsheetId) {
+      var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+      var sheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.MEETING_INDEX);
+      kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + KSP_SHEET_NAMES.MEETING_INDEX);
+      var headers = kspReadHeadersFromSheet_(sheet);
+      var rows = kspReadObjectsFromSheet_(sheet, headers);
+      var updated = 0;
+      rows.forEach(function (row, index) {
+        var patch = kspBuildLegacyMeetingCounterpartyBackfill_(row);
+        if (!patch) return;
+        Object.keys(patch).forEach(function (header) {
+          var columnIndex = headers.indexOf(header);
+          kspAssert_(columnIndex !== -1, 'SCHEMA_COLUMNS_MISSING', 'Missing Meeting migration column: ' + header);
+          sheet.getRange(index + 2, columnIndex + 1).setValue(patch[header]);
+        });
+        updated += 1;
+      });
+      return { scanned: rows.length, updated: updated };
+    },
 
     insertMissingRows: function (spreadsheetId, sheetName, keyColumn, rows) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);

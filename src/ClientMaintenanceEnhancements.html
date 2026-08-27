@@ -5,12 +5,21 @@ function maintenanceOptionSets(masters, activeOnly) {
   const mapType=type=>source
     .filter(item=>item.type===type&&(!activeOnly||item.status==='Active'))
     .map(item=>({id:item.id,name:item.name,status:item.status,sortOrder:item.sortOrder}));
+  const counterpartyTypes=[
+    {code:'GP',label:'GP',optionType:''},{code:'LP_ASSET_OWNER',label:'LP / Asset Owner',optionType:'COUNTERPARTY_LP'},
+    {code:'NISSAY_INTERNAL',label:'日本生命',optionType:'COUNTERPARTY_NISSAY_DEPARTMENT'},
+    {code:'GROUP_COMPANY',label:'グループ会社',optionType:'COUNTERPARTY_GROUP_COMPANY'},
+    {code:'CONSULTANT_GATEKEEPER',label:'Consultant / Gatekeeper',optionType:'COUNTERPARTY_CONSULTANT_GATEKEEPER'},
+    {code:'OTHER',label:'その他',optionType:'COUNTERPARTY_OTHER'}
+  ];
+  const counterpartyEntities=gps.map(item=>({id:item.id,type:'GP',name:item.name,status:item.status,entityKey:'GP:'+item.id}));
+  counterpartyTypes.filter(item=>item.optionType).forEach(definition=>mapType(definition.optionType).forEach(item=>counterpartyEntities.push({id:item.id,type:definition.code,name:item.name,status:item.status,entityKey:definition.code+':'+item.id})));
   return {
     gps,
     assetClasses:mapType('ASSET_CLASS'),
     capitalTypes:mapType('CAPITAL_TYPE'),
     locations:mapType('LOCATION'),
-    teams:mapType('TEAM')
+    teams:mapType('TEAM'),counterpartyTypes,counterpartyEntities
   };
 }
 
@@ -49,9 +58,9 @@ async function quickAddGpFromRegistration(page,statusId) {
     const result=await serverCall('quickAddGp',name.trim());
     if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'GP追加に失敗しました。');
     applyMaintenanceMasterData(result.masters);
+    const gpNode=el(page+'-gpId');
+    if(gpNode)gpNode.value=result.gp.id;
     const shared=getShared(page);
-    shared.gpId=result.gp.id;
-    applyShared(shared);
     writeEnvelope(KSP_SHARED_DRAFT_KEY,shared);
     showStatus(statusId,'success','GPを選択しました: '+result.gp.name);
   }catch(error){
@@ -59,6 +68,25 @@ async function quickAddGpFromRegistration(page,statusId) {
   }
 }
 
-el('meeting-quick-add-gp').onclick=()=>quickAddGpFromRegistration('meeting','meeting-status');
+async function quickAddCounterpartyFromRegistration(){
+  const type=el('meeting-counterpartyType').value;
+  if(!type){showStatus('meeting-status','error','先に面談先区分を選択してください。');return}
+  const name=prompt('追加する面談先名を入力してください。');if(name===null||!name.trim())return;
+  try{
+    let result;
+    if(type==='GP')result=await serverCall('quickAddGp',name.trim());
+    else{
+      const definition=(maintenanceOptionSets({gps:[],options:[]},true).counterpartyTypes||[]).find(item=>item.code===type);
+      result=await serverCall('mutateMaster',{entity:'OPTION',action:'ADD',type:definition&&definition.optionType,name:name.trim(),returnExistingOnDuplicate:true});
+    }
+    if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先追加に失敗しました。');
+    applyMaintenanceMasterData(result.masters);
+    const id=type==='GP'?result.gp.id:(result.record&&result.record.Option_ID);
+    refreshMeetingCounterpartyEntities(id||'');ensurePrimaryGpRelated();refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();
+    showStatus('meeting-status','success','面談先を追加して選択しました。');
+  }catch(error){showStatus('meeting-status','error',error.message||String(error))}
+}
+
+el('meeting-quick-add-counterparty').onclick=quickAddCounterpartyFromRegistration;
 el('pitchbook-quick-add-gp').onclick=()=>quickAddGpFromRegistration('pitchbook','pitchbook-status');
 </script>

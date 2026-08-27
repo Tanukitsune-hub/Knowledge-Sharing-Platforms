@@ -11,7 +11,8 @@ function catalogRows() {
       { Option_ID: 'OPT-AC-002', Type: 'ASSET_CLASS', Name: 'Infrastructure', Sort_Order: 2, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' },
       { Option_ID: 'OPT-CT-001', Type: 'CAPITAL_TYPE', Name: 'Equity', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' },
       { Option_ID: 'OPT-LOC-001', Type: 'LOCATION', Name: 'オンライン', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' },
-      { Option_ID: 'OPT-TEAM-001', Type: 'TEAM', Name: 'PD', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' }
+      { Option_ID: 'OPT-TEAM-001', Type: 'TEAM', Name: 'PD', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' },
+      { Option_ID: 'OPT-CPLP-001', Type: 'COUNTERPARTY_LP', Name: 'Synthetic Asset Owner', Sort_Order: 1, Status: 'Active', Updated_At: '2026-01-01T00:00:00.000Z' }
     ]
   };
 }
@@ -67,7 +68,7 @@ function createFakeEnvironment(options = {}) {
       if (id === 'backend') {
         if (sheet === 'GP_Master') return ['GP_ID','GP_Name','Status','Created_At','Updated_At','Created_By','Updated_By'];
         if (sheet === 'Option_Master') return ['Option_ID','Type','Name','Sort_Order','Status','Created_At','Updated_At','Created_By','Updated_By'];
-        if (sheet === 'Meeting_Index') return ['Meeting_ID','Date','Time','Location_ID','GP_ID','Asset_Class_ID','Capital_Type_ID','Counterparty','Internal_Participants','Doc_File_ID','Doc_URL','Saved_Filename','Status','Version','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note'];
+        if (sheet === 'Meeting_Index') return ['Meeting_ID','Date','Time','Location_ID','GP_ID','Asset_Class_ID','Capital_Type_ID','Counterparty','Internal_Participants','Doc_File_ID','Doc_URL','Saved_Filename','Status','Version','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs'];
         if (sheet === 'Pitchbook_Index') return ['Document_ID','Batch_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','File_URL','Original_Filename','Saved_Filename','Status','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Fund_Strategy'];
         if (sheet === 'Settings') return ['Key','Value','Description','Updated_At'];
       }
