@@ -1,11 +1,15 @@
 # Work 0022 — Temporal data contract hardening
 
 WORK_ID: `0022`
-Dispatch ID: `N/A`
-BALL: `CHATGPT`
-STATUS: `PREPARING`
+Dispatch ID: `0022-CODEX-01`
+BALL: `CODEX`
+STATUS: `READY`
 
 Mode: `BUILD / QUALIFICATION`
+
+Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
+
+Branch: `agent/0022-temporal-data-contract-hardening`
 
 Primary decision:
 
@@ -15,24 +19,23 @@ Primary plan:
 
 `docs/planning/work0022-temporal-data-contract-hardening.md`
 
-Reserved execution instruction:
+Active execution instruction:
 
 `docs/handoffs/0022-CODEX-01-temporal-contract-hardening-instruction.md`
 
-## Activation gate
+## Activation evidence
 
-Do not dispatch Codex for Work 0022 while Work 0016 has an active Codex dispatch.
+Work 0016 is accepted and merged:
 
-Activate only after:
+- PR #21 merged/closed;
+- merge commit `d77f4c8919b6aeb7e6bea1be76f4e5bd558df5b1`;
+- Work 0016 LOGIC_VALIDATION PASS `215/215`;
+- TARGET_RUNTIME_QUALIFICATION PASS;
+- Apps Script private Web App version `34`;
+- BLOCKER NO;
+- Completion Latch applied.
 
-1. Work 0016 CODEX-04 returns;
-2. ChatGPT verifies its repository/branch/commit/PR/report/diff/tests/runtime evidence;
-3. Work 0016 has `BLOCKER: NO` and PR #21 is accepted/merged;
-4. `main` contains the final Work 0016 code and this Work 0022 planning baseline;
-5. ChatGPT creates the Work 0022 implementation branch/Draft PR from that exact accepted `main` SHA;
-6. the reserved CODEX-01 instruction is updated with the exact ref, branch, PR, BALL `CODEX`, and STATUS `READY`.
-
-Until then, no source implementation or target-runtime mutation is authorized for Work 0022.
+This Work branch was created from the post-acceptance main roadmap where Work 0022 is current and the temporal decision is accepted.
 
 ## Primary outcome
 
@@ -65,6 +68,7 @@ Follow the decision and plan. At minimum:
 
 - add generic private temporal helpers;
 - distinguish Business Date, Business Time, Instant, and Duration;
+- run a complete full-tree temporal inventory before implementation;
 - route all confirmed temporal callsites through the generic contract;
 - normalize Meeting/Pitchbook Audit snapshots;
 - canonicalize Search/Sort, Knowledge Export revision tokens, core/feature-freeze AI `date_key`, and display/read models;
