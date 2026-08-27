@@ -1,50 +1,50 @@
 # Work 0017 dispatch control
 
 WORK_ID: `0017`
-DISPATCH_ID: `0017-CODEX-01`
-BALL: `NONE`
-STATUS: `COMPLETE`
+DISPATCH_ID: `0017-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
 
-## Completed dispatch
+## Dispatch history
 
-### 0017-CODEX-01 — COMPLETE
+### 0017-CODEX-01 — RETURNED / QUALIFIED WITH ONE UI DEFECT
+
+- delivered Activity Analytics plus the binary `月次管理反映済み` admin check;
+- deterministic validation `230/230 PASS` and focused `36/36 PASS`;
+- schema 5 / exactly five Backend sheets;
+- monthly/FY analytics, dimension switch, exact drill, admin-check persistence/Audit PASS;
+- immutable version `36`, same private Web App updated in place;
+- final integrity PASS;
+- report recorded one remaining user-facing issue: Counterparty Type filter displayed only `未選択`.
+
+### ChatGPT review / repair
+
+GitHub review confirmed a one-key client/server mismatch:
+
+- server: `filterOptions.counterpartyTypes`;
+- client: `counterpartyType`.
+
+ChatGPT fixed the client mapping and added a regression test on the same branch. No runtime mutation was performed by ChatGPT.
+
+### 0017-CODEX-02 — READY
 
 - mode: `BUILD / QUALIFICATION`;
-- purpose: deliver Activity Analytics plus the single binary `月次管理反映済み` admin check as one vertical slice;
-- recommended model: `Luna Max` — architecture, schema, temporal contract, metrics, dimensions, and mutation boundaries are already fixed;
+- purpose: validate the ChatGPT fix, deploy the exact corrected source once, prove the Counterparty Type filter in the actual Web App, and close final integrity;
+- model: `Luna Max`;
 - branch: `agent/0017-meeting-activity-analytics`;
 - Draft PR: `#23`;
-- instruction: `docs/handoffs/0017-CODEX-01-activity-analytics-and-admin-check-instruction.md`;
-- accepted main/source baseline: `b127b9d3c717998738f2acd775dc0b3c99bb5457`;
-- actual exact execution ref is the final PR #23 head supplied in the ChatGPT dispatch prompt after handoff activation metadata is complete.
-- result: `DEV QUALIFIED — WORK 0017 MEETING ACTIVITY ANALYTICS`;
-- `LOGIC_VALIDATION: PASS` (`36/36` focused; `230/230` canonical);
-- `TARGET_RUNTIME_QUALIFICATION: PASS` on existing private synthetic DEV Web App;
-- schema 5 / five Backend sheets / append-only admin fields: PASS;
-- monthly, Team-dimension, exact drill, fiscal-year, and admin-check persistence
-  evidence: PASS;
-- immutable Apps Script version `36`; existing private Web App updated in place;
-- no new deployment, trigger, Library, AI, permission, or unexpected data
-  mutation.
+- instruction: `docs/handoffs/0017-CODEX-02-counterparty-type-filter-finalization-instruction.md`;
+- ChatGPT-fixed source baseline: `737f9888be6468eb9f30ef582d25caf33b882775`.
 
 ## Accepted predecessor evidence
 
 - Work 0016 accepted/merged under PR #21;
 - Work 0022 accepted/merged under PR #22;
-- current private Web App version after Work 0022: `35`;
-- Backend exactly five sheets, schema `4` before Work 0017;
-- temporal contract static enforcement is part of `npm run check`;
-- public facade baseline: `24`.
+- Work 0017 CODEX-01 schema/server/admin-check evidence remains accepted absent direct contradiction.
 
-Do not reopen predecessor architecture absent material contradiction.
-
-## Ball control
-
-No active Codex dispatch remains. Codex returns report/commit/push/PR update to
-ChatGPT for final review. No additional dispatch should be invented merely for
-polishing if the Work acceptance evidence passes.
+Only one active Codex dispatch is authorized.
 
 WORK_ID: `0017`
-DISPATCH_ID: `0017-CODEX-01`
-BALL: `NONE`
-STATUS: `COMPLETE`
+DISPATCH_ID: `0017-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
