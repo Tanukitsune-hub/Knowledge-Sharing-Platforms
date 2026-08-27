@@ -9,9 +9,11 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Branch: `agent/0018-relationship-explorer`
 
-Draft PR: `TO_BE_ASSIGNED`
+Draft PR: `#24`
 
-Exact ref: `TO_BE_UPDATED_AFTER_PR_SETUP`
+Accepted main baseline: `a4b04d2ae122a92cc3400bb1251a6e5070c1899f`
+
+Exact execution ref: use the final PR #24 head supplied in the ChatGPT dispatch prompt after this activation metadata commit. Do not execute from an older branch ref.
 
 Mode: `BUILD / QUALIFICATION`
 
