@@ -4,7 +4,7 @@ WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-03`
 MODE: `BUILD / QUALIFICATION`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -104,17 +104,26 @@ If either live property is genuinely blank:
 
 Do not create another synthetic Entity or Meeting. Do not create a new deployment, touch Library deployments, enable triggers, call billing-enabled Gemini/File Search, use confidential data, or perform production rollout.
 
-## Current status
+## CODEX-03 outcome
+
+- Direct version 32 property inspection proved both hidden edit identity/version `.value` properties were empty after reopen; the issue was not only an attribute observation limitation.
+- The one authorized client-state repair passed focused validation and `npm run check` (`213/213`), synchronized `62/62` files once, created immutable version `33`, and updated the existing private Web App in place.
+- The reused synthetic non-GP Meeting completed one edit/save, Version 2 readback, exact Type + Entity + Related GP search, Knowledge Export Preview, Doc metadata, and deterministic metadata checks.
+- Final integrity stopped on the first actual defect: the successful update Audit listed `Date` as changed for an `Internal_Participants`-only edit because its Before/After snapshots used different representations of the same Asia/Tokyo business date.
 
 `LOGIC_VALIDATION: PASS`
 
-`TARGET_RUNTIME_QUALIFICATION: PARTIAL / RESUME REQUIRED`
+`TARGET_RUNTIME_QUALIFICATION: BLOCKED — NOT QUALIFIED`
 
 `SIDE_EFFECT_STATE: GUARDED`
 
 `READY: NO`
 
-`BLOCKER: YES — edit/save/search/Export/final-integrity completion remains outstanding; source defect itself is not yet proven.`
+`BLOCKER: YES — final Audit date representation integrity defect; no second repair or hypothesis was opened.`
+
+Detailed report:
+
+`docs/handoffs/0016-CODEX-03-edit-state-property-check-and-final-qualification-report.md`
 
 Keep PR #21 Draft / Open / unmerged for ChatGPT final review.
 

@@ -3,7 +3,7 @@
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-03`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKED`
 
 ## Dispatch history
 
@@ -29,14 +29,26 @@ STATUS: `READY`
 - no edit/save retry, duplicate record, Gemini/File Search call, trigger enablement, second sync/version/deployment occurred;
 - report: `docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-report.md`.
 
-### 0016-CODEX-03 — ACTIVE
+### 0016-CODEX-03 — RETURNED / BLOCKED
 
-- mode: `QUALIFICATION`, with one bounded repair path only if direct runtime evidence proves a source defect;
+- mode: `QUALIFICATION`, with one bounded repair path consumed after direct runtime evidence proved a source defect;
 - instruction: `docs/handoffs/0016-CODEX-03-edit-state-property-check-and-final-qualification-instruction.md`;
 - purpose: distinguish live DOM `.value` from serialized `value` attribute, then complete the existing Meeting edit/search/Export/final-integrity campaign without creating new test records;
-- model: `Sol High` — remaining issue is an unresolved target-runtime observation/root-cause question;
+- model: `Sol High` — final integrity stopped on a separate Audit representation defect;
 - branch: `agent/0016-counterparty-entity-foundation`;
 - Draft PR: `#21`.
+
+### 0016-CODEX-03 result
+
+- mode: `QUALIFICATION`;
+- direct version 32 DOM property check proved both hidden edit identity/version `.value` properties were empty after reopen;
+- one bounded client-state repair was implemented and tested: focused `21/21`, canonical `213/213`, `git diff --check` PASS;
+- exact tested source synchronized once (`62/62`), immutable version `33` created, existing private Web App updated in place, no second deployment;
+- existing synthetic LP Entity and non-GP Meeting were reused;
+- one edit/save, Version 2, exact Type + Entity + Related GP search, Knowledge Export Preview, Doc metadata, and deterministic metadata checks passed;
+- final integrity stopped on the first actual defect: an `Internal_Participants`-only update Audit listed `Date` as changed because Before/After used ISO timestamp versus `YYYY-MM-DD` representations of the same Asia/Tokyo business date;
+- no second hypothesis, Audit repair, save retry, source sync, version, or deployment was attempted;
+- report: `docs/handoffs/0016-CODEX-03-edit-state-property-check-and-final-qualification-report.md`.
 
 ## Accepted evidence
 
@@ -56,11 +68,11 @@ CODEX-02 classified blank hidden Meeting ID/Version controls as an application d
 
 Because programmatic `.value` changes need not update the serialized HTML `value` attribute, the prior observation is not sufficient to prove a source defect unless the live DOM properties themselves are blank.
 
-CODEX-03 must first read the live `.value` properties directly on version 32. If they are populated, treat CODEX-02 as an observer attribute-vs-property limitation and finish qualification with no source sync/version/deployment change. If they are truly blank, only one bounded source hypothesis/repair is authorized.
+CODEX-03 returned blocked after the single authorized client-state repair and final readback. The remaining Audit date representation issue is outside the consumed one-hypothesis budget and requires a fresh strategy/reset. No active follow-up dispatch is opened here.
 
 Only one active Codex dispatch is authorized.
 
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-03`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKED`

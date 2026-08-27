@@ -3,83 +3,66 @@
 WORK_ID: `0016`
 ACTIVE_DISPATCH_ID: `0016-CODEX-03`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKED`
 
 ## Current result
 
-CODEX-02 completed the deterministic gate, exact source synchronization, schema 4 target alignment, in-place private Web App update, legacy GP qualification, GP Workspace check, and creation/reopen of the single synthetic non-GP Entity/Meeting case.
+CODEX-03 completed the direct hidden edit-state property check, applied the one authorized client-state repair, passed deterministic validation, synchronized the exact tested source once, created version 33, and updated the existing private Web App in place. The existing synthetic LP Entity and non-GP Meeting were reused. One edit/save, exact Type + Entity + Related GP search, Knowledge Export Preview, Doc readback, and deterministic metadata checks passed.
 
-The remaining work is the one non-identity edit/save, exact post-edit search, target-runtime Export preview/read-model metadata verification, and final integrity.
+Final integrity stopped the Work: a successful Meeting update Audit listed `Date` as changed even though only `Internal_Participants` was edited. The Audit snapshots represented the same Asia/Tokyo business date differently. No second hypothesis or repair was opened.
 
 ## Accepted evidence
 
-- focused validation: `89/89 PASS`;
-- canonical `npm run check`: `212/212 PASS`;
+- focused validation through CODEX-02: `89/89 PASS`;
+- CODEX-03 focused Meeting validation: `21/21 PASS`;
+- canonical `npm run check`: `213/213 PASS`;
 - `git diff --check`: PASS;
 - public facade: `24`;
-- exact source readback: `62/62` deployable files;
-- immutable Apps Script version: `32`;
-- same existing private Web App updated in place;
+- exact source synchronization: `62/62` deployable files;
+- immutable Apps Script version: `33`;
+- same existing private Web App updated in place; no second deployment;
 - schema 4, exactly five Backend sheets, installation-state schemaVersion 4: PASS;
 - legacy GP compatibility: PASS;
 - GP Workspace compatibility: PASS;
-- exactly one synthetic LP / Asset Owner Entity and exactly one synthetic non-GP Meeting exist;
-- non-GP create/reopen, typed Counterparty fields, Related GP and matching Related Pitchbook: PASS;
-- Meeting remained Active at Version 1 after CODEX-02 stopped;
-- no duplicate entity/row, extra update Audit event, Gemini/File Search call, trigger enablement, second source sync/version/deployment occurred;
-- PR #21 is Draft/Open/unmerged and the branch is not behind main;
-- GitHub Actions and commit status checks are not configured, so deterministic PASS values are local Codex evidence.
+- exactly one synthetic LP / Asset Owner Entity and exactly one synthetic non-GP Meeting were reused;
+- non-GP Meeting edit/save and exact Type + Entity + Related GP search: PASS;
+- Knowledge Export Preview/read-only Doc metadata and deterministic entity metadata: PASS;
+- no Gemini/File Search call, trigger enablement, second source sync, or second deployment occurred.
 
-## ChatGPT independent review of the CODEX-02 stop
+## CODEX-03 direct evidence and bounded repair
 
-CODEX-02 reported the hidden edit Meeting ID and expected Version controls as blank and classified this as a target-runtime application defect.
+On version 32, both hidden edit identity/version controls had empty live `.value`, empty `value` attributes, and empty default values after reopening, while the visible heading showed Version 1. This proved the prior issue was not merely an attribute observation limitation.
 
-GitHub source review does not support that classification yet. `openMeetingEdit()` synchronously assigns both hidden inputs' live `.value` properties from the same `r.meetingId` / `r.version` values used to render the correctly observed heading. The hidden controls are present once in `MaintenancePages.html`, and the reviewed PR diff contains no later intentional clear of those edit values.
+The single bounded repair was limited to `src/ClientMaintenance.html` and `tests/meeting.test.cjs`: maintain a dedicated edit identity state, reapply it after form rendering, mirror the hidden attributes, and use it as a submit fallback. The production client regression passed. No schema, server, AI, deployment logic, or public facade changes were made.
 
-Because a programmatic input `.value` assignment need not update the serialized HTML `value` attribute/default value, observing blank markup/attribute is not equivalent to observing a blank live form value.
+## Target-runtime result
 
-Current classification of the alleged edit-state defect is therefore:
+- The existing synthetic Meeting completed one non-identity edit/save exactly once and advanced to Version 2 with the same identity.
+- Exact search by Counterparty Type + Entity + Related GP returned one target and showed the edited value.
+- The existing Related GP and Related Pitchbook relationship, Active status, source Doc, filename, and structured metadata remained intact.
+- Knowledge Export Preview returned one Meeting and succeeded without creating a new export artifact or calling Gemini/File Search.
+- Deterministic entity key, Counterparty, Related GP, Audit redaction, and AI-disabled state were consistent with the authoritative Index/Master/Doc readback.
 
-`UNRESOLVED OBSERVATION AMBIGUITY — LIVE DOM PROPERTY CHECK REQUIRED`
+## Final integrity blocker
 
-## Issue classification
+The successful metadata-only Meeting update Audit included `Date,Internal_Participants,Version,Updated_At` in `Changed_Fields`, although the only user edit was `Internal_Participants`. Before/After Audit snapshots contained an ISO timestamp and `YYYY-MM-DD` for the same logical business date. This is the smallest decisive application/data-integrity evidence.
 
-### BLOCKER
-
-- Work 0016 is not complete until the existing synthetic non-GP Meeting completes one edit/save, exact post-edit search, Export preview/read-model metadata check, and final integrity.
-
-### FIX SOON
-
-- none established from GitHub review. Do not change source unless the live `.value` property check proves a real defect.
-
-### BACKLOG
-
-- hosted GitHub Actions CI;
-- planned personal-PC Gemini/File Search qualification;
-- later Shared Drive/company production qualification and rollout.
-
-## Next action
-
-Execute `0016-CODEX-03`:
-
-`direct live .value property check on version 32 -> if correct, no source change and finish edit/search/Export/integrity -> if genuinely blank, one bounded root-cause repair only -> report/commit/push/PR update`.
-
-Reuse the existing synthetic Entity and Meeting. Do not create another test record.
-
-Detailed instruction:
-
-`docs/handoffs/0016-CODEX-03-edit-state-property-check-and-final-qualification-instruction.md`
+No further target-runtime action, save, deployment, or repair was attempted after this finding. The existing Audit snapshot code was only read to record the decisive evidence; no second hypothesis was opened.
 
 ## Completion judgment
 
 `LOGIC_VALIDATION: PASS`
 
-`TARGET_RUNTIME_QUALIFICATION: PARTIAL / RESUME REQUIRED`
+`TARGET_RUNTIME_QUALIFICATION: BLOCKED — NOT QUALIFIED`
 
 `SIDE_EFFECT_STATE: GUARDED`
 
 `READY: NO`
 
 `BLOCKER: YES`
+
+Detailed report:
+
+`docs/handoffs/0016-CODEX-03-edit-state-property-check-and-final-qualification-report.md`
 
 PR #21 remains Draft / Open / unmerged.

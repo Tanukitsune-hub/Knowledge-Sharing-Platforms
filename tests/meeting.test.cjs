@@ -228,6 +228,44 @@ test('UI preserves shared context, stores retry context, and clears it on change
   assert.match(html, /innerHTML=kspSanitizeStatusHtml\(message\)/);
 });
 
+function extractClientFunction(source, name) {
+  const start = source.indexOf(`function ${name}(`);
+  assert.notEqual(start, -1, `${name} must exist in production client source`);
+  const next = source.indexOf('\nfunction ', start + 1);
+  return source.slice(start, next === -1 ? source.length : next);
+}
+
+test('client edit identity populates live hidden values and preserves a safe fallback', () => {
+  const source = fs.readFileSync(path.join(root, 'src', 'ClientMaintenance.html'), 'utf8');
+  const nodes = {};
+  for (const id of ['meeting-edit-meetingId', 'meeting-edit-expectedVersion']) {
+    nodes[id] = {
+      value: '',
+      defaultValue: '',
+      attributes: {},
+      setAttribute(name, value) { this.attributes[name] = String(value); },
+      getAttribute(name) { return this.attributes[name] ?? null; }
+    };
+  }
+  const context = vm.createContext({ String, Number, el(id) { return nodes[id]; } });
+  new vm.Script([
+    'let meetingEditIdentity={meetingId:"",expectedVersion:0};',
+    extractClientFunction(source, 'setMeetingEditIdentity'),
+    extractClientFunction(source, 'readMeetingEditIdentity')
+  ].join('\n'), { filename: 'client-edit-state.test.js' }).runInContext(context);
+
+  vm.runInContext("setMeetingEditIdentity({meetingId:'MTG-TEST-001',version:1})", context);
+  assert.equal(nodes['meeting-edit-meetingId'].value, 'MTG-TEST-001');
+  assert.equal(nodes['meeting-edit-meetingId'].getAttribute('value'), 'MTG-TEST-001');
+  assert.equal(nodes['meeting-edit-expectedVersion'].value, '1');
+  assert.equal(nodes['meeting-edit-expectedVersion'].getAttribute('value'), '1');
+  assert.equal(JSON.stringify(vm.runInContext('readMeetingEditIdentity()', context)), JSON.stringify({ meetingId: 'MTG-TEST-001', expectedVersion: 1 }));
+
+  nodes['meeting-edit-meetingId'].value = '';
+  nodes['meeting-edit-expectedVersion'].value = '';
+  assert.equal(JSON.stringify(vm.runInContext('readMeetingEditIdentity()', context)), JSON.stringify({ meetingId: 'MTG-TEST-001', expectedVersion: 1 }));
+});
+
 test('rich Meeting fields normalize, persist, render, and keep follow-up note out of Audit', () => {
   const pitchbookRows = [
     { Document_ID:'DOC-000002', Date:'2026-08-15', GP_ID:'GP-1', Asset_Class_ID:'AC-INFRA', Status:'Active', Saved_Filename:'newer.pdf' },
