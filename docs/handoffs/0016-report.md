@@ -3,67 +3,53 @@
 WORK_ID: `0016`
 ACTIVE_DISPATCH_ID: `0016-CODEX-02`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED`
 
-## GitHub-verified current state
+## Current result
 
-- repository/branch/PR/commit from the CODEX-01 report exist and match;
-- Draft PR #21 is Open / unmerged;
-- branch was five commits ahead of and zero commits behind main at CODEX-01 return;
-- final CODEX-01 commit: `4bac661805232178784edd0c1d1260543860b9b3`;
-- complete Counterparty Entity vertical slice is present across schema/setup, Meeting register/edit/search, client UI/drafts, relationships, GP Workspace, Export, Audit, and deterministic AI metadata;
-- CODEX-01 local validation records `211/211 PASS`, public facade `24`, and `git diff --check` PASS;
-- no GitHub Actions workflow run or commit status exists, so `211/211` is local Codex evidence rather than hosted CI evidence;
-- one Apps Script saved-source sync occurred before final-review repairs;
-- no immutable version, Web App update, schema/data migration, runtime Meeting, or final integrity run occurred;
-- target Web App remains on version `31`.
+CODEX-02 completed the authorized deterministic gate, exact source synchronization, synthetic schema 4 alignment, in-place private Web App update, and the bounded runtime steps through creation and reopening of one synthetic non-GP Meeting.
+
+The dispatch stopped at the first actual target-runtime application defect: after the new Meeting reopened, the normal edit form displayed the record but its hidden Meeting ID and expected Version controls were empty and remained empty. Because the save handler depends on those optimistic-concurrency fields, the edit/save/search continuation was not safe to attempt.
+
+## Evidence
+
+- Focused validation: `89/89 PASS`.
+- `npm run check`: `212/212 PASS`.
+- `git diff --check`: PASS.
+- public facade: `24`.
+- exact tested source sync: `62/62` deployable files read back.
+- immutable Apps Script version: `32`.
+- the existing private Web App was updated in place; no second Web App deployment or Library mutation occurred.
+- synthetic schema 4 and installation-state schema version 4 readback passed; AI remained disabled.
+- legacy GP compatibility passed.
+- GP Workspace compatibility passed.
+- exactly one synthetic LP / Asset Owner entity was added and exactly one synthetic non-GP Meeting was created with one Related GP and one matching Related Pitchbook.
+- reopening round-tripped the visible structured fields and relationship, but exposed the edit-state defect described in the CODEX-02 report.
+- the new Meeting remained Active at Version 1 after the stop; no save retry, duplicate, or extra update Audit event occurred.
+
+## Not completed
+
+- one non-identity Meeting edit/save;
+- exact post-edit search by Counterparty Type + Entity + Related GP;
+- target-runtime Knowledge Export preview metadata readback;
+- full final integrity comparison for the uncompleted campaign.
+
+No Gemini/File Search call, trigger enablement, second source sync, second version, second deployment, or additional data mutation was performed.
 
 ## Completion judgment
 
-The implementation objective is substantially built, but Work 0016 is not complete because the corrected source is not deployed and the mandatory legacy/non-GP target-runtime campaign has not run.
+`LOGIC_VALIDATION: PASS`
 
-## Independent findings
+`TARGET_RUNTIME_QUALIFICATION: BLOCKED`
 
-### BLOCKER
-
-1. saved Apps Script source is stale relative to GitHub and target-runtime qualification is absent;
-2. `kspMeetingCellDate_()` uses UTC calendar getters for Sheets Date objects, which can shift an `Asia/Tokyo` logical Related Pitchbook date to the prior day;
-3. schema 4 target alignment, legacy GP migration readback, non-GP Meeting persistence/reopen/edit/search, and final integrity remain unobserved.
-
-### FIX SOON — included in CODEX-02 before sync
-
-1. accepted category label is `GP / 運用会社`, while some implementation surfaces still show `GP`;
-2. Meeting registration guidance still describes a singular selected GP instead of the implemented Related GP candidate rule;
-3. Counterparty quick-add changes request identity but does not explicitly clear a stale Meeting retry fingerprint before saving the draft.
-
-### BACKLOG
-
-- hosted GitHub Actions CI;
-- personal-PC live Gemini/File Search qualification in its planned later Work;
-- Shared Drive/company production qualification and rollout.
-
-## ChatGPT-completed GitHub work
-
-- created `docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-instruction.md`;
-- updated canonical Work instruction and dispatch register;
-- fixed the current BALL/STATUS to `CODEX / READY`;
-- bounded the final repair, one synchronization, schema alignment, runtime campaign, final integrity, and delivery into one residual dispatch;
-- no application source, target runtime, data, deployment, or private identifier was modified by ChatGPT.
-
-## Next action
-
-Execute `0016-CODEX-02` from the latest branch ref. It must close the four pre-sync findings, rerun deterministic validation, perform one exact final source synchronization, align schema 4, update the existing private Web App in place, and complete the single legacy GP + non-GP Meeting target-runtime campaign and final integrity.
-
-Current classification:
-
-`LOGIC_VALIDATION: PASS — CODEX-01 local evidence; rerun required after final repairs`
-
-`TARGET_RUNTIME_QUALIFICATION: NOT RUN`
-
-`SIDE_EFFECT_STATE: BOUNDED — stale saved-source sync only`
+`SIDE_EFFECT_STATE: GUARDED`
 
 `READY: NO`
 
 `BLOCKER: YES`
+
+Classification: `NOT QUALIFIED — TARGET-RUNTIME MEETING EDIT STATE DEFECT`.
+
+Detailed evidence: `docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-report.md`.
 
 PR #21 remains Draft / Open / unmerged.

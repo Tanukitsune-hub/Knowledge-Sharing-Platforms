@@ -3,7 +3,7 @@
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-02`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED`
 
 ## Dispatch history
 
@@ -17,7 +17,7 @@ STATUS: `READY`
 - saved Apps Script source is stale relative to GitHub;
 - report: `docs/handoffs/0016-CODEX-01-counterparty-entity-foundation-report.md`.
 
-### 0016-CODEX-02 — ACTIVE
+### 0016-CODEX-02 — RETURNED / BLOCKED
 
 - mode: `BUILD / QUALIFICATION`;
 - instruction: `docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-instruction.md`;
@@ -25,6 +25,10 @@ STATUS: `READY`
 - model: `Luna Max`;
 - branch: `agent/0016-counterparty-entity-foundation`;
 - Draft PR: `#21`.
+- deterministic validation, source readback, schema 4 alignment, version 32, and in-place private Web App update passed;
+- legacy GP, GP Workspace, one synthetic non-GP Entity, and one synthetic non-GP Meeting creation passed;
+- the dispatch stopped after reopen because the normal edit form's hidden Meeting ID and expected Version controls were empty;
+- report: `docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-report.md`.
 
 ## Accepted evidence
 
@@ -34,16 +38,13 @@ STATUS: `READY`
 - existing private Web App remains on version `31`;
 - branch was not behind main at CODEX-01 return.
 
-## Remaining blockers
+## Remaining blocker
 
-1. registration-side Related Pitchbook Date objects use UTC calendar getters instead of the configured `Asia/Tokyo` logical date;
-2. final source/tests must close the authoritative GP label, Related Pitchbook hint, and quick-add retry-invalidation findings;
-3. corrected source has not been synchronized/versioned/deployed;
-4. schema 4 target alignment, legacy GP readback, one non-GP Meeting end-to-end campaign, and final integrity have not run.
+1. The target-runtime Meeting edit form leaves its hidden optimistic-concurrency identity/version controls blank after a successful reopen. The required edit/save/search continuation and full final integrity were therefore not run.
 
-Only one active Codex dispatch is authorized. Do not split the residual work into additional Works.
+The source/deployment repair budget for this dispatch is exhausted. A future dispatch must use a fresh strategy/reset; do not treat this report as a source hypothesis or modify source within CODEX-02.
 
 WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-02`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED`

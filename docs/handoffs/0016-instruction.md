@@ -4,7 +4,7 @@ WORK_ID: `0016`
 DISPATCH_ID: `0016-CODEX-02`
 MODE: `BUILD / QUALIFICATION`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -98,18 +98,32 @@ It may not:
 
 ## Current status
 
-`LOGIC_VALIDATION: PASS` for the CODEX-01 local tree, subject to rerun after the four final repairs.
+`LOGIC_VALIDATION: PASS`
 
-`TARGET_RUNTIME_QUALIFICATION: NOT RUN`
+`TARGET_RUNTIME_QUALIFICATION: BLOCKED`
 
-`SIDE_EFFECT_STATE: BOUNDED — stale saved-source sync only; version/deployment/data unchanged`
+`SIDE_EFFECT_STATE: GUARDED`
 
 `READY: NO`
 
 `BLOCKER: YES`
 
-Active ball is CODEX-02. On full PASS apply:
-
-`DEV QUALIFIED — WORK 0016 COUNTERPARTY ENTITY FOUNDATION`
+CODEX-02 stopped at the first actual target-runtime application defect. The new non-GP Meeting was created and reopened successfully, but the normal edit form retained blank hidden Meeting ID and expected Version controls. No edit/save retry was made. The exact evidence is in `docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-report.md`.
 
 Keep PR #21 Draft / Open / unmerged for ChatGPT final review.
+
+## CODEX-02 execution result
+
+- deterministic validation, exact source readback, schema 4 alignment, installation-state schema version 4, version 32 creation, and in-place private Web App update passed;
+- legacy GP compatibility and GP Workspace compatibility passed;
+- exactly one synthetic non-GP Entity and one synthetic non-GP Meeting were created with one Related GP and one matching Related Pitchbook;
+- reopening round-tripped visible fields and relationship data;
+- the hidden edit identity/version controls were empty after reopen, so the required non-identity edit, exact post-edit search, target-runtime Export metadata, and full final integrity comparison were not run;
+- no Gemini/File Search call, trigger enablement, second synchronization, second version, second deployment, or save retry occurred.
+
+Classification: `NOT QUALIFIED — TARGET-RUNTIME MEETING EDIT STATE DEFECT`.
+
+WORK_ID: `0016`
+DISPATCH_ID: `0016-CODEX-02`
+BALL: `CODEX`
+STATUS: `RETURNED`
