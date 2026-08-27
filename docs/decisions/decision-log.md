@@ -1,92 +1,40 @@
 # Decision Log
 
-本ファイルには現在も有効な主要判断だけを記録する。2026-08-14以前の旧product / UI / AppSheet / RAG / Vector DB / MVP / roadmap decisionsは撤回済み。
+Current as of: 2026-08-27
 
-Detailed domain sources take precedence:
+This file records active major decisions. Detailed domain sources take precedence:
 
+- product: `docs/product/vision.md`
 - architecture: `docs/architecture/target-architecture.md`
 - implementation: `docs/planning/apps-script-implementation-plan.md`
-- runtime / audit: `docs/operations/runtime-policy.md`
+- roadmap: `docs/planning/mvp-and-roadmap.md`
+- runtime: `docs/operations/runtime-policy.md`
 - target-runtime delivery: `docs/decisions/target-runtime-first-development.md`
-- Gemini retrieval: `docs/ai/gemini-file-search.md`
+- Gemini: `docs/ai/gemini-file-search.md`
 - security: `docs/governance/security.md`
 
-## 2026-08-14 — Reset project direction
+## 2026-08-14 — Google Workspace-centered product reset
 
 Status: Accepted
 
-Build a simple private-assets knowledge base around Google Workspace rather than a complex knowledge-sharing platform.
+Build a simple private-assets knowledge base rather than a Wiki/SNS/complex external platform.
 
-- Shared Drive is authoritative source.
+- Shared Drive is authoritative.
 - Users interact through one Apps Script Web App.
-- Sheets hold Masters / Index / Settings, not duplicated full source content.
-- Keep storage simple and independent from future AI convenience.
+- Sheets hold Masters/Index/Settings, not full duplicated source content.
+- AI remains a derived convenience layer.
 
-## 2026-08-15 — One shared Apps Script Web App
-
-Status: Accepted
-
-- one organization-controlled Web App for all authorized users
-- no per-user Spreadsheet / Web App copies
-- same app contains Meeting, Pitchbook, Knowledge Search, Master Management
-- normal users do not directly edit backend / audit stores
-- browser draft state is per user/browser
-
-## 2026-08-15 — Meeting contract
+## 2026-08-15 — One shared Web App
 
 Status: Accepted
 
-Required:
+- one organization-controlled Web App for authorized users;
+- no per-user copies;
+- Meeting, Pitchbook, Workspace/analytics, Knowledge Search, and Master Management share the application;
+- normal users do not directly edit Backend/Audit/File Search state;
+- browser drafts are per user/browser.
 
-- Date
-- GP
-- Asset Class
-
-Optional baseline:
-
-- Time
-- Location
-- Equity / Debt
-- Counterparty
-- Internal Participants
-- Notes
-
-Meeting body is authoritative in Google Docs and is not duplicated in `Meeting_Index`.
-
-Fixed Meeting ID example: `MTG-000123`.
-
-Filename:
-
-```text
-YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_MTG-XXXXXX
-```
-
-Time is excluded. Optional Equity/Debt segment is omitted when absent. Later append-only fields and relationships follow their accepted Work/decision documents.
-
-## 2026-08-15 — Shared registration context / drafts
-
-Status: Accepted
-
-Meeting and Pitchbook share browser-state for Date, GP, Asset Class, Equity / Debt, and accepted later shared metadata.
-
-Registration success keeps shared values and clears page-specific values only.
-
-Text / selection drafts persist for 24h in the same browser. File handles need not survive reload / tab close.
-
-## 2026-08-15 — Pitchbook identity / filename / retry
-
-Status: Accepted
-
-- fixed Document ID / Batch ID
-- filename uses Date / GP / Asset Class / optional Equity-Debt / Sequence
-- sequence starts at `01`
-- later additions use destination-context current max + 1
-- historical sequence gaps are not closed
-- metadata edits keep Document ID / Drive File ID
-- batch processing is file-granular
-- failed-file retry reuses identity / reserved sequence and avoids duplicate Drive / Index records
-
-## 2026-08-15 — Flat Shared Drive source structure
+## 2026-08-15 — Authoritative storage and five-sheet Backend
 
 Status: Accepted
 
@@ -96,11 +44,7 @@ Private Assets Knowledge
 └─ Pitchbooks
 ```
 
-No year / GP / Asset Class source subfolders initially. Production parentage follows `docs/decisions/shared-drive-production-root.md` once that decision is merged.
-
-## 2026-08-15 — Five-sheet backend
-
-Status: Accepted
+Backend:
 
 ```text
 GP_Master
@@ -110,173 +54,244 @@ Pitchbook_Index
 Settings
 ```
 
-Use stable IDs rather than row numbers. Append-only schema evolution may add columns but does not add a new relation/database sheet without a new explicit decision.
+- stable IDs, not row numbers;
+- append-only schema evolution where practical;
+- no new relation/entity/analytics sheet without explicit decision;
+- separate Restricted Audit Spreadsheet.
 
-`Created_By / Updated_By` are Actor fields and may contain email, temporary user key, or `UNIDENTIFIED`.
+## 2026-08-15 — Meeting baseline
 
-AI fields:
+Status: Accepted historical baseline; prospectively extended on 2026-08-27
 
-```text
-AI_Document_Name
-AI_Index_Status
-AI_Indexed_At
-AI_Content_Hash
-AI_Last_Error
-```
+Baseline required fields were Date, GP, Asset Class. Optional fields include Time, Location, Equity/Debt, person/counterparty text, internal participants, body notes, and later structured fields.
 
-AI states:
+Meeting body is authoritative only in Google Docs. Stable Meeting ID remains immutable.
 
-```text
-NotIndexed / Pending / Indexed / Failed
-```
+The global GP requirement is prospectively superseded by the 2026-08-27 Counterparty Entity decision; legacy GP records remain valid.
+
+## 2026-08-15 — Pitchbook identity, filename, and retry
+
+Status: Accepted
+
+- file, Date, GP, Asset Class remain required;
+- optional Equity/Debt and Fund/Strategy;
+- stable Document ID / Batch ID / Drive File ID;
+- sequence starts at `01` and continues from destination max;
+- historical gaps remain;
+- metadata edits preserve identity;
+- file-granular partial success;
+- idempotent retry avoids duplicate Drive/Index records;
+- current limits: 25MB/file, 10 files/selection, 100MB total.
+
+Work 0016 does not generalize Pitchbook ownership to non-GP entities.
+
+## 2026-08-15 — Drafts, maintenance, and lifecycle
+
+Status: Accepted, with prospective counterparty sharing update
+
+- text/selection drafts persist for 24h in one browser;
+- registration success keeps shared fields and clears page-specific fields;
+- normal lifecycle is Active/Inactive/Reactivate;
+- stable IDs and optimistic locking are preserved;
+- LockService covers short critical sections only.
+
+After Work 0016, Date/Asset Class/Capital Type/Fund Strategy remain shared across Meeting/Pitchbook, while GP shares only from a GP-counterparty Meeting.
 
 ## 2026-08-15 — Masters
 
-Status: Accepted
+Status: Accepted and extended
 
 GP Master:
 
-- immutable GP ID
-- mutable GP name
-- Active / Inactive
-- alphabetical display
-- quick-add with normalized duplicate check
+- immutable GP ID;
+- mutable name;
+- Active/Inactive;
+- normalized duplicate check;
+- quick-add.
 
-Option Master types include Location, Asset Class, Capital Type, and accepted later append-only types such as Team.
+Option Master:
 
-All authorized users may add / rename / reorder / deactivate / reactivate allowed Masters. Rename / deactivate requires confirmation + audit event.
+- immutable Option ID;
+- mutable name/Sort Order/status;
+- existing Types include Location, Asset Class, Capital Type, Team;
+- Work 0016 adds category-specific non-GP counterparty Types.
 
-## 2026-08-15 — Past records / logical deactivation / concurrency
+Authorized users maintain allowed Masters with confirmation/Audit rules. Real department/entity names are not guessed as seeds.
+
+## 2026-08-15 — Restricted Audit / best-effort Actor
 
 Status: Accepted
 
-- Past-record filters are optional and use stable IDs where applicable.
-- UI-only `未選択` is never persisted.
-- Normal users use Active / Inactive / Reactivate rather than physical deletion.
-- Same-Meeting edits use Version / Updated At optimistic locking.
-- LockService protects only short consistency-critical writes.
+- separate Restricted admin-only Audit Spreadsheet;
+- no Web App Audit Viewer/custom password initially;
+- Actor priority: email -> `TEMP_USER:<key>` -> `UNIDENTIFIED`;
+- missing persistent identity does not block normal operation;
+- Audit is operational trace, not strict non-repudiation;
+- source bodies, Follow-up note, prompts/questions, answers, chunks, embeddings, bytes, secrets, and private runtime IDs are excluded.
 
 ## 2026-08-15 — Gemini File Search retrieval
 
-Status: Accepted
+Status: Accepted design; live qualification planned
 
-- Shared Drive remains authoritative.
-- Gemini File Search is a derived / rebuildable hosted retrieval index.
-- Start with one Store.
-- File Search manages chunking / embeddings / semantic retrieval.
-- Custom Metadata provides exact filters.
-- No custom Vector DB / embedding pipeline / tag taxonomy / Knowledge Graph initially.
-- Only Active sources are normally retrievable.
-- AI indexing failure never rolls back authoritative source capture.
-- Citations link back to original Drive source.
+- Shared Drive remains authoritative;
+- one derived/rebuildable Store initially;
+- stable Custom Metadata for exact filtering;
+- managed chunking/embeddings;
+- only Active sources normally retrievable;
+- one configured Flash model;
+- AI failure never rolls back authoritative capture;
+- citations return to stable source IDs/Drive links;
+- no custom Vector DB, taxonomy, Knowledge Graph, Agent framework, or model router initially.
 
-## 2026-08-15 — AI access / sync / model / formats
+Accepted initial formats:
 
-Status: Accepted
+```text
+.pdf / .pptx / .xlsx / .docx / .txt / .eml
+```
 
-- authorized Web App users share access to all Active indexed sources
-- no per-user / per-file retrieval ACL initially
-- one configured Gemini Flash model
-- no user model selector / Deep mode
-- 15-minute Apps Script AI sync worker
-- initial formats: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`
-- EML original remains in Drive; normalized Subject / From / To / Cc / Date / Body is indexed
-- EML embedded attachments are not auto-indexed
-- `.msg` is initially out of scope
-
-Billing-enabled Gemini / File Search operation remains separately authorized under the target-runtime side-effect boundary.
+`.msg` and automatic EML attachment indexing remain out of scope.
 
 ## 2026-08-15 — Five-mode Knowledge Search
 
-Status: Accepted
+Status: Accepted and extended
 
 ```text
 自由質問 | 要約 | 時系列 | 比較 | 面談準備
 ```
 
-- 自由質問 is default.
-- Shared filters: Date From/To, GP, Asset Class, Equity/Debt, Source Type, plus accepted later structured filters.
-- All modes share one retrieval / citation layer.
-- Presets change prompt / output template only.
-- Every mode surfaces citations / Drive links.
-- Insufficient evidence must be stated rather than invented.
+- one retrieval/citation layer;
+- presets change prompt/output shape only;
+- insufficient evidence is stated;
+- filters use stable IDs and omit `未選択`;
+- Work 0021 adds entity-centered structured filters and 2–5 entity comparison.
 
-## 2026-08-15 / 16 — Apps Script-first implementation
+## 2026-08-17 — Knowledge Export and public-surface hardening
 
-Status: Accepted; environment/delivery method updated on 2026-08-26
+Status: Accepted and implemented
 
-- production runtime is Apps Script V8 JavaScript
-- normal setup does not require Node.js / clasp / external server
-- `setupKnowledgePlatform_()` is the editor-only idempotent create / reuse / migration / repair path; normal users cannot call setup through `google.script.run`
-- ChatGPT owns design / GitHub / review / completion
-- Codex handles residual implementation / tests / exact-source synchronization / target-runtime validation / debugging
-- production business behavior must exist in production source; test loaders may not supply missing production helpers
-
-The former permanent DEV/PROD project separation is superseded by the target-runtime-first decision below.
-
-## 2026-08-17 — Knowledge Export and Apps Script public-surface hardening
-
-Status: Accepted and implemented in Work 0012
-
-- Only canonical normal-user facade functions are top-level/browser-callable; setup, status, validation, retention, manual sync, diagnostics, triggers, and raw adapters remain private.
-- Legacy `runAiSyncWorker` triggers migrate to private `runAiSyncWorker_` during idempotent setup.
-- Knowledge Export resolves Active Backend Index rows, hard-stops count limits before Meeting Doc reads, binds source links to stable file IDs, writes explicit Docs hyperlinks, and returns canonical artifact URLs.
-- Provider-neutral five-mode prompts use Master display names with stable IDs.
-- Audit stores metadata only; prompt text, answers, source bodies, chunks, embeddings, and bytes are excluded.
-- Short-lived actor-bucket throttling and export idempotency are the minimal abuse controls.
-- `Knowledge Exports` is a derived-copy boundary; permission equivalence and retention/deletion operations remain target-runtime qualification items.
-
-## 2026-08-16 — Lower upload limits
-
-Status: Accepted
-
-```text
-25MB / file
-10 files / selection
-100MB total / selection
-```
-
-This replaces 100MB/file / 500MB/batch. Do not add complex upload architecture merely to preserve a larger arbitrary limit. If 25MB is impractical in actual Apps Script behavior, lower the limit first.
-
-Detailed decision: `docs/decisions/pitchbook-upload-limits.md`.
-
-## 2026-08-16 — Separate restricted Audit Spreadsheet / best-effort Actor
-
-Status: Accepted
-
-- Audit logs are stored in a separate Google Spreadsheet under a Restricted admin-only control folder.
-- Initial Web App does not require Audit Viewer or custom password authentication.
-- Actor priority: email → `TEMP_USER:<key>` → `UNIDENTIFIED`.
-- Persistent actual-user identity is not a release requirement and missing identity must not block normal operations.
-- Audit purpose is operational trace / change history / AI-use trace / failure investigation, not strict non-repudiation.
-
-Detailed decision: `docs/decisions/audit-access-and-user-attribution.md`.
+- only approved normal-user top-level facade functions;
+- setup/diagnostics/triggers/raw adapters remain private;
+- Export resolves Active authoritative records;
+- count/character bounds precede expensive reads;
+- explicit source links;
+- provider-neutral five-mode prompts;
+- Audit remains metadata-only;
+- Knowledge Exports are derived copies requiring final permission/retention evidence.
 
 ## 2026-08-26 — Target-runtime-first development
 
 Status: Accepted
 
-For new Work after active Work 0014 closes or safely stops:
+For new Work:
 
-- implement the shortest coherent slice directly in production source paths and the actual Apps Script / Workspace / Web App target runtime;
-- use isolated synthetic/anonymized data and clearly segregated test resources;
-- keep production/confidential data, real users, billing, triggers, public exposure, destructive writes, and other consequential effects separately disabled or guarded;
-- run focused `LOGIC_VALIDATION`, then bounded `TARGET_RUNTIME_QUALIFICATION` before broad feature expansion;
-- do not declare runtime-dependent Work ready from CI, mocks, simulators, alternate runtimes, synthetic harnesses, or test-only helpers alone;
-- create a separate DEV/Staging runtime only when a documented material reason provides unique safety or evidence not achievable through isolation/guards in the target runtime.
+- implement the shortest coherent production-source slice;
+- use actual target runtime with isolated synthetic/anonymized resources;
+- keep production data/users/billing/triggers/exposure/destructive effects separately guarded;
+- separate LOGIC_VALIDATION from TARGET_RUNTIME_QUALIFICATION;
+- do not declare readiness from CI/mock/test-loader alone;
+- create staging only for a material unique safety/evidence reason.
 
-This supersedes the default feature-complete → final DEV live qualification sequence and permanent DEV/PROD project separation. Historical evidence remains historical evidence.
+The former permanent DEV/PROD project separation is superseded.
 
-Detailed decision: `docs/decisions/target-runtime-first-development.md`.
+Detailed decision:
 
-## Current genuine implementation choices
+`docs/decisions/target-runtime-first-development.md`
 
-Only material unresolved choices remain open, including:
+## 2026-08-27 — Counterparty entity classification
 
-- concrete approved Gemini model / credential / billing route
-- retry batch size / backoff / rate-limit / cost guardrails based on observed runtime behavior
-- safe practical upload limit if actual Apps Script behavior requires a lower value
-- production rollout / permission / cleanup route when real data and users are introduced
-- whether a future high-risk migration/concurrency campaign uniquely requires separate staging
+Status: Accepted
 
-Other adopted design should not be reopened without new material evidence.
+Meeting classification becomes:
+
+```text
+Counterparty Type -> Counterparty Entity
+```
+
+Fixed categories:
+
+```text
+GP
+LP_ASSET_OWNER
+NISSAY_INTERNAL
+GROUP_COMPANY
+CONSULTANT_GATEKEEPER
+OTHER
+```
+
+- GP choices use `GP_Master`;
+- non-GP choices use category-specific `Option_Master` Types;
+- no sixth Entity/Counterparty sheet;
+- composite identity is `Counterparty_Type + ':' + Counterparty_ID`;
+- append `Counterparty_Type`, `Counterparty_ID`, `Related_GP_IDs` to Meeting Index;
+- keep existing `GP_ID` and free-text person/role field for compatibility;
+- GP Meetings mirror GP_ID and auto-include it in Related GPs;
+- non-GP Meetings may have blank GP_ID and optional Related GPs;
+- legacy GP rows backfill new columns without changing stable IDs/Docs/files;
+- Pitchbook remains GP-required.
+
+Detailed decision:
+
+`docs/decisions/counterparty-entity-classification.md`
+
+## 2026-08-27 — Product enhancement selection
+
+Status: Accepted
+
+Selected:
+
+- hierarchical counterparty/entity classification;
+- entity-aware activity analytics;
+- bidirectional Relationship Explorer;
+- Entity Workspace;
+- exact Fund/Strategy drill-down;
+- structured Knowledge filters;
+- AI multi-entity comparison.
+
+Rejected/absorbed:
+
+- advanced follow-up task workflow: rejected; task management occurs elsewhere;
+- static GP-comparison dashboard: rejected; numeric comparison belongs in analytics and qualitative comparison in Gemini;
+- standalone GP Workspace enhancement: absorbed into Relationship Explorer/Entity Workspace;
+- mandatory universal legacy converter: rejected.
+
+## 2026-08-27 — Implementation order
+
+Status: Accepted
+
+```text
+0015 GP Workspace
+→ 0016 Counterparty entity foundation
+→ 0017 activity analytics / monthly checks
+→ 0018 Relationship Explorer
+→ 0019 Entity Workspace / Fund-Strategy drill-down
+→ 0020 personal-PC Gemini/File Search core
+→ 0021 structured filters / multi-entity comparison
+→ historical migration
+→ final production qualification
+```
+
+Analytics follows entity foundation to avoid building a GP-only dimension that must immediately be replaced.
+
+Personal-PC Gemini qualification precedes historical migration so the actual index/metadata/search contract is proven before loading volume.
+
+## 2026-08-27 — Historical migration and final production
+
+Status: Accepted
+
+Historical materials are heterogeneous. Manual entry is a valid default. Use hybrid/selective automation only for repeatable subsets with measurable benefit.
+
+Final production qualification is last and includes actual company Shared Drive hierarchy/permissions, organization-controlled Apps Script, Backend/Audit boundaries, production credentials/billing, real users, retention/cleanup/rollback, and authorized triggers.
+
+Personal-PC/synthetic success is not company production readiness.
+
+## Current genuine choices
+
+- exact monthly administrative check label/state in Work 0017;
+- whether scale later requires caching/materialized summaries;
+- whether non-GP Pitchbook ownership is materially needed;
+- whether cross-category duplicate entities require alias/canonical identity;
+- current Gemini model/embedding model/credentials at Work 0020 start;
+- exact Related GP multi-value filter strategy based on actual API behavior;
+- observed rate limit, retry, batch size, cost, and retention guardrails;
+- manual/hybrid/selective historical migration method;
+- final production permissions/cleanup/rollback/rollout route.
