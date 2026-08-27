@@ -7,7 +7,7 @@ STATUS: `READY`
 
 ## Current state
 
-Work 0016 is accepted/merged and the temporal contract decision is active. Work 0022 now owns the ball.
+Work 0016 is accepted/merged and the temporal contract decision is active. Work 0022 owns the ball.
 
 Active dispatch:
 
@@ -16,7 +16,10 @@ Active dispatch:
 - instruction: `docs/handoffs/0022-CODEX-01-temporal-contract-hardening-instruction.md`;
 - recommended model: `Sol High`;
 - branch: `agent/0022-temporal-data-contract-hardening`;
-- Draft PR: created from this branch and kept open/unmerged for ChatGPT final review.
+- Draft PR: `#22`;
+- implementation source baseline before final handoff-only metadata commits: `df40f0629f9c52e78936820a9e83e51dd9ce9e85`.
+
+The actual execution ref is the current PR #22 head supplied in the ChatGPT dispatch prompt. Changes after the source baseline above are handoff/status documentation only.
 
 ## Accepted predecessor evidence
 
