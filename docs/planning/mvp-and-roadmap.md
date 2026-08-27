@@ -18,6 +18,7 @@ Knowledge Sharing Platforms provides or is implementing:
 - read-only GP Workspace with bounded browser-native print/PDF brief;
 - hierarchical Counterparty Type -> Entity Meeting classification;
 - repository-wide Business Date / Business Time / Instant temporal contract;
+- Activity Analytics with period/dimension breakdowns, exact drill lists, and the binary `月次管理反映済み` administrative check;
 - separate Restricted Audit Spreadsheet and best-effort Actor;
 - Shared Drive as authoritative source;
 - Gemini File Search as derived/rebuildable retrieval index;
@@ -89,32 +90,14 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 - 0014: structured Meeting/Pitchbook context foundation, qualified and merged under PR #17;
 - 0015: GP Workspace / one-page summary, qualified and merged under PR #20;
 - 0016: Counterparty entity foundation, qualified and merged under PR #21;
-- 0022: repository-wide temporal data contract hardening, qualified and merged under PR #22.
+- 0022: repository-wide temporal data contract hardening, qualified and merged under PR #22;
+- 0017: Meeting activity analytics + monthly administrative check, qualified and merged under PR #23.
 
 ## 5. Current Work
 
-### Work 0017 — Meeting activity analytics + monthly administrative checks
-
-Status: current next implementation Work after accepted/merged Work 0022.
-
-Detailed plan:
-
-`docs/planning/work0017-meeting-activity-analytics.md`
-
-Outcome:
-
-- monthly / calendar-quarter / calendar-year / fiscal-year / custom-range / cumulative views;
-- Counterparty Type / Entity, Related GP, Asset Class, Team, Meeting Type, and Status slices;
-- exact underlying Meeting lists;
-- lightweight monthly administrative completion check.
-
-The exact label/state model for the administrative check is confirmed at Work kickoff. Default is one binary `月次管理反映済み` flag rather than a generic workflow engine.
-
-Work 0017 must consume the accepted Work 0022 temporal contract for every period and fiscal-year calculation. It must not create another date parsing/bucketing implementation.
-
-## 6. Implementation-ready sequence
-
 ### Work 0018 — Relationship Explorer
+
+Status: current next implementation Work after accepted/merged Work 0017.
 
 Detailed plan:
 
@@ -128,6 +111,10 @@ Outcome:
 - entity/GP/Fund-Strategy/date filters;
 - read-only list-first UX;
 - no relation sheet and no automatic inference.
+
+Work 0018 must reuse the accepted Work 0016 Counterparty model and Work 0022 temporal contract, and preserve the existing Activity Analytics/admin-check behavior from Work 0017.
+
+## 6. Implementation-ready sequence
 
 ### Work 0019 — Entity Workspace + Fund / Strategy drill-down
 
@@ -237,8 +224,8 @@ Production readiness is declared only here.
 0015 GP Workspace [ACCEPTED]
   -> 0016 Counterparty entity foundation [ACCEPTED]
   -> 0022 temporal data contract hardening [ACCEPTED]
-  -> 0017 analytics / monthly checks [CURRENT]
-  -> 0018 Relationship Explorer
+  -> 0017 analytics / monthly checks [ACCEPTED]
+  -> 0018 Relationship Explorer [CURRENT]
   -> 0019 Entity Workspace / Fund-Strategy drill-down
   -> 0020 personal-PC Gemini/File Search core
   -> 0021 structured filters / multi-entity comparison
