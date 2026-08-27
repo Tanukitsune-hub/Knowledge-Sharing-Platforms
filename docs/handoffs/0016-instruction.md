@@ -1,10 +1,10 @@
 # Work 0016 — Counterparty entity foundation
 
 WORK_ID: `0016`
-DISPATCH_ID: `0016-CODEX-02`
+DISPATCH_ID: `0016-CODEX-03`
 MODE: `BUILD / QUALIFICATION`
 BALL: `CODEX`
-STATUS: `RETURNED`
+STATUS: `READY`
 
 Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
@@ -14,7 +14,7 @@ Authoritative decision: `docs/decisions/counterparty-entity-classification.md`
 
 Active execution instruction:
 
-`docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-instruction.md`
+`docs/handoffs/0016-CODEX-03-edit-state-property-check-and-final-qualification-instruction.md`
 
 ## Primary outcome
 
@@ -22,21 +22,19 @@ Replace the global Meeting GP requirement with the accepted two-stage identity:
 
 `Counterparty Type -> Counterparty Entity`
 
-and prove it end-to-end for one legacy GP Meeting and one new non-GP Meeting in the existing authenticated private Apps Script Web App.
+and prove it end-to-end for one legacy GP Meeting and the single synthetic non-GP Meeting already created in CODEX-02.
 
 ## Completion evidence
 
 Work is complete only when all are true:
 
-1. final source passes focused tests, `npm run check`, `git diff --check`, and public facade remains `24`;
-2. exact tested source is synchronized/read back, one immutable version is created, and the existing private `WEB_APP` is updated in place;
-3. schema 4 and blank-only legacy GP migration are aligned/read back idempotently in the synthetic target;
-4. one legacy GP Meeting retains stable identity and resolves its new Counterparty fields;
-5. exactly one non-GP Entity and Meeting persist/reopen/edit/search with one Related GP and explicit Pitchbook relationship;
-6. filename, Doc, Index, Audit, Export, and deterministic AI metadata agree;
-7. final integrity shows only expected guarded mutations and no duplicate/unexpected state.
-
-Logic-only PASS is insufficient.
+1. accepted logic evidence remains valid and any new source repair, if required, is fully revalidated;
+2. schema 4 / five-sheet Backend / installation-state schemaVersion 4 remain correct;
+3. legacy GP Meeting compatibility remains intact;
+4. the existing synthetic non-GP Meeting persists/reopens/edits/searches with its Related GP and explicit Pitchbook relationship;
+5. filename, Doc, Index, Audit, Export, and deterministic AI metadata agree;
+6. final integrity shows only expected guarded mutations and no duplicate/unexpected state;
+7. no BLOCKER remains.
 
 ## Closed conclusions
 
@@ -44,86 +42,83 @@ Logic-only PASS is insufficient.
 - GP entities remain in `GP_Master`;
 - non-GP entities use category-specific `Option_Master` Types;
 - no Entity/Counterparty/relation sheet;
-- stable composite entity identity is `Counterparty_Type + ':' + Counterparty_ID`;
+- stable composite identity is `Counterparty_Type + ':' + Counterparty_ID`;
 - existing `Counterparty` remains person/role free text;
 - legacy GP rows are backfilled only when new fields are blank;
 - Pitchbook remains GP-required;
 - Related Pitchbook relationships remain in `Meeting_Index.Related_Pitchbook_IDs`;
 - no follow-up workflow, analytics, Entity Workspace, live Gemini qualification, or production rollout in this Work.
 
-## Accepted CODEX-01 evidence
+## Accepted evidence through CODEX-02
 
-- coherent broad implementation is present;
-- deterministic result recorded locally: `211/211 PASS`;
+- focused validation: `89/89 PASS`;
+- canonical `npm run check`: `212/212 PASS`;
+- `git diff --check`: PASS;
 - public facade: `24`;
-- schema/migration, legacy GP, non-GP, relationship, search/edit/reopen, GP Workspace, Export/Audit/AI metadata logic: deterministic PASS;
-- one saved-source sync occurred before final review fixes;
-- no immutable version or deployment update;
-- target Web App remains version `31`;
-- no target data/trigger/permission/AI-store mutation;
-- target-runtime qualification and final integrity: not run.
+- exact deployable-source readback: `62/62`;
+- schema 4 / five Backend sheets / installation-state schemaVersion 4: PASS;
+- existing private Web App updated in place to immutable version `32`;
+- legacy GP compatibility: PASS;
+- GP Workspace compatibility: PASS;
+- exactly one synthetic LP / Asset Owner Entity exists;
+- exactly one synthetic non-GP Meeting exists with blank legacy `GP_ID`, typed Counterparty fields, one Related GP, one matching Related Pitchbook, expected filename/Doc representation;
+- non-GP Meeting create and reopen: PASS;
+- visible structured fields and relationships round-tripped on reopen;
+- Meeting remained Active at Version 1 after the CODEX-02 stop;
+- no duplicate Entity/Meeting, extra update Audit event, Gemini/File Search call, trigger enablement, second sync/version/deployment occurred.
 
-## ChatGPT final pre-sync review findings
+## Strategy Reset after CODEX-02
 
-CODEX-02 must close these before synchronization:
+CODEX-02 stopped because hidden `meeting-edit-meetingId` and `meeting-edit-expectedVersion` controls were reported blank after reopen.
 
-1. `kspMeetingCellDate_()` must use the configured `Asia/Tokyo` logical-date contract rather than UTC calendar getters, with a Sheets-like Date regression;
-2. Counterparty code `GP` must display as the accepted `GP / 運用会社` label everywhere relevant;
-3. Related Pitchbook registration guidance must describe the actual `Related GP + Asset Class` rule;
-4. Counterparty quick-add must clear stale Meeting retry state before saving the changed draft.
+GitHub review shows `openMeetingEdit()` synchronously sets:
 
-Do not sync until these fixes and the final relevant diff review pass.
+```js
+el('meeting-edit-meetingId').value = r.meetingId;
+el('meeting-edit-expectedVersion').value = r.version;
+el('meeting-edit-id').textContent = r.meetingId + ' / Version ' + r.version;
+```
 
-## Authorization and boundary
+The runtime heading was observed correctly. The reviewed source contains one pair of hidden controls and no later intentional clear of those edit values. A programmatic input `.value` need not be reflected in the serialized HTML `value` attribute.
 
-After deterministic PASS, CODEX-02 may:
+Therefore the prior observation is reclassified from a confirmed application defect to **unresolved observer-vs-live-property ambiguity** until the actual DOM `.value` properties are read directly.
 
-- synchronize exact tested source once;
-- create one immutable version;
-- update the same positively identified private Web App in place;
-- align synthetic schema 4 and only the corresponding installation-state schemaVersion;
-- add one synthetic non-GP Entity and Meeting and edit it once;
-- write only expected metadata-level Audit/state changes.
+## CODEX-03 authorization and boundary
 
-It may not:
+First use version 32 without any source synchronization to inspect the live `.value` properties of the two hidden controls after reopening the same synthetic Meeting.
 
-- create another Web App deployment;
-- touch Library deployments;
-- use confidential/company data;
-- change broad permissions;
-- enable triggers;
-- call billing-enabled Gemini/File Search;
-- physically delete or bulk migrate data;
-- perform production rollout.
+If both properties contain the correct Meeting ID and Version 1:
+
+- no source change is authorized or needed;
+- continue the one non-identity edit/save, exact post-edit search, Export preview/read-model metadata verification, and final integrity;
+- keep Web App on version 32.
+
+If either live property is genuinely blank:
+
+- capture direct evidence;
+- establish one concrete source-level cause;
+- use one minimal repair hypothesis only;
+- add an executable client regression that proves the live edit-state properties;
+- rerun focused + canonical validation;
+- at most one exact source sync, one new immutable version, and one in-place existing Web App update are authorized.
+
+Do not create another synthetic Entity or Meeting. Do not create a new deployment, touch Library deployments, enable triggers, call billing-enabled Gemini/File Search, use confidential data, or perform production rollout.
 
 ## Current status
 
 `LOGIC_VALIDATION: PASS`
 
-`TARGET_RUNTIME_QUALIFICATION: BLOCKED`
+`TARGET_RUNTIME_QUALIFICATION: PARTIAL / RESUME REQUIRED`
 
 `SIDE_EFFECT_STATE: GUARDED`
 
 `READY: NO`
 
-`BLOCKER: YES`
-
-CODEX-02 stopped at the first actual target-runtime application defect. The new non-GP Meeting was created and reopened successfully, but the normal edit form retained blank hidden Meeting ID and expected Version controls. No edit/save retry was made. The exact evidence is in `docs/handoffs/0016-CODEX-02-final-corrected-sync-and-runtime-qualification-report.md`.
+`BLOCKER: YES — edit/save/search/Export/final-integrity completion remains outstanding; source defect itself is not yet proven.`
 
 Keep PR #21 Draft / Open / unmerged for ChatGPT final review.
 
-## CODEX-02 execution result
-
-- deterministic validation, exact source readback, schema 4 alignment, installation-state schema version 4, version 32 creation, and in-place private Web App update passed;
-- legacy GP compatibility and GP Workspace compatibility passed;
-- exactly one synthetic non-GP Entity and one synthetic non-GP Meeting were created with one Related GP and one matching Related Pitchbook;
-- reopening round-tripped visible fields and relationship data;
-- the hidden edit identity/version controls were empty after reopen, so the required non-identity edit, exact post-edit search, target-runtime Export metadata, and full final integrity comparison were not run;
-- no Gemini/File Search call, trigger enablement, second synchronization, second version, second deployment, or save retry occurred.
-
-Classification: `NOT QUALIFIED — TARGET-RUNTIME MEETING EDIT STATE DEFECT`.
-
 WORK_ID: `0016`
-DISPATCH_ID: `0016-CODEX-02`
+DISPATCH_ID: `0016-CODEX-03`
 BALL: `CODEX`
-STATUS: `RETURNED`
+STATUS: `READY`
