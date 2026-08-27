@@ -45,7 +45,7 @@ The native Windows print-dialog observer limitation is classified as an automati
 
 - `BLOCKER`: none;
 - `FIX SOON`: none;
-- `BACKLOG`: hosted GitHub Actions CI remains optional; Shared Drive production qualification and Gemini/File Search production qualification remain later roadmap phases.
+- `BACKLOG`: hosted GitHub Actions CI remains optional; company Shared Drive production qualification and production Gemini/File Search qualification remain later roadmap phases.
 
 ## Reports
 
