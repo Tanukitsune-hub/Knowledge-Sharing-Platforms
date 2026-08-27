@@ -1,41 +1,49 @@
 # Work 0022 — Temporal data contract hardening report
 
 WORK_ID: `0022`
-Dispatch ID: `N/A`
-BALL: `CHATGPT`
-STATUS: `PREPARING`
+Dispatch ID: `0022-CODEX-01`
+BALL: `CODEX`
+STATUS: `READY`
 
 ## Current result
 
-Planning and activation controls are prepared. No Work 0022 source implementation, Apps Script synchronization, deployment, data mutation, or target-runtime qualification has started.
+Work 0016 is accepted/merged and the activation gate is closed. Work 0022 has not yet changed production source or runtime state; it is ready for one cross-cutting implementation/qualification dispatch.
+
+## GitHub activation state
+
+- branch: `agent/0022-temporal-data-contract-hardening`;
+- Draft PR: `#22`;
+- implementation source baseline: `df40f0629f9c52e78936820a9e83e51dd9ce9e85`;
+- branch was created from accepted post-0016 main;
+- Work 0016 PR #21 merged with merge commit `d77f4c8919b6aeb7e6bea1be76f4e5bd558df5b1`;
+- Work 0016 private Web App version `34`, BLOCKER NO, Completion Latch applied.
+
+The implementation source baseline above predates only subsequent Work 0022 handoff/status metadata commits; no production source differs because of those metadata commits.
 
 ## GitHub-reviewed basis
 
 Confirmed current risk patterns include:
 
-- generic configured-timezone Date behavior exists under the feature-specific `kspCanonicalPitchbookDateKey_()` name;
-- Meeting and Maintenance Date paths depend on that feature-specific helper;
+- configured-timezone Date behavior exists under the feature-specific `kspCanonicalPitchbookDateKey_()` name;
+- Meeting and Maintenance Date paths depend on feature-specific wrappers;
 - Maintenance Business Time currently derives clock values with UTC getters;
-- Work 0016 has repeatedly exposed equivalent Date representations as false changes in Audit;
+- Work 0016 exposed equivalent Date representations as false changes in Audit;
 - core and feature-freeze AI source builders serialize `dateKey` from raw row values;
-- Knowledge Export has canonical Date filtering but raw temporal values remain in parts of revision-token/serialization paths;
-- Apps Script and `KSP_DEFAULTS` both currently specify `Asia/Tokyo`;
+- Knowledge Export has canonical Date filtering but raw temporal values remain in revision-token/serialization paths;
+- Apps Script and `KSP_DEFAULTS` both specify `Asia/Tokyo`;
 - deterministic fixtures remain partly string-biased relative to actual Sheets `Date` objects.
 
-## Prepared GitHub artifacts
+## Required next action
 
-- `docs/decisions/temporal-data-contract.md`;
-- `docs/planning/work0022-temporal-data-contract-hardening.md`;
-- `docs/handoffs/0022-instruction.md`;
-- `docs/handoffs/0022-dispatches.md`;
-- `docs/handoffs/0022-CODEX-01-temporal-contract-hardening-instruction.md`;
-- roadmap insertion before Work 0017.
+Execute `0022-CODEX-01` exactly once as the active dispatch:
 
-## Activation blocker
-
-Work 0016 is still active. Work 0022 must not run in parallel.
-
-Activation requires Work 0016 acceptance/merge and a fresh branch/Draft PR/exact ref from the resulting main.
+- full-tree temporal inventory;
+- generic Business Date / Business Time / Instant contract;
+- migrate all confirmed current boundaries;
+- add static temporal validator to `npm run check`;
+- mixed-representation regressions;
+- bounded private Web App qualification;
+- report/commit/push/PR update.
 
 ## Current classification
 
@@ -45,6 +53,6 @@ Activation requires Work 0016 acceptance/merge and a fresh branch/Draft PR/exact
 
 `SIDE_EFFECT_STATE: DISABLED`
 
-`READY: NO — ACTIVATION GATE PENDING`
+`READY: YES`
 
-`BLOCKER: Work 0016 completion only; no Work 0022 implementation defect exists yet.`
+`BLOCKER: NO`
