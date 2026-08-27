@@ -2,7 +2,7 @@ var KSP_COMPONENT_WORK_ID = '0004';
 var KSP_RELEASE_VERSION = '0.1.2';
 var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
 var KSP_APP_VERSION = KSP_RELEASE_VERSION;
-var KSP_SCHEMA_VERSION = 4;
+var KSP_SCHEMA_VERSION = 5;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
@@ -278,7 +278,19 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH: 'Pitchbook原本のリンク整合性を確認できません。',
   KNOWLEDGE_EXPORT_MEETING_DOCUMENT_READ_FAILED: 'Meeting原本を読み取れませんでした。',
   KNOWLEDGE_EXPORT_ARTIFACT_URL_MISSING: '生成された書き出しのリンクを確認できません。',
-  KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED: '書き出しファイルを作成できませんでした。'
+  KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED: '書き出しファイルを作成できませんでした。',
+  ACTIVITY_ANALYTICS_PERIOD_INVALID: '分析期間を確認してください。',
+  ACTIVITY_ANALYTICS_DIMENSION_INVALID: '分析項目を確認してください。',
+  ACTIVITY_ANALYTICS_DATE_INVALID: '分析対象の日付を確認してください。',
+  ACTIVITY_ANALYTICS_DATE_RANGE_INVALID: '分析対象の日付範囲を確認してください。',
+  ACTIVITY_ANALYTICS_LIMIT_INVALID: '分析件数上限を確認してください。',
+  ACTIVITY_ANALYTICS_MEETING_TYPE_INVALID: '分析Meeting Typeを確認してください。',
+  ADMIN_CHECK_MEETING_ID_REQUIRED: 'Meeting IDを確認してください。',
+  ADMIN_CHECK_STATE_REQUIRED: '月次管理状態を確認してください。',
+  ADMIN_CHECK_STATE_INVALID: '月次管理状態を確認してください。',
+  ADMIN_CHECK_STALE: '月次管理状態が先に更新されています。最新情報を読み直してください。',
+  ADMIN_CHECK_NOT_FOUND: '対象Meetingを確認できません。',
+  ADMIN_CHECK_AUDIT_WRITE_FAILED: '月次管理の監査メタデータを記録できませんでした。'
 });
 
 function kspSafePublicErrorMessage_(code, category) {
@@ -362,7 +374,8 @@ function kspGetBackendSchemas_() {
     'AI_Indexed_At', 'AI_Content_Hash', 'AI_Last_Error',
     'Team_ID', 'Fund_Strategy', 'Meeting_Type_Codes', 'Related_Pitchbook_IDs',
     'Follow_Up_Required', 'Follow_Up_Note',
-    'Counterparty_Type', 'Counterparty_ID', 'Related_GP_IDs'
+    'Counterparty_Type', 'Counterparty_ID', 'Related_GP_IDs',
+    'Admin_Check_Completed', 'Admin_Check_Updated_At', 'Admin_Check_Updated_By'
   ];
 
   schemas[KSP_SHEET_NAMES.PITCHBOOK_INDEX] = [
