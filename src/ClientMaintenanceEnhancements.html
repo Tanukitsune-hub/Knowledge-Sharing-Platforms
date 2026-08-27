@@ -6,7 +6,7 @@ function maintenanceOptionSets(masters, activeOnly) {
     .filter(item=>item.type===type&&(!activeOnly||item.status==='Active'))
     .map(item=>({id:item.id,name:item.name,status:item.status,sortOrder:item.sortOrder}));
   const counterpartyTypes=[
-    {code:'GP',label:'GP',optionType:''},{code:'LP_ASSET_OWNER',label:'LP / Asset Owner',optionType:'COUNTERPARTY_LP'},
+    {code:'GP',label:'GP / 運用会社',optionType:''},{code:'LP_ASSET_OWNER',label:'LP / Asset Owner',optionType:'COUNTERPARTY_LP'},
     {code:'NISSAY_INTERNAL',label:'日本生命',optionType:'COUNTERPARTY_NISSAY_DEPARTMENT'},
     {code:'GROUP_COMPANY',label:'グループ会社',optionType:'COUNTERPARTY_GROUP_COMPANY'},
     {code:'CONSULTANT_GATEKEEPER',label:'Consultant / Gatekeeper',optionType:'COUNTERPARTY_CONSULTANT_GATEKEEPER'},
@@ -82,7 +82,7 @@ async function quickAddCounterpartyFromRegistration(){
     if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先追加に失敗しました。');
     applyMaintenanceMasterData(result.masters);
     const id=type==='GP'?result.gp.id:(result.record&&result.record.Option_ID);
-    refreshMeetingCounterpartyEntities(id||'');ensurePrimaryGpRelated();refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();
+    clearRetryContext();refreshMeetingCounterpartyEntities(id||'');ensurePrimaryGpRelated();refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();
     showStatus('meeting-status','success','面談先を追加して選択しました。');
   }catch(error){showStatus('meeting-status','error',error.message||String(error))}
 }

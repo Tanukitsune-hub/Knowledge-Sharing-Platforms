@@ -15,7 +15,7 @@ var KSP_OPTION_TYPES = Object.freeze({
 });
 
 var KSP_COUNTERPARTY_TYPE_DEFINITIONS = Object.freeze([
-  Object.freeze({ code: 'GP', label: 'GP', optionType: '' }),
+  Object.freeze({ code: 'GP', label: 'GP / 運用会社', optionType: '' }),
   Object.freeze({ code: 'LP_ASSET_OWNER', label: 'LP / Asset Owner', optionType: KSP_OPTION_TYPES.COUNTERPARTY_LP }),
   Object.freeze({ code: 'NISSAY_INTERNAL', label: '日本生命', optionType: KSP_OPTION_TYPES.COUNTERPARTY_NISSAY_DEPARTMENT }),
   Object.freeze({ code: 'GROUP_COMPANY', label: 'グループ会社', optionType: KSP_OPTION_TYPES.COUNTERPARTY_GROUP_COMPANY }),
@@ -85,8 +85,7 @@ function kspMeetingTypeLabels_(canonicalCodes) {
 function kspMeetingCellDate_(value) {
   if (value instanceof Date) {
     if (isNaN(value.getTime())) return '';
-    return [value.getUTCFullYear(), String(value.getUTCMonth() + 1).padStart(2, '0'),
-      String(value.getUTCDate()).padStart(2, '0')].join('-');
+    return kspCanonicalPitchbookDateKey_(value);
   }
   var match = /^(\d{4}-\d{2}-\d{2})(?:T|$)/.exec(String(value || '').trim());
   return match ? match[1] : '';

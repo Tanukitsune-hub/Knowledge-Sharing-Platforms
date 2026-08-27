@@ -5,13 +5,18 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 function loadMeetingSource(rootDir) {
-  const context = vm.createContext({ console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp, Error, TypeError, Set, Map });
+  function formatDateInTimeZone(value, timezone) {
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(value);
+    const byType = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    return `${byType.year}-${byType.month}-${byType.day}`;
+  }
+  const context = vm.createContext({ console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp, Error, TypeError, Set, Map, Intl, Utilities: { formatDate: formatDateInTimeZone } });
   const prelude = `
     var KSP_STATUS = Object.freeze({ ACTIVE: 'Active', INACTIVE: 'Inactive' });
     var KSP_AI_INDEX_STATUS = Object.freeze({ NOT_INDEXED: 'NotIndexed', PENDING: 'Pending', INDEXED: 'Indexed', FAILED: 'Failed' });
     var KSP_SHEET_NAMES = Object.freeze({ GP_MASTER: 'GP_Master', OPTION_MASTER: 'Option_Master', MEETING_INDEX: 'Meeting_Index', SETTINGS: 'Settings', AUDIT_LOG: 'Audit_Log' });
     var KSP_RESOURCE_KEYS = Object.freeze({ MEETING_RECORDS: 'meetingRecordsFolderId', BACKEND_SPREADSHEET: 'backendSpreadsheetId', AUDIT_SPREADSHEET: 'auditSpreadsheetId' });
-    var KSP_DEFAULTS = Object.freeze({ LOCK_TIMEOUT_MS: 30000 });
+    var KSP_DEFAULTS = Object.freeze({ LOCK_TIMEOUT_MS: 30000, TIMEZONE: 'Asia/Tokyo' });
     var KSP_PROPERTY_KEYS = Object.freeze({ INSTALLATION_STATE_JSON: 'KSP_INSTALLATION_STATE_JSON' });
     function kspAssert_(condition, code, message) { if (!condition) { var error = new Error(message); error.code = code; throw error; } }
     function kspGetErrorCode_(error, fallback) { return error && error.code ? String(error.code) : (fallback || 'UNEXPECTED_ERROR'); }
@@ -21,7 +26,7 @@ function loadMeetingSource(rootDir) {
     function kspNormalizeGeneratedNameSegment_(value) { if (value === null || value === undefined) return ''; return String(value).replace(/[\\u0000-\\u001f\\u007f]/g, '').replace(/[\\\\/&]/g, '').trim().replace(/\\s+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, ''); }
   `;
   new vm.Script(prelude, { filename: 'test-prelude.gs' }).runInContext(context);
-  for (const file of ['00_Core.gs','30_MeetingCore.gs','40_MeetingService.gs','50_MeetingLiveEnvironment.gs','90_WebApp.gs']) {
+  for (const file of ['00_Core.gs','62_PitchbookIdentity.gs','30_MeetingCore.gs','40_MeetingService.gs','50_MeetingLiveEnvironment.gs','90_WebApp.gs']) {
     new vm.Script(fs.readFileSync(path.join(rootDir, 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;
@@ -102,7 +107,7 @@ test('minimal Meeting registration creates document, Index row, and audit event'
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(result.meeting.id, 'MTG-000001');
   assert.equal(result.meeting.filename, '2026-08-16_KKR_Infrastructure_MTG-000001');
-  assert.equal(env._debug.documents[0].text, '日付: 2026-08-16\n面談先区分: GP\n面談先: KKR\n関連GP: KKR\nAsset Class: Infrastructure');
+  assert.equal(env._debug.documents[0].text, '日付: 2026-08-16\n面談先区分: GP / 運用会社\n面談先: KKR\n関連GP: KKR\nAsset Class: Infrastructure');
   assert.equal(env._debug.rows.Meeting_Index.length, 1);
   assert.equal(env._debug.rows.Meeting_Index[0].AI_Index_Status, 'Pending');
   assert.equal(Object.hasOwn(env._debug.rows.Meeting_Index[0], 'Notes'), false);
@@ -115,7 +120,7 @@ test('optional fields render compact Docs text and preserve note line breaks', (
   const result = ksp.kspRegisterMeeting_(env, minimalInput({ time: '10:30', locationId: 'LOC-ONLINE', capitalTypeId: 'CT-EQ', counterparty: 'Jane Smith', internalParticipants: 'Kondo', notes: 'First line\r\nSecond line' }));
   assert.equal(result.ok, true);
   assert.equal(result.meeting.filename, '2026-08-16_KKR_Infrastructure_Equity_MTG-000012');
-  assert.equal(env._debug.documents[0].text, ['日付: 2026-08-16','時間: 10:30','面談場所: オンライン','面談先区分: GP','面談先: KKR','関連GP: KKR','Asset Class: Infrastructure','Equity / Debt: Equity','面談相手（氏名・役職）: Jane Smith','当社側: Kondo','','面談内容:','First line','Second line'].join('\n'));
+  assert.equal(env._debug.documents[0].text, ['日付: 2026-08-16','時間: 10:30','面談場所: オンライン','面談先区分: GP / 運用会社','面談先: KKR','関連GP: KKR','Asset Class: Infrastructure','Equity / Debt: Equity','面談相手（氏名・役職）: Jane Smith','当社側: Kondo','','面談内容:','First line','Second line'].join('\n'));
   assert.equal(env._debug.rows.Audit_Log[0].After_Metadata_JSON.includes('First line'), false);
 });
 
@@ -180,6 +185,12 @@ test('bootstrap response exposes active options and 24-hour draft contract', () 
   assert.equal(result.ok, true); assert.equal(result.draftTtlMs, 86_400_000); assert.deepEqual(Array.from(result.sharedContextFields), ['date','assetClassId','capitalTypeId','fundStrategy']); assert.equal(result.options.gps.length, 2); assert.deepEqual(Array.from(result.options.teams,item=>item.name),['PD']); assert.equal(result.options.counterpartyTypes.length,6); assert.equal(result.options.counterpartyTypes.find(item=>item.code==='NISSAY_INTERNAL').label,'日本生命');
 });
 
+test('Meeting Date cells use the configured Asia Tokyo business date', () => {
+  const sheetsDate = new Date('2026-08-28T15:00:00.000Z');
+  assert.equal(ksp.kspMeetingCellDate_(sheetsDate), '2026-08-29');
+  assert.equal(ksp.kspMeetingCellDate_('2026-08-29'), '2026-08-29');
+});
+
 test('UI preserves shared context, stores retry context, and clears it on changes', () => {
   const html = [
     fs.readFileSync(path.join(root, 'src', 'Index.html'), 'utf8'),
@@ -201,6 +212,9 @@ test('UI preserves shared context, stores retry context, and clears it on change
   assert.match(html,/SHARED_FIELDS=\['date','assetClassId','capitalTypeId','fundStrategy'\]/);
   assert.match(html, /meeting-relatedGpIds/);
   assert.match(html, /ensurePrimaryGpRelated/);
+  assert.match(html, /GP',label:'GP \/ 運用会社'/);
+  assert.match(html, /関連GPのいずれか \+ Asset Classに一致するActive資料/);
+  assert.match(html, /clearRetryContext\(\);refreshMeetingCounterpartyEntities\([^\n]+saveMeetingDraft\(\)/);
   assert.match(html, /meeting-relatedGpIds'\)\.addEventListener\('change',[^\n]+clearRetryContext\(\);saveMeetingDraft\(\)/);
   assert.match(html, /const gpNode=el\(page\+'-gpId'\);/);
   assert.doesNotMatch(html, /shared\.gpId=result\.gp\.id/);
