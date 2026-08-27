@@ -25,7 +25,9 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
   'previewKnowledgeExport',
   'createKnowledgeExport',
   'getKnowledgeExportPrompt',
-  'recordKnowledgeExportPromptCopy'
+  'recordKnowledgeExportPromptCopy',
+  'getMeetingActivityAnalytics',
+  'updateMeetingAdminCheck'
 ]);
 
 const PRIVILEGED_FUNCTION_NAMES = Object.freeze([

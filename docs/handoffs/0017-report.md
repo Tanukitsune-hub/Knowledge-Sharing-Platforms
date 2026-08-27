@@ -2,12 +2,18 @@
 
 WORK_ID: `0017`
 ACTIVE_DISPATCH_ID: `0017-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `NONE`
+STATUS: `COMPLETE`
 
 ## Current result
 
-Work 0017 is prepared for one coherent implementation/qualification dispatch.
+Work 0017 is complete as `DEV QUALIFIED — WORK 0017 MEETING ACTIVITY ANALYTICS`.
+
+- `LOGIC_VALIDATION: PASS` — focused suites `36/36`, canonical validation `230/230`;
+- `TARGET_RUNTIME_QUALIFICATION: PASS` — existing private synthetic DEV Web App;
+- `SIDE_EFFECT_STATE: GUARDED`;
+- `READY: YES`;
+- `BLOCKER: NO`.
 
 ## Fixed product contract
 
@@ -39,4 +45,9 @@ Codex report target:
 
 `docs/handoffs/0017-CODEX-01-activity-analytics-and-admin-check-report.md`
 
-PR remains Draft / Open / unmerged until ChatGPT final review.
+The existing Web App is version `36`, the Backend remains five sheets with schema
+5, and the PR remains Draft / Open / unmerged until ChatGPT final review.
+
+The Counterparty Type filter option-label mapping is a non-blocking follow-up;
+server aggregation/filter logic and the required Counterparty Type → Team
+breakdown qualification passed.

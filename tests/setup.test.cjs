@@ -243,7 +243,7 @@ test('defines exactly five baseline backend sheets', () => {
   ]);
   assert.ok(schemas.Meeting_Index.includes('AI_Index_Status'));
   assert.ok(schemas.Pitchbook_Index.includes('Original_Filename'));
-  assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-9)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs']);
+  assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-12)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs','Admin_Check_Completed','Admin_Check_Updated_At','Admin_Check_Updated_By']);
   assert.equal(schemas.Pitchbook_Index.at(-1), 'Fund_Strategy');
 });
 
@@ -308,11 +308,11 @@ test('seed insertion does not overwrite mutable existing master values', () => {
   assert.equal(rows.find((row) => row.GP_ID === 'GP-000001').Status, 'Inactive');
 });
 
-test('Work 0014 Meeting migration appends fields without rewriting legacy rows', () => {
+test('Work 0017 Meeting migration appends admin-check fields without rewriting legacy rows', () => {
   const env = createFakeEnvironment();
   const backend = env.createSpreadsheet('control', 'Knowledge Platform Backend');
   const currentHeaders = Array.from(ksp.kspGetBackendSchemas_().Meeting_Index);
-  const legacyHeaders = currentHeaders.slice(0, -6);
+  const legacyHeaders = currentHeaders.slice(0, -3);
   env.ensureSheet(backend.id, 'Meeting_Index', legacyHeaders);
   const sheet = env._debug.spreadsheets.get(backend.id).sheets.get('Meeting_Index');
   const legacyRow = { Meeting_ID:'MTG-000321', Status:'Active', AI_Index_Status:'Indexed', Version:7 };
@@ -321,7 +321,7 @@ test('Work 0014 Meeting migration appends fields without rewriting legacy rows',
   const first = env.ensureSheet(backend.id, 'Meeting_Index', currentHeaders);
   const second = env.ensureSheet(backend.id, 'Meeting_Index', currentHeaders);
   assert.equal(first.action, 'migrated');
-  assert.deepEqual(first.addedHeaders, currentHeaders.slice(-6));
+  assert.deepEqual(first.addedHeaders, currentHeaders.slice(-3));
   assert.equal(second.action, 'reused');
   assert.equal(sheet.rows[0], legacyRow);
   assert.deepEqual(sheet.rows[0], { Meeting_ID:'MTG-000321', Status:'Active', AI_Index_Status:'Indexed', Version:7 });
@@ -383,7 +383,7 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const exportsFolder = env._debug.resources.get(state.resources.knowledgeExportsFolderId);
   assert.equal(exportsFolder.name, 'Knowledge Exports');
   assert.deepEqual(exportsFolder.parents, ['knowledge-parent']);
-  assert.equal(state.schemaVersion, 4);
+  assert.equal(state.schemaVersion, 5);
   assert.equal(backend.sheets.size, 5);
   assert.equal(audit.sheets.size, 1);
   assert.equal(backend.sheets.get('GP_Master').rows.length, 30);
