@@ -10,6 +10,7 @@ This file records active major decisions. Detailed domain sources take precedenc
 - roadmap: `docs/planning/mvp-and-roadmap.md`
 - runtime: `docs/operations/runtime-policy.md`
 - target-runtime delivery: `docs/decisions/target-runtime-first-development.md`
+- temporal data: `docs/decisions/temporal-data-contract.md`
 - Gemini: `docs/ai/gemini-file-search.md`
 - security: `docs/governance/security.md`
 
@@ -254,13 +255,40 @@ Rejected/absorbed:
 - standalone GP Workspace enhancement: absorbed into Relationship Explorer/Entity Workspace;
 - mandatory universal legacy converter: rejected.
 
+## 2026-08-27 — Temporal data contract hardening
+
+Status: Proposed and scheduled; activate after Work 0016 acceptance
+
+The application distinguishes:
+
+```text
+Business Date -> YYYY-MM-DD in configured timezone
+Business Time -> HH:mm in configured timezone
+Instant       -> UTC ISO-8601 with milliseconds
+Duration      -> integer in the named unit
+```
+
+- one generic production helper family owns temporal normalization;
+- equivalent Sheets `Date`, canonical string, and strict ISO timestamp representations must behave identically;
+- Audit compares semantic values rather than physical cell types;
+- Search, Export, deterministic AI metadata, workspaces, and analytics consume the same contract;
+- feature-specific algorithms are removed or reduced to thin delegates;
+- a static temporal validator becomes part of `npm run check`;
+- historical Date/Time cells and Audit rows are not bulk-rewritten;
+- Work 0022 executes before Work 0017 analytics.
+
+Detailed decision:
+
+`docs/decisions/temporal-data-contract.md`
+
 ## 2026-08-27 — Implementation order
 
-Status: Accepted
+Status: Accepted, with temporal hardening inserted before analytics
 
 ```text
 0015 GP Workspace
 → 0016 Counterparty entity foundation
+→ 0022 temporal data contract hardening
 → 0017 activity analytics / monthly checks
 → 0018 Relationship Explorer
 → 0019 Entity Workspace / Fund-Strategy drill-down
@@ -270,7 +298,7 @@ Status: Accepted
 → final production qualification
 ```
 
-Analytics follows entity foundation to avoid building a GP-only dimension that must immediately be replaced.
+Analytics follows entity and temporal foundations to avoid GP-only dimensions and inconsistent period bucketing.
 
 Personal-PC Gemini qualification precedes historical migration so the actual index/metadata/search contract is proven before loading volume.
 
