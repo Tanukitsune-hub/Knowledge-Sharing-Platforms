@@ -23,10 +23,12 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - `planning/apps-script-implementation-plan.md` — target-runtime-first implementation/validation plan
 - `planning/post0015-spec-impact-and-implementation-sequence.md` — cross-cutting source/schema/UI/search/AI impact matrix
 
-### Counterparty/entity decision and Work plans
+### Counterparty/entity, temporal, and Work plans
 
 - `decisions/counterparty-entity-classification.md` — GP/non-GP Meeting classification architecture
+- `decisions/temporal-data-contract.md` — Business Date/Time, Instant, Duration contract
 - `planning/work0016-counterparty-entity-foundation.md`
+- `planning/work0022-temporal-data-contract-hardening.md`
 - `planning/work0017-meeting-activity-analytics.md`
 - `planning/work0018-relationship-explorer.md`
 - `planning/work0019-entity-workspace-strategy-drilldown.md`
@@ -61,7 +63,7 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - stable Meeting/Document/Batch/Master IDs;
 - Meeting/Pitchbook registration and maintenance;
 - Team, Fund/Strategy, Meeting Type, Related Pitchbooks, and follow-up metadata;
-- GP Workspace under Work 0015;
+- GP Workspace accepted under Work 0015;
 - Knowledge Export;
 - Gemini/File Search source/query foundation;
 - five Knowledge Search modes;
@@ -89,11 +91,25 @@ Consultant / Gatekeeper
 
 GP entities continue to use `GP_Master`; non-GP entities use category-specific `Option_Master` Types. The Backend remains five sheets.
 
+## Temporal contract before analytics
+
+Work 0022 executes after Work 0016 and before Work 0017.
+
+```text
+Business Date -> YYYY-MM-DD / configured timezone
+Business Time -> HH:mm / configured timezone
+Instant       -> UTC ISO-8601
+Duration      -> integer / named unit
+```
+
+Equivalent Sheets `Date`, canonical string, and strict ISO representations must behave identically in Audit, Search, Export, deterministic AI metadata, and workspaces. Historical Date/Time cells are not bulk-rewritten.
+
 ## Current development sequence
 
 ```text
-0015 GP Workspace
+0015 GP Workspace [ACCEPTED]
 → 0016 Counterparty entity foundation
+→ 0022 temporal data contract hardening
 → 0017 analytics / monthly checks
 → 0018 Relationship Explorer
 → 0019 Entity Workspace / Fund-Strategy drill-down
@@ -142,7 +158,7 @@ A mock, CI run, simulator, alternate runtime, or test loader proves only what it
 - 0012: public-surface/reliability hardening
 - 0013: qualification/recovery history
 - 0014: structured Meeting/Pitchbook context
-- 0015: GP Workspace (active until accepted/merged)
+- 0015: GP Workspace accepted/merged
 
 ## Repository data policy
 
