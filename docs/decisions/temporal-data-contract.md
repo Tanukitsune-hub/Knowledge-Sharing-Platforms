@@ -1,6 +1,6 @@
 # Temporal data contract
 
-Status: `PROPOSED — activate after Work 0016 is accepted`
+Status: `ACCEPTED — Work 0022 active before Work 0017`
 
 Work: `0022`
 
@@ -103,7 +103,7 @@ Existing historical Audit rows are immutable evidence and shall not be rewritten
 
 ## Deployment order
 
-Work 0022 executes immediately after Work 0016 is accepted and before Work 0017 analytics. Analytics must not be built on an unstable temporal contract.
+Work 0022 executes immediately after accepted/merged Work 0016 and before Work 0017 analytics. Analytics must not be built on an unstable temporal contract.
 
 ## Non-goals
 
