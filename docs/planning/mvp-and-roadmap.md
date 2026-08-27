@@ -15,6 +15,7 @@ Knowledge Sharing Platforms provides or is implementing:
 - Meeting registration, search, edit, Active/Inactive/Reactivate, and structured context;
 - Pitchbook/source registration, search, metadata maintenance, file-granular retry, and stable links;
 - GP / Option Masters and append-only structured fields;
+- read-only GP Workspace with bounded browser-native print/PDF brief;
 - separate Restricted Audit Spreadsheet and best-effort Actor;
 - Shared Drive as authoritative source;
 - Gemini File Search as derived/rebuildable retrieval index;
@@ -82,26 +83,14 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 - 0011: Gemini-independent Knowledge Export / external-AI handoff;
 - 0012: public-surface / reliability hardening;
 - 0013: qualification / recovery history;
-- 0014: structured Meeting/Pitchbook context foundation, qualified and merged under PR #17.
+- 0014: structured Meeting/Pitchbook context foundation, qualified and merged under PR #17;
+- 0015: GP Workspace / one-page summary, qualified and merged under PR #20.
 
-## 5. Current Work
-
-### Work 0015 — GP Workspace / one-page summary
-
-Status: active under Draft PR #20 until final acceptance.
-
-Outcome:
-
-- GP-centric snapshot;
-- Fund / Strategy context;
-- recent Meetings/Pitchbooks;
-- follow-ups;
-- Meeting↔Pitchbook relationships;
-- bounded browser-native print/PDF brief.
-
-## 6. Implementation-ready sequence after Work 0015
+## 5. Current / next Work
 
 ### Work 0016 — Counterparty entity foundation
+
+Status: implementation-ready next Work after accepted Work 0015.
 
 Detailed plan:
 
@@ -122,6 +111,8 @@ Outcome:
 - update normal Meeting registration/edit/search, relationships, Export, Audit, and deterministic AI metadata.
 
 This Work moves ahead of analytics because a GP-only analytics layer would immediately require rework.
+
+## 6. Implementation-ready sequence
 
 ### Work 0017 — Meeting activity analytics + monthly administrative checks
 
@@ -257,7 +248,7 @@ Production readiness is declared only here.
 ## 10. Governing order
 
 ```text
-0015 GP Workspace
+0015 GP Workspace [ACCEPTED]
   -> 0016 Counterparty entity foundation
   -> 0017 analytics / monthly checks
   -> 0018 Relationship Explorer
