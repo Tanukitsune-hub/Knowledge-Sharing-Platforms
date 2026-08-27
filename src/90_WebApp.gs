@@ -80,6 +80,10 @@ function quickAddGp(name) {
   return kspQuickAddGp_(kspCreateMaintenanceEnvironment_(), name);
 }
 
+function getGpWorkspaceData(gpId) {
+  return kspGetGpWorkspaceData_(kspCreateGpWorkspaceEnvironment_(), gpId);
+}
+
 function runAuditRetentionCleanup_() {
   return kspRunAuditRetentionCleanup_(kspCreateMaintenanceEnvironment_());
 }

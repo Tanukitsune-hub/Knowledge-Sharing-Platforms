@@ -10,4 +10,5 @@ Scope: files under `tests/` and `scripts/`.
 - Add regression coverage for every discovered idempotency, migration, retry, or data-preservation defect.
 - Tests for Google Sheets date fields must cover the configured application timezone and preserve untouched Date/Time cell values and types.
 - Metadata-only updates must assert that unrelated Date/Time columns are not written.
+- Read-only workspace tests must prove exact full-set counts separately from capped display arrays and reject write/audit/AI adapter use.
 - The canonical local command is `npm run check`.

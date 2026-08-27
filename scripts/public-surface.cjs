@@ -19,6 +19,7 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
   'changePitchbookStatus',
   'mutateMaster',
   'quickAddGp',
+  'getGpWorkspaceData',
   'getKnowledgeSearchBootstrapData',
   'searchKnowledge',
   'previewKnowledgeExport',

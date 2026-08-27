@@ -52,7 +52,7 @@ function kspBuildMeetingFilename_(input,selected,id){var parts=[input.date,selec
 function kspBuildMeetingDocumentText_(input,selected){var lines=['日付: '+input.date];if(input.time)lines.push('時間: '+input.time);if(selected.location)lines.push('面談場所: '+selected.location.name);lines.push('GP: '+selected.gp.name);lines.push('Asset Class: '+selected.assetClass.name);if(selected.capitalType)lines.push('Equity / Debt: '+selected.capitalType.name);if(input.counterparty)lines.push('面談相手: '+input.counterparty);if(input.internalParticipants)lines.push('当社側: '+input.internalParticipants);if(input.notes.trim()){lines.push('');lines.push('面談内容:');lines.push(input.notes);}return lines.join('\\n');}
 `;
   new vm.Script(bootstrap, { filename: 'base-stubs.js' }).runInContext(context);
-  for (const file of ['61_PitchbookValidation.gs', '62_PitchbookIdentity.gs', '00_Core.gs', '100_MaintenanceCore.gs', '110_MaintenanceMeetingService.gs', '111_MaintenancePitchbookMasterService.gs', '112_MaintenanceServiceHelpers.gs']) {
+  for (const file of ['61_PitchbookValidation.gs', '62_PitchbookIdentity.gs', '00_Core.gs', '100_MaintenanceCore.gs', '110_MaintenanceMeetingService.gs', '111_MaintenancePitchbookMasterService.gs', '112_MaintenanceServiceHelpers.gs', '125_GpWorkspaceService.gs']) {
     new vm.Script(fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;

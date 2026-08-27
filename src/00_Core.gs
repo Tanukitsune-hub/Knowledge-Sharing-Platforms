@@ -240,6 +240,8 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   PITCHBOOK_TOTAL_SIZE_EXCEEDED: '合計ファイルサイズの上限を超えています。',
   PITCHBOOK_FILE_COUNT_EXCEEDED: '選択ファイル数の上限を超えています。',
   PITCHBOOK_NOT_FOUND: '指定されたPitchbookを確認できません。',
+  GP_WORKSPACE_GP_REQUIRED: 'GPを選択してください。',
+  GP_WORKSPACE_GP_NOT_FOUND: '指定されたGPを確認できません。',
   PITCHBOOK_BATCH_CONFLICT: 'Batch IDが一致しません。',
   PITCHBOOK_FILENAME_CONFLICT: '選択されたファイル名が登録内容と一致しません。',
   PITCHBOOK_FILE_SIZE_MISMATCH: '送信されたファイルサイズを確認できません。',
@@ -280,6 +282,7 @@ function kspSafePublicErrorMessage_(code, category) {
     MEETING: 'Meetingを処理できませんでした。',
     PITCHBOOK: 'Pitchbookを処理できませんでした。',
     MAINTENANCE: '管理処理を完了できませんでした。',
+    WORKSPACE: 'GP Workspaceを読み込めませんでした。',
     SEARCH: '検索を実行できませんでした。',
     EXPORT: 'Knowledge Exportを処理できませんでした。'
   };
