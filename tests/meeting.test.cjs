@@ -185,7 +185,8 @@ test('UI preserves shared context, stores retry context, and clears it on change
     fs.readFileSync(path.join(root, 'src', 'Index.html'), 'utf8'),
     fs.readFileSync(path.join(root, 'src', 'ClientCore.html'), 'utf8'),
     fs.readFileSync(path.join(root, 'src', 'ClientMaintenance.html'), 'utf8'),
-    fs.readFileSync(path.join(root, 'src', 'ClientMaintenanceEnhancements.html'), 'utf8')
+    fs.readFileSync(path.join(root, 'src', 'ClientMaintenanceEnhancements.html'), 'utf8'),
+    fs.readFileSync(path.join(root, 'src', 'MaintenancePages.html'), 'utf8')
   ].join('\n');
   assert.match(html, /KSP_SHARED_DRAFT_KEY/); assert.match(html, /KSP_MEETING_DRAFT_KEY/); assert.match(html, /KSP_MEETING_RETRY_KEY/); assert.match(html, /24\s*\*\s*60\s*\*\s*60\s*\*\s*1000/);
   assert.match(html, /payload\.retryMeetingId\s*=\s*retryContext\.meetingId/); assert.match(html, /clearRetryContext\(\);\s*saveDraft\(\);?/);
