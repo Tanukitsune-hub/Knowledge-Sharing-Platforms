@@ -1,16 +1,16 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-05`
+DISPATCH_ID: `0020-CODEX-06`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
+STATUS: `READY`
 MODE: `INVESTIGATION / BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
 Active instruction:
 
-`docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-instruction.md`
+`docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-instruction.md`
 
 ## Primary outcome
 
@@ -22,7 +22,7 @@ Gemini
 全文出力
 ```
 
-The user selected Gemini for the personal-DEV File Search qualification. OpenAI is deliberately deferred and remains disabled.
+The user selected Gemini for personal-DEV File Search qualification. OpenAI is deliberately deferred and remains disabled.
 
 Source boundaries remain fixed:
 
@@ -43,44 +43,46 @@ ChatGPT / OpenAI
 
 Closed absent material contradiction:
 
-- CODEX-03 schema `6`, five Backend sheets, FULL_OUTPUT runtime PASS, canonical Preview/Copy/Docs/PDF package parity, safe disabled-provider/no-failover behavior, and final integrity;
-- CODEX-04 focused `17/17 PASS`, repository `265/265 PASS`, public facade `30`, one isolated Gemini Store, and future OpenAI administrator activation path.
+- CODEX-03: schema `6`, five Backend sheets, FULL_OUTPUT runtime PASS, canonical Preview/Copy/Docs/PDF package parity, safe disabled-provider/no-failover behavior, and final integrity;
+- CODEX-04: focused `17/17 PASS`, repository `265/265 PASS`, public facade `30`, one isolated Gemini Store, and future OpenAI administrator activation path;
+- CODEX-05: focused `68/68 PASS`, repository `274/274 PASS`, exact source readback, immutable version `45`, same private Web App update, bounded retry/error-stage hardening, and one safely stopped Meeting indexing attempt.
 
 Do not rerun FULL_OUTPUT or live-call OpenAI.
 
-## Active blocker and corrected diagnosis
+## Active blocker and Strategy Reset
 
-CODEX-04 reported the first Meeting search as a retrieval failure. Authoritative post-return readback materially narrows the problem:
+CODEX-05 proved the first post-repair failure occurs at:
 
-- Audit contains two `AI_HTTP_500` query failures 39 seconds apart;
-- the synthetic Meeting Gemini provider states are `Failed` with no indexed document identity;
-- multiple synthetic TXT Pitchbooks are also `Failed` with no indexed document identity;
-- therefore no accepted evidence proves that retrieval was attempted against indexed Meeting/Pitchbook sources.
+```text
+code: AI_UPLOAD_FINALIZE_FAILED
+stage: UPLOAD_FINALIZE
+provider HTTP status/body: not observed
+provider document identity: absent
+```
+
+The final upload request currently supplies `Content-Length` manually. The absence of a provider response and Apps Script transport behavior make a local request-construction failure the strongest current explanation.
 
 Active hypothesis:
 
-> Gemini upload/indexing and error preservation are the primary defect. Retrieval must not be retried until one Meeting is proven indexed. The direct REST client also requires bounded retry for transient 5xx/429/408 responses.
+> Remove manual `Content-Length`, let `UrlFetchApp` derive length from exact payload bytes/Blob, preflight the request safely, and one Meeting upload will pass finalization.
 
-## Completion boundary
+This remains a hypothesis until one bounded live Gate-A result proves or disproves it.
 
-CODEX-05 must:
+## CODEX-06 completion boundary
 
-1. preserve exact safe indexing failure stages/codes instead of generic `AI_SYNC_FAILED`;
-2. align Gemini resumable upload and operation polling to the current official REST contract;
-3. implement bounded exponential backoff + jitter for transient idempotent Gemini REST calls;
-4. prove one Meeting indexed before one Meeting query;
-5. prove one Pitchbook indexed before one Pitchbook query;
-6. prove exact metadata filter and update/Inactive/Reactivate/delete-rebuild lifecycle without duplicate active documents;
-7. reconcile the two Audit failure rows and prove one browser submit produces one final Audit outcome despite internal retries;
-8. keep OpenAI disabled/uncalled, `AI_SYNC_ENABLED=false`, triggers `0`, and final integrity PASS.
+CODEX-06 must:
 
-## Current CODEX-05 status
+1. remove the manual final-upload `Content-Length` header while preserving exact MIME type, bytes, offset, and `upload, finalize` command;
+2. add a safe deterministic `UrlFetchApp.getRequest` or equivalent preflight;
+3. distinguish local request-construction errors from actual provider HTTP failures;
+4. preserve all CODEX-05 bounded retry/error-stage hardening;
+5. run deterministic validation before live execution;
+6. prove one Meeting indexed before one Meeting query;
+7. prove one small TXT Pitchbook indexed before one Pitchbook query;
+8. prove exact metadata filter and update/Inactive/Reactivate/delete-rebuild lifecycle without duplicate active documents;
+9. keep OpenAI disabled/uncalled, `AI_SYNC_ENABLED=false`, triggers `0`, and final integrity PASS.
 
-The CODEX-05 deterministic repair and one authorized source/deployment update completed, but the first post-repair one-Meeting indexing gate stopped at `AI_UPLOAD_FINALIZE_FAILED` / `UPLOAD_FINALIZE`. No query or Pitchbook qualification was run after that failure. See:
-
-`docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`
-
-Further Gemini live execution requires a Strategy Reset; do not infer a second production hypothesis from this return.
+If the corrected finalize produces a genuine provider HTTP/operation error, stop with that exact safe evidence. Do not mix in the Files API/import architecture without another Strategy Reset.
 
 ## Closed contracts
 
