@@ -13,7 +13,7 @@ STATUS: `READY`
 - purpose: deliver Entity Workspace + exact Fund / Strategy drill-down as one read-only vertical slice;
 - recommended model: `Luna Max` — architecture, identity, relationship semantics, and runtime campaign are settled;
 - branch: `agent/0019-entity-workspace-strategy-drilldown`;
-- Draft PR: assigned after initial handoff commits;
+- Draft PR: `#25`;
 - instruction: `docs/handoffs/0019-CODEX-01-entity-workspace-strategy-drilldown-instruction.md`.
 
 ## Accepted predecessor evidence
