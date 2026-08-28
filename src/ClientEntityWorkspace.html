@@ -1,0 +1,126 @@
+<script>
+const KSP_ENTITY_WORKSPACE_PRINT_LIMITS={funds:8,meetings:6,pitchbooks:6,followups:6,relationships:6,timeline:10};
+let entityWorkspaceData=null,entityWorkspaceCatalog=null,entityWorkspaceRequestSequence=0,entityWorkspaceCatalogLoaded=false;
+function entityWorkspaceText(value){const text=String(value==null?'':value).trim();return text||'—'}
+function entityWorkspaceStatusClass(status){return status==='Active'?'Active':status==='Inactive'?'Inactive':status==='Pending'?'Pending':status==='Failed'?'Failed':''}
+function entityWorkspaceBadge(status){return '<span class="badge '+entityWorkspaceStatusClass(status)+'">'+kspEscapeHtml(entityWorkspaceText(status))+'</span>'}
+function entityWorkspaceMore(count){return Number(count||0)>0?'<div class="gp-more">+'+kspEscapeHtml(count)+' more</div>':''}
+function entityWorkspaceLink(url,label){const safe=kspSafeDriveUrl(url);return safe?'<a class="small-link" href="'+kspEscapeHtml(safe)+'" target="_blank" rel="noopener">'+kspEscapeHtml(label)+'</a>':'—'}
+
+function entityWorkspacePopulateTypes(items){
+  const node=el('entity-workspace-type'),current=node.value;
+  node.innerHTML='<option value="">未選択</option>';
+  (items||[]).forEach(item=>{const option=document.createElement('option');option.value=item.code;option.textContent=item.label+' ('+item.entityCount+')';node.appendChild(option)});
+  if([...node.options].some(option=>option.value===current))node.value=current;
+}
+function entityWorkspacePopulateEntities(type,preferred){
+  const node=el('entity-workspace-entity'),selected=preferred===undefined?node.value:String(preferred||'');
+  node.innerHTML='<option value="">未選択</option>';
+  ((entityWorkspaceCatalog&&entityWorkspaceCatalog.entityOptions)||[]).filter(item=>!type||item.type===type).forEach(item=>{const option=document.createElement('option');option.value=item.entityKey;option.textContent=item.name+' / '+item.id+(item.status==='Inactive'?'（Inactive）':'');node.appendChild(option)});
+  if([...node.options].some(option=>option.value===selected))node.value=selected;
+}
+function entityWorkspacePopulateFundStrategies(items){
+  const node=el('entity-workspace-fund'),current=node.value;
+  node.innerHTML='<option value="">未選択</option>';
+  ((items&&items.records)||[]).forEach(item=>{const option=document.createElement('option');option.value=item.text;option.textContent=item.text+' (M '+item.meetingCount+' / P '+item.pitchbookCount+')';node.appendChild(option)});
+  if([...node.options].some(option=>option.value===current))node.value=current;
+}
+function entityWorkspaceMeetingCompact(item){
+  return '<div class="entity-list-row"><strong>'+kspEscapeHtml(item.date||'未設定')+' / '+kspEscapeHtml(item.meetingId)+'</strong><span>'+kspEscapeHtml(item.activityScopeLabel||item.activityScope||'Direct')+' / '+kspEscapeHtml(item.fundStrategy||'未設定')+'</span><span>'+entityWorkspaceBadge(item.status)+' '+entityWorkspaceLink(item.documentUrl,'Doc')+'</span></div>';
+}
+function entityWorkspaceOwnedPitchbookRow(item){
+  return '<tr><td>'+kspEscapeHtml(item.date||'未設定')+'</td><td>'+kspEscapeHtml(item.documentId)+'</td><td>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</td><td>'+entityWorkspaceBadge(item.status)+'</td><td>'+entityWorkspaceLink(item.fileUrl,'原本')+'</td></tr>';
+}
+function entityWorkspaceLinkedPitchbookRow(item){
+  return '<tr><td>'+kspEscapeHtml(item.date||'未設定')+'</td><td>'+kspEscapeHtml(item.documentId)+'</td><td>'+kspEscapeHtml(item.gpName||item.gpId||'未設定')+'</td><td>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</td><td>'+entityWorkspaceBadge(item.status)+'</td><td>'+entityWorkspaceLink(item.fileUrl,'原本')+'</td></tr>';
+}
+function entityWorkspaceRenderFunds(data){
+  const items=data.fundStrategies&&data.fundStrategies.records||[];
+  el('entity-workspace-funds').innerHTML=items.map(item=>'<tr><td><button class="small-button entity-fund-button" type="button" data-entity-fund="'+kspEscapeHtml(item.text)+'">'+kspEscapeHtml(item.text)+'</button></td><td>'+kspEscapeHtml(item.meetingCount)+'</td><td>'+kspEscapeHtml(item.pitchbookCount)+'</td><td>'+kspEscapeHtml(item.directMeetingCount)+' / '+kspEscapeHtml(item.relatedMeetingCount)+'</td><td>'+kspEscapeHtml(item.latestDate||'未設定')+'</td><td>'+kspEscapeHtml(item.openFollowUpCount)+'</td><td>'+kspEscapeHtml(item.relationshipCount)+'</td></tr>').join('')||'<tr><td colspan="7" class="empty-cell">該当なし</td></tr>';
+  el('entity-workspace-funds-more').innerHTML=entityWorkspaceMore(data.fundStrategies&&data.fundStrategies.omittedCount);
+  entityWorkspacePopulateFundStrategies(data.fundStrategies);
+}
+function entityWorkspaceRenderDrill(drill){
+  const host=el('entity-workspace-drill');
+  if(!drill){host.innerHTML='';return}
+  const meetings=drill.meetings&&drill.meetings.records||[],pitchbooks=drill.pitchbooks&&drill.pitchbooks.records||[],relationships=drill.relationships&&drill.relationships.records||[];
+  host.innerHTML='<h4>詳細: '+kspEscapeHtml(drill.selected)+'</h4><p class="hint">Meeting '+kspEscapeHtml(drill.counts.meetings)+'件 / Pitchbook '+kspEscapeHtml(drill.counts.pitchbooks)+'件 / 関係 '+kspEscapeHtml(drill.counts.relationships)+'件</p><div class="entity-workspace-grid"><div><strong>Meetings</strong>'+((meetings.map(entityWorkspaceMeetingCompact).join(''))||'<div class="empty-cell">該当なし</div>')+'</div><div><strong>Pitchbooks</strong>'+((pitchbooks.map(item=>'<div class="entity-list-row"><strong>'+kspEscapeHtml(item.date||'未設定')+' / '+kspEscapeHtml(item.documentId)+'</strong><span>'+kspEscapeHtml(item.fundStrategy||'未設定')+' '+entityWorkspaceBadge(item.status)+'</span><span>'+entityWorkspaceLink(item.fileUrl,'原本')+'</span></div>').join(''))||'<div class="empty-cell">該当なし</div>')+'</div></div><div class="entity-relationship-list">'+((relationships.map(entityWorkspaceRelationship).join(''))||'<div class="empty-cell">該当なし</div>')+'</div>';
+}
+function entityWorkspaceRenderMeetings(data){
+  const meetings=data.meetings&&data.meetings.all||{records:[],omittedCount:0};
+  el('entity-workspace-meetings').innerHTML=(meetings.records||[]).map(item=>'<tr><td>'+kspEscapeHtml(item.date||'未設定')+'</td><td>'+kspEscapeHtml(item.activityScopeLabel||item.activityScope||'Direct')+'</td><td>'+kspEscapeHtml(item.counterpartyTypeLabel||item.counterpartyType||'未設定')+'<br>'+kspEscapeHtml(item.counterpartyEntityName||item.counterpartyEntityKey||'未設定')+'</td><td>'+kspEscapeHtml(item.teamName||item.teamId||'未設定')+'<br>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</td><td>'+entityWorkspaceBadge(item.status)+'</td><td>'+entityWorkspaceLink(item.documentUrl,'原本')+'</td></tr>').join('')||'<tr><td colspan="6" class="empty-cell">該当なし</td></tr>';
+  el('entity-workspace-meetings-more').innerHTML=entityWorkspaceMore(meetings.omittedCount);
+}
+function entityWorkspaceRenderMixes(mixes){
+  const groups=[['Team',mixes.teams],['Asset Class',mixes.assetClasses],['Meeting Type',mixes.meetingTypes]];
+  el('entity-workspace-mixes').innerHTML=groups.map(group=>'<div class="entity-mix-group"><strong>'+group[0]+'</strong><span>'+((group[1]||[]).map(item=>kspEscapeHtml(item.label)+' '+kspEscapeHtml(item.count)).join(' / ')||'未設定')+'</span></div>').join('');
+}
+function entityWorkspaceRenderFollowups(data){
+  const items=data.followUps&&data.followUps.records||[];
+  el('entity-workspace-followups').innerHTML=items.map(item=>'<div class="entity-list-row"><strong>'+kspEscapeHtml(item.date||'未設定')+' / '+kspEscapeHtml(item.meetingId)+'</strong><span>'+kspEscapeHtml(item.followUpNote||'未設定')+'</span></div>').join('')||'<div class="empty-cell">該当なし</div>';
+}
+function entityWorkspaceRelationship(item){
+  const targets=(item.pitchbooks||[]).map(target=>target.unresolved?'<span class="badge Failed">未解決: '+kspEscapeHtml(target.documentId)+'</span>':'<span>'+kspEscapeHtml(target.documentId)+' / '+kspEscapeHtml(entityWorkspaceText(target.savedFilename))+' '+entityWorkspaceBadge(target.status)+' '+entityWorkspaceLink(target.fileUrl,'原本')+'</span>').join('<br>')||'未設定';
+  return '<div class="entity-relationship-row"><div><strong>'+kspEscapeHtml(item.date||'未設定')+' / '+kspEscapeHtml(item.meetingId)+'</strong><span>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</span></div><div>'+targets+'</div></div>';
+}
+function entityWorkspaceRenderRelationships(data){
+  const items=data.relationships||[];
+  el('entity-workspace-relationships').innerHTML=items.map(entityWorkspaceRelationship).join('')||'<div class="empty-cell">明示的な関係はありません。</div>';
+}
+function entityWorkspaceRenderTimeline(data){
+  const timeline=data.timeline&&data.timeline.records||[];
+  el('entity-workspace-timeline').innerHTML=timeline.map(item=>'<div class="entity-timeline-row"><strong>'+kspEscapeHtml(item.date||'未設定')+'</strong><span>'+kspEscapeHtml(item.kind)+' / '+kspEscapeHtml(item.id)+'</span><span>'+entityWorkspaceBadge(item.status)+' '+(item.sourceUrl?entityWorkspaceLink(item.sourceUrl,'原本'):'')+'</span></div>').join('')||'<div class="empty-cell">該当なし</div>';
+}
+function entityWorkspaceRenderPrint(data){
+  const limit=(items,key)=>({items:(items||[]).slice(0,KSP_ENTITY_WORKSPACE_PRINT_LIMITS[key]),more:Math.max(0,(items||[]).length-KSP_ENTITY_WORKSPACE_PRINT_LIMITS[key])});
+  const funds=limit(data.fundStrategies&&data.fundStrategies.records,'funds'),meetings=limit(data.meetings&&data.meetings.all&&data.meetings.all.records,'meetings'),pitchbooks=limit(data.pitchbooks&&data.pitchbooks.records,'pitchbooks'),followups=limit(data.followUps&&data.followUps.records,'followups'),relationships=limit(data.relationships,'relationships'),timeline=limit(data.timeline&&data.timeline.records,'timeline');
+  const section=(title,items,renderer,more,omitted)=>'<section class="gp-print-section"><h3>'+kspEscapeHtml(title)+'</h3>'+items.map(renderer).join('')+entityWorkspaceMore(Number(more||0)+Number(omitted||0))+'</section>';
+  const omitted=data.omittedCounts||{};
+  el('entity-workspace-print').innerHTML='<header class="gp-print-header"><div><h1>'+kspEscapeHtml(data.entity.name)+'</h1><span>'+kspEscapeHtml(data.entity.counterpartyTypeLabel)+' / '+kspEscapeHtml(data.entity.counterpartyId)+' / '+kspEscapeHtml(data.entity.status)+'</span></div><div class="gp-print-summary"><span>Meeting <b>'+kspEscapeHtml(data.summary.meetingCount)+'</b></span><span>Pitchbook <b>'+kspEscapeHtml(data.summary.pitchbookCount)+'</b></span><span>Follow-up <b>'+kspEscapeHtml(data.summary.openFollowUpCount)+'</b></span><span>Latest <b>'+kspEscapeHtml(data.summary.latestActivityDate||'未設定')+'</b></span></div></header>'+section('Fund / Strategy',funds.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.text)+'</b><span>M '+kspEscapeHtml(item.meetingCount)+' / P '+kspEscapeHtml(item.pitchbookCount)+'</span></div>',funds.more,omitted.fundStrategies)+section('Meetings',meetings.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.meetingId)+'</b><span>'+kspEscapeHtml(item.activityScopeLabel||'Direct')+' / '+kspEscapeHtml(item.fundStrategy||'未設定')+'</span></div>',meetings.more,omitted.directMeetings+omitted.relatedMeetings)+section('Pitchbooks',pitchbooks.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.documentId)+'</b><span>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</span></div>',pitchbooks.more,omitted.pitchbooks)+section('要フォロー',followups.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.meetingId)+'</b><span class="gp-print-clamp">'+kspEscapeHtml(item.followUpNote||'未設定')+'</span></div>',followups.more,omitted.followUps)+section('Relationships',relationships.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.meetingId)+'</b><span>'+kspEscapeHtml((item.pitchbooks||[]).map(target=>target.documentId).join(', ')||'未設定')+'</span></div>',relationships.more,omitted.relationships)+section('Timeline',timeline.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.kind)+'</b><span>'+kspEscapeHtml(item.id)+'</span></div>',timeline.more,omitted.timeline);
+}
+function entityWorkspaceRender(data){
+  entityWorkspaceData=data;
+  const entity=data.entity;
+  el('entity-workspace-name').textContent=entity.name;
+  el('entity-workspace-identity').textContent=entity.counterpartyTypeLabel+' / '+entity.counterpartyId+' / '+entity.mode;
+  el('entity-workspace-entity-status').className='badge '+entityWorkspaceStatusClass(entity.status);
+  el('entity-workspace-entity-status').textContent=entityWorkspaceText(entity.status);
+  const s=data.summary;
+  el('entity-workspace-summary').innerHTML=[['Meetings',s.meetingCount+' / Active '+s.activeMeetingCount],['Direct / Related',s.directMeetingCount+' / '+s.relatedMeetingCount],['Pitchbooks',s.pitchbookCount+' / Active '+s.pitchbookActiveCount],['要フォロー',s.openFollowUpCount],['Relationships',s.relationshipCount],['Latest',entityWorkspaceText(s.latestActivityDate)]].map(item=>'<div class="card entity-summary-card"><span>'+kspEscapeHtml(item[0])+'</span><strong>'+kspEscapeHtml(item[1])+'</strong></div>').join('');
+  entityWorkspaceRenderFunds(data);entityWorkspaceRenderMeetings(data);entityWorkspaceRenderFollowups(data);entityWorkspaceRenderMixes(data.mixes||{});entityWorkspaceRenderRelationships(data);entityWorkspaceRenderTimeline(data);entityWorkspaceRenderDrill(data.drillDown);
+  const gp=el('entity-workspace-gp-context'),nonGp=el('entity-workspace-non-gp-context');
+  gp.classList.toggle('hidden-panel',entity.mode!=='GP');nonGp.classList.toggle('hidden-panel',entity.mode==='GP');
+  if(entity.mode==='GP'){
+    const direct=data.meetings.direct.records||[],related=data.meetings.related.records||[];
+    el('entity-workspace-gp-direct-meetings').innerHTML=direct.map(entityWorkspaceMeetingCompact).join('')||'<div class="empty-cell">該当なし</div>';
+    el('entity-workspace-gp-related-meetings').innerHTML=related.map(entityWorkspaceMeetingCompact).join('')||'<div class="empty-cell">該当なし</div>';
+    el('entity-workspace-owned-pitchbooks').innerHTML=(data.ownedPitchbooks.records||[]).map(entityWorkspaceOwnedPitchbookRow).join('')||'<tr><td colspan="5" class="empty-cell">該当なし</td></tr>';
+  }else{
+    el('entity-workspace-related-gps').innerHTML=(data.relatedGps||[]).map(item=>'<span class="badge '+entityWorkspaceStatusClass(item.status)+'">Related GP: '+kspEscapeHtml(item.name)+' / '+kspEscapeHtml(item.id)+'</span>').join('')||'<span class="hint">Related GPなし</span>';
+    el('entity-workspace-linked-pitchbooks').innerHTML=(data.linkedPitchbooks.records||[]).map(entityWorkspaceLinkedPitchbookRow).join('')||'<tr><td colspan="6" class="empty-cell">明示的なリンクなし</td></tr>';
+  }
+  entityWorkspaceRenderPrint(data);el('entity-workspace-content').classList.remove('hidden-panel');el('entity-workspace-print-button').disabled=false;
+}
+async function loadEntityWorkspaceCatalog(){
+  if(entityWorkspaceCatalogLoaded)return;
+  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','Entity一覧を読み込んでいます。');
+  try{const result=await serverCall('getEntityWorkspaceData',{});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Entity一覧を読み込めませんでした。');entityWorkspaceCatalog=result;entityWorkspaceCatalogLoaded=true;entityWorkspacePopulateTypes(result.entityTypes||[]);entityWorkspacePopulateEntities('');showStatus('entity-workspace-status','info','Counterparty TypeとEntityを選択してください。')}catch(error){showStatus('entity-workspace-status','error',error.message||String(error))}
+}
+async function loadEntityWorkspace(){
+  const entityKey=el('entity-workspace-entity').value;
+  if(!entityKey){entityWorkspaceData=null;el('entity-workspace-content').classList.add('hidden-panel');el('entity-workspace-print-button').disabled=true;return}
+  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','Entity Workspaceを読み込んでいます。');
+  try{const result=await serverCall('getEntityWorkspaceData',{entityKey:entityKey});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Entity Workspaceを読み込めませんでした。');entityWorkspaceRender(result);showStatus('entity-workspace-status','success','Entity Workspaceを表示しました。')}catch(error){if(requestId===entityWorkspaceRequestSequence)showStatus('entity-workspace-status','error',error.message||String(error))}
+}
+async function loadEntityWorkspaceFund(fundStrategy){
+  if(!entityWorkspaceData||!fundStrategy)return;
+  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','Fund / Strategy詳細を読み込んでいます。');
+  try{const result=await serverCall('getEntityWorkspaceData',{entityKey:entityWorkspaceData.entity.entityKey,fundStrategy:fundStrategy});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Fund / Strategy詳細を読み込めませんでした。');entityWorkspaceRender(result);showStatus('entity-workspace-status','success','Fund / Strategy詳細を表示しました。')}catch(error){if(requestId===entityWorkspaceRequestSequence)showStatus('entity-workspace-status','error',error.message||String(error))}
+}
+el('entity-workspace-type').addEventListener('change',event=>{entityWorkspacePopulateEntities(event.target.value,'');el('entity-workspace-content').classList.add('hidden-panel');el('entity-workspace-print-button').disabled=true});
+el('entity-workspace-entity').addEventListener('change',()=>loadEntityWorkspace());
+el('entity-workspace-fund').addEventListener('change',event=>loadEntityWorkspaceFund(event.target.value));
+el('entity-workspace-funds').addEventListener('click',event=>{const button=event.target.closest('[data-entity-fund]');if(button){el('entity-workspace-fund').value=button.dataset.entityFund;loadEntityWorkspaceFund(button.dataset.entityFund)}});
+el('entity-workspace-print-button').onclick=()=>{if(entityWorkspaceData)window.print()};
+el('nav-entity-workspace').onclick=()=>{showPage('entity-workspace');loadEntityWorkspaceCatalog()};
+</script>
