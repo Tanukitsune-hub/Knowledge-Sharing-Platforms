@@ -16,8 +16,7 @@ STATUS: `READY`
 - branch: `agent/0020-ai-provider-core`;
 - Draft PR: `#26` — Draft / Open / unmerged;
 - instruction: `docs/handoffs/0020-CODEX-02-meeting-full-output-file-search-scope-instruction.md`;
-- activation ref before this pin commit: `b7b74d69972453e770734abc367d43b5d6418930`;
-- exact execution ref is the final PR #26 head supplied in the ChatGPT dispatch prompt after this pin commit. Codex must not execute from CODEX-01 or an older branch ref.
+- exact execution ref: use the final PR #26 head supplied in the ChatGPT dispatch prompt. Do not execute from CODEX-01 or an older branch ref.
 
 ## Superseded dispatch
 
