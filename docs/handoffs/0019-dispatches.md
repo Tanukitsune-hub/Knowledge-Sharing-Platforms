@@ -2,19 +2,28 @@
 
 WORK_ID: `0019`
 DISPATCH_ID: `0019-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `NONE`
+STATUS: `COMPLETE`
 
-## Active dispatch
+## Dispatch history
 
-### 0019-CODEX-01 — READY
+### 0019-CODEX-01 — COMPLETE
 
 - mode: `BUILD / QUALIFICATION`;
 - purpose: deliver Entity Workspace + exact Fund / Strategy drill-down as one read-only vertical slice;
 - recommended model: `Luna Max` — architecture, identity, relationship semantics, and runtime campaign are settled;
 - branch: `agent/0019-entity-workspace-strategy-drilldown`;
-- Draft PR: `#25`;
+- Draft PR: `#25` — Open / Draft / unmerged;
 - instruction: `docs/handoffs/0019-CODEX-01-entity-workspace-strategy-drilldown-instruction.md`.
+- report: `docs/handoffs/0019-CODEX-01-entity-workspace-strategy-drilldown-report.md`;
+- implementation commit: `a3829861cf6fe901b698d3c0cee8b6b3989a7ffc`;
+- deterministic validation: `247/247 PASS`, focused `34/34 PASS`;
+- target runtime: `PASS` on Apps Script version `39`;
+- application-data side effects: `DISABLED`;
+- deployment side effects: `GUARDED`;
+- public facade: `28`;
+- Backend exactly five sheets / schema `5`;
+- BLOCKER: `NO`.
 
 ## Accepted predecessor evidence
 
@@ -27,9 +36,12 @@ STATUS: `READY`
 - current private Web App version `38`;
 - public facade baseline `27`.
 
-Only `0019-CODEX-01` may be active. Codex returns report/commit/push/PR update to ChatGPT for final review.
+Work 0019 is complete. The browser-native print surface was invoked once but
+was not observable after invocation because of a Windows browser automation
+limitation; no Drive artifact or application-data mutation resulted. Codex
+returns the report/commit/push/PR update to ChatGPT for final review.
 
 WORK_ID: `0019`
 DISPATCH_ID: `0019-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `NONE`
+STATUS: `COMPLETE`
