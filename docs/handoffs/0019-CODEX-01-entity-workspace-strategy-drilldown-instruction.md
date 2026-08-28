@@ -9,9 +9,9 @@ Repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 
 Branch: `agent/0019-entity-workspace-strategy-drilldown`
 
-Draft PR: `TO_BE_ASSIGNED`
+Draft PR: `#25`
 
-Exact ref: `TO_BE_UPDATED_AFTER_PR_SETUP`
+Exact ref: use the final PR #25 head supplied in the ChatGPT dispatch prompt after this activation metadata commit. Do not execute from an older branch ref.
 
 Mode: `BUILD / QUALIFICATION`
 Route: `C`
