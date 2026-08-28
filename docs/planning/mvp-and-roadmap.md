@@ -15,16 +15,17 @@ Knowledge Sharing Platforms provides or is implementing:
 - Meeting registration, search, edit, Active/Inactive/Reactivate, and structured context;
 - Pitchbook/source registration, search, metadata maintenance, file-granular retry, and stable links;
 - GP / Option Masters and append-only structured fields;
-- read-only GP Workspace with bounded browser-native print/PDF brief;
+- read-only GP/Entity Workspaces with bounded browser-native print/PDF briefs;
 - hierarchical Counterparty Type -> Entity Meeting classification;
 - repository-wide Business Date / Business Time / Instant temporal contract;
 - Activity Analytics with period/dimension breakdowns, exact drill lists, and the binary `月次管理反映済み` administrative check;
 - read-only Relationship Explorer with explicit Meeting -> Pitchbook and Pitchbook -> Meeting traversal;
 - separate Restricted Audit Spreadsheet and best-effort Actor;
 - Shared Drive as authoritative source;
-- Gemini File Search as derived/rebuildable retrieval index;
+- provider-neutral derived/rebuildable AI retrieval with independent OpenAI and Gemini File Search adapters;
+- exactly three normal-user generation choices: `ChatGPT / Gemini / 全文出力`;
 - five Knowledge Search modes: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`;
-- Gemini-independent Knowledge Export / external-AI handoff;
+- canonical full-text Knowledge Package with Copy / Google Docs / PDF parity;
 - one organization-controlled Apps Script HTML Service Web App.
 
 Work IDs and application release versions are separate. Historical Works remain evidence routes rather than the current delivery sequence.
@@ -43,10 +44,13 @@ Work IDs and application release versions are separate. Historical Works remain 
 - stable IDs rather than row numbers;
 - Google Doc is authoritative for Meeting body;
 - original Drive file is authoritative for Pitchbook/source material;
-- AI/Export layers are derived and rebuildable;
+- OpenAI/Gemini indexes and Knowledge Export artifacts are derived and rebuildable;
 - Business Date/Time semantics are independent of physical Sheets cell representation;
 - canonical Meeting ↔ Pitchbook relationship remains `Meeting_Index.Related_Pitchbook_IDs` with reverse lookup derived at read time;
-- no new database, relation sheet, Vector DB, Knowledge Graph, or broad workflow engine without a new explicit decision.
+- AI provider selection is explicit; no automatic cross-provider failover;
+- ChatGPT and Gemini use File Search as the required default source-reading path;
+- full output calls no AI API and reuses one canonical package for Copy/Docs/PDF;
+- no new database, relation sheet, custom Vector DB, Knowledge Graph, or broad workflow engine without a new explicit decision.
 
 ## 3. Current delivery path
 
@@ -75,6 +79,8 @@ SIDE_EFFECT_STATE: DISABLED | GUARDED | TEST_ONLY | ENABLED | NOT APPLICABLE
 READY: YES | NO
 ```
 
+AI Works additionally report provider matrices separately rather than hiding partial capability behind one status.
+
 A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 
 ## 4. Historical / accepted Work map
@@ -86,7 +92,7 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 - 0008: File Search client / sync / free question;
 - 0009: six formats / EML / five modes;
 - 0010: consolidated synthetic DEV qualification;
-- 0011: Gemini-independent Knowledge Export / external-AI handoff;
+- 0011: provider-neutral Knowledge Export / external-AI handoff;
 - 0012: public-surface / reliability hardening;
 - 0013: qualification / recovery history;
 - 0014: structured Meeting/Pitchbook context foundation, qualified and merged under PR #17;
@@ -100,7 +106,7 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 
 ### Work 0019 — Entity Workspace + Fund / Strategy drill-down
 
-Status: current next implementation Work after accepted/merged Work 0018.
+Status: current implementation Work after accepted/merged Work 0018.
 
 Detailed plan:
 
@@ -118,11 +124,11 @@ Outcome:
 
 Fund / Strategy remains free text. Similar-looking values are not silently fuzzy-merged.
 
-Work 0019 must reuse the accepted Work 0018 relationship resolver/read model rather than reimplementing link traversal in the browser or introducing a second relationship store.
+Work 0019 reuses the accepted Work 0018 relationship resolver/read model rather than introducing a second relationship store.
 
 ## 6. Implementation-ready sequence
 
-### Work 0020 — Personal-PC Gemini / File Search core qualification
+### Work 0020 — AI Provider Core, dual File Search, and full output
 
 Detailed plan:
 
@@ -130,15 +136,25 @@ Detailed plan:
 
 Outcome:
 
-- current official API/model/embedding/filter contract verified at Work start;
-- isolated personal-PC Store/credentials/billing path;
-- one Meeting + one Pitchbook index/query/citation path;
-- entity metadata filter;
-- update/inactivate/reactivate/delete/rebuild behavior;
+- current official OpenAI/Gemini API, File Search, model, filter, pricing, retention, and citation contracts verified at Work start;
+- exactly three UI choices: `ChatGPT / Gemini / 全文出力`;
+- provider-neutral source/request/package/citation contracts;
+- independent OpenAI/Gemini provider configuration and derived index state;
+- OpenAI and Gemini File Search adapters;
+- no automatic provider failover;
+- provider-specific safe errors when disabled/unavailable;
+- one Meeting + one Pitchbook index/query/citation path for every enabled provider;
+- update/inactivate/reactivate/delete/rebuild behavior per provider;
+- full-output source/character summary;
+- `コピー / Google Docs / PDF` buttons above the body;
+- fixed-height internally scrollable preview at the bottom;
+- exact package parity across Copy/Docs/PDF;
 - cost/rate-limit/retry/retention guardrails;
 - no company confidential data or production rollout.
 
-### Work 0021 — Structured Knowledge filters + multi-entity comparison
+Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and export Works.
+
+### Work 0021 — Structured Knowledge Search, five modes, and multi-entity comparison
 
 Detailed plan:
 
@@ -146,11 +162,15 @@ Detailed plan:
 
 Outcome:
 
-- structured filters for entity, Related GP where API-exactness permits, Asset Class, Team, Fund / Strategy, Meeting Type, follow-up, date, and source type;
-- comparison mode selecting 2–5 entities across categories;
-- grounded common-dimension comparison with per-entity citations;
-- five-mode target-runtime qualification;
-- bounded format matrix for `.pdf / .pptx / .xlsx / .docx / .txt / .eml`.
+- one shared filter/mode UI across ChatGPT, Gemini, and full output;
+- structured filters for Entity, Related GP where exact capability permits, Asset Class, Team, Fund / Strategy, Meeting Type, follow-up, date, and source type;
+- all five modes on every enabled File Search provider;
+- 2–5 Entity qualitative comparison across categories;
+- grounded common-dimension comparison with per-Entity citations;
+- provider-parity matrices and explicit capability differences;
+- full-output parity using the same filters/modes/Entity scope;
+- bounded format matrix for `.pdf / .pptx / .xlsx / .docx / .txt / .eml`;
+- disabled-provider safe errors and no failover.
 
 This replaces a separate static GP-comparison dashboard.
 
@@ -163,18 +183,26 @@ This replaces a separate static GP-comparison dashboard.
 - structured operational/search filters;
 - bidirectional Relationship Explorer;
 - Entity Workspace and Fund / Strategy drill-down;
-- AI multi-entity comparison in the Gemini phase.
+- explicit `ChatGPT / Gemini / 全文出力` generation routes;
+- File Search as the required default for both API providers;
+- provider-neutral canonical source/request/package/citation layers;
+- AI multi-Entity comparison;
+- bottom fixed-height full-output preview with output buttons above it.
 
 ### Rejected / absorbed
 
 - advanced follow-up task management: rejected because task execution is managed elsewhere; retain `要フォロー + note` for recall/search;
-- separate static GP comparison screen: rejected; numeric comparison belongs in Work 0017 and qualitative comparison in Work 0021;
-- standalone “GP Workspace enhancement” Work: absorbed into Work 0018/0019;
-- generalized legacy converter as mandatory product: rejected.
+- separate static GP comparison screen: rejected; numeric comparison belongs in analytics and qualitative comparison in Work 0021;
+- standalone GP Workspace enhancement: absorbed into Work 0018/0019;
+- generalized legacy converter as mandatory product: rejected;
+- automatic AI provider routing/failover: rejected;
+- user-facing model selector: rejected;
+- popup/modal long-form export: rejected;
+- full-context API route as a substitute for File Search: rejected.
 
 ## 8. Historical-material migration
 
-After personal-PC Gemini/File Search and structured comparison are qualified, inspect the actual historical corpus and select:
+After Works 0020–0021 are qualified, inspect the actual historical corpus and select:
 
 ```text
 manual entry
@@ -184,13 +212,13 @@ selective automation for repeatable subsets
 
 The default may be manual because historical materials are highly heterogeneous.
 
-Do not build a universal converter unless repeatable source structure and measurable benefit justify it. Any automation must preserve source traceability, stable IDs, deduplication, legacy compatibility, and rebuildable AI indexing.
+Do not build a universal converter unless repeatable source structure and measurable benefit justify it. Any automation must preserve source traceability, stable IDs, deduplication, legacy compatibility, rebuildable provider indexes, and full-output package correctness.
 
 A converter is not a prerequisite for final production qualification when manual migration is selected.
 
 ## 9. Final production-environment qualification and rollout readiness
 
-This is the final phase, after product features, personal-PC Gemini/File Search, and the historical-migration approach are ready.
+This is the final phase, after product features, personal-PC AI/File Search, and the historical-migration approach are ready.
 
 Qualify:
 
@@ -199,12 +227,18 @@ Qualify:
 - organization-controlled Apps Script Web App;
 - Backend/Audit boundaries;
 - production data/access model;
-- production Gemini credentials/billing/index/query/citations;
-- cleanup/rollback/retention;
+- every provider enabled by company policy:
+  - approved credentials and billing;
+  - exact Store identity/ownership;
+  - indexing/query/filter/citation behavior;
+  - update/inactivate/cleanup/retention;
+  - safe errors and no cross-provider failover;
+- full-output permissions, artifacts, cleanup, and retention;
+- real users;
 - scheduled triggers only where authorized;
-- real-user rollout controls.
+- rollback and rollout controls.
 
-Production readiness is declared only here.
+The company may enable OpenAI, Gemini, both, or neither. Production readiness is declared only after all enabled routes pass in the company environment.
 
 ## 10. Governing order
 
@@ -215,8 +249,8 @@ Production readiness is declared only here.
   -> 0017 analytics / monthly checks [ACCEPTED]
   -> 0018 Relationship Explorer [ACCEPTED]
   -> 0019 Entity Workspace / Fund-Strategy drill-down [CURRENT]
-  -> 0020 personal-PC Gemini/File Search core
-  -> 0021 structured filters / multi-entity comparison
+  -> 0020 AI provider core / OpenAI + Gemini File Search / full output
+  -> 0021 structured filters / five modes / multi-Entity / provider parity
   -> historical migration (manual / hybrid / selective automation)
   -> final production qualification / rollout readiness
 ```
