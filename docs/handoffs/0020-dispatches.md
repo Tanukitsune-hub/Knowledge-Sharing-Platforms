@@ -1,59 +1,62 @@
 # Work 0020 dispatch control
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-02`
+DISPATCH_ID: `0020-CODEX-03`
 BALL: `CODEX`
-STATUS: `BLOCKED`
+STATUS: `READY`
 
 ## Active dispatch
 
-### 0020-CODEX-02 — BLOCKED
+### 0020-CODEX-03 — READY
 
 - mode: `BUILD / QUALIFICATION`;
 - route: `C`;
-- purpose: provider-neutral core + dual File Search over Meeting/Pitchbook + Meeting-only FULL_EXPORT + first live qualification;
-- recommended model: `Sol High` — current provider APIs, cross-provider state migration, metadata limits, citation mapping, and live runtime behavior remain materially runtime-dependent;
+- purpose: close three bounded full-output correctness findings, perform authorized direct schema-6 alignment, and finish the enabled-provider/FULL_OUTPUT runtime campaign;
+- recommended model: `Sol High`;
 - branch: `agent/0020-ai-provider-core`;
 - Draft PR: `#26` — Draft / Open / unmerged;
-- instruction: `docs/handoffs/0020-CODEX-02-meeting-full-output-file-search-scope-instruction.md`;
-- exact execution ref: use the final PR #26 head supplied in the ChatGPT dispatch prompt. Do not execute from CODEX-01 or an older branch ref.
+- instruction: `docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-instruction.md`;
+- exact execution ref: supplied by ChatGPT after this activation commit.
 
-Execution result: deterministic validation passed and the existing private
-Web App was updated in place to version `41`. The required schema 5 -> 6
-canonical private setup route was unavailable: the private setup function was
-not selectable in the editor and bounded `clasp run` attempts returned a
-permission error. No direct data-plane workaround was used; dependent live
-qualification remains `NOT RUN` and this dispatch is blocked.
+## Returned dispatch
+
+### 0020-CODEX-02 — RETURNED / ACCEPTED EXCEPT RUNTIME BLOCKERS
+
+Accepted evidence:
+
+- focused validation `50/50 PASS`;
+- repository validation `254/254 PASS`;
+- temporal/public-surface/diff checks PASS;
+- public facade `28`;
+- exact tested source synchronized/read back;
+- immutable version `41` and same private Web App updated in place;
+- exactly five Backend sheets/schema `5` remained intact;
+- no provider Store, export artifact, trigger, permission, Library, or application-data mutation.
+
+CODEX-02 stopped when private `setupKnowledgePlatform_()` was unavailable and did not use the previously accepted bounded direct schema-alignment route. CODEX-03 corrects that execution strategy; this is not evidence of a product defect.
 
 ## Superseded dispatch
 
 ### 0020-CODEX-01 — SUPERSEDED
 
-CODEX-01 was prepared with an incorrect FULL_EXPORT requirement that attempted to include Pitchbook body text. The user reconfirmed the original product boundary before acceptance:
+Its Pitchbook-full-output requirement was superseded before execution. Current source scopes remain:
 
 ```text
-ChatGPT / Gemini File Search -> Meeting + Pitchbook/source materials
-全文出力 -> Meeting Google Docs full text only + optional Pitchbook references/links
+ChatGPT / Gemini File Search → Meeting + Pitchbook/source materials
+全文出力 → Meeting Google Docs full text + optional Pitchbook references/links
 ```
 
-CODEX-01 must not be used as the current execution contract. No evidence from it is accepted because the dispatch had not returned a qualification result.
-
-## Accepted baseline
+## Closed baseline
 
 - Work 0019 accepted/merged;
-- main baseline: `bc7c6efda63b13e8a998e32d97028ee3a3557e3b`;
-- private Web App version `40`;
-- exactly five Backend sheets / schema `5`;
-- public facade `28`;
-- Audit `64` at Work 0019 completion;
-- AI sync disabled and triggers `0` at Work 0019 completion;
-- provider selection: `ChatGPT / Gemini / 全文出力`, no automatic failover;
-- File Search source scope: Meeting + Pitchbook/source materials;
-- FULL_EXPORT body scope: Meeting Google Docs only.
-
-Only one Codex dispatch may be active.
+- private Web App currently version `41`;
+- Backend exactly five sheets/schema `5` before CODEX-03;
+- Audit baseline at Work 0019 completion: `64`;
+- no recurring trigger;
+- no automatic provider failover;
+- only one active Codex dispatch.
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-02`
+DISPATCH_ID: `0020-CODEX-03`
 BALL: `CODEX`
 STATUS: `READY`

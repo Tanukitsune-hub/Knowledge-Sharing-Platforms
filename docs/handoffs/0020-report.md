@@ -1,72 +1,61 @@
 # Work 0020 report
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-02`
+ACTIVE_DISPATCH_ID: `0020-CODEX-03`
 BALL: `CODEX`
-STATUS: `BLOCKED`
+STATUS: `READY`
 
-## Target classification
+## Current classification
 
 ```text
-WORK 0020 AI PROVIDER CORE — QUALIFICATION BLOCKED
-LOGIC_VALIDATION: PASS
-TARGET_RUNTIME_QUALIFICATION: BLOCKED — private schema migration route unavailable
+WORK 0020 AI PROVIDER CORE — IMPLEMENTED, RUNTIME QUALIFICATION PENDING
+LOGIC_VALIDATION: PASS (CODEX-02 accepted)
+TARGET_RUNTIME_QUALIFICATION: NOT COMPLETE
 OPENAI_RUNTIME: NOT RUN
 GEMINI_RUNTIME: NOT RUN
 FULL_OUTPUT_RUNTIME: NOT RUN
-APPLICATION_DATA_SIDE_EFFECT_STATE: GUARDED
-PROVIDER_STORE_SIDE_EFFECT_STATE: NOT RUN
-EXPORT_ARTIFACT_SIDE_EFFECT_STATE: NOT RUN
-DEPLOYMENT_SIDE_EFFECT_STATE: GUARDED
 READY: NO
 BLOCKER: YES
 ```
 
-## Fixed source scopes
+## Accepted CODEX-02 evidence
+
+- focused tests `50/50 PASS`;
+- `npm run check` `254/254 PASS`;
+- temporal/public-surface/diff checks PASS;
+- public facade `28`;
+- exact tested source synchronized/read back;
+- immutable version `41` delivered through the same private Web App;
+- five Backend sheets/schema `5` and application data remained unchanged;
+- no provider Store, export artifact, recurring trigger, permission, or Library mutation.
+
+Detailed historical report:
+
+`docs/handoffs/0020-CODEX-02-meeting-full-output-file-search-scope-report.md`
+
+## ChatGPT review and strategy reset
+
+The private setup selector limitation is not a product defect and should not have ended the Work. Work 0016 and Work 0017 already established the safe bounded pattern for isolated synthetic schema alignment through the existing Backend and Project Settings surfaces.
+
+CODEX-03 is therefore authorized to append only the two schema-6 headers, add only missing provider Settings rows, update only the established schema-version values, and prove readback/idempotency without exposing a public setup function.
+
+ChatGPT also identified three full-output correctness findings to close before another source sync:
+
+1. the visible fixed-height preview currently displays `meetingPreviewText`, while Copy/Docs/PDF consume `packageText`; the visible preview must display the exact package;
+2. a Pitchbook-only selection can currently produce a reference-only package because no-result is based on total sources rather than Meeting count; zero Meetings must hard-stop FULL_EXPORT;
+3. reference Pitchbook metadata/file identity validation was removed entirely; restore metadata-only existence/link validation while keeping body/byte reads at zero.
+
+## Active dispatch
+
+`docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-instruction.md`
+
+Expected final classification on full PASS:
 
 ```text
-ChatGPT / Gemini File Search
-  -> Meeting + Pitchbook/source materials
-
-全文出力
-  -> Meeting Google Docs full text only
-  -> optional Pitchbook reference metadata + Drive links
+DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
+LOGIC_VALIDATION: PASS
+TARGET_RUNTIME_QUALIFICATION: PASS under enabled-provider matrix
+FULL_OUTPUT_RUNTIME: PASS
+READY: YES for personal-PC provider core
+BLOCKER: NO
 ```
-
-Pitchbook body/file extraction is not part of FULL_EXPORT.
-
-## CODEX-02 execution result
-
-The corrected implementation passed deterministic validation (`50/50` focused
-tests, `254/254` `npm run check`, temporal validation, public facade `28`, and
-`git diff --check`). The exact tested source was synchronized once, read back,
-and deployed to the existing private Web App as immutable version `41` with
-the Web App security boundary preserved.
-
-Target Backend readback still showed exactly five sheets with schema-5
-headers. The required schema 5 -> 6 migration was not executed because the
-canonical private `setupKnowledgePlatform_()` route was unavailable: the
-editor selector omitted the private function and bounded `clasp run` attempts
-returned a permission error. No direct Backend or Script Property workaround
-was used. OpenAI, Gemini, FULL_EXPORT, and final integrity qualification are
-therefore `NOT RUN`; `BLOCKER: YES`.
-
-## Evidence to record
-
-- current official API/model/filter/citation/format/retention/cost preflight;
-- schema 5 -> 6 and `AI_Provider_State_JSON` migration;
-- provider-state independence and legacy compatibility;
-- OpenAI metadata budget <= 16 attributes;
-- enabled-provider Store/index/query/citation for both Meeting and Pitchbook/source;
-- stable citation -> Backend -> authoritative Drive link for both source types;
-- enabled-provider update/inactivate/reactivate/delete/rebuild lifecycle;
-- disabled-provider safe error and no failover;
-- FULL_EXPORT authoritative Meeting Google Docs package;
-- optional Pitchbook reference-only behavior without body/byte extraction;
-- Copy/Docs/PDF package fingerprint parity;
-- public surface, source readback, Apps Script version/deployment identity;
-- final Backend/Audit/Settings/Script Properties/trigger/source/Store integrity.
-
-## Dispatch history
-
-`0020-CODEX-01` is superseded by the user-confirmed Meeting-only FULL_EXPORT boundary. Active execution was `0020-CODEX-02`; this dispatch is now blocked on the unavailable private schema-migration execution surface.
