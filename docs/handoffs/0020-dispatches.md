@@ -1,21 +1,35 @@
 # Work 0020 dispatch control
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-01`
+DISPATCH_ID: `0020-CODEX-02`
 BALL: `CODEX`
 STATUS: `READY`
 
 ## Active dispatch
 
-### 0020-CODEX-01 — READY
+### 0020-CODEX-02 — READY
 
 - mode: `BUILD / QUALIFICATION`;
 - route: `C`;
-- purpose: provider-neutral core + OpenAI/Gemini File Search adapters + truthful full-output route + first live qualification;
+- purpose: provider-neutral core + dual File Search over Meeting/Pitchbook + Meeting-only FULL_EXPORT + first live qualification;
 - recommended model: `Sol High` — current provider APIs, cross-provider state migration, metadata limits, citation mapping, and live runtime behavior remain materially runtime-dependent;
 - branch: `agent/0020-ai-provider-core`;
 - Draft PR: `#26` — Draft / Open / unmerged;
-- instruction: `docs/handoffs/0020-CODEX-01-ai-provider-core-instruction.md`.
+- instruction: `docs/handoffs/0020-CODEX-02-meeting-full-output-file-search-scope-instruction.md`;
+- exact execution ref: supplied in ChatGPT dispatch after activation commit.
+
+## Superseded dispatch
+
+### 0020-CODEX-01 — SUPERSEDED
+
+CODEX-01 was prepared with an incorrect FULL_EXPORT requirement that attempted to include Pitchbook body text. The user reconfirmed the original product boundary before acceptance:
+
+```text
+ChatGPT / Gemini File Search -> Meeting + Pitchbook/source materials
+全文出力 -> Meeting Google Docs full text only + optional Pitchbook references/links
+```
+
+CODEX-01 must not be used as the current execution contract. No evidence from it is accepted because the dispatch had not returned a qualification result.
 
 ## Accepted baseline
 
@@ -26,13 +40,13 @@ STATUS: `READY`
 - public facade `28`;
 - Audit `64` at Work 0019 completion;
 - AI sync disabled and triggers `0` at Work 0019 completion;
-- provider selection decision: `ChatGPT / Gemini / 全文出力`, no automatic failover.
+- provider selection: `ChatGPT / Gemini / 全文出力`, no automatic failover;
+- File Search source scope: Meeting + Pitchbook/source materials;
+- FULL_EXPORT body scope: Meeting Google Docs only.
 
 Only one Codex dispatch may be active.
 
-Exact execution ref is supplied in the ChatGPT dispatch prompt after this activation commit. Codex must not execute from an older ref.
-
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-01`
+DISPATCH_ID: `0020-CODEX-02`
 BALL: `CODEX`
 STATUS: `READY`
