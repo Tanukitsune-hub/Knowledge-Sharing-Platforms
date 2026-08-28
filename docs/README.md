@@ -1,6 +1,6 @@
 # Documentation
 
-Current as of: 2026-08-27
+Current as of: 2026-08-28
 
 This directory records the active product, architecture, runtime, security, roadmap, and delivery contracts for Knowledge Sharing Platforms.
 
@@ -23,28 +23,33 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - `planning/apps-script-implementation-plan.md` — target-runtime-first implementation/validation plan
 - `planning/post0015-spec-impact-and-implementation-sequence.md` — cross-cutting source/schema/UI/search/AI impact matrix
 
-### Counterparty/entity, temporal, and Work plans
+### Durable decisions
 
-- `decisions/counterparty-entity-classification.md` — GP/non-GP Meeting classification architecture
-- `decisions/temporal-data-contract.md` — Business Date/Time, Instant, Duration contract
+- `decisions/counterparty-entity-classification.md` — GP/non-GP Meeting classification
+- `decisions/temporal-data-contract.md` — Business Date/Time, Instant, Duration
+- `decisions/ai-provider-selection-and-full-output.md` — ChatGPT/Gemini/full-output routes, no failover, output UX
+- `decisions/target-runtime-first-development.md` — target runtime, isolated data, effects, staging, readiness
+- `decisions/shared-drive-production-root.md` — production Shared Drive root
+- `decisions/pitchbook-upload-limits.md` — 25MB/file, 10 files, 100MB total
+- `decisions/audit-access-and-user-attribution.md` — best-effort Actor and Restricted Audit
+- `decisions/decision-log.md` — consolidated durable decisions
+
+### Work plans
+
 - `planning/work0016-counterparty-entity-foundation.md`
 - `planning/work0022-temporal-data-contract-hardening.md`
 - `planning/work0017-meeting-activity-analytics.md`
 - `planning/work0018-relationship-explorer.md`
 - `planning/work0019-entity-workspace-strategy-drilldown.md`
-- `planning/work0020-personal-pc-gemini-core-qualification.md`
-- `planning/work0021-knowledge-search-filters-multi-entity-comparison.md`
+- `planning/work0020-personal-pc-gemini-core-qualification.md` — AI Provider Core / dual File Search / full output
+- `planning/work0021-knowledge-search-filters-multi-entity-comparison.md` — filters / five modes / comparison / provider parity
 
 ### Runtime, AI, and security
 
 - `operations/runtime-policy.md` — runtime identity/access/retry/Audit/rollout
-- `ai/gemini-file-search.md` — File Search metadata, five modes, comparison, citations
+- `ai/provider-neutral-file-search.md` — OpenAI/Gemini File Search adapters and canonical full output
+- `ai/gemini-file-search.md` — superseded Gemini-only compatibility pointer
 - `governance/security.md` — information/credential/access handling
-- `decisions/target-runtime-first-development.md` — target runtime, isolated data, effects, staging, readiness
-- `decisions/shared-drive-production-root.md` — production Shared Drive root decision
-- `decisions/pitchbook-upload-limits.md` — 25MB/file, 10 files, 100MB total
-- `decisions/audit-access-and-user-attribution.md` — best-effort Actor and Restricted Audit
-- `decisions/decision-log.md` — consolidated durable decisions
 
 ### Agent execution
 
@@ -62,38 +67,38 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - separate Restricted Audit Spreadsheet;
 - stable Meeting/Document/Batch/Master IDs;
 - Meeting/Pitchbook registration and maintenance;
+- Counterparty Type -> Entity classification;
 - Team, Fund/Strategy, Meeting Type, Related Pitchbooks, and follow-up metadata;
-- GP Workspace accepted under Work 0015;
-- Knowledge Export;
-- Gemini/File Search source/query foundation;
+- GP/Entity Workspaces;
+- Activity Analytics and narrow monthly administrative check;
+- Relationship Explorer;
+- provider-neutral Knowledge Export and canonical full-text package;
+- planned OpenAI and Gemini File Search adapters;
+- exactly three user-facing generation choices: `ChatGPT / Gemini / 全文出力`;
 - five Knowledge Search modes;
 - explicit normal-user public facade and private setup/diagnostic/trigger helpers.
 
-## Prospective Meeting entity model
-
-Work 0016 replaces the global Meeting GP requirement with:
+## AI route baseline
 
 ```text
-Counterparty Type
-  -> Counterparty Entity
+ChatGPT
+→ OpenAI File Search
+→ grounded answer + citations
+
+Gemini
+→ Gemini File Search
+→ grounded answer + citations
+
+全文出力
+→ canonical Knowledge Package
+→ コピー / Google Docs / PDF
 ```
 
-Categories:
+There is no automatic provider failover. A disabled/unconfigured API returns a safe provider-specific error.
 
-```text
-GP / 運用会社
-LP / Asset Owner
-日本生命
-グループ会社
-Consultant / Gatekeeper
-その他
-```
+The full-output buttons appear above the body. The full-text preview is at the bottom, fixed-height, and internally scrollable so users can output without reading or page-scrolling through it.
 
-GP entities continue to use `GP_Master`; non-GP entities use category-specific `Option_Master` Types. The Backend remains five sheets.
-
-## Temporal contract before analytics
-
-Work 0022 executes after Work 0016 and before Work 0017.
+## Temporal contract
 
 ```text
 Business Date -> YYYY-MM-DD / configured timezone
@@ -102,24 +107,24 @@ Instant       -> UTC ISO-8601
 Duration      -> integer / named unit
 ```
 
-Equivalent Sheets `Date`, canonical string, and strict ISO representations must behave identically in Audit, Search, Export, deterministic AI metadata, and workspaces. Historical Date/Time cells are not bulk-rewritten.
+Equivalent Sheets `Date`, canonical string, and strict ISO representations behave identically in Audit, Search, Export, deterministic AI metadata, and workspaces. Historical Date/Time cells are not bulk-rewritten.
 
 ## Current development sequence
 
 ```text
 0015 GP Workspace [ACCEPTED]
-→ 0016 Counterparty entity foundation
-→ 0022 temporal data contract hardening
-→ 0017 analytics / monthly checks
-→ 0018 Relationship Explorer
-→ 0019 Entity Workspace / Fund-Strategy drill-down
-→ 0020 personal-PC Gemini/File Search core
-→ 0021 structured filters / multi-entity comparison
+→ 0016 Counterparty entity foundation [ACCEPTED]
+→ 0022 temporal data contract hardening [ACCEPTED]
+→ 0017 analytics / monthly checks [ACCEPTED]
+→ 0018 Relationship Explorer [ACCEPTED]
+→ 0019 Entity Workspace / Fund-Strategy drill-down [CURRENT]
+→ 0020 AI provider core / OpenAI + Gemini File Search / full output
+→ 0021 structured filters / five modes / multi-Entity / provider parity
 → historical migration (manual / hybrid / selective automation)
 → final production qualification
 ```
 
-Advanced follow-up task workflow and a separate static GP-comparison dashboard are not planned. Follow-up remains informational; qualitative comparison belongs to Gemini.
+Advanced follow-up task workflow and a separate static GP-comparison dashboard are not planned. Follow-up remains informational; numeric comparison belongs to analytics and qualitative comparison to Knowledge Search.
 
 ## Development and validation policy
 
@@ -144,22 +149,10 @@ SIDE_EFFECT_STATE
 READY
 ```
 
+AI Works additionally report OpenAI, Gemini, and full-output matrices separately.
+
 A mock, CI run, simulator, alternate runtime, or test loader proves only what it exercised.
-
-## Historical Work map
-
-- 0004: scaffold/setup
-- 0005: Meeting vertical slice
-- 0006: Pitchbook vertical slice
-- 0007: maintenance/concurrency/Masters
-- 0008–0009: Gemini source/query foundation, formats, five modes
-- 0010: consolidated synthetic qualification
-- 0011: Knowledge Export
-- 0012: public-surface/reliability hardening
-- 0013: qualification/recovery history
-- 0014: structured Meeting/Pitchbook context
-- 0015: GP Workspace accepted/merged
 
 ## Repository data policy
 
-GitHub stores design, source code, and synthetic/anonymized tests only. Do not commit real Meeting records, Pitchbooks, personal information, non-public deal information, credentials, organization-specific resource IDs, private URLs, deployment IDs, or local machine mappings.
+GitHub stores design, source code, and synthetic/anonymized tests only. Do not commit real Meeting records, Pitchbooks, personal information, non-public deal information, credentials, organization-specific resource IDs, private URLs, deployment IDs, provider Store IDs, or local machine mappings.
