@@ -1,97 +1,106 @@
 # Post-0015 Specification Impact and Implementation Sequence
 
-Current as of: 2026-08-27
+Current as of: 2026-08-28
 
 Status: Active cross-cutting implementation review
 
-This document records how the accepted post-0015 roadmap changes the current source/schema/UI/search/AI contracts and why the Works are ordered as defined in `docs/planning/mvp-and-roadmap.md`.
+This document records how the accepted roadmap changes source/schema/UI/search/AI contracts and why the Works are ordered as defined in `docs/planning/mvp-and-roadmap.md`.
 
-## 1. Current source baseline reviewed
+Later accepted decisions supersede earlier Gemini-only wording:
 
-At the planning baseline:
+- `docs/decisions/ai-provider-selection-and-full-output.md`;
+- `docs/ai/provider-neutral-file-search.md`.
 
-- persistent schema is version 3;
-- Backend has exactly five sheets;
-- `Meeting_Index` contains legacy `GP_ID`, free-text `Counterparty`, structured Team/Fund/Meeting Type/Related Pitchbook/Follow-up columns, and AI state columns;
-- Meeting registration requires Date, GP, and Asset Class;
-- Meeting filename and Google Doc metadata assume GP as the organization identity;
-- related-Pitchbook candidates use one selected GP plus Asset Class;
-- Meeting/Pitchbook browser draft shares GP unconditionally;
-- Past Meeting search is GP-centric;
-- GP Workspace is being delivered in Work 0015;
-- AI source metadata already supports GP, Team, Fund/Strategy, Meeting Type, Related Pitchbook IDs, and Follow-up;
-- Knowledge Search exact filters currently center on Date, GP, Asset Class, Capital Type, and Source Type;
-- Pitchbook remains a GP-owned source record.
+## 1. Accepted foundation now in place
 
-These are working contracts, not mistakes. Work 0016 changes them prospectively while preserving legacy behavior.
+- Backend remains exactly five sheets;
+- schema 5 currently includes Counterparty Entity and monthly admin-check fields;
+- Work 0016 replaced global Meeting GP requirement with Counterparty Type -> Entity;
+- Work 0022 established the temporal contract;
+- Work 0017 delivered Activity Analytics;
+- Work 0018 delivered explicit bidirectional Relationship Explorer;
+- Work 0019 delivers Entity Workspace / Fund Strategy;
+- Pitchbook remains GP-owned;
+- canonical relationship remains `Meeting_Index.Related_Pitchbook_IDs`;
+- Knowledge Export already resolves authoritative sources and can produce Copy/Docs/PDF-derived content;
+- current AI code is Gemini-oriented but already has useful canonical source metadata.
 
-## 2. Core specification changes
+## 2. Selected post-0019 AI contract
 
-| Current assumption | Prospective contract | Work |
+| Earlier assumption | Accepted contract | Work |
 |---|---|---|
-| Every Meeting requires GP | Meeting requires Counterparty Type + Entity; GP is one type | 0016 |
-| GP list is the only organization master | GP uses GP Master; non-GP entities use typed Option Master rows | 0016 |
-| `Counterparty` means organization/person ambiguously | Structured entity fields identify organization; `Counterparty` remains person/role text | 0016 |
-| Related Pitchbooks derive from one GP | Candidates derive from `Related_GP_IDs` + Asset Class | 0016 |
-| GP always shared to Pitchbook draft | GP shares only from GP-counterparty Meeting | 0016 |
-| Analytics dimensions are GP-first | Analytics dimensions are Counterparty Type/Entity + Related GP | 0017 |
-| Relationships mainly visible from Meeting edit | Read-only forward/reverse explorer | 0018 |
-| Workspace is GP-only | Entity Workspace supports all categories; GP mode includes direct/related activity | 0019 |
-| Fund/Strategy appears as a list | Exact-text drill-down across Meetings/Pitchbooks/relationships | 0019 |
-| Gemini contracts are deterministic only | Current actual API/Store/model/billing path qualified first | 0020 |
-| Knowledge filters are GP-centric | Entity-centered filters and 2–5 entity comparison | 0021 |
-| Static GP comparison candidate | Rejected; analytics + Gemini comparison cover the need | 0017/0021 |
-| Follow-up workflow candidate | Rejected; keep informational flag/note only | no Work |
-| Universal legacy converter candidate | Rejected as mandatory; manual/hybrid/selective decision later | post-0021 |
+| Gemini is the only API route | User explicitly selects ChatGPT, Gemini, or 全文出力 | 0020 |
+| One Store/model/state is sufficient | OpenAI and Gemini Stores/config/index state are independent | 0020 |
+| API unavailable may require a fallback | No automatic cross-provider failover; provider-specific safe error | 0020 |
+| Knowledge Export is a separate secondary surface | Full output becomes one of three normal generation routes | 0020 |
+| Copy/Docs/PDF may be separate actions | All consume one canonical package/fingerprint | 0020 |
+| Long prompt preview may be hidden/popup-like | Buttons above body; preview at bottom with bounded internal scroll | 0020 |
+| Filters/modes are Gemini-specific | One provider-neutral request/filter/mode model serves all routes | 0020/0021 |
+| Gemini comparison is the qualitative route | Selected ChatGPT or Gemini may run comparison; full output packages it externally | 0021 |
+| One provider matrix is enough | OpenAI, Gemini, and full-output matrices are reported separately | 0020/0021 |
 
-## 3. Persistent data changes
+## 3. Persistent data impact
 
-### Work 0016
-
-Append to `Meeting_Index`:
-
-```text
-Counterparty_Type
-Counterparty_ID
-Related_GP_IDs
-```
-
-Add Option Master Types:
-
-```text
-COUNTERPARTY_LP
-COUNTERPARTY_NISSAY_DEPARTMENT
-COUNTERPARTY_GROUP_COMPANY
-COUNTERPARTY_CONSULTANT_GATEKEEPER
-COUNTERPARTY_OTHER
-```
+### Existing authoritative business schema
 
 Keep:
 
 ```text
-GP_ID
-Counterparty
-Related_Pitchbook_IDs
-all existing schema-3 columns
+GP_Master
+Option_Master
+Meeting_Index
+Pitchbook_Index
+Settings
 ```
 
-Legacy GP migration occurs only when new fields are blank.
+Do not add a provider-state sheet/database.
 
-### Work 0017
+### Work 0020 provider state
 
-Default minimal administrative-check proposal:
+OpenAI and Gemini derived state must be independently observable.
+
+Preferred append-only field:
 
 ```text
-Admin_Check_Completed
-Admin_Check_Updated_At
-Admin_Check_Updated_By
+AI_Provider_State_JSON
 ```
 
-This schema is not final until the real business label/state is confirmed at Work kickoff. Multiple states/checks are not inferred.
+Versioned object keyed by:
 
-### Works 0018–0021
+```text
+OPENAI
+GEMINI
+```
 
-No new Backend sheet. Prefer read models, derived metadata, and append-only Audit/filter columns where required.
+Per-provider state:
+
+```text
+document/store reference
+NotIndexed / Pending / Indexed / Failed
+indexed_at
+content_hash
+safe last error
+```
+
+When new state is blank, migrate existing legacy Gemini-oriented `AI_*` fields into `GEMINI`. Preserve legacy columns for compatibility/evidence; do not destructively remove them.
+
+Exact compatibility mirroring is finalized after the Work 0020 source inventory. A single generic status may not be treated as the state of both providers.
+
+### Settings
+
+Work 0020 separates at least:
+
+```text
+OPENAI_ENABLED
+OPENAI_VECTOR_STORE_ID
+OPENAI_DEFAULT_MODEL
+GEMINI_ENABLED
+GEMINI_FILE_SEARCH_STORE_NAME
+GEMINI_DEFAULT_MODEL
+AI_SYNC_ENABLED
+```
+
+Exact names may align with existing conventions. Credentials never live in user-visible Sheets, GitHub, browser responses, Audit, or exports.
 
 ## 4. Production source impact matrix
 
@@ -99,268 +108,219 @@ No new Backend sheet. Prefer read models, derived metadata, and append-only Audi
 
 Likely areas:
 
-- schema version and Meeting headers;
-- setup migration/backfill;
-- Option type constants, stable ID generation, seeds/upsert behavior;
-- safe error messages;
-- diagnostics/readback.
-
-Primary files/patterns:
-
 ```text
 src/00_Core.gs
 src/10_Setup.gs
-setup tests
+setup/migration/diagnostic tests
 ```
 
-### Meeting registration and retry
+Changes:
 
-Required changes:
+- schema increment once for provider state;
+- append-only migration;
+- safe provider-specific errors;
+- settings preservation/readback;
+- provider capability diagnostics without secrets/private Store IDs.
 
-- normalize/validate Counterparty Type/Entity/Related GPs;
-- conditional GP mirror;
-- request fingerprints and legacy fingerprints;
-- entity-aware filename and Doc metadata;
-- Index row mapping;
-- idempotent retry matching;
-- catalog/dependent-select response.
-
-Primary patterns:
-
-```text
-src/30_MeetingCore.gs
-src/40_MeetingService.gs
-Meeting live environment/adapters
-Meeting tests
-```
-
-### Meeting maintenance/search
-
-Required changes:
-
-- search filters and result mapping;
-- edit input/validation;
-- legacy parser fallback;
-- historical Inactive entity preservation;
-- Audit snapshots/changed fields;
-- optimistic locking and source-Doc update;
-- person/role label clarity.
-
-Primary patterns:
-
-```text
-src/100_MaintenanceCore.gs
-src/110_MaintenanceMeetingService.gs
-src/112_MaintenanceServiceHelpers.gs
-src/120_MaintenanceLiveEnvironment.gs
-src/121_MaintenanceLiveHelpers.gs
-maintenance tests
-```
-
-### Browser UI/drafts/bootstrap
-
-Required changes:
-
-- Counterparty Type -> Entity dependent select;
-- category-aware quick-add;
-- Related GP multi-select;
-- conditional GP draft sharing;
-- Past Meeting filters;
-- clear/edit/reopen behavior;
-- safe empty/Inactive states.
-
-Primary patterns:
-
-```text
-src/Index.html
-src/MaintenancePages.html
-src/ClientCore.html
-src/ClientBootstrap.html
-src/ClientMaintenance*.html
-src/Styles.html
-client/markup tests
-```
-
-### Relationship paths
-
-Required changes:
-
-- candidate resolution from Related GPs;
-- existing link preservation;
-- reusable forward/reverse resolver;
-- list counts/caps/unresolved/Inactive handling;
-- Entity/Strategy reuse.
-
-Do not duplicate relationship business logic in client-only code.
-
-### GP/Entity Workspace
-
-Work 0015 GP aggregation must remain compatible after schema migration. Work 0019 should refactor toward one reusable entity read model rather than maintaining GP and Entity aggregators separately.
-
-### Analytics/admin check
-
-Work 0017 adds:
-
-- deterministic Asia/Tokyo bucketing;
-- entity-aware dimensions;
-- bounded chart/table response;
-- exact drill list;
-- narrow admin-check mutation and Audit.
-
-No Meeting body reads or analytics database initially.
-
-### Knowledge Export
-
-Propagate readable Counterparty Type/Entity/Related GP metadata while preserving:
-
-- Active-only source eligibility;
-- Meeting Doc body authority;
-- Pitchbook metadata/link-only behavior;
-- count/character limits;
-- Audit redaction.
-
-### AI source and metadata
+### Canonical AI source
 
 Likely areas:
 
 ```text
+src/130_AiConstants.gs
 src/131_AiFileSearchContracts.gs
 src/132_AiKnowledgeContracts.gs
 src/140_AiSourceModels.gs
-src/150_KnowledgeSearchModels.gs
-AI/Knowledge Search UI and tests
 ```
 
-Add single-valued entity metadata deterministically in Work 0016. Do not enable billing calls there.
+Changes:
 
-Work 0020 verifies the current API and basic exact filter. Work 0021 implements advanced filters and multi-entity comparison based on observed behavior.
+- rename/generalize Gemini-specific contracts where needed;
+- keep one source metadata/body path;
+- keep stable `source_id`, `entity_key`, date, Entity/GP, Asset Class, Team, Fund/Strategy, Meeting Type, follow-up, Drive link, filename, content hash;
+- do not duplicate source construction by provider.
 
-### Audit schema
+### Provider adapters
 
-Meeting create/update Audit may include Counterparty Type/ID and Related GP IDs. Question/source content remains redacted.
+Likely new/private boundaries:
 
-Work 0021 may append bounded structured filter fields. Audit migration stays append-only and separate from the five-sheet Backend.
+```text
+OpenAI File Search adapter
+Gemini File Search adapter
+provider capability/state adapter
+normalized citation adapter
+```
+
+Each owns Store/index/query/filter/citation/polling/retry/cleanup only.
+
+No normal-user model selector and no provider-specific duplicate UI.
+
+### AI sync worker
+
+Current Gemini-oriented sync must evolve to:
+
+```text
+provider-neutral work selection
+→ selected/enabled provider state
+→ provider adapter
+→ independent success/failure
+```
+
+Authoritative source save remains independent. One provider failure does not roll back capture or overwrite the other provider state.
+
+### Knowledge Search UI
+
+Current separate search/export sections converge to:
+
+```text
+conditions + mode
+route selector: ChatGPT / Gemini / 全文出力
+execute
+result surface determined by route
+```
+
+API routes show answer/citations. Full output shows summary, buttons, status, and bottom fixed-height internal-scroll body.
+
+There is no popup/modal for long output.
+
+### Knowledge Export
+
+Reuse:
+
+- Active source resolution;
+- count/character limits;
+- source integrity and authoritative links;
+- preview fingerprint/staleness protection;
+- Google Docs/PDF creation;
+- copy contract;
+- Audit redaction.
+
+Strengthen to one canonical package/fingerprint shared by Copy/Docs/PDF. Do not maintain hidden alternative bodies.
+
+### Knowledge filters/modes
+
+Work 0021 adds the same provider-neutral filters and modes to all routes.
+
+Provider adapters translate exact metadata semantics. If one provider cannot represent an exact multi-value filter, use bounded separate retrieval or return an explicit limitation—never substring weakening.
+
+### Audit
+
+Append bounded provider route/model alias/filter/Entity/result/cited-source metadata only where required.
+
+Do not store question/instruction, answer, chunks, source/full-output body, raw provider payloads, credentials, embeddings, bytes, or private Store IDs.
 
 ## 5. Compatibility strategy
 
 - stable Meeting/Document/Batch/Master/File IDs remain unchanged;
-- existing `GP_ID` remains readable and mirrored for GP Meetings;
-- legacy GP rows backfill only blank new fields;
-- legacy Docs with `GP:` remain parseable;
-- migration does not bulk-rename/rewrite source Docs/files;
-- existing Related Pitchbook IDs remain canonical and are not deleted when candidates change;
-- Inactive entity/Master values remain visible in historical edit/read paths;
-- GP Workspace must continue working after Work 0016;
-- Pitchbook remains GP-required;
-- AI metadata changes mark/reindex current sources only under the later authorized AI Work.
+- Shared Drive sources remain authoritative;
+- existing Gemini-oriented fields remain preserved during append-only migration;
+- existing Knowledge Export Docs/PDF behavior remains available while the UI is unified;
+- existing five modes retain their instruction intent;
+- existing normal-user public functions remain compatible where practical;
+- no provider selection changes Meeting/Pitchbook authoritative records;
+- full output remains usable even when APIs are disabled, subject to source/output permissions and limits;
+- disabled API routes return safe errors and do not silently invoke another provider.
 
-## 6. Why the Work order changed
-
-The earlier plan put activity analytics in Work 0016. That would hard-code GP as the principal organization dimension and cause immediate rework when LP/Asset Owner, Nippon Life departments, group companies, and other counterparties are introduced.
-
-The corrected order is:
+## 6. Correct Work order
 
 ```text
-entity identity
-→ analytics
-→ relationship exploration
-→ entity/strategy workspace
-→ actual Gemini core
-→ advanced search/comparison
+Entity Workspace foundation
+→ provider-neutral AI core + both File Search adapters + full output
+→ advanced filters / five modes / multi-Entity / provider parity
+→ historical migration
+→ final company production qualification
 ```
 
-This minimizes schema/UI/read-model duplication and lets each later Work reuse accepted production helpers.
+Why:
 
-## 7. Risk and resolution register
+- Entity identity, relationships, and Fund/Strategy context must be stable before AI filters/comparison;
+- provider adapters and state must be proven before advanced UX;
+- full output should reuse the same canonical request/scope before filters multiply;
+- migration waits until index/metadata/filter/citation contracts are observed;
+- company permissions/credentials/users remain the last environment-specific qualification.
 
-### Entity ID collisions
+## 7. Work 0020 qualification gate
 
-Risk: Option IDs and GP IDs are independent namespaces.
+- current official OpenAI/Gemini API contracts recorded;
+- three-choice UI;
+- no failover;
+- provider-neutral source/request/package/citation contracts;
+- independent provider state migration;
+- full output PASS;
+- at least one File Search provider live PASS;
+- every enabled provider live PASS;
+- deliberately disabled provider safe-error/no-failover PASS;
+- one Meeting/Pitchbook index/query/citation/filter/update/inactivate/reactivate/delete/rebuild per enabled provider;
+- Copy/Docs/PDF exact package parity;
+- buttons above body and bottom internal-scroll preview;
+- cost/retry/rate-limit/retention and final integrity.
 
-Resolution: identity is the composite `Counterparty_Type:Counterparty_ID`, never ID alone.
+## 8. Work 0021 qualification gate
 
-### Same organization in multiple categories
+- same shared route/mode/filter UI;
+- exact Entity filter;
+- same bounded query on every enabled provider;
+- normalized citations/Drive links;
+- 2–5 Entity comparison and per-Entity evidence;
+- Team/Meeting Type/follow-up filters;
+- all five modes;
+- full-output parity for the same filter/mode scope;
+- bounded six-format matrix;
+- separate `OPENAI_SEARCH_MATRIX`, `GEMINI_SEARCH_MATRIX`, `FULL_OUTPUT_MATRIX`;
+- final Store/Index/Audit/source/cost integrity.
 
-Risk: one legal group may appear as GP and LP/Asset Owner or group company.
+## 9. Risk and resolution register
 
-Resolution: treat as separate business contexts initially. Add alias/canonical entity only when real use proves necessary.
+### Provider capability mismatch
 
-### Non-GP Pitchbook/source ownership
+Risk: metadata filters, formats, citations, polling, or retention differ.
 
-Risk: some non-GP meetings may have materials not naturally owned by a GP.
+Resolution: one product contract with provider-specific adapters and explicit limitations. Product correctness outranks identical internal calls.
 
-Resolution: keep Pitchbook GP-required in Work 0016. Reassess from actual use; do not broaden schema preemptively.
+### Silent data movement
 
-### Related GP multi-value File Search filter
+Risk: automatic failover sends data to an unintended provider.
 
-Risk: exact multi-value API support may differ from deterministic assumptions.
+Resolution: no automatic failover; explicit provider choice and safe errors.
 
-Resolution: store deterministic source metadata now, decide encoding/query strategy only after Work 0020 observes the current API. Never claim comma substring matching is exact.
+### Ambiguous provider state
 
-### Fund/Strategy text variants
+Risk: one `AI_Index_Status` masks divergent OpenAI/Gemini state.
 
-Risk: free-text variants split aggregation.
+Resolution: independent provider-state object and migration.
 
-Resolution: exact trimmed grouping, visibly separate values. No silent fuzzy merge; add Master/alias only if data quality warrants it.
+### Full-output divergence
 
-### Analytics scale
+Risk: Copy, Docs, and PDF contain different bodies.
 
-Risk: full Meeting Index scans may become slow.
+Resolution: one canonical package/fingerprint consumed by all outputs.
 
-Resolution: measure actual runtime first. No summary sheet/cache until performance evidence justifies it.
+### Long-output usability
+
+Risk: page becomes extremely long or users must scroll before exporting.
+
+Resolution: buttons above body; preview at bottom with bounded height/internal scroll.
+
+### Multi-value exact filtering
+
+Risk: provider API encourages comma substring matching.
+
+Resolution: dedicated exact metadata, grouped filters, bounded separate retrieval, or explicit limitation. Never claim substring exactness.
+
+### Cost and Store duplication
+
+Risk: indexing both providers doubles derived cost/state.
+
+Resolution: explicit enable flags, independent Stores/state, bounded personal-PC campaigns, provider-level cost evidence, and company policy deciding enabled providers.
 
 ### Historical migration complexity
 
 Risk: diverse formats make universal conversion costly/unreliable.
 
-Resolution: manual-first; automate repeatable subsets only.
+Resolution: manual-first; automate repeatable subsets only after provider contracts pass.
 
-## 8. Qualification gates by Work
+## 10. Delivery boundary
 
-### 0016
+These planning updates are ChatGPT-only. They do not mutate Apps Script runtime, Backend, Audit, Drive, provider Stores, credentials, deployment, or the active Work 0019 branch.
 
-- one legacy GP Meeting maps correctly;
-- one non-GP Meeting create/reopen/edit/search;
-- Related GP/Pitchbook integrity;
-- five sheets/no duplicates/stable IDs.
-
-### 0017
-
-- actual period bucketing and dimension switch;
-- one admin-check persist/readback/Audit;
-- no source/AI mutation.
-
-### 0018
-
-- same relationship resolves in both directions;
-- Inactive/unresolved behavior;
-- read-only integrity.
-
-### 0019
-
-- GP parity plus one non-GP Entity Workspace;
-- direct/related separation;
-- one Fund/Strategy drill-down;
-- bounded print surface.
-
-### 0020
-
-- actual Store/model/credential/billing path;
-- one Meeting/Pitchbook index/query/citation;
-- exact metadata filter;
-- update/inactivate/reactivate/delete/rebuild;
-- cost/rate-limit/retention evidence.
-
-### 0021
-
-- entity filter;
-- 2–5 entity comparison;
-- per-entity citations;
-- structured filters;
-- five modes and accepted format matrix.
-
-## 9. Delivery boundary
-
-Planning updates are ChatGPT-only and do not mutate Apps Script runtime, Backend, Audit, Drive, Store, credentials, deployment, or Work 0015 branch.
-
-Each implementation Work receives its own branch, Draft PR, Work/Dispatch register, exact target identity, mutation budget, logic validation, target-runtime qualification, report, and ChatGPT final review.
+Each implementation Work receives its own branch, Draft PR, Work/Dispatch register, exact target identity, mutation budget, logic validation, provider matrices, target-runtime qualification, report, and ChatGPT final review.
