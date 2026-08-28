@@ -1,7 +1,7 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-01`
+DISPATCH_ID: `0020-CODEX-02`
 BALL: `CODEX`
 STATUS: `READY`
 MODE: `BUILD / QUALIFICATION`
@@ -18,7 +18,18 @@ Gemini
 全文出力
 ```
 
-ChatGPT and Gemini use File Search. 全文出力 calls no AI API and emits one canonical full-text package used identically by Copy / Google Docs / PDF.
+The source boundaries are fixed:
+
+```text
+ChatGPT / Gemini File Search
+  -> Meeting + Pitchbook/source materials
+
+全文出力
+  -> Meeting Google Docs full text only
+  -> optional matching Pitchbook reference list + authoritative Drive links
+```
+
+ChatGPT and Gemini both use File Search. FULL_EXPORT calls no AI API.
 
 ## Fixed contracts
 
@@ -31,21 +42,31 @@ ChatGPT and Gemini use File Search. 全文出力 calls no AI API and emits one c
 - display names/Drive URLs resolve from authoritative Backend by stable source ID rather than consuming provider metadata slots;
 - no automatic provider failover;
 - provider model selection remains admin-side;
-- FULL_EXPORT means actual readable full text for every source claimed included; metadata/link-only Pitchbook handoff may not be labeled 全文出力;
-- unsupported full-output format fails clearly rather than silently producing a partial package;
+- File Search must directly prove both Meeting and Pitchbook/source indexing, retrieval, and citation;
+- FULL_EXPORT body consists only of authoritative Meeting Google Docs text;
+- matching Pitchbooks may be reference metadata + Drive links only; their body/file bytes are not read for FULL_EXPORT;
+- Copy / Google Docs / PDF use one identical canonical Meeting package/fingerprint;
+- buttons above body; bottom fixed-height internally scrollable Meeting preview;
 - no recurring trigger;
 - no confidential/company production data;
 - no production rollout.
 
 ## Acceptance evidence — strongest first
 
-1. enabled File Search provider: actual Store/index/query/citation path maps back to exact stable source ID and authoritative Drive link;
+1. enabled File Search provider: actual Store/index/query/citation path proves both one Meeting and one Pitchbook/source map back to exact stable source IDs and authoritative Drive links;
 2. same provider proves update -> reindex, Inactive exclusion, Reactivate restoration, exact delete/rebuild, and no duplicate active document;
-3. FULL_EXPORT proves actual Meeting + fully extractable Pitchbook/source body, Copy/Docs/PDF exact package/fingerprint parity, and no AI provider call;
+3. FULL_EXPORT proves authoritative Meeting Google Docs full text, Copy/Docs/PDF exact package/fingerprint parity, Pitchbook reference-only behavior, and zero AI provider call;
 4. selected disabled provider proves provider-specific safe error and zero cross-provider failover;
 5. schema 6/provider-state migration is append-only/idempotent and legacy state remains preserved;
 6. secrets/questions/answers/chunks/source bodies/raw provider payloads/private Store IDs are absent from Audit/browser/GitHub/reports;
 7. final integrity: five Backend sheets/schema 6, authoritative rows/files stable except explicitly bounded synthetic lifecycle, no recurring trigger, no unauthorized permission/Library/deployment mutation.
+
+## Closed conclusions
+
+- Pitchbooks are first-class File Search sources for ChatGPT and Gemini.
+- Pitchbook body extraction is **not** part of the manual FULL_EXPORT route.
+- Work 0021 six-format qualification applies to provider File Search, not Pitchbook full-output extraction.
+- `全文出力` remains the user-facing label, with helper text clarifying that it outputs Meeting Google Docs and shows matching Pitchbooks only as references.
 
 ## Completion
 
