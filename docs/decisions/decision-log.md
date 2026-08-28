@@ -1,6 +1,6 @@
 # Decision Log
 
-Current as of: 2026-08-27
+Current as of: 2026-08-28
 
 This file records active major decisions. Detailed domain sources take precedence:
 
@@ -11,7 +11,8 @@ This file records active major decisions. Detailed domain sources take precedenc
 - runtime: `docs/operations/runtime-policy.md`
 - target-runtime delivery: `docs/decisions/target-runtime-first-development.md`
 - temporal data: `docs/decisions/temporal-data-contract.md`
-- Gemini: `docs/ai/gemini-file-search.md`
+- AI provider selection: `docs/decisions/ai-provider-selection-and-full-output.md`
+- AI/File Search: `docs/ai/provider-neutral-file-search.md`
 - security: `docs/governance/security.md`
 
 ## 2026-08-14 — Google Workspace-centered product reset
@@ -32,7 +33,7 @@ Status: Accepted
 - one organization-controlled Web App for authorized users;
 - no per-user copies;
 - Meeting, Pitchbook, Workspace/analytics, Knowledge Search, and Master Management share the application;
-- normal users do not directly edit Backend/Audit/File Search state;
+- normal users do not directly edit Backend/Audit/provider Store state;
 - browser drafts are per user/browser.
 
 ## 2026-08-15 — Authoritative storage and five-sheet Backend
@@ -57,7 +58,7 @@ Settings
 
 - stable IDs, not row numbers;
 - append-only schema evolution where practical;
-- no new relation/entity/analytics sheet without explicit decision;
+- no new relation/entity/analytics/provider-state sheet without explicit decision;
 - separate Restricted Audit Spreadsheet.
 
 ## 2026-08-15 — Meeting baseline
@@ -84,7 +85,7 @@ Status: Accepted
 - idempotent retry avoids duplicate Drive/Index records;
 - current limits: 25MB/file, 10 files/selection, 100MB total.
 
-Work 0016 does not generalize Pitchbook ownership to non-GP entities.
+Pitchbook ownership remains GP-oriented unless a later explicit decision changes it.
 
 ## 2026-08-15 — Drafts, maintenance, and lifecycle
 
@@ -114,8 +115,7 @@ Option Master:
 
 - immutable Option ID;
 - mutable name/Sort Order/status;
-- existing Types include Location, Asset Class, Capital Type, Team;
-- Work 0016 adds category-specific non-GP counterparty Types.
+- Types include Location, Asset Class, Capital Type, Team, and category-specific non-GP Counterparty Types.
 
 Authorized users maintain allowed Masters with confirmation/Audit rules. Real department/entity names are not guessed as seeds.
 
@@ -128,29 +128,24 @@ Status: Accepted
 - Actor priority: email -> `TEMP_USER:<key>` -> `UNIDENTIFIED`;
 - missing persistent identity does not block normal operation;
 - Audit is operational trace, not strict non-repudiation;
-- source bodies, Follow-up note, prompts/questions, answers, chunks, embeddings, bytes, secrets, and private runtime IDs are excluded.
+- source bodies, Follow-up note, prompts/questions, answers, chunks, embeddings, full-output body, bytes, credentials, raw provider payloads, and private runtime IDs are excluded.
 
-## 2026-08-15 — Gemini File Search retrieval
+## 2026-08-15 — File Search retrieval baseline
 
-Status: Accepted design; live qualification planned
+Status: Historical Gemini-oriented baseline; superseded on 2026-08-28
 
-- Shared Drive remains authoritative;
-- one derived/rebuildable Store initially;
-- stable Custom Metadata for exact filtering;
-- managed chunking/embeddings;
-- only Active sources normally retrievable;
-- one configured Flash model;
+The original accepted design used one Gemini File Search Store, stable Custom Metadata, managed chunking/embeddings, Active-source retrieval, and grounded citations.
+
+The durable principles remain:
+
+- Shared Drive is authoritative;
+- provider indexes are derived/rebuildable;
 - AI failure never rolls back authoritative capture;
+- exact stable metadata handles filters;
 - citations return to stable source IDs/Drive links;
-- no custom Vector DB, taxonomy, Knowledge Graph, Agent framework, or model router initially.
+- no custom Vector DB, taxonomy, Knowledge Graph, or Agent framework initially.
 
-Accepted initial formats:
-
-```text
-.pdf / .pptx / .xlsx / .docx / .txt / .eml
-```
-
-`.msg` and automatic EML attachment indexing remain out of scope.
+Provider selection and the current multi-provider design are governed by the 2026-08-28 decision below.
 
 ## 2026-08-15 — Five-mode Knowledge Search
 
@@ -160,15 +155,16 @@ Status: Accepted and extended
 自由質問 | 要約 | 時系列 | 比較 | 面談準備
 ```
 
-- one retrieval/citation layer;
+- one provider-neutral source/filter/citation contract;
 - presets change prompt/output shape only;
 - insufficient evidence is stated;
 - filters use stable IDs and omit `未選択`;
-- Work 0021 adds entity-centered structured filters and 2–5 entity comparison.
+- Work 0021 adds Entity-centered structured filters and 2–5 Entity comparison;
+- API routes may use different provider-native retrieval strategies while preserving the same product contract.
 
 ## 2026-08-17 — Knowledge Export and public-surface hardening
 
-Status: Accepted and implemented
+Status: Accepted and implemented; expanded by 2026-08-28 AI decision
 
 - only approved normal-user top-level facade functions;
 - setup/diagnostics/triggers/raw adapters remain private;
@@ -177,7 +173,8 @@ Status: Accepted and implemented
 - explicit source links;
 - provider-neutral five-mode prompts;
 - Audit remains metadata-only;
-- Knowledge Exports are derived copies requiring final permission/retention evidence.
+- Knowledge Exports are derived copies requiring final permission/retention evidence;
+- Copy, Google Docs, and PDF converge on one canonical Knowledge Package.
 
 ## 2026-08-26 — Target-runtime-first development
 
@@ -192,15 +189,13 @@ For new Work:
 - do not declare readiness from CI/mock/test-loader alone;
 - create staging only for a material unique safety/evidence reason.
 
-The former permanent DEV/PROD project separation is superseded.
-
 Detailed decision:
 
 `docs/decisions/target-runtime-first-development.md`
 
 ## 2026-08-27 — Counterparty entity classification
 
-Status: Accepted
+Status: Accepted and implemented
 
 Meeting classification becomes:
 
@@ -240,24 +235,24 @@ Status: Accepted
 
 Selected:
 
-- hierarchical counterparty/entity classification;
-- entity-aware activity analytics;
+- hierarchical Counterparty/Entity classification;
+- Entity-aware activity analytics;
 - bidirectional Relationship Explorer;
 - Entity Workspace;
 - exact Fund/Strategy drill-down;
 - structured Knowledge filters;
-- AI multi-entity comparison.
+- AI multi-Entity comparison.
 
 Rejected/absorbed:
 
 - advanced follow-up task workflow: rejected; task management occurs elsewhere;
-- static GP-comparison dashboard: rejected; numeric comparison belongs in analytics and qualitative comparison in Gemini;
+- static GP-comparison dashboard: rejected; numeric comparison belongs in analytics and qualitative comparison in Knowledge Search;
 - standalone GP Workspace enhancement: absorbed into Relationship Explorer/Entity Workspace;
 - mandatory universal legacy converter: rejected.
 
 ## 2026-08-27 — Temporal data contract hardening
 
-Status: Proposed and scheduled; activate after Work 0016 acceptance
+Status: Accepted and implemented
 
 The application distinguishes:
 
@@ -269,57 +264,101 @@ Duration      -> integer in the named unit
 ```
 
 - one generic production helper family owns temporal normalization;
-- equivalent Sheets `Date`, canonical string, and strict ISO timestamp representations must behave identically;
+- equivalent Sheets `Date`, canonical string, and strict ISO timestamp representations behave identically;
 - Audit compares semantic values rather than physical cell types;
 - Search, Export, deterministic AI metadata, workspaces, and analytics consume the same contract;
-- feature-specific algorithms are removed or reduced to thin delegates;
-- a static temporal validator becomes part of `npm run check`;
-- historical Date/Time cells and Audit rows are not bulk-rewritten;
-- Work 0022 executes before Work 0017 analytics.
+- a static temporal validator is part of `npm run check`;
+- historical Date/Time cells and Audit rows are not bulk-rewritten.
 
 Detailed decision:
 
 `docs/decisions/temporal-data-contract.md`
 
-## 2026-08-27 — Implementation order
+## 2026-08-28 — AI provider selection, dual File Search, and full output
 
-Status: Accepted, with temporal hardening inserted before analytics
+Status: Accepted
+
+Normal-user generation choices are exactly:
 
 ```text
-0015 GP Workspace
-→ 0016 Counterparty entity foundation
-→ 0022 temporal data contract hardening
-→ 0017 activity analytics / monthly checks
-→ 0018 Relationship Explorer
-→ 0019 Entity Workspace / Fund-Strategy drill-down
-→ 0020 personal-PC Gemini/File Search core
-→ 0021 structured filters / multi-entity comparison
+ChatGPT
+Gemini
+全文出力
+```
+
+Internal routes:
+
+```text
+OPENAI
+GEMINI
+FULL_EXPORT
+```
+
+- ChatGPT uses the approved OpenAI API and File Search;
+- Gemini uses the approved Gemini API and File Search;
+- File Search is the required default source-reading path for both API routes;
+- 全文出力 calls no AI API;
+- no automatic cross-provider failover;
+- disabled/unconfigured providers return provider-specific safe errors;
+- model names remain admin settings, not user choices;
+- Canonical AI Source, Knowledge Request, Knowledge Package, structured filters, and citation model are provider-neutral;
+- provider adapters own provider-native Store/index/query/filter/citation/retry/cleanup details;
+- OpenAI and Gemini index state must be independently observable;
+- no new provider-state sheet is introduced; Work 0020 performs append-only state migration in the existing five-sheet Backend;
+- Copy/Docs/PDF use the exact same canonical package;
+- long full output does not use a popup;
+- Copy/Docs/PDF buttons appear above the body;
+- the full-text preview is at the bottom, fixed-height, and internally scrollable.
+
+Detailed decisions:
+
+- `docs/decisions/ai-provider-selection-and-full-output.md`;
+- `docs/ai/provider-neutral-file-search.md`.
+
+## 2026-08-28 — Optimized AI implementation order
+
+Status: Accepted
+
+```text
+0019 Entity Workspace / Fund-Strategy drill-down
+→ 0020 AI provider core / OpenAI + Gemini File Search / full output
+→ 0021 structured filters / five modes / multi-Entity / provider parity
 → historical migration
 → final production qualification
 ```
 
-Analytics follows entity and temporal foundations to avoid GP-only dimensions and inconsistent period bucketing.
+Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and export Works. It implements three-route UX, provider-neutral contracts, independent provider state, both adapters, at least one enabled-provider live path, every enabled-provider qualification, disabled-provider safe errors, and full-output parity.
 
-Personal-PC Gemini qualification precedes historical migration so the actual index/metadata/search contract is proven before loading volume.
+Work 0021 builds the intended search product once on that core: structured filters, five modes, 2–5 Entity comparison, provider parity, full-output parity, and the bounded six-format matrix.
 
-## 2026-08-27 — Historical migration and final production
+Personal-PC AI qualification precedes historical migration so actual provider index/metadata/search contracts are proven before loading volume.
+
+## 2026-08-28 — Historical migration and final production
 
 Status: Accepted
 
 Historical materials are heterogeneous. Manual entry is a valid default. Use hybrid/selective automation only for repeatable subsets with measurable benefit.
 
-Final production qualification is last and includes actual company Shared Drive hierarchy/permissions, organization-controlled Apps Script, Backend/Audit boundaries, production credentials/billing, real users, retention/cleanup/rollback, and authorized triggers.
+Final production qualification is last and includes actual company Shared Drive hierarchy/permissions, organization-controlled Apps Script, Backend/Audit boundaries, full-output permissions/retention, real users, and every provider enabled by company policy:
 
-Personal-PC/synthetic success is not company production readiness.
+- approved credentials/billing;
+- exact Store identity/ownership;
+- indexing/query/filter/citations;
+- update/inactivate/cleanup/retention;
+- safe errors/no cross-provider failover;
+- authorized triggers and rollout/rollback.
+
+The company may enable OpenAI, Gemini, both, or neither. Personal-PC/synthetic success is not company production readiness.
 
 ## Current genuine choices
 
-- exact monthly administrative check label/state in Work 0017;
 - whether scale later requires caching/materialized summaries;
 - whether non-GP Pitchbook ownership is materially needed;
-- whether cross-category duplicate entities require alias/canonical identity;
-- current Gemini model/embedding model/credentials at Work 0020 start;
-- exact Related GP multi-value filter strategy based on actual API behavior;
-- observed rate limit, retry, batch size, cost, and retention guardrails;
+- whether cross-category duplicate Entities require alias/canonical identity;
+- current OpenAI and Gemini models/credentials at Work 0020 start;
+- exact provider-state physical compatibility/mirroring after source inventory;
+- exact Related GP/Meeting Type multi-value filter strategy from actual provider behavior;
+- observed rate limit, retry, batch size, cost, and retention guardrails per provider;
+- which providers are enabled by company policy in final production;
 - manual/hybrid/selective historical migration method;
 - final production permissions/cleanup/rollback/rollout route.
