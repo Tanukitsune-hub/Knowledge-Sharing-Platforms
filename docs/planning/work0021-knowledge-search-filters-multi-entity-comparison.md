@@ -1,4 +1,4 @@
-# Work 0021 — Structured Knowledge Search filters and multi-entity comparison
+# Work 0021 — Structured Knowledge Search, five modes, and multi-entity comparison
 
 WORK_ID: `0021`
 
@@ -6,19 +6,77 @@ Status: Planned after Work 0020
 
 Mode: `BUILD / QUALIFICATION`
 
+Authoritative decision:
+
+`docs/decisions/ai-provider-selection-and-full-output.md`
+
+Provider-neutral architecture:
+
+`docs/ai/provider-neutral-file-search.md`
+
 ## Primary outcome
 
-Expand the qualified personal-PC Gemini/File Search core into the intended five-mode Knowledge Search with structured entity filters and AI-based multi-entity comparison.
+Expand the qualified Work 0020 core into the intended Knowledge Search product while preserving exactly three user-facing routes:
 
-This Work replaces the need for a separate static GP-comparison dashboard.
+```text
+ChatGPT
+Gemini
+全文出力
+```
+
+Deliver:
+
+- structured filters;
+- all five accepted modes;
+- 2–5 Entity comparison;
+- provider-parity behavior for every enabled API route;
+- full-output parity using the same filters/modes/source scope;
+- bounded six-format qualification;
+- grounded citations and authoritative Drive traceability.
+
+This Work replaces a separate static GP-comparison dashboard.
 
 ## Dependency
 
-Work 0020 must prove the actual current API, Store, model, credential, metadata-filter, citation, update, and cleanup contracts first.
+Work 0020 must first prove:
 
-Do not implement advanced filters against an assumed API shape that has not transferred to the target runtime.
+- provider-neutral source/request/package/citation contracts;
+- independent OpenAI/Gemini provider state;
+- actual enabled-provider File Search Store/index/query/citation lifecycle;
+- explicit provider selection and no-failover errors;
+- full-output Copy/Docs/PDF parity and internal-scroll UX;
+- current metadata-filter limitations.
 
-## Structured filters
+Do not reopen provider architecture or implement filters against an assumed API shape.
+
+## 1. Unified UI and route behavior
+
+Knowledge Search keeps one conditions/mode form and one explicit generation selector:
+
+```text
+ChatGPT | Gemini | 全文出力
+```
+
+### ChatGPT / Gemini
+
+- use the selected provider's qualified File Search adapter;
+- show answer and normalized citations;
+- do not send data to the other provider;
+- show a safe provider-specific error if disabled/unavailable;
+- do not expose model names as normal-user choices.
+
+### 全文出力
+
+- applies the exact same mode, filters, selected entities, and source scope;
+- calls no AI API;
+- shows source/character summary;
+- places `コピー / Google Docs / PDF` above the body;
+- places the fixed-height internally scrollable preview at the bottom;
+- uses the exact same canonical package across all outputs.
+
+Do not maintain separate filter forms or mode definitions by route.
+
+## 2. Structured filters
 
 Target filter set:
 
@@ -26,7 +84,7 @@ Target filter set:
 Date From / To
 Counterparty Type
 Counterparty Entity
-Related GP (subject to observed multi-value metadata capability)
+Related GP
 Asset Class
 Equity / Debt
 Team
@@ -36,20 +94,22 @@ Meeting Type
 Source Type
 ```
 
-Behavior:
+Rules:
 
 - `未選択` means no filter and is omitted;
-- entity selection uses stable composite `entity_key`;
-- inactive Master values remain available for historical filtering when needed;
-- Fund / Strategy remains free text in source data; filter UX should use exact distinct values or another behavior proven safe by actual data, not fuzzy silent normalization;
-- Meeting-only filters exclude Pitchbooks unless the query explicitly broadens source scope;
-- every visible filter is reflected in Audit metadata without recording question/source bodies.
+- Entity uses exact stable `entity_key`;
+- Inactive Master values remain selectable for historical filtering where appropriate;
+- Fund / Strategy uses exact distinct trimmed values; no fuzzy silent normalization;
+- Meeting-only filters exclude Pitchbooks unless source scope intentionally includes compatible sources;
+- Related GP and Meeting Type use only exact provider behavior proven in Work 0020/0021;
+- comma-separated substring matching is never treated as exact;
+- the canonical filter model is provider-neutral;
+- each provider adapter translates the same filter contract or returns an explicit unsupported-capability error;
+- full output resolves the same filters directly against authoritative records.
 
-## Multi-entity comparison
+## 3. Multi-entity comparison
 
-Comparison mode allows explicit selection of 2–5 entities.
-
-Entities may be from different categories, for example:
+Comparison mode allows explicit selection of 2–5 Entities across categories, for example:
 
 ```text
 GP: KKR
@@ -57,30 +117,34 @@ LP / Asset Owner: New York Life
 日本生命: a selected department
 ```
 
-Required output:
+Required output for ChatGPT and Gemini:
 
-- direct comparison by common dimensions;
-- compact table where useful;
+- common-dimension comparison;
+- compact comparison table where useful;
 - supported similarities/differences;
-- changes over time when evidence exists;
-- unresolved/evidence gaps;
-- citations attributable to each compared entity;
-- no invented symmetry where one entity has less evidence.
+- change over time where evidence exists;
+- evidence gaps and asymmetry;
+- citations attributable to each Entity;
+- no invented symmetry when one Entity has less evidence.
 
-## Retrieval strategy decision after Work 0020
+Full output produces one deterministic comparison package grouped by selected Entity and source, with the same mode instruction and scope summary for use in an external approved AI.
 
-Use the simplest strategy supported by actual File Search behavior:
+## 4. Provider retrieval strategy
 
-1. one grouped OR metadata filter over `entity_key`; or
-2. bounded separate retrieval per entity followed by one grounded synthesis call.
+For each enabled provider, use the simplest exact strategy proven by Work 0020:
 
-Do not encode comma-separated ID lists and pretend substring matching is exact metadata filtering.
+1. grouped/OR metadata filter over stable `entity_key`; or
+2. bounded separate retrieval per Entity followed by one grounded synthesis request.
 
-If Related GP requires multi-value matching not supported reliably by the API, use a bounded alternative such as separate filtered retrieval or defer that one filter with an explicit limitation. Do not weaken exactness silently.
+Correctness, evidence coverage, citation attribution, and stable source identity outrank one-call elegance.
 
-## Five modes
+A provider may use a different internal retrieval strategy while returning the same normalized product contract. The UI does not expose those implementation differences.
 
-Qualify all accepted modes on the same retrieval/citation layer:
+If exact Related GP or Meeting Type filtering cannot be represented safely for one provider, use bounded separate retrieval or return a clear limitation. Do not silently weaken the filter.
+
+## 5. Five modes
+
+Qualify all modes on the shared source/filter/citation layer:
 
 ```text
 自由質問
@@ -90,11 +154,31 @@ Qualify all accepted modes on the same retrieval/citation layer:
 面談準備
 ```
 
-Mode-specific prompts/templates change presentation, not source authority or access boundaries.
+Mode templates change instruction/output structure only. Source authority, access boundary, provider selection, filter semantics, citation mapping, and Audit redaction remain unchanged.
 
-## Format expansion
+### 自由質問
 
-After the core source path passes, qualify the accepted initial formats using bounded synthetic files:
+Direct grounded answer, evidence, uncertainty/insufficient-evidence state, citations.
+
+### 要約
+
+Cross-source synthesis, major themes/facts/viewpoints, changes/contradictions, concise takeaways, citations.
+
+### 時系列
+
+Dated chronology, supported change/continuity, evidence gaps, citations by period.
+
+### 比較
+
+2–5 Entity comparison with per-Entity citation attribution and evidence asymmetry.
+
+### 面談準備
+
+Entity-scoped recent updates, changes, unresolved topics, reconfirmation points, questions, citations.
+
+## 6. Format expansion
+
+After the core provider paths pass, qualify bounded synthetic files:
 
 ```text
 .pdf
@@ -105,18 +189,21 @@ After the core source path passes, qualify the accepted initial formats using bo
 .eml
 ```
 
+The canonical source adapter owns metadata/source identity. Provider adapters may use provider-native upload or a canonical normalized representation where required, but source traceability must remain identical.
+
 For `.eml`:
 
-- preserve original source;
-- index normalized headers/body;
+- preserve the original source;
+- index normalized Subject/From/To/Cc/Date/Body;
 - do not auto-index embedded attachments;
-- verify citation/source traceability.
+- material attachments remain separate registered sources;
+- `.msg` remains out of scope.
 
-Do not add `.msg` unless a separate decision changes scope.
+Provider-specific unsupported formats return explicit status and must not invalidate the authoritative Drive record or the full-output route.
 
-## Metadata contract
+## 7. Metadata contract
 
-Expected single-valued metadata includes:
+Expected provider-neutral metadata includes:
 
 ```text
 source_type
@@ -132,75 +219,150 @@ capital_type_id
 team_id
 fund_strategy
 follow_up_required
+drive_url
+saved_filename
+content_hash
 ```
 
-Meeting Type should use exact-filterable values proven in Work 0020/0021, potentially dedicated boolean metadata per accepted type rather than one comma string.
+Meeting Type and Related GP may require dedicated exact-filterable metadata or bounded separate retrieval. Exact representation is fixed from observed API capability.
 
-Display names supplement stable IDs but do not replace them.
+Display names supplement stable IDs but never replace them.
 
-## UI
+## 8. Result and citation UX
 
-- dependent Counterparty Type -> Entity selector;
-- searchable multi-select for comparison entities;
-- clear chips/summary of active filters;
-- preset modes remain simple;
-- comparison mode clearly requires multiple targets;
-- citations show entity/source identity and Drive link;
-- empty/insufficient evidence state is explicit.
+### API routes
 
-## Audit
+Show:
 
-Append bounded structured filter fields to the separate Audit schema as needed.
+- selected provider label;
+- answer;
+- insufficient-evidence/limitation note;
+- normalized citation list;
+- source Entity/type/date/display name;
+- authoritative Drive link;
+- cited source count and omitted/truncated indicators where applicable.
 
-Do not store:
+### Full output
 
-- question/additional instruction text under the current redaction policy;
-- generated answers;
-- retrieved chunks;
-- source bodies;
-- credentials;
-- raw provider payloads.
+Show:
 
-## Shortest target-runtime slice
+```text
+scope/source/character summary
+[ コピー ] [ Google Docs ] [ PDF ]
+status
+fixed-height internally scrollable preview at bottom
+```
 
-1. one entity-filtered free question;
-2. one 2-entity comparison using actual metadata filtering/retrieval;
-3. verify citations for both entities;
-4. one Team/Meeting Type/follow-up filter;
-5. run each remaining mode once on bounded synthetic scope;
-6. validate each source format in a bounded matrix;
-7. final Store/Index/Audit/source integrity and cost summary.
+Users do not need to inspect the body before output.
 
-## Logic validation
+## 9. Audit
 
-- filter normalization/validation;
-- OR/separate-retrieval strategy contract;
-- exact stable-ID filters;
-- mode prompt/output contracts;
-- per-entity citation grouping;
+Append only the bounded structured metadata required for the new filters/routes.
+
+Allowed:
+
+```text
+provider route
+mode
+structured filter IDs
+selected Entity stable keys
+configured model alias
+result
+cited stable source IDs
+safe error/limitation code
+```
+
+Do not store questions/additional instructions under the current redaction policy, answers, chunks, source bodies, full-output body, credentials, raw provider payloads, embeddings, or private Store IDs.
+
+## 10. Shortest target-runtime campaign
+
+Use bounded synthetic/non-confidential scope.
+
+1. one Entity-filtered free question on ChatGPT if enabled;
+2. the same bounded question/filter on Gemini if enabled;
+3. verify normalized citations and Drive links for each enabled provider;
+4. one 2-Entity comparison on each enabled provider;
+5. verify citations attributable to both Entities;
+6. one Team / Meeting Type / follow-up filter;
+7. run each remaining mode once on bounded scope;
+8. generate the same selected scope through `全文出力` and verify summary/buttons/preview/package parity;
+9. qualify the six-format matrix for every enabled provider to the extent supported, recording explicit provider differences;
+10. verify disabled-provider error/no-failover behavior where applicable;
+11. final provider Store/Index/Audit/source/settings/credential/trigger integrity and cost summary.
+
+## 11. Provider parity contract
+
+Report separately:
+
+```text
+OPENAI_SEARCH_MATRIX
+GEMINI_SEARCH_MATRIX
+FULL_OUTPUT_MATRIX
+```
+
+For every provider enabled in the environment:
+
+- all five modes must pass on the bounded core sources;
+- structured Entity/date/source filters must pass;
+- comparison must pass;
+- citation mapping must pass;
+- provider-specific limitations must be explicit.
+
+A deliberately disabled provider must continue to show its safe error and no failover. It is not considered live-qualified.
+
+The product contract is shared; identical prose is not required between providers.
+
+## 12. Logic validation
+
+- shared route/mode/filter model;
+- provider-specific filter translation;
+- exact stable-ID semantics;
+- OR/separate-retrieval strategy;
+- five-mode prompt/output contracts;
+- per-Entity citation grouping;
 - insufficient-evidence behavior;
-- audit redaction;
-- format normalization;
-- no duplicate index documents;
+- full-output package parity and UI placement;
+- Audit redaction;
+- format normalization/traceability;
+- no duplicate provider index documents;
+- disabled-provider no-failover behavior;
 - public surface;
 - `npm run check` and `git diff --check`.
 
-## Non-goals
+## 13. Side effects and boundary
+
+Expected:
+
+```text
+PROVIDER_STORE_SIDE_EFFECT_STATE: TEST_ONLY
+EXPORT_ARTIFACT_SIDE_EFFECT_STATE: TEST_ONLY
+APPLICATION_DATA_SIDE_EFFECT_STATE: GUARDED only for provider-derived state
+DEPLOYMENT_SIDE_EFFECT_STATE: GUARDED
+```
+
+No company confidential data, production users/Stores, recurring triggers, public-web enrichment, or production rollout.
+
+## 14. Non-goals
 
 - static GP comparison screen;
+- automatic provider routing/failover;
+- user-facing model selector/Deep mode;
+- full-context API route replacing File Search;
 - autonomous investment recommendations;
 - public-web enrichment in the same request;
-- custom vector database/Knowledge Graph;
-- model selector/Deep mode;
+- custom Vector DB/Knowledge Graph;
 - production company rollout;
-- confidential source indexing before final production authorization.
+- confidential source indexing before final authorization.
 
 ## Completion latch
 
 ```text
+DEV QUALIFIED — WORK 0021 STRUCTURED KNOWLEDGE SEARCH
 LOGIC_VALIDATION: PASS
-TARGET_RUNTIME_QUALIFICATION: PASS
-SIDE_EFFECT_STATE: TEST_ONLY / bounded billing-enabled calls
-READY: YES for personal-PC five-mode search
+TARGET_RUNTIME_QUALIFICATION: PASS under the enabled-provider matrix
+OPENAI_SEARCH_MATRIX: PASS or DISABLED_BY_CONFIG
+GEMINI_SEARCH_MATRIX: PASS or DISABLED_BY_CONFIG
+FULL_OUTPUT_MATRIX: PASS
+READY: YES for personal-PC intended search product
 BLOCKER: NO
 ```
