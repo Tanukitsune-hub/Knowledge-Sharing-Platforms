@@ -2,67 +2,59 @@
 
 WORK_ID: `0019`
 DISPATCH_ID: `0019-CODEX-02`
-BALL: `CODEX`
-STATUS: `COMPLETE`
+BALL: `NONE`
+STATUS: `ACCEPTED / MERGED / COMPLETE`
 
 ## Active dispatch
 
-No active dispatch remains.
+None.
 
-## Completed dispatch
+## Dispatch history
 
-### 0019-CODEX-02 — COMPLETE / ACCEPTED
+### 0019-CODEX-02 — ACCEPTED / MERGED / COMPLETE
 
 - mode: `BUILD / QUALIFICATION`;
 - purpose: restore Work 0015 GP Workspace direct-only semantics without changing the new Entity Workspace Direct/Related model;
-- recommended model: `Luna Max` — defect and repair boundary are fully identified;
 - branch: `agent/0019-entity-workspace-strategy-drilldown`;
-- Draft PR: `#25` — Open / Draft / unmerged;
+- PR: `#25` — merged/closed;
 - instruction: `docs/handoffs/0019-CODEX-02-gp-workspace-compatibility-finalization-instruction.md`;
-- CODEX-01 implementation head before review repair: `56e5353a516f5c97dc73dcb24701e7c344b40c06`;
+- report: `docs/handoffs/0019-CODEX-02-gp-workspace-compatibility-finalization-report.md`;
 - implementation commit: `357bd6e0077953055ecd8611ccd382a2c9e2d5ed`;
-- focused compatibility/UI/navigation validation: `16/16 PASS`;
-- full repository validation: `247/247 PASS`;
-- temporal validator: `PASS`;
-- public facade: `28`;
-- exact source sync/readback: `73/73 PASS`;
-- Apps Script version: `40`;
-- existing private Web App updated in place, deployment count `9`, no Library mutation;
-- target runtime: Entity `3 Direct / 1 Related`, legacy GP Workspace direct-only total `3`, GP-owned Pitchbooks `16`, LP/non-GP unchanged;
-- final integrity: Backend five sheets/schema `5`, Audit `64`, AI disabled, triggers `0`, application-data side effects `DISABLED`;
-- `GP_WORKSPACE_BACKWARD_COMPATIBILITY: PASS`;
+- final delivery head: `36532e831e78f4845e71cee81cb5432251b8e6be`;
+- merge commit: `975cdc5bfe9dbdf2d890618b7e2e210dd9bd5309`;
+- `247/247 PASS`, focused compatibility `16/16 PASS`;
+- public facade `28`;
+- source readback `73/73 PASS`;
+- Apps Script version `40`;
+- target runtime: new Entity `3 Direct / 1 Related`, legacy GP Workspace direct-only total `3`, GP-owned Pitchbooks `16`, LP/non-GP unchanged;
+- final integrity: five Backend sheets/schema `5`, Audit `64`, AI disabled, triggers `0`;
+- application-data side effects `DISABLED`;
+- deployment side effects `GUARDED`;
 - blocker: none.
 
-### 0019-CODEX-01 — RETURNED / ACCEPTED EXCEPT COMPATIBILITY BLOCKER
+### 0019-CODEX-01 — RETURNED / ACCEPTED EVIDENCE
 
-Accepted evidence that must not be reopened absent contradiction:
+Accepted evidence retained:
 
-- Entity Workspace implementation and target runtime: PASS;
-- deterministic validation: `247/247 PASS`, focused `34/34 PASS`;
-- target runtime: PASS on Apps Script version `39`;
-- GP Entity Workspace: Direct `3` / Related `1`;
+- Entity Workspace core and target runtime: PASS;
+- deterministic `247/247 PASS`, focused `34/34 PASS`;
+- GP Entity Workspace `3 Direct / 1 Related`;
 - non-GP explicit-link-only behavior: PASS;
 - Fund / Strategy drill: PASS;
-- application-data side effects: `DISABLED`;
-- deployment side effects: `GUARDED`;
-- public facade: `28`;
-- Backend exactly five sheets / schema `5`;
-- Audit `64`, AI disabled, trigger `0`;
-- print evidence accepted and not to be repeated.
+- browser print evidence: accepted;
+- public facade `28`;
+- Backend exactly five sheets/schema `5`;
+- Audit `64`, AI disabled, trigger `0`.
 
-## Accepted predecessor evidence
-
-- Work 0015 GP Workspace accepted;
-- Work 0016 Counterparty Entity accepted;
-- Work 0022 temporal contract accepted;
-- Work 0017 Activity Analytics accepted;
-- Work 0018 Relationship Explorer accepted/merged under PR #24.
+The only CODEX-01 blocker was legacy GP Workspace semantic broadening; CODEX-02 repaired it and is accepted.
 
 ## Ball control
 
-No active Codex dispatch remains. No parallel Codex dispatch was used.
+Completion Latch: `APPLIED`.
+
+No active Codex dispatch remains. Do not reopen Work 0019 absent material contradiction.
 
 WORK_ID: `0019`
 DISPATCH_ID: `0019-CODEX-02`
-BALL: `CODEX`
-STATUS: `COMPLETE`
+BALL: `NONE`
+STATUS: `ACCEPTED / MERGED / COMPLETE`
