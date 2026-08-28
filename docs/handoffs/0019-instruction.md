@@ -1,7 +1,7 @@
 # Work 0019 — Entity Workspace + Fund / Strategy drill-down
 
 WORK_ID: `0019`
-DISPATCH_ID: `0019-CODEX-01`
+DISPATCH_ID: `0019-CODEX-02`
 MODE: `BUILD / QUALIFICATION`
 BALL: `CODEX`
 STATUS: `COMPLETE`
@@ -130,3 +130,31 @@ Browser-native print was invoked once. The Windows native print surface was
 automation-limited after invocation, but no PDF or Drive artifact was created
 and the read-only integrity checks passed. Shared Drive-specific and
 billing-enabled Gemini/File Search qualification remain external gaps.
+
+## CODEX-02 completion record
+
+The GP Workspace compatibility finalization completed with the following
+classification:
+
+```text
+DEV QUALIFIED — WORK 0019 ENTITY WORKSPACE
+LOGIC_VALIDATION: PASS
+TARGET_RUNTIME_QUALIFICATION: PASS
+APPLICATION_DATA_SIDE_EFFECT_STATE: DISABLED
+DEPLOYMENT_SIDE_EFFECT_STATE: GUARDED
+GP_WORKSPACE_BACKWARD_COMPATIBILITY: PASS
+READY: YES
+BLOCKER: NO
+```
+
+The shared Entity Workspace remains Direct `3` / Related `1` in the
+synthetic DEV runtime, while the legacy GP Workspace returns direct-only total
+`3` and GP-owned Pitchbooks remain `16`. Deterministic validation is
+`247/247 PASS` with public facade `28`; the exact tested source was synchronized
+once, read back as `73/73`, and delivered through one in-place update of the
+existing private Web App at immutable version `40`. Final readback preserved
+five Backend sheets/schema `5`, Audit `64`, accepted rows/files/Masters/
+Settings/Script Properties, AI-disabled state, zero triggers, and no Library
+mutation. Details are in:
+
+`docs/handoffs/0019-CODEX-02-gp-workspace-compatibility-finalization-report.md`
