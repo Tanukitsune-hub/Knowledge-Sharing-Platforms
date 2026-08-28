@@ -12,6 +12,7 @@ const standalone = fs.readFileSync(path.join(root, 'src', 'KnowledgeSearch.html'
 const knowledgePage = fs.readFileSync(path.join(root, 'src', 'KnowledgeSearchPage.html'), 'utf8');
 const gpWorkspacePage = fs.readFileSync(path.join(root, 'src', 'GpWorkspacePage.html'), 'utf8');
 const activityAnalyticsPage = fs.readFileSync(path.join(root, 'src', 'ActivityAnalyticsPage.html'), 'utf8');
+const relationshipExplorerPage = fs.readFileSync(path.join(root, 'src', 'RelationshipExplorerPage.html'), 'utf8');
 
 test('Knowledge Search navigation is an integrated same-document showPage page', () => {
   assert.match(index, /<button id="nav-knowledge"[^>]*type="button">ナレッジ検索<\/button>/);
@@ -53,6 +54,16 @@ test('Activity Analytics navigation is an integrated same-document page', () => 
   assert.match(clientCore, /'activity-analytics':document\.getElementById\('page-activity-analytics'\)/);
   assert.match(activityAnalyticsPage, /<section id="page-activity-analytics" class="page">/);
   const ids = Array.from(activityAnalyticsPage.matchAll(/\bid="([^"]+)"/g), match => match[1]);
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('Relationship Explorer navigation is an integrated same-document read-only page', () => {
+  assert.match(index, /<button id="nav-relationship-explorer"[^>]*type="button">Relationship Explorer<\/button>/);
+  assert.match(index, /include_\('RelationshipExplorerPage'\)/);
+  assert.match(index, /include_\('ClientRelationshipExplorer'\)/);
+  assert.match(clientCore, /'relationship-explorer':document\.getElementById\('page-relationship-explorer'\)/);
+  assert.match(relationshipExplorerPage, /<section id="page-relationship-explorer" class="page">/);
+  const ids = Array.from(relationshipExplorerPage.matchAll(/\bid="([^"]+)"/g), match => match[1]);
   assert.equal(new Set(ids).size, ids.length);
 });
 
@@ -115,4 +126,9 @@ test('showPage switches Knowledge Search, GP Workspace, and Meeting without chan
   assert.equal(node('page-activity-analytics').classList.contains('active'), true);
   assert.equal(node('page-knowledge').classList.contains('active'), false);
   assert.equal(node('nav-activity-analytics').classList.contains('active'), true);
+
+  context.showPage('relationship-explorer');
+  assert.equal(node('page-relationship-explorer').classList.contains('active'), true);
+  assert.equal(node('page-activity-analytics').classList.contains('active'), false);
+  assert.equal(node('nav-relationship-explorer').classList.contains('active'), true);
 });

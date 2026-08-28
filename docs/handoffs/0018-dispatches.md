@@ -2,12 +2,12 @@
 
 WORK_ID: `0018`
 DISPATCH_ID: `0018-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `COMPLETE`
 
 ## Active dispatch
 
-### 0018-CODEX-01 — READY
+### 0018-CODEX-01 — COMPLETE
 
 - mode: `BUILD / QUALIFICATION`;
 - purpose: implement and qualify the read-only Relationship Explorer as one vertical slice;
@@ -17,6 +17,12 @@ STATUS: `READY`
 - instruction: `docs/handoffs/0018-CODEX-01-relationship-explorer-instruction.md`;
 - accepted main baseline: `a4b04d2ae122a92cc3400bb1251a6e5070c1899f`;
 - exact execution ref: final PR #24 head supplied in the ChatGPT dispatch prompt after activation metadata commits.
+- completion report: `docs/handoffs/0018-CODEX-01-relationship-explorer-report.md`;
+- result: `DEV QUALIFIED — WORK 0018 RELATIONSHIP EXPLORER`;
+- Logic/target runtime: `PASS / PASS`;
+- application data side effects: `DISABLED`;
+- deployment side effects: `GUARDED`;
+- blocker: `NO`.
 
 ## Accepted predecessor evidence
 
@@ -32,9 +38,11 @@ Do not reopen predecessor architecture absent material contradiction.
 
 ## Ball control
 
-Only `0018-CODEX-01` may be active. Codex returns report/commit/push/PR update to ChatGPT for final review. No additional dispatch should be created merely for polishing if the Work acceptance evidence passes.
+`0018-CODEX-01` is complete. Codex returns the report/commit/push/PR update to
+ChatGPT for final review. No additional dispatch should be created merely for
+polishing because the Work acceptance evidence passes.
 
 WORK_ID: `0018`
 DISPATCH_ID: `0018-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `COMPLETE`

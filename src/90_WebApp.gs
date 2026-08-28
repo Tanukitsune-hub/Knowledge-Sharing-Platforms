@@ -88,6 +88,10 @@ function getMeetingActivityAnalytics(input) {
   return kspGetMeetingActivityAnalytics_(kspCreateActivityAnalyticsEnvironment_(), input);
 }
 
+function getRelationshipExplorerData(input) {
+  return kspGetRelationshipExplorerData_(kspCreateRelationshipExplorerEnvironment_(), input);
+}
+
 function updateMeetingAdminCheck(input) {
   return kspUpdateMeetingAdminCheck_(kspCreateActivityAnalyticsEnvironment_(), input);
 }
