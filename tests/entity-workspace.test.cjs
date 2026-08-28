@@ -77,7 +77,7 @@ function rows() {
     Meeting_Index: [
       meeting('MTG-GP-DIRECT', { Date: new Date('2026-08-20T15:00:00.000Z'), Related_Pitchbook_IDs: 'DOC-1', Follow_Up_Required: true, Follow_Up_Note: 'Synthetic note' }),
       meeting('MTG-LP-DIRECT', { Date: '2026-08-21', GP_ID: 'GP-2', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'LP-1', Related_GP_IDs: 'GP-1', Fund_Strategy: 'LP Strategy', Meeting_Type_Codes: 'OFFICE_VISIT', Related_Pitchbook_IDs: 'DOC-1', Team_ID: 'TEAM-AE' }),
-      meeting('MTG-OTHER-RELATED', { Date: '2026-08-22', GP_ID: 'GP-2', Counterparty_Type: 'OTHER', Counterparty_ID: 'OTHER-1', Related_GP_IDs: 'GP-1', Fund_Strategy: 'Related Strategy', Meeting_Type_Codes: '', Related_Pitchbook_IDs: '' }),
+      meeting('MTG-OTHER-RELATED', { Date: '2026-08-22', GP_ID: 'GP-2', Counterparty_Type: 'OTHER', Counterparty_ID: 'OTHER-1', Related_GP_IDs: 'GP-1', Fund_Strategy: 'GP Strategy', Meeting_Type_Codes: '', Related_Pitchbook_IDs: '', Follow_Up_Required: true, Follow_Up_Note: 'Related-only note' }),
       meeting('MTG-GP-SECOND', { Date: '2026-08-23', Counterparty_Type: 'GP', Counterparty_ID: 'GP-1', Related_GP_IDs: 'GP-1', Fund_Strategy: 'GP Strategy', Related_Pitchbook_IDs: 'DOC-2', Status: 'Inactive' })
     ],
     Pitchbook_Index: [
@@ -147,6 +147,7 @@ test('GP mode separates direct and related activity, owns exact Pitchbooks, and 
   assert.equal(edge.relatedPitchbooks[0].documentId, 'DOC-1');
   assert.equal(edge.relatedPitchbooks[0].status, 'Inactive');
   assert.equal(result.summary.relationshipCount, 3);
+  assert.deepEqual(JSON.parse(JSON.stringify(result.followUps.records.map(item => item.meetingId))), ['MTG-OTHER-RELATED', 'MTG-GP-DIRECT']);
   assert.equal(result.readModel.relationshipField, 'Meeting_Index.Related_Pitchbook_IDs');
   assert.equal(JSON.stringify(result).includes('must never escape'), false);
 });
@@ -210,10 +211,9 @@ test('GP Workspace compatibility delegates to the shared Entity Workspace model'
   assert.equal(result.summary.meetingActive, 1);
   assert.deepEqual(JSON.parse(JSON.stringify(result.recentMeetings.map(item => item.meetingId))), ['MTG-GP-SECOND', 'MTG-GP-DIRECT']);
   assert.equal(result.recentMeetings.some(item => item.activityScope === 'related'), false);
-  assert.equal(result.followUps.length, 1);
-  assert.equal(result.relationships.some(item => item.meetingId === 'MTG-LP-DIRECT'), false);
-  assert.equal(result.relationships.some(item => item.meetingId === 'MTG-OTHER-RELATED'), false);
-  assert.equal(result.fundStrategies.some(item => item.text === 'Related Strategy'), false);
+  assert.deepEqual(JSON.parse(JSON.stringify(result.followUps.map(item => item.meetingId))), ['MTG-GP-DIRECT']);
+  assert.deepEqual(JSON.parse(JSON.stringify(result.relationships.map(item => item.meetingId).sort())), ['MTG-GP-DIRECT', 'MTG-GP-SECOND']);
+  assert.equal(result.fundStrategies.find(item => item.text === 'GP Strategy').meetingCount, 2);
   assert.equal(result.fundStrategies.some(item => item.text === 'LP Strategy'), false);
   assert.deepEqual(JSON.parse(JSON.stringify(result.recentPitchbooks.map(item => item.documentId))), ['DOC-2', 'DOC-3']);
   assert.equal(result.relationships.find(item => item.meetingId === 'MTG-GP-DIRECT').pitchbooks[0].documentId, 'DOC-1');
