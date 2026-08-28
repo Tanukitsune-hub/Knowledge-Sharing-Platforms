@@ -14,7 +14,7 @@ STATUS: `READY`
 - purpose: provider-neutral core + OpenAI/Gemini File Search adapters + truthful full-output route + first live qualification;
 - recommended model: `Sol High` — current provider APIs, cross-provider state migration, metadata limits, citation mapping, and live runtime behavior remain materially runtime-dependent;
 - branch: `agent/0020-ai-provider-core`;
-- Draft PR: assigned after initial handoff commits;
+- Draft PR: `#26` — Draft / Open / unmerged;
 - instruction: `docs/handoffs/0020-CODEX-01-ai-provider-core-instruction.md`.
 
 ## Accepted baseline
@@ -29,6 +29,8 @@ STATUS: `READY`
 - provider selection decision: `ChatGPT / Gemini / 全文出力`, no automatic failover.
 
 Only one Codex dispatch may be active.
+
+Exact execution ref is supplied in the ChatGPT dispatch prompt after this activation commit. Codex must not execute from an older ref.
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-01`
