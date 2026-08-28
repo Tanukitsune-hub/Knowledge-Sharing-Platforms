@@ -11,6 +11,7 @@ const clientCore = fs.readFileSync(path.join(root, 'src', 'ClientCore.html'), 'u
 const standalone = fs.readFileSync(path.join(root, 'src', 'KnowledgeSearch.html'), 'utf8');
 const knowledgePage = fs.readFileSync(path.join(root, 'src', 'KnowledgeSearchPage.html'), 'utf8');
 const gpWorkspacePage = fs.readFileSync(path.join(root, 'src', 'GpWorkspacePage.html'), 'utf8');
+const entityWorkspacePage = fs.readFileSync(path.join(root, 'src', 'EntityWorkspacePage.html'), 'utf8');
 const activityAnalyticsPage = fs.readFileSync(path.join(root, 'src', 'ActivityAnalyticsPage.html'), 'utf8');
 const relationshipExplorerPage = fs.readFileSync(path.join(root, 'src', 'RelationshipExplorerPage.html'), 'utf8');
 
@@ -54,6 +55,16 @@ test('Activity Analytics navigation is an integrated same-document page', () => 
   assert.match(clientCore, /'activity-analytics':document\.getElementById\('page-activity-analytics'\)/);
   assert.match(activityAnalyticsPage, /<section id="page-activity-analytics" class="page">/);
   const ids = Array.from(activityAnalyticsPage.matchAll(/\bid="([^"]+)"/g), match => match[1]);
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('Entity Workspace navigation is an integrated same-document read-only page', () => {
+  assert.match(index, /<button id="nav-entity-workspace"[^>]*type="button">Entity Workspace<\/button>/);
+  assert.match(index, /include_\('EntityWorkspacePage'\)/);
+  assert.match(index, /include_\('ClientEntityWorkspace'\)/);
+  assert.match(clientCore, /'entity-workspace':document\.getElementById\('page-entity-workspace'\)/);
+  assert.match(entityWorkspacePage, /<section id="page-entity-workspace" class="page">/);
+  const ids = Array.from(entityWorkspacePage.matchAll(/\bid="([^"]+)"/g), match => match[1]);
   assert.equal(new Set(ids).size, ids.length);
 });
 
@@ -126,6 +137,11 @@ test('showPage switches Knowledge Search, GP Workspace, and Meeting without chan
   assert.equal(node('page-activity-analytics').classList.contains('active'), true);
   assert.equal(node('page-knowledge').classList.contains('active'), false);
   assert.equal(node('nav-activity-analytics').classList.contains('active'), true);
+
+  context.showPage('entity-workspace');
+  assert.equal(node('page-entity-workspace').classList.contains('active'), true);
+  assert.equal(node('page-activity-analytics').classList.contains('active'), false);
+  assert.equal(node('nav-entity-workspace').classList.contains('active'), true);
 
   context.showPage('relationship-explorer');
   assert.equal(node('page-relationship-explorer').classList.contains('active'), true);

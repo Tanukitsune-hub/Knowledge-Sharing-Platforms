@@ -38,7 +38,7 @@ function kspNormalizeGeneratedNameSegment_(value){if(value===null||value===undef
 function kspGetAuditSchema_(){return{Audit_Log:['Event_Timestamp','Actor','Action','Target_Type','Target_ID','Result','Changed_Fields','Before_Metadata_JSON','After_Metadata_JSON','Batch_ID','Error_Code','Error_Message','Search_Mode','Question_Or_Instruction','Date_From','Date_To','GP_Filter','Asset_Class_Filter','Capital_Type_Filter','Source_Type_Filter','Model_ID','Cited_Source_IDs']};}
 `;
   new vm.Script(bootstrap, { filename: 'base-stubs.js' }).runInContext(context);
-  for (const file of ['00_Core.gs', '05_TemporalContracts.gs', '61_PitchbookValidation.gs', '62_PitchbookIdentity.gs', '30_MeetingCore.gs', '100_MaintenanceCore.gs', '110_MaintenanceMeetingService.gs', '111_MaintenancePitchbookMasterService.gs', '112_MaintenanceServiceHelpers.gs', '125_GpWorkspaceService.gs']) {
+  for (const file of ['00_Core.gs', '05_TemporalContracts.gs', '61_PitchbookValidation.gs', '62_PitchbookIdentity.gs', '30_MeetingCore.gs', '100_MaintenanceCore.gs', '110_MaintenanceMeetingService.gs', '111_MaintenancePitchbookMasterService.gs', '112_MaintenanceServiceHelpers.gs', '125_GpWorkspaceService.gs', '128_RelationshipExplorerService.gs', '129_EntityWorkspaceService.gs']) {
     new vm.Script(fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;

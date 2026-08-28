@@ -84,6 +84,10 @@ function getGpWorkspaceData(gpId) {
   return kspGetGpWorkspaceData_(kspCreateGpWorkspaceEnvironment_(), gpId);
 }
 
+function getEntityWorkspaceData(input) {
+  return kspGetEntityWorkspaceData_(kspCreateEntityWorkspaceEnvironment_(), input);
+}
+
 function getMeetingActivityAnalytics(input) {
   return kspGetMeetingActivityAnalytics_(kspCreateActivityAnalyticsEnvironment_(), input);
 }

@@ -17,6 +17,7 @@
         <button id="nav-meeting-past" type="button">過去面談</button>
         <button id="nav-pitchbook-past" type="button">過去資料</button>
         <button id="nav-gp-workspace" type="button">GP Workspace</button>
+        <button id="nav-entity-workspace" type="button">Entity Workspace</button>
         <button id="nav-activity-analytics" type="button">Activity Analytics</button>
         <button id="nav-relationship-explorer" type="button">Relationship Explorer</button>
         <button id="nav-masters" type="button">マスター管理</button>
@@ -72,14 +73,17 @@
 
     <?!= include_('MaintenancePages'); ?>
     <?!= include_('GpWorkspacePage'); ?>
+    <?!= include_('EntityWorkspacePage'); ?>
     <?!= include_('ActivityAnalyticsPage'); ?>
     <?!= include_('RelationshipExplorerPage'); ?>
     <?!= include_('KnowledgeSearchPage'); ?>
     <div id="gp-workspace-print" class="gp-workspace-print print-only" aria-hidden="true"></div>
+    <div id="entity-workspace-print" class="entity-workspace-print print-only" aria-hidden="true"></div>
   </main>
 
 <?!= include_('ClientCore'); ?>
 <?!= include_('ClientGpWorkspace'); ?>
+<?!= include_('ClientEntityWorkspace'); ?>
 <?!= include_('ClientKnowledgeSearch'); ?>
 <script>
 function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,counterpartyType:el('meeting-counterpartyType').value,counterpartyId:el('meeting-counterpartyId').value,relatedGpIds:selectedOptionValues('meeting-relatedGpIds'),assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,teamId:el('meeting-teamId').value,fundStrategy:el('meeting-fundStrategy').value,meetingTypeCodes:meetingTypeValues('meeting'),relatedPitchbookIds:selectedOptionValues('meeting-relatedPitchbookIds'),followUpRequired:el('meeting-followUpRequired').checked,followUpNote:el('meeting-followUpNote').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
