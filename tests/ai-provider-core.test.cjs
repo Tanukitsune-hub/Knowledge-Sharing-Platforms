@@ -110,6 +110,49 @@ test('disabled provider returns its own safe error and never fails over', () => 
   }
 });
 
+test('Gemini first configuration permits a blank Store and keeps generation and embedding models separate', () => {
+  const originalFactory = ksp.kspCreateFeatureFreezeAiEnvironment_;
+  const storeCalls = [];
+  ksp.kspCreateFeatureFreezeAiEnvironment_ = () => {
+    return {
+      ensureFileSearchStore(settings) {
+        storeCalls.push({ storeName: settings.storeName, embeddingModel: settings.embeddingModel });
+        return { name: settings.storeName || 'fileSearchStores/synthetic-store' };
+      }
+    };
+  };
+  try {
+    const settings = ksp.kspNormalizeAiSettings_({
+      GEMINI_ENABLED: 'true',
+      GEMINI_DEFAULT_MODEL: 'gemini-3.7-flash',
+      AI_EMBEDDING_MODEL: 'models/gemini-embedding-2'
+    });
+    const config = plain(ksp.kspBuildAiProviderConfig_(settings, 'GEMINI'));
+    assert.equal(config.enabled, true);
+    assert.equal(config.storeName, '');
+    assert.equal(config.modelId, 'gemini-3.7-flash');
+    assert.equal(config.embeddingModel, 'models/gemini-embedding-2');
+    assert.doesNotThrow(() => ksp.kspProviderConfigurationError_('GEMINI', {
+      ...config, credentialConfigured: true
+    }));
+
+    const environment = ksp.kspCreateProviderNeutralAiEnvironment_();
+    const first = plain(environment.ensureProviderStore('GEMINI', { ...config, credentialConfigured: true }));
+    const second = plain(environment.ensureProviderStore('GEMINI', {
+      ...config, storeName: first.name, credentialConfigured: true
+    }));
+    assert.equal(first.name, 'fileSearchStores/synthetic-store');
+    assert.equal(second.name, first.name);
+    assert.deepEqual(storeCalls, [
+      { storeName: '', embeddingModel: 'models/gemini-embedding-2' },
+      { storeName: 'fileSearchStores/synthetic-store', embeddingModel: 'models/gemini-embedding-2' }
+    ]);
+  } finally {
+    if (originalFactory) ksp.kspCreateFeatureFreezeAiEnvironment_ = originalFactory;
+    else delete ksp.kspCreateFeatureFreezeAiEnvironment_;
+  }
+});
+
 test('provider sync selects each provider independently and indexes both source types', () => {
   const context = baseContext();
   context.settings = {

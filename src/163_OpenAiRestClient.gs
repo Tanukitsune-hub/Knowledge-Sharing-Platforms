@@ -127,6 +127,14 @@ function kspOpenAiUploadSourceLive_(vectorStoreId, source) {
   };
 }
 
+function kspOpenAiCreateVectorStoreLive_(displayName) {
+  var name = kspAiTrim_(displayName);
+  kspAssert_(name, 'OPENAI_VECTOR_STORE_NAME_INVALID', 'ChatGPT Vector Store名が不正です。');
+  var store = kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.VECTOR_STORES_PATH, { name: name });
+  kspAssert_(store && kspAiTrim_(store.id), 'OPENAI_VECTOR_STORE_INVALID', 'ChatGPT Vector Storeを作成できませんでした。');
+  return store;
+}
+
 function kspOpenAiGetVectorStoreLive_(vectorStoreId) {
   var storeId = kspAiTrim_(vectorStoreId);
   kspAssert_(storeId, 'OPENAI_VECTOR_STORE_NOT_CONFIGURED', 'ChatGPT Vector Storeが設定されていません。');

@@ -15,6 +15,14 @@ function searchKnowledge(input) {
   return kspRunProviderKnowledgeSearch_(kspCreateProviderNeutralAiEnvironment_(), route, payload);
 }
 
+function getAiProviderAdminData() {
+  return kspGetAiProviderAdminData_(kspCreateProviderNeutralAiEnvironment_());
+}
+
+function mutateAiProviderSettings(input) {
+  return kspMutateAiProviderSettings_(kspCreateProviderNeutralAiEnvironment_(), input || {});
+}
+
 function askKnowledgeQuestion_(input) {
   var payload = kspDeepClone_(input || {});
   payload.mode = KSP_FEATURE_FREEZE_SEARCH_MODES.FREE_QUESTION;

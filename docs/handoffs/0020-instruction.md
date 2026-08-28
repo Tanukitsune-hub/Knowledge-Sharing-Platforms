@@ -2,8 +2,8 @@
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -110,3 +110,17 @@ BLOCKER: NO
 ```
 
 Completion Latch applies only after ChatGPT final review and merge.
+
+## Current CODEX-04 return
+
+The deterministic gates and the bounded first-run Gemini Store setup passed. The first synthetic Meeting-grounded Gemini retrieval returned `検索サービスを利用できません。` with no answer/citation. The handoff stop rule was applied: Pitchbook retrieval, provider lifecycle checks, and post-failure final integrity were not run; no retry or second production hypothesis was opened.
+
+Current state:
+
+```text
+GEMINI_RUNTIME: FAIL — first Meeting retrieval unavailable
+READY: NO
+BLOCKER: YES
+```
+
+Future OpenAI activation is implemented for a later, deliberate enablement: save `KSP_OPENAI_API_KEY` in Script Properties, then use the administrator-only `OpenAIを有効化` action; no additional coding is intended. OpenAI was not enabled or called in this run.

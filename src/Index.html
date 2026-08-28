@@ -22,6 +22,7 @@
         <button id="nav-relationship-explorer" type="button">Relationship Explorer</button>
         <button id="nav-masters" type="button">マスター管理</button>
         <button id="nav-knowledge" type="button">ナレッジ検索</button>
+        <button id="nav-ai-provider-settings" type="button">AIプロバイダ設定</button>
       </nav>
     </header>
 
@@ -77,6 +78,7 @@
     <?!= include_('ActivityAnalyticsPage'); ?>
     <?!= include_('RelationshipExplorerPage'); ?>
     <?!= include_('KnowledgeSearchPage'); ?>
+    <?!= include_('AiProviderSettingsPage'); ?>
     <div id="gp-workspace-print" class="gp-workspace-print print-only" aria-hidden="true"></div>
     <div id="entity-workspace-print" class="entity-workspace-print print-only" aria-hidden="true"></div>
   </main>
@@ -85,6 +87,7 @@
 <?!= include_('ClientGpWorkspace'); ?>
 <?!= include_('ClientEntityWorkspace'); ?>
 <?!= include_('ClientKnowledgeSearch'); ?>
+<?!= include_('ClientAiProviderSettings'); ?>
 <script>
 function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,counterpartyType:el('meeting-counterpartyType').value,counterpartyId:el('meeting-counterpartyId').value,relatedGpIds:selectedOptionValues('meeting-relatedGpIds'),assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,teamId:el('meeting-teamId').value,fundStrategy:el('meeting-fundStrategy').value,meetingTypeCodes:meetingTypeValues('meeting'),relatedPitchbookIds:selectedOptionValues('meeting-relatedPitchbookIds'),followUpRequired:el('meeting-followUpRequired').checked,followUpNote:el('meeting-followUpNote').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
 function saveMeetingDraft(){const v=meetingValues();const specific={};MEETING_FIELDS.forEach(f=>specific[f]=v[f]);specific.relatedGpIds=v.relatedGpIds;specific.meetingTypeCodes=v.meetingTypeCodes;specific.relatedPitchbookIds=v.relatedPitchbookIds;specific.followUpRequired=v.followUpRequired;writeEnvelope(KSP_MEETING_DRAFT_KEY,specific);writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}

@@ -2,8 +2,8 @@
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Accepted state before CODEX-04
 
@@ -71,7 +71,31 @@ CODEX-04 must:
 - restore `AI_SYNC_ENABLED=false` and keep triggers `0` at completion;
 - keep OpenAI disabled and untouched.
 
-Expected final matrix:
+## CODEX-04 return
+
+Deterministic implementation and validation passed, including the dormant future OpenAI administrator activation path:
+
+- focused provider/admin/public-surface tests `17/17 PASS`;
+- repository validation `265/265 PASS`;
+- temporal validation and `git diff --check` PASS;
+- public facade `30`, including the two intentional administrator-surface calls;
+- exact source synchronization/readback and one in-place private Web App update completed;
+- Gemini was displayed as configured and one isolated Store was created once;
+- OpenAI remained disabled/unconfigured and was not called.
+
+The first synthetic Meeting-grounded Gemini search returned the safe Web App error `検索サービスを利用できません。` without an answer or citation. Per the handoff stop rule, no Pitchbook search, lifecycle mutation, retry, or post-failure final integrity qualification was performed.
+
+```text
+GEMINI_RUNTIME: FAIL — first Meeting retrieval unavailable
+READY: NO
+BLOCKER: YES
+```
+
+Detailed report:
+
+`docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-report.md`
+
+Expected final matrix after the bounded Gemini failure is resolved:
 
 ```text
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user

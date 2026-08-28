@@ -23,6 +23,8 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
   'getEntityWorkspaceData',
   'getKnowledgeSearchBootstrapData',
   'searchKnowledge',
+  'getAiProviderAdminData',
+  'mutateAiProviderSettings',
   'previewKnowledgeExport',
   'createKnowledgeExport',
   'getKnowledgeExportPrompt',

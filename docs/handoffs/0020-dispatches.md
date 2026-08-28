@@ -2,12 +2,12 @@
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0020-CODEX-04 — READY
+### 0020-CODEX-04 — RETURNED / BLOCKER
 
 - mode: `BUILD / QUALIFICATION`;
 - route: `C`;
@@ -18,6 +18,11 @@ STATUS: `READY`
 - instruction: `docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-instruction.md`;
 - user secret-entry boundary: Gemini API key is entered directly by the user into Apps Script Script Properties as `KSP_GEMINI_API_KEY`; never copy it into chat/GitHub/report;
 - OpenAI: deliberately deferred; keep disabled and do not request/create/configure an OpenAI key.
+- deterministic gates and first-run Store creation: PASS;
+- first synthetic Meeting-grounded Gemini retrieval: FAIL — Web App returned `検索サービスを利用できません。` without an answer/citation;
+- Pitchbook retrieval and remaining provider lifecycle checks: NOT RUN under the bounded stop rule;
+- report: `docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-report.md`;
+- current ball: `CHATGPT`; blocker requires a new bounded decision before further live attempts.
 
 ## Accepted dispatch
 

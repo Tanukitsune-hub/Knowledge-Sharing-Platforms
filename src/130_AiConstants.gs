@@ -45,6 +45,8 @@ var KSP_AI_DEFAULTS = Object.freeze({
   RETRY_MAX_MINUTES: 240,
   EMBEDDING_MODEL: 'models/gemini-embedding-2',
   STORE_DISPLAY_NAME: 'Private Assets Knowledge',
+  OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+  OPENAI_STORE_DISPLAY_NAME: 'Private Assets Knowledge - OpenAI',
   MAX_QUESTION_LENGTH: 5000,
   MAX_OPERATION_POLLS: 8,
   OPERATION_POLL_MILLIS: 1500,

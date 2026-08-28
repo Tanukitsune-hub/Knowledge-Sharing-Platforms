@@ -41,7 +41,7 @@ function loadAi() {
     '00_Core.gs','05_TemporalContracts.gs','30_MeetingCore.gs','130_AiConstants.gs','131_AiFileSearchContracts.gs','132_AiKnowledgeContracts.gs','133_AiRetryContracts.gs','161_GeminiRestClient.gs','163_OpenAiRestClient.gs','164_AiProviderCore.gs',
     '140_AiSourceModels.gs','141_AiSyncHelpers.gs','142_AiSyncWorker.gs',
     '150_KnowledgeSearchModels.gs','151_KnowledgeSearchService.gs',
-    '180_FeatureFreezeFormats.gs','181_FeatureFreezeSync.gs','182_FeatureFreezeKnowledge.gs','190_FeatureFreezeDiagnostics.gs','170_AiEntryPoints.gs'
+    '180_FeatureFreezeFormats.gs','181_FeatureFreezeSync.gs','182_FeatureFreezeKnowledge.gs','190_FeatureFreezeDiagnostics.gs','165_AiProviderAdmin.gs','170_AiEntryPoints.gs'
   ]) {
     new vm.Script(fs.readFileSync(path.join(root,'src',file),'utf8'), { filename:file }).runInContext(context);
   }

@@ -198,6 +198,7 @@ function kspBuildAiProviderConfig_(settings, provider) {
     enabled: Boolean(source.geminiEnabled),
     storeName: kspAiTrim_(source.geminiStoreName || source.storeName),
     modelId: kspAiTrim_(source.geminiModelId || source.modelId),
+    embeddingModel: kspAiTrim_(source.embeddingModel || KSP_AI_DEFAULTS.EMBEDDING_MODEL),
     credentialConfigured: false
   };
 }
@@ -367,8 +368,26 @@ function kspCreateProviderNeutralAiEnvironment_() {
     }
     return base.ensureFileSearchStore({
       storeName: config.storeName,
-      embeddingModel: kspAiTrim_(config.modelId)
+      embeddingModel: kspAiTrim_(config.embeddingModel || KSP_AI_DEFAULTS.EMBEDDING_MODEL)
     }, KSP_AI_DEFAULTS.STORE_DISPLAY_NAME);
+  };
+  base.isOpenAiCredentialConfigured = function () {
+    try {
+      kspOpenAiApiKeyLive_();
+      return true;
+    } catch (ignored) {
+      return false;
+    }
+  };
+  base.createOpenAiVectorStore = function (displayName) {
+    return kspOpenAiCreateVectorStoreLive_(displayName);
+  };
+  base.getOpenAiVectorStore = function (vectorStoreId) {
+    return kspOpenAiGetVectorStoreLive_(vectorStoreId);
+  };
+  base.writeAiSetting = function (key, value, nowIso) {
+    var context = base.loadAiContext();
+    return kspWriteSettingLive_(context.backendSpreadsheetId, key, String(value), nowIso || base.nowIso());
   };
   base.uploadProviderSource = function (provider, config, source) {
     return provider === KSP_AI_PROVIDERS.OPENAI
@@ -424,7 +443,7 @@ function kspProviderConfigurationError_(provider, config) {
     openai.provider = provider;
     throw openai;
   }
-  if (provider === KSP_AI_PROVIDERS.GEMINI && (!config.storeName || !config.modelId || config.credentialConfigured === false)) {
+  if (provider === KSP_AI_PROVIDERS.GEMINI && (!config.modelId || config.credentialConfigured === false)) {
     var gemini = new Error('GEMINI provider is not configured.');
     gemini.code = 'GEMINI_NOT_CONFIGURED';
     gemini.provider = provider;
@@ -579,14 +598,17 @@ function kspBuildProviderSyncReport_(startedAt, settings) {
   };
 }
 
-function kspRunProviderNeutralAiSync_(environment) {
+function kspRunProviderNeutralAiSync_(environment, options) {
+  var syncOptions = options || {};
+  var force = Boolean(syncOptions.force);
   var startedAt = environment.nowIso();
   var context = environment.loadAiContext();
   if (environment.ensureAiSettings) environment.ensureAiSettings(kspGetAiSettingSeedRows_(startedAt));
   context = environment.loadAiContext();
   var settings = kspNormalizeAiSettings_(context.settings);
   var report = kspBuildProviderSyncReport_(startedAt, settings);
-  if (!settings.syncEnabled) { report.finishedAt = environment.nowIso(); return report; }
+  report.forced = force;
+  if (!settings.syncEnabled && !force) { report.finishedAt = environment.nowIso(); return report; }
   var providerList = [KSP_AI_PROVIDERS.OPENAI, KSP_AI_PROVIDERS.GEMINI];
   providerList.forEach(function (provider) {
     var config = typeof environment.getProviderConfig === 'function'
