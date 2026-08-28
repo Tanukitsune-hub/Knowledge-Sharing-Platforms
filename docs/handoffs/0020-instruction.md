@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-03`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `ACTION_REQUIRED`
 MODE: `BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -45,14 +45,14 @@ ChatGPT / Gemini File Search
 
 ## Active completion blockers
 
-1. close three bounded full-output correctness findings:
-   - visible preview must display the exact canonical package used by Copy/Docs/PDF;
-   - zero matching Meetings must hard-stop FULL_EXPORT;
-   - reference Pitchbooks must receive metadata/link identity validation without body/byte reads;
-2. align the isolated synthetic Backend from schema `5` to `6` through the explicitly authorized bounded direct data-plane route when private setup is unavailable;
-3. qualify FULL_OUTPUT in target runtime;
-4. live-qualify every enabled File Search provider and prove safe errors/no failover for disabled providers;
-5. complete final integrity.
+1. configure and authorize at least one isolated File Search provider for live
+   Meeting and Pitchbook retrieval/citation qualification.
+
+CODEX-03 completed the three full-output corrections, schema-6 alignment,
+FULL_OUTPUT target-runtime qualification, both disabled-provider/no-failover
+checks, and final integrity. The detailed execution report is:
+
+`docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-report.md`
 
 ## Closed contracts
 
@@ -70,5 +70,15 @@ ChatGPT / Gemini File Search
 ## Completion
 
 A deliberately disabled provider is acceptable only when its safe-error/no-failover path passes and at least one other File Search provider live-passes. FULL_OUTPUT must pass.
+
+Current bounded result: FULL_OUTPUT and both disabled-provider safe-error paths
+PASS, but neither provider is enabled/configured. Therefore the current Work
+state is:
+
+```text
+ACTION_REQUIRED — AT_LEAST_ONE_FILE_SEARCH_PROVIDER_CONFIGURATION
+READY: NO
+BLOCKER: YES
+```
 
 Completion Latch applies only after ChatGPT final review and merge.

@@ -2,20 +2,24 @@
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `NONE`
+STATUS: `COMPLETE / ACTION_REQUIRED`
 
 ## Active dispatch
 
-### 0020-CODEX-03 — READY
+### 0020-CODEX-03 — COMPLETE / ACTION_REQUIRED
 
 - mode: `BUILD / QUALIFICATION`;
 - route: `C`;
-- purpose: close three bounded full-output correctness findings, perform authorized direct schema-6 alignment, and finish the enabled-provider/FULL_OUTPUT runtime campaign;
+- purpose: close three bounded full-output correctness findings, perform authorized direct schema-6 alignment, and finish all possible FULL_OUTPUT/provider-matrix runtime work;
 - recommended model: `Sol High`;
 - branch: `agent/0020-ai-provider-core`;
 - Draft PR: `#26` — Draft / Open / unmerged;
 - instruction: `docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-instruction.md`;
+- result: FULL_OUTPUT and disabled-provider/no-failover checks PASS; no provider is enabled/configured;
+- blocker: `ACTION_REQUIRED — AT_LEAST_ONE_FILE_SEARCH_PROVIDER_CONFIGURATION`;
+- Apps Script version: `42`;
+- final integrity: PASS;
 - exact execution ref: supplied by ChatGPT after this activation commit.
 
 ## Returned dispatch
@@ -49,9 +53,9 @@ ChatGPT / Gemini File Search → Meeting + Pitchbook/source materials
 ## Closed baseline
 
 - Work 0019 accepted/merged;
-- private Web App currently version `41`;
-- Backend exactly five sheets/schema `5` before CODEX-03;
-- Audit baseline at Work 0019 completion: `64`;
+- private Web App currently version `42`;
+- Backend exactly five sheets/schema `6` after CODEX-03;
+- Audit baseline at Work 0019 completion: `64`; post-runtime readback: `69`;
 - no recurring trigger;
 - no automatic provider failover;
 - only one active Codex dispatch.
