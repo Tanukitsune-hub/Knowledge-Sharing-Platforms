@@ -2,33 +2,10 @@
 
 WORK_ID: `0018`
 DISPATCH_ID: `0018-CODEX-01`
-BALL: `CODEX`
-STATUS: `COMPLETE`
+BALL: `NONE`
+STATUS: `ACCEPTED / MERGED / COMPLETE`
 
-## Current result
-
-Work 0018 is complete and qualification-latched.
-
-Primary outcome:
-
-- one read-only Relationship Explorer page;
-- explicit Meeting -> Pitchbook resolution;
-- Pitchbook -> Meeting reverse lookup;
-- stable-ID-only relationship semantics;
-- Inactive/unresolved visibility;
-- exact filters/counts with bounded UI payloads;
-- no application-data mutation;
-- same private Web App updated in place to version `38`.
-
-Accepted baseline:
-
-- Backend exactly five sheets, schema 5;
-- public facade 27;
-- private Web App version 38;
-- Work 0016 / 0022 / 0017 accepted and merged;
-- canonical relation is `Meeting_Index.Related_Pitchbook_IDs`.
-
-Completed classification:
+## Final classification
 
 ```text
 DEV QUALIFIED — WORK 0018 RELATIONSHIP EXPLORER
@@ -40,13 +17,24 @@ READY: YES
 BLOCKER: NO
 ```
 
-Evidence: `docs/handoffs/0018-CODEX-01-relationship-explorer-report.md`.
+PR `#24` was accepted and merged after ChatGPT final review.
 
-Deterministic validation is `238/238 PASS`, focused Relationship Explorer
-coverage is `11/11 PASS`, the public facade is `27 public / 461 private`, and
-the exact tested source readback passed. Runtime qualification proved forward
-and reverse explicit-ID traversal and exact filtering using existing synthetic
-DEV records. Backend schema 5 and five sheets, Meeting/Pitchbook data, Audit,
-Script Properties, AI-disabled state, and zero triggers remained unchanged.
+- final implementation head: `b757e4e1c75eb541f594dc685ae3837c0842b579`;
+- merge commit: `3a7a176f2733011fd273a9134d3e11a620bc4616`;
+- deterministic validation: `238/238 PASS`;
+- focused Relationship Explorer/UI/navigation: `11/11 PASS`;
+- public facade: `27`;
+- exact tested source readback: `70/70`;
+- existing private Web App version: `38`;
+- Backend: exactly five sheets, schema `5`;
+- application data, Audit, Script Properties, triggers, AI state, permissions, and Library deployments: unchanged.
 
-No production readiness is claimed.
+Target-runtime evidence proved explicit Meeting -> Pitchbook resolution and Pitchbook -> Meeting reverse lookup from `Meeting_Index.Related_Pitchbook_IDs`, including one-to-many reverse behavior, distinct Meeting Counterparty versus Pitchbook GP, exact Date/Counterparty Type/Pitchbook GP filters, and exact counts. No runtime Inactive or unresolved fixture existed, so those states remain accepted from deterministic regression evidence without mutating authoritative data.
+
+Detailed evidence:
+
+`docs/handoffs/0018-CODEX-01-relationship-explorer-report.md`
+
+Completion Latch: `APPLIED`.
+
+Residual Shared Drive-specific and billing-enabled Gemini/File Search qualification remain later external gaps and do not block Work 0018.
