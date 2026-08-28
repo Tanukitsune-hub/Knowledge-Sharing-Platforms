@@ -57,7 +57,7 @@ function kspBuildKnowledgeExportIndexPreview_(input, sources, catalog) {
     warningReasons: limits.warningReasons,
     hardStop: limits.hardStop,
     hardStopReasons: limits.hardStopReasons,
-    noResults: sourceIds.length === 0 && counts.meetingCount + counts.pitchbookCount === 0,
+    noResults: counts.meetingCount === 0,
     sourceIds: sourceIds,
     sourceIdCount: (sources || []).length,
     previewFingerprint: kspBuildKnowledgeExportFingerprint_(sources, input, catalog)
@@ -117,9 +117,25 @@ function kspMaterializeKnowledgeExportSources_(environment, sources, budget) {
         throw kspKnowledgeExportSourceError_('KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH', source.sourceId,
           'PitchbookのDriveリンクと安定IDが一致しません。');
       }
-      // FULL_EXPORT is deliberately reference-only for Pitchbooks. The authoritative
-      // Index row already supplies the stable file ID and URL, so this path must not
-      // call Drive metadata/media adapters or inspect source bytes.
+      var metadata;
+      try {
+        kspAssert_(typeof environment.getDriveFileMetadata === 'function',
+          'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID', 'PitchbookのDriveメタデータを確認できません。');
+        metadata = environment.getDriveFileMetadata(fileId);
+      } catch (error) {
+        throw kspKnowledgeExportSourceError_('KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID', source.sourceId,
+          'PitchbookのDriveメタデータを確認できません。');
+      }
+      var metadataMimeType = String(metadata && metadata.mimeType || '');
+      if (!metadata || String(metadata.id || '') !== fileId || !metadataMimeType || metadata.trashed === true ||
+          metadataMimeType === 'application/vnd.google-apps.folder' ||
+          (metadata.webViewLink && !kspKnowledgeExportUrlMatchesId_(metadata.webViewLink, fileId))) {
+        throw kspKnowledgeExportSourceError_('KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID', source.sourceId,
+          'PitchbookのDriveメタデータを確認できません。');
+      }
+      // FULL_EXPORT is deliberately reference-only for Pitchbooks. Metadata above
+      // confirms the authoritative file identity and boundary; this path must not
+      // inspect source text, media, Blob, or bytes.
       source.canonicalUrl = kspBuildKnowledgeExportCanonicalUrl_(KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.PITCHBOOK, fileId);
       source.referenceOnly = true;
       pitchbooks.push({ source: source });
@@ -163,14 +179,12 @@ function kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials,
     warningReasons: limits.warningReasons,
     hardStop: limits.hardStop,
     hardStopReasons: limits.hardStopReasons,
-    noResults: (sources || []).length === 0,
+    noResults: counts.meetingCount === 0,
     sourceIds: sourceIds,
     sourceIdCount: (sources || []).length,
     previewFingerprint: previewFingerprint,
     packageFingerprint: previewFingerprint,
     packageText: packageText,
-    meetingPreviewText: (materials.meetings || []).map(function (item) { return item.body; }).join('\n\n'),
-    pitchbookReferenceLines: (renderModel.pitchbookLines || []).slice(),
     pitchbookReferencesOnly: true
   };
 }

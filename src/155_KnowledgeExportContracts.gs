@@ -234,6 +234,7 @@ function kspKnowledgeExportSafeMessage_(code, error) {
     KNOWLEDGE_EXPORT_PITCHBOOK_FILE_MISSING: 'Pitchbook原本を確認できません。',
     KNOWLEDGE_EXPORT_PITCHBOOK_URL_MISSING: 'Pitchbookの権威あるDriveリンクを確認できません。',
     KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH: 'Pitchbook原本のリンク整合性を確認できません。',
+    KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID: 'PitchbookのDriveメタデータを確認できません。',
     KNOWLEDGE_EXPORT_PITCHBOOK_FILE_READ_FAILED: 'Pitchbook原本を確認できません。',
     KNOWLEDGE_EXPORT_RATE_LIMITED: '処理が集中しています。少し待って再試行してください。',
     KNOWLEDGE_EXPORTS_FOLDER_MISSING: 'Knowledge Exportsフォルダが設定されていません。',
