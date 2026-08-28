@@ -25,7 +25,6 @@ function kspGpWorkspaceSafeLink_(value, fileId) {
 
 function kspGpWorkspaceCompatibility_(data) {
   var direct = data.meetings.direct;
-  var related = data.meetings.related;
   var allMeetings = data.meetings.all;
   var selectedPitchbooks = data.pitchbooks;
   var fundStrategies = data.fundStrategies.records || [];
@@ -37,7 +36,7 @@ function kspGpWorkspaceCompatibility_(data) {
       status: data.entity.status
     },
     summary: {
-      meetingTotal: direct.totalCount + related.totalCount,
+      meetingTotal: direct.totalCount,
       meetingActive: data.summary.activeMeetingCount,
       pitchbookTotal: selectedPitchbooks.totalCount,
       pitchbookActive: data.summary.pitchbookActiveCount,
@@ -85,7 +84,7 @@ function kspBuildGpWorkspaceData_(gpId, gpRows, optionRows, meetingRows, pitchbo
   kspAssert_(matches.length === 1, 'GP_WORKSPACE_GP_NOT_FOUND', '指定されたGPがありません。');
   return kspGpWorkspaceCompatibility_(kspBuildEntityWorkspaceData_({
     entityKey: 'GP:' + normalizedGpId
-  }, gpRows, optionRows, meetingRows, pitchbookRows));
+  }, gpRows, optionRows, meetingRows, pitchbookRows, { meetingScope: 'direct' }));
 }
 
 function kspGetGpWorkspaceData_(environment, gpId) {

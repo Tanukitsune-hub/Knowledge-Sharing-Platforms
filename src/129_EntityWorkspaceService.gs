@@ -361,8 +361,9 @@ function kspEntityWorkspaceRelatedGps_(meetings, gpRows) {
   return Object.keys(seen).sort().map(function (id) { return seen[id]; });
 }
 
-function kspBuildEntityWorkspaceData_(rawInput, gpRows, optionRows, meetingRows, pitchbookRows) {
+function kspBuildEntityWorkspaceData_(rawInput, gpRows, optionRows, meetingRows, pitchbookRows, workspaceOptions) {
   var input = kspEntityWorkspaceNormalizeInput_(rawInput);
+  var meetingScope = workspaceOptions && workspaceOptions.meetingScope === 'direct' ? 'direct' : 'all';
   var maps = kspRelationshipBuildMaps_(gpRows || [], optionRows || []);
   var catalog = kspEntityWorkspaceBuildCatalog_(gpRows || [], optionRows || [], meetingRows || [], maps);
   var baseResponse = {
@@ -387,7 +388,8 @@ function kspBuildEntityWorkspaceData_(rawInput, gpRows, optionRows, meetingRows,
   var relatedMeetings = entity.type === 'GP' ? allMeetings.filter(function (meeting) {
     return meeting.counterpartyEntityKey !== input.entityKey && meeting.relatedGpIds.indexOf(entity.id) !== -1;
   }).map(function (meeting) { return kspEntityWorkspaceScopeMeeting_(meeting, 'related'); }) : [];
-  var visibleMeetings = directMeetings.concat(relatedMeetings).sort(kspEntityWorkspaceSortMeeting_);
+  var visibleMeetings = (meetingScope === 'direct' ? directMeetings.slice() : directMeetings.concat(relatedMeetings))
+    .sort(kspEntityWorkspaceSortMeeting_);
   var directMeetingIds = {};
   directMeetings.forEach(function (meeting) { directMeetingIds[meeting.meetingId] = true; });
 
