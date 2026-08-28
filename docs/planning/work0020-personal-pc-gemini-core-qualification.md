@@ -1,8 +1,8 @@
-# Work 0020 — AI Provider Core, dual File Search, and full output
+# Work 0020 — AI Provider Core, dual File Search, and Meeting full output
 
 WORK_ID: `0020`
 
-Status: Current after accepted Work 0019
+Status: Active after Work 0019
 
 Mode: `BUILD / QUALIFICATION` with bounded repair allowed
 
@@ -16,7 +16,7 @@ Provider-neutral architecture:
 
 ## Primary outcome
 
-Deliver and qualify one provider-neutral Knowledge Search core in the current private/personal-PC environment with exactly three user-facing routes:
+Deliver and qualify one provider-neutral Knowledge Search core with exactly three user-facing routes:
 
 ```text
 ChatGPT
@@ -24,43 +24,146 @@ Gemini
 全文出力
 ```
 
-- ChatGPT uses OpenAI File Search;
-- Gemini uses Gemini File Search;
-- 全文出力 calls no AI API and produces one canonical full-text package for Copy / Google Docs / PDF.
+- ChatGPT uses OpenAI File Search over Meeting + Pitchbook/source materials;
+- Gemini uses Gemini File Search over Meeting + Pitchbook/source materials;
+- 全文出力 calls no AI API and exports authoritative Meeting Google Docs text only, with optional Pitchbook reference links.
 
-Do not split provider foundation, full-output UX, schema/state migration, and first live File Search qualification into separate Works.
+Do not split provider foundation, full-output UX, and first live File Search qualification into separate Works.
 
-## Current official API preflight — 2026-08-28
+## Closed product boundary
 
-The implementation must re-check official docs at execution time, but the current observed contracts are:
+The source scopes intentionally differ:
 
-### OpenAI
+```text
+ChatGPT / Gemini File Search
+  -> Meeting + Pitchbook/source materials
 
-- Responses API uses the `file_search` tool with `vector_store_ids`;
-- files are attached to Vector Stores and become queryable when vector-store file status is `completed`;
-- file-search filters operate on Vector Store file attributes;
-- supported comparison operators include exact/in-style filters;
-- response message annotations expose `file_citation` with provider file identity/filename;
-- Vector Store file attributes are limited to **16 key-value pairs per file**;
-- first-slice safe native formats include `.txt` and `.pdf`; `.docx` and `.pptx` are also supported, while `.xlsx` is not in the current OpenAI File Search supported-format list.
+全文出力
+  -> Meeting Google Docs full text only
+  -> optional matching Pitchbook reference list + Drive links
+```
 
-### Gemini
+Pitchbook body/file text is not copied into FULL_EXPORT. The six-format expansion in Work 0021 applies to provider File Search, not manual full output.
 
-- Interactions API uses a `file_search` tool with `file_search_store_names`;
-- File Search Store documents persist until deleted; temporary Files API uploads have separate retention behavior;
-- custom metadata supports provider-native `metadata_filter`;
-- `file_citation` annotations can include custom metadata and page information where available;
-- current File Search model support includes Flash-family models;
-- current supported formats include PDF, Office Word/PowerPoint/Excel MIME types and text formats;
-- current per-document limit is 100 MB.
+## Current-API preflight
 
-Do not hard-code a model solely because it appears in an example. Use one approved/current supported model per enabled provider and keep model choice administrator-side.
+At Work start, verify current official OpenAI and Gemini documentation for File Search request/response shape, model support, Store identity, metadata filters, citation shape, supported core formats, pricing/retention/rate limits, and credential/project requirements.
 
-## Metadata budget and source resolution
+Current preflight already establishes:
 
-OpenAI's 16-attribute cap is a hard design constraint. Therefore provider File Search metadata is intentionally compact and stable-ID-first.
+- OpenAI: Responses API `file_search` + Vector Stores + file attributes/filter + `file_citation`;
+- OpenAI Vector Store file attributes are limited to 16, so provider metadata must be compact and stable-ID-first;
+- Gemini: Interactions/File Search Store path with custom metadata/`metadata_filter` + file citations.
 
-Core provider metadata should normally remain within this set:
+Existing repository request contracts are evidence, not presumed current truth.
+
+## Target/runtime boundary
+
+- current private Apps Script project and existing private Web App;
+- personal Google environment only;
+- synthetic/non-confidential Meeting and Pitchbook/source records;
+- isolated OpenAI/Gemini test Stores where enabled;
+- server-side credentials outside GitHub/browser/Audit/user-visible Sheets;
+- bounded billing-enabled calls only;
+- no company Shared Drive/confidential data/production users/recurring trigger.
+
+## 1. Provider-neutral contracts
+
+### Canonical AI Source
+
+Reuse one authoritative source model for both Meeting and Pitchbook/source materials. Provider adapters must not rebuild identity or semantic metadata independently.
+
+### Canonical Knowledge Request
+
+```text
+route: OPENAI | GEMINI | FULL_EXPORT
+mode
+question_or_instruction
+structured filters
+selected entities
+source scope
+request fingerprint
+```
+
+### Canonical Meeting Knowledge Package
+
+FULL_EXPORT builds one deterministic package from matching Meeting Google Docs only.
+
+The package includes:
+
+```text
+mode/instruction
+filter/scope summary
+Meeting full-text count
+Meeting character count
+Meeting stable IDs/metadata/Drive links
+Meeting Google Docs body text
+optional reference Pitchbook metadata/Drive links
+package fingerprint
+```
+
+Pitchbook body/file text is intentionally excluded.
+
+Copy / Google Docs / PDF must consume exactly this same package/fingerprint.
+
+### Normalized result/citation
+
+OpenAI/Gemini normalize to one UI contract:
+
+```text
+provider
+answer
+citations[]
+source_type
+source_id
+display_name
+drive_url
+safe evidence location where available
+```
+
+Citation authority is stable `source_id`, not provider filename alone.
+
+## 2. Explicit route selection
+
+UI displays exactly:
+
+```text
+ChatGPT | Gemini | 全文出力
+```
+
+No Auto and no cross-provider failover.
+
+- OpenAI unavailable/disabled -> ChatGPT-specific safe error and zero Gemini call;
+- Gemini unavailable/disabled -> Gemini-specific safe error and zero OpenAI call;
+- model names remain admin settings.
+
+## 3. Provider adapters
+
+Private equivalent adapters for `OPENAI` and `GEMINI` own only provider-specific capability/config readback, Store create/read, source upsert/remove, polling, metadata-filter translation, grounded query, citation normalization, retry/error classification, and cleanup/rebuild.
+
+Both adapters must support Meeting and Pitchbook/source indexing in the core slice.
+
+## 4. Independent provider state / schema
+
+OpenAI and Gemini derived states must be independently stored/read.
+
+Work 0020 increments schema exactly once:
+
+```text
+5 -> 6
+```
+
+Append `AI_Provider_State_JSON` to both `Meeting_Index` and `Pitchbook_Index`. Keep exactly five Backend sheets.
+
+Preferred provider-state object keyed by `OPENAI` and `GEMINI` contains provider document/store reference, `NotIndexed / Pending / Indexed / Failed`, indexed_at, content_hash, and safe last error.
+
+When the new state is blank, migrate compatible existing legacy Gemini-oriented AI state into `GEMINI` only. Preserve legacy `AI_*` fields; no destructive rewrite.
+
+## 5. Compact provider metadata
+
+OpenAI metadata projection must remain within the current 16-attribute file limit.
+
+Use stable-ID-first fields such as:
 
 ```text
 source_type
@@ -76,297 +179,111 @@ fund_strategy
 follow_up_required
 ```
 
-Do not spend provider metadata slots on display names, Drive URLs, filenames, content hashes, or duplicated human-readable labels when those can be resolved from authoritative Backend rows using `source_id`.
+Do not spend provider metadata slots on display names, Drive URLs, filenames, content hashes, or duplicate human-readable labels. Resolve those from Backend after citation using stable source ID.
 
-Canonical AI Source may contain richer metadata internally, but the provider-index projection is a smaller contract.
-
-Work 0021 may implement complex filters such as Related GP / Meeting Type by first resolving exact stable source IDs from Backend and then using bounded provider-native source-ID filtering/retrieval. Do not encode comma-separated lists and treat substring matching as exact metadata filtering.
-
-## Target/runtime boundary
-
-- current private Apps Script project and same existing private Web App;
-- personal Google environment only;
-- synthetic/non-confidential sources;
-- isolated OpenAI and Gemini test Stores where enabled;
-- credentials server-side only, outside GitHub/browser/Audit/user-visible Sheets/export bodies;
-- bounded billing-enabled calls only;
-- no company Shared Drive, confidential data, production users, or recurring trigger.
-
-## Schema and provider state
-
-Work 0020 increments Backend schema exactly once from `5` to `6`.
-
-Append exactly one provider-state column to both `Meeting_Index` and `Pitchbook_Index`:
-
-```text
-AI_Provider_State_JSON
-```
-
-Keep exactly five Backend sheets.
-
-The field is a validated/versioned object keyed by:
-
-```text
-OPENAI
-GEMINI
-```
-
-Each provider state may contain only safe derived state such as:
-
-```text
-status: NotIndexed | Pending | Indexed | Failed
-document_ref
-indexed_at
-content_hash
-safe_last_error
-```
-
-Existing legacy Gemini-oriented `AI_*` columns remain preserved. When provider state is blank, migrate compatible legacy state into the `GEMINI` entry without changing authoritative source IDs/files. Do not bulk-delete or destructively rewrite legacy fields.
-
-OpenAI and Gemini states are independent. A single ambiguous index status/document reference may not represent both providers.
-
-## Provider settings and credentials
-
-Server-side/provider configuration distinguishes at least:
-
-```text
-OPENAI_ENABLED
-OPENAI_VECTOR_STORE_ID
-OPENAI_DEFAULT_MODEL
-GEMINI_ENABLED
-GEMINI_FILE_SEARCH_STORE_NAME
-GEMINI_DEFAULT_MODEL
-AI_SYNC_ENABLED
-```
-
-Use existing Settings/Script Property conventions where safe. Store secrets only in the established server-side secret boundary and never expose secret values in reports, logs, PRs, browser responses, Sheets, Audit, or chat.
-
-No automatic provider failover.
-
-## Provider-neutral contracts
-
-Implement or consolidate one shared set of contracts:
-
-### Canonical AI Source
-
-Authoritative source identity, body representation, and rich semantic metadata. Provider adapters consume this; they do not independently decide what a Meeting/Pitchbook means.
-
-### Canonical Knowledge Request
-
-```text
-route: OPENAI | GEMINI | FULL_EXPORT
-mode
-question_or_instruction
-structured filters
-selected entities
-source scope
-request fingerprint
-```
-
-### Provider index projection
-
-Maps Canonical AI Source to the compact metadata budget and provider upload representation.
-
-### Canonical Knowledge Package
-
-One deterministic full-text package feeding:
-
-```text
-コピー
-Google Docs
-PDF
-```
-
-All three outputs share identical package text and fingerprint.
-
-### Normalized result/citation
-
-```text
-provider
-answer
-citations[]
-source_type
-source_id
-display_name
-drive_url
-safe evidence location where available
-```
-
-Provider citation IDs must be mapped back to stable authoritative source IDs before rendering.
-
-## Full-output semantic contract
-
-`全文出力` means full text, not metadata-only handoff.
-
-- Meeting includes authoritative Google Doc body text;
-- a Pitchbook/source is counted as fully included only when its full readable text can be deterministically extracted for this route;
-- do not silently substitute Pitchbook metadata + Drive link and still label the result `全文出力`;
-- if selected sources include a format whose body cannot yet be fully extracted in Work 0020, return a clear blocking/unsupported-format state rather than a partial package presented as complete;
-- Work 0020 must qualify at least one Meeting plus one fully extractable Pitchbook/source (prefer `.txt`; bounded PDF is acceptable if extraction is already production-safe);
-- Work 0021 expands full-output extraction to the accepted six-format matrix.
-
-## Full-output UX
-
-Do not use a popup/modal.
+## 6. Full-output UX
 
 When `全文出力` is selected:
 
-1. resolve target scope;
-2. build the canonical package once;
-3. show source count, Meeting/Pitchbook split, approximate character count, and active scope summary;
-4. place these buttons above the body:
-   - `コピー`;
-   - `Google Docs`;
-   - `PDF`;
-5. show status/error directly below the buttons;
-6. place the full-text preview at the bottom of the section/page;
-7. use a fixed/bounded height with internal scrolling;
-8. allow Copy/Docs/PDF without scrolling through or reading the body;
-9. prove Copy/Docs/PDF consume the exact same package/fingerprint;
-10. do not create a popup, alternate hidden package body, or AI provider call.
+1. resolve matching authoritative Meetings;
+2. independently resolve matching Pitchbooks only for optional reference listing;
+3. show Meeting full-text count and Meeting character count;
+4. show reference Pitchbook count separately when nonzero;
+5. place buttons above body: `コピー / Google Docs / PDF`;
+6. show status/error immediately below buttons;
+7. place Meeting full-text preview at the bottom;
+8. use fixed/bounded height + internal scrolling;
+9. users may export without inspecting the body;
+10. Copy/Docs/PDF use identical package string/fingerprint;
+11. no popup/modal;
+12. zero OpenAI/Gemini API call;
+13. do not read Pitchbook bytes or extract Pitchbook text for FULL_EXPORT.
 
-Reuse existing Knowledge Export source guards, preview fingerprint, Docs/PDF creation, and safe links only where they remain semantically correct.
+Helper text should explicitly say that Pitchbook body is not included and matching Pitchbooks are references only.
 
-## Provider adapters
+## 7. Shortest File Search qualification slice
 
-Create equivalent private adapters for:
-
-```text
-OPENAI
-GEMINI
-```
-
-Each adapter owns only provider-specific behavior:
-
-- capability/config readback;
-- isolated Store create/read;
-- source upsert and exact-ID removal;
-- operation/status polling;
-- compact metadata projection/translation;
-- grounded File Search query;
-- citation normalization;
-- retryable/permanent error classification;
-- cleanup/rebuild.
-
-Normal-user UI, route selection, mode prompts, source authority, filter normalization, Audit redaction, and result rendering remain shared.
-
-## Explicit route selection
-
-UI displays exactly:
-
-```text
-ChatGPT | Gemini | 全文出力
-```
-
-- ChatGPT selected + OpenAI unavailable/disabled/unconfigured -> safe ChatGPT-specific error;
-- Gemini selected + Gemini unavailable/disabled/unconfigured -> safe Gemini-specific error;
-- do not send source/question to the other provider;
-- provider availability may be shown without exposing secrets or Store IDs;
-- no normal-user model selector.
-
-## Shortest provider qualification slice
-
-Use exactly one existing/synthetic Meeting and one fully extractable synthetic Pitchbook/source first.
+Use exactly one existing/synthetic Meeting and one synthetic/non-confidential Pitchbook/source first.
 
 For every enabled provider:
 
-1. read back provider capability and isolated Store identity;
+1. capability/config + isolated Store identity readback;
 2. index the Meeting;
-3. run one grounded question and map citation back to stable source ID/Drive URL;
+3. grounded query + stable citation -> authoritative Drive link;
 4. index the Pitchbook/source;
-5. run one exact `entity_key` or `source_id` metadata filter;
-6. update one synthetic source and re-index without duplicate active provider document;
-7. inactivate and prove normal retrieval exclusion;
-8. reactivate and prove retrieval restoration;
-9. delete/rebuild the derived provider document by exact identity;
-10. record observed latency, polling, retry/rate-limit behavior, cost, retention, and cleanup route.
+5. query that requires/cites the Pitchbook so Pitchbook retrieval is directly proven;
+6. one exact stable metadata filter (`entity_key` or `source_id`);
+7. update/reindex one synthetic source without duplicate active document;
+8. Inactive exclusion;
+9. Reactivate restoration;
+10. exact delete/rebuild of derived provider document;
+11. latency/polling/retry/rate-limit/cost/retention evidence.
 
-For a deliberately disabled provider:
+For a deliberately disabled provider, select it once, prove provider-specific safe error, prove zero call to the other provider, and report `DISABLED_BY_CONFIG` rather than live PASS.
 
-- select the route once;
-- prove safe provider-specific error;
-- prove zero cross-provider failover;
-- do not call it live-qualified.
+## 8. Full-output qualification slice
 
-## Full-output qualification slice
+Use Meeting Google Docs text only.
 
-Using the same bounded source scope:
+1. select a bounded scope containing at least one Meeting;
+2. generate the canonical Meeting package once;
+3. verify Meeting count/character count/scope summary;
+4. if matching Pitchbooks exist, verify they appear only as references/links and do not contribute file text to the body;
+5. verify buttons above preview;
+6. verify preview is bottom + internally scrollable;
+7. Copy once;
+8. create one Google Doc;
+9. create one PDF;
+10. verify package fingerprint/text parity across all three outputs;
+11. verify zero AI provider call;
+12. clean up only explicitly authorized test export artifacts.
 
-1. generate canonical package once;
-2. verify source count/character count/scope summary;
-3. prove body contains actual Meeting + fully extractable Pitchbook/source text;
-4. verify buttons appear above preview;
-5. verify preview is bottom-positioned and internally scrollable;
-6. copy once;
-7. create one Google Doc;
-8. create one PDF;
-9. verify package fingerprint/text parity across Copy/Docs/PDF;
-10. verify no OpenAI/Gemini API call occurred;
-11. clean up only explicitly authorized test artifacts.
+## 9. Indexing lifecycle
 
-## Indexing lifecycle and isolation
+For each provider and for both Meeting/Pitchbook derived sources:
 
-For each provider independently:
-
-### Registration/update
-
-- authoritative source save succeeds first;
-- provider state is derived and may become Pending/Failed independently;
-- AI/provider failure never rolls back source capture;
+- authoritative save succeeds first;
+- provider state Pending -> Indexed/Failed;
+- AI failure never rolls back source capture;
 - content hash controls re-index;
-- no duplicate active provider document per provider/source.
+- no duplicate active provider document per source;
+- Inactive excludes/removes normal retrieval;
+- Reactivate indexes latest content;
+- exact delete/rebuild never changes authoritative Drive source.
 
-### Inactivation/reactivation
+## 10. Audit and redaction
 
-- Inactive source is excluded/removed from normal provider retrieval;
-- reactivation restores latest authoritative content.
+Allowed bounded Audit metadata includes route/provider, mode, structured filter IDs, configured model alias, result, cited stable source IDs, safe error code/message.
 
-### Rebuild
+Do not store questions, generated answers, retrieved chunks, source bodies, full-output body, raw provider payloads, credentials, embeddings, uploaded bytes, or private Store identifiers.
 
-- provider Store documents may be deleted/rebuilt by exact provider/source identity;
-- Drive source and stable Index identity remain unchanged.
+## 11. Logic validation
 
-No recurring trigger in Work 0020. Use bounded private/direct sync handlers only.
+Before billing-enabled calls, prove:
 
-## Audit and redaction
-
-Allowed bounded metadata:
-
-```text
-provider route
-mode
-structured filter IDs
-configured model alias
-result
-cited stable source IDs
-safe error code/message
-```
-
-Do not store questions, answers, retrieved chunks, source bodies, full-output body, raw provider payloads, credentials, embeddings, uploaded bytes, or private Store identifiers.
-
-## Logic validation
-
-- schema 5 -> 6 append-only/idempotent migration;
-- provider-state migration/serialization and independent states;
-- provider-neutral source/request/index-projection/package/citation contracts;
-- OpenAI 16-attribute budget enforcement;
-- explicit selection and no-failover behavior;
-- current OpenAI/Gemini request/response mapping;
-- exact metadata filtering/escaping;
-- retry/idempotency/content hash/no duplicate active provider document;
-- citation mapping to stable source/Drive link;
-- full-output truly contains full source bodies for claimed included sources;
-- unsupported full-output format fails clearly rather than producing a partial package;
-- package parity and UI order/internal scroll;
-- secret/error/Audit redaction;
+- schema 5->6 migration and idempotency;
+- provider-state parser/serializer + legacy Gemini migration;
+- OpenAI/Gemini independent state;
+- OpenAI metadata budget <=16;
+- explicit route selection/no failover/safe errors;
+- current OpenAI/Gemini request/response mappings;
+- stable citation resolution for Meeting and Pitchbook;
+- retry/idempotency/content hash/no duplicate provider docs;
+- FULL_EXPORT Meeting-only body contract;
+- Pitchbook reference-only behavior;
+- Copy/Docs/PDF package parity;
+- buttons above body + bottom internal-scroll preview;
+- zero provider call from FULL_EXPORT;
+- Audit/secret redaction;
 - public surface;
 - temporal validator;
-- `npm run check`;
-- `git diff --check`.
+- `npm run check` and `git diff --check`.
 
-## Target-runtime qualification and completion
+Do not begin live paid provider calls before deterministic PASS.
 
-Mocks/fixtures/CI are insufficient for enabled provider routes.
+## 12. Target-runtime qualification and completion
+
+Verify exact current Apps Script/private Web App identity/version `40` first. Then sync exact tested source once, exact source readback, create one immutable Apps Script version, update the same private Web App in place, execute schema 5->6, and confirm five sheets/schema 6.
 
 Report separately:
 
@@ -376,58 +293,42 @@ GEMINI_RUNTIME: PASS | DISABLED_BY_CONFIG | FAIL | NOT RUN
 FULL_OUTPUT_RUNTIME: PASS | FAIL | NOT RUN
 ```
 
-Overall Work 0020 completion requires:
+Overall completion requires:
 
-- provider-neutral core and schema 6 migration PASS;
-- FULL_OUTPUT_RUNTIME PASS;
+- provider-neutral core and migration PASS;
+- FULL_OUTPUT_RUNTIME PASS using Meeting Google Docs text;
 - at least one File Search provider live PASS;
-- every provider enabled in this environment live PASS;
-- every deliberately disabled provider safe-error/no-failover PASS;
-- final source/Index/Store/Audit/credential/trigger/deployment integrity PASS;
+- every enabled provider live PASS;
+- every disabled provider safe-error/no-failover PASS;
+- File Search proof includes both Meeting and Pitchbook/source retrieval/citation;
+- final source/Index/Store/Audit/credential/trigger integrity PASS;
 - no company production-readiness claim.
 
-Target both OpenAI and Gemini live PASS when approved credentials are available. `DISABLED_BY_CONFIG` is an explicit residual capability state, not silent substitution.
-
-## Side effects
+## 13. Side effects
 
 Expected:
 
 ```text
-APPLICATION_DATA_SIDE_EFFECT_STATE: GUARDED only for append-only schema/provider-state migration and bounded synthetic lifecycle
+APPLICATION_DATA_SIDE_EFFECT_STATE: GUARDED only for append-only provider-state migration
 PROVIDER_STORE_SIDE_EFFECT_STATE: TEST_ONLY
 EXPORT_ARTIFACT_SIDE_EFFECT_STATE: TEST_ONLY
 DEPLOYMENT_SIDE_EFFECT_STATE: GUARDED
 ```
 
-No recurring trigger, confidential data, production Store, broad user access, physical authoritative-source delete, or company production rollout.
+No recurring trigger, confidential data, production Store, broad user access, new Web App deployment, Library mutation, or unauthorized authoritative source deletion.
 
-## Strategy reset conditions
-
-Reset rather than repeating the same failure if:
-
-- official provider API contradicts the assumed Store/filter/citation contract;
-- OpenAI attribute cap cannot support the compact metadata contract;
-- stable citation -> source mapping is not deterministic;
-- provider index lifecycle cannot avoid duplicate active documents;
-- full-output body extraction cannot truthfully meet the `全文出力` semantic contract for the first supported slice;
-- same live-provider failure persists after one materially different bounded repair;
-- target deployment identity is ambiguous.
-
-Preserve accepted evidence from unaffected routes during reset.
-
-## Non-goals
+## 14. Non-goals
 
 - advanced full filter matrix;
 - all five modes end-to-end on every format;
 - 2–5 entity comparison;
-- all six formats in the first core slice;
+- all six Pitchbook/source formats in the first core slice;
 - automatic provider selection/failover;
 - user-facing model selector;
 - full-context API route replacing File Search;
 - custom Vector DB/embedding service;
+- Pitchbook body extraction for FULL_EXPORT;
 - company production rollout.
-
-Those expand in Work 0021 or final production qualification.
 
 ## Completion latch
 
