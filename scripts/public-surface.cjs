@@ -27,6 +27,7 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
   'getKnowledgeExportPrompt',
   'recordKnowledgeExportPromptCopy',
   'getMeetingActivityAnalytics',
+  'getRelationshipExplorerData',
   'updateMeetingAdminCheck'
 ]);
 
