@@ -1,96 +1,83 @@
 # Work 0020 report
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-03`
-BALL: `NONE`
-STATUS: `ACTION_REQUIRED`
+ACTIVE_DISPATCH_ID: `0020-CODEX-04`
+BALL: `CODEX`
+STATUS: `READY`
 
-## Current classification
+## Accepted state before CODEX-04
 
 ```text
-ACTION_REQUIRED — AT_LEAST_ONE_FILE_SEARCH_PROVIDER_CONFIGURATION
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
-TARGET_RUNTIME_QUALIFICATION: PARTIAL — FULL_OUTPUT PASS; provider matrix not executable
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — not configured
 GEMINI_RUNTIME: SAFE_DISABLED_ERROR — not configured
 FULL_OUTPUT_RUNTIME: PASS
 FINAL_INTEGRITY: PASS
 READY: NO
-BLOCKER: YES
+BLOCKER: YES — no File Search provider live-qualified yet
 ```
 
-CODEX-03 completed all possible bounded work. Overall Work PASS remains
-blocked because neither File Search provider is enabled/configured.
+CODEX-03 accepted evidence:
 
-Detailed execution report:
+- focused `52/52 PASS`;
+- repository `256/256 PASS`;
+- temporal/public-surface/diff checks PASS;
+- public facade `28`;
+- Backend exactly five sheets/schema `6`;
+- installation state schema `6`;
+- Apps Script version `42` on the same private Web App;
+- FULL_OUTPUT Preview/Docs/PDF PASS;
+- canonical package parity PASS;
+- disabled-provider safe errors/no-failover PASS;
+- final integrity PASS; Audit `69`, triggers `0`, deployment count `9`, Library/permissions unchanged.
+
+Detailed accepted report:
 
 `docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-report.md`
 
-## Accepted CODEX-02 evidence
+## User provider decision
 
-- focused tests `50/50 PASS`;
-- `npm run check` `254/254 PASS`;
-- temporal/public-surface/diff checks PASS;
-- public facade `28`;
-- exact tested source synchronized/read back;
-- immutable version `41` delivered through the same private Web App;
-- five Backend sheets/schema `5` and application data remained unchanged;
-- no provider Store, export artifact, recurring trigger, permission, or Library mutation.
-
-Detailed historical report:
-
-`docs/handoffs/0020-CODEX-02-meeting-full-output-file-search-scope-report.md`
-
-## CODEX-03 accepted execution evidence
-
-- focused deterministic validation `52/52 PASS`;
-- `npm run check` `256/256 PASS`;
-- temporal validation PASS, public facade `28`, and diff check PASS;
-- Backend schema `5 -> 6` aligned through the authorized direct route;
-- installation state schema `5 -> 6` read back with other fields preserved;
-- exact tested source synchronized once and read back;
-- immutable Apps Script version `42` delivered through the same private Web App;
-- FULL_OUTPUT Preview/Docs/PDF PASS using the synthetic DEV installation;
-- ChatGPT and Gemini each returned their own disabled safe error once, with no
-  fallback;
-- final integrity PASS; triggers `0`, deployment count `9`, Library state
-  unchanged.
-
-Provider configuration is the sole remaining acceptance blocker. No provider
-Store or credential was created or enabled by CODEX-03.
-
-## ChatGPT review and strategy reset
-
-The private setup selector limitation is not a product defect and should not have ended the Work. Work 0016 and Work 0017 already established the safe bounded pattern for isolated synthetic schema alignment through the existing Backend and Project Settings surfaces.
-
-CODEX-03 is therefore authorized to append only the two schema-6 headers, add only missing provider Settings rows, update only the established schema-version values, and prove readback/idempotency without exposing a public setup function.
-
-ChatGPT also identified three full-output correctness findings to close before another source sync:
-
-1. the visible fixed-height preview currently displays `meetingPreviewText`, while Copy/Docs/PDF consume `packageText`; the visible preview must display the exact package;
-2. a Pitchbook-only selection can currently produce a reference-only package because no-result is based on total sources rather than Meeting count; zero Meetings must hard-stop FULL_EXPORT;
-3. reference Pitchbook metadata/file identity validation was removed entirely; restore metadata-only existence/link validation while keeping body/byte reads at zero.
-
-## Active dispatch
-
-`docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-instruction.md`
-
-Expected final classification on full PASS remains:
+The user has selected Gemini for the first live File Search qualification and explicitly deferred OpenAI.
 
 ```text
-DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
-LOGIC_VALIDATION: PASS
-TARGET_RUNTIME_QUALIFICATION: PASS under enabled-provider matrix
-FULL_OUTPUT_RUNTIME: PASS
-READY: YES for personal-PC provider core
-BLOCKER: NO
+OpenAI / ChatGPT
+  -> keep disabled/unconfigured
+  -> existing SAFE_DISABLED_ERROR / no-failover evidence remains accepted
+
+Gemini
+  -> configure now
+  -> live-qualify Meeting + Pitchbook indexing/retrieval/citation lifecycle
+
+全文出力
+  -> CODEX-03 PASS remains accepted
 ```
 
-Because no provider was configured, the actual bounded stop classification is:
+OpenAI live qualification is therefore not an active Work 0020 blocker.
+
+## Active CODEX-04 scope
+
+`docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-instruction.md`
+
+CODEX-04 must:
+
+- preserve all CODEX-03 accepted evidence;
+- fix the first-time Gemini Store creation path if the current early configuration gate still blocks a blank Store;
+- keep generation model and embedding model separate (`gemini-3.7-flash` vs `models/gemini-embedding-2`);
+- have the user enter `KSP_GEMINI_API_KEY` directly in Apps Script Script Properties without exposing the secret;
+- create/reuse one isolated Gemini File Search Store;
+- index/retrieve/cite at least one Meeting and one Pitchbook/source;
+- prove metadata filter, update/reindex, Inactive, Reactivate, delete/rebuild, no duplicate active documents;
+- restore `AI_SYNC_ENABLED=false` and keep triggers `0` at completion;
+- keep OpenAI disabled and untouched.
+
+Expected final matrix:
 
 ```text
-ACTION_REQUIRED — AT_LEAST_ONE_FILE_SEARCH_PROVIDER_CONFIGURATION
-READY: NO
-BLOCKER: YES
+OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
+GEMINI_RUNTIME: PASS
+FULL_OUTPUT_RUNTIME: PASS
+FINAL_INTEGRITY: PASS
+READY: YES
+BLOCKER: NO
 ```
