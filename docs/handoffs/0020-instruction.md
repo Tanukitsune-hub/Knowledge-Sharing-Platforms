@@ -8,6 +8,8 @@ MODE: `BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
+Active Codex instruction: `docs/handoffs/0020-CODEX-02-meeting-full-output-file-search-scope-instruction.md`
+
 ## Primary outcome
 
 Deliver one provider-neutral Knowledge Search core with exactly three user-facing routes:
@@ -67,6 +69,7 @@ ChatGPT and Gemini both use File Search. FULL_EXPORT calls no AI API.
 - Pitchbook body extraction is **not** part of the manual FULL_EXPORT route.
 - Work 0021 six-format qualification applies to provider File Search, not Pitchbook full-output extraction.
 - `全文出力` remains the user-facing label, with helper text clarifying that it outputs Meeting Google Docs and shows matching Pitchbooks only as references.
+- CODEX-01 is superseded and must not be used.
 
 ## Completion
 
