@@ -19,6 +19,7 @@ Knowledge Sharing Platforms provides or is implementing:
 - hierarchical Counterparty Type -> Entity Meeting classification;
 - repository-wide Business Date / Business Time / Instant temporal contract;
 - Activity Analytics with period/dimension breakdowns, exact drill lists, and the binary `月次管理反映済み` administrative check;
+- read-only Relationship Explorer with explicit Meeting -> Pitchbook and Pitchbook -> Meeting traversal;
 - separate Restricted Audit Spreadsheet and best-effort Actor;
 - Shared Drive as authoritative source;
 - Gemini File Search as derived/rebuildable retrieval index;
@@ -44,6 +45,7 @@ Work IDs and application release versions are separate. Historical Works remain 
 - original Drive file is authoritative for Pitchbook/source material;
 - AI/Export layers are derived and rebuildable;
 - Business Date/Time semantics are independent of physical Sheets cell representation;
+- canonical Meeting ↔ Pitchbook relationship remains `Meeting_Index.Related_Pitchbook_IDs` with reverse lookup derived at read time;
 - no new database, relation sheet, Vector DB, Knowledge Graph, or broad workflow engine without a new explicit decision.
 
 ## 3. Current delivery path
@@ -91,32 +93,14 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 - 0015: GP Workspace / one-page summary, qualified and merged under PR #20;
 - 0016: Counterparty entity foundation, qualified and merged under PR #21;
 - 0022: repository-wide temporal data contract hardening, qualified and merged under PR #22;
-- 0017: Meeting activity analytics + monthly administrative check, qualified and merged under PR #23.
+- 0017: Meeting activity analytics + monthly administrative check, qualified and merged under PR #23;
+- 0018: read-only Relationship Explorer, qualified and merged under PR #24.
 
 ## 5. Current Work
 
-### Work 0018 — Relationship Explorer
-
-Status: current next implementation Work after accepted/merged Work 0017.
-
-Detailed plan:
-
-`docs/planning/work0018-relationship-explorer.md`
-
-Outcome:
-
-- Meeting -> Pitchbook resolution;
-- Pitchbook -> Meeting reverse lookup;
-- Inactive/unresolved relationship visibility;
-- entity/GP/Fund-Strategy/date filters;
-- read-only list-first UX;
-- no relation sheet and no automatic inference.
-
-Work 0018 must reuse the accepted Work 0016 Counterparty model and Work 0022 temporal contract, and preserve the existing Activity Analytics/admin-check behavior from Work 0017.
-
-## 6. Implementation-ready sequence
-
 ### Work 0019 — Entity Workspace + Fund / Strategy drill-down
+
+Status: current next implementation Work after accepted/merged Work 0018.
 
 Detailed plan:
 
@@ -133,6 +117,10 @@ Outcome:
 - reuse Relationship Explorer and Work 0015 print patterns.
 
 Fund / Strategy remains free text. Similar-looking values are not silently fuzzy-merged.
+
+Work 0019 must reuse the accepted Work 0018 relationship resolver/read model rather than reimplementing link traversal in the browser or introducing a second relationship store.
+
+## 6. Implementation-ready sequence
 
 ### Work 0020 — Personal-PC Gemini / File Search core qualification
 
@@ -225,8 +213,8 @@ Production readiness is declared only here.
   -> 0016 Counterparty entity foundation [ACCEPTED]
   -> 0022 temporal data contract hardening [ACCEPTED]
   -> 0017 analytics / monthly checks [ACCEPTED]
-  -> 0018 Relationship Explorer [CURRENT]
-  -> 0019 Entity Workspace / Fund-Strategy drill-down
+  -> 0018 Relationship Explorer [ACCEPTED]
+  -> 0019 Entity Workspace / Fund-Strategy drill-down [CURRENT]
   -> 0020 personal-PC Gemini/File Search core
   -> 0021 structured filters / multi-entity comparison
   -> historical migration (manual / hybrid / selective automation)
