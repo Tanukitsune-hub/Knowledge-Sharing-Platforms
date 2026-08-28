@@ -1,16 +1,16 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-03`
+DISPATCH_ID: `0020-CODEX-04`
 BALL: `CODEX`
-STATUS: `ACTION_REQUIRED`
+STATUS: `READY`
 MODE: `BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
 Active instruction:
 
-`docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-instruction.md`
+`docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-instruction.md`
 
 ## Primary outcome
 
@@ -22,63 +22,91 @@ Gemini
 全文出力
 ```
 
-Source boundaries are fixed:
+The user has chosen Gemini as the File Search provider to configure and live-qualify now. OpenAI is deliberately deferred and remains disabled.
+
+Source boundaries remain fixed:
 
 ```text
-ChatGPT / Gemini File Search
-  → Meeting + Pitchbook/source materials
+Gemini File Search
+  -> Meeting + Pitchbook/source materials
+
+ChatGPT / OpenAI
+  -> visible provider route but disabled for now
 
 全文出力
-  → authoritative Meeting Google Docs full text only
-  → optional matching Pitchbook reference metadata + Drive links
+  -> authoritative Meeting Google Docs full text only
+  -> optional matching Pitchbook reference metadata + Drive links
 ```
 
-## Accepted CODEX-02 evidence
+## Accepted CODEX-03 evidence
 
-- provider-neutral implementation present;
-- `LOGIC_VALIDATION: PASS` — focused `50/50`, repository `254/254`, temporal/public-surface/diff checks PASS;
+Closed absent material contradiction:
+
+- `52/52` focused PASS;
+- `256/256` repository PASS;
+- temporal/public-surface/diff checks PASS;
 - public facade `28`;
-- exact tested source synchronized/read back;
-- immutable Apps Script version `41`;
-- same private Web App updated in place;
-- Backend and application data remained intact at exactly five sheets/schema `5`.
+- Backend exactly five sheets/schema `6`;
+- installation state schema `6` PASS;
+- exact source sync/readback and Apps Script version `42`;
+- same private Web App, deployment count `9`;
+- FULL_OUTPUT runtime PASS;
+- Preview/Docs/PDF exact package parity PASS;
+- Pitchbook reference-only FULL_OUTPUT behavior PASS;
+- both disabled-provider safe errors and zero failover PASS;
+- final integrity PASS, Audit `69`, triggers `0`, Library/permissions unchanged.
 
-## Active completion blockers
+Do not rerun CODEX-03 matrices unless a material contradiction appears.
 
-1. configure and authorize at least one isolated File Search provider for live
-   Meeting and Pitchbook retrieval/citation qualification.
+## Active blocker
 
-CODEX-03 completed the three full-output corrections, schema-6 alignment,
-FULL_OUTPUT target-runtime qualification, both disabled-provider/no-failover
-checks, and final integrity. The detailed execution report is:
+Only Gemini live File Search qualification remains.
 
-`docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-report.md`
+The user owns a Gemini API key and will enter it directly into the Apps Script Script Properties surface under:
+
+```text
+KSP_GEMINI_API_KEY
+```
+
+Never request the raw key in chat, GitHub, report text, or a normal Sheet.
+
+## Provider completion boundary
+
+Work 0020 may complete with:
+
+```text
+OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
+GEMINI_RUNTIME: PASS
+FULL_OUTPUT_RUNTIME: PASS
+```
+
+OpenAI live qualification is not a Work 0020 blocker after this explicit user decision.
 
 ## Closed contracts
 
-- Backend remains exactly five sheets;
-- schema `6` appends only `AI_Provider_State_JSON` to Meeting_Index and Pitchbook_Index;
+- Backend remains exactly five sheets/schema `6`;
 - legacy `AI_*` fields remain;
-- OPENAI/GEMINI derived state is independent;
-- OpenAI metadata remains within its current 16-attribute budget;
+- OpenAI/Gemini derived state is independent;
 - stable IDs resolve citations back to authoritative Backend/Drive;
-- no automatic provider failover or user-facing model selector;
+- no automatic provider failover;
 - Pitchbook bodies are File Search inputs but never manual FULL_EXPORT body text;
 - Copy/Docs/PDF share one exact Meeting package/fingerprint;
 - no recurring trigger, confidential production data, production rollout, second Web App, or Library mutation.
 
 ## Completion
 
-A deliberately disabled provider is acceptable only when its safe-error/no-failover path passes and at least one other File Search provider live-passes. FULL_OUTPUT must pass.
-
-Current bounded result: FULL_OUTPUT and both disabled-provider safe-error paths
-PASS, but neither provider is enabled/configured. Therefore the current Work
-state is:
+On Gemini live PASS and final integrity PASS:
 
 ```text
-ACTION_REQUIRED — AT_LEAST_ONE_FILE_SEARCH_PROVIDER_CONFIGURATION
-READY: NO
-BLOCKER: YES
+DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
+LOGIC_VALIDATION: PASS
+SCHEMA_ALIGNMENT: PASS
+OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred
+GEMINI_RUNTIME: PASS
+FULL_OUTPUT_RUNTIME: PASS
+FINAL_INTEGRITY: PASS
+READY: YES for personal-PC provider core
+BLOCKER: NO
 ```
 
 Completion Latch applies only after ChatGPT final review and merge.
