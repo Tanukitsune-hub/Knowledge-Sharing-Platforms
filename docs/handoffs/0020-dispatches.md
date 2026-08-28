@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-02`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 
 ## Active dispatch
 
-### 0020-CODEX-02 — READY
+### 0020-CODEX-02 — BLOCKED
 
 - mode: `BUILD / QUALIFICATION`;
 - route: `C`;
@@ -17,6 +17,13 @@ STATUS: `READY`
 - Draft PR: `#26` — Draft / Open / unmerged;
 - instruction: `docs/handoffs/0020-CODEX-02-meeting-full-output-file-search-scope-instruction.md`;
 - exact execution ref: use the final PR #26 head supplied in the ChatGPT dispatch prompt. Do not execute from CODEX-01 or an older branch ref.
+
+Execution result: deterministic validation passed and the existing private
+Web App was updated in place to version `41`. The required schema 5 -> 6
+canonical private setup route was unavailable: the private setup function was
+not selectable in the editor and bounded `clasp run` attempts returned a
+permission error. No direct data-plane workaround was used; dependent live
+qualification remains `NOT RUN` and this dispatch is blocked.
 
 ## Superseded dispatch
 

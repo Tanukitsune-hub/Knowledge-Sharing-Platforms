@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-02`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `BLOCKED`
 MODE: `BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -76,3 +76,14 @@ ChatGPT and Gemini both use File Search. FULL_EXPORT calls no AI API.
 Only BLOCKER stops completion. A provider deliberately disabled by configuration is not a blocker if its safe-error/no-failover path passes and at least one File Search provider live-passes. FULL_OUTPUT must pass.
 
 Completion Latch after ChatGPT final review/merge only.
+
+## CODEX-02 execution state
+
+The implementation and deterministic validation passed, and the exact tested
+source was synchronized once and deployed in place as immutable version `41`.
+Target Backend readback remains schema `5`; the required canonical private
+`setupKnowledgePlatform_()` execution surface was unavailable (the editor
+selector excludes the private function and bounded `clasp run` attempts
+returned a permission error). No direct Backend or Script Property workaround
+was used. Target-runtime provider, FULL_EXPORT, and final-integrity checks are
+`NOT RUN`; the active blocker is the unavailable private administrator route.
