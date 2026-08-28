@@ -1,16 +1,22 @@
-# Work 0020 — AI Provider / File Search core qualification
+# Work 0020 — AI Provider Core, dual File Search, and full output
 
 WORK_ID: `0020`
 
 Status: Planned after Work 0019
 
-Mode: `QUALIFICATION` with bounded repair allowed
+Mode: `BUILD / QUALIFICATION` with bounded repair allowed
+
+Authoritative decision:
+
+`docs/decisions/ai-provider-selection-and-full-output.md`
+
+Provider-neutral architecture:
+
+`docs/ai/provider-neutral-file-search.md`
 
 ## Primary outcome
 
-Prove the actual provider-neutral AI path in the current private/personal-PC environment using synthetic or non-confidential data before historical migration or company production rollout.
-
-User-facing generation choices are fixed to exactly three simple options:
+Deliver and qualify one provider-neutral Knowledge Search core in the current private/personal-PC environment with exactly three user-facing routes:
 
 ```text
 ChatGPT
@@ -18,265 +24,365 @@ Gemini
 全文出力
 ```
 
-Internal provider naming may use `OPENAI` / `GEMINI`, but the UI label is `ChatGPT` for the OpenAI-backed route.
+- ChatGPT uses OpenAI File Search;
+- Gemini uses Gemini File Search;
+- 全文出力 calls no AI API and produces one canonical package for Copy / Google Docs / PDF.
 
-`ChatGPT` and `Gemini` both use File Search / retrieval as the required default core path. `全文出力` does not call an AI API; it builds one canonical full-text Knowledge Package for copy / Google Docs / PDF delivery.
+Do not split provider foundation, full-output UX, and first live File Search qualification into separate Works. Implement the smallest coherent end-to-end core for all three routes in one Work.
 
-The provider-neutral core is:
+## Why this precedes Work 0021 and migration
 
-```text
-Authoritative Meeting/Pitchbook
-  -> Canonical AI Source / metadata
-  -> provider adapter
-       -> OpenAI File Search
-       -> Gemini File Search
-  -> grounded answer
-  -> citation
-  -> authoritative Drive source
-```
+Work 0021 must not build advanced filters, five modes, comparison, or format parity on provider-specific assumptions that have not been observed.
 
-The manual full-output path is:
-
-```text
-Authoritative Meeting/Pitchbook
-  -> canonical Knowledge Package
-  -> on-page full-text output
-       -> Copy
-       -> Google Docs
-       -> PDF
-```
-
-Do not duplicate source-selection or body-building logic between the three routes.
-
-## Provider selection contract
-
-The user explicitly chooses one of:
-
-- `ChatGPT`;
-- `Gemini`;
-- `全文出力`.
-
-There is no automatic cross-provider failover in this Work.
-
-If the chosen API/provider is disabled, missing credentials, unavailable, or not qualified, return a clear error and do not silently send data to another provider.
-
-Provider-specific model names remain an internal/admin setting rather than a normal-user selector.
-
-## Full-output UX contract
-
-Do not use a popup/modal for long full-text output.
-
-When `全文出力` is selected:
-
-1. show an output summary first, including source count and approximate character count;
-2. place the three action buttons **above** the full-text preview:
-   - `コピー`;
-   - `Google Docs`;
-   - `PDF`;
-3. place the full-text preview at the **bottom of the page/section**;
-4. the preview uses a fixed/bounded height with internal scrolling so the whole page does not become extremely long;
-5. users can execute Copy / Docs / PDF immediately without scrolling through or reading the body;
-6. all three outputs consume the exact same canonical Knowledge Package;
-7. no hidden alternate body generation may cause Copy / Docs / PDF content to diverge.
-
-Illustrative layout:
-
-```text
-全文出力
-12資料 / 84,320文字
-[ コピー ] [ Google Docs ] [ PDF ]
-
---------------------------------
-全文プレビュー
-(fixed height / internal scroll)
---------------------------------
-```
-
-The preview is for optional inspection, not a prerequisite for export actions.
-
-## Why this precedes migration
-
-Historical migration must not load significant volumes before the actual index, metadata, filter, citation, update, deletion, provider, and export contracts are observed. Work 0020 establishes those contracts first.
+Historical migration must not load material volume until both the canonical source/package contracts and the actual enabled-provider index/query/citation lifecycle are proven.
 
 ## Current-API preflight
 
-OpenAI and Gemini File Search APIs, supported models, metadata-filter syntax, costs, and retention behavior are time-sensitive.
+OpenAI and Gemini APIs, File Search Stores, supported models/formats, metadata filters, pricing, retention, and polling behavior are time-sensitive.
 
-At Work start:
+At Work start, use current official provider documentation to record:
 
-1. verify current official OpenAI and Google AI documentation;
-2. select one currently supported qualified model for each provider;
-3. confirm current File Search / vector-store or store request shapes;
-4. confirm metadata/filter syntax in each actual API;
-5. confirm citation/source mapping behavior;
-6. record current pricing/retention constraints without committing credentials.
+1. supported File Search request/response shape;
+2. supported model(s) and provider-native Store/document identity;
+3. exact metadata-filter syntax and limitations;
+4. citation/evidence response shape;
+5. supported first-slice file formats;
+6. pricing, retention, rate-limit, and cleanup constraints;
+7. credential and organization/project requirements.
 
-Existing repository request contracts are evidence, not assumed current truth.
+Existing repository clients are evidence, not presumed current truth.
 
 ## Target/runtime boundary
 
-- existing private Apps Script Web App/source path;
+- current private Apps Script project and existing Web App;
 - personal Google environment only;
-- synthetic/non-confidential Meeting and Pitchbook sources;
-- dedicated isolated test File Search store/vector store per provider as required;
-- credentials/API keys stored server-side outside GitHub and browser;
-- billing-enabled calls only after explicit scoped authorization;
-- no company Shared Drive, production users, confidential data, or production Store/vector store.
+- synthetic/non-confidential sources;
+- isolated OpenAI and Gemini test Stores where enabled;
+- server-side credentials outside GitHub/browser/Audit/user-visible Sheets;
+- bounded billing-enabled calls only;
+- no company Shared Drive, confidential data, production users, or recurring trigger.
 
-## Shared source contract
+## 1. Provider-neutral contracts
 
-Reuse the existing provider-neutral source preparation as far as safely possible:
+Implement or consolidate:
 
-- stable source ID;
-- entity key / Counterparty identity;
-- Related GP metadata;
-- source type;
-- Business Date;
-- Asset Class;
-- Fund / Strategy;
-- authoritative Drive link;
-- normalized text/content hash.
+### Canonical AI Source
 
-Provider adapters translate this canonical source into provider-specific indexing contracts. Do not make Gemini or OpenAI the source-of-truth model.
+Reuse the accepted source metadata and body-building path for Meeting/Pitchbook. Provider adapters must not rebuild source selection or semantic metadata independently.
 
-## Core qualification slice
+### Canonical Knowledge Request
 
-### Credentials and stores
+The request contains:
 
-For each enabled provider:
+```text
+route: OPENAI | GEMINI | FULL_EXPORT
+mode
+question_or_instruction
+structured filters
+selected entities
+source scope
+request fingerprint
+```
 
-- create or select exactly one isolated test Store/vector store;
-- read back store identity;
-- keep secrets out of Sheets exposed to users, Audit, browser responses, logs, and GitHub;
-- establish bounded cleanup/retirement route.
+### Canonical Knowledge Package
 
-### Sources
+Reuse and strengthen the existing Knowledge Export path so one deterministic package feeds:
 
-Use at minimum:
+```text
+コピー
+Google Docs
+PDF
+```
 
-- one synthetic Meeting Google Doc;
-- one synthetic Pitchbook/source file in an actually supported format, preferably PDF or TXT for the first slice.
+All three outputs must share the same package text and fingerprint.
 
-Do not attempt all formats before the first two-source path passes.
+### Normalized result/citation
 
-### Indexing
+OpenAI and Gemini responses normalize to one UI model:
 
-Prove for both `ChatGPT` and `Gemini` routes where enabled:
+```text
+provider
+answer
+citations[]
+source_type
+source_id
+display_name
+drive_url
+safe evidence location where available
+```
 
-- Pending -> Indexed state or provider-equivalent lifecycle;
-- source ID and content hash binding;
-- metadata including `entity_key`, source type, date, Asset Class, Fund / Strategy, and stable source ID;
-- no duplicate active AI document for one current source;
-- authoritative save remains successful if AI indexing fails.
+## 2. Explicit route selection
 
-### Query and citation
+The UI displays exactly:
 
-For each provider:
+```text
+ChatGPT | Gemini | 全文出力
+```
 
-- one unfiltered grounded question;
-- one exact metadata-filtered question;
-- answer is non-empty and source-grounded;
-- citation maps to the correct stable source ID and Drive URL;
-- inactive or deleted test source is excluded as designed;
-- insufficient evidence is surfaced rather than invented.
+No automatic provider router or cross-provider failover.
 
-### Full output
+- if ChatGPT is selected and OpenAI is disabled/unconfigured/unavailable, return a safe ChatGPT-specific error;
+- if Gemini is selected and Gemini is disabled/unconfigured/unavailable, return a safe Gemini-specific error;
+- do not send data to the other provider;
+- model names remain admin settings, not user choices;
+- provider availability may be displayed without exposing secrets or private Store IDs.
 
-Prove one `全文出力` request using the same filters/question scope:
+## 3. Provider adapters
 
-- canonical full-text Knowledge Package is built once;
-- source-count and character-count summary is shown above the action controls;
-- Copy / Google Docs / PDF buttons are above the preview;
-- Copy works without scrolling the preview;
-- Docs and PDF are produced from the same canonical package;
-- preview is bottom-positioned, fixed/bounded height, internally scrollable;
-- no popup/modal is used for the body;
-- no AI API call occurs in the full-output route.
+Create equivalent private adapters for:
 
-### Update / delete / rebuild
+```text
+OPENAI
+GEMINI
+```
 
-Prove on synthetic sources for each qualified File Search provider:
+Each adapter owns only provider-specific behavior:
 
-- content update triggers re-index without duplicate active document;
-- inactivation removes normal retrieval;
-- reactivation restores retrieval;
-- derived Store/vector-store document can be deleted/rebuilt without changing authoritative Drive source;
-- cleanup is bounded and exact-ID based.
+- capability/config readback;
+- isolated Store create/read;
+- source upsert and exact-ID removal;
+- operation polling;
+- metadata-filter translation;
+- grounded query;
+- answer/citation normalization;
+- retryable/permanent error classification;
+- cleanup/rebuild.
 
-## Operational guardrails
+Normal-user UI, mode prompts, filter normalization, source authority, Audit redaction, and response rendering remain shared.
 
-Observe and document separately for OpenAI and Gemini:
+## 4. Independent provider state
 
-- request latency;
-- indexing/polling behavior;
-- retryable/permanent errors;
-- rate limit response;
-- practical batch size;
-- initial cost estimate;
-- retention behavior;
-- direct-handler versus scheduled trigger decision.
+OpenAI and Gemini derived-index states must be independently stored and read.
 
-Do not enable a recurring trigger in the core slice. Use a bounded private/direct handler first.
+A source may be:
 
-## Shortest evidence order
+```text
+OPENAI = Indexed
+GEMINI = Disabled / Failed / Pending / Indexed
+```
 
-1. provider configuration/availability readback;
-2. ChatGPT/OpenAI credentials + isolated store qualification;
-3. one Meeting index + one query + citation;
-4. Gemini credentials + isolated store qualification;
-5. one Meeting/Pitchbook index + one query + citation;
-6. exact metadata filter for each provider;
-7. full-output package + Copy / Docs / PDF UX;
-8. one update/inactivate/reactivate cycle;
-9. cleanup/rebuild check;
-10. final source/Index/Store/Audit integrity.
+or the reverse.
 
-If one provider is explicitly unavailable/disabled in the environment, its user selection must fail clearly. Do not silently substitute the other provider. Full Work completion should record which provider paths were actually qualified versus intentionally unavailable.
+Work 0020 performs one append-only schema migration while keeping exactly five Backend sheets.
 
-## Logic validation
+Preferred implementation:
 
-- provider-neutral source contract;
-- provider selection and disabled-provider errors;
-- OpenAI request/response mapping;
-- Gemini request/response mapping;
-- metadata construction/filter escaping;
-- state transitions;
-- retry/idempotency/content hash;
-- safe errors/redaction;
-- citation mapping;
-- no secret/source-body duplication into Audit;
-- one canonical Knowledge Package reused for Copy / Docs / PDF;
-- full-output actions positioned before the fixed-height internally scrolling preview;
-- no popup/modal long-text output;
+```text
+AI_Provider_State_JSON
+```
+
+with a validated versioned object keyed by `OPENAI` and `GEMINI`, each containing:
+
+```text
+document/store reference
+NotIndexed / Pending / Indexed / Failed
+indexed_at
+content_hash
+safe last error
+```
+
+When the new field is blank, migrate the existing legacy Gemini-oriented `AI_*` state into the `GEMINI` entry without changing authoritative source IDs/files.
+
+Existing legacy fields remain preserved for compatibility/evidence. Do not bulk-delete or destructively rewrite them. Exact compatibility mirroring is finalized after source inventory, but no single ambiguous state may represent both providers.
+
+## 5. Provider settings and credentials
+
+Server-side configuration distinguishes at least:
+
+```text
+OPENAI_ENABLED
+OPENAI_VECTOR_STORE_ID
+OPENAI_DEFAULT_MODEL
+GEMINI_ENABLED
+GEMINI_FILE_SEARCH_STORE_NAME
+GEMINI_DEFAULT_MODEL
+AI_SYNC_ENABLED
+```
+
+Exact key names may align with existing naming conventions.
+
+Credentials never appear in GitHub, browser responses, Audit, export bodies, ordinary-user Sheets, or source files.
+
+## 6. Full-output UX
+
+Do not use a popup/modal.
+
+When `全文出力` is selected:
+
+1. resolve and preview the target source scope;
+2. show source count, Meeting/Pitchbook split, approximate character count, and active filters;
+3. place these buttons above the body:
+   - `コピー`;
+   - `Google Docs`;
+   - `PDF`;
+4. show status/error immediately below the buttons;
+5. place the full-text preview at the bottom of the section/page;
+6. use a fixed/bounded height with internal scrolling;
+7. allow output without requiring the user to inspect or scroll through the body;
+8. prove Copy, Docs, and PDF use the exact same package/fingerprint;
+9. do not create a popup, alternate hidden body, or provider call.
+
+Reuse current Knowledge Export count/character guards, preview fingerprint, source integrity, Docs/PDF creation, and safe links where correct.
+
+## 7. Shortest provider qualification slice
+
+Use exactly one existing/synthetic Meeting and one synthetic Pitchbook/source first.
+
+For every enabled provider:
+
+1. read back provider capability and isolated Store identity;
+2. index the Meeting;
+3. run one grounded question and map citation to stable source ID/Drive URL;
+4. index the Pitchbook;
+5. run one exact entity/source metadata filter;
+6. update one synthetic source and re-index without duplicate active document;
+7. inactivate and prove normal retrieval exclusion;
+8. reactivate and prove retrieval restoration;
+9. delete/rebuild the derived provider document by exact identity;
+10. record latency, polling, retry, rate-limit, cost, and retention evidence.
+
+For an intentionally disabled provider:
+
+- select the route once;
+- prove a safe provider-specific error;
+- prove no request was sent to the other provider;
+- do not treat the disabled provider as live-qualified.
+
+## 8. Full-output qualification slice
+
+Using the same source scope:
+
+1. generate the canonical package once;
+2. verify source count/character count/scope summary;
+3. verify buttons appear above the preview;
+4. verify the preview is at the bottom and internally scrollable;
+5. copy once;
+6. create one Google Doc;
+7. create one PDF;
+8. verify package fingerprints/text parity across Copy/Docs/PDF;
+9. verify no AI API call occurred;
+10. clean up only explicitly authorized test artifacts.
+
+## 9. Indexing lifecycle and isolation
+
+For each provider independently:
+
+### Registration
+
+- authoritative source save succeeds first;
+- provider state becomes Pending;
+- AI failure never rolls back source capture;
+- bounded direct/private handler indexes current content.
+
+### Update
+
+- content hash controls re-index;
+- replace/supersede the current provider document;
+- no duplicate active document per provider/source.
+
+### Inactivation / Reactivation
+
+- Inactive excludes/removes source from normal provider retrieval;
+- reactivation indexes the latest authoritative content.
+
+### Rebuild
+
+- provider Store documents may be deleted/rebuilt by exact source identity;
+- Drive source and Index identity remain unchanged.
+
+## 10. Audit and redaction
+
+Allowed bounded Audit metadata:
+
+```text
+provider route
+mode
+structured filter IDs
+configured model alias
+result
+cited stable source IDs
+safe error code/message
+```
+
+Do not store questions, generated answers, retrieved chunks, source bodies, raw provider payloads, credentials, embeddings, uploaded bytes, or private Store identifiers.
+
+Full-output Copy/Docs/PDF retains the existing bounded export Audit contract; the source package itself is not duplicated into Audit.
+
+## 11. Logic validation
+
+- provider-neutral request/source/package/citation contracts;
+- provider selection and no-failover behavior;
+- provider capability and safe errors;
+- independent provider state migration/serialization;
+- current OpenAI/Gemini request/response mapping;
+- metadata filter escaping/exactness;
+- state transitions/retry/idempotency/content hash;
+- no duplicate active provider document;
+- citation mapping to stable source identity/Drive link;
+- full-output package parity and UI order/internal scroll;
+- safe error/redaction/secret handling;
+- no question/answer/body duplication into Audit;
+- public surface;
 - `npm run check` and `git diff --check`.
 
-## Target-runtime qualification
+## 12. Target-runtime qualification and completion
 
-Must directly observe each provider path claimed as qualified using the actual API/store/model/billing path. Mock/fixture/CI evidence is insufficient.
+Mocks/fixtures/CI are insufficient for enabled provider routes.
 
-The `全文出力` path must also be directly observed in the actual Web App, including one-click Copy and browser-visible Docs/PDF actions above the preview.
+Report separately:
 
-## Non-goals
+```text
+OPENAI_RUNTIME: PASS | DISABLED_BY_CONFIG | FAIL | NOT RUN
+GEMINI_RUNTIME: PASS | DISABLED_BY_CONFIG | FAIL | NOT RUN
+FULL_OUTPUT_RUNTIME: PASS | FAIL | NOT RUN
+```
 
-- automatic provider routing/failover;
-- normal-user model-name selector;
-- all six formats in the first slice;
-- full five-mode UX acceptance;
-- multi-entity comparison;
-- broad scheduled sync trigger;
-- company credentials/Shared Drive;
-- confidential historical data;
-- production readiness.
+Overall Work 0020 completion requires:
 
-Those expand only after the core path passes.
+- provider-neutral core and migration PASS;
+- full-output route PASS;
+- at least one File Search provider live PASS;
+- every enabled provider in this environment live PASS;
+- every deliberately disabled provider safe-error/no-failover PASS;
+- final source/Index/Store/Audit/credential/trigger integrity PASS;
+- no company production-readiness claim.
+
+Target both OpenAI and Gemini live PASS when approved credentials are available. A provider deliberately disabled by configuration is an accepted residual capability state, not silent substitution.
+
+## 13. Side effects
+
+Expected:
+
+```text
+APPLICATION_DATA_SIDE_EFFECT_STATE: GUARDED only for append-only provider-state migration
+PROVIDER_STORE_SIDE_EFFECT_STATE: TEST_ONLY
+EXPORT_ARTIFACT_SIDE_EFFECT_STATE: TEST_ONLY
+DEPLOYMENT_SIDE_EFFECT_STATE: GUARDED
+```
+
+No recurring trigger, confidential data, production Store, broad user access, or destructive source mutation.
+
+## 14. Non-goals
+
+- advanced full filter matrix;
+- all five modes end-to-end on every format;
+- 2–5 entity comparison;
+- all six formats in the first core slice;
+- automatic provider selection/failover;
+- user-facing model selector;
+- full-context API route as a substitute for File Search;
+- custom Vector DB/embedding service;
+- company production rollout.
+
+Those expand in Work 0021 or final production qualification.
 
 ## Completion latch
 
 ```text
+DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
 LOGIC_VALIDATION: PASS
-TARGET_RUNTIME_QUALIFICATION: PASS for every provider declared enabled/qualified
+TARGET_RUNTIME_QUALIFICATION: PASS under the enabled-provider matrix
 FULL_OUTPUT_RUNTIME: PASS
-SIDE_EFFECT_STATE: TEST_ONLY / bounded billing-enabled calls
-READY: YES for provider-neutral AI core
+READY: YES for personal-PC provider core
 BLOCKER: NO
 ```
