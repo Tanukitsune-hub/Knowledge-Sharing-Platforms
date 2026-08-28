@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-06`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Current classification
 
@@ -11,9 +11,9 @@ STATUS: `READY`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: BLOCKED — upload finalization has not produced an indexed document
-FULL_OUTPUT_RUNTIME: PASS
-FINAL_INTEGRITY: PARTIAL after CODEX-05 bounded stop
+GEMINI_RUNTIME: BLOCKED — local upload-finalize request construction/preflight error
+FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence, not rerun
+FINAL_INTEGRITY: PARTIAL after CODEX-06 bounded stop
 READY: NO
 BLOCKER: YES
 ```
@@ -54,47 +54,47 @@ Detailed reports:
 - `docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-report.md`
 - `docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-report.md`
 - `docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`
+- `docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-report.md`
 
-## CODEX-05 review
+## CODEX-06 result
 
-The stop condition was correct and the defect is now narrower than before:
-
-```text
-upload-session start
-  -> PASS
-
-final upload/finalize call
-  -> local/provider response not observed
-  -> AI_UPLOAD_FINALIZE_FAILED
-  -> no Store Document
-  -> no Backend Indexed state
-```
-
-The current source explicitly sets `Content-Length` in the final `UrlFetchApp` request. Apps Script derives transport length from the request payload, and the observed absence of a provider status/body is consistent with a client-side request-construction exception rather than an accepted Gemini HTTP failure.
-
-This is the active high-confidence hypothesis, not yet proof.
-
-## Active Strategy Reset — CODEX-06
-
-`0020-CODEX-06` must first perform the smallest decisive repair:
+CODEX-06 completed the deterministic repair and one bounded target-runtime attempt:
 
 ```text
-remove manual Content-Length
--> preserve exact bytes/MIME/X-Goog upload headers
--> safe UrlFetchApp request preflight
--> deterministic PASS
--> one Meeting finalize attempt
+focused Gemini transport tests: 12/12 PASS
+repository validation: 277/277 PASS
+temporal/public-surface/diff checks: PASS
+source sync/readback: PASS
+immutable version: 46
+same private Web App update: PASS
+one Meeting sync action: bounded to one source
+Meeting result: Failed
+safe code: AI_UPLOAD_FINALIZE_REQUEST_INVALID
+classification: UPLOAD_FINALIZE_CLIENT
+provider HTTP status/body: not observed
+provider document identity: absent
+indexed timestamp/content hash: absent
+batch size: restored to 10
 ```
 
-Only after Meeting indexing PASS may it continue to Meeting query, one small TXT Pitchbook index/query, metadata filter, lifecycle, and final integrity.
+The final request no longer supplies a manual `Content-Length`; exact bytes, MIME type, offset, and finalize command remain unchanged. The corrected live path stopped at the safe Apps Script request preflight/construction classification before a Gemini HTTP response was available. This is a local request-construction failure, not an observed provider HTTP/operation failure.
 
-If the corrected request reaches Gemini and returns a genuine HTTP/operation error, stop and preserve that safe evidence. Do not mix a Files API/import fallback into the same dispatch.
+No unchanged retry was made. Meeting query, Pitchbook indexing/query, metadata lifecycle, and browser query Audit qualification were not run because Gate A failed.
+
+Read-only post-attempt integrity remained bounded and showed five Backend sheets/schema 6, Meeting/Pitchbook row counts 4/16, Audit row count 71, `AI_SYNC_ENABLED=false`, `OPENAI_ENABLED=false`, and no new deployment or Library mutation.
+
+## CODEX-06 stop decision
+
+The one corrected Meeting attempt is exhausted. The Work remains blocked pending a later Strategy Reset; no Files API fallback or second Gemini live attempt is authorized by this dispatch.
 
 Active instruction:
 
 `docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-instruction.md`
 
-## Expected final matrix
+## Target final matrix (not reached in CODEX-06)
+
+The completion target remains below for a later authorized Strategy Reset;
+CODEX-06 returned blocked at Gate A.
 
 ```text
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user

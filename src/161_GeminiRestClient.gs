@@ -9,6 +9,7 @@ function kspGeminiStageMessage_(code) {
     AI_STORE_CREATE_FAILED: 'Gemini File Search Storeを作成できませんでした。',
     AI_STORE_READ_FAILED: 'Gemini File Search Storeを確認できませんでした。',
     AI_UPLOAD_SESSION_FAILED: 'Gemini File Search upload sessionを開始できませんでした。',
+    AI_UPLOAD_FINALIZE_REQUEST_INVALID: 'Gemini File Search upload requestを構成できませんでした。',
     AI_UPLOAD_FINALIZE_FAILED: 'Gemini File Search uploadを完了できませんでした。',
     AI_OPERATION_POLL_FAILED: 'Gemini File Search upload operationを確認できませんでした。',
     AI_OPERATION_TIMEOUT: 'Gemini File Search upload operationが完了しませんでした。',
@@ -151,6 +152,58 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
   }, { retry: Boolean(settings.retry), stage: stage, errorCode: errorCode });
 }
 
+function kspGeminiUploadPayloadBytes_(payload) {
+  var values = payload;
+  if (payload && typeof payload.getBytes === 'function') values = payload.getBytes();
+  if (!Array.isArray(values)) return null;
+  return values.map(function (value) {
+    var numberValue = Number(value);
+    if (!Number.isFinite(numberValue) || Math.floor(numberValue) !== numberValue ||
+      numberValue < -128 || numberValue > 255) return null;
+    return numberValue > 127 ? numberValue - 256 : numberValue;
+  });
+}
+
+function kspGeminiHasHeader_(headers, name) {
+  var target = String(name || '').toLowerCase();
+  return Object.keys(headers || {}).some(function (key) {
+    return String(key).toLowerCase() === target;
+  });
+}
+
+function kspGeminiValidateUploadRequest_(uploadUrl, requestOptions, expectedMimeType, expectedPayloadBytes) {
+  try {
+    kspAssert_(typeof UrlFetchApp !== 'undefined' && UrlFetchApp &&
+      typeof UrlFetchApp.getRequest === 'function',
+      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request projection is unavailable.');
+    var request = UrlFetchApp.getRequest(uploadUrl, requestOptions);
+    kspAssert_(request && typeof request === 'object',
+      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request projection is invalid.');
+    kspAssert_(String(request.method || '').toLowerCase() === 'post',
+      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request method is invalid.');
+    var requestHeaders = request.headers || {};
+    var contentType = String(request.contentType ||
+      kspGeminiHeaderValue_(requestHeaders, 'Content-Type') || '').trim();
+    kspAssert_(contentType === String(expectedMimeType || '').trim(),
+      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request MIME type is invalid.');
+    kspAssert_(kspGeminiHeaderValue_(requestHeaders, 'X-Goog-Upload-Offset') === '0',
+      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request offset is invalid.');
+    kspAssert_(kspGeminiHeaderValue_(requestHeaders, 'X-Goog-Upload-Command') === 'upload, finalize',
+      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request command is invalid.');
+    kspAssert_(!kspGeminiHasHeader_(requestOptions.headers, 'Content-Length'),
+      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request must not provide Content-Length.');
+    var projectedPayloadBytes = kspGeminiUploadPayloadBytes_(request.payload);
+    kspAssert_(projectedPayloadBytes && projectedPayloadBytes.length === expectedPayloadBytes.length &&
+      projectedPayloadBytes.every(function (value, index) {
+        return value !== null && value === expectedPayloadBytes[index];
+      }),
+      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request payload is invalid.');
+    return true;
+  } catch (ignoredRequestError) {
+    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
+  }
+}
+
 function kspGeminiUploadSourceLive_(storeName, source, bytes) {
   var normalizedStore = kspAiStoreResourcePath_(storeName);
   var payloadBytes = (bytes || []).map(function (value) {
@@ -193,21 +246,23 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
     throw kspGeminiStageError_('AI_UPLOAD_SESSION_FAILED', 'UPLOAD_SESSION_START', startCode, startHeaders, false);
   }
 
+  var finalizeOptions = {
+    method: 'post',
+    contentType: metadata.mimeType,
+    headers: {
+      'X-Goog-Upload-Offset': '0',
+      'X-Goog-Upload-Command': 'upload, finalize'
+    },
+    payload: payloadBytes,
+    muteHttpExceptions: true
+  };
+  kspGeminiValidateUploadRequest_(String(uploadUrl), finalizeOptions, metadata.mimeType, payloadBytes);
+
   var uploadResponse;
   try {
-    uploadResponse = UrlFetchApp.fetch(String(uploadUrl), {
-      method: 'post',
-      contentType: metadata.mimeType,
-      headers: {
-        'Content-Length': String(payloadBytes.length),
-        'X-Goog-Upload-Offset': '0',
-        'X-Goog-Upload-Command': 'upload, finalize'
-      },
-      payload: payloadBytes,
-      muteHttpExceptions: true
-    });
+    uploadResponse = UrlFetchApp.fetch(String(uploadUrl), finalizeOptions);
   } catch (ignoredFinalizeError) {
-    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_FAILED', 'UPLOAD_FINALIZE', 0, {}, true);
+    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
   }
   var code = uploadResponse.getResponseCode();
   var headers = kspGeminiResponseHeaders_(uploadResponse);
@@ -216,10 +271,10 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
     var responseText = uploadResponse.getContentText('UTF-8');
     parsed = responseText ? kspSafeParseJson_(responseText, 'File Search upload response') : {};
   } catch (ignoredResponseError) {
-    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_FAILED', 'UPLOAD_FINALIZE', code, headers, false);
+    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_FAILED', 'UPLOAD_FINALIZE_HTTP', code, headers, false);
   }
   if (code < 200 || code >= 300) {
-    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_FAILED', 'UPLOAD_FINALIZE', code, headers);
+    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_FAILED', 'UPLOAD_FINALIZE_HTTP', code, headers);
   }
 
   var operation;

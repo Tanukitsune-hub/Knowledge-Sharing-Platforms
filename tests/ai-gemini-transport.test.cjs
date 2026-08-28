@@ -8,13 +8,23 @@ function response(code, body, headers = {}) {
   };
 }
 
-function withLiveFakes(fetch, callback) {
+function defaultRequestProjection(url, options) {
+  return {
+    url,
+    method: options.method,
+    contentType: options.contentType,
+    headers: { ...(options.headers || {}) },
+    payload: Array.isArray(options.payload) ? options.payload.slice() : options.payload
+  };
+}
+
+function withLiveFakes(fetch, callback, getRequest = defaultRequestProjection) {
   const originalProperties = ksp.PropertiesService;
   const originalFetch = ksp.UrlFetchApp;
   const originalUtilities = ksp.Utilities;
   const sleeps = [];
   ksp.PropertiesService = { getScriptProperties: () => ({ getProperty: () => 'synthetic-gemini-key' }) };
-  ksp.UrlFetchApp = { fetch };
+  ksp.UrlFetchApp = { fetch, getRequest };
   ksp.Utilities = {
     ...originalUtilities,
     sleep: (millis) => sleeps.push(millis)
@@ -76,6 +86,7 @@ function activeDocument(source) {
 test('Gemini upload uses the official resumable contract and verifies the active Document readback', () => {
   const source = meetingSource();
   const calls = [];
+  const projections = [];
   const result = withLiveFakes((url, options) => {
     calls.push({ url, options });
     if (calls.length === 1) return response(200, '', { 'x-goog-upload-url': 'https://upload.invalid/synthetic' });
@@ -97,6 +108,11 @@ test('Gemini upload uses the official resumable contract and verifies the active
     assert.equal(calls.length, 4);
     assert.deepEqual(sleeps, [1500]);
     return document;
+  }, (url, options) => {
+    projections.push({ url, options });
+    const projection = defaultRequestProjection(url, options);
+    projection.headers['Content-Length'] = '3';
+    return projection;
   });
   const start = calls[0];
   assert.match(start.url, /\/upload\/v1beta\/fileSearchStores\/store-synthetic:uploadToFileSearchStore\?key=synthetic-gemini-key$/);
@@ -113,11 +129,66 @@ test('Gemini upload uses the official resumable contract and verifies the active
   const finalize = calls[1];
   assert.equal(finalize.url, 'https://upload.invalid/synthetic');
   assert.equal(finalize.options.contentType, 'text/plain');
-  assert.equal(finalize.options.headers['Content-Length'], '3');
+  assert.equal(Object.keys(finalize.options.headers).some((key) => key.toLowerCase() === 'content-length'), false);
   assert.equal(finalize.options.headers['X-Goog-Upload-Offset'], '0');
   assert.equal(finalize.options.headers['X-Goog-Upload-Command'], 'upload, finalize');
   assert.deepEqual(finalize.options.payload, [65, 0, -1]);
+  assert.equal(projections.length, 1);
+  assert.equal(projections[0].url, 'https://upload.invalid/synthetic');
+  assert.equal(projections[0].options.method, 'post');
+  assert.equal(projections[0].options.contentType, 'text/plain');
+  assert.deepEqual(projections[0].options.payload, [65, 0, -1]);
   assert.equal(result.customMetadata.content_hash, source.contentHash);
+});
+
+test('local finalize request construction is a safe non-retryable client error', () => {
+  let fetchCalls = 0;
+  let projectionCalls = 0;
+  const error = withLiveFakes((url, options) => {
+    fetchCalls += 1;
+    return response(200, '', { 'X-Goog-Upload-URL': 'https://upload.invalid/synthetic' });
+  }, () => {
+    try {
+      ksp.kspGeminiUploadSourceLive_('fileSearchStores/store-synthetic', meetingSource(), [1]);
+    } catch (value) {
+      return value;
+    }
+    return null;
+  }, () => {
+    projectionCalls += 1;
+    throw new Error('PRIVATE_APPS_SCRIPT_REQUEST_ERROR');
+  });
+  assert.equal(fetchCalls, 1);
+  assert.equal(projectionCalls, 1);
+  assert.equal(error.code, 'AI_UPLOAD_FINALIZE_REQUEST_INVALID');
+  assert.equal(error.stage, 'UPLOAD_FINALIZE_CLIENT');
+  assert.equal(error.httpStatus, 0);
+  assert.equal(error.retryable, false);
+  assert.equal(error.permanent, true);
+  assert.doesNotMatch(error.message, /PRIVATE_APPS_SCRIPT_REQUEST_ERROR/);
+});
+
+test('finalize fetch without a provider response remains a non-retryable client error', () => {
+  let fetchCalls = 0;
+  const error = withLiveFakes((url, options) => {
+    fetchCalls += 1;
+    if (fetchCalls === 1) return response(200, '', { 'X-Goog-Upload-URL': 'https://upload.invalid/synthetic' });
+    throw new Error('PRIVATE_APPS_SCRIPT_TRANSPORT_ERROR');
+  }, () => {
+    try {
+      ksp.kspGeminiUploadSourceLive_('fileSearchStores/store-synthetic', meetingSource(), [1]);
+    } catch (value) {
+      return value;
+    }
+    return null;
+  });
+  assert.equal(fetchCalls, 2);
+  assert.equal(error.code, 'AI_UPLOAD_FINALIZE_REQUEST_INVALID');
+  assert.equal(error.stage, 'UPLOAD_FINALIZE_CLIENT');
+  assert.equal(error.httpStatus, 0);
+  assert.equal(error.retryable, false);
+  assert.equal(error.permanent, true);
+  assert.doesNotMatch(error.message, /PRIVATE_APPS_SCRIPT_TRANSPORT_ERROR/);
 });
 
 test('Gemini upload URL and Retry-After headers are case-insensitive and array-safe', () => {
@@ -143,7 +214,9 @@ test('known Gemini upload stages preserve safe codes without raw provider text',
   }, () => {
     assert.throws(
       () => ksp.kspGeminiUploadSourceLive_('fileSearchStores/store-synthetic', meetingSource(), [1]),
-      (error) => error.code === 'AI_UPLOAD_FINALIZE_FAILED' && !error.message.includes('PRIVATE_PROVIDER_RESPONSE')
+      (error) => error.code === 'AI_UPLOAD_FINALIZE_FAILED' &&
+        error.stage === 'UPLOAD_FINALIZE_HTTP' && error.httpStatus === 503 &&
+        !error.message.includes('PRIVATE_PROVIDER_RESPONSE')
     );
   });
   assert.equal(calls, 2);
@@ -180,6 +253,32 @@ test('transient Gemini query failures retry at most four times and honor Retry-A
     return value;
   });
   assert.equal(result.id, 'interaction-synthetic');
+});
+
+test('all accepted transient Gemini HTTP statuses remain bounded-retryable', () => {
+  for (const status of [408, 429, 500, 502, 503, 504]) {
+    let calls = 0;
+    const error = withLiveFakes(() => {
+      calls += 1;
+      return response(status, '{}');
+    }, (sleeps) => {
+      let caught;
+      try {
+        ksp.kspGeminiJsonRequestLive_('GET', '/fileSearchStores/store-synthetic', null, {
+          retry: true, stage: 'STORE_READ', errorCode: 'AI_STORE_READ_FAILED'
+        });
+      } catch (value) {
+        caught = value;
+      }
+      assert.equal(calls, 4);
+      assert.equal(sleeps.length, 3);
+      assert.equal(caught.code, 'AI_STORE_READ_FAILED');
+      assert.equal(caught.httpStatus, status);
+      assert.equal(caught.retryable, true);
+      return caught;
+    });
+    assert.equal(error.httpStatus, status);
+  }
 });
 
 test('repeated transient Gemini query failure stops at the four-attempt cap', () => {

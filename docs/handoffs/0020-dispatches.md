@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-06`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Active dispatch
 
-### 0020-CODEX-06 — READY
+### 0020-CODEX-06 — RETURNED / BLOCKER
 
 - mode: `INVESTIGATION / BUILD / QUALIFICATION`;
 - route: `C`;
@@ -20,7 +20,14 @@ STATUS: `READY`
 - exact execution ref: supplied by ChatGPT after the activation documentation commits;
 - OpenAI: deliberately deferred, disabled, and not to be live-called;
 - FULL_OUTPUT: accepted PASS from CODEX-03; do not rerun absent contradiction;
-- attempt boundary: one corrected source deployment and one Meeting finalize attempt before any query.
+- attempt boundary: one corrected source deployment and one Meeting finalize attempt before any query;
+- deterministic validation: `277/277 PASS`, focused transport `12/12 PASS`, public facade `30`;
+- source delivery: exact `78`-file sync/readback PASS, immutable version `46`, same private Web App updated in place, `/exec` rendered;
+- Gate A result: `AI_UPLOAD_FINALIZE_REQUEST_INVALID`, classified as local `UPLOAD_FINALIZE_CLIENT`; provider HTTP status/body and provider document identity were absent;
+- temporary batch size was restored exactly to `10`;
+- no Meeting query, Pitchbook indexing/query, lifecycle, OpenAI call, FULL_OUTPUT rerun, second Store, second deployment, or Library mutation occurred;
+- report: `docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-report.md`;
+- stop condition: first post-repair Gate-A failure; later Strategy Reset required.
 
 ## Returned dispatch
 
@@ -90,4 +97,4 @@ Only one active Codex dispatch may exist.
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-06`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`

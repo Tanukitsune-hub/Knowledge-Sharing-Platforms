@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-06`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `INVESTIGATION / BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -49,9 +49,9 @@ Closed absent material contradiction:
 
 Do not rerun FULL_OUTPUT or live-call OpenAI.
 
-## Active blocker and Strategy Reset
+## Active blocker after CODEX-06
 
-CODEX-05 proved the first post-repair failure occurs at:
+CODEX-05 proved the first pre-repair failure occurred at:
 
 ```text
 code: AI_UPLOAD_FINALIZE_FAILED
@@ -60,13 +60,22 @@ provider HTTP status/body: not observed
 provider document identity: absent
 ```
 
-The final upload request currently supplies `Content-Length` manually. The absence of a provider response and Apps Script transport behavior make a local request-construction failure the strongest current explanation.
+CODEX-06 removed the manual final-upload `Content-Length` header and added a safe request preflight. The single corrected Meeting attempt still ended before any provider HTTP response with:
+
+```text
+code: AI_UPLOAD_FINALIZE_REQUEST_INVALID
+classification: UPLOAD_FINALIZE_CLIENT
+http status/body: not observed
+provider document identity: absent
+```
+
+This is currently classified as a local Apps Script request-construction/preflight failure. The one corrected live attempt is exhausted.
 
 Active hypothesis:
 
 > Remove manual `Content-Length`, let `UrlFetchApp` derive length from exact payload bytes/Blob, preflight the request safely, and one Meeting upload will pass finalization.
 
-This remains a hypothesis until one bounded live Gate-A result proves or disproves it.
+No second hypothesis or Files API fallback was opened in CODEX-06. A later Strategy Reset is required before another live attempt.
 
 ## CODEX-06 completion boundary
 
@@ -94,7 +103,10 @@ If the corrected finalize produces a genuine provider HTTP/operation error, stop
 - Pitchbook bodies are File Search inputs but never manual FULL_EXPORT body text;
 - no recurring trigger, confidential production data, production rollout, second Web App, or Library mutation.
 
-## Expected final classification
+## Target final classification (not reached in CODEX-06)
+
+The target classification below remains the completion contract for a later
+authorized Strategy Reset; CODEX-06 returned blocked at Gate A.
 
 ```text
 DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
