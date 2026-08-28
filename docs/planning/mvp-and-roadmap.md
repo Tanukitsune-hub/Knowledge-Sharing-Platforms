@@ -20,6 +20,7 @@ Knowledge Sharing Platforms provides or is implementing:
 - repository-wide Business Date / Business Time / Instant temporal contract;
 - Activity Analytics with period/dimension breakdowns, exact drill lists, and the binary `月次管理反映済み` administrative check;
 - read-only Relationship Explorer with explicit Meeting -> Pitchbook and Pitchbook -> Meeting traversal;
+- exact Fund / Strategy aggregation and drill-down;
 - separate Restricted Audit Spreadsheet and best-effort Actor;
 - Shared Drive as authoritative source;
 - provider-neutral derived/rebuildable AI retrieval with independent OpenAI and Gemini File Search adapters;
@@ -34,12 +35,7 @@ Work IDs and application release versions are separate. Historical Works remain 
 
 - one Web App for authorized users;
 - Shared Drive authoritative `Meeting Records / Pitchbooks`;
-- five-sheet Backend:
-  - `GP_Master`;
-  - `Option_Master`;
-  - `Meeting_Index`;
-  - `Pitchbook_Index`;
-  - `Settings`;
+- five-sheet Backend: `GP_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings`;
 - separate Restricted Audit Spreadsheet;
 - stable IDs rather than row numbers;
 - Google Doc is authoritative for Meeting body;
@@ -54,8 +50,6 @@ Work IDs and application release versions are separate. Historical Works remain 
 
 ## 3. Current delivery path
 
-New Work uses:
-
 ```text
 bounded preflight
 → shortest coherent production-source vertical slice
@@ -68,20 +62,7 @@ bounded preflight
 → separately authorize production data/users/billing/triggers/destructive effects
 ```
 
-Do not define a separate test-environment completion milestone unless the staging decision gate passes.
-
-Report:
-
-```text
-LOGIC_VALIDATION: PASS | FAIL | NOT RUN | NOT APPLICABLE
-TARGET_RUNTIME_QUALIFICATION: PASS | FAIL | NOT RUN | NOT APPLICABLE
-SIDE_EFFECT_STATE: DISABLED | GUARDED | TEST_ONLY | ENABLED | NOT APPLICABLE
-READY: YES | NO
-```
-
 AI Works additionally report provider matrices separately rather than hiding partial capability behind one status.
-
-A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 
 ## 4. Historical / accepted Work map
 
@@ -100,41 +81,28 @@ A local/CI/mock/simulator/test-loader pass proves only what it exercised.
 - 0016: Counterparty entity foundation, qualified and merged under PR #21;
 - 0022: repository-wide temporal data contract hardening, qualified and merged under PR #22;
 - 0017: Meeting activity analytics + monthly administrative check, qualified and merged under PR #23;
-- 0018: read-only Relationship Explorer, qualified and merged under PR #24.
+- 0018: read-only Relationship Explorer, qualified and merged under PR #24;
+- 0019: Entity Workspace + exact Fund / Strategy drill-down, qualified and merged under PR #25; Apps Script version `40`; legacy GP Workspace direct-only compatibility preserved.
 
 ## 5. Current Work
 
-### Work 0019 — Entity Workspace + Fund / Strategy drill-down
-
-Status: current implementation Work after accepted/merged Work 0018.
-
-Detailed plan:
-
-`docs/planning/work0019-entity-workspace-strategy-drilldown.md`
-
-Outcome:
-
-- generalize GP Workspace to all Counterparty Types;
-- direct versus Related GP activity;
-- non-GP Meeting context and explicitly linked materials;
-- GP Pitchbooks;
-- unified timeline;
-- exact free-text Fund / Strategy grouping and drill-down;
-- reuse Relationship Explorer and Work 0015 print patterns.
-
-Fund / Strategy remains free text. Similar-looking values are not silently fuzzy-merged.
-
-Work 0019 reuses the accepted Work 0018 relationship resolver/read model rather than introducing a second relationship store.
-
-## 6. Implementation-ready sequence
-
 ### Work 0020 — AI Provider Core, dual File Search, and full output
+
+Status: **CURRENT** after accepted/merged Work 0019.
 
 Detailed plan:
 
 `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
-Outcome:
+Authoritative AI decision:
+
+`docs/decisions/ai-provider-selection-and-full-output.md`
+
+Provider-neutral architecture:
+
+`docs/ai/provider-neutral-file-search.md`
+
+Primary outcome:
 
 - current official OpenAI/Gemini API, File Search, model, filter, pricing, retention, and citation contracts verified at Work start;
 - exactly three UI choices: `ChatGPT / Gemini / 全文出力`;
@@ -153,6 +121,8 @@ Outcome:
 - no company confidential data or production rollout.
 
 Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and export Works.
+
+## 6. Next implementation-ready Work
 
 ### Work 0021 — Structured Knowledge Search, five modes, and multi-entity comparison
 
@@ -191,14 +161,14 @@ This replaces a separate static GP-comparison dashboard.
 
 ### Rejected / absorbed
 
-- advanced follow-up task management: rejected because task execution is managed elsewhere; retain `要フォロー + note` for recall/search;
-- separate static GP comparison screen: rejected; numeric comparison belongs in analytics and qualitative comparison in Work 0021;
-- standalone GP Workspace enhancement: absorbed into Work 0018/0019;
-- generalized legacy converter as mandatory product: rejected;
-- automatic AI provider routing/failover: rejected;
-- user-facing model selector: rejected;
-- popup/modal long-form export: rejected;
-- full-context API route as a substitute for File Search: rejected.
+- advanced follow-up task management;
+- separate static GP comparison screen;
+- standalone GP Workspace enhancement;
+- generalized legacy converter as mandatory product;
+- automatic AI provider routing/failover;
+- user-facing model selector;
+- popup/modal long-form export;
+- full-context API route as a substitute for File Search.
 
 ## 8. Historical-material migration
 
@@ -210,11 +180,7 @@ hybrid/manual-assisted entry
 selective automation for repeatable subsets
 ```
 
-The default may be manual because historical materials are highly heterogeneous.
-
-Do not build a universal converter unless repeatable source structure and measurable benefit justify it. Any automation must preserve source traceability, stable IDs, deduplication, legacy compatibility, rebuildable provider indexes, and full-output package correctness.
-
-A converter is not a prerequisite for final production qualification when manual migration is selected.
+The default may be manual because historical materials are highly heterogeneous. Any automation must preserve source traceability, stable IDs, deduplication, legacy compatibility, rebuildable provider indexes, and full-output package correctness.
 
 ## 9. Final production-environment qualification and rollout readiness
 
@@ -227,12 +193,7 @@ Qualify:
 - organization-controlled Apps Script Web App;
 - Backend/Audit boundaries;
 - production data/access model;
-- every provider enabled by company policy:
-  - approved credentials and billing;
-  - exact Store identity/ownership;
-  - indexing/query/filter/citation behavior;
-  - update/inactivate/cleanup/retention;
-  - safe errors and no cross-provider failover;
+- every provider enabled by company policy: credentials/billing, Store identity/ownership, indexing/query/filter/citation behavior, update/inactivate/cleanup/retention, and safe errors/no failover;
 - full-output permissions, artifacts, cleanup, and retention;
 - real users;
 - scheduled triggers only where authorized;
@@ -248,8 +209,8 @@ The company may enable OpenAI, Gemini, both, or neither. Production readiness is
   -> 0022 temporal data contract hardening [ACCEPTED]
   -> 0017 analytics / monthly checks [ACCEPTED]
   -> 0018 Relationship Explorer [ACCEPTED]
-  -> 0019 Entity Workspace / Fund-Strategy drill-down [CURRENT]
-  -> 0020 AI provider core / OpenAI + Gemini File Search / full output
+  -> 0019 Entity Workspace / Fund-Strategy drill-down [ACCEPTED]
+  -> 0020 AI provider core / OpenAI + Gemini File Search / full output [CURRENT]
   -> 0021 structured filters / five modes / multi-Entity / provider parity
   -> historical migration (manual / hybrid / selective automation)
   -> final production qualification / rollout readiness
