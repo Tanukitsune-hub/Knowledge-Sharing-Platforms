@@ -193,6 +193,9 @@ Detailed decision:
 
 `docs/decisions/target-runtime-first-development.md`
 
+The permanent DEV/PROD project separation is superseded; future Works use the
+accepted target runtime with isolated synthetic data and guarded side effects.
+
 ## 2026-08-27 — Counterparty entity classification
 
 Status: Accepted and implemented

@@ -448,6 +448,18 @@ function kspBuildKnowledgeExportFilename_(input, nowIso, outputType) {
   return outputType === KSP_KNOWLEDGE_EXPORT_OUTPUT_TYPES.PDF ? name + '.pdf' : name;
 }
 
+function kspBuildKnowledgeExportPackageTitle_(input) {
+  var value = input || {};
+  var parts = ['Knowledge Export', String(value.mode || '自由質問')];
+  var filters = kspKnowledgeExportPublicFilters_(value);
+  [filters.gpId, filters.assetClassId, filters.capitalTypeId, filters.sourceType,
+    filters.dateFrom, filters.dateTo].forEach(function (filterValue) {
+    var segment = kspNormalizeGeneratedNameSegment_(filterValue);
+    if (segment) parts.push(segment);
+  });
+  return parts.join(' / ').slice(0, 180);
+}
+
 function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, title) {
   var safeMaps = maps || { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} };
   var meetingSections = (meetings || []).map(function (item) {
@@ -500,9 +512,10 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
     ].filter(function (line) { return line; }).join('\n');
   });
   return {
-    title: title,
+    title: title || kspBuildKnowledgeExportPackageTitle_(input),
     meetingSections: meetingSections,
-    pitchbookLines: pitchbookLines
+    pitchbookLines: pitchbookLines,
+    pitchbookReferencesOnly: true
   };
 }
 
@@ -515,7 +528,7 @@ function kspBuildKnowledgeExportPlainText_(model) {
     lines.push('', section.body || '');
   });
   if ((model.pitchbookLines || []).length) {
-    lines.push('', 'Pitchbooks / metadata and authoritative links only', '');
+    lines.push('', 'Pitchbooks / reference metadata and authoritative links only', '');
     lines = lines.concat(model.pitchbookLines);
   }
   return lines.join('\n');
@@ -547,8 +560,8 @@ function kspBuildKnowledgeExportPrompt_(input, catalog) {
     'Source Type: ' + sourceType,
     '',
     definition.instruction,
-    'Meeting sectionは完全な原文を含みます。Pitchbook sectionはmetadataと権威あるDrive linkのみを含み、Pitchbook本文は含みません。',
-    'Knowledge Exportを添付し、分析したいPitchbookは必要に応じて原ファイルを別途アップロードしてください。'
+    'Meeting sectionは権威あるGoogle Docsの完全な原文を含みます。Pitchbook sectionは参照metadataと権威あるDrive linkのみを含み、Pitchbook本文は含みません。',
+    'この全文出力はPitchbook本文を含みません。Pitchbook本文の分析が必要な場合は、許可された資料検索ルートで別途アップロードされた原資料を参照してください。'
   ];
   if (input.questionOrInstruction) lines.push('', '質問または追加指示:', input.questionOrInstruction);
   return lines.join('\n');

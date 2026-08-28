@@ -2,7 +2,7 @@ var KSP_COMPONENT_WORK_ID = '0004';
 var KSP_RELEASE_VERSION = '0.1.2';
 var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
 var KSP_APP_VERSION = KSP_RELEASE_VERSION;
-var KSP_SCHEMA_VERSION = 5;
+var KSP_SCHEMA_VERSION = 6;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
@@ -375,7 +375,8 @@ function kspGetBackendSchemas_() {
     'Team_ID', 'Fund_Strategy', 'Meeting_Type_Codes', 'Related_Pitchbook_IDs',
     'Follow_Up_Required', 'Follow_Up_Note',
     'Counterparty_Type', 'Counterparty_ID', 'Related_GP_IDs',
-    'Admin_Check_Completed', 'Admin_Check_Updated_At', 'Admin_Check_Updated_By'
+    'Admin_Check_Completed', 'Admin_Check_Updated_At', 'Admin_Check_Updated_By',
+    'AI_Provider_State_JSON'
   ];
 
   schemas[KSP_SHEET_NAMES.PITCHBOOK_INDEX] = [
@@ -383,7 +384,7 @@ function kspGetBackendSchemas_() {
     'Capital_Type_ID', 'Sequence_No', 'File_ID', 'File_URL', 'Original_Filename',
     'Saved_Filename', 'Status', 'Created_At', 'Updated_At', 'Created_By',
     'Updated_By', 'AI_Document_Name', 'AI_Index_Status', 'AI_Indexed_At',
-    'AI_Content_Hash', 'AI_Last_Error', 'Fund_Strategy'
+    'AI_Content_Hash', 'AI_Last_Error', 'Fund_Strategy', 'AI_Provider_State_JSON'
   ];
 
   schemas[KSP_SHEET_NAMES.SETTINGS] = [
@@ -512,6 +513,11 @@ function kspBuildSettingsRows_(config, resources, nowIso) {
     { Key: 'NEXT_BATCH_ID', Value: '1', Description: 'Next Pitchbook batch numeric sequence.', Updated_At: nowIso },
     { Key: 'GEMINI_FILE_SEARCH_STORE_NAME', Value: '', Description: 'Configured during the Gemini implementation Work.', Updated_At: nowIso },
     { Key: 'AI_DEFAULT_MODEL', Value: '', Description: 'Configured Gemini Flash model ID.', Updated_At: nowIso },
+    { Key: 'OPENAI_ENABLED', Value: 'false', Description: 'Whether the administrator has enabled the ChatGPT / OpenAI provider.', Updated_At: nowIso },
+    { Key: 'OPENAI_VECTOR_STORE_ID', Value: '', Description: 'Server-side OpenAI Vector Store identifier.', Updated_At: nowIso },
+    { Key: 'OPENAI_DEFAULT_MODEL', Value: '', Description: 'Administrator-selected OpenAI model ID.', Updated_At: nowIso },
+    { Key: 'GEMINI_ENABLED', Value: 'false', Description: 'Whether the administrator has enabled the Gemini provider.', Updated_At: nowIso },
+    { Key: 'GEMINI_DEFAULT_MODEL', Value: '', Description: 'Administrator-selected Gemini model ID.', Updated_At: nowIso },
     { Key: 'LAST_SETUP_AT', Value: nowIso, Description: 'Last successful setup/repair execution.', Updated_At: nowIso }
   ];
 }
@@ -522,7 +528,12 @@ function kspGetSettingsPreserveExistingKeys_() {
     'NEXT_DOCUMENT_ID',
     'NEXT_BATCH_ID',
     'GEMINI_FILE_SEARCH_STORE_NAME',
-    'AI_DEFAULT_MODEL'
+    'AI_DEFAULT_MODEL',
+    'OPENAI_ENABLED',
+    'OPENAI_VECTOR_STORE_ID',
+    'OPENAI_DEFAULT_MODEL',
+    'GEMINI_ENABLED',
+    'GEMINI_DEFAULT_MODEL'
   ];
 }
 

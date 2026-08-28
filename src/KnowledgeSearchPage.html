@@ -1,6 +1,14 @@
 <section id="page-knowledge" class="page">
   <section class="card">
     <div class="knowledge-toolbar">
+      <div class="field route-field">
+        <label for="knowledge-route">実行ルート</label>
+        <select id="knowledge-route">
+          <option value="OPENAI">ChatGPT</option>
+          <option value="GEMINI" selected>Gemini</option>
+          <option value="FULL_EXPORT">全文出力</option>
+        </select>
+      </div>
       <div class="field mode-field">
         <label for="knowledge-mode">検索モード</label>
         <select id="knowledge-mode">
@@ -42,21 +50,32 @@
     <div class="section-heading">
       <div>
         <h2>対象資料の書き出し</h2>
-        <p class="hint">Gemini検索を実行せず、選択した条件に一致するActiveな原資料を確認して書き出します。</p>
+        <p class="hint">Meeting記録のGoogle Docs全文を出力します。Pitchbook本文は含まず、該当資料は参照リンクとして表示します。Gemini検索を実行せず、ChatGPT検索も実行しません。</p>
       </div>
     </div>
     <p id="knowledge-export-scope" class="hint" aria-live="polite">Source Type: 未選択（MeetingとPitchbook）</p>
     <div class="actions">
-      <span class="hint">まず対象資料を確認してください。書き出しは確認済みの原文とリンクだけを使います。</span>
+      <span class="hint">まず対象資料を確認してください。出力は確認済みのMeeting原文と参照リンクだけを使います。</span>
       <div class="action-group">
         <button id="knowledge-export-preview-button" class="action secondary" type="button">対象資料を確認</button>
-        <button id="knowledge-export-docs" class="action primary" type="button" disabled>Google Docsに書き出す</button>
-        <button id="knowledge-export-pdf" class="action primary" type="button" disabled>PDFに書き出す</button>
-        <button id="knowledge-export-prompt" class="action secondary" type="button">AI用プロンプトをコピー</button>
       </div>
     </div>
     <div id="knowledge-export-preview-summary" class="summary" aria-live="polite">対象資料を確認すると、件数と文字数を表示します。</div>
+    <div class="actions">
+      <div class="action-group">
+        <button id="knowledge-export-copy" class="action primary" type="button" disabled>コピー</button>
+        <button id="knowledge-export-docs" class="action primary" type="button" disabled>Google Docs</button>
+        <button id="knowledge-export-pdf" class="action primary" type="button" disabled>PDF</button>
+      </div>
+    </div>
     <div id="knowledge-export-hard-stop" class="status error" role="alert" aria-live="assertive"></div>
+    <div id="knowledge-export-preview-body" class="knowledge-export-preview-body" tabindex="0" aria-label="Meeting全文プレビュー"><pre id="knowledge-export-body-preview"></pre></div>
+    <div id="knowledge-export-pitchbook-references" class="knowledge-export-references" aria-live="polite"></div>
+    <div class="actions">
+      <div class="action-group">
+        <button id="knowledge-export-prompt" class="action secondary" type="button">AI用プロンプトをコピー</button>
+      </div>
+    </div>
     <div id="knowledge-export-prompt-preview" class="field hidden-panel" style="margin-top:18px">
       <label for="knowledge-export-prompt-text">コピーするプロンプト</label>
       <textarea id="knowledge-export-prompt-text" readonly aria-describedby="knowledge-export-policy"></textarea>

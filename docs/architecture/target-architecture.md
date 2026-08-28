@@ -533,6 +533,8 @@ Target-runtime qualification covers actual Apps Script, Workspace object shapes,
 
 ## 20. Work sequence
 
+Work 0014 structured Meeting context foundation is the accepted foundation for the sequence below.
+
 ```text
 0015 GP Workspace
 → 0016 Counterparty entity foundation

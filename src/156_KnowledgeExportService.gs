@@ -117,24 +117,11 @@ function kspMaterializeKnowledgeExportSources_(environment, sources, budget) {
         throw kspKnowledgeExportSourceError_('KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH', source.sourceId,
           'PitchbookのDriveリンクと安定IDが一致しません。');
       }
-      if (typeof environment.getDriveFileMetadata === 'function') {
-        var file;
-        try { file = environment.getDriveFileMetadata(fileId); }
-        catch (error) {
-          throw kspKnowledgeExportSourceError_('KNOWLEDGE_EXPORT_PITCHBOOK_FILE_READ_FAILED', source.sourceId,
-            'Pitchbookの権威あるDriveファイルを確認できません。');
-        }
-        if (!file || String(file.id || '') !== fileId || file.trashed ||
-            file.mimeType === KSP_MIME_TYPES.FOLDER) {
-          throw kspKnowledgeExportSourceError_('KNOWLEDGE_EXPORT_PITCHBOOK_FILE_READ_FAILED', source.sourceId,
-            'Pitchbookの権威あるDriveファイルを確認できません。');
-        }
-        if (file.webViewLink && !kspKnowledgeExportUrlMatchesId_(file.webViewLink, fileId)) {
-          throw kspKnowledgeExportSourceError_('KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH', source.sourceId,
-            'PitchbookのDriveリンクと安定IDが一致しません。');
-        }
-      }
+      // FULL_EXPORT is deliberately reference-only for Pitchbooks. The authoritative
+      // Index row already supplies the stable file ID and URL, so this path must not
+      // call Drive metadata/media adapters or inspect source bytes.
       source.canonicalUrl = kspBuildKnowledgeExportCanonicalUrl_(KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.PITCHBOOK, fileId);
+      source.referenceOnly = true;
       pitchbooks.push({ source: source });
     }
   });
@@ -142,7 +129,7 @@ function kspMaterializeKnowledgeExportSources_(environment, sources, budget) {
   return { meetings: meetings, pitchbooks: pitchbooks };
 }
 
-function kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials, catalog) {
+function kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials, catalog, masterMaps) {
   var meetingCharacterCount = (materials.meetings || []).reduce(function (total, item) {
     return total + item.body.length;
   }, 0);
@@ -156,6 +143,15 @@ function kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials,
   );
   var sourceIds = (sources || []).slice(0, KSP_KNOWLEDGE_EXPORT_LIMITS.MAX_SOURCE_ID_REPORT)
     .map(function (source) { return source.sourceId; });
+  var renderModel = kspBuildKnowledgeExportRenderModel_(
+    input,
+    materials.meetings,
+    materials.pitchbooks,
+    masterMaps || { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} },
+    kspBuildKnowledgeExportPackageTitle_(input)
+  );
+  var packageText = kspBuildKnowledgeExportPlainText_(renderModel);
+  var previewFingerprint = kspBuildKnowledgeExportFingerprint_(sources, input, catalog);
   return {
     workId: KSP_KNOWLEDGE_EXPORT_WORK_ID,
     filters: kspKnowledgeExportPublicFilters_(input),
@@ -170,7 +166,12 @@ function kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials,
     noResults: (sources || []).length === 0,
     sourceIds: sourceIds,
     sourceIdCount: (sources || []).length,
-    previewFingerprint: kspBuildKnowledgeExportFingerprint_(sources, input, catalog)
+    previewFingerprint: previewFingerprint,
+    packageFingerprint: previewFingerprint,
+    packageText: packageText,
+    meetingPreviewText: (materials.meetings || []).map(function (item) { return item.body; }).join('\n\n'),
+    pitchbookReferenceLines: (renderModel.pitchbookLines || []).slice(),
+    pitchbookReferencesOnly: true
   };
 }
 
@@ -213,7 +214,8 @@ function kspRunKnowledgeExportPreview_(environment, rawInput) {
       preview = kspBuildKnowledgeExportIndexPreview_(input, sources, catalog);
     } else {
       var materials = kspMaterializeKnowledgeExportSources_(environment, sources, { startedAt: Date.now(), meetingReads: 0 });
-      preview = kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials, catalog);
+      preview = kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials, catalog,
+        kspBuildAllMasterMaps_(context.gpRows, context.optionRows));
     }
     kspTryAppendKnowledgeExportAudit_(environment, auditSpreadsheetId, kspBuildKnowledgeExportAuditRow_({
       timestamp: environment.nowIso(),
@@ -287,7 +289,8 @@ function kspRunKnowledgeExportCreation_(environment, rawInput) {
         preview.hardStopReasons.join(' ') + ' フィルターを絞ってください。');
     } else {
       materials = kspMaterializeKnowledgeExportSources_(environment, sources, { startedAt: Date.now(), meetingReads: 0 });
-      preview = kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials, catalog);
+      preview = kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials, catalog,
+        kspBuildAllMasterMaps_(context.gpRows, context.optionRows));
     }
     if (preview.previewFingerprint !== input.previewFingerprint) {
       var staleError = new Error('プレビューが古くなっています。再度プレビューを実行してください。');
@@ -301,7 +304,13 @@ function kspRunKnowledgeExportCreation_(environment, rawInput) {
 
     var maps = kspBuildAllMasterMaps_(context.gpRows, context.optionRows);
     var title = kspBuildKnowledgeExportFilename_(input, environment.nowIso(), input.outputType);
-    var renderModel = kspBuildKnowledgeExportRenderModel_(input, materials.meetings, materials.pitchbooks, maps, title);
+    var renderModel = kspBuildKnowledgeExportRenderModel_(
+      input, materials.meetings, materials.pitchbooks, maps,
+      kspBuildKnowledgeExportPackageTitle_(input)
+    );
+    var packageText = kspBuildKnowledgeExportPlainText_(renderModel);
+    kspAssert_(packageText === preview.packageText,
+      'KNOWLEDGE_EXPORT_PACKAGE_CHANGED', '全文出力パッケージがプレビュー後に変更されています。');
     var artifact = environment.createKnowledgeExportArtifact({
       folderId: context.knowledgeExportsFolderId,
       filename: title,
@@ -343,6 +352,8 @@ function kspRunKnowledgeExportCreation_(environment, rawInput) {
       workId: KSP_KNOWLEDGE_EXPORT_WORK_ID,
       artifact: { id: artifact.id, url: artifact.url, name: artifact.name || title, outputType: input.outputType },
       preview: preview,
+      packageFingerprint: preview.packageFingerprint || preview.previewFingerprint,
+      packageText: packageText,
       warnings: warnings
     };
     if (idempotencyKey && typeof environment.setPublicIdempotency === 'function') {

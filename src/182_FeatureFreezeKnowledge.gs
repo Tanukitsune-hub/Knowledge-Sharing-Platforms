@@ -92,10 +92,10 @@ function kspBuildFeatureFreezePrompt_(input) {
   var mode = kspGetFeatureFreezeModeDefinition_(input.mode).mode;
   var instruction = kspAiTrim_(input.questionOrInstruction || input.question);
   var common = [
-    '社内ナレッジベースからFile Searchで取得された資料だけを根拠として、日本語で回答してください。',
+    '社内ナレッジベースから取得された資料だけを根拠として、日本語で回答してください。',
     '根拠が不足する箇所は推測で埋めず、確認できない点と証拠不足を明示してください。',
     '外部知識や一般論を、資料に記載された事実として扱わないでください。',
-    '重要な事実・比較・変化には、取得資料に対応するCitationを付けてください。',
+    '重要な事実・比較・変化には、取得資料に対応する出典情報を付けてください。',
     '', 'モード: ' + mode
   ];
   var lines = [];

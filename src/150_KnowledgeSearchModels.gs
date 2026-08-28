@@ -38,12 +38,18 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
 }
 
 function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
-  var maps = { bySourceId: {}, byAiDocumentName: {} };
+  var maps = { bySourceId: {}, bySourceKey: {}, byAiDocumentName: {}, byProviderDocumentId: {} };
 
   function add(source) {
     if (!source.sourceId) return;
-    maps.bySourceId[source.sourceId] = source;
+    var sourceKey = kspAiSourceKey_(source.sourceType, source.sourceId);
+    maps.bySourceKey[sourceKey] = source;
+    if (!maps.bySourceId[source.sourceId]) maps.bySourceId[source.sourceId] = source;
+    else if (maps.bySourceId[source.sourceId].sourceType !== source.sourceType) maps.bySourceId[source.sourceId] = null;
     if (source.aiDocumentName) maps.byAiDocumentName[source.aiDocumentName] = source;
+    (source.providerDocumentIds || []).forEach(function (providerDocumentId) {
+      if (providerDocumentId) maps.byProviderDocumentId[String(providerDocumentId)] = source;
+    });
   }
 
   (meetingRows || []).forEach(function (row) {
@@ -54,7 +60,8 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
       driveUrl: String(row.Doc_URL || ''),
       savedFilename: String(row.Saved_Filename || row.Meeting_ID || ''),
       status: String(row.Status || ''),
-      aiDocumentName: String(row.AI_Document_Name || '')
+      aiDocumentName: String(row.AI_Document_Name || ''),
+      providerDocumentIds: kspKnowledgeSourceProviderDocumentIds_(row)
     });
   });
 
@@ -66,23 +73,47 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
       driveUrl: String(row.File_URL || ''),
       savedFilename: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
       status: String(row.Status || ''),
-      aiDocumentName: String(row.AI_Document_Name || '')
+      aiDocumentName: String(row.AI_Document_Name || ''),
+      providerDocumentIds: kspKnowledgeSourceProviderDocumentIds_(row)
     });
   });
 
   return maps;
 }
 
+function kspKnowledgeSourceProviderDocumentIds_(row) {
+  var ids = [];
+  if (row && row.AI_Document_Name) ids.push(String(row.AI_Document_Name));
+  if (row && row.AI_Provider_State_JSON && typeof kspParseAiProviderState_ === 'function') {
+    try {
+      var state = kspParseAiProviderState_(row.AI_Provider_State_JSON, row);
+      [KSP_AI_PROVIDERS.OPENAI, KSP_AI_PROVIDERS.GEMINI].forEach(function (provider) {
+        if (state[provider] && state[provider].providerDocumentId) ids.push(String(state[provider].providerDocumentId));
+        if (state[provider] && state[provider].documentName) ids.push(String(state[provider].documentName));
+      });
+    } catch (ignored) { /* Keep source identity authoritative if derived state is malformed. */ }
+  }
+  return kspUniqueStrings_(ids);
+}
+
 function kspMapKnowledgeCitations_(rawCitations, sourceMaps) {
-  var maps = sourceMaps || { bySourceId: {}, byAiDocumentName: {} };
+  var maps = sourceMaps || { bySourceId: {}, bySourceKey: {}, byAiDocumentName: {}, byProviderDocumentId: {} };
   var warnings = [];
   var seen = {};
   var citations = [];
 
   (rawCitations || []).forEach(function (citation) {
-    var metadata = citation && citation.metadata ? citation.metadata : {};
+    var metadata = citation && citation.metadata ? kspMetadataArrayToMap_(citation.metadata) : {};
     var sourceId = kspAiTrim_(metadata.source_id);
-    var authoritative = sourceId ? maps.bySourceId[sourceId] : null;
+    var sourceType = kspAiTrim_(metadata.source_type);
+    var authoritative = sourceId && sourceType && maps.bySourceKey
+      ? maps.bySourceKey[kspAiSourceKey_(sourceType, sourceId)] : null;
+    if (!authoritative && sourceId) authoritative = maps.bySourceId[sourceId] || null;
+    if (!authoritative && citation && (citation.fileId || citation.file_id || citation.source)) {
+      var providerDocumentId = String(citation.fileId || citation.file_id || citation.source);
+      authoritative = maps.byProviderDocumentId ? maps.byProviderDocumentId[providerDocumentId] : null;
+      if (!authoritative && maps.byAiDocumentName) authoritative = maps.byAiDocumentName[providerDocumentId] || null;
+    }
     if (!authoritative && citation && citation.source) {
       authoritative = maps.byAiDocumentName[String(citation.source)] || null;
       if (authoritative) sourceId = authoritative.sourceId;
@@ -113,7 +144,7 @@ function kspMapKnowledgeCitations_(rawCitations, sourceMaps) {
     }
 
     var pageNumber = citation && citation.pageNumber ? Number(citation.pageNumber) : null;
-    var key = authoritative.sourceId + '|' + String(pageNumber || '');
+    var key = authoritative.sourceType + ':' + authoritative.sourceId + '|' + String(pageNumber || '');
     if (seen[key]) return;
     seen[key] = true;
     citations.push({
