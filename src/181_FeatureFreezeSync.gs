@@ -82,7 +82,13 @@ function kspFfSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
 function kspBuildFeatureFreezeAiSource_(environment, item, maps) {
   var row = item.row;
   if (item.sourceType === KSP_AI_SOURCE_TYPES.MEETING) {
-    var meetingText = environment.readMeetingText(String(row.Doc_File_ID || ''));
+    var meetingText;
+    try {
+      meetingText = environment.readMeetingText(String(row.Doc_File_ID || ''));
+    } catch (error) {
+      if (error && /^AI_/.test(String(error.code || ''))) throw error;
+      throw kspGeminiStageError_('AI_SOURCE_READ_FAILED', 'SOURCE_READ', 0, {}, false);
+    }
     var meeting = kspBuildMeetingAiSource_(row, maps, meetingText, environment.hashText(meetingText));
     meeting.payloadKind = 'text';
     meeting.byteLength = kspAiSourcePayloadBytes_(meeting).length;
@@ -90,7 +96,13 @@ function kspBuildFeatureFreezeAiSource_(environment, item, maps) {
   }
   var extension = kspGetPitchbookExtensionForAi_(row);
   var definition = kspGetAiFormatDefinition_(extension);
-  var driveSource = environment.readPitchbookSource(String(row.File_ID || ''));
+  var driveSource;
+  try {
+    driveSource = environment.readPitchbookSource(String(row.File_ID || ''));
+  } catch (error) {
+    if (error && /^AI_/.test(String(error.code || ''))) throw error;
+    throw kspGeminiStageError_('AI_SOURCE_READ_FAILED', 'SOURCE_READ', 0, {}, false);
+  }
   kspValidateAiSourceDescriptor_(extension, driveSource.mimeType, driveSource.bytes.length);
   if (definition.readStrategy === KSP_AI_READ_STRATEGIES.EML_NORMALIZED_TEXT) {
     var rawEml = environment.decodeSourceText(driveSource.bytes, 'UTF-8');
@@ -285,12 +297,7 @@ function kspFfSignedBytes_(bytes) {
 }
 
 function kspFfThrowHttpError_(code, parsed, fallbackMessage) {
-  var message = parsed && parsed.error && parsed.error.message ? parsed.error.message : (fallbackMessage || ('Gemini API HTTP ' + code));
-  var error = new Error(message);
-  error.code = 'AI_HTTP_' + code;
-  error.httpStatus = code;
-  error.retryable = Boolean(KSP_AI_RETRYABLE_HTTP_CODES[code]);
-  throw error;
+  throw kspGeminiStageError_('AI_HTTP_' + code, 'GEMINI_HTTP', code, {}, undefined);
 }
 
 function kspUploadFeatureFreezeSourceLive_(storeName, source) {
@@ -298,41 +305,5 @@ function kspUploadFeatureFreezeSourceLive_(storeName, source) {
   var bytes = kspAiSourcePayloadBytes_(source);
   kspAssert_(bytes.length > 0, 'AI_SOURCE_SIZE_INVALID', 'AI source payload is empty.');
   kspAssert_(bytes.length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_SOURCE_BYTES, 'AI_SOURCE_TOO_LARGE', 'AI source exceeds the 25MB product limit.');
-  var metadata = kspBuildFileSearchUploadMetadata_(source);
-  var startResponse = UrlFetchApp.fetch(KSP_AI_API.UPLOAD_BASE_URL + '/' + normalizedStore + ':uploadToFileSearchStore', {
-    method: 'post', contentType: 'application/json',
-    headers: {
-      'x-goog-api-key': kspGeminiApiKeyLive_(),
-      'X-Goog-Upload-Protocol': 'resumable',
-      'X-Goog-Upload-Command': 'start',
-      'X-Goog-Upload-Header-Content-Length': String(bytes.length),
-      'X-Goog-Upload-Header-Content-Type': metadata.mimeType
-    },
-    payload: JSON.stringify(metadata), muteHttpExceptions: true
-  });
-  var startCode = startResponse.getResponseCode();
-  if (startCode < 200 || startCode >= 300) {
-    var startText = startResponse.getContentText('UTF-8');
-    kspFfThrowHttpError_(startCode, startText ? kspSafeParseJson_(startText, 'File Search upload session response') : {}, 'File Search upload sessionを開始できませんでした。');
-  }
-  var headers = startResponse.getAllHeaders();
-  var uploadUrl = headers.Location || headers.location || headers['X-Goog-Upload-URL'] || headers['x-goog-upload-url'];
-  kspAssert_(uploadUrl, 'AI_UPLOAD_URL_MISSING', 'File Search upload URLが返されませんでした。');
-  var uploadResponse = UrlFetchApp.fetch(String(uploadUrl), {
-    method: 'post', contentType: metadata.mimeType,
-    headers: {
-      'x-goog-api-key': kspGeminiApiKeyLive_(),
-      'Content-Length': String(bytes.length),
-      'X-Goog-Upload-Offset': '0',
-      'X-Goog-Upload-Command': 'upload, finalize'
-    },
-    payload: kspFfSignedBytes_(bytes), muteHttpExceptions: true
-  });
-  var code = uploadResponse.getResponseCode();
-  var responseText = uploadResponse.getContentText('UTF-8');
-  var parsed = responseText ? kspSafeParseJson_(responseText, 'File Search upload response') : {};
-  if (code < 200 || code >= 300) kspFfThrowHttpError_(code, parsed, 'File Search upload failed.');
-  var operation = kspPollFileSearchOperationLive_(kspNormalizeFileSearchOperation_(parsed));
-  kspAssert_(!operation.error, 'AI_UPLOAD_OPERATION_FAILED', operation.error ? operation.error.message : 'Upload operation failed.');
-  return kspExtractDocumentFromOperation_(operation);
+  return kspGeminiUploadSourceLive_(normalizedStore, source, kspFfSignedBytes_(bytes));
 }

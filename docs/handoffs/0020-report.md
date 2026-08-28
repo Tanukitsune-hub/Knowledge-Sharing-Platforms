@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-05`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Current classification
 
@@ -11,9 +11,9 @@ STATUS: `READY`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: BLOCKED — no accepted indexed Meeting/Pitchbook source yet
+GEMINI_RUNTIME: BLOCKED — AI_UPLOAD_FINALIZE_FAILED / UPLOAD_FINALIZE on the first post-repair Meeting indexing gate
 FULL_OUTPUT_RUNTIME: PASS
-FINAL_INTEGRITY: PENDING after CODEX-04 stop
+FINAL_INTEGRITY: PARTIAL — bounded post-attempt readback complete; dependent qualification not run
 READY: NO
 BLOCKER: YES
 ```
@@ -44,6 +44,13 @@ Detailed reports:
 
 - `docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-report.md`
 - `docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-report.md`
+- `docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`
+
+## CODEX-05 return
+
+Deterministic repair validation passed (`68/68` focused; `274/274` repository), exact `78`-file source readback passed, version `45` was created, and the same private Web App was updated in place. The one authorized Meeting sync then failed at safe stage `UPLOAD_FINALIZE` with code `AI_UPLOAD_FINALIZE_FAILED`; no provider Document identity or Indexed state was produced. No query, Pitchbook indexing, lifecycle, or second live hypothesis was attempted.
+
+The temporary batch-size setting was restored with exact value/type readback. Backend remained five sheets/schema 6, Pitchbook cells were unchanged, OpenAI stayed disabled and uncalled, and no new deployment was created.
 
 ## Authoritative correction to CODEX-04 diagnosis
 

@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-05`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `INVESTIGATION / BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -73,6 +73,14 @@ CODEX-05 must:
 6. prove exact metadata filter and update/Inactive/Reactivate/delete-rebuild lifecycle without duplicate active documents;
 7. reconcile the two Audit failure rows and prove one browser submit produces one final Audit outcome despite internal retries;
 8. keep OpenAI disabled/uncalled, `AI_SYNC_ENABLED=false`, triggers `0`, and final integrity PASS.
+
+## Current CODEX-05 status
+
+The CODEX-05 deterministic repair and one authorized source/deployment update completed, but the first post-repair one-Meeting indexing gate stopped at `AI_UPLOAD_FINALIZE_FAILED` / `UPLOAD_FINALIZE`. No query or Pitchbook qualification was run after that failure. See:
+
+`docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`
+
+Further Gemini live execution requires a Strategy Reset; do not infer a second production hypothesis from this return.
 
 ## Closed contracts
 

@@ -37,24 +37,17 @@ function kspBuildAiCustomMetadata_(source) {
   addString('source_id', source.sourceId);
   addString('date_key', source.dateKey);
   addString('gp_id', source.gpId);
-  addString('gp_name', source.gpName);
   addString('entity_key', source.entityKey);
   addString('counterparty_type', source.counterpartyType);
   addString('counterparty_id', source.counterpartyId);
-  addString('counterparty_name', source.counterpartyName);
   addString('related_gp_ids', source.relatedGpIds);
   addString('asset_class_id', source.assetClassId);
-  addString('asset_class_name', source.assetClassName);
   addString('capital_type_id', source.capitalTypeId);
-  addString('capital_type_name', source.capitalTypeName);
   addString('team_id', source.teamId);
-  addString('team_name', source.teamName);
   addString('fund_strategy', source.fundStrategy);
   addString('meeting_type_codes', source.meetingTypeCodes);
   addString('related_pitchbook_ids', source.relatedPitchbookIds);
   addString('follow_up_required', source.followUpRequired === true ? 'true' : '');
-  addString('drive_url', source.driveUrl);
-  addString('saved_filename', source.savedFilename);
   addString('content_hash', source.contentHash);
   return metadata;
 }

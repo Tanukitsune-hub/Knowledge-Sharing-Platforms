@@ -33,8 +33,7 @@ function kspBuildAiLastError_(params) {
     retryable: options.retryable !== false,
     nextAttemptAt: kspAiTrim_(options.nextAttemptAt),
     permanent: Boolean(options.permanent),
-    code: kspAiTrim_(options.code),
-    message: kspAiTrim_(options.message).slice(0, 1000)
+    code: kspAiTrim_(options.code)
   });
 }
 

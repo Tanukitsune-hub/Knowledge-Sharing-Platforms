@@ -81,9 +81,9 @@ function kspAiProviderLastError_(value) {
   var parsed = value;
   if (typeof parsed === 'string') {
     var raw = parsed.trim();
-    if (!raw) return { attempt: 0, retryable: false, permanent: false, nextAttemptAt: '' };
+    if (!raw) return { attempt: 0, retryable: false, permanent: false, nextAttemptAt: '', code: '' };
     try { parsed = JSON.parse(raw); } catch (ignored) {
-      return { attempt: 0, retryable: false, permanent: false, nextAttemptAt: '' };
+      return { attempt: 0, retryable: false, permanent: false, nextAttemptAt: '', code: '' };
     }
   }
   var source = parsed && typeof parsed === 'object' ? parsed : {};
@@ -91,7 +91,8 @@ function kspAiProviderLastError_(value) {
     attempt: Number(source.attempt || 0) || 0,
     retryable: Boolean(source.retryable),
     permanent: Boolean(source.permanent),
-    nextAttemptAt: kspAiTrim_(source.nextAttemptAt || source.next_attempt_at)
+    nextAttemptAt: kspAiTrim_(source.nextAttemptAt || source.next_attempt_at),
+    code: kspAiTrim_(source.code)
   };
 }
 
@@ -460,6 +461,9 @@ function kspProviderSafeMessage_(code) {
     GEMINI_DISABLED_BY_CONFIG: 'Gemini検索は管理者設定で無効です。',
     GEMINI_NOT_CONFIGURED: 'Gemini検索の設定が未完了です。',
     GEMINI_CREDENTIALS_UNAVAILABLE: 'Gemini検索の設定を確認できません。',
+    AI_QUERY_HTTP_FAILED: 'Gemini検索サービスを利用できません。',
+    AI_QUERY_RESPONSE_INVALID: 'Gemini検索結果を確認できませんでした。',
+    AI_DOCUMENT_READBACK_FAILED: 'Gemini検索用Documentを確認できませんでした。',
     AI_PROVIDER_INVALID: '検索プロバイダが不正です。'
   };
   return messages[String(code || '')] || '';

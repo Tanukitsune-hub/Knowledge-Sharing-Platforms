@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-05`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Active dispatch
 
-### 0020-CODEX-05 — READY
+### 0020-CODEX-05 — RETURNED / BLOCKER
 
 - mode: `INVESTIGATION / BUILD / QUALIFICATION`;
 - route: `C`;
@@ -20,6 +20,11 @@ STATUS: `READY`
 - exact execution ref: use the final branch head supplied in the ChatGPT dispatch prompt;
 - OpenAI: deliberately deferred, disabled, and not to be live-called;
 - FULL_OUTPUT: accepted PASS from CODEX-03; do not rerun absent contradiction.
+- deterministic validation: focused `68/68 PASS`, repository `274/274 PASS`, temporal/public-surface/diff checks PASS;
+- exact `78`-file source readback PASS; immutable version `45`; same private Web App updated in place;
+- first post-repair Meeting indexing gate stopped at safe `AI_UPLOAD_FINALIZE_FAILED` / `UPLOAD_FINALIZE`;
+- no query, Pitchbook indexing/lifecycle, or second production hypothesis was attempted;
+- report: `docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`.
 
 ## Returned dispatch
 
@@ -79,4 +84,4 @@ Only one active Codex dispatch may exist.
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-05`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`

@@ -88,15 +88,30 @@ function kspAiProviderAdminReadStore_(environment, vectorStoreId) {
 function kspAiProviderAdminSafeSyncSummary_(report) {
   var source = report || {};
   var providers = {};
+  var errorCodes = [];
+  function addErrorCode(collection, code) {
+    var normalized = kspAiTrim_(code);
+    if (!normalized || collection.indexOf(normalized) !== -1) return;
+    collection.push(normalized);
+  }
   Object.keys(source.providers || {}).forEach(function (provider) {
     var value = source.providers[provider] || {};
+    var providerErrorCodes = [];
+    (source.items || []).filter(function (item) { return item && item.provider === provider; })
+      .forEach(function (item) { addErrorCode(providerErrorCodes, item.code); });
+    (source.errors || []).filter(function (item) { return item && item.provider === provider; })
+      .forEach(function (item) { addErrorCode(providerErrorCodes, item.code); });
+    providerErrorCodes.forEach(function (code) { addErrorCode(errorCodes, code); });
     providers[provider] = {
       enabled: Boolean(value.enabled),
       status: String(value.status || ''),
       indexed: Number(value.indexed || 0) || 0,
-      failed: Number(value.failed || 0) || 0
+      failed: Number(value.failed || 0) || 0,
+      errorCodes: providerErrorCodes
     };
   });
+  (source.items || []).forEach(function (item) { addErrorCode(errorCodes, item && item.code); });
+  (source.errors || []).forEach(function (item) { addErrorCode(errorCodes, item && item.code); });
   return {
     ok: Boolean(source.ok),
     indexed: Number(source.indexed || 0) || 0,
@@ -104,6 +119,7 @@ function kspAiProviderAdminSafeSyncSummary_(report) {
     unchanged: Number(source.unchanged || 0) || 0,
     removed: Number(source.removed || 0) || 0,
     failed: Number(source.failed || 0) || 0,
+    errorCodes: errorCodes,
     providers: providers
   };
 }

@@ -50,6 +50,9 @@ var KSP_AI_DEFAULTS = Object.freeze({
   MAX_QUESTION_LENGTH: 5000,
   MAX_OPERATION_POLLS: 8,
   OPERATION_POLL_MILLIS: 1500,
+  MAX_TRANSPORT_ATTEMPTS: 4,
+  TRANSPORT_RETRY_BASE_MILLIS: 500,
+  TRANSPORT_RETRY_MAX_MILLIS: 8000,
   CLAIM_TTL_MILLIS: 10 * 60 * 1000
 });
 
@@ -68,8 +71,6 @@ var KSP_AI_API = Object.freeze({
 
 var KSP_AI_RETRYABLE_HTTP_CODES = Object.freeze({
   408: true,
-  409: true,
-  425: true,
   429: true,
   500: true,
   502: true,
