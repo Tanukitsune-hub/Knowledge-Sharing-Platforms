@@ -76,7 +76,12 @@ function kspBuildInteractionRequest_(params) {
   return {
     model: modelId,
     input: kspBuildFreeQuestionPrompt_(question),
-    tools: [tool]
+    tools: [tool],
+    background: true,
+    generation_config: {
+      thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
+      max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
+    }
   };
 }
 

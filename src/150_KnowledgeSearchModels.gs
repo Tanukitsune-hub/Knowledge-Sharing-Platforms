@@ -173,7 +173,9 @@ function kspBuildKnowledgeSearchAuditRow_(params) {
     Result: options.result || KSP_AUDIT_RESULTS.FAILURE,
     Changed_Fields: '',
     Before_Metadata_JSON: '',
-    After_Metadata_JSON: '',
+    After_Metadata_JSON: typeof kspBuildSafeKnowledgeQueryTelemetryJson_ === 'function'
+      ? kspBuildSafeKnowledgeQueryTelemetryJson_(options.telemetry)
+      : '',
     Batch_ID: '',
     Error_Code: options.errorCode || '',
     Error_Message: options.errorCode ? kspSafePublicErrorMessage_(options.errorCode, 'SEARCH') : '',

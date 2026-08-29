@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-14`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `BUILD / QUALIFICATION`
 
 Primary plan:
@@ -165,5 +165,22 @@ FINAL_INTEGRITY: PASS
 READY: YES
 BLOCKER: NO
 ```
+
+## CODEX-14 execution result
+
+CODEX-14 delivered the exact request profile and cross-request query/UX lifecycle. Deterministic validation passed (`301/301`, temporal/public-surface/diff checks, public facade `30`), exact source readback was `78/78`, version `53` was created, and the same private Web App was updated in place.
+
+The one authorized synthetic Pitchbook Interaction returned a non-error pending state, survived one reload/resume via the same opaque token, and remained pending through the bounded observation window. No second Interaction, false `AI_QUERY_TIMEOUT`, pending failure Audit, lifecycle mutation, or provider retry occurred. The explicit handoff stop condition therefore applies:
+
+```text
+GEMINI_RUNTIME: BLOCKED / PROVIDER_LONG_RUNNING
+READY: NO
+BLOCKER: YES
+```
+
+Detailed report:
+`docs/handoffs/0020-CODEX-14-gemini-query-performance-and-ux-optimization-report.md`
+
+The target final classification below remains the intended completion state for a future authorized strategy reset; it is not claimed by CODEX-14.
 
 Completion Latch applies only after ChatGPT final review, current-main integration, and merge.

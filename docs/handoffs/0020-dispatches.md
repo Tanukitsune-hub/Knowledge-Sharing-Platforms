@@ -2,12 +2,12 @@
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-14`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED / BLOCKER`
 
 ## Active dispatch
 
-### 0020-CODEX-14 — READY
+### 0020-CODEX-14 — RETURNED / BLOCKER
 
 - mode: `BUILD / QUALIFICATION`;
 - route: `C`;
@@ -31,6 +31,12 @@ STATUS: `READY`
 - preserve all accepted CODEX-03 through CODEX-12 evidence;
 - no OpenAI live call, FULL_OUTPUT rerun, Store split/reindex/chunking experiment, paid Priority tier, browser API key, new Web App/Library/public debug endpoint, repeated new Pitchbook query, or current-main integration during this bounded implementation;
 - Codex final chat must begin and end with the exact identity block required by the instruction.
+- deterministic validation: `301/301 PASS`; temporal/public-surface/diff checks PASS; public facade `30`;
+- exact source readback `78/78`; one immutable Apps Script version `53`; same private Web App updated in place;
+- one synthetic Pitchbook START, one reload/resume, and one manual recheck used the same opaque job; no second START;
+- the Interaction remained pending at the bounded observation limit, so the dispatch stopped as `PROVIDER_LONG_RUNNING` without citation/lifecycle retries;
+- detailed report: `docs/handoffs/0020-CODEX-14-gemini-query-performance-and-ux-optimization-report.md`;
+- final Work completion gates remain blocked on provider terminal success; no OpenAI/FULL_OUTPUT/lifecycle/new deployment action occurred.
 
 ## Superseded dispatch
 
@@ -83,5 +89,5 @@ Only one active Codex dispatch may exist.
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-14`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED / BLOCKER`

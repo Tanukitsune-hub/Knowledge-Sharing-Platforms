@@ -127,7 +127,16 @@ function kspBuildFeatureFreezeInteractionRequest_(params) {
   var tool = { type: 'file_search', file_search_store_names: [storeName] };
   var filter = kspAiTrim_(options.metadataFilter);
   if (filter) tool.metadata_filter = filter;
-  return { model: modelId, input: kspBuildFeatureFreezePrompt_(input), tools: [tool] };
+  return {
+    model: modelId,
+    input: kspBuildFeatureFreezePrompt_(input),
+    tools: [tool],
+    background: true,
+    generation_config: {
+      thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
+      max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
+    }
+  };
 }
 
 function kspBuildFeatureFreezeAuditRow_(params) {

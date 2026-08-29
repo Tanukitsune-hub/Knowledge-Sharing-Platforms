@@ -2,8 +2,8 @@
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-14`
-BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+BALL: `CHATGPT`
+DISPATCH_STATUS: `RETURNED / BLOCKER`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
@@ -11,17 +11,17 @@ BLOCKER: `YES`
 
 ```text
 GEMINI_MODEL: gemini-3.7-flash — user-approved stable Flash
-GEMINI_REQUEST_PROFILE: NOT IMPLEMENTED — thinking/output bounds absent in current source
-GEMINI_BACKGROUND_LIFECYCLE: NOT IMPLEMENTED — same-call polling remains in current source
-GEMINI_USER_EXPERIENCE: NOT QUALIFIED — reload/resume/dedupe/progress contract pending
-PITCHBOOK_AUTHORITATIVE_CITATIONS: 0
-LOGIC_VALIDATION: PASS — accepted CODEX-12 evidence
+GEMINI_REQUEST_PROFILE: PASS — background=true, thinking_level=low, max_output_tokens=2048
+GEMINI_BACKGROUND_LIFECYCLE: PASS — one short START, opaque server-side state, separate POLL, no START sleep/poll
+GEMINI_USER_EXPERIENCE: PASS — immediate feedback, dedupe, adaptive polling, reload resume, manual recheck, non-error long-running state
+PITCHBOOK_AUTHORITATIVE_CITATIONS: NOT RUN — provider remained pending
+LOGIC_VALIDATION: PASS — CODEX-14 deterministic and repository gates
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred/disabled; uncalled
 GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: BLOCKED
-FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence; not rerun
-FINAL_INTEGRITY: PARTIAL
+GEMINI_RUNTIME: BLOCKED / PROVIDER_LONG_RUNNING
+FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
+FINAL_INTEGRITY: PASS — no pending-query data/control-plane side effect
 READY: NO
 BLOCKER: YES
 ```
@@ -103,15 +103,25 @@ One active hypothesis:
 
 > The latest stable Flash model is appropriate, but the application is invoking it through an unconstrained thinking/output profile and a non-resumable same-call polling lifecycle. One coherent low-latency request profile plus secure cross-request state, duplicate suppression, responsive browser UX, and safe telemetry will remove false timeouts and materially improve usability while preserving File Search and the provider-neutral architecture.
 
+## CODEX-14 actual execution result
+
+The exact tested source was delivered once and read back with `78/78` parity. One immutable Apps Script version (`53`) was created and the same private Web App was updated in place; the Web App type/security boundary and deployment inventory were preserved.
+
+The one authorized synthetic Pitchbook START returned to pending in approximately `9115ms`. One reload/resume path and one manual recheck used the same opaque job token; no second START was observed. The maximum browser-observed POLL round trip was `9691ms`. The same Interaction remained nonterminal at the bounded `>=600000ms` observation limit. The UI preserved a non-error long-running state and did not generate `AI_QUERY_TIMEOUT`.
+
+The pending state produced no terminal AI_QUERY Audit row. Read-only integrity confirmed schema 6, five Backend sheets, settings, source rows/files, Audit, Script Properties, triggers (`0`), Store/deployment/Library boundaries, and OpenAI-disabled state were unchanged. Because no terminal successful query was observed, citation, metadata/lifecycle, and dependent final qualification gates were not run.
+
+Detailed report:
+`docs/handoffs/0020-CODEX-14-gemini-query-performance-and-ux-optimization-report.md`
+
+The handoff's stop condition applies: preserve the resumable token and classify the provider as `PROVIDER_LONG_RUNNING`; do not retry or create a second query in this dispatch.
+
 ## Findings
 
 ### BLOCKER
 
 1. No grounded Pitchbook query with authoritative citation has passed.
-2. The current request does not explicitly select the low-latency thinking level or cap output tokens.
-3. The current background flow sleeps/polls inside one Apps Script request and converts a still-pending provider Interaction into a local timeout.
-4. Secure page-reload resume, identical-pending START reuse, complete current terminal-status mapping, and one-terminal-Audit idempotency are not qualified.
-5. Exact metadata-filter and update/Inactive/Reactivate/delete-rebuild/final-integrity gates remain dependent on Pitchbook query PASS.
+2. Exact metadata-filter and update/Inactive/Reactivate/delete-rebuild gates remain dependent on a terminal successful Pitchbook query.
 
 ### FOLLOW_UP
 
@@ -129,7 +139,7 @@ None added to the active implementation. Do not split Stores, alter chunking, re
 - Synthetic Pitchbook indexing is accepted and must not be repeated merely to diagnose query lifecycle.
 - CODEX-12 request-shape tests and delivery evidence remain accepted for what they observed.
 
-## Target final matrix
+## Target final matrix (not reached in CODEX-14)
 
 ```text
 GEMINI_REQUEST_PROFILE: PASS
@@ -149,7 +159,7 @@ BLOCKER: NO
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-14`
-BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+BALL: `CHATGPT`
+DISPATCH_STATUS: `RETURNED / BLOCKER`
 WORK_READY: `NO`
 BLOCKER: `YES`

@@ -13,9 +13,14 @@ function formatDateInTimeZone(value, timezone, pattern) {
 }
 
 function loadAi() {
+  let uuidCounter = 0;
   const context = vm.createContext({
     console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp, Error, TypeError,
-    Set, Map, Intl, encodeURIComponent, Utilities: { formatDate: formatDateInTimeZone }
+    Set, Map, Intl, encodeURIComponent,
+    Utilities: {
+      formatDate: formatDateInTimeZone,
+      getUuid: () => `test-query-token-${++uuidCounter}`
+    }
   });
   const stub = `
     var KSP_AI_INDEX_STATUS={NOT_INDEXED:'NotIndexed',PENDING:'Pending',INDEXED:'Indexed',FAILED:'Failed'};

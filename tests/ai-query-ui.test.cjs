@@ -38,10 +38,15 @@ test('all new Apps Script and client files parse and contain required live contr
   const client=fs.readFileSync(path.join(root,'src','ClientKnowledgeSearch.html'),'utf8');const match=client.match(/<script>([\s\S]*?)<\/script>/);assert.ok(match);new vm.Script(match[1],{filename:'ClientKnowledgeSearch.js'});
   const page=fs.readFileSync(path.join(root,'src','KnowledgeSearchPage.html'),'utf8');
   const standalone=fs.readFileSync(path.join(root,'src','KnowledgeSearch.html'),'utf8');
-  for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation'])assert.ok((page+'\n'+client).includes(token),token);
+  for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation','queryPhase:\'POLL\'','queryToken','sessionStorage','setTimeout','KSP_QUERY_AUTO_POLL_LIMIT','pendingQueryAutoStopped','knowledge-recheck'])assert.ok((page+'\n'+client).includes(token),token);
   assert.match(standalone,/include_\('KnowledgeSearchPage'\)/);
   assert.match(standalone,/include_\('ClientKnowledgeSearch'\)/);
   assert.doesNotMatch(client,/askKnowledgeQuestion/);
+  assert.match(client,/knowledgeState\.startingQuery\|\|knowledgeState\.pendingQueryToken/);
+  assert.match(client,/current&&current\.pending/);
+  assert.match(client,/Math\.min\(30000/);
+  assert.doesNotMatch(client,/sessionStorage\.setItem\([^\n]*question/);
+  assert.doesNotMatch(client,/sessionStorage\.setItem\([^\n]*interactionId/);
   const aiSource=fs.readdirSync(path.join(root,'src')).filter(f=>/^(13|14|15|16|17)\d_.*\.gs$/.test(f)).sort().map(f=>fs.readFileSync(path.join(root,'src',f),'utf8')).join('\n');
   for(const token of ['/interactions','uploadToFileSearchStore','X-Goog-Upload-Protocol','x-goog-api-key','customMetadata','ScriptApp.getOAuthToken'])assert.ok(aiSource.includes(token),token);
   const entry=fs.readFileSync(path.join(root,'src','99_EntryPoints.gs'),'utf8');assert.ok(entry.includes("copy.available = true"));

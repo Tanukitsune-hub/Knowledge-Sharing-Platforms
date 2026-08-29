@@ -44,7 +44,10 @@ function createSyncEnvironment(options={}) {
   const uploaded=[];
   const patches=[];
   const claims=new Set();
+  const publicClaims=new Set();
+  const publicCache=new Map();
   const audits=[];
+  const queryDebug={starts:[],polls:[],sleeps:0};
   return {
     nowIso(){clock++;return `2026-08-16T00:${String(clock).padStart(2,'0')}:00.000Z`;},
     loadAiContext(){return context;},
@@ -65,7 +68,22 @@ function createSyncEnvironment(options={}) {
     getActor(){if(options.actorError)throw new Error('actor');return 'person@example.com';},
     appendAuditRow(id,row){if(options.auditError)throw new Error('audit');audits.push(plain(row));},
     queryFileSearch(request){if(options.queryError)throw options.queryError;return options.queryResponse||{};},
-    _debug:{context,documents,deleted,uploaded,patches,audits}
+    claimPublicOperation(key){if(publicClaims.has(key))return false;publicClaims.add(key);return true;},
+    getPublicIdempotency(key){return publicCache.has(key)?plain(publicCache.get(key)):null;},
+    setPublicIdempotency(key,value){publicCache.set(key,plain(value));},
+    startQueryProvider(provider,config,request){
+      queryDebug.starts.push(plain(request));
+      if(typeof options.startQueryProvider==='function')return options.startQueryProvider(provider,config,request);
+      if(Array.isArray(options.startLifecycles))return options.startLifecycles[queryDebug.starts.length-1]||options.startLifecycles.at(-1);
+      return {status:'completed',response:options.queryResponse||{}};
+    },
+    pollQueryProvider(provider,config,interactionId){
+      queryDebug.polls.push(String(interactionId));
+      if(typeof options.pollQueryProvider==='function')return options.pollQueryProvider(provider,config,interactionId);
+      if(Array.isArray(options.pollLifecycles))return options.pollLifecycles[queryDebug.polls.length-1]||options.pollLifecycles.at(-1);
+      return {status:'completed',response:options.queryResponse||{}};
+    },
+    _debug:{context,documents,deleted,uploaded,patches,audits,publicCache,queryDebug}
   };
 }
 

@@ -21,7 +21,8 @@ function kspGeminiStageMessage_(code) {
     AI_SOURCE_READ_FAILED: 'Gemini検索対象のソースを読み取れませんでした。',
     AI_QUERY_HTTP_FAILED: 'Gemini検索サービスを利用できません。',
     AI_QUERY_RESPONSE_INVALID: 'Gemini検索結果を確認できませんでした。',
-    AI_QUERY_TIMEOUT: 'Gemini検索が時間内に完了しませんでした。'
+    AI_QUERY_PROVIDER_TERMINAL: 'Gemini検索が完了できない状態になりました。',
+    AI_QUERY_ASYNC_REQUIRED: 'Gemini検索は後続の確認が必要です。'
   };
   return messages[String(code || '')] || 'Gemini処理を完了できませんでした。';
 }
@@ -177,13 +178,18 @@ function kspGeminiInteractionPath_(interactionId) {
     : KSP_AI_API.INTERACTIONS_PATH + '/' + encodeURIComponent(value);
 }
 
+function kspGeminiInteractionIsTerminal_(status) {
+  return ['failed', 'cancelled', 'requires_action', 'incomplete', 'budget_exceeded']
+    .indexOf(String(status || '').toLowerCase()) !== -1;
+}
+
 function kspGeminiInteractionTerminalError_(status) {
-  var error = kspGeminiStageError_('AI_QUERY_RESPONSE_INVALID', 'QUERY_PROVIDER', 0, {}, false);
+  var error = kspGeminiStageError_('AI_QUERY_PROVIDER_TERMINAL', 'QUERY_PROVIDER', 0, {}, false);
   error.providerStatus = kspAiTrim_(status);
   return error;
 }
 
-function kspGeminiQueryInteractionLive_(request) {
+function kspGeminiStartInteractionLive_(request) {
   var payload = {};
   Object.keys(request || {}).forEach(function (key) {
     payload[key] = request[key];
@@ -191,7 +197,7 @@ function kspGeminiQueryInteractionLive_(request) {
   payload.background = true;
   var interactionHeaders = { 'Api-Revision': KSP_AI_DEFAULTS.INTERACTIONS_API_REVISION };
   var current = kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, payload, {
-    retry: true,
+    retry: false,
     stage: 'QUERY_HTTP',
     errorCode: 'AI_QUERY_HTTP_FAILED',
     parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
@@ -199,29 +205,38 @@ function kspGeminiQueryInteractionLive_(request) {
   });
   var interactionId = kspGeminiInteractionId_(current);
   var status = kspGeminiInteractionStatus_(current);
-  if (status === 'completed' || (!status && Array.isArray(current && current.steps))) return current;
+  if (status === 'completed' || (!status && Array.isArray(current && current.steps))) {
+    return { status: 'completed', interactionId: interactionId, response: current };
+  }
   kspAssert_(interactionId, 'AI_QUERY_RESPONSE_INVALID', 'Gemini検索結果を確認できませんでした。');
-  if (status === 'failed' || status === 'cancelled' || status === 'requires_action') {
-    throw kspGeminiInteractionTerminalError_(status);
+  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status);
+  if (status !== 'queued' && status !== 'in_progress') {
+    var invalidStartStatus = kspGeminiStageError_('AI_QUERY_RESPONSE_INVALID', 'QUERY_PROVIDER', 0, {}, false);
+    invalidStartStatus.queryTerminal = true;
+    throw invalidStartStatus;
   }
-  for (var attempt = 0; attempt < KSP_AI_DEFAULTS.MAX_INTERACTION_POLLS; attempt += 1) {
-    if (typeof Utilities !== 'undefined' && Utilities && typeof Utilities.sleep === 'function') {
-      Utilities.sleep(KSP_AI_DEFAULTS.INTERACTION_POLL_MILLIS);
-    }
-    current = kspGeminiJsonRequestLive_('GET', kspGeminiInteractionPath_(interactionId), null, {
-      retry: true,
-      stage: 'QUERY_POLL',
-      errorCode: 'AI_QUERY_HTTP_FAILED',
-      parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
-      headers: interactionHeaders
-    });
-    status = kspGeminiInteractionStatus_(current);
-    if (status === 'completed') return current;
-    if (status === 'failed' || status === 'cancelled' || status === 'requires_action') {
-      throw kspGeminiInteractionTerminalError_(status);
-    }
+  return { status: 'in_progress', interactionId: interactionId };
+}
+
+function kspGeminiPollInteractionLive_(interactionId) {
+  var value = kspAiTrim_(interactionId);
+  kspAssert_(value, 'AI_QUERY_RESPONSE_INVALID', 'Gemini検索結果を確認できませんでした。');
+  var current = kspGeminiJsonRequestLive_('GET', kspGeminiInteractionPath_(value), null, {
+    retry: false,
+    stage: 'QUERY_POLL',
+    errorCode: 'AI_QUERY_HTTP_FAILED',
+    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
+    headers: { 'Api-Revision': KSP_AI_DEFAULTS.INTERACTIONS_API_REVISION }
+  });
+  var status = kspGeminiInteractionStatus_(current);
+  if (status === 'completed') return { status: 'completed', interactionId: value, response: current };
+  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status);
+  if (status !== 'queued' && status !== 'in_progress') {
+    var invalidPollStatus = kspGeminiStageError_('AI_QUERY_RESPONSE_INVALID', 'QUERY_PROVIDER', 0, {}, false);
+    invalidPollStatus.queryTerminal = true;
+    throw invalidPollStatus;
   }
-  throw kspGeminiStageError_('AI_QUERY_TIMEOUT', 'QUERY_POLL', 0, {}, true);
+  return { status: 'in_progress', interactionId: value };
 }
 
 function kspGeminiBuildFinalizeRequestOptions_(metadata, payload) {

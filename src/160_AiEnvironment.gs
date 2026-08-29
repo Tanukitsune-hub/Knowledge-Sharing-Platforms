@@ -84,8 +84,19 @@ function kspCreateAiEnvironment_() {
     return kspUploadSourceLive_(storeName, source);
   };
 
+  base.startQueryFileSearch = function (request) {
+    return kspGeminiStartInteractionLive_(request);
+  };
+
+  base.pollQueryFileSearch = function (interactionId) {
+    return kspGeminiPollInteractionLive_(interactionId);
+  };
+
   base.queryFileSearch = function (request) {
-    return kspGeminiQueryInteractionLive_(request);
+    var lifecycle = kspGeminiStartInteractionLive_(request);
+    kspAssert_(lifecycle && lifecycle.status === 'completed', 'AI_QUERY_ASYNC_REQUIRED',
+      'Gemini検索は後続の確認が必要です。');
+    return lifecycle.response;
   };
 
   base.readMeetingText = function (fileId) {

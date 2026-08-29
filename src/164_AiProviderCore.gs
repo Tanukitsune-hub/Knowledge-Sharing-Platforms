@@ -300,7 +300,12 @@ function kspBuildProviderSearchRequest_(provider, config, input) {
     storeName: config.storeName,
     mode: promptInput.mode,
     questionOrInstruction: promptInput.questionOrInstruction,
-    metadataFilter: kspBuildMetadataFilter_(value)
+    metadataFilter: kspBuildMetadataFilter_(value),
+    background: true,
+    generation_config: {
+      thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
+      max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
+    }
   };
 }
 
@@ -434,9 +439,20 @@ function kspCreateProviderNeutralAiEnvironment_() {
       : base.deleteFileSearchDocument(config.storeName, documentValue.name);
   };
   base.queryProvider = function (provider, config, request) {
+    if (provider === KSP_AI_PROVIDERS.OPENAI) return kspOpenAiQueryFileSearchLive_(request);
+    var lifecycle = base.startQueryFileSearch(kspBuildFeatureFreezeInteractionRequest_(request));
+    kspAssert_(lifecycle && lifecycle.status === 'completed', 'AI_QUERY_ASYNC_REQUIRED',
+      'Gemini検索は後続の確認が必要です。');
+    return lifecycle.response;
+  };
+  base.startQueryProvider = function (provider, config, request) {
     return provider === KSP_AI_PROVIDERS.OPENAI
-      ? kspOpenAiQueryFileSearchLive_(request)
-      : base.queryFileSearch(kspBuildFeatureFreezeInteractionRequest_(request));
+      ? { status: 'completed', response: kspOpenAiQueryFileSearchLive_(request) }
+      : base.startQueryFileSearch(kspBuildFeatureFreezeInteractionRequest_(request));
+  };
+  base.pollQueryProvider = function (provider, config, interactionId) {
+    kspAssert_(provider === KSP_AI_PROVIDERS.GEMINI, 'AI_QUERY_RESPONSE_INVALID', '検索状態を確認できませんでした。');
+    return base.pollQueryFileSearch(interactionId);
   };
   base.updateAiProviderState = function (sourceType, sourceId, provider, patch) {
     var context = base.loadAiContext();
@@ -491,64 +507,384 @@ function kspProviderSafeMessage_(code) {
     GEMINI_CREDENTIALS_UNAVAILABLE: 'Gemini検索の設定を確認できません。',
     AI_QUERY_HTTP_FAILED: 'Gemini検索サービスを利用できません。',
     AI_QUERY_RESPONSE_INVALID: 'Gemini検索結果を確認できませんでした。',
-    AI_QUERY_TIMEOUT: 'Gemini検索が時間内に完了しませんでした。',
+    AI_QUERY_PROVIDER_TERMINAL: 'Gemini検索が完了できない状態になりました。',
+    AI_QUERY_ASYNC_REQUIRED: 'Gemini検索は後続の確認が必要です。',
+    AI_QUERY_TOKEN_INVALID: '検索状態を確認できませんでした。',
+    AI_QUERY_TOKEN_EXPIRED: '検索状態の有効期限が切れています。',
+    AI_QUERY_STATE_UNAVAILABLE: '検索状態を保存できませんでした。',
     AI_DOCUMENT_READBACK_FAILED: 'Gemini検索用Documentを確認できませんでした。',
     AI_PROVIDER_INVALID: '検索プロバイダが不正です。'
   };
   return messages[String(code || '')] || '';
 }
 
-function kspRunProviderKnowledgeSearch_(environment, provider, rawInput) {
-  var normalizedProvider = kspNormalizeAiProvider_(provider);
+function kspKnowledgeQueryPhase_(rawInput) {
+  var input = rawInput && typeof rawInput === 'object' ? rawInput : {};
+  kspAssert_(!kspAiTrim_(input.interactionId),
+    'AI_QUERY_RESPONSE_INVALID', '検索状態を確認できませんでした。');
+  var explicit = kspAiTrim_(input.queryPhase || input.queryAction || input.lifecycle).toUpperCase();
+  var phase = explicit || (kspAiTrim_(input.queryToken) ? 'POLL' : 'START');
+  kspAssert_(phase === 'START' || phase === 'POLL', 'AI_QUERY_RESPONSE_INVALID', '検索状態を確認できませんでした。');
+  return phase;
+}
+
+function kspKnowledgeQueryCacheKey_(actor, token) {
+  return kspBuildPublicOperationCacheKey_('KNOWLEDGE_QUERY_PENDING', actor, token);
+}
+
+function kspKnowledgeQueryDedupeKey_(actor, fingerprint) {
+  return kspBuildPublicOperationCacheKey_('KNOWLEDGE_QUERY_DEDUPE', actor, fingerprint);
+}
+
+function kspCreateKnowledgeQueryToken_() {
+  kspAssert_(typeof Utilities !== 'undefined' && Utilities && typeof Utilities.getUuid === 'function',
+    'AI_QUERY_STATE_UNAVAILABLE', '検索状態を保存できませんでした。');
+  var token = kspAiTrim_(Utilities.getUuid());
+  kspAssert_(token && token.length <= 128, 'AI_QUERY_STATE_UNAVAILABLE', '検索状態を保存できませんでした。');
+  return token;
+}
+
+function kspKnowledgeQueryKnownTerminalStatus_(status) {
+  return ['failed', 'cancelled', 'requires_action', 'incomplete', 'budget_exceeded']
+    .indexOf(String(status || '').toLowerCase()) !== -1;
+}
+
+function kspKnowledgeQueryPendingStatus_(status) {
+  return status === 'queued' || status === 'in_progress';
+}
+
+function kspKnowledgeQueryPollDelayMillis_(pollCount) {
+  var count = Math.max(0, Number(pollCount || 0));
+  return Math.min(30000, Math.max(1000, 1000 * Math.pow(2, Math.min(4, count))));
+}
+
+function kspKnowledgeQueryNowMillis_(environment) {
+  var value = typeof environment.nowIso === 'function' ? environment.nowIso() : new Date().toISOString();
+  var millis = Date.parse(String(value || ''));
+  return Number.isFinite(millis) ? millis : Date.now();
+}
+
+function kspKnowledgeQueryElapsedMillis_(environment, state) {
+  var startedMillis = Date.parse(String(state && (state.startedAt || state.createdAt) || ''));
+  return Number.isFinite(startedMillis)
+    ? Math.max(0, kspKnowledgeQueryNowMillis_(environment) - startedMillis)
+    : 0;
+}
+
+function kspKnowledgeQueryExpires_(environment, state) {
+  var expiresAt = Date.parse(String(state && state.expiresAt || ''));
+  if (!Number.isFinite(expiresAt)) return false;
+  var nowValue = typeof environment.nowIso === 'function' ? environment.nowIso() : new Date().toISOString();
+  var now = Date.parse(String(nowValue || ''));
+  return Number.isFinite(now) && now >= expiresAt;
+}
+
+function kspKnowledgeQueryInputForState_(input) {
+  var value = input || {};
+  return {
+    mode: kspAiTrim_(value.mode),
+    dateFrom: kspAiTrim_(value.dateFrom),
+    dateTo: kspAiTrim_(value.dateTo),
+    gpId: kspAiTrim_(value.gpId),
+    assetClassId: kspAiTrim_(value.assetClassId),
+    capitalTypeId: kspAiTrim_(value.capitalTypeId),
+    sourceType: kspAiTrim_(value.sourceType)
+  };
+}
+
+function kspKnowledgeQueryQuestionHash_(question) {
+  var value = String(question || '');
+  return typeof kspAiHashTextFallback_ === 'function'
+    ? kspAiHashTextFallback_(value)
+    : kspPublicOperationHash_(value) + '-' + value.length;
+}
+
+function kspKnowledgeQueryFingerprint_(provider, config, input) {
+  var value = input || {};
+  var payload = {
+    provider: provider,
+    model: kspAiTrim_(config && config.modelId),
+    profile: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
+    mode: kspAiTrim_(value.mode),
+    dateFrom: kspAiTrim_(value.dateFrom),
+    dateTo: kspAiTrim_(value.dateTo),
+    gpId: kspAiTrim_(value.gpId),
+    assetClassId: kspAiTrim_(value.assetClassId),
+    capitalTypeId: kspAiTrim_(value.capitalTypeId),
+    sourceType: kspAiTrim_(value.sourceType),
+    questionHash: kspKnowledgeQueryQuestionHash_(value.questionOrInstruction)
+  };
+  var serialized = JSON.stringify(payload);
+  return typeof kspAiHashTextFallback_ === 'function'
+    ? kspAiHashTextFallback_(serialized)
+    : kspPublicOperationHash_(serialized);
+}
+
+function kspKnowledgeQueryReadCache_(environment, cacheKey) {
+  if (!environment || typeof environment.getPublicIdempotency !== 'function') return null;
+  try {
+    return environment.getPublicIdempotency(cacheKey);
+  } catch (ignored) {
+    return null;
+  }
+}
+
+function kspKnowledgeQueryWriteCache_(environment, cacheKey, value, expirationSeconds) {
+  kspAssert_(environment && typeof environment.setPublicIdempotency === 'function',
+    'AI_QUERY_STATE_UNAVAILABLE', '検索状態を保存できませんでした。');
+  environment.setPublicIdempotency(cacheKey, value, expirationSeconds);
+}
+
+function kspKnowledgeQueryPendingState_(environment, actor, provider, token, fingerprint, lifecycle, input, config, startedAt, startLatencyMs) {
+  var createdMillis = Date.parse(String(startedAt || ''));
+  var expiresAt = Number.isFinite(createdMillis)
+    ? new Date(createdMillis + KSP_AI_DEFAULTS.QUERY_PENDING_TTL_SECONDS * 1000).toISOString()
+    : '';
+  var status = kspAiTrim_(lifecycle && lifecycle.status).toLowerCase();
+  var state = {
+    schemaVersion: 2,
+    kind: 'PENDING',
+    actor: actor,
+    provider: provider,
+    tokenFingerprint: typeof kspAiHashTextFallback_ === 'function'
+      ? kspAiHashTextFallback_(token)
+      : kspPublicOperationHash_(token),
+    requestFingerprint: fingerprint,
+    interactionId: String(lifecycle.interactionId),
+    input: kspKnowledgeQueryInputForState_(input),
+    questionHash: kspKnowledgeQueryQuestionHash_(input.questionOrInstruction),
+    modelId: kspAiTrim_(config && config.modelId),
+    requestProfileVersion: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
+    providerStatus: kspKnowledgeQueryPendingStatus_(status) ? status : 'in_progress',
+    createdAt: startedAt,
+    startedAt: startedAt,
+    expiresAt: expiresAt,
+    startLatencyMs: Math.max(0, Number(startLatencyMs) || 0),
+    pollCount: 0,
+    maxPollLatencyMs: 0
+  };
+  kspKnowledgeQueryWriteCache_(environment, kspKnowledgeQueryCacheKey_(actor, token), state,
+    KSP_AI_DEFAULTS.QUERY_PENDING_TTL_SECONDS);
+  kspKnowledgeQueryWriteCache_(environment, kspKnowledgeQueryDedupeKey_(actor, fingerprint), {
+    schemaVersion: 1,
+    kind: 'PENDING_POINTER',
+    actor: actor,
+    provider: provider,
+    requestFingerprint: fingerprint,
+    token: token
+  }, KSP_AI_DEFAULTS.QUERY_PENDING_TTL_SECONDS);
+  return state;
+}
+
+function kspKnowledgeQueryPendingResult_(provider, mode, token, warnings, state, environment) {
+  var pollCount = Number(state && state.pollCount || 0);
+  var elapsedMillis = state && environment ? kspKnowledgeQueryElapsedMillis_(environment, state) :
+    Math.max(0, Number(state && state.elapsedMillis || 0));
+  return {
+    ok: true, workId: '0020', provider: provider, mode: mode,
+    status: 'pending', pending: true, queryToken: token,
+    pollAfterMillis: kspKnowledgeQueryPollDelayMillis_(pollCount),
+    pollCount: pollCount,
+    elapsedMillis: elapsedMillis,
+    longRunning: elapsedMillis >= 60000,
+    warnings: warnings || []
+  };
+}
+
+function kspKnowledgeQueryFailureResult_(provider, mode, error, warnings, pending, token) {
+  var code = kspGetErrorCode_(error);
+  if (pending) {
+    return {
+      ok: true, workId: '0020', provider: provider, mode: mode,
+      status: 'pending', pending: true, queryToken: token,
+      pollAfterMillis: KSP_AI_DEFAULTS.INTERACTION_POLL_MILLIS,
+      warnings: (warnings || []).concat([{ code: 'AI_QUERY_POLL_PENDING', message: '検索状態を確認できないため、再確認できます。' }])
+    };
+  }
+  var result = {
+    ok: false, workId: '0020', provider: provider, mode: mode,
+    status: 'failed',
+    error: { code: code, message: kspProviderSafeMessage_(code) || kspSafePublicErrorMessage_(code, 'SEARCH') },
+    warnings: warnings || []
+  };
+  var terminalStatus = kspAiTrim_(error && error.providerStatus).toLowerCase();
+  if (kspKnowledgeQueryKnownTerminalStatus_(terminalStatus)) {
+    result.terminalStatus = terminalStatus;
+  }
+  return result;
+}
+
+function kspAppendKnowledgeQueryAuditOnce_(environment, actor, token, auditSpreadsheetId, row, warnings) {
+  if (token && typeof environment.claimPublicOperation === 'function' &&
+      !kspClaimPublicOperation_(environment, 'KNOWLEDGE_QUERY_AUDIT', actor, token,
+        KSP_AI_DEFAULTS.QUERY_TERMINAL_TTL_SECONDS)) return;
+  kspTryAppendKnowledgeAudit_(environment, auditSpreadsheetId, row, warnings);
+}
+
+function kspKnowledgeQueryAuditTargetId_(token) {
+  var value = kspAiTrim_(token);
+  return value ? 'AIQ-' + kspPublicOperationHash_(value) : '';
+}
+
+function kspBuildSafeKnowledgeQueryTelemetry_(state, providerStatus, response, extra) {
+  var options = extra || {};
+  var output = {
+    request_profile_version: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
+    thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
+    max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
+  };
+  var safeStatuses = ['queued', 'in_progress', 'completed', 'failed', 'cancelled',
+    'requires_action', 'incomplete', 'budget_exceeded'];
+  var status = kspAiTrim_(providerStatus).toLowerCase();
+  if (safeStatuses.indexOf(status) !== -1) output.provider_status = status;
+  function safeNumber(value) {
+    var numberValue = Number(value);
+    return Number.isFinite(numberValue) && numberValue >= 0 ? Math.floor(numberValue) : null;
+  }
+  function firstNumber(source, names) {
+    var value = source || {};
+    for (var index = 0; index < names.length; index += 1) {
+      var numberValue = safeNumber(value[names[index]]);
+      if (numberValue !== null) return numberValue;
+    }
+    return null;
+  }
+  var current = state || {};
+  var usage = response && (response.usage || response.usageMetadata) || {};
+  var startLatency = safeNumber(options.startLatencyMs !== undefined ? options.startLatencyMs : current.startLatencyMs);
+  var pollCount = safeNumber(options.pollCount !== undefined ? options.pollCount : current.pollCount);
+  var maxPollLatency = safeNumber(options.maxPollLatencyMs !== undefined ? options.maxPollLatencyMs : current.maxPollLatencyMs);
+  var startedMillis = Date.parse(String(current.startedAt || current.createdAt || ''));
+  var providerElapsed = safeNumber(options.providerElapsedMs);
+  if (providerElapsed === null && Number.isFinite(startedMillis)) providerElapsed = Math.max(0, Date.now() - startedMillis);
+  if (startLatency !== null) output.start_latency_ms = startLatency;
+  if (pollCount !== null) output.poll_count = pollCount;
+  if (maxPollLatency !== null) output.max_poll_latency_ms = maxPollLatency;
+  if (providerElapsed !== null) output.provider_elapsed_ms = providerElapsed;
+  var usageFields = {
+    input_tokens: ['input_tokens', 'inputTokens', 'prompt_token_count', 'promptTokenCount'],
+    output_tokens: ['output_tokens', 'outputTokens', 'candidates_token_count', 'candidatesTokenCount'],
+    thought_tokens: ['thought_tokens', 'thoughtTokens', 'thoughts_token_count', 'thoughtsTokenCount'],
+    tool_use_tokens: ['tool_use_tokens', 'toolUseTokens', 'tool_use_token_count', 'toolUseTokenCount'],
+    cached_tokens: ['cached_tokens', 'cachedTokens', 'cached_content_token_count', 'cachedContentTokenCount']
+  };
+  Object.keys(usageFields).forEach(function (key) {
+    var numberValue = firstNumber(usage, usageFields[key]);
+    if (numberValue !== null) output[key] = numberValue;
+  });
+  return output;
+}
+
+function kspBuildSafeKnowledgeQueryTelemetryJson_(telemetry) {
+  if (!telemetry || typeof telemetry !== 'object') return '';
+  return JSON.stringify(kspBuildSafeKnowledgeQueryTelemetry_(
+    telemetry.state, telemetry.providerStatus, telemetry.response, telemetry
+  ));
+}
+
+function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, config, context, actor, rawResponse, warnings, auditToken, telemetry) {
+  var parsed = provider === KSP_AI_PROVIDERS.OPENAI
+    ? kspNormalizeOpenAiResponse_(rawResponse)
+    : kspParseInteractionResponse_(rawResponse);
+  var mapped = kspMapKnowledgeCitations_(parsed.citations,
+    kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
+  var allWarnings = (warnings || []).concat(mapped.warnings);
+  var answer = parsed.answer || '確認できる根拠が不足しています。';
+  var insufficientEvidence = !parsed.answer || mapped.citations.length === 0;
+  if (insufficientEvidence) allWarnings.push({ code: 'AI_INSUFFICIENT_EVIDENCE', message: '回答または authoritative citation が不足しています。' });
+  kspAppendKnowledgeQueryAuditOnce_(environment, actor, auditToken, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
+    timestamp: environment.nowIso(), actor: actor, input: input, modelId: config.modelId,
+    interactionId: kspKnowledgeQueryAuditTargetId_(auditToken), result: KSP_AUDIT_RESULTS.SUCCESS, citations: mapped.citations,
+    provider: provider, telemetry: telemetry
+  }), allWarnings);
+  return {
+    result: {
+      ok: true, workId: '0020', provider: provider, mode: input.mode, status: 'completed',
+      answer: answer, citations: mapped.citations, insufficientEvidence: insufficientEvidence,
+      warnings: allWarnings
+    },
+    interactionId: parsed.interactionId
+  };
+}
+
+function kspStoreKnowledgeQueryTerminal_(environment, actor, token, provider, result) {
+  kspAssert_(typeof environment.setPublicIdempotency === 'function',
+    'AI_QUERY_STATE_UNAVAILABLE', '検索状態を保存できませんでした。');
+  environment.setPublicIdempotency(kspKnowledgeQueryCacheKey_(actor, token), {
+    schemaVersion: 2, kind: 'TERMINAL', actor: actor, provider: provider,
+    result: kspDeepClone_(result)
+  }, KSP_AI_DEFAULTS.QUERY_TERMINAL_TTL_SECONDS);
+}
+
+function kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, rawInput) {
   var warnings = [];
   var actor = kspGetAiActorSafely_(environment, warnings);
   var context = null;
   var config = null;
   var input = kspNormalizeFeatureFreezeSearchInput_(rawInput);
+  var startedAt = typeof environment.nowIso === 'function' ? environment.nowIso() : new Date().toISOString();
+  var startClock = Date.now();
   try {
     kspAssert_(normalizedProvider, 'AI_PROVIDER_INVALID', 'AI provider is invalid.');
-    kspAssert_(kspClaimPublicOperation_(environment, 'KNOWLEDGE_SEARCH_' + normalizedProvider, actor, input.mode || '', 2),
-      'AI_RATE_LIMITED', '検索が集中しています。少し待って再試行してください。');
     input = kspValidateFeatureFreezeSearchInput_(input);
     context = environment.loadAiContext();
     config = typeof environment.getProviderConfig === 'function'
       ? environment.getProviderConfig(normalizedProvider)
       : kspBuildAiProviderConfig_(kspNormalizeAiSettings_(context.settings), normalizedProvider);
-    if (typeof environment.getProviderConfig !== 'function') {
-      config.credentialConfigured = true;
-    }
+    if (typeof environment.getProviderConfig !== 'function') config.credentialConfigured = true;
     kspProviderConfigurationError_(normalizedProvider, config);
     var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows);
     kspValidateKnowledgeFilterIds_(input, catalog);
+    var fingerprint = kspKnowledgeQueryFingerprint_(normalizedProvider, config, input);
+    var pointer = kspKnowledgeQueryReadCache_(environment, kspKnowledgeQueryDedupeKey_(actor, fingerprint));
+    if (pointer && pointer.kind === 'PENDING_POINTER' && pointer.actor === actor &&
+        pointer.provider === normalizedProvider && pointer.requestFingerprint === fingerprint && pointer.token) {
+      var existingState = kspKnowledgeQueryReadCache_(environment, kspKnowledgeQueryCacheKey_(actor, pointer.token));
+      if (existingState && existingState.kind === 'PENDING' &&
+          existingState.actor === actor && existingState.provider === normalizedProvider &&
+          existingState.requestFingerprint === fingerprint && !kspKnowledgeQueryExpires_(environment, existingState)) {
+        return kspKnowledgeQueryPendingResult_(normalizedProvider, existingState.input.mode, pointer.token, warnings, existingState, environment);
+      }
+    }
+    kspAssert_(kspClaimPublicOperation_(environment, 'KNOWLEDGE_SEARCH_' + normalizedProvider, actor, fingerprint, 2),
+      'AI_RATE_LIMITED', '検索が集中しています。少し待って再試行してください。');
     var request = kspBuildProviderSearchRequest_(normalizedProvider, config, input);
-    var rawResponse = typeof environment.queryProvider === 'function'
-      ? environment.queryProvider(normalizedProvider, config, request)
-      : environment.queryFileSearch(request);
-    var parsed = normalizedProvider === KSP_AI_PROVIDERS.OPENAI
-      ? kspNormalizeOpenAiResponse_(rawResponse)
-      : kspParseInteractionResponse_(rawResponse);
-    var mapped = kspMapKnowledgeCitations_(parsed.citations,
-      kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
-    warnings = warnings.concat(mapped.warnings);
-    var answer = parsed.answer || '確認できる根拠が不足しています。';
-    var insufficientEvidence = !parsed.answer || mapped.citations.length === 0;
-    if (insufficientEvidence) warnings.push({ code: 'AI_INSUFFICIENT_EVIDENCE', message: '回答または authoritative citation が不足しています。' });
-    kspTryAppendKnowledgeAudit_(environment, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
-      timestamp: environment.nowIso(), actor: actor, input: input, modelId: config.modelId,
-      interactionId: parsed.interactionId, result: KSP_AUDIT_RESULTS.SUCCESS, citations: mapped.citations,
-      provider: normalizedProvider
-    }), warnings);
-    return {
-      ok: true,
-      workId: '0020',
-      provider: normalizedProvider,
-      mode: input.mode,
-      answer: answer,
-      citations: mapped.citations,
-      insufficientEvidence: insufficientEvidence,
-      interactionId: parsed.interactionId,
-      warnings: warnings
-    };
+    var lifecycle = typeof environment.startQueryProvider === 'function'
+      ? environment.startQueryProvider(normalizedProvider, config, request)
+      : {
+        status: 'completed',
+        response: typeof environment.queryProvider === 'function'
+          ? environment.queryProvider(normalizedProvider, config, request)
+          : environment.queryFileSearch(request)
+      };
+    if (!lifecycle || lifecycle.status === undefined ||
+      (lifecycle.status === 'completed' && lifecycle.response === undefined && lifecycle.interactionId === undefined)) {
+      lifecycle = { status: 'completed', response: lifecycle };
+    }
+    var lifecycleStatus = kspAiTrim_(lifecycle.status).toLowerCase();
+    if (lifecycleStatus === 'completed') {
+      return kspBuildProviderKnowledgeSearchSuccess_(environment, normalizedProvider, input, config, context, actor,
+        lifecycle.response || lifecycle, warnings, '',
+        { state: { startedAt: startedAt, startLatencyMs: Math.max(0, Date.now() - startClock), pollCount: 0, maxPollLatencyMs: 0 },
+          providerStatus: 'completed', response: lifecycle.response || lifecycle,
+          startLatencyMs: Math.max(0, Date.now() - startClock), pollCount: 0, maxPollLatencyMs: 0 }).result;
+    }
+    if (kspKnowledgeQueryKnownTerminalStatus_(lifecycleStatus)) {
+      var startTerminal = new Error('Gemini検索が完了できない状態になりました。');
+      startTerminal.code = 'AI_QUERY_PROVIDER_TERMINAL';
+      startTerminal.providerStatus = lifecycleStatus;
+      startTerminal.queryTerminal = true;
+      throw startTerminal;
+    }
+    kspAssert_(normalizedProvider === KSP_AI_PROVIDERS.GEMINI && kspKnowledgeQueryPendingStatus_(lifecycleStatus),
+      'AI_QUERY_RESPONSE_INVALID', 'Gemini検索結果を確認できませんでした。');
+    kspAssert_(lifecycle.interactionId, 'AI_QUERY_RESPONSE_INVALID', 'Gemini検索結果を確認できませんでした。');
+    kspAssert_(typeof environment.getPublicIdempotency === 'function' && typeof environment.setPublicIdempotency === 'function',
+      'AI_QUERY_STATE_UNAVAILABLE', '検索状態を保存できませんでした。');
+    var token = kspCreateKnowledgeQueryToken_();
+    var pendingState = kspKnowledgeQueryPendingState_(environment, actor, normalizedProvider, token, fingerprint,
+      lifecycle, input, config, startedAt, Math.max(0, Date.now() - startClock));
+    return kspKnowledgeQueryPendingResult_(normalizedProvider, input.mode, token, warnings, pendingState, environment);
   } catch (error) {
     var code = kspGetErrorCode_(error);
     if (context && context.auditSpreadsheetId) {
@@ -557,14 +893,143 @@ function kspRunProviderKnowledgeSearch_(environment, provider, rawInput) {
         result: KSP_AUDIT_RESULTS.FAILURE, errorCode: code, citations: [], provider: normalizedProvider
       }), warnings);
     }
-    return {
-      ok: false,
-      workId: '0020',
-      provider: normalizedProvider,
-      mode: input.mode,
-      error: { code: code, message: kspProviderSafeMessage_(code) || kspSafePublicErrorMessage_(code, 'SEARCH') },
-      warnings: warnings
-    };
+    return kspKnowledgeQueryFailureResult_(normalizedProvider, input.mode, error, warnings, false, '');
+  }
+}
+
+function kspRunProviderKnowledgeSearchPoll_(environment, requestedProvider, rawInput) {
+  var warnings = [];
+  var actor = kspGetAiActorSafely_(environment, warnings);
+  var token = kspAiTrim_(rawInput && rawInput.queryToken);
+  var input = kspNormalizeFeatureFreezeSearchInput_(rawInput);
+  if (!token || token.length > 128) {
+    return kspKnowledgeQueryFailureResult_(requestedProvider, input.mode,
+      { code: 'AI_QUERY_TOKEN_INVALID' }, warnings, false, '');
+  }
+  var state = null;
+  try {
+    kspAssert_(typeof environment.getPublicIdempotency === 'function',
+      'AI_QUERY_STATE_UNAVAILABLE', '検索状態を確認できませんでした。');
+    state = environment.getPublicIdempotency(kspKnowledgeQueryCacheKey_(actor, token));
+  } catch (error) {
+    return kspKnowledgeQueryFailureResult_(requestedProvider, input.mode,
+      { code: 'AI_QUERY_TOKEN_INVALID' }, warnings, false, '');
+  }
+  if (!state || typeof state !== 'object') {
+    return kspKnowledgeQueryFailureResult_(requestedProvider, input.mode,
+      { code: 'AI_QUERY_TOKEN_EXPIRED' }, warnings, false, '');
+  }
+  if (state.kind === 'PENDING' && kspKnowledgeQueryExpires_(environment, state)) {
+    kspKnowledgeQueryWriteCache_(environment, kspKnowledgeQueryCacheKey_(actor, token), {
+      schemaVersion: 1, kind: 'EXPIRED', actor: actor, provider: requestedProvider
+    }, 1);
+    return kspKnowledgeQueryFailureResult_(requestedProvider, input.mode,
+      { code: 'AI_QUERY_TOKEN_EXPIRED' }, warnings, false, '');
+  }
+  if (state.actor !== actor || state.provider !== requestedProvider) {
+    return kspKnowledgeQueryFailureResult_(requestedProvider, input.mode,
+      { code: 'AI_QUERY_TOKEN_INVALID' }, warnings, false, '');
+  }
+  if (state.kind === 'TERMINAL' && state.result) {
+    var replay = kspDeepClone_(state.result);
+    replay.idempotentReplay = true;
+    return replay;
+  }
+  if (state.kind !== 'PENDING' || !state.interactionId || !state.input || !state.requestFingerprint) {
+    return kspKnowledgeQueryFailureResult_(requestedProvider, input.mode,
+      { code: 'AI_QUERY_TOKEN_INVALID' }, warnings, false, '');
+  }
+
+  var context = null;
+  var config = null;
+  try {
+    context = environment.loadAiContext();
+    config = typeof environment.getProviderConfig === 'function'
+      ? environment.getProviderConfig(requestedProvider)
+      : kspBuildAiProviderConfig_(kspNormalizeAiSettings_(context.settings), requestedProvider);
+    if (typeof environment.getProviderConfig !== 'function') config.credentialConfigured = true;
+    kspProviderConfigurationError_(requestedProvider, config);
+    kspAssert_(typeof environment.pollQueryProvider === 'function',
+      'AI_QUERY_STATE_UNAVAILABLE', '検索状態を確認できませんでした。');
+    var pollStarted = Date.now();
+    var lifecycle = environment.pollQueryProvider(requestedProvider, config, String(state.interactionId));
+    var pollLatency = Math.max(0, Date.now() - pollStarted);
+    if (!lifecycle || lifecycle.status === undefined) lifecycle = { status: 'completed', response: lifecycle };
+    var lifecycleStatus = kspAiTrim_(lifecycle.status).toLowerCase();
+    if (kspKnowledgeQueryPendingStatus_(lifecycleStatus)) {
+      state.providerStatus = lifecycleStatus;
+      state.pollCount = Number(state.pollCount || 0) + 1;
+      state.maxPollLatencyMs = Math.max(Number(state.maxPollLatencyMs || 0), pollLatency);
+      kspKnowledgeQueryWriteCache_(environment, kspKnowledgeQueryCacheKey_(actor, token), state,
+        KSP_AI_DEFAULTS.QUERY_PENDING_TTL_SECONDS);
+      return kspKnowledgeQueryPendingResult_(requestedProvider, state.input.mode, token, warnings, state, environment);
+    }
+    if (lifecycleStatus === 'completed') {
+      var completed = kspBuildProviderKnowledgeSearchSuccess_(environment, requestedProvider, state.input, config,
+        context, actor, lifecycle.response || lifecycle, warnings, token,
+        { state: state, providerStatus: 'completed', response: lifecycle.response || lifecycle,
+          pollCount: Number(state.pollCount || 0) + 1,
+          maxPollLatencyMs: Math.max(Number(state.maxPollLatencyMs || 0), pollLatency) });
+      kspStoreKnowledgeQueryTerminal_(environment, actor, token, requestedProvider, completed.result);
+      return completed.result;
+    }
+    if (kspKnowledgeQueryKnownTerminalStatus_(lifecycleStatus)) {
+      var providerTerminal = new Error('Gemini検索が完了できない状態になりました。');
+      providerTerminal.code = 'AI_QUERY_PROVIDER_TERMINAL';
+      providerTerminal.providerStatus = lifecycleStatus;
+      providerTerminal.queryTerminal = true;
+      providerTerminal.pollCount = Number(state.pollCount || 0) + 1;
+      providerTerminal.pollLatencyMs = pollLatency;
+      throw providerTerminal;
+    }
+    var invalidStatus = new Error('Gemini検索結果を確認できませんでした。');
+    invalidStatus.code = 'AI_QUERY_RESPONSE_INVALID';
+    invalidStatus.queryTerminal = true;
+    invalidStatus.pollCount = Number(state.pollCount || 0) + 1;
+    invalidStatus.pollLatencyMs = pollLatency;
+    throw invalidStatus;
+  } catch (error) {
+    var terminalStatus = kspAiTrim_(error && error.providerStatus).toLowerCase();
+    if (error && (error.queryTerminal === true || kspKnowledgeQueryKnownTerminalStatus_(terminalStatus))) {
+      var terminalFailure = kspKnowledgeQueryFailureResult_(requestedProvider, state.input.mode, error, warnings, false, '');
+      if (context && context.auditSpreadsheetId) {
+        kspAppendKnowledgeQueryAuditOnce_(environment, actor, token, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
+          timestamp: environment.nowIso(), actor: actor, input: state.input, modelId: state.modelId || (config && config.modelId),
+          interactionId: kspKnowledgeQueryAuditTargetId_(token), result: KSP_AUDIT_RESULTS.FAILURE, errorCode: kspGetErrorCode_(error), citations: [],
+          provider: requestedProvider, telemetry: {
+            state: state, providerStatus: terminalStatus, pollCount: Number(state.pollCount || 0) + 1,
+            maxPollLatencyMs: Math.max(Number(state.maxPollLatencyMs || 0), Number(error.pollLatencyMs || 0))
+          }
+        }), terminalFailure.warnings);
+      }
+      kspStoreKnowledgeQueryTerminal_(environment, actor, token, requestedProvider, terminalFailure);
+      return terminalFailure;
+    }
+    if (error && error.code === 'AI_QUERY_HTTP_FAILED' && error.retryable === false) {
+      var transportFailure = kspKnowledgeQueryFailureResult_(requestedProvider, state.input.mode, error, warnings, false, '');
+      if (context && context.auditSpreadsheetId) {
+        kspAppendKnowledgeQueryAuditOnce_(environment, actor, token, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
+          timestamp: environment.nowIso(), actor: actor, input: state.input, modelId: state.modelId || (config && config.modelId),
+          interactionId: kspKnowledgeQueryAuditTargetId_(token), result: KSP_AUDIT_RESULTS.FAILURE, errorCode: kspGetErrorCode_(error), citations: [],
+          provider: requestedProvider, telemetry: { state: state, providerStatus: 'failed', pollCount: state.pollCount || 0 }
+        }), transportFailure.warnings);
+      }
+      kspStoreKnowledgeQueryTerminal_(environment, actor, token, requestedProvider, transportFailure);
+      return transportFailure;
+    }
+    return kspKnowledgeQueryFailureResult_(requestedProvider, state.input.mode, error, warnings, true, token);
+  }
+}
+
+function kspRunProviderKnowledgeSearch_(environment, provider, rawInput) {
+  var normalizedProvider = kspNormalizeAiProvider_(provider);
+  try {
+    if (kspKnowledgeQueryPhase_(rawInput) === 'POLL') {
+      return kspRunProviderKnowledgeSearchPoll_(environment, normalizedProvider, rawInput);
+    }
+    return kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, rawInput);
+  } catch (error) {
+    return kspKnowledgeQueryFailureResult_(normalizedProvider, '', error, [], false, '');
   }
 }
 

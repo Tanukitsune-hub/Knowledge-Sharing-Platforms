@@ -15,6 +15,78 @@ function providerQueueRow(sourceType, sourceId, updatedAt, overrides = {}) {
   };
 }
 
+function createResumableQueryEnvironment(options = {}) {
+  const env = createSyncEnvironment();
+  const cache = new Map();
+  const claims = new Set();
+  const pollResponses = [...(options.pollResponses || [])];
+  let actor = options.actor || 'person@example.com';
+  const calls = { starts: 0, polls: 0, startRequests: [], pollIds: [], writes: 0 };
+  env.getActor = () => actor;
+  env.claimPublicOperation = (key) => {
+    if (claims.has(key)) return false;
+    claims.add(key);
+    return true;
+  };
+  env.getPublicIdempotency = (key) => {
+    const value = cache.get(key);
+    return value ? plain(value) : null;
+  };
+  env.setPublicIdempotency = (key, value) => {
+    calls.writes += 1;
+    cache.set(key, plain(value));
+  };
+  env.getProviderConfig = (provider) => ({
+    provider, enabled: true, modelId: 'gemini-3.7-flash',
+    storeName: 'fileSearchStores/store-synthetic', credentialConfigured: true
+  });
+  env.startQueryProvider = (provider, config, request) => {
+    calls.starts += 1;
+    calls.startRequests.push(plain(request));
+    return { status: 'in_progress', interactionId: 'interaction-private' };
+  };
+  env.pollQueryProvider = (provider, config, interactionId) => {
+    calls.polls += 1;
+    calls.pollIds.push(interactionId);
+    const next = pollResponses.shift();
+    if (next instanceof Error) throw next;
+    return next || { status: 'in_progress' };
+  };
+  env._resumable = {
+    cache, calls,
+    setActor(value) { actor = value; }
+  };
+  return env;
+}
+
+function withSyntheticUuid(callback) {
+  const originalUtilities = ksp.Utilities;
+  let sequence = 0;
+  ksp.Utilities = {
+    ...originalUtilities,
+    getUuid: () => `00000000-0000-4000-8000-${String(++sequence).padStart(12, '0')}`
+  };
+  try {
+    return callback();
+  } finally {
+    ksp.Utilities = originalUtilities;
+  }
+}
+
+function completedPitchbookInteraction() {
+  return {
+    id: 'interaction-private',
+    status: 'completed',
+    usage: { input_tokens: 12, output_tokens: 8, thought_tokens: 2, tool_use_tokens: 3, cached_tokens: 1 },
+    steps: [{ type: 'model_output', content: [{ type: 'text', text: 'Grounded Pitchbook answer', annotations: [{
+      type: 'file_citation', source: 'provider-document-private', custom_metadata: [
+        { key: 'source_type', string_value: 'Pitchbook' },
+        { key: 'source_id', string_value: 'DOC-000001' }
+      ]
+    }] }] }]
+  };
+}
+
 test('provider state migrates legacy Gemini fields without populating OpenAI', () => {
   const legacy = plain(ksp.kspParseAiProviderState_('', {
     AI_Document_Name: 'fileSearchStores/store-1/documents/gemini-1',
@@ -123,6 +195,141 @@ test('disabled provider returns its own safe error and never fails over', () => 
     assert.equal(result.error.code, `${provider}_DISABLED_BY_CONFIG`);
     assert.deepEqual(calls, []);
   }
+});
+
+test('Gemini START returns one opaque pending token without polling or Audit', () => {
+  withSyntheticUuid(() => {
+    const env = createResumableQueryEnvironment();
+    const result = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', {
+      mode: '自由質問', questionOrInstruction: 'synthetic Pitchbook question', sourceType: 'Pitchbook'
+    }));
+    assert.equal(result.ok, true);
+    assert.equal(result.status, 'pending');
+    assert.equal(result.pending, true);
+    assert.match(result.queryToken, /^[0-9a-f-]{36}$/);
+    assert.doesNotMatch(JSON.stringify(result), /interaction-private/);
+    assert.equal(env._resumable.calls.starts, 1);
+    assert.equal(env._resumable.calls.polls, 0);
+    assert.equal(env._debug.audits.length, 0);
+    assert.equal(env._resumable.calls.startRequests[0].modelId, 'gemini-3.7-flash');
+    assert.equal(env._resumable.calls.startRequests[0].background, true);
+    assert.deepEqual(env._resumable.calls.startRequests[0].generation_config, {
+      thinking_level: 'low', max_output_tokens: 2048
+    });
+    const pendingState = [...env._resumable.cache.values()].find((value) => value.kind === 'PENDING');
+    assert.equal(pendingState.interactionId, 'interaction-private');
+    assert.equal(Object.hasOwn(pendingState, 'question'), false);
+    assert.equal(Object.hasOwn(pendingState, 'questionOrInstruction'), false);
+  });
+});
+
+test('identical pending START reuses the same token and creates one Interaction', () => {
+  withSyntheticUuid(() => {
+    const env = createResumableQueryEnvironment();
+    const input = { mode: '自由質問', questionOrInstruction: 'same synthetic question', sourceType: 'Pitchbook' };
+    const first = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', input));
+    const second = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', input));
+    assert.equal(first.queryToken, second.queryToken);
+    assert.equal(env._resumable.calls.starts, 1);
+    assert.equal(env._resumable.calls.polls, 0);
+  });
+});
+
+test('POLL uses one provider cycle, keeps pending state, maps completion, and replays terminal state', () => {
+  withSyntheticUuid(() => {
+    const env = createResumableQueryEnvironment({ pollResponses: [
+      { status: 'queued' },
+      { status: 'in_progress' },
+      completedPitchbookInteraction()
+    ] });
+    const start = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', {
+      mode: '自由質問', questionOrInstruction: 'synthetic Pitchbook question', sourceType: 'Pitchbook'
+    }));
+    const pollInput = { queryPhase: 'POLL', queryToken: start.queryToken, route: 'GEMINI' };
+    const pending1 = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', pollInput));
+    assert.equal(pending1.ok, true);
+    assert.equal(pending1.status, 'pending');
+    assert.equal(env._resumable.calls.polls, 1);
+    const pending2 = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', pollInput));
+    assert.equal(pending2.status, 'pending');
+    assert.equal(env._resumable.calls.polls, 2);
+    assert.equal(env._debug.audits.length, 0);
+
+    const completed = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', pollInput));
+    assert.equal(completed.ok, true);
+    assert.equal(completed.status, 'completed');
+    assert.equal(completed.citations.length, 1);
+    assert.equal(completed.citations[0].sourceId, 'DOC-000001');
+    assert.equal(env._resumable.calls.polls, 3);
+    assert.equal(env._debug.audits.length, 1);
+    assert.equal(env._debug.audits[0].Result, 'Success');
+    assert.doesNotMatch(JSON.stringify(completed), /interaction-private|provider-document-private/);
+    const telemetry = JSON.parse(env._debug.audits[0].After_Metadata_JSON);
+    assert.equal(telemetry.request_profile_version, 'gemini-latency-v1');
+    assert.equal(telemetry.thinking_level, 'low');
+    assert.equal(telemetry.max_output_tokens, 2048);
+    assert.equal(telemetry.input_tokens, 12);
+    assert.equal(telemetry.output_tokens, 8);
+    assert.ok(Object.values(telemetry).every((value) => typeof value !== 'number' || (Number.isFinite(value) && value >= 0)));
+
+    const replay = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', pollInput));
+    assert.equal(replay.idempotentReplay, true);
+    assert.equal(env._resumable.calls.polls, 3);
+    assert.equal(env._debug.audits.length, 1);
+  });
+});
+
+test('terminal provider statuses including budget_exceeded write one safe idempotent outcome', () => {
+  for (const status of ['failed', 'cancelled', 'requires_action', 'incomplete', 'budget_exceeded']) {
+    const terminalError = new Error('PRIVATE_PROVIDER_RESPONSE');
+    terminalError.code = 'AI_QUERY_PROVIDER_TERMINAL';
+    terminalError.providerStatus = status;
+    withSyntheticUuid(() => {
+      const env = createResumableQueryEnvironment({ pollResponses: [terminalError] });
+      const start = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', {
+        mode: '自由質問', questionOrInstruction: 'synthetic question'
+      }));
+      const pollInput = { queryPhase: 'POLL', queryToken: start.queryToken, route: 'GEMINI' };
+      const failure = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', pollInput));
+      assert.equal(failure.ok, false);
+      assert.equal(failure.terminalStatus, status);
+      assert.equal(failure.error.code, 'AI_QUERY_PROVIDER_TERMINAL');
+      assert.doesNotMatch(JSON.stringify(failure), /PRIVATE_PROVIDER_RESPONSE|interaction-private/);
+      assert.equal(env._resumable.calls.polls, 1);
+      assert.equal(env._debug.audits.length, 1);
+      const replay = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', pollInput));
+      assert.equal(replay.idempotentReplay, true);
+      assert.equal(env._resumable.calls.polls, 1);
+      assert.equal(env._debug.audits.length, 1);
+    });
+  }
+});
+
+test('unknown status fails closed and actor-bound or raw provider tokens cannot poll', () => {
+  withSyntheticUuid(() => {
+    const env = createResumableQueryEnvironment({ pollResponses: [
+      { status: 'future_private_status', error: { message: 'PRIVATE_PROVIDER_RESPONSE' } }
+    ] });
+    const start = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', {
+      mode: '自由質問', questionOrInstruction: 'synthetic question'
+    }));
+    const pollInput = { queryPhase: 'POLL', queryToken: start.queryToken, route: 'GEMINI' };
+    env._resumable.setActor('different@example.com');
+    const mismatch = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', pollInput));
+    assert.ok(['AI_QUERY_TOKEN_INVALID', 'AI_QUERY_TOKEN_EXPIRED'].includes(mismatch.error.code));
+    assert.equal(env._resumable.calls.polls, 0);
+    env._resumable.setActor('person@example.com');
+    const raw = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', {
+      queryPhase: 'POLL', queryToken: 'interaction-private', route: 'GEMINI'
+    }));
+    assert.equal(raw.error.code, 'AI_QUERY_TOKEN_EXPIRED');
+    assert.equal(env._resumable.calls.polls, 0);
+    const failure = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', pollInput));
+    assert.equal(failure.ok, false);
+    assert.equal(failure.error.code, 'AI_QUERY_RESPONSE_INVALID');
+    assert.doesNotMatch(JSON.stringify(failure), /PRIVATE_PROVIDER_RESPONSE/);
+    assert.equal(env._debug.audits.length, 1);
+  });
 });
 
 test('Gemini first configuration permits a blank Store and keeps generation and embedding models separate', () => {
