@@ -38,9 +38,9 @@ FINAL_INTEGRITY: NOT RUN — CODEX-15 stop condition
 READY: NO
 BLOCKER: YES
 IMPLEMENTATION_COMMIT: fe1f1c63aad2e84b98a43b7a7d130bff607229d7
-QUALIFICATION_REPORT_COMMIT: recorded by the scoped report/status delivery commit
-FINAL_BRANCH_HEAD: recorded by the scoped report/status delivery commit
-GITHUB_CI_ACTUALLY_RAN: to be verified after push
+QUALIFICATION_REPORT_COMMIT: af71a23f4d4c088d9e56eda2c63ee800a08f682a (report/status delivery)
+FINAL_BRANCH_HEAD: final scoped status commit follows this report delivery
+GITHUB_CI_ACTUALLY_RAN: NO — no workflow run or commit status check exists for the pushed head
 ```
 
 The deterministic adapter is retained because it passed the repository gates:

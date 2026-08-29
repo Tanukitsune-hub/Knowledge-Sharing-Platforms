@@ -55,6 +55,14 @@ READY: NO
 BLOCKER: YES
 ```
 
+CODEX-15 delivery identity:
+
+```text
+IMPLEMENTATION_COMMIT: fe1f1c63aad2e84b98a43b7a7d130bff607229d7
+QUALIFICATION_REPORT_COMMIT: af71a23f4d4c088d9e56eda2c63ee800a08f682a
+GITHUB_CI_ACTUALLY_RAN: NO — no workflow run or commit status check exists
+```
+
 Detailed report:
 `docs/handoffs/0020-CODEX-15-gemini-provider-path-isolation-and-final-qualification-report.md`
 
