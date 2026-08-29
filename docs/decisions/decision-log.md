@@ -1,6 +1,6 @@
 # Decision Log
 
-Current as of: 2026-08-28
+Current as of: 2026-08-29
 
 This file records active major decisions. Detailed domain sources take precedence:
 
@@ -13,6 +13,7 @@ This file records active major decisions. Detailed domain sources take precedenc
 - temporal data: `docs/decisions/temporal-data-contract.md`
 - AI provider selection: `docs/decisions/ai-provider-selection-and-full-output.md`
 - AI/File Search: `docs/ai/provider-neutral-file-search.md`
+- distribution/installer: `docs/decisions/modular-source-single-bundle-distribution.md`
 - security: `docs/governance/security.md`
 
 ## 2026-08-14 — Google Workspace-centered product reset
@@ -317,12 +318,13 @@ Detailed decisions:
 
 ## 2026-08-28 — Optimized AI implementation order
 
-Status: Accepted
+Status: Accepted and extended on 2026-08-29
 
 ```text
 0019 Entity Workspace / Fund-Strategy drill-down
 → 0020 AI provider core / OpenAI + Gemini File Search / full output
 → 0021 structured filters / five modes / multi-Entity / provider parity
+→ 0023 generated bundle / installer / fresh-install qualification
 → historical migration
 → final production qualification
 ```
@@ -331,13 +333,17 @@ Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and exp
 
 Work 0021 builds the intended search product once on that core: structured filters, five modes, 2–5 Entity comparison, provider parity, full-output parity, and the bounded six-format matrix.
 
+Work 0023 separates modular development source from low-friction distribution and proves the generated bundle before loading historical volume or qualifying the company environment.
+
 Personal-PC AI qualification precedes historical migration so actual provider index/metadata/search contracts are proven before loading volume.
 
 ## 2026-08-28 — Historical migration and final production
 
-Status: Accepted
+Status: Accepted and extended on 2026-08-29
 
 Historical materials are heterogeneous. Manual entry is a valid default. Use hybrid/selective automation only for repeatable subsets with measurable benefit.
+
+The generated bundle/installer path is qualified before historical migration so company installation does not depend on personal Drive resources or manual reconstruction of source files.
 
 Final production qualification is last and includes actual company Shared Drive hierarchy/permissions, organization-controlled Apps Script, Backend/Audit boundaries, full-output permissions/retention, real users, and every provider enabled by company policy:
 
@@ -350,6 +356,41 @@ Final production qualification is last and includes actual company Shared Drive 
 
 The company may enable OpenAI, Gemini, both, or neither. Personal-PC/synthetic success is not company production readiness.
 
+## 2026-08-29 — Modular source, generated bundle, and low-friction installer
+
+Status: Accepted design direction
+
+Development and distribution are deliberately separated:
+
+```text
+modular GitHub source
+→ deterministic generated distribution bundle
+→ project-specific idempotent installer
+→ fresh target-runtime installation qualification
+```
+
+- `.gs` and `.html` sources under `src/` remain authoritative and modular;
+- the product is not developed as one giant hand-maintained script;
+- company operators do not manually create or paste dozens of source files;
+- `dist/KnowledgeShare.bundle.gs` is generated from GitHub source and is never hand-edited;
+- all HTML resources are embedded in the generated bundle and loaded through one modular/bundle-compatible abstraction;
+- the normal install begins from a new Spreadsheet in the intended Shared Drive folder and does not copy a personal Drive template;
+- `installKnowledgeShare()` reuses the existing setup/migration engine and is safe to rerun;
+- `checkKnowledgeShareReadiness()` reports plain-language `READY_FOR_DEPLOYMENT`, `READY`, or action-required states;
+- AI providers and recurring AI synchronization remain disabled by default;
+- Knowledge Share does not add Gmail labels or Gmail scopes because the current product does not require them;
+- bundle generation validates syntax, source coverage/order, global collisions, dangerous top-level execution, template resolution, facade/test parity, deterministic hashes, and secret/private-ID exclusion;
+- current platform boundaries are stated honestly: the Advanced Drive service may require one editor service-add step and the first Web App deployment remains a one-time manual platform action;
+- Work 0023 follows Work 0021 and precedes historical migration and final company qualification;
+- the underlying standard is designed for later reuse by other Apps Script products, including the task-management tool.
+
+Detailed sources:
+
+- `docs/decisions/modular-source-single-bundle-distribution.md`;
+- `docs/planning/work0023-bundle-installer-distribution.md`;
+- `docs/operations/company-bundle-installation.md`;
+- `docs/standards/apps-script-bundle-installer-standard.md`.
+
 ## Current genuine choices
 
 - whether scale later requires caching/materialized summaries;
@@ -359,6 +400,8 @@ The company may enable OpenAI, Gemini, both, or neither. Personal-PC/synthetic s
 - exact provider-state physical compatibility/mirroring after source inventory;
 - exact Related GP/Meeting Type multi-value filter strategy from actual provider behavior;
 - observed rate limit, retry, batch size, cost, and retention guardrails per provider;
+- whether Work 0023 can safely remove the Advanced Drive service dependency or retains one simple service-enable step;
+- whether bundle files are committed under `dist/` or generated only as CI/GitHub Release assets, subject to freshness/hash enforcement;
 - which providers are enabled by company policy in final production;
 - manual/hybrid/selective historical migration method;
 - final production permissions/cleanup/rollback/rollout route.
