@@ -1,15 +1,15 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-10`
+DISPATCH_ID: `0020-CODEX-11`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
-MODE: `QUALIFICATION` with one bounded UI repair fallback
+STATUS: `READY`
+MODE: `INVESTIGATION -> BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
 Active instruction:
-`docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-instruction.md`
+`docs/handoffs/0020-CODEX-11-gemini-document-reconciliation-and-final-qualification-instruction.md`
 
 ## Primary outcome
 
@@ -21,7 +21,7 @@ Gemini
 全文出力
 ```
 
-Gemini is the personal-DEV live provider. OpenAI is deliberately deferred/disabled. File Search scope is Meeting + Pitchbook/source; FULL_EXPORT body is Meeting Google Docs full text with optional Pitchbook references only.
+Gemini is the personal-DEV live provider. OpenAI is deliberately deferred/disabled. File Search scope is Meeting + Pitchbook/source. FULL_EXPORT body is Meeting Google Docs full text with optional Pitchbook references only.
 
 ## Accepted evidence — closed absent material contradiction
 
@@ -31,82 +31,92 @@ Gemini is the personal-DEV live provider. OpenAI is deliberately deferred/disabl
 - CODEX-06: caller `Content-Length` removed, repository `277/277 PASS`, version `46`.
 - CODEX-07: transport/candidate hardening deterministic PASS, repository `282/282 PASS`, version `47`.
 - CODEX-08: direct Blob path deterministic PASS, focused `39/39`, repository `280/280`, temporal/public/diff PASS; normal combined queue ordering confirmed.
-- CODEX-09: optional administrator `sourceType` contract deterministic PASS, focused `45/45`, repository `286/286`, temporal/public/diff PASS; exact source readback `78/78`; existing private Web App version `48`; batch restored to numeric `10`.
+- CODEX-09: optional administrator `sourceType` contract deterministic PASS, focused `45/45`, repository `286/286`, temporal/public/diff PASS; exact source readback `78/78`; existing private Web App version `48`.
+- CODEX-10: authenticated private Web App administrator SYNC path proven; minimal All/Meeting/Pitchbook UI fallback delivered; focused `45/45`, repository `286/286`, exact source readback `78/78`; same private Web App version `49`.
 
-Do not rerun FULL_OUTPUT. Do not live-call OpenAI. Do not reopen accepted selector/transport design absent contradictory evidence.
+Do not rerun FULL_OUTPUT. Do not live-call OpenAI. Do not reopen accepted selector/direct-Blob transport design absent material contradictory evidence.
 
-## CODEX-09 authoritative blocker
+## CODEX-10 authoritative blocker
 
-CODEX-09 did not reach Gemini. The deployed `/exec` rendered and the administrator settings surface was visible, but both Apps Script Execution API routes rejected the attempted administrator function invocation before function execution with a platform permission error. No Gemini request or application-data mutation occurred.
+CODEX-10 reached real Gemini provider execution.
 
-This proves only an execution-surface/automation limitation. It does not prove that the deployed Web App browser/server bridge is unavailable, and it is not evidence of an application/Gemini defect.
+The required temporary batch guard was not active: authoritative post-run `AI_SYNC_BATCH_SIZE` remained numeric `10`, so two eligible synthetic Meetings were attempted. Both ended safe permanent `AI_DOCUMENT_READBACK_FAILED` with no accepted local Gemini document identity. No Pitchbook changed. No query, lifecycle, state reset, retry, OpenAI call, FULL_OUTPUT rerun, second deployment, or Library mutation followed.
 
-## Strategy Reset for CODEX-10
+This is now the active runtime blocker.
 
-Closed implementation facts:
-- `sourceType` blank preserves the combined Meeting+Pitchbook queue;
-- `sourceType=Meeting` / `Pitchbook` filters before existing sort/slice;
-- invalid source types fail closed;
-- server-side administrator authorization remains mandatory;
-- normal browser code already calls the public `mutateAiProviderSettings` facade through the Web App for administrator operations.
+## ChatGPT Strategy Reset for CODEX-11
 
-Active hypothesis:
+GitHub source and Google’s current official File Search contract were reviewed after CODEX-10.
 
-> The authenticated private Web App page context can invoke the existing `mutateAiProviderSettings` facade with `{ action: 'SYNC', sourceType: 'Meeting' }`, avoiding the separate Apps Script Execution API permission restriction.
+Relevant source facts:
 
-Fastest safe decisive action:
-- use already deployed version `48` with zero source/deployment change first;
-- temporarily set batch size to numeric `1` using the accepted guarded mechanism;
-- invoke the existing Web App browser/server bridge with `sourceType=Meeting`;
-- if the available browser harness cannot send the custom payload before any provider execution, add only a minimal administrator `All / Meeting / Pitchbook` sync-scope control to the existing AI Provider Settings page, with no new public/debug endpoint, then one tested source delivery/version/Web App update maximum.
+- `tests/ai-gemini-transport.test.cjs` currently defines successful upload as a completed Operation whose `response.fileSearchDocument` already contains the ACTIVE FileSearchDocument.
+- `src/161_GeminiRestClient.gs` calls `kspExtractDocumentFromOperation_()` after a successful Operation and maps extraction failure directly to permanent `AI_DOCUMENT_READBACK_FAILED`.
+- `src/131_AiFileSearchContracts.gs` keeps Operation `response` generic but requires a document-shaped resource name when normalizing a FileSearchDocument.
+- Google’s current File Search examples poll the upload Operation only until `done`; they do not require the Operation to embed a FileSearchDocument.
+- the current API reference describes Operation `response` as a generic object and explicitly notes that some services may not provide a result; File Search Documents have separate list/get APIs.
+- provider-core processing already lists existing documents by source before upload, but CODEX-10 failure handling clears local `contentHash` and permanent failure is excluded from future sync eligibility, so the two uncertain rows cannot currently self-reconcile.
 
-## Remaining completion gates
+One active hypothesis:
 
-1. Bounded Web App administrator SYNC `sourceType=Meeting`, batch `1`.
-2. One Gemini Meeting index/finalize with ACTIVE Document + Backend `Indexed` + no duplicate.
-3. One grounded Meeting query with authoritative citation.
-4. Bounded Web App administrator SYNC `sourceType=Pitchbook`, batch `1`, using only synthetic/non-confidential source.
-5. One Pitchbook index and grounded query with authoritative citation.
-6. Exact metadata filter.
-7. Update -> reindex without duplicate.
-8. Inactive removal/exclusion.
-9. Reactivate restoration.
-10. Exact delete/rebuild of derived provider document.
-11. Restore lifecycle/settings; final integrity PASS.
+> The CODEX-10 Gemini uploads may have created valid FileSearchDocuments, but the application incorrectly treats absence of an embedded document object in the completed upload Operation as permanent failure. The resulting local failure state then prevents safe reconciliation with the already-created provider document.
 
-## CODEX-10 bounded result
+CODEX-11 must first reproduce this exact gap deterministically. If it does not reproduce, do not patch and return for Strategy Reset.
 
-The browser-harness limitation authorized the minimal administrator sync-scope
-fallback. The tested UI/source was synchronized exactly once, read back as
-`78/78`, packaged as immutable version `49`, and deployed to the same private
-Web App in place. No second deployment or Library mutation occurred.
+## CODEX-11 repair boundary
 
-The deployed page rendered, `Meeting` was selected, and the existing
-administrator sync action was clicked once. Post-run authoritative readback
-showed the batch size was numeric `10` rather than the required temporary `1`,
-so two eligible Meetings were attempted. Both reached safe permanent
-`AI_DOCUMENT_READBACK_FAILED` state without an accepted Gemini document; no
-Pitchbook state changed. This was the first actual provider/runtime failure in
-the dispatch, so all dependent query/lifecycle/final-integrity gates were
-stopped and not run. No retry or state reset was performed.
+Expected production scope only:
 
-Report:
-`docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-report.md`
+- `src/161_GeminiRestClient.gs`;
+- `src/164_AiProviderCore.gs`;
+- directly relevant tests;
+- `src/160_AiEnvironment.gs` only if a narrow source-type-aware finder signature is required.
 
-## Stop rules
+Required behavior:
 
-- one actual Meeting SYNC attempt;
-- one Meeting query only after Meeting index PASS;
-- one actual Pitchbook SYNC attempt only after Meeting query PASS;
-- one Pitchbook query only after Pitchbook index PASS;
-- one optional minimal admin UI repair and one source delivery/version/Web App update maximum, only if page-context custom invocation is impossible before provider execution;
-- no Apps Script Execution API retry loop;
-- no unrestricted broad sync, Meeting-first priority change, queue manipulation, fake failure state, new Store, new deployment, Library mutation, new public/debug endpoint, OpenAI live call, FULL_OUTPUT rerun, or confidential data;
-- stop on first new provider/runtime failure after actual application execution begins.
+1. Preserve the valid embedded-document fast path.
+2. When a completed Gemini upload Operation has no valid embedded document, reconcile through bounded File Search Document list/get using exact `source_type + source_id + content_hash`.
+3. Require exactly one ACTIVE exact match; zero/mismatch/ambiguous results fail closed.
+4. Make a `FAILED / AI_DOCUMENT_READBACK_FAILED` source eligible for reconciliation-only recovery.
+5. If one exact existing document is present, restore local provider state to Indexed without upload/delete.
+6. For the uncertain failed state, zero/ambiguous matches must not trigger a new upload or destructive delete.
+7. Normal new sources keep the existing upload path, now with repaired post-Operation reconciliation.
+8. Preserve redaction, provider neutrality, OpenAI behavior, no-failover, schema, and public surface.
+
+## Live safety gate
+
+Before every provider-mutating sync:
+
+```text
+AI_SYNC_BATCH_SIZE = numeric 1
+-> authoritative readback = numeric 1
+-> only then may SYNC execute
+```
+
+If readback is not numeric `1`, STOP before clicking sync.
+
+The first two CODEX-11 Meeting passes are reconciliation-only for the two uncertain CODEX-10 rows, one source per pass. Require one exact ACTIVE existing Gemini document and no upload/delete. If either row has zero or ambiguous exact provider matches, STOP and return; do not re-upload it.
+
+After both affected Meeting rows are reconciled, use one for the grounded Meeting query/citation. Then perform one bounded small synthetic TXT Pitchbook upload/query and only after PASS continue exact metadata filter plus update / Inactive / Reactivate / delete-rebuild lifecycle and final integrity.
+
+Restore batch size to numeric `10`, keep `AI_SYNC_ENABLED=false`, OpenAI disabled/uncalled, and triggers unchanged at the end.
 
 ## GitHub evidence note
 
-At CODEX-09 head `26188b8e97ec9600ee08fb8e8518d630c2f1714d`, GitHub had no Actions workflow run and no commit status checks. The recorded `45/45` and `286/286` results are deterministic local/report evidence, not GitHub-hosted CI evidence. Do not claim GitHub CI PASS without a real run.
+For CODEX-10 implementation head `e8e022baf7d608b81f8a3bb164636781b46a0011`, GitHub shows zero Actions workflow runs and zero commit status checks. The recorded `45/45` and `286/286` are local/repository execution evidence, not GitHub-hosted CI evidence.
+
+Current `main` has advanced independently after Work 0020 branched. Do not mix an unrelated main integration into the bounded CODEX-11 runtime diagnosis. Integrate current main before final Work merge after the runtime blocker is closed.
+
+## Stop rules
+
+- one active provider hypothesis only;
+- no patch if the pre-fix regression does not reproduce;
+- one minimal repair attempt;
+- one tested source delivery/version/same-Web-App update maximum;
+- batch numeric `1` readback is mandatory before live mutating sync;
+- no uncertain Meeting re-upload/delete before exact existing-document reconciliation;
+- no unrestricted broad sync, new Store, second Web App, Library mutation, new public/debug endpoint, OpenAI live call, FULL_OUTPUT rerun, confidential data, or provider retry loop;
+- stop on the first new provider/runtime failure or ambiguous provider document set.
 
 ## Closed contracts
 
@@ -125,6 +135,7 @@ DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred
+GEMINI_DOCUMENT_RECONCILIATION: PASS
 GEMINI_RUNTIME: PASS
 FULL_OUTPUT_RUNTIME: PASS
 FINAL_INTEGRITY: PASS
