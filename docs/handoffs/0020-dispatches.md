@@ -102,4 +102,4 @@ Only one active Codex dispatch may exist.
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-15`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED`
