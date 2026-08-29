@@ -20,68 +20,47 @@ BLOCKER: YES
 
 ## Accepted evidence
 
-### CODEX-03
-- focused `52/52`, repository `256/256` PASS;
-- schema `6`, exactly five Backend sheets;
-- FULL_OUTPUT Preview/Copy/Docs/PDF and canonical package parity PASS;
-- disabled-provider safe errors/no-failover and final integrity PASS;
-- Apps Script version `42`, triggers `0`, same private Web App.
+- CODEX-03: focused `52/52`, repository `256/256`, schema 6/five sheets, FULL_OUTPUT/canonical output parity, disabled-provider/no-failover, final integrity PASS; version 42.
+- CODEX-04: focused `17/17`, repository `265/265`, one isolated Gemini Store, future zero-code OpenAI activation deterministic PASS; OpenAI disabled/uncalled.
+- CODEX-05: transport/provider `68/68`, repository `274/274`, safe transport-stage diagnostics and bounded transient retry, version 45.
+- CODEX-06: caller `Content-Length` removed; transport `12/12`, AI-focused `78/78`, repository `277/277`, version 46; provider response not reached.
+- CODEX-07: transport `17/17`, focused AI/provider `41/41`, repository `282/282`, temporal/public-surface/diff PASS, exact source readback, version 47, same private Web App; no accepted Meeting Document/Indexed state and provider HTTP absent.
 
-### CODEX-04
-- focused `17/17`, repository `265/265` PASS;
-- one isolated Gemini Store;
-- future zero-code OpenAI administrator activation implemented and deterministic PASS;
-- OpenAI disabled/uncalled.
+Detailed reports through CODEX-07 remain authoritative under `docs/handoffs/`.
 
-### CODEX-05
-- transport/provider `68/68`, repository `274/274` PASS;
-- safe transport-stage error preservation, bounded transient retry;
-- exact source readback, version `45`, same Web App update.
+## New authoritative readback after CODEX-07
 
-### CODEX-06
-- final-upload caller `Content-Length` removed;
-- transport `12/12`, AI-focused `78/78`, repository `277/277` PASS;
-- exact source readback, version `46`, same Web App update;
-- Gate A stopped locally before provider response.
+Backend provider-state readback shows:
 
-### CODEX-07
-- Byte[]/Blob candidate-selection repair;
-- transport `17/17`, focused AI/provider `41/41`, repository `282/282` PASS;
-- temporal/public-surface/diff checks PASS, public facade `30`;
-- exact `78`-file source sync/readback PASS;
-- immutable Apps Script version `47`, same private Web App update PASS;
-- one bounded sync did not produce an active Gemini Meeting Document or Backend `Indexed` state;
-- safe diagnostic remained `AI_UPLOAD_FINALIZE_REQUEST_INVALID / UPLOAD_FINALIZE_CLIENT` with provider HTTP status/body absent;
-- batch restored to `10`, Audit unchanged, `AI_SYNC_ENABLED=false`, `OPENAI_ENABLED=false`, no dependent gates run.
+- the synthetic Meeting previously used to inspect `AI_UPLOAD_FINALIZE_REQUEST_INVALID` is now Gemini `Failed`, attempt 3, `retryable:false`, `permanent:true`;
+- another prior failed Meeting is also permanent-failed;
+- other existing synthetic Meetings remain Pending/eligible;
+- provider-neutral selection logic intentionally excludes permanent failed provider entries.
 
-Detailed reports:
+This means CODEX-07's unchanged old safe diagnostic is not proof that a new finalize request executed. A sync can complete without selecting the old permanent-failed source.
 
-- `docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-report.md`
-- `docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-report.md`
-- `docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`
-- `docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-report.md`
-- `docs/handoffs/0020-CODEX-07-runtime-request-shape-selection-and-gemini-completion-report.md`
+Therefore the prior phrase “one authorized sync action did not produce Indexed” remains true, but its transport implication is weakened: Gate A did not establish that one eligible Meeting actually entered the upload/finalize path.
 
 ## Strategy Reset for CODEX-08
 
-Repeated CODEX-06/07 evidence shows the target runtime still stops in the local request inspection/selection layer. No Gemini HTTP status/body or provider document identity has been observed after the `Content-Length` repair.
-
 Closed conclusions:
 
-1. Apps Script `fetch()` accepts byte-array and Blob payloads.
-2. `getRequest()` is optional inspection and must not be treated as a provider validity gate.
-3. Direct `uploadToFileSearchStore` remains an official Gemini path.
-4. The Gemini Files API + `importFile` alternative does not bypass the current transport layer because its file upload also uses resumable `upload, finalize`.
-5. Further preflight/candidate refinements are discarded as proxy optimization.
+1. Gate 0 must prove the candidate source is currently eligible and actually selected before any runtime conclusion.
+2. Prefer one existing Pending/NotIndexed synthetic Meeting. Do not reuse a permanent-failed row by accident.
+3. If no eligible source exists, reset only Gemini-derived provider state for one synthetic Meeting to `NotIndexed` using the existing provider-state contract; authoritative Meeting data remains unchanged.
+4. Apps Script `fetch()` supports Blob/byte-array payloads; `getRequest()` is optional inspection and must not gate live execution.
+5. Gemini Files API + `importFile` is not a transport workaround because the initial Files upload also requires resumable `upload, finalize`.
+6. The next decisive evidence is one run-local real Blob finalize tied to the Gate-0-selected source.
 
 Active hypothesis:
 
-> Remove `getRequest()` from the live prerequisite path and issue one exact Blob finalization directly. This will either produce an ACTIVE Meeting Document or finally reveal a genuine local/provider transport outcome.
+> After proving one eligible Meeting is selected, removing the production `getRequest()` gate and issuing one exact Blob finalize will produce either an ACTIVE Gemini document or the first genuine local/provider transport failure for that run.
 
 Evidence order:
 
 ```text
-one real Blob Meeting finalize
+Gate 0: eligible Meeting selected=1
+-> one real Blob finalize invoked=1
 -> ACTIVE Meeting Document + Backend Indexed
 -> Meeting grounded query
 -> one small TXT Pitchbook index/query
@@ -91,16 +70,14 @@ one real Blob Meeting finalize
 ```
 
 Active instruction:
-
 `docs/handoffs/0020-CODEX-08-direct-blob-finalize-and-gemini-completion-instruction.md`
 
 Attempt boundary:
-
 - one corrected source delivery maximum;
-- exactly one live Meeting final-upload attempt before any query;
-- no Byte[] live fallback and no Files API/importFile fallback in this dispatch;
-- if direct Blob `fetch()` throws locally before a provider response, stop for an architectural Strategy Reset;
-- if a real provider HTTP/operation error appears, stop with that safe evidence.
+- exactly one live Meeting final-upload attempt before query;
+- no stale-error inference;
+- no Byte[] live fallback or Files API/importFile fallback in this dispatch;
+- stop on local Blob fetch exception or genuine provider HTTP/operation error.
 
 ## Target final matrix
 
