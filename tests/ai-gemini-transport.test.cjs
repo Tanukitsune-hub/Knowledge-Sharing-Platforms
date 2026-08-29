@@ -584,6 +584,189 @@ test('Gemini START terminal status does not perform a second request', () => {
   });
 });
 
+function generateContentResponse(sourceId = 'DOC-000001', sourceType = 'Pitchbook') {
+  return {
+    candidates: [{
+      finishReason: 'STOP',
+      content: { parts: [{ text: 'Grounded Generate Content answer' }] },
+      groundingMetadata: {
+        groundingChunks: [{
+          retrievedContext: {
+            title: 'synthetic-pitchbook.txt',
+            uri: 'https://provider.invalid/private-document',
+            pageNumber: 2,
+            customMetadata: [
+              { key: 'source_type', stringValue: sourceType },
+              { key: 'source_id', stringValue: sourceId },
+              { key: 'content_hash', stringValue: 'synthetic-content-hash' }
+            ]
+          }
+        }]
+      }
+    }],
+    usageMetadata: {
+      promptTokenCount: 11,
+      candidatesTokenCount: 9,
+      thoughtsTokenCount: 2,
+      toolUsePromptTokenCount: 3,
+      cachedContentTokenCount: 1
+    }
+  };
+}
+
+function generateContentRequest() {
+  return {
+    modelId: 'gemini-3.7-flash',
+    storeName: 'fileSearchStores/store-synthetic',
+    mode: '自由質問',
+    questionOrInstruction: 'synthetic pitchbook question',
+    metadataFilter: 'source_type = "Pitchbook"'
+  };
+}
+
+test('Gemini Generate Content adapter builds the official File Search request profile', () => {
+  const request = plain(ksp.kspBuildGeminiGenerateContentRequest_(generateContentRequest()));
+  assert.deepEqual(request.contents, [{ parts: [{ text: request.contents[0].parts[0].text }] }]);
+  assert.equal(request.tools.length, 1);
+  assert.deepEqual(request.tools[0], {
+    file_search: {
+      file_search_store_names: ['fileSearchStores/store-synthetic'],
+      metadata_filter: 'source_type = "Pitchbook"'
+    }
+  });
+  assert.deepEqual(request.generationConfig, {
+    thinkingConfig: { thinkingLevel: 'low' },
+    maxOutputTokens: 2048
+  });
+  assert.equal(Object.hasOwn(request, 'model'), false);
+  assert.match(request.contents[0].parts[0].text, /synthetic pitchbook question/);
+});
+
+test('Gemini Generate Content uses one authenticated POST and returns the provider response', () => {
+  const calls = [];
+  withLiveFakes((url, options) => {
+    calls.push({ url, options });
+    return response(200, generateContentResponse());
+  }, () => {
+    const raw = ksp.kspGeminiGenerateContentLive_(generateContentRequest());
+    assert.equal(raw.__kspHttpStatus, 200);
+    const value = plain(raw);
+    assert.equal(value.candidates[0].finishReason, 'STOP');
+    assert.equal(calls.length, 1);
+    assert.match(calls[0].url, /\/models\/gemini-3\.7-flash:generateContent$/);
+    assert.equal(calls[0].options.method, 'post');
+    assert.equal(calls[0].options.headers['x-goog-api-key'], 'synthetic-gemini-key');
+    assert.equal(calls[0].options.muteHttpExceptions, true);
+    assert.deepEqual(JSON.parse(calls[0].options.payload).generationConfig, {
+      thinkingConfig: { thinkingLevel: 'low' },
+      maxOutputTokens: 2048
+    });
+  });
+});
+
+test('Gemini Generate Content grounding metadata normalizes only authoritative source metadata', () => {
+  const parsed = plain(ksp.kspNormalizeGeminiGenerateContentResponse_(generateContentResponse()));
+  assert.equal(parsed.answer, 'Grounded Generate Content answer');
+  assert.equal(parsed.finishReason, 'STOP');
+  assert.equal(parsed.citations.length, 1);
+  assert.equal(parsed.citations[0].metadata.source_type, 'Pitchbook');
+  assert.equal(parsed.citations[0].metadata.source_id, 'DOC-000001');
+  assert.equal(parsed.citations[0].pageNumber, 2);
+  assert.equal(parsed.usage.promptTokenCount, 11);
+
+  const withoutMetadata = plain(ksp.kspNormalizeGeminiGenerateContentResponse_(generateContentResponse('DOC-000001', '')));
+  assert.equal(withoutMetadata.citations.length, 0);
+});
+
+test('Generate Content result maps authoritative citations and records safe transport telemetry', () => {
+  const env = createSyncEnvironment();
+  const context = env.loadAiContext();
+  const value = plain(ksp.kspBuildProviderKnowledgeSearchSuccess_(
+    env,
+    'GEMINI',
+    { mode: '自由質問', questionOrInstruction: 'synthetic pitchbook question', sourceType: 'Pitchbook' },
+    { provider: 'GEMINI', modelId: 'gemini-3.7-flash', queryTransport: 'GENERATE_CONTENT' },
+    context,
+    'person@example.com',
+    generateContentResponse(),
+    [],
+    '',
+    {
+      state: {}, providerStatus: 'completed', response: generateContentResponse(),
+      queryTransport: 'GENERATE_CONTENT', startLatencyMs: 37
+    }
+  ));
+  assert.equal(value.result.ok, true);
+  assert.equal(value.result.insufficientEvidence, false);
+  assert.equal(value.result.citations[0].sourceType, 'Pitchbook');
+  assert.equal(value.result.citations[0].sourceId, 'DOC-000001');
+  assert.equal(env._debug.audits.length, 1);
+  const auditMetadata = JSON.parse(env._debug.audits[0].After_Metadata_JSON);
+  assert.equal(auditMetadata.query_transport, 'GENERATE_CONTENT');
+  assert.equal(auditMetadata.query_transport_version, 'gemini-generate-content-file-search-v1');
+  assert.equal(auditMetadata.input_tokens, 11);
+  assert.equal(auditMetadata.output_tokens, 9);
+  assert.equal(auditMetadata.thought_tokens, 2);
+  assert.equal(auditMetadata.tool_use_tokens, 3);
+  assert.equal(JSON.stringify(env._debug.audits[0]).includes('provider.invalid'), false);
+});
+
+test('Generate Content HTTP and malformed responses remain safe and non-retryable', () => {
+  let calls = 0;
+  withLiveFakes(() => {
+    calls += 1;
+    return response(500, JSON.stringify({ error: { message: 'PRIVATE_PROVIDER_RESPONSE' } }));
+  }, () => {
+    assert.throws(
+      () => ksp.kspGeminiGenerateContentLive_(generateContentRequest()),
+      (error) => error.code === 'AI_QUERY_HTTP_FAILED' &&
+        error.stage === 'QUERY_GENERATE_CONTENT' && error.httpStatus === 500 &&
+        error.retryable === true && !error.message.includes('PRIVATE_PROVIDER_RESPONSE')
+    );
+  });
+  assert.equal(calls, 1);
+
+  withLiveFakes(() => response(200, '{PRIVATE_PROVIDER_RESPONSE'), () => {
+    assert.throws(
+      () => ksp.kspGeminiGenerateContentLive_(generateContentRequest()),
+      (error) => error.code === 'AI_QUERY_RESPONSE_INVALID' &&
+        error.stage === 'QUERY_GENERATE_CONTENT' &&
+        !error.message.includes('PRIVATE_PROVIDER_RESPONSE')
+    );
+  });
+});
+
+test('provider-neutral Gemini query selects Generate Content without an Interaction fallback', () => {
+  const originalFactory = ksp.kspCreateFeatureFreezeAiEnvironment_;
+  let interactionCalls = 0;
+  ksp.kspCreateFeatureFreezeAiEnvironment_ = () => ({
+    startQueryFileSearch() {
+      interactionCalls += 1;
+      throw new Error('INTERACTIONS_FALLBACK_MUST_NOT_RUN');
+    }
+  });
+  try {
+    const calls = [];
+    withLiveFakes((url, options) => {
+      calls.push({ url, options });
+      return response(200, generateContentResponse());
+    }, () => {
+      const environment = ksp.kspCreateProviderNeutralAiEnvironment_();
+      const lifecycle = plain(environment.startQueryProvider('GEMINI', {
+        provider: 'GEMINI', modelId: 'gemini-3.7-flash',
+        storeName: 'fileSearchStores/store-synthetic',
+        queryTransport: 'GENERATE_CONTENT'
+      }, generateContentRequest()));
+      assert.equal(lifecycle.status, 'completed');
+      assert.equal(calls.length, 1);
+      assert.match(calls[0].url, /:generateContent$/);
+    });
+    assert.equal(interactionCalls, 0);
+  } finally {
+    ksp.kspCreateFeatureFreezeAiEnvironment_ = originalFactory;
+  }
+});
+
 test('disabled OpenAI path does not invoke the Gemini/OpenAI transport', () => {
   let calls = 0;
   const env = createSyncEnvironment();

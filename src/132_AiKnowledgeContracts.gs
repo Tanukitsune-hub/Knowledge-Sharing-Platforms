@@ -129,3 +129,56 @@ function kspParseInteractionResponse_(response) {
     rawStatus: kspAiTrim_(value.status)
   };
 }
+
+function kspNormalizeGeminiGenerateContentResponse_(response) {
+  var value = response || {};
+  var candidate = (value.candidates || [])[0] || {};
+  var content = candidate.content || {};
+  var answerParts = [];
+  (content.parts || []).forEach(function (part) {
+    if (!part || part.text === undefined || part.text === null || part.thought === true) return;
+    answerParts.push(String(part.text));
+  });
+  if (!answerParts.length && value.text !== undefined && value.text !== null) answerParts.push(String(value.text));
+
+  var grounding = candidate.groundingMetadata || candidate.grounding_metadata ||
+    value.groundingMetadata || value.grounding_metadata || {};
+  var chunks = grounding.groundingChunks || grounding.grounding_chunks || [];
+  var citations = [];
+  chunks.forEach(function (chunk) {
+    var retrieved = chunk && (chunk.retrievedContext || chunk.retrieved_context);
+    if (!retrieved) return;
+    var metadata = kspMetadataArrayToMap_(
+      retrieved.customMetadata || retrieved.custom_metadata || retrieved.metadata || []
+    );
+    var sourceType = kspAiTrim_(metadata.source_type);
+    var sourceId = kspAiTrim_(metadata.source_id);
+    if (!sourceType || !sourceId) return;
+    var pageNumber = Number(
+      retrieved.pageNumber || retrieved.page_number || metadata.page_number || metadata.pageNumber || 0
+    ) || null;
+    citations.push({
+      type: 'file_citation',
+      fileName: kspAiTrim_(retrieved.title || retrieved.displayName || retrieved.display_name || retrieved.uri),
+      source: kspAiTrim_(retrieved.uri || retrieved.fileSearchStore || retrieved.file_search_store),
+      pageNumber: pageNumber,
+      metadata: metadata
+    });
+  });
+  var seen = {};
+  citations = citations.filter(function (citation) {
+    var metadata = kspMetadataArrayToMap_(citation.metadata);
+    var key = [metadata.source_type, metadata.source_id, citation.pageNumber || ''].join('|');
+    if (seen[key]) return false;
+    seen[key] = true;
+    return true;
+  });
+  return {
+    answer: answerParts.join('\n').trim(),
+    citations: citations,
+    interactionId: '',
+    rawStatus: 'completed',
+    finishReason: kspAiTrim_(candidate.finishReason || candidate.finish_reason),
+    usage: kspDeepClone_(value.usageMetadata || value.usage_metadata || value.usage || {})
+  };
+}

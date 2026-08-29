@@ -155,7 +155,15 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
     }
     try {
       var responseText = response.getContentText('UTF-8');
-      return responseText ? kspSafeParseJson_(responseText, 'Gemini response') : {};
+      var parsedResponse = responseText ? kspSafeParseJson_(responseText, 'Gemini response') : {};
+      if (settings.includeResponseMetadata && parsedResponse && typeof parsedResponse === 'object') {
+        try {
+          Object.defineProperty(parsedResponse, '__kspHttpStatus', {
+            value: code, enumerable: false, configurable: false, writable: false
+          });
+        } catch (ignoredMetadataError) { /* Safe telemetry is best-effort. */ }
+      }
+      return parsedResponse;
     } catch (ignoredParseError) {
       throw kspGeminiStageError_(settings.parseErrorCode || errorCode, stage, code, headers, false);
     }
@@ -237,6 +245,50 @@ function kspGeminiPollInteractionLive_(interactionId) {
     throw invalidPollStatus;
   }
   return { status: 'in_progress', interactionId: value };
+}
+
+function kspGeminiGenerateContentModelPath_(modelId) {
+  var value = kspAiTrim_(modelId);
+  if (value.indexOf('models/') === 0) value = value.slice('models/'.length);
+  kspAssert_(/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(value),
+    'AI_MODEL_NOT_CONFIGURED', 'Gemini Flash model IDが設定されていません。');
+  return value;
+}
+
+function kspBuildGeminiGenerateContentRequest_(request) {
+  var options = request || {};
+  var modelId = kspGeminiGenerateContentModelPath_(options.modelId || options.model);
+  var storeName = kspAiStoreResourcePath_(options.storeName);
+  var input = kspValidateFeatureFreezeSearchInput_(kspNormalizeFeatureFreezeSearchInput_({
+    mode: options.mode,
+    questionOrInstruction: options.questionOrInstruction
+  }));
+  var fileSearch = {
+    file_search_store_names: [storeName]
+  };
+  var metadataFilter = kspAiTrim_(options.metadataFilter);
+  if (metadataFilter) fileSearch.metadata_filter = metadataFilter;
+  return {
+    contents: [{ parts: [{ text: kspBuildFeatureFreezePrompt_(input) }] }],
+    tools: [{ file_search: fileSearch }],
+    generationConfig: {
+      thinkingConfig: { thinkingLevel: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL },
+      maxOutputTokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
+    }
+  };
+}
+
+function kspGeminiGenerateContentLive_(request) {
+  var options = request || {};
+  var model = kspGeminiGenerateContentModelPath_(options.modelId || options.model);
+  var payload = kspBuildGeminiGenerateContentRequest_(options);
+  return kspGeminiJsonRequestLive_('POST', '/models/' + model + ':generateContent', payload, {
+    retry: false,
+    stage: 'QUERY_GENERATE_CONTENT',
+    errorCode: 'AI_QUERY_HTTP_FAILED',
+    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
+    includeResponseMetadata: true
+  });
 }
 
 function kspGeminiBuildFinalizeRequestOptions_(metadata, payload) {

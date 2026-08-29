@@ -222,6 +222,7 @@ function kspBuildAiProviderConfig_(settings, provider) {
     storeName: kspAiTrim_(source.geminiStoreName || source.storeName),
     modelId: kspAiTrim_(source.geminiModelId || source.modelId),
     embeddingModel: kspAiTrim_(source.embeddingModel || KSP_AI_DEFAULTS.EMBEDDING_MODEL),
+    queryTransport: KSP_AI_DEFAULTS.QUERY_TRANSPORT,
     credentialConfigured: false
   };
 }
@@ -301,6 +302,7 @@ function kspBuildProviderSearchRequest_(provider, config, input) {
     mode: promptInput.mode,
     questionOrInstruction: promptInput.questionOrInstruction,
     metadataFilter: kspBuildMetadataFilter_(value),
+    queryTransport: config.queryTransport || KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
     background: true,
     generation_config: {
       thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
@@ -440,6 +442,9 @@ function kspCreateProviderNeutralAiEnvironment_() {
   };
   base.queryProvider = function (provider, config, request) {
     if (provider === KSP_AI_PROVIDERS.OPENAI) return kspOpenAiQueryFileSearchLive_(request);
+    if (config && config.queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT) {
+      return kspGeminiGenerateContentLive_(request);
+    }
     var lifecycle = base.startQueryFileSearch(kspBuildFeatureFreezeInteractionRequest_(request));
     kspAssert_(lifecycle && lifecycle.status === 'completed', 'AI_QUERY_ASYNC_REQUIRED',
       'Gemini検索は後続の確認が必要です。');
@@ -448,6 +453,8 @@ function kspCreateProviderNeutralAiEnvironment_() {
   base.startQueryProvider = function (provider, config, request) {
     return provider === KSP_AI_PROVIDERS.OPENAI
       ? { status: 'completed', response: kspOpenAiQueryFileSearchLive_(request) }
+      : config && config.queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT
+        ? { status: 'completed', response: kspGeminiGenerateContentLive_(request) }
       : base.startQueryFileSearch(kspBuildFeatureFreezeInteractionRequest_(request));
   };
   base.pollQueryProvider = function (provider, config, interactionId) {
@@ -733,6 +740,14 @@ function kspBuildSafeKnowledgeQueryTelemetry_(state, providerStatus, response, e
     thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
     max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
   };
+  var queryTransport = kspAiTrim_(options.queryTransport || (state && state.queryTransport));
+  if (queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT ||
+      queryTransport === KSP_AI_QUERY_TRANSPORTS.INTERACTIONS) {
+    output.query_transport = queryTransport;
+    output.query_transport_version = queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT
+      ? KSP_AI_DEFAULTS.QUERY_TRANSPORT_VERSION
+      : KSP_AI_DEFAULTS.INTERACTIONS_API_REVISION;
+  }
   var safeStatuses = ['queued', 'in_progress', 'completed', 'failed', 'cancelled',
     'requires_action', 'incomplete', 'budget_exceeded'];
   var status = kspAiTrim_(providerStatus).toLowerCase();
@@ -765,13 +780,25 @@ function kspBuildSafeKnowledgeQueryTelemetry_(state, providerStatus, response, e
     input_tokens: ['input_tokens', 'inputTokens', 'prompt_token_count', 'promptTokenCount'],
     output_tokens: ['output_tokens', 'outputTokens', 'candidates_token_count', 'candidatesTokenCount'],
     thought_tokens: ['thought_tokens', 'thoughtTokens', 'thoughts_token_count', 'thoughtsTokenCount'],
-    tool_use_tokens: ['tool_use_tokens', 'toolUseTokens', 'tool_use_token_count', 'toolUseTokenCount'],
+    tool_use_tokens: ['tool_use_tokens', 'toolUseTokens', 'tool_use_token_count', 'toolUseTokenCount',
+      'tool_use_prompt_token_count', 'toolUsePromptTokenCount'],
     cached_tokens: ['cached_tokens', 'cachedTokens', 'cached_content_token_count', 'cachedContentTokenCount']
   };
   Object.keys(usageFields).forEach(function (key) {
     var numberValue = firstNumber(usage, usageFields[key]);
     if (numberValue !== null) output[key] = numberValue;
   });
+  var providerHttpStatus = safeNumber(response && response.__kspHttpStatus);
+  if (providerHttpStatus !== null && providerHttpStatus >= 100 && providerHttpStatus <= 599) {
+    output.provider_http_status = providerHttpStatus;
+  }
+  var finishReason = response && response.candidates && response.candidates[0]
+    ? kspAiTrim_(response.candidates[0].finishReason || response.candidates[0].finish_reason)
+    : '';
+  if (/^[A-Z][A-Z0-9_]{0,63}$/.test(finishReason)) output.finish_reason = finishReason;
+  if (queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT && startLatency !== null) {
+    output.server_latency_ms = startLatency;
+  }
   return output;
 }
 
@@ -785,7 +812,9 @@ function kspBuildSafeKnowledgeQueryTelemetryJson_(telemetry) {
 function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, config, context, actor, rawResponse, warnings, auditToken, telemetry) {
   var parsed = provider === KSP_AI_PROVIDERS.OPENAI
     ? kspNormalizeOpenAiResponse_(rawResponse)
-    : kspParseInteractionResponse_(rawResponse);
+    : config && config.queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT
+      ? kspNormalizeGeminiGenerateContentResponse_(rawResponse)
+      : kspParseInteractionResponse_(rawResponse);
   var mapped = kspMapKnowledgeCitations_(parsed.citations,
     kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
   var allWarnings = (warnings || []).concat(mapped.warnings);
@@ -867,7 +896,8 @@ function kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, ra
         lifecycle.response || lifecycle, warnings, '',
         { state: { startedAt: startedAt, startLatencyMs: Math.max(0, Date.now() - startClock), pollCount: 0, maxPollLatencyMs: 0 },
           providerStatus: 'completed', response: lifecycle.response || lifecycle,
-          startLatencyMs: Math.max(0, Date.now() - startClock), pollCount: 0, maxPollLatencyMs: 0 }).result;
+          startLatencyMs: Math.max(0, Date.now() - startClock), pollCount: 0, maxPollLatencyMs: 0,
+          queryTransport: config.queryTransport || KSP_AI_QUERY_TRANSPORTS.INTERACTIONS }).result;
     }
     if (kspKnowledgeQueryKnownTerminalStatus_(lifecycleStatus)) {
       var startTerminal = new Error('Gemini検索が完了できない状態になりました。');
