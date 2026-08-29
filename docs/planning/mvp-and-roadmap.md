@@ -1,6 +1,6 @@
 # Planning Baseline and Roadmap
 
-Current as of: 2026-08-28
+Current as of: 2026-08-29
 
 Status: Active product/roadmap baseline
 
@@ -27,7 +27,9 @@ Knowledge Sharing Platforms provides or is implementing:
 - exactly three normal-user generation choices: `ChatGPT / Gemini / 全文出力`;
 - five Knowledge Search modes: `自由質問 / 要約 / 時系列 / 比較 / 面談準備`;
 - canonical full-text Knowledge Package with Copy / Google Docs / PDF parity;
-- one organization-controlled Apps Script HTML Service Web App.
+- one organization-controlled Apps Script HTML Service Web App;
+- modular GitHub source plus a deterministic generated single-file Apps Script distribution bundle;
+- one project-specific idempotent installer and plain-language readiness flow for company deployment.
 
 Work IDs and application release versions are separate. Historical Works remain evidence routes rather than the current delivery sequence.
 
@@ -46,6 +48,9 @@ Work IDs and application release versions are separate. Historical Works remain 
 - AI provider selection is explicit; no automatic cross-provider failover;
 - ChatGPT and Gemini use File Search as the required default source-reading path;
 - full output calls no AI API and reuses one canonical package for Copy/Docs/PDF;
+- modular `.gs` and `.html` files under `src/` remain the development source of truth;
+- `dist/KnowledgeShare.bundle.gs` is a generated release artifact, never a hand-maintained development source;
+- the company installation path must not depend on copying a personal-Google-Drive template;
 - no new database, relation sheet, custom Vector DB, Knowledge Graph, or broad workflow engine without a new explicit decision.
 
 ## 3. Current delivery path
@@ -59,6 +64,9 @@ bounded preflight
 → focused LOGIC_VALIDATION
 → bounded TARGET_RUNTIME_QUALIFICATION
 → expand after native readback
+→ freeze the intended feature surface
+→ generate and validate the distribution bundle
+→ fresh-install qualification from the bundle
 → separately authorize production data/users/billing/triggers/destructive effects
 ```
 
@@ -88,7 +96,7 @@ AI Works additionally report provider matrices separately rather than hiding par
 
 ### Work 0020 — AI Provider Core, dual File Search, and full output
 
-Status: **CURRENT** after accepted/merged Work 0019.
+Status: CURRENT after accepted/merged Work 0019.
 
 Detailed plan:
 
@@ -144,7 +152,45 @@ Outcome:
 
 This replaces a separate static GP-comparison dashboard.
 
-## 7. Selected and rejected enhancement ideas
+## 7. Distribution and installation Work
+
+### Work 0023 — Generated Apps Script bundle and low-friction installer
+
+Status: PLANNED after Work 0021 and before historical-material migration.
+
+Detailed plan:
+
+`docs/planning/work0023-bundle-installer-distribution.md`
+
+Authoritative decision:
+
+`docs/decisions/modular-source-single-bundle-distribution.md`
+
+Company operator guide target:
+
+`docs/operations/company-bundle-installation.md`
+
+Reusable standard:
+
+`docs/standards/apps-script-bundle-installer-standard.md`
+
+Outcome:
+
+- preserve modular `.gs`/`.html` development source under `src/`;
+- generate `dist/KnowledgeShare.bundle.gs` deterministically from GitHub source;
+- embed all HTML resources so one code paste remains self-contained;
+- generate `dist/appsscript.json`, `dist/INSTALL.md`, and `dist/release-manifest.json`;
+- provide `installKnowledgeShare()` and `checkKnowledgeShareReadiness()` as editor-only installation functions;
+- reuse the existing setup/validation engine rather than creating a second installer;
+- infer the normal installation folder from the host Spreadsheet parent;
+- keep AI providers and recurring AI sync disabled by default;
+- require no personal Drive template, local runtime, Git, `clasp`, raw folder IDs, or manual source-file creation in the normal path;
+- validate source/bundle syntax, global collisions, dangerous top-level execution, HTML resource resolution, facade parity, test parity, deterministic hashes, and fresh-install idempotency;
+- accurately retain any unavoidable one-time platform steps, currently expected to be Advanced Drive service enablement where required and the first Web App deployment.
+
+The production release bundle is cut after the intended feature surface is stable. The underlying bundle/installer standard is designed for later reuse by other Apps Script projects, including the task-management tool.
+
+## 8. Selected and rejected enhancement ideas
 
 ### Selected
 
@@ -157,7 +203,10 @@ This replaces a separate static GP-comparison dashboard.
 - File Search as the required default for both API providers;
 - provider-neutral canonical source/request/package/citation layers;
 - AI multi-Entity comparison;
-- bottom fixed-height full-output preview with output buttons above it.
+- bottom fixed-height full-output preview with output buttons above it;
+- modular source plus generated single-file Apps Script distribution;
+- idempotent one-function installer and plain-language readiness state;
+- reusable Apps Script bundle/installer standard.
 
 ### Rejected / absorbed
 
@@ -168,11 +217,14 @@ This replaces a separate static GP-comparison dashboard.
 - automatic AI provider routing/failover;
 - user-facing model selector;
 - popup/modal long-form export;
-- full-context API route as a substitute for File Search.
+- full-context API route as a substitute for File Search;
+- developing the product directly as one giant hand-maintained Apps Script file;
+- personal Drive template copying as the company deployment mechanism;
+- mandatory local Node.js/Git/`clasp` use by the company operator.
 
-## 8. Historical-material migration
+## 9. Historical-material migration
 
-After Works 0020–0021 are qualified, inspect the actual historical corpus and select:
+After Works 0020–0021 and the Work 0023 distribution/install path are qualified, inspect the actual historical corpus and select:
 
 ```text
 manual entry
@@ -182,12 +234,13 @@ selective automation for repeatable subsets
 
 The default may be manual because historical materials are highly heterogeneous. Any automation must preserve source traceability, stable IDs, deduplication, legacy compatibility, rebuildable provider indexes, and full-output package correctness.
 
-## 9. Final production-environment qualification and rollout readiness
+## 10. Final production-environment qualification and rollout readiness
 
-This is the final phase, after product features, personal-PC AI/File Search, and the historical-migration approach are ready.
+This is the final phase, after product features, personal-PC AI/File Search, distribution/install readiness, and the historical-migration approach are ready.
 
 Qualify:
 
+- installation from the release bundle without a personal Drive template;
 - actual company Shared Drive hierarchy and parentage;
 - permissions and ordinary-user access;
 - organization-controlled Apps Script Web App;
@@ -201,7 +254,7 @@ Qualify:
 
 The company may enable OpenAI, Gemini, both, or neither. Production readiness is declared only after all enabled routes pass in the company environment.
 
-## 10. Governing order
+## 11. Governing order
 
 ```text
 0015 GP Workspace [ACCEPTED]
@@ -212,6 +265,7 @@ The company may enable OpenAI, Gemini, both, or neither. Production readiness is
   -> 0019 Entity Workspace / Fund-Strategy drill-down [ACCEPTED]
   -> 0020 AI provider core / OpenAI + Gemini File Search / full output [CURRENT]
   -> 0021 structured filters / five modes / multi-Entity / provider parity
+  -> 0023 generated bundle / idempotent installer / fresh-install qualification
   -> historical migration (manual / hybrid / selective automation)
-  -> final production qualification / rollout readiness
+  -> final company production qualification / rollout readiness
 ```
