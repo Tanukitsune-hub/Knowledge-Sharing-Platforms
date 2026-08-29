@@ -1,16 +1,16 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-16`
+DISPATCH_ID: `0020-CODEX-17`
 BALL: `USER`
 STATUS: `ACTION_REQUIRED`
-MODE: `QUALIFICATION`
-
-Primary plan:
-`docs/planning/work0020-personal-pc-gemini-core-qualification.md`
+MODE: `INVESTIGATION -> BUILD / QUALIFICATION`
 
 Active instruction:
-`docs/handoffs/0020-CODEX-16-direct-provider-control-qualification-instruction.md`
+`docs/handoffs/0020-CODEX-17-openai-file-search-primary-qualification-instruction.md`
+
+Active decision:
+`docs/decisions/openai-zero-friction-onboarding-and-project-switch.md`
 
 ## Primary outcome
 
@@ -22,137 +22,123 @@ Gemini
 全文出力
 ```
 
-The Gemini route must use the user-approved stable `gemini-3.7-flash`, provide authoritative citations from Meeting and Pitchbook sources, and behave as a practically usable work tool. OpenAI remains deliberately disabled/uncalled. FULL_OUTPUT remains accepted and must not be rerun.
+For Work 0020 completion, OpenAI is now the active provider path. Gemini remains implemented but disabled/not user-ready until a later provider-recovery Work requalifies it. There is no automatic cross-provider failover.
 
-## Accepted evidence — closed
+## User decision / Strategy Reset
 
-- schema `6`; exactly five Backend sheets;
-- FULL_OUTPUT runtime/canonical parity PASS;
-- OpenAI disabled and uncalled; no automatic provider failover;
-- one existing Gemini File Search Store and accepted document upload/reconciliation behavior;
-- both previously uncertain Meeting documents reconciled without duplicate upload/delete;
-- one grounded Meeting query completed with three authoritative citations;
-- one synthetic TXT Pitchbook remains indexed;
-- CODEX-14 request profile PASS: `gemini-3.7-flash`, `background=true`, `thinking_level=low`, `max_output_tokens=2048`;
-- CODEX-14 short START/POLL lifecycle, opaque server-owned token, duplicate prevention, reload resume, adaptive polling, and no-false-timeout UX PASS;
-- CODEX-14 Interactions + File Search remained provider-pending for at least `600000ms`;
-- CODEX-15 Generate Content adapter deterministic validation PASS and one target-runtime query returned a safe service-unavailable category after `83364ms` with zero citations;
-- CODEX-15 local/repository checks: focused `109/109`, repository `307/307`; GitHub-hosted CI did not run;
-- no dependent metadata/lifecycle mutation was performed after the provider failure.
-
-## Current blocker
-
-Both supported application paths failed to produce a grounded Pitchbook result in the current DEV project:
-
-```text
-Interactions + File Search
--> still pending after >=600000ms
-
-Generate Content + File Search
--> safe service-unavailable result after 83364ms
--> zero citations
-```
-
-This strongly shifts suspicion away from the repaired browser/Apps Script state machine, but it does not yet prove a Google provider incident because:
-
-- no direct no-File-Search base-model control was run;
-- no direct same-project SDK control was run outside Apps Script;
-- CODEX-15 did not safely identify an HTTP status or transport exception class;
-- the existing Store and `gemini-embedding-2` path were not isolated from general File Search and metadata-filter behavior.
-
-## Important unqualified source state
-
-The pushed source and deployed version `54` currently set the normal Gemini query transport to `GENERATE_CONTENT`, even though CODEX-15 explicitly did not accept that transport.
+Google AI Studio is also showing repeated errors. The user chose to try OpenAI API instead of continuing active Gemini diagnosis.
 
 Therefore:
 
-- the current private DEV Gemini route is not user-ready;
-- PR `#26` must remain Draft / Open / unmerged;
-- no Work completion or transport selection is claimed;
-- a later authorized dispatch must correct the default before merge, based on direct evidence.
+- preserve all accepted Gemini evidence;
+- supersede unexecuted CODEX-16;
+- qualify OpenAI Responses API + File Search end to end;
+- if OpenAI satisfies Meeting/Pitchbook indexing, grounded citation, filters, lifecycle, security, and final-integrity gates, Work 0020 may complete without Gemini runtime PASS;
+- Gemini recovery becomes a later provider-specific Work rather than blocking Knowledge Search availability.
 
-## Strategy Reset — CODEX-16
+## Existing OpenAI foundation
 
-CODEX-16 performs direct provider controls outside Apps Script using the same Google project credential. It distinguishes:
+Current source already includes:
 
-```text
-base Gemini model/key/project
-File Search generally
-existing Store
-metadata filtering
-gemini-embedding-2 path
-Apps Script / UrlFetchApp integration
-```
+- Responses API client;
+- Files upload/delete;
+- Vector Store create/get/list;
+- Vector Store file attach/index/readback;
+- provider attributes/custom metadata;
+- File Search query with filters;
+- provider document cleanup;
+- provider-neutral sync hooks;
+- administrator enable/disable skeleton.
 
-It may create only temporary synthetic Stores under the exact handoff matrix and must delete them. It must not modify the application source, current Store, deployment, or real data.
+The remaining work is qualification plus safe onboarding/activation separation, not a rebuild.
 
-## User prerequisite
-
-A same-project Gemini API key must be available only in the local Codex process as:
-
-```text
-GEMINI_API_KEY
-```
-
-The key must never be pasted into ChatGPT, a Codex prompt, GitHub, report, screenshot, repository `.env`, or logs. If the original key is no longer locally available, create a temporary key in the same Google Cloud project, set it locally, and revoke it after qualification if desired.
-
-Until the local secret prerequisite is satisfied:
+Default OpenAI model for this Work:
 
 ```text
-BALL: USER
-STATUS: ACTION_REQUIRED
+gpt-5.6-terra
 ```
 
-After it is satisfied, execute the same `0020-CODEX-16` dispatch; do not allocate a new Dispatch ID merely for resumption.
+Use `store=false` for Responses and a low-latency grounded retrieval profile. Do not silently switch to a materially more expensive tier.
 
-## CODEX-16 completion boundary
+## Fastest safe decisive action
 
-CODEX-16 returns one of:
+Before modifying Apps Script:
+
+1. make an OpenAI project API key available only to local Codex as `OPENAI_API_KEY`;
+2. run one direct text-only Responses API control;
+3. run one temporary synthetic Vector Store + File Search + exact attributes filter + citation control;
+4. clean up all temporary provider resources;
+5. if direct File Search fails, STOP without Web App changes;
+6. if direct File Search passes, implement the accepted synthetic self-test and zero-friction private-admin activation flow;
+7. then run bounded synthetic/non-confidential Meeting + Pitchbook indexing/query/citation/lifecycle qualification.
+
+## Credential/onboarding contract
+
+Normal private-admin flow:
 
 ```text
-GEMINI_PROJECT_KEY_OR_BASE_MODEL_PATH
-GEMINI_FILE_SEARCH_GENERAL_OR_PROJECT_PATH
-GEMINI_FILE_SEARCH_METADATA_FILTER_PATH
-GEMINI_FILE_SEARCH_EMBEDDING_2_PATH
-EXISTING_FILE_SEARCH_STORE_PATH
-APPS_SCRIPT_URLFETCH_INTEGRATION_PATH
+APIキーを保存して接続確認
+-> administrator authorization
+-> key stored only in Script Properties
+-> isolated synthetic self-test
+-> no Meeting/Pitchbook source body read
+-> READY_FOR_SYNC
+
+資料を同期して利用開始
+-> explicit bounded OpenAI sync
+-> ACTIVE only after safe source indexing
 ```
 
-and the cheapest decisive next action.
+A stored key alone must not enable OpenAI or trigger source synchronization.
 
-CODEX-16 does not repair or deploy the application. A subsequent dispatch may implement only the evidence-selected fix, restore a safe transport/default, complete the Pitchbook citation and lifecycle gates, integrate current main, and finish PR `#26`.
+The key must never be returned, displayed after save, logged, audited, stored in Sheets, exported, or committed.
+
+## Completion gates
+
+OpenAI path must prove:
+
+```text
+DIRECT_BASE_MODEL: PASS
+DIRECT_FILE_SEARCH: PASS
+SYNTHETIC_SELF_TEST: PASS
+MEETING_INDEX_QUERY_CITATION: PASS
+PITCHBOOK_INDEX_QUERY_CITATION: PASS
+METADATA_FILTER: PASS
+UPDATE_REINDEX_NO_DUPLICATE: PASS
+INACTIVE_EXCLUSION: PASS
+REACTIVATE_RESTORE: PASS
+DELETE_REBUILD: PASS
+DISABLE_REENABLE: PASS
+NO_PROVIDER_FAILOVER: PASS
+FINAL_INTEGRITY: PASS
+```
+
+FULL_OUTPUT remains accepted and must not be rerun.
 
 ## Current Work classification
 
 ```text
-SELECTED_GEMINI_QUERY_TRANSPORT: NONE QUALIFIED
-PITCHBOOK_AUTHORITATIVE_CITATIONS: 0
-METADATA_FILTER: NOT RUN
-LIFECYCLE: NOT RUN
-LOGIC_VALIDATION: PASS — CODEX-15 local/repository evidence
+PRIMARY_COMPLETION_PROVIDER: OPENAI
+OPENAI_RUNTIME: NOT YET LIVE-QUALIFIED
+GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
+FULL_OUTPUT_RUNTIME: PASS
 SCHEMA_ALIGNMENT: PASS
-OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred
-GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: BLOCKED / DIRECT PROVIDER ISOLATION REQUIRED
-FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence
-STATE_INTEGRITY: PARTIAL
 FINAL_INTEGRITY: NOT RUN
 READY: NO
-BLOCKER: YES
+BLOCKER: YES — OpenAI qualification/key prerequisite
 ```
 
 ## Boundaries
 
-- no model downgrade or unpinned alias;
-- no blind retry through either Web App path;
-- no existing Store mutation or reindex;
-- no real Meeting/Pitchbook data in the direct controls;
-- no OpenAI call or FULL_OUTPUT rerun;
-- no new Google project or paid Priority tier;
-- no application source/deployment change in CODEX-16;
-- no PR merge or current-main integration until the runtime blocker closes.
+- no automatic OpenAI/Gemini failover;
+- no confidential data in DEV qualification;
+- no Gemini live retry in CODEX-17;
+- no FULL_OUTPUT rerun;
+- no second Web App/Library/public debug endpoint;
+- no current-main integration until provider qualification closes;
+- keep PR #26 Draft/Open/unmerged until final review.
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-16`
+DISPATCH_ID: `0020-CODEX-17`
 BALL: `USER`
 STATUS: `ACTION_REQUIRED`
