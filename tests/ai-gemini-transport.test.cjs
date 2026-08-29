@@ -8,6 +8,15 @@ function response(code, body, headers = {}) {
   };
 }
 
+function syntheticBlob(bytes, mimeType, name) {
+  const values = Array.from(bytes);
+  return {
+    getBytes: () => Array.from(values),
+    getContentType: () => mimeType,
+    getName: () => name
+  };
+}
+
 function defaultRequestProjection(url, options) {
   return {
     url,
@@ -18,7 +27,12 @@ function defaultRequestProjection(url, options) {
   };
 }
 
-function withLiveFakes(fetch, callback, getRequest = defaultRequestProjection) {
+function withLiveFakes(
+  fetch,
+  callback,
+  getRequest = defaultRequestProjection,
+  newBlob = (bytes, mimeType, name) => syntheticBlob(bytes, mimeType, name)
+) {
   const originalProperties = ksp.PropertiesService;
   const originalFetch = ksp.UrlFetchApp;
   const originalUtilities = ksp.Utilities;
@@ -27,6 +41,7 @@ function withLiveFakes(fetch, callback, getRequest = defaultRequestProjection) {
   ksp.UrlFetchApp = { fetch, getRequest };
   ksp.Utilities = {
     ...originalUtilities,
+    newBlob,
     sleep: (millis) => sleeps.push(millis)
   };
   try {
@@ -109,9 +124,10 @@ test('Gemini upload uses the official resumable contract and verifies the active
     assert.deepEqual(sleeps, [1500]);
     return document;
   }, (url, options) => {
-    projections.push({ url, options });
     const projection = defaultRequestProjection(url, options);
     projection.headers['Content-Length'] = '3';
+    projection.payload = 'runtime-derived-payload';
+    projections.push({ url, options, projection });
     return projection;
   });
   const start = calls[0];
@@ -138,10 +154,123 @@ test('Gemini upload uses the official resumable contract and verifies the active
   assert.equal(projections[0].options.method, 'post');
   assert.equal(projections[0].options.contentType, 'text/plain');
   assert.deepEqual(projections[0].options.payload, [65, 0, -1]);
+  assert.equal(projections[0].projection.payload, 'runtime-derived-payload');
   assert.equal(result.customMetadata.content_hash, source.contentHash);
 });
 
-test('local finalize request construction is a safe non-retryable client error', () => {
+test('Blob candidate is selected when Byte[] projection is rejected', () => {
+  const source = meetingSource();
+  const calls = [];
+  const projections = [];
+  const result = withLiveFakes((url, options) => {
+    calls.push({ url, options });
+    if (calls.length === 1) return response(200, '', { 'X-Goog-Upload-URL': 'https://upload.invalid/synthetic' });
+    if (calls.length === 2) return response(200, {
+      name: 'fileSearchStores/store-synthetic/upload/operations/op-synthetic',
+      done: true,
+      response: { fileSearchDocument: activeDocument(source) }
+    });
+    return response(200, activeDocument(source));
+  }, () => {
+    const document = plain(ksp.kspGeminiUploadSourceLive_('fileSearchStores/store-synthetic', source, [65, 0, 255]));
+    assert.equal(document.state, 'STATE_ACTIVE');
+    assert.equal(projections.length, 2);
+    assert.equal(Array.isArray(projections[0].options.payload), true);
+    assert.equal(typeof projections[1].options.payload.getBytes, 'function');
+    assert.deepEqual(projections[1].options.payload.getBytes(), [65, 0, -1]);
+    assert.equal(projections[1].options.payload.getContentType(), source.mimeType);
+    assert.equal(calls.length, 3);
+    return document;
+  }, (url, options) => {
+    projections.push({ url, options });
+    if (Array.isArray(options.payload)) throw new Error('SYNTHETIC_BYTE_ARRAY_PROJECTION_REJECTED');
+    return defaultRequestProjection(url, options);
+  });
+  assert.equal(result.customMetadata.source_id, source.sourceId);
+  assert.equal(Array.isArray(calls[1].options.payload), false);
+  assert.deepEqual(calls[1].options.payload.getBytes(), [65, 0, -1]);
+  assert.equal(Object.keys(calls[1].options.headers).some((key) => key.toLowerCase() === 'content-length'), false);
+  assert.equal(calls[1].options.contentType, source.mimeType);
+});
+
+test('Blob candidate is selected when Byte[] construction fails and the Blob preserves bytes and MIME', () => {
+  let selected;
+  const originalSlice = Array.prototype.slice;
+  try {
+    Array.prototype.slice = () => { throw new Error('SYNTHETIC_BYTE_ARRAY_CONSTRUCTION_REJECTED'); };
+    selected = withLiveFakes(() => response(200, '{}'), () => ksp.kspGeminiSelectFinalizeRequest_(
+      'https://upload.invalid/synthetic',
+      { mimeType: 'text/plain', displayName: 'synthetic.txt' },
+      [65, 0, -1]
+    ));
+  } finally {
+    Array.prototype.slice = originalSlice;
+  }
+  assert.equal(typeof selected.payload.getBytes, 'function');
+  assert.deepEqual(selected.payload.getBytes(), [65, 0, -1]);
+  assert.equal(selected.payload.getContentType(), 'text/plain');
+  assert.equal(selected.headers['X-Goog-Upload-Offset'], '0');
+  assert.equal(selected.headers['X-Goog-Upload-Command'], 'upload, finalize');
+});
+
+test('invalid Blob bytes or MIME are rejected before Blob request projection', () => {
+  for (const badBlob of [
+    (bytes, mimeType, name) => syntheticBlob([65, 1, -1], mimeType, name),
+    (bytes, mimeType, name) => syntheticBlob(bytes, 'application/octet-stream', name)
+  ]) {
+    let projectionCalls = 0;
+    const error = withLiveFakes(() => response(200, '{}'), () => {
+      try {
+        ksp.kspGeminiSelectFinalizeRequest_(
+          'https://upload.invalid/synthetic',
+          { mimeType: 'text/plain', displayName: 'synthetic.txt' },
+          [65, 0, -1]
+        );
+      } catch (value) {
+        return value;
+      }
+      return null;
+    }, (url, options) => {
+      projectionCalls += 1;
+      if (Array.isArray(options.payload)) throw new Error('SYNTHETIC_BYTE_ARRAY_PROJECTION_REJECTED');
+      return defaultRequestProjection(url, options);
+    }, badBlob);
+    assert.equal(projectionCalls, 1);
+    assert.equal(error.code, 'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED');
+    assert.equal(error.stage, 'UPLOAD_FINALIZE_CLIENT');
+  }
+});
+
+test('missing projected payload rejects both candidates without a live finalize request', () => {
+  let projectionCalls = 0;
+  const error = withLiveFakes(() => response(200, '{}'), () => {
+    try {
+      ksp.kspGeminiSelectFinalizeRequest_(
+        'https://upload.invalid/synthetic',
+        { mimeType: 'text/plain', displayName: 'synthetic.txt' },
+        [65]
+      );
+    } catch (value) {
+      return value;
+    }
+    return null;
+  }, () => {
+    projectionCalls += 1;
+    return {
+      method: 'post',
+      contentType: 'text/plain',
+      headers: {
+        'X-Goog-Upload-Offset': '0',
+        'X-Goog-Upload-Command': 'upload, finalize'
+      }
+    };
+  });
+  assert.equal(projectionCalls, 2);
+  assert.equal(error.code, 'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED');
+  assert.equal(error.retryable, false);
+});
+
+test('both finalize request candidates failing is a safe non-retryable client error', () => {
   let fetchCalls = 0;
   let projectionCalls = 0;
   const error = withLiveFakes((url, options) => {
@@ -156,16 +285,40 @@ test('local finalize request construction is a safe non-retryable client error',
     return null;
   }, () => {
     projectionCalls += 1;
-    throw new Error('PRIVATE_APPS_SCRIPT_REQUEST_ERROR');
+    throw new Error('SYNTHETIC_APPS_SCRIPT_REQUEST_ERROR');
   });
   assert.equal(fetchCalls, 1);
-  assert.equal(projectionCalls, 1);
-  assert.equal(error.code, 'AI_UPLOAD_FINALIZE_REQUEST_INVALID');
+  assert.equal(projectionCalls, 2);
+  assert.equal(error.code, 'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED');
   assert.equal(error.stage, 'UPLOAD_FINALIZE_CLIENT');
   assert.equal(error.httpStatus, 0);
   assert.equal(error.retryable, false);
   assert.equal(error.permanent, true);
-  assert.doesNotMatch(error.message, /PRIVATE_APPS_SCRIPT_REQUEST_ERROR/);
+  assert.doesNotMatch(error.message, /SYNTHETIC_APPS_SCRIPT_REQUEST_ERROR/);
+});
+
+test('invalid original source bytes are rejected before request projection or fetch', () => {
+  let fetchCalls = 0;
+  let projectionCalls = 0;
+  const error = withLiveFakes(() => {
+    fetchCalls += 1;
+    return response(200, '');
+  }, () => {
+    try {
+      ksp.kspGeminiUploadSourceLive_('fileSearchStores/store-synthetic', meetingSource(), [65, 256]);
+    } catch (value) {
+      return value;
+    }
+    return null;
+  }, () => {
+    projectionCalls += 1;
+    return defaultRequestProjection('https://upload.invalid/synthetic', {
+      method: 'post', contentType: 'text/plain', headers: {}, payload: []
+    });
+  });
+  assert.equal(fetchCalls, 0);
+  assert.equal(projectionCalls, 0);
+  assert.equal(error.code, 'AI_SOURCE_BYTES_INVALID');
 });
 
 test('finalize fetch without a provider response remains a non-retryable client error', () => {

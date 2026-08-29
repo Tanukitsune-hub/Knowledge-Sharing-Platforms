@@ -3,17 +3,17 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-07`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
-## Active dispatch
+## Returned dispatch
 
-### 0020-CODEX-07 — READY
+### 0020-CODEX-07 — RETURNED / BLOCKER
 
 - mode: `INVESTIGATION / BUILD / QUALIFICATION`;
 - route: `C`;
 - purpose: remove the false-negative Apps Script `getRequest()` payload projection gate, select a compatible Byte[] or Blob request shape locally, and finish bounded Gemini Meeting + Pitchbook qualification;
-- active hypothesis: CODEX-06 stopped on an over-strict preflight assumption that `getRequest().payload` preserves the original Byte[] representation; the corrected direct `fetch()` has still never reached Gemini after removing manual `Content-Length`;
-- fastest decisive action: evaluate Byte[] and Blob candidates locally/non-mutating, select one, then issue exactly one live Meeting finalize request;
+- hypothesis tested: CODEX-06 stopped on an over-strict preflight assumption that `getRequest().payload` preserves the original Byte[] representation;
+- decisive action executed: evaluate Byte[] and Blob candidates locally/non-mutating, select one, then issue exactly one authorized provider-neutral sync action;
 - recommended model: `Sol High`;
 - branch: `agent/0020-ai-provider-core`;
 - Draft PR: `#26` — Draft / Open / unmerged;
@@ -23,6 +23,11 @@ STATUS: `READY`
 - FULL_OUTPUT: accepted PASS from CODEX-03; do not rerun absent contradiction;
 - no Files API/import fallback in this dispatch;
 - one corrected source deployment and one live Meeting finalize request maximum.
+- deterministic candidate-selection repair: `17/17` transport, `41/41` focused AI/provider, `282/282` repository check; temporal/public-surface/diff checks PASS;
+- exact `78`-file source sync/readback, immutable version `47`, and same private Web App update PASS;
+- one authorized provider-neutral sync action completed, but Gate A did not produce an accepted Gemini Meeting Document or Backend `Indexed` state; safe diagnostic remained `AI_UPLOAD_FINALIZE_REQUEST_INVALID / UPLOAD_FINALIZE_CLIENT`, with provider HTTP status/body absent;
+- temporary batch size restored to `10`; Gate B/C/D/E not run; no OpenAI call, FULL_OUTPUT rerun, new Store, second deployment, or Library mutation;
+- CODEX-07 report: `docs/handoffs/0020-CODEX-07-runtime-request-shape-selection-and-gemini-completion-report.md`;
 
 ## Returned dispatch
 
@@ -93,4 +98,4 @@ Only one active Codex dispatch may exist.
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-07`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`

@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-07`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Current classification
 
@@ -11,9 +11,9 @@ STATUS: `READY`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: BLOCKED — corrected direct finalize fetch not yet observed
+GEMINI_RUNTIME: BLOCKED — CODEX-07 Gate A did not produce an indexed Meeting
 FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence
-FINAL_INTEGRITY: PARTIAL after CODEX-06 bounded stop
+FINAL_INTEGRITY: PARTIAL after CODEX-07 bounded stop
 READY: NO
 BLOCKER: YES
 ```
@@ -54,6 +54,7 @@ Detailed reports:
 - `docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-report.md`
 - `docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`
 - `docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-report.md`
+- `docs/handoffs/0020-CODEX-07-runtime-request-shape-selection-and-gemini-completion-report.md`
 
 ## CODEX-06 authoritative return
 
@@ -72,7 +73,22 @@ The final request no longer manually supplies `Content-Length`, but production c
 
 The deterministic test harness returns `options.payload` unchanged from its fake `getRequest()`, so the test does not establish target-runtime projection parity.
 
-## Strategy Reset — CODEX-07
+## CODEX-07 authoritative return
+
+CODEX-07 deterministic candidate selection passed:
+
+- focused Gemini transport tests `17/17 PASS`;
+- focused AI/provider tests `41/41 PASS`;
+- repository check `282/282 PASS`;
+- temporal/public-surface/diff checks PASS; public facade `30`;
+- exact `78`-file source sync/readback PASS;
+- immutable Apps Script version `47` and same private Web App update PASS.
+
+The one authorized provider-neutral sync action did not produce an accepted active Gemini Meeting Document or Backend `Indexed` state. The target-state safe diagnostic remained `AI_UPLOAD_FINALIZE_REQUEST_INVALID / UPLOAD_FINALIZE_CLIENT`; provider HTTP status/body and provider document identity were absent. The temporary batch-size setting was restored to `10`. No query, Pitchbook path, lifecycle mutation, OpenAI call, FULL_OUTPUT rerun, second Store, second deployment, or Library mutation occurred.
+
+Dependent Gate B/C/D/E checks are `NOT RUN` because Gate A did not pass. The detailed result is recorded in the CODEX-07 report above.
+
+## CODEX-07 hypothesis record
 
 Closed conclusions:
 
@@ -82,7 +98,7 @@ Closed conclusions:
 - the post-Content-Length direct finalize fetch has not yet been exercised;
 - architecture fallback is premature.
 
-Active hypothesis:
+Hypothesis tested:
 
 > The CODEX-06 hard preflight is a false negative. Evaluate Byte[] and Blob request candidates locally, select one based on structural request compatibility rather than projected payload representation, then issue exactly one real finalize request.
 
@@ -103,7 +119,7 @@ Active instruction:
 
 The officially supported Files-API-then-importFile route is reserved as a later Strategy Reset only if CODEX-07 proves direct upload cannot be constructed/executed from Apps Script.
 
-## Expected final matrix
+## Target classification if a later Strategy Reset passes
 
 ```text
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user

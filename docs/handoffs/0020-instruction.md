@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-07`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `INVESTIGATION / BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -50,9 +50,9 @@ Closed absent material contradiction:
 
 Do not rerun FULL_OUTPUT or live-call OpenAI.
 
-## Active blocker after CODEX-06
+## Active blocker after CODEX-07
 
-CODEX-06 stopped before a Gemini HTTP response at:
+CODEX-07 removed the projected-payload byte-equality gate and passed the required deterministic candidate-selection checks. The one authorized target-runtime sync action still did not produce an accepted active Gemini Meeting Document or Backend `Indexed` state:
 
 ```text
 code: AI_UPLOAD_FINALIZE_REQUEST_INVALID
@@ -61,15 +61,27 @@ provider HTTP status/body: not observed
 provider document identity: absent
 ```
 
-The production path currently treats `UrlFetchApp.getRequest()` as a hard byte-for-byte projection validator. The target runtime may legally project `payload` differently from the caller's original Byte[]; Apps Script only guarantees that `getRequest()` returns a request map containing a payload field, not that its JavaScript representation is identical to the input. The synthetic test harness mirrors the input payload unchanged and therefore cannot prove runtime representation parity.
+The target runtime therefore did not supply sufficient evidence to qualify the direct Gemini indexing path. The one-attempt budget is exhausted; do not retry or adopt the Files API/import fallback in the returned dispatch. A later Strategy Reset is required.
 
-Closed conclusion:
+## CODEX-07 authoritative return
 
-> The corrected direct `fetch()` after removing manual `Content-Length` has still never been executed. Switching architecture now would be premature.
+The bounded CODEX-07 repair and deterministic validation passed, including the Byte[]/Blob candidate selection contract. The exact tested source was synchronized once, read back exactly, published as immutable version `47`, and the same private Web App was updated in place.
 
-Active hypothesis:
+The single authorized provider-neutral sync action did not produce an accepted active Gemini Meeting Document or Backend `Indexed` state. The safe target-state diagnostic remained:
 
-> Select a Byte[] or Blob request shape using non-mutating target-runtime `getRequest()` structural compatibility, without requiring projected payload identity, then one direct finalize request will reach Gemini.
+```text
+code: AI_UPLOAD_FINALIZE_REQUEST_INVALID
+classification: UPLOAD_FINALIZE_CLIENT
+provider HTTP status/body: absent
+provider document identity: absent
+```
+
+The temporary batch size was restored to `10`. Gate B Meeting query, Gate C TXT Pitchbook indexing/query, Gate D lifecycle, and Gate E final qualification were not run. OpenAI remained disabled and uncalled, FULL_OUTPUT was not rerun, and no second Store/deployment or Library mutation occurred.
+
+Detailed report:
+`docs/handoffs/0020-CODEX-07-runtime-request-shape-selection-and-gemini-completion-report.md`
+
+CODEX-07 is returned with a blocker. A later Strategy Reset is required before another Gemini live attempt.
 
 ## CODEX-07 completion boundary
 
@@ -97,7 +109,7 @@ Do not implement the officially available Files API/import alternative in this d
 - Pitchbook bodies are File Search inputs but never manual FULL_EXPORT body text;
 - no recurring trigger, confidential production data, production rollout, second Web App, or Library mutation.
 
-## Target final classification
+## Target classification if a later Strategy Reset passes
 
 ```text
 DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
