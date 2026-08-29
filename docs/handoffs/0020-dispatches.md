@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-11`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Active dispatch
 
-### 0020-CODEX-11 — READY
+### 0020-CODEX-11 — RETURNED / BLOCKER
 
 - mode: `INVESTIGATION -> BUILD / QUALIFICATION`;
 - route: `C`;
@@ -25,6 +25,28 @@ STATUS: `READY`
 - preserve CODEX-03 through CODEX-10 accepted evidence; do not rerun FULL_OUTPUT or live-call OpenAI;
 - one hypothesis, one minimal repair, one tested source delivery/version/Web App update maximum;
 - no broad sync, uncertain-row re-upload, new Store/Web App/Library/public debug route, confidential data, or provider retry loop.
+
+Returned result:
+
+- required baseline regressions reproduced before the one minimal production
+  repair;
+- focused validation 49/49 PASS, npm run check 290/290 PASS, temporal/public/
+  diff checks PASS, public facade 30;
+- exact 78-file source readback PASS, immutable version 50, same private
+  WEB_APP updated in place with deploying-user execution and only-myself
+  access;
+- both uncertain CODEX-10 Meetings reconciled successfully through exact
+  list/get without upload/delete;
+- one grounded Meeting query produced one successful Audit outcome with three
+  citation references;
+- one bounded synthetic TXT Pitchbook was indexed successfully, but its one
+  query remained pending in the browser and produced no new Pitchbook
+  AI_QUERY outcome;
+- AI_SYNC_BATCH_SIZE restored/read back as numeric 10; AI_SYNC_ENABLED=false;
+  OpenAI disabled and uncalled; no lifecycle retry or broad sync followed.
+
+Report:
+`docs/handoffs/0020-CODEX-11-gemini-document-reconciliation-and-final-qualification-report.md`
 
 ## Returned dispatches
 

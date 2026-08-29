@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-11`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `INVESTIGATION -> BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -43,6 +43,26 @@ CODEX-10 reached real Gemini provider execution.
 The required temporary batch guard was not active: authoritative post-run `AI_SYNC_BATCH_SIZE` remained numeric `10`, so two eligible synthetic Meetings were attempted. Both ended safe permanent `AI_DOCUMENT_READBACK_FAILED` with no accepted local Gemini document identity. No Pitchbook changed. No query, lifecycle, state reset, retry, OpenAI call, FULL_OUTPUT rerun, second deployment, or Library mutation followed.
 
 This is now the active runtime blocker.
+
+## CODEX-11 returned result
+
+The two required pre-fix regressions reproduced, the bounded reconciliation
+repair passed deterministic validation, and the exact tested source was
+delivered once to the existing private Web App as immutable version 50.
+Both uncertain CODEX-10 Meeting rows were reconciled through exact Gemini
+File Search Documents list/get matching without upload or delete. One Meeting
+query produced one successful Audit outcome with three citation references.
+
+The one bounded synthetic TXT Pitchbook was indexed successfully. Its single
+grounded query remained in the browser loading state for the bounded
+observation period and produced no new Pitchbook AI_QUERY Audit outcome.
+CODEX-11 therefore stopped at the first new runtime blocker without running
+metadata filtering or lifecycle mutation. AI_SYNC_BATCH_SIZE was restored to
+numeric 10, AI_SYNC_ENABLED remains false, and OpenAI remains disabled and
+uncalled.
+
+Report:
+`docs/handoffs/0020-CODEX-11-gemini-document-reconciliation-and-final-qualification-report.md`
 
 ## ChatGPT Strategy Reset for CODEX-11
 

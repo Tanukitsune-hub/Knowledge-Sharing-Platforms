@@ -149,6 +149,87 @@ test('Gemini upload uses one exact Blob finalize request and verifies the active
   assert.equal(result.customMetadata.content_hash, source.contentHash);
 });
 
+test('generic completed Operation reconciles one exact active Document through list and get', () => {
+  const source = meetingSource();
+  const calls = [];
+  const document = withLiveFakes((url, options) => {
+    calls.push({ url, options });
+    if (calls.length === 1) return response(200, '', { 'X-Goog-Upload-URL': 'https://upload.invalid/synthetic' });
+    if (calls.length === 2) return response(200, {
+      name: 'fileSearchStores/store-synthetic/upload/operations/op-synthetic',
+      done: true,
+      response: {}
+    });
+    if (calls.length === 3) return response(200, { documents: [activeDocument(source)] });
+    return response(200, activeDocument(source));
+  }, (sleeps) => {
+    const document = plain(ksp.kspGeminiUploadSourceLive_('fileSearchStores/store-synthetic', source, [65, 0, 255]));
+    assert.equal(document.state, 'STATE_ACTIVE');
+    assert.equal(document.customMetadata.source_type, source.sourceType);
+    assert.equal(document.customMetadata.source_id, source.sourceId);
+    assert.equal(document.customMetadata.content_hash, source.contentHash);
+    assert.equal(sleeps.length, 0);
+    return document;
+  });
+  assert.equal(calls.length, 4);
+  assert.equal(document.state, 'STATE_ACTIVE');
+  assert.match(calls[2].url, /\/fileSearchStores\/store-synthetic\/documents\?pageSize=20/);
+  assert.match(calls[3].url, /\/fileSearchStores\/store-synthetic\/documents\/doc-synthetic-1/);
+});
+
+test('Gemini document reconciliation fails closed for zero, wrong, or multiple exact matches', () => {
+  const source = meetingSource();
+  const cases = [
+    { name: 'zero', documents: [], listCalls: 3, sleeps: 2 },
+    {
+      name: 'wrong metadata',
+      documents: [{ ...activeDocument(source), customMetadata: [
+        { key: 'source_type', stringValue: 'Pitchbook' },
+        { key: 'source_id', stringValue: source.sourceId },
+        { key: 'content_hash', stringValue: source.contentHash }
+      ] }],
+      listCalls: 3,
+      sleeps: 2
+    },
+    {
+      name: 'multiple',
+      documents: [
+        activeDocument(source),
+        { ...activeDocument(source), name: 'fileSearchStores/store-synthetic/documents/doc-synthetic-2' }
+      ],
+      listCalls: 1,
+      sleeps: 0
+    }
+  ];
+  cases.forEach((fixture) => {
+    const calls = [];
+    const error = withLiveFakes((url, options) => {
+      calls.push({ url, options });
+      if (calls.length === 1) return response(200, '', { 'X-Goog-Upload-URL': 'https://upload.invalid/synthetic' });
+      if (calls.length === 2) return response(200, {
+        name: 'fileSearchStores/store-synthetic/upload/operations/op-synthetic',
+        done: true,
+        response: {}
+      });
+      return response(200, { documents: fixture.documents });
+    }, (sleeps) => {
+      let caught;
+      try {
+        ksp.kspGeminiUploadSourceLive_('fileSearchStores/store-synthetic', source, [65, 0, 255]);
+      } catch (value) {
+        caught = value;
+      }
+      assert.equal(caught.code, 'AI_DOCUMENT_READBACK_FAILED', fixture.name);
+      assert.equal(caught.retryable, false, fixture.name);
+      assert.equal(sleeps.length, fixture.sleeps, fixture.name);
+      return caught;
+    });
+    assert.equal(error.code, 'AI_DOCUMENT_READBACK_FAILED', fixture.name);
+    assert.equal(calls.length, 2 + fixture.listCalls, fixture.name);
+    assert.equal(calls.slice(2).some((call) => /\/documents\/[^?]+$/.test(call.url)), false, fixture.name);
+  });
+});
+
 test('Blob construction rejects byte or MIME drift before finalize fetch', () => {
   for (const badBlob of [
     (bytes, mimeType, name) => syntheticBlob([65, 1, -1], mimeType, name),

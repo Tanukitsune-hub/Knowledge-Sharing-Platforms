@@ -287,9 +287,12 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
   try {
     documentValue = kspExtractDocumentFromOperation_(operation);
   } catch (ignoredDocumentError) {
-    throw kspGeminiStageError_('AI_DOCUMENT_READBACK_FAILED', 'DOCUMENT_READBACK', 0, {}, false);
+    documentValue = null;
   }
-  return kspReadAndVerifyFileSearchDocumentLive_(documentValue.name, source);
+  if (documentValue && documentValue.name) {
+    return kspReadAndVerifyFileSearchDocumentLive_(documentValue.name, source);
+  }
+  return kspReconcileGeminiDocumentLive_(normalizedStore, source);
 }
 
 function kspUploadSourceLive_(storeName, source) {
@@ -319,6 +322,36 @@ function kspExtractDocumentFromOperation_(operation) {
   var response = operation && operation.response ? operation.response : {};
   var documentValue = response.fileSearchDocument || response.file_search_document || response.document || response;
   return kspNormalizeFileSearchDocument_(documentValue);
+}
+
+function kspGeminiDocumentMatchesSource_(documentValue, source) {
+  var metadata = documentValue && documentValue.customMetadata ? documentValue.customMetadata : {};
+  var state = String(documentValue && documentValue.state || '').toUpperCase();
+  return (state === 'STATE_ACTIVE' || state === 'ACTIVE') &&
+    String(metadata.source_type || '') === String(source && source.sourceType || '') &&
+    String(metadata.source_id || '') === String(source && source.sourceId || '') &&
+    String(metadata.content_hash || '') === String(source && source.contentHash || '') &&
+    Boolean(String(source && source.contentHash || ''));
+}
+
+function kspReconcileGeminiDocumentLive_(storeName, source) {
+  var maxAttempts = 3;
+  for (var attempt = 0; attempt < maxAttempts; attempt += 1) {
+    var documents = kspListAllFileSearchDocumentsLive_(storeName);
+    var matching = documents.filter(function (documentValue) {
+      return kspGeminiDocumentMatchesSource_(documentValue, source);
+    });
+    if (matching.length === 1) {
+      return kspReadAndVerifyFileSearchDocumentLive_(matching[0].name, source);
+    }
+    if (matching.length > 1 || attempt === maxAttempts - 1) {
+      throw kspGeminiStageError_('AI_DOCUMENT_READBACK_FAILED', 'DOCUMENT_READBACK', 0, {}, false);
+    }
+    if (typeof Utilities !== 'undefined' && Utilities && typeof Utilities.sleep === 'function') {
+      Utilities.sleep(KSP_AI_DEFAULTS.OPERATION_POLL_MILLIS);
+    }
+  }
+  throw kspGeminiStageError_('AI_DOCUMENT_READBACK_FAILED', 'DOCUMENT_READBACK', 0, {}, false);
 }
 
 function kspReadAndVerifyFileSearchDocumentLive_(documentName, source) {

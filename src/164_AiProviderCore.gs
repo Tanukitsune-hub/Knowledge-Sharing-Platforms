@@ -119,6 +119,14 @@ function kspGetAiProviderStateEntry_(row, provider) {
   return state[kspNormalizeAiProvider_(provider)] || kspAiProviderStateEntry_();
 }
 
+function kspIsGeminiReadbackRecoveryEntry_(entry, provider) {
+  var lastError = kspAiProviderLastError_(entry && entry.lastError);
+  return provider === KSP_AI_PROVIDERS.GEMINI &&
+    entry && entry.status === KSP_AI_INDEX_STATUS.FAILED &&
+    lastError.code === 'AI_DOCUMENT_READBACK_FAILED' &&
+    lastError.permanent === true && !entry.documentName && !entry.contentHash;
+}
+
 function kspIsProviderAiWorkEligible_(item, nowIso, settings, provider) {
   var row = item.row || {};
   var entry = kspGetAiProviderStateEntry_(row, provider);
@@ -136,6 +144,7 @@ function kspIsProviderAiWorkEligible_(item, nowIso, settings, provider) {
   if (entry.status === KSP_AI_INDEX_STATUS.INDEXED && !entry.documentName) return true;
   if (entry.status !== KSP_AI_INDEX_STATUS.FAILED) return false;
   var lastError = kspAiProviderLastError_(entry.lastError);
+  if (kspIsGeminiReadbackRecoveryEntry_(entry, provider)) return true;
   if (lastError.permanent || !lastError.retryable ||
       lastError.attempt >= Number(settings.maxRetryAttempts || KSP_AI_DEFAULTS.MAX_RETRY_ATTEMPTS)) return false;
   return !lastError.nextAttemptAt ||
@@ -408,6 +417,12 @@ function kspCreateProviderNeutralAiEnvironment_() {
       ? kspOpenAiUploadSourceLive_(config.vectorStoreId, source)
       : base.uploadSourceToFileSearchStore(config.storeName, source);
   };
+  base.readProviderDocument = function (provider, config, documentValue, source) {
+    if (provider === KSP_AI_PROVIDERS.GEMINI) {
+      return kspReadAndVerifyFileSearchDocumentLive_(documentValue.name, source);
+    }
+    return documentValue;
+  };
   base.findProviderDocumentsBySource = function (provider, config, sourceType, sourceId) {
     return provider === KSP_AI_PROVIDERS.OPENAI
       ? kspOpenAiFindDocumentsBySourceLive_(config.vectorStoreId, sourceType, sourceId)
@@ -668,6 +683,30 @@ function kspRunProviderNeutralAiSync_(environment, options) {
           }
           var source = kspBuildFeatureFreezeAiSource_(environment, item, maps);
           var providerState = kspGetAiProviderStateEntry_(item.row, provider);
+          if (kspIsGeminiReadbackRecoveryEntry_(providerState, provider)) {
+            var exactMatches = (docs || []).filter(function (doc) {
+              return kspGeminiDocumentMatchesSource_(doc, source);
+            });
+            kspAssert_(exactMatches.length === 1, 'AI_DOCUMENT_READBACK_FAILED',
+              'File Search Documentの照合結果が一意ではありません。');
+            var reconciled = typeof environment.readProviderDocument === 'function'
+              ? environment.readProviderDocument(provider, effectiveConfig, exactMatches[0], source)
+              : exactMatches[0];
+            kspAssert_(kspGeminiDocumentMatchesSource_(reconciled, source),
+              'AI_DOCUMENT_READBACK_FAILED', 'File Search Documentの照合に失敗しました。');
+            kspProviderStatePatch_(environment, item, provider, {
+              status: KSP_AI_INDEX_STATUS.INDEXED,
+              documentName: String(reconciled.name || ''),
+              providerDocumentId: String(reconciled.providerDocumentId || reconciled.fileId || ''),
+              storeName: effectiveConfig.storeName,
+              indexedAt: environment.nowIso(),
+              contentHash: source.contentHash,
+              lastError: ''
+            });
+            report.unchanged += 1;
+            report.items.push({ sourceType: item.sourceType, sourceId: item.sourceId, action: 'reconciled' });
+            return;
+          }
           var matching = (docs || []).filter(function (doc) {
             var metadata = doc.attributes || doc.customMetadata || {};
             var documentId = String(doc.providerDocumentId || doc.fileId || '');

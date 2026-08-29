@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-11`
 BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+DISPATCH_STATUS: `RETURNED / BLOCKER`
 
 ## Current Work classification
 
@@ -11,15 +11,21 @@ DISPATCH_STATUS: `READY`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_DOCUMENT_RECONCILIATION: BLOCKED
-GEMINI_RUNTIME: BLOCKED — Gate A failed during actual Web App Meeting sync
+GEMINI_DOCUMENT_RECONCILIATION: PASS
+GEMINI_RUNTIME: BLOCKED — bounded Pitchbook query remained pending
 FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence
 FINAL_INTEGRITY: PARTIAL — dependent Gemini gates not run
 READY: NO
 BLOCKER: YES
 ```
 
-Work 0020 remains incomplete. CODEX-11 is prepared to address only the observed Gemini document-reconciliation blocker.
+Work 0020 remains incomplete. CODEX-11 repaired and qualified the two
+uncertain Meeting documents, then stopped at the first new Pitchbook query
+runtime blocker. The detailed report is:
+
+`docs/handoffs/0020-CODEX-11-gemini-document-reconciliation-and-final-qualification-report.md`
+
+The temporary AI_SYNC_BATCH_SIZE was restored to numeric 10 and read back.
 
 ## CODEX-10 GitHub-verified result
 

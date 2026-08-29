@@ -231,7 +231,7 @@ test('provider selector excludes permanent failures and selects exactly one elig
     },
     {
       Meeting_ID: 'MTG-PERMANENT-2', Status: 'Active', AI_Index_Status: 'Failed',
-      AI_Last_Error: JSON.stringify({ attempt: 2, retryable: false, permanent: true, code: 'AI_DOCUMENT_READBACK_FAILED' }),
+      AI_Last_Error: JSON.stringify({ attempt: 2, retryable: false, permanent: true, code: 'AI_UPLOAD_FINALIZE_REQUEST_INVALID' }),
       Updated_At: '2026-08-16T15:14:47.316Z'
     },
     {
@@ -250,6 +250,123 @@ test('provider selector excludes permanent failures and selects exactly one elig
   assert.equal(selected.length, 1);
   assert.equal(selected[0].sourceType, 'Meeting');
   assert.equal(selected[0].sourceId, 'MTG-PENDING-1');
+});
+
+test('permanent readback failure reconciles one exact active Document without upload or delete', () => {
+  const context = baseContext({ pitchbookRows: [] });
+  const contentHash = ksp.kspAiHashTextFallback_('Meeting body');
+  const state = ksp.kspBuildEmptyAiProviderState_();
+  state.GEMINI.status = 'Failed';
+  state.GEMINI.lastError = JSON.stringify({
+    attempt: 1, retryable: false, permanent: true, code: 'AI_DOCUMENT_READBACK_FAILED'
+  });
+  context.meetingRows[0].AI_Provider_State_JSON = ksp.kspSerializeAiProviderState_(state);
+  context.meetingRows[0].AI_Index_Status = 'Failed';
+  context.meetingRows[0].AI_Last_Error = state.GEMINI.lastError;
+  const existing = {
+    name: 'fileSearchStores/store-1/documents/existing',
+    state: 'STATE_ACTIVE',
+    customMetadata: {
+      source_type: 'Meeting', source_id: 'MTG-000001', content_hash: contentHash
+    }
+  };
+  const env = createSyncEnvironment({ context, documents: [existing] });
+  env.getProviderConfig = (provider) => provider === 'GEMINI'
+    ? { provider, enabled: true, storeName: 'fileSearchStores/store-1', modelId: 'gemini-3.7-flash', credentialConfigured: true }
+    : { provider, enabled: false, storeName: '', modelId: '', credentialConfigured: false };
+  let findCalls = 0;
+  env.findProviderDocumentsBySource = () => {
+    findCalls += 1;
+    return [existing];
+  };
+  let readCalls = 0;
+  env.readProviderDocument = (provider, config, documentValue) => {
+    readCalls += 1;
+    return documentValue;
+  };
+  env.uploadProviderSource = () => { throw new Error('PRE_FIX_MUST_NOT_UPLOAD'); };
+
+  const result = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
+  assert.equal(result.ok, true);
+  assert.equal(result.selected, 1);
+  assert.equal(result.providers.GEMINI.selected, 1);
+  assert.equal(result.unchanged, 1);
+  assert.equal(findCalls, 1);
+  assert.equal(readCalls, 1);
+  assert.equal(env._debug.uploaded.length, 0);
+  assert.equal(env._debug.deleted.length, 0);
+  assert.equal(env._debug.documents.length, 1);
+  assert.equal(env._debug.documents[0].state, 'STATE_ACTIVE');
+  assert.equal(env._debug.documents[0].customMetadata.source_type, 'Meeting');
+  assert.equal(env._debug.documents[0].customMetadata.source_id, 'MTG-000001');
+  assert.equal(env._debug.documents[0].customMetadata.content_hash, contentHash);
+  const after = plain(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'GEMINI'));
+  assert.equal(after.status, 'Indexed');
+  assert.equal(after.documentName, existing.name);
+  assert.equal(after.lastError, '');
+  assert.equal(after.contentHash, contentHash);
+});
+
+test('reconciliation-only failure stops on zero or ambiguous exact Documents without upload or delete', () => {
+  const cases = [
+    [],
+    [{
+      name: 'fileSearchStores/store-1/documents/wrong',
+      state: 'STATE_ACTIVE',
+      customMetadata: { source_type: 'Pitchbook', source_id: 'MTG-000001', content_hash: 'wrong-hash' }
+    }],
+    [
+      {
+        name: 'fileSearchStores/store-1/documents/existing-1',
+        state: 'STATE_ACTIVE',
+        customMetadata: { source_type: 'Meeting', source_id: 'MTG-000001', content_hash: 'will-fill' }
+      },
+      {
+        name: 'fileSearchStores/store-1/documents/existing-2',
+        state: 'STATE_ACTIVE',
+        customMetadata: { source_type: 'Meeting', source_id: 'MTG-000001', content_hash: 'will-fill' }
+      }
+    ]
+  ];
+  cases.forEach((documents) => {
+    const context = baseContext({ pitchbookRows: [] });
+    const contentHash = ksp.kspAiHashTextFallback_('Meeting body');
+    documents.forEach((documentValue) => {
+      if (documentValue.customMetadata.content_hash === 'will-fill') {
+        documentValue.customMetadata.content_hash = contentHash;
+      }
+    });
+    const state = ksp.kspBuildEmptyAiProviderState_();
+    state.GEMINI.status = 'Failed';
+    state.GEMINI.lastError = JSON.stringify({
+      attempt: 1, retryable: false, permanent: true, code: 'AI_DOCUMENT_READBACK_FAILED'
+    });
+    context.meetingRows[0].AI_Provider_State_JSON = ksp.kspSerializeAiProviderState_(state);
+    context.meetingRows[0].AI_Index_Status = 'Failed';
+    context.meetingRows[0].AI_Last_Error = state.GEMINI.lastError;
+    const env = createSyncEnvironment({ context, documents });
+    env.getProviderConfig = (provider) => provider === 'GEMINI'
+      ? { provider, enabled: true, storeName: 'fileSearchStores/store-1', modelId: 'gemini-3.7-flash', credentialConfigured: true }
+      : { provider, enabled: false, storeName: '', modelId: '', credentialConfigured: false };
+    let findCalls = 0;
+    env.findProviderDocumentsBySource = () => {
+      findCalls += 1;
+      return env._debug.documents.map(plain);
+    };
+    env.uploadProviderSource = () => { throw new Error('RECONCILIATION_MUST_NOT_UPLOAD'); };
+
+    const result = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
+    assert.equal(result.ok, false);
+    assert.equal(result.selected, 1);
+    assert.equal(result.failed, 1);
+    assert.equal(findCalls, 1);
+    assert.equal(env._debug.uploaded.length, 0);
+    assert.equal(env._debug.deleted.length, 0);
+    const after = plain(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'GEMINI'));
+    assert.equal(after.status, 'Failed');
+    assert.equal(after.documentName, '');
+    assert.equal(after.contentHash, '');
+  });
 });
 
 test('blank or absent sourceType preserves the combined queue ordering', () => {
