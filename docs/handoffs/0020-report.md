@@ -1,210 +1,131 @@
 # Work 0020 report
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-11`
+ACTIVE_DISPATCH_ID: `0020-CODEX-12`
 BALL: `CODEX`
-DISPATCH_STATUS: `RETURNED / BLOCKER`
+DISPATCH_STATUS: `READY`
+WORK_READY: `NO`
+BLOCKER: `YES`
 
-## Current Work classification
+## Current classification
 
 ```text
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
-OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
+OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred/disabled; uncalled
 GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: BLOCKED — bounded Pitchbook query remained pending
-FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence
-FINAL_INTEGRITY: PARTIAL — dependent Gemini gates not run
+GEMINI_RUNTIME: BLOCKED — existing CODEX-11 Pitchbook query outcome unresolved
+FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence; not rerun
+FINAL_INTEGRITY: PARTIAL — metadata/lifecycle/final provider gates remain
 READY: NO
 BLOCKER: YES
 ```
 
-Work 0020 remains incomplete. CODEX-11 repaired and qualified the two
-uncertain Meeting documents, then stopped at the first new Pitchbook query
-runtime blocker. The detailed report is:
+## Accepted CODEX-11 evidence — closed
 
+GitHub source of truth for final CODEX-11 commit `524674f5b6b14bf43e0233928560cd9e0c6ebba0` confirms:
+
+- focused provider/transport/sync/admin validation `49/49 PASS`;
+- `npm run check` `290/290 PASS`;
+- temporal validation, public-surface validation and `git diff --check` PASS; public facade remains `30`;
+- exact tested Apps Script source readback `78/78`;
+- one immutable Apps Script version `50`; same existing private Web App updated in place;
+- both uncertain CODEX-10 Meetings reconciled to Indexed through exact Gemini Document list/get with no uncertain-row upload/delete;
+- one Meeting query produced authoritative successful `AI_QUERY` Audit with three citation references;
+- one bounded synthetic TXT Pitchbook indexed successfully with provider document identity/content hash;
+- before each provider-mutating sync, batch size was set/read back as numeric `1`;
+- final `AI_SYNC_BATCH_SIZE` restored/read back numeric `10`, `AI_SYNC_ENABLED=false`, `GEMINI_ENABLED=true`, `OPENAI_ENABLED=false`;
+- OpenAI remained uncalled and FULL_OUTPUT was not rerun.
+
+Detailed evidence:
 `docs/handoffs/0020-CODEX-11-gemini-document-reconciliation-and-final-qualification-report.md`
 
-The temporary AI_SYNC_BATCH_SIZE was restored to numeric 10 and read back.
+The reconciliation repair is accepted and must not be reopened without material contradictory evidence.
 
-For the CODEX-11 final commit, GitHub Actions workflow runs were 0 and commit
-status checks were 0. Local deterministic results are not GitHub-hosted CI
-evidence.
+## Current blocker
 
-## CODEX-10 GitHub-verified result
+CODEX-11 submitted exactly one Gemini query with `Source_Type_Filter=Pitchbook` after the synthetic TXT Pitchbook was Indexed.
 
-GitHub source of truth confirms:
+During an approximately one-minute bounded observation:
 
-- branch `agent/0020-ai-provider-core`;
-- CODEX-10 implementation head `e8e022baf7d608b81f8a3bb164636781b46a0011`;
-- PR `#26` remains Draft / Open / unmerged / currently mergeable;
-- CODEX-10 delta from CODEX-09 contains only the CODEX-10 handoff/report/tracking documents, minimal AI-provider admin UI fallback, and its deterministic admin test; no Gemini transport/provider-core source was changed in CODEX-10;
-- focused provider/core/admin/transport/sync tests recorded `45/45 PASS`;
-- `npm run check` recorded `286/286 PASS`;
-- temporal/public-surface/diff validation recorded PASS; public facade `30`;
-- exact source readback `78/78`;
-- existing private Web App updated in place to immutable version `49`;
-- authenticated private Web App administrator SYNC execution succeeded once.
+- the browser remained in a loading state;
+- no new Pitchbook `AI_QUERY` Audit success/failure row had appeared;
+- no provider HTTP/operation error was exposed;
+- no retry was submitted;
+- metadata-filter and lifecycle gates were not run after this first new runtime blocker.
 
-Authoritative runtime outcome:
+This does not yet establish an application defect. The same CODEX-11 Meeting query continued to show browser loading even though authoritative Audit proved that its server-side query had succeeded. Therefore browser loading alone is weak evidence.
 
-- intended batch guard `1` was not in effect; post-run readback remained numeric `10`;
-- two eligible synthetic Meetings were attempted;
-- both ended `FAILED` with safe `AI_DOCUMENT_READBACK_FAILED`, attempt `1`, retryable `false`, permanent `true`, and no accepted local Gemini document identity/indexed timestamp/content hash;
-- no Pitchbook changed;
-- no Meeting query, Pitchbook sync/query, lifecycle mutation, retry/state reset, or dependent final-integrity gate ran;
-- `AI_SYNC_ENABLED=false`, `GEMINI_ENABLED=true`, `OPENAI_ENABLED=false`;
-- OpenAI was not called and FULL_OUTPUT was not rerun.
-
-Detailed CODEX-10 report:
-`docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-report.md`
-
-## GitHub diff interpretation
-
-CODEX-10 itself did not introduce the failing Gemini readback implementation. Its code delta only enabled the bounded administrator UI route needed to reach the already-existing provider path. The observed defect is therefore in the prior Gemini/provider reconciliation code now exercised by the target runtime.
-
-## ChatGPT independent root-cause review
-
-### Production source
-
-Current `src/161_GeminiRestClient.gs` behavior after a successful upload Operation:
-
-```text
-poll Operation to done
--> kspExtractDocumentFromOperation_(operation)
--> normalize FileSearchDocument resource name
--> GET/read/verify the document
-```
-
-If the completed Operation does not contain a document-shaped response, extraction is caught and converted directly to permanent:
-
-```text
-AI_DOCUMENT_READBACK_FAILED
-stage = DOCUMENT_READBACK
-retryable = false
-```
-
-Current `src/131_AiFileSearchContracts.gs` correctly treats Operation `response` as a generic object, but `kspNormalizeFileSearchDocument_()` requires a concrete `fileSearchStores/.../documents/...` resource name.
-
-### Deterministic test gap
-
-The main successful transport fixture in `tests/ai-gemini-transport.test.cjs` currently simulates:
-
-```text
-done=true
-response.fileSearchDocument = ACTIVE synthetic document
-```
-
-It therefore never exercises a successful completed Operation whose generic response does not embed the FileSearchDocument but whose document is discoverable through the File Search Documents API.
-
-### Provider-core reconciliation gap
-
-The provider-neutral sync already lists existing provider documents by source before upload. However:
-
-- permanent failed entries are excluded from normal eligibility;
-- failure handling clears local `documentName`, `providerDocumentId`, `indexedAt`, and `contentHash`;
-- existing unchanged reconciliation relies on local provider state as part of matching.
-
-Thus a provider-side document created by CODEX-10 can remain orphaned from local derived state and the row cannot safely self-reconcile.
-
-## Current official Gemini contract review
-
-Google’s current File Search documentation shows direct upload returning a long-running Operation and the SDK examples only poll until `operation.done`. They do not require the completed Operation to contain an embedded FileSearchDocument resource.
-
-The current File Search Stores API reference describes Operation `response` as a generic arbitrary object and states that some services might not provide a result. File Search Documents are separately listable/gettable/deletable under the Store.
-
-Official sources prepared for CODEX-11:
-
-- `https://ai.google.dev/gemini-api/docs/file-search`
-- `https://ai.google.dev/api/file-search/file-search-stores`
-
-## Strategy Reset — CODEX-11
+## Strategy Reset — CODEX-12
 
 One active hypothesis:
 
-> The CODEX-10 uploads may have completed successfully and created valid Gemini FileSearchDocuments, but the application incorrectly requires the completed upload Operation to embed the document resource. Absence of that shape is recorded as permanent local failure, and the failure-state rules then prevent reconciliation with an already-created provider document.
+> The CODEX-11 Pitchbook query was not a File Search correctness failure. It outlived the initial browser observation and its definitive outcome is now available in existing Audit/Apps Script execution history. If that execution instead terminated while waiting on the synchronous Gemini Interactions request, provider-supported background Interactions is the minimal repair candidate.
 
-Expected pre-fix deterministic proof:
+The first CODEX-12 action is read-only. No second query, source change, deployment, provider mutation or Settings mutation occurs until the existing CODEX-11 query is classified.
 
-1. completed successful Operation has no embedded FileSearchDocument;
-2. document list/get exposes exactly one ACTIVE exact match on `source_type + source_id + content_hash`;
-3. current transport path nevertheless throws `AI_DOCUMENT_READBACK_FAILED`;
-4. current provider-core state shaped like CODEX-10 does not reconcile the existing document.
-
-If this does not reproduce, CODEX-11 must stop without production patch or provider mutation.
-
-Minimal repair boundary:
-
-- keep existing embedded-document fast path;
-- add bounded exact list/get reconciliation when Operation does not provide a usable document resource;
-- require exactly one ACTIVE exact metadata/hash match;
-- allow only `AI_DOCUMENT_READBACK_FAILED` failed rows to enter reconciliation-only recovery;
-- one exact existing provider document repairs local state to Indexed without upload/delete;
-- zero/ambiguous exact matches perform no new upload/delete and stop safely;
-- normal new sources keep the existing upload path;
-- preserve OpenAI, public surface, redaction, no-failover, schema, queue, and transport behavior.
-
-Active instruction:
-`docs/handoffs/0020-CODEX-11-gemini-document-reconciliation-and-final-qualification-instruction.md`
-
-## CODEX-11 live evidence order
+Evidence order:
 
 ```text
-pre-fix regression reproduced
--> minimal deterministic repair PASS
--> one tested source delivery/version/same-Web-App update
--> batch numeric 1 + exact readback
--> reconcile uncertain CODEX-10 Meeting #1 without upload/delete
--> batch numeric 1 + exact readback
--> reconcile uncertain CODEX-10 Meeting #2 without upload/delete
--> one Meeting grounded query + citation
--> batch numeric 1 + exact readback
--> one small synthetic TXT Pitchbook upload/index/query
--> exact metadata filter
--> update / Inactive / Reactivate / delete-rebuild
--> restore batch numeric 10 / AI sync disabled
--> final integrity
+existing late Pitchbook AI_QUERY Audit outcome
+-> matching Apps Script Web App execution status/duration/safe failure class
+-> verify no duplicate query and no state drift
 ```
 
-The two uncertain Meeting rows are repaired first because another blind upload could create or obscure duplicate provider-derived state.
+Outcomes:
+
+1. Late success + authoritative Pitchbook citation: accept query gate, do not retry, continue lifecycle/final integrity.
+2. Explicit different application/provider failure: record safe error and STOP for Strategy Reset.
+3. Proven termination while waiting on the synchronous Interactions request: reproduce deterministically, then one minimal Gemini background-Interaction repair and one final bounded Pitchbook query maximum.
+4. Existing execution still ambiguous/running: STOP without duplicate query.
+
+Active instruction:
+`docs/handoffs/0020-CODEX-12-pitchbook-query-outcome-and-final-qualification-instruction.md`
+
+## Remaining acceptance gates after Pitchbook query PASS
+
+```text
+exact Gemini metadata filter
+-> update / reindex without duplicate
+-> Inactive removal/exclusion
+-> Reactivate restoration
+-> exact derived-document delete/rebuild
+-> restore synthetic lifecycle
+-> final Backend/provider/Audit/settings/trigger/deployment integrity
+```
+
+Before every provider-mutating lifecycle SYNC:
+
+```text
+AI_SYNC_BATCH_SIZE = numeric 1
+-> authoritative numeric 1 readback
+-> one bounded SYNC
+-> restore numeric 10 afterward
+```
 
 ## Findings classification
 
 ### BLOCKER
 
-1. Gemini document reconciliation/readback is not qualified. Two CODEX-10 Meetings are locally failed after actual provider execution and provider-side document existence is not yet reconciled.
-2. The qualification safety precondition `AI_SYNC_BATCH_SIZE=1` was not actually in force during CODEX-10. No further provider-mutating sync may run until numeric `1` is set and immediately read back.
+- one grounded Pitchbook query with authoritative citation is not yet accepted; therefore dependent metadata/lifecycle/final-integrity evidence remains incomplete.
 
 ### FIX SOON
 
-1. GitHub-hosted CI/check evidence remains absent. For CODEX-10 implementation head, Actions runs = `0` and commit status checks = `0`; do not call the local `45/45` / `286/286` evidence CI PASS.
-2. The Work branch currently diverges from newer `main` and is behind it. Do not mix unrelated main integration into the bounded runtime diagnosis; integrate current main before final Work merge after the blocker is closed.
+- GitHub-hosted CI is absent on CODEX-11 final commit: workflow runs `0`, commit status checks `0`; local `49/49` and `290/290` are not GitHub CI evidence.
+- the Work branch diverges from newer `main`. Do not mix current-main integration into this bounded runtime diagnosis; integrate current main only after the runtime blocker closes and before final Work merge.
 
 ### BACKLOG
 
-None created from this review. Do not expand Work 0020 beyond its existing provider-core completion boundary.
+- none created. Do not expand Work 0020 beyond the accepted provider-core completion boundary.
 
-## Accepted evidence preserved
+## Closed evidence chain
 
-- CODEX-03: schema `6`, five Backend sheets, FULL_OUTPUT runtime/canonical parity, disabled-provider no-failover, final integrity PASS.
-- CODEX-04: one isolated Gemini Store; OpenAI future activation deterministic evidence; OpenAI uncalled.
-- CODEX-05 through CODEX-07: bounded retry, Content-Length, request-shape/direct transport hardening accepted.
-- CODEX-08: direct Blob deterministic PASS and normal combined queue ordering accepted.
-- CODEX-09: sourceType filtering-before-slice and exact version-48 delivery accepted.
-- CODEX-10: authenticated private Web App administrator execution path and version-49 minimal UI fallback accepted.
-
-Do not reopen these conclusions absent material contradictory evidence.
-
-## GitHub evidence status
-
-For CODEX-10 implementation head `e8e022baf7d608b81f8a3bb164636781b46a0011`:
-
-```text
-GitHub Actions workflow runs: 0
-commit status checks: 0
-```
-
-Recorded deterministic test results are Codex/local repository evidence only.
+- CODEX-03: FULL_OUTPUT runtime/canonical package parity; schema 6/five Backend sheets; disabled-provider no-failover.
+- CODEX-04: one isolated Gemini Store; OpenAI disabled/uncalled path.
+- CODEX-05 through CODEX-08: bounded transport/direct Blob hardening and combined queue evidence.
+- CODEX-09: sourceType filtering-before-slice and version-48 delivery.
+- CODEX-10: authenticated private Web App administrator execution and minimal sync-scope UI.
+- CODEX-11: Gemini Document reconciliation PASS, Meeting query/citations PASS, synthetic Pitchbook indexing PASS.
 
 ## Target final matrix
 
@@ -212,7 +133,7 @@ Recorded deterministic test results are Codex/local repository evidence only.
 DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
-OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
+OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred
 GEMINI_DOCUMENT_RECONCILIATION: PASS
 GEMINI_RUNTIME: PASS
 FULL_OUTPUT_RUNTIME: PASS
@@ -221,8 +142,10 @@ READY: YES
 BLOCKER: NO
 ```
 
+Completion Latch applies only after runtime acceptance, ChatGPT final diff/evidence review, integration of current `main`, and merge of PR #26.
+
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-11`
+ACTIVE_DISPATCH_ID: `0020-CODEX-12`
 BALL: `CODEX`
 DISPATCH_STATUS: `READY`
 WORK_READY: `NO`
