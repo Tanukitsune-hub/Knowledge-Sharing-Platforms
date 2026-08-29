@@ -7,9 +7,17 @@ STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
 
 ## Current state
 
-Route A planning and specification integration are complete.
+Route A planning, specification integration, and pre-implementation hardening are complete.
 
-No Codex dispatch is active. Work 0020/CODEX-09 and its successors remain separate and are not modified by this planning branch.
+No Codex dispatch is active. Active Work 0020 and its successors remain separate and are not modified by Work 0023 planning.
+
+The Work 0023 plan now explicitly closes:
+
+- installer browser-call/authorization risk;
+- first-run identity ambiguity;
+- self-referential bundle-hash ambiguity;
+- manifest/OAuth/Advanced Service parity;
+- exact single-file size/paste/save/execute feasibility.
 
 ## Reserved first implementation dispatch
 
@@ -20,8 +28,9 @@ Purpose when activated:
 - refresh the accepted source/runtime baseline after Work 0021;
 - implement deterministic `.gs` + embedded HTML bundle generation;
 - add modular/bundle resource-loader parity;
-- wrap the existing setup/validation engine with `installKnowledgeShare()` and `checkKnowledgeShareReadiness()`;
-- add bundle/installer validation;
+- implement versioned canonical payload hashing plus final-file checksum verification;
+- wrap the existing setup/validation engine with guarded `installKnowledgeShare()` and `checkKnowledgeShareReadiness()`;
+- add hostile-call rejection, identity, idempotency, bundle, manifest/OAuth/service, and one-paste validation;
 - deliver one fresh target-runtime installation slice.
 
 A new exact instruction/ref and current side-effect boundary must be created at activation time. Do not execute Work 0023 from this placeholder.
@@ -29,6 +38,7 @@ A new exact instruction/ref and current side-effect boundary must be created at 
 ## Governing sources
 
 - `docs/decisions/modular-source-single-bundle-distribution.md`
+- `docs/decisions/bundle-integrity-and-installer-security.md`
 - `docs/planning/work0023-bundle-installer-distribution.md`
 - `docs/operations/company-bundle-installation.md`
 - `docs/standards/apps-script-bundle-installer-standard.md`
