@@ -1,15 +1,15 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-12`
+DISPATCH_ID: `0020-CODEX-13`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
-MODE: `INVESTIGATION -> QUALIFICATION`, with one evidence-gated repair only
+STATUS: `READY`
+MODE: `INVESTIGATION -> BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
 Active instruction:
-`docs/handoffs/0020-CODEX-12-pitchbook-query-outcome-and-final-qualification-instruction.md`
+`docs/handoffs/0020-CODEX-13-resumable-gemini-query-lifecycle-and-final-qualification-instruction.md`
 
 ## Primary outcome
 
@@ -21,64 +21,53 @@ Gemini
 全文出力
 ```
 
-Gemini is the personal-DEV live provider. OpenAI remains deliberately disabled/uncalled. File Search scope is Meeting + Pitchbook/source. FULL_OUTPUT remains accepted from CODEX-03 and must not be rerun.
+Gemini is the personal-DEV live provider. OpenAI remains deliberately disabled/uncalled. FULL_OUTPUT remains accepted and must not be rerun.
 
 ## Accepted evidence — closed absent material contradiction
 
 - schema `6`, exactly five Backend sheets;
-- FULL_OUTPUT runtime/canonical package parity PASS;
+- FULL_OUTPUT runtime/canonical parity PASS;
 - no automatic provider failover; OpenAI disabled/uncalled;
 - one isolated Gemini Store;
-- direct Blob upload transport and sourceType bounded sync contracts accepted;
+- direct Blob upload and sourceType bounded-sync contracts accepted;
 - authenticated private Web App administrator SYNC route proven;
-- CODEX-11 reconciliation repair deterministic PASS: focused `49/49`, repository `290/290`;
-- both uncertain CODEX-10 Meetings reconciled to Indexed through exact existing Gemini Document list/get without uncertain-row upload/delete;
-- one Meeting query produced successful authoritative Audit with three citations;
-- one synthetic TXT Pitchbook indexed successfully with provider document identity/content hash;
-- CODEX-11 restored `AI_SYNC_BATCH_SIZE` to numeric `10`; `AI_SYNC_ENABLED=false`; OpenAI remained disabled/uncalled.
+- Gemini Document reconciliation PASS for both CODEX-10 affected Meetings without uncertain-row upload/delete;
+- one grounded Meeting query PASS with authoritative Audit and three citations;
+- one synthetic TXT Pitchbook remains Gemini Indexed with provider document identity/content hash;
+- CODEX-12 deterministic validation PASS: focused `43/43`, repository `294/294`, temporal/public/diff PASS, public facade `30`;
+- CODEX-12 exact source readback `78/78`, immutable Apps Script version `51`, same private Web App updated in place;
+- original synchronous Pitchbook query hit Apps Script max execution at `360.804s`;
+- post-repair Pitchbook query returned application `AI_QUERY_TIMEOUT` after `134.96s`, zero citations, with no provider terminal failure observed;
+- no lifecycle mutation, OpenAI call, FULL_OUTPUT rerun, broad sync, new Store/deployment/Library followed.
 
-## Current blocker
+Detailed CODEX-12 report:
+`docs/handoffs/0020-CODEX-12-pitchbook-query-outcome-and-final-qualification-report.md`
 
-The original CODEX-11 Pitchbook query was classified from authoritative
-execution evidence as a synchronous query-path timeout: Apps Script history
-showed `searchKnowledge`, `タイムアウト`, `360.804 秒`, and the maximum
-execution-time failure class, with no normal Pitchbook `AI_QUERY` Audit outcome.
+## Strategy Reset for CODEX-13
 
-The required deterministic request-shape reproduction passed. The one
-authorized Gemini background-Interaction repair passed deterministic gates,
-was delivered once, and the existing private Web App was updated in place to
-version `51`.
+Current CODEX-12 background query code still polls within one Apps Script execution:
 
-The one permitted post-repair Pitchbook query then returned the safe
-`AI_QUERY_TIMEOUT` result. Audit recorded one Pitchbook `AI_QUERY` failure with
-zero citations. The stop rule therefore applies; the Pitchbook gate and all
-dependent lifecycle/final-integrity gates remain incomplete. No retry or second
-hypothesis was opened.
+```text
+POST interaction background=true
+-> keep same Apps Script call open
+-> GET every 5 seconds
+-> 24 polls (~120 seconds)
+-> local AI_QUERY_TIMEOUT
+```
 
-## CODEX-12 one active hypothesis
+This does not use the provider-supported background lifecycle as a resumable cross-request flow. It also fails to terminalize the documented Gemini Interaction status `incomplete`.
 
-> The CODEX-11 Pitchbook query was not a File Search correctness failure. It outlived the initial browser observation and its definitive outcome is now available in existing Audit/Apps Script execution history. If that execution instead terminated while waiting on the synchronous Interactions call, background Interactions is the provider-supported minimal repair.
+One active hypothesis:
+
+> The remaining Pitchbook blocker is an incomplete application background-Interaction state machine: the application still waits synchronously inside one Apps Script call, discards resumability at its local polling deadline, and does not recognize every documented terminal provider status. A secure cross-request START/POLL lifecycle should remove the Apps Script timeout dependency without changing File Search content or provider routing.
 
 ## Fastest safe decisive action
 
-Read-only first. Do not submit another query or change source/deployment/provider state until the existing CODEX-11 Pitchbook query is classified.
+Reproduce the two lifecycle gaps deterministically. If they reproduce, implement one minimal coherent cross-request START/POLL flow through the existing `searchKnowledge` facade where practical. Do not lengthen a single Apps Script invocation toward the platform maximum.
 
-Required first evidence:
+## Remaining completion gates
 
-1. late Pitchbook `AI_QUERY` Audit success/failure, if any;
-2. matching Apps Script Web App execution status/duration/safe failure class;
-3. no second Pitchbook query;
-4. existing Indexed Pitchbook and reconciled Meetings unchanged.
-
-If late success contains an authoritative Pitchbook citation, accept the query gate without retry and proceed directly to remaining lifecycle/final integrity.
-
-If the existing execution proves synchronous connection/runtime termination, CODEX-12 may reproduce exactly that failure deterministically and make only the one Gemini background-Interaction repair described in its handoff, followed by one final bounded Pitchbook query.
-
-Any different failure class requires STOP and Strategy Reset; do not patch a second hypothesis.
-
-## Remaining acceptance gates
-
-After Pitchbook query PASS:
+After a grounded Pitchbook query with authoritative citation passes:
 
 1. exact metadata filter;
 2. update -> reindex without duplicate;
@@ -93,7 +82,7 @@ Before every provider-mutating lifecycle SYNC:
 ```text
 AI_SYNC_BATCH_SIZE = numeric 1
 -> authoritative numeric 1 readback
--> execute one bounded SYNC
+-> execute one bounded mutation
 -> restore numeric 10 afterward
 ```
 
@@ -103,8 +92,12 @@ AI_SYNC_BATCH_SIZE = numeric 1
 - no FULL_OUTPUT rerun;
 - no broad sync or confidential data;
 - no new Store/Web App/Library/public debug endpoint;
-- no unrelated current-main integration during this bounded diagnosis;
+- no raw provider Interaction ID as a client authorization token;
+- no repeated new Pitchbook query;
+- no current-main merge/rebase during the bounded runtime repair;
 - GitHub-hosted CI is not assumed; report whether it actually ran.
+
+Current `main` has advanced independently to include Work 0024 return-identity governance. Integrate latest main only after the Work 0020 runtime blocker closes and before final PR merge.
 
 ## Target final classification
 
@@ -122,26 +115,3 @@ BLOCKER: NO
 ```
 
 Completion Latch applies only after ChatGPT final review, current-main integration, and merge.
-
-## CODEX-12 returned evidence
-
-See
-`docs/handoffs/0020-CODEX-12-pitchbook-query-outcome-and-final-qualification-report.md`.
-
-```text
-PITCHBOOK_EXISTING_QUERY_OUTCOME: TIMEOUT
-LOGIC_VALIDATION: PASS
-GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: BLOCKED
-FULL_OUTPUT_RUNTIME: PASS
-FINAL_INTEGRITY: PARTIAL
-READY: NO
-BLOCKER: YES
-```
-
-The exact source delivery/readback was `78/78`; one immutable version `51` was
-created; the same private Web App was updated in place; deployment inventory
-remained `9`. The final query execution completed in `134.96 秒` and returned
-the safe timeout result. The lifecycle gates were not run. OpenAI remained
-disabled and uncalled, `AI_SYNC_ENABLED=false`, `AI_SYNC_BATCH_SIZE=10`, and
-FULL_OUTPUT was not rerun.
