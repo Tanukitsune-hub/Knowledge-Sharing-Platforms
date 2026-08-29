@@ -1,16 +1,16 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-06`
+DISPATCH_ID: `0020-CODEX-07`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
+STATUS: `READY`
 MODE: `INVESTIGATION / BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
 Active instruction:
 
-`docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-instruction.md`
+`docs/handoffs/0020-CODEX-07-runtime-request-shape-selection-and-gemini-completion-instruction.md`
 
 ## Primary outcome
 
@@ -22,7 +22,7 @@ Gemini
 全文出力
 ```
 
-The user selected Gemini for personal-DEV File Search qualification. OpenAI is deliberately deferred and remains disabled.
+Gemini remains the personal-DEV live qualification provider. OpenAI is deliberately deferred and remains disabled.
 
 Source boundaries remain fixed:
 
@@ -43,55 +43,49 @@ ChatGPT / OpenAI
 
 Closed absent material contradiction:
 
-- CODEX-03: schema `6`, five Backend sheets, FULL_OUTPUT runtime PASS, canonical Preview/Copy/Docs/PDF package parity, safe disabled-provider/no-failover behavior, and final integrity;
-- CODEX-04: focused `17/17 PASS`, repository `265/265 PASS`, public facade `30`, one isolated Gemini Store, and future OpenAI administrator activation path;
-- CODEX-05: focused `68/68 PASS`, repository `274/274 PASS`, exact source readback, immutable version `45`, same private Web App update, bounded retry/error-stage hardening, and one safely stopped Meeting indexing attempt.
+- CODEX-03: schema `6`, five Backend sheets, FULL_OUTPUT runtime PASS, canonical Preview/Copy/Docs/PDF package parity, disabled-provider/no-failover PASS, final integrity PASS;
+- CODEX-04: focused `17/17 PASS`, repository `265/265 PASS`, public facade `30`, one isolated Gemini Store, future zero-code OpenAI administrator activation;
+- CODEX-05: focused `68/68 PASS`, repository `274/274 PASS`, safe transport-stage error preservation, bounded transient retry, version `45`, same Web App update;
+- CODEX-06: manual final-upload `Content-Length` removed, focused transport `12/12 PASS`, AI-focused `78/78 PASS`, repository `277/277 PASS`, version `46`, same Web App update, bounded integrity readback.
 
 Do not rerun FULL_OUTPUT or live-call OpenAI.
 
 ## Active blocker after CODEX-06
 
-CODEX-05 proved the first pre-repair failure occurred at:
-
-```text
-code: AI_UPLOAD_FINALIZE_FAILED
-stage: UPLOAD_FINALIZE
-provider HTTP status/body: not observed
-provider document identity: absent
-```
-
-CODEX-06 removed the manual final-upload `Content-Length` header and added a safe request preflight. The single corrected Meeting attempt still ended before any provider HTTP response with:
+CODEX-06 stopped before a Gemini HTTP response at:
 
 ```text
 code: AI_UPLOAD_FINALIZE_REQUEST_INVALID
 classification: UPLOAD_FINALIZE_CLIENT
-http status/body: not observed
+provider HTTP status/body: not observed
 provider document identity: absent
 ```
 
-This is currently classified as a local Apps Script request-construction/preflight failure. The one corrected live attempt is exhausted.
+The production path currently treats `UrlFetchApp.getRequest()` as a hard byte-for-byte projection validator. The target runtime may legally project `payload` differently from the caller's original Byte[]; Apps Script only guarantees that `getRequest()` returns a request map containing a payload field, not that its JavaScript representation is identical to the input. The synthetic test harness mirrors the input payload unchanged and therefore cannot prove runtime representation parity.
+
+Closed conclusion:
+
+> The corrected direct `fetch()` after removing manual `Content-Length` has still never been executed. Switching architecture now would be premature.
 
 Active hypothesis:
 
-> Remove manual `Content-Length`, let `UrlFetchApp` derive length from exact payload bytes/Blob, preflight the request safely, and one Meeting upload will pass finalization.
+> Select a Byte[] or Blob request shape using non-mutating target-runtime `getRequest()` structural compatibility, without requiring projected payload identity, then one direct finalize request will reach Gemini.
 
-No second hypothesis or Files API fallback was opened in CODEX-06. A later Strategy Reset is required before another live attempt.
+## CODEX-07 completion boundary
 
-## CODEX-06 completion boundary
+CODEX-07 must:
 
-CODEX-06 must:
-
-1. remove the manual final-upload `Content-Length` header while preserving exact MIME type, bytes, offset, and `upload, finalize` command;
-2. add a safe deterministic `UrlFetchApp.getRequest` or equivalent preflight;
-3. distinguish local request-construction errors from actual provider HTTP failures;
-4. preserve all CODEX-05 bounded retry/error-stage hardening;
-5. run deterministic validation before live execution;
+1. validate source bytes/MIME directly before projection;
+2. remove projected-payload byte-equality as a hard gate;
+3. evaluate Byte[] and Blob candidates locally with `getRequest()`;
+4. select exactly one compatible candidate and send exactly one live Meeting finalize request;
+5. preserve existing safe local-vs-provider transport error classification and bounded retry;
 6. prove one Meeting indexed before one Meeting query;
 7. prove one small TXT Pitchbook indexed before one Pitchbook query;
 8. prove exact metadata filter and update/Inactive/Reactivate/delete-rebuild lifecycle without duplicate active documents;
 9. keep OpenAI disabled/uncalled, `AI_SYNC_ENABLED=false`, triggers `0`, and final integrity PASS.
 
-If the corrected finalize produces a genuine provider HTTP/operation error, stop with that exact safe evidence. Do not mix in the Files API/import architecture without another Strategy Reset.
+Do not implement the officially available Files API/import alternative in this dispatch. If both request shapes are locally unsupported or a stable direct-upload incompatibility is observed, return for another Strategy Reset.
 
 ## Closed contracts
 
@@ -103,10 +97,7 @@ If the corrected finalize produces a genuine provider HTTP/operation error, stop
 - Pitchbook bodies are File Search inputs but never manual FULL_EXPORT body text;
 - no recurring trigger, confidential production data, production rollout, second Web App, or Library mutation.
 
-## Target final classification (not reached in CODEX-06)
-
-The target classification below remains the completion contract for a later
-authorized Strategy Reset; CODEX-06 returned blocked at Gate A.
+## Target final classification
 
 ```text
 DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
