@@ -1,222 +1,181 @@
 # Work 0020 report
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-15`
-BALL: `CODEX`
-DISPATCH_STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0020-CODEX-16`
+BALL: `USER`
+DISPATCH_STATUS: `ACTION_REQUIRED`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
-## Current Classification
+## Current classification
 
 ```text
 GEMINI_MODEL: gemini-3.7-flash
 GEMINI_REQUEST_PROFILE: PASS
 GEMINI_BACKGROUND_LIFECYCLE: PASS
-GEMINI_USER_EXPERIENCE: PASS — application-side pending UX
+GEMINI_USER_EXPERIENCE: PASS — pending-state application UX
+INTERACTIONS_FILE_SEARCH: PROVIDER_LONG_RUNNING — >=600000ms
+GENERATE_CONTENT_FILE_SEARCH: FAIL — 83364ms, safe service-unavailable category
+TEXT_ONLY_BASE_MODEL_CONTROL: NOT RUN
+DIRECT_PROVIDER_CONTROL: NOT RUN
+SELECTED_GEMINI_QUERY_TRANSPORT: NONE QUALIFIED
 PITCHBOOK_AUTHORITATIVE_CITATIONS: 0
-LOGIC_VALIDATION: PASS — CODEX-14 local/repository evidence
+METADATA_FILTER: NOT RUN
+LIFECYCLE: NOT RUN
+LOGIC_VALIDATION: PASS — focused 109/109 and repository 307/307, local/repository evidence
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred/disabled; uncalled
 GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: BLOCKED / GEMINI_FILE_SEARCH_PROVIDER_PATH
+GEMINI_RUNTIME: BLOCKED / DIRECT PROVIDER ISOLATION REQUIRED
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
-STATE_INTEGRITY: PASS — pending query caused no unintended mutation
-FINAL_INTEGRITY: PARTIAL — metadata/lifecycle gates not run
+STATE_INTEGRITY: PARTIAL — no unintended mutation observed; CODEX-15 final readback not run
+FINAL_INTEGRITY: NOT RUN
 READY: NO
 BLOCKER: YES
 ```
 
-## CODEX-15 Return — Generate Content provider-path isolation
-
-CODEX-15 performed the one authorized read-only POLL of the CODEX-14 opaque
-job. The token was expired after the accepted long-running observation, so no
-new Interaction was created and no raw provider identity was recovered.
-
-The corrected Generate Content + File Search adapter passed deterministic
-validation and was delivered as source-equivalent version `54` to the same
-private Web App. One synthetic Pitchbook query was submitted through the
-normal UI. After `83364ms` the Web App returned only the safe application
-category `Gemini search service unavailable`, with no answer and zero
-authoritative citations. The query was not retried.
-
-Therefore the dependent metadata-filter, update/reindex, Inactive, Reactivate,
-delete/rebuild, and Work-level final-integrity gates were not run. No source,
-Store, or deployment expansion was made by those gates.
-
-```text
-GENERATE_CONTENT_FILE_SEARCH: FAIL
-PITCHBOOK_AUTHORITATIVE_CITATIONS: 0
-GEMINI_RUNTIME: BLOCKED / GEMINI_FILE_SEARCH_PROVIDER_PATH
-LOGIC_VALIDATION: PASS — 109 focused AI tests; 307/307 repository check
-FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
-FINAL_INTEGRITY: NOT RUN — blocked before dependent gates
-READY: NO
-BLOCKER: YES
-```
-
-CODEX-15 delivery identity:
-
-```text
-IMPLEMENTATION_COMMIT: fe1f1c63aad2e84b98a43b7a7d130bff607229d7
-QUALIFICATION_REPORT_COMMIT: af71a23f4d4c088d9e56eda2c63ee800a08f682a
-GITHUB_CI_ACTUALLY_RAN: NO — no workflow run or commit status check exists
-```
-
-Detailed report:
-`docs/handoffs/0020-CODEX-15-gemini-provider-path-isolation-and-final-qualification-report.md`
-
-## ChatGPT GitHub Review of CODEX-14
+## ChatGPT GitHub review of CODEX-15
 
 GitHub source of truth confirms:
 
 - branch `agent/0020-ai-provider-core`;
-- Draft PR `#26` remains Open / unmerged / mergeable;
-- implementation commit `f63cb59d990a1392dfbd7be6efbb6bcbe63fb5c5`;
-- qualification/report commit `3935ab7c5eea4e1fe3a18574625fec4522c70e25`;
-- final returned branch head `bc8a0e8e801b4afeb828cc6a1e18087435764535`;
-- final head after CODEX-14 is three commits ahead of the prepared CODEX-14 ref and changes the expected Gemini request, transport, provider-core, browser UX, tests, and tracking files;
-- exact tested source readback `78/78`, immutable Apps Script version `53`, and same owner-only private Web App update are recorded;
-- GitHub Actions workflow runs and commit status checks are both `0`, so `301/301 PASS` is local/repository evidence, not GitHub-hosted CI evidence.
+- final returned branch head `54ccb4a2f3d162927ac2a24df46ec829adc62b91`;
+- implementation commit `fe1f1c63aad2e84b98a43b7a7d130bff607229d7`;
+- qualification/report commit `af71a23f4d4c088d9e56eda2c63ee800a08f682a`;
+- PR `#26` remains Draft / Open / unmerged / mergeable;
+- CODEX-15 added one Generate Content + File Search adapter, response grounding normalization, safe telemetry hooks, and deterministic tests;
+- CODEX-15 delta from its prepared ref contains four commits and changes only its report/tracking files, AI constants/contracts/client/provider core, and direct AI tests;
+- Apps Script version `54` was created and the same private Web App was updated in place;
+- GitHub Actions workflow runs and commit status checks are both `0`.
 
-Detailed report:
-`docs/handoffs/0020-CODEX-14-gemini-query-performance-and-ux-optimization-report.md`
+The detailed report is:
 
-## What CODEX-14 Successfully Delivered
+`docs/handoffs/0020-CODEX-15-gemini-provider-path-isolation-and-final-qualification-report.md`
 
-The actual source implements the intended application-side architecture:
+## What CODEX-15 established
 
-- request profile includes `background=true`, `thinking_level=low`, and `max_output_tokens=2048`;
-- START performs one provider POST and returns pending without a sleep/poll loop;
-- each POLL performs at most one provider GET;
-- documented pending and terminal status classes are normalized;
-- provider Interaction identity remains server-side behind an opaque token;
-- duplicate pending START and terminal delivery are idempotent by contract;
-- browser feedback is immediate, prior result is preserved, polling backs off, page reload resumes the same token, and the UI does not falsely report timeout while the provider remains pending;
-- safe numeric telemetry hooks exist without retaining question/source text or exposing raw provider identity.
+1. The prior CODEX-14 opaque token had expired, so the long-running provider Interaction could no longer be observed through the application token.
+2. The official Generate Content + File Search request adapter passed deterministic validation.
+3. One target-runtime synthetic Pitchbook query returned the application's safe `Gemini search service unavailable` category after `83364ms`.
+4. The query returned no answer and zero authoritative citations.
+5. No retry, upload, reindex, lifecycle mutation, Store rebuild, key/model change, OpenAI call, FULL_OUTPUT rerun, or deployment expansion followed.
 
-Target-runtime evidence also confirms:
+This is useful evidence because both supported application query paths failed on an already-indexed small synthetic Pitchbook in the same DEV project.
 
-- one synthetic Pitchbook START only;
-- reload and manual recheck reused the same opaque job;
-- START returned to pending in approximately `9115ms`;
-- maximum observed POLL round trip was approximately `9691ms`;
-- the same provider Interaction remained nonterminal after at least `600000ms`;
-- no second START, terminal failure Audit, lifecycle mutation, Store/deployment/Library expansion, OpenAI call, or FULL_OUTPUT rerun occurred.
+## What CODEX-15 did not establish
 
-CODEX-14 is therefore accepted for request-shape, application-lifecycle, duplicate-prevention, and pending-state UX work.
-
-## What CODEX-14 Did Not Prove
-
-The Work outcome is not complete:
-
-- the indexed synthetic Pitchbook produced no authoritative citation;
-- the provider did not reach a documented terminal state within the bounded ten-minute observation;
-- no safe usage metrics were available because the provider never completed;
-- exact metadata filtering and update / Inactive / Reactivate / delete-rebuild gates were not run;
-- practical end-user query latency was not achieved.
-
-A small already-indexed TXT source with a narrow filter remaining pending for more than ten minutes is not acceptable as a normal interactive search path. It is also no longer attributable to the former Apps Script same-call polling defect, because that defect has been repaired and directly qualified.
-
-Current official Gemini documentation describes File Search as a fast retrieval layer and shows `gemini-3.7-flash` queries through the Interactions API. It also separately supports File Search through the Generate Content API, including metadata filters and grounding metadata/custom metadata for citations. This provides one bounded, officially supported comparison path without changing model, corpus, or indexing architecture.
-
-## Review Corrections
-
-### Commit identity
-
-The CODEX-14 report currently records an earlier report commit as `FINAL_COMMIT`. Use:
+The returned public error is deliberately redacted. The report records:
 
 ```text
-IMPLEMENTATION_COMMIT: f63cb59d990a1392dfbd7be6efbb6bcbe63fb5c5
-QUALIFICATION_REPORT_COMMIT: 3935ab7c5eea4e1fe3a18574625fec4522c70e25
-FINAL_BRANCH_HEAD: bc8a0e8e801b4afeb828cc6a1e18087435764535
+GENERATE_CONTENT_SERVER_MS: NOT_SAFELY_OBSERVABLE
+PITCHBOOK_PROVIDER_TERMINAL_STATUS: NOT OBSERVED
 ```
 
-### Integrity terminology
+Therefore `83364ms + service unavailable` does not prove which of the following occurred:
 
-`FINAL_INTEGRITY: PASS` in the returned summary only establishes that the pending query caused no unintended current-state mutation. Because the lifecycle completion gates were not run, Work-level classification is:
+- an HTTP provider error such as a transient service/quota response;
+- a project/key entitlement or quota condition;
+- transport termination between Apps Script and Gemini;
+- malformed or unsupported live request behavior that was hidden by the safe wrapper;
+- a broader File Search path failure.
+
+CODEX-15 also did not run:
+
+- a text-only `gemini-3.7-flash` control without File Search;
+- a direct same-project SDK call outside Apps Script;
+- a fresh text-only File Search Store control;
+- an unfiltered-versus-filtered comparison;
+- an embedding-model comparison.
+
+A Google provider incident is therefore plausible but not yet proven.
+
+## Blocking source-state inconsistency
+
+CODEX-15 says Generate Content was attempted but not accepted as the normal transport. However, the pushed source and Apps Script version `54` currently set:
 
 ```text
-STATE_INTEGRITY: PASS
-FINAL_INTEGRITY: PARTIAL
+QUERY_TRANSPORT = GENERATE_CONTENT
 ```
 
-### CODEX-13 history
+This leaves an unqualified failed diagnostic transport selected by default.
 
-The user supplied late evidence that CODEX-13 executed locally and returned `PROVIDER_LONG_RUNNING`, with local commit `429ed454d59e01353a68d42e4322fc5fe13787f1`. GitHub does not contain that commit, so the exact local diff cannot be independently accepted as GitHub source. Record CODEX-13 as `EXECUTED LOCALLY / RETURNED / SUPERSEDED BY CODEX-14`, not `NOT EXECUTED`.
+Consequences:
 
-## Findings
+- PR `#26` must not be merged;
+- version `54` is not user-ready for Gemini search;
+- a later evidence-selected implementation dispatch must restore or select a safe transport/default;
+- until then, the private DEV Gemini route should not be treated as operational.
+
+## Problem classification
 
 ### BLOCKER
 
-1. The normal Gemini query has not completed with an authoritative Pitchbook citation.
-2. Interactions + File Search remained provider-pending for more than ten minutes even after low thinking, bounded output, correct background execution, and correct cross-request polling.
-3. Metadata-filter and source lifecycle gates remain dependent on a fast grounded query.
-4. Work-level final integrity remains partial until those lifecycle gates finish.
+1. Neither Interactions nor Generate Content has produced a grounded Pitchbook result in the current DEV path.
+2. Pitchbook authoritative citations remain `0`.
+3. Metadata-filter and update / Inactive / Reactivate / delete-rebuild gates remain unexecuted.
+4. Work-level final integrity is not established.
+5. The source currently defaults to a Generate Content transport that CODEX-15 did not accept.
+6. Direct provider controls are required before another application fix or provider escalation can be selected responsibly.
 
-### FIX SOON / FOLLOW_UP
+### FIX SOON
 
-1. Pending query state is stored in Apps Script `CacheService`. Google documents that cache entries may disappear before their requested expiry. One reload-resume smoke passed, but this is not durable state. If Interactions remains the normal transport, durable server-side pending-state persistence is a completion blocker; if it becomes an inactive rollback path, record it as follow-up.
-2. START and POLL calls each took roughly nine to ten seconds. This is acceptable for the diagnostic state machine but still merits later application-overhead profiling after the provider path is selected.
-3. GitHub-hosted CI/check evidence is absent.
-4. The Work branch is `13` commits behind current `main`; integrate main only after the provider blocker closes and before final merge.
-5. A representative Meeting/Pitchbook latency benchmark and user-selectable thinking level belong to later Works after Work 0020 closes.
+1. GitHub-hosted CI/check evidence is absent.
+2. The Work branch has diverged from newer `main`; integrate current main only after the provider blocker closes and before final merge.
+3. CODEX-14's resumable pending state uses best-effort Apps Script cache storage. If Interactions remains active, durable persistence must be addressed.
+4. START/POLL application overhead of roughly nine to ten seconds should be profiled after a provider path qualifies.
 
-### BACKLOG / OPTIONAL
+### BACKLOG
 
-- Store partitioning, chunking changes, reindexing, duplicate summary layers, and paid Priority inference are not justified by current evidence.
+1. User-selectable thinking level (`自動 / 高速 / 標準 / 深掘り`).
+2. Representative Meeting/Pitchbook latency benchmarking across document sizes and search modes.
+3. Store partitioning, chunking changes, duplicate summary layers, and paid service tiers only if later evidence justifies them.
 
-## Strategy Reset — CODEX-15
+## Strategy Reset — CODEX-16
 
-One active hypothesis:
-
-> The remaining pathological delay is specific to the current Gemini Interactions + File Search execution path. The officially supported Generate Content + File Search path, using the same model, Store, exact synthetic document metadata, low thinking, and output cap, will either complete within an interactive bound with authoritative grounding or prove that the blocker lies in Gemini File Search/project/provider behavior more generally.
+The next decisive step is an external control matrix using the same Google project API key through the current official SDK, outside Apps Script.
 
 Active instruction:
-`docs/handoffs/0020-CODEX-15-gemini-provider-path-isolation-and-final-qualification-instruction.md`
 
-Decisive sequence:
+`docs/handoffs/0020-CODEX-16-direct-provider-control-qualification-instruction.md`
+
+The controls isolate:
 
 ```text
-one read-only POLL of existing CODEX-14 job
--> if grounded completed: finish lifecycle with Interactions
--> otherwise one deterministic Generate Content adapter
--> one exact live Generate Content + File Search synthetic query
--> if <=90000ms and authoritative citation: select it and finish lifecycle
--> otherwise STOP as GEMINI_FILE_SEARCH_PROVIDER_PATH blocker
+base model/key/project
+File Search generally
+existing Store
+metadata filtering
+gemini-embedding-2
+Apps Script / UrlFetchApp integration
 ```
 
-No blind retry or second retrieval architecture is authorized.
+The application source, deployment, current Store, and real data remain unchanged during this qualification.
 
-## Accepted Evidence Preserved
+## User action required
 
-- CODEX-03 through CODEX-11 schema/FULL_OUTPUT/provider/upload/reconciliation/Meeting-query evidence remains closed.
-- CODEX-12 failure-mode evidence remains accepted.
-- CODEX-14 request profile, application lifecycle, dedupe, pending UX, and state-integrity evidence is accepted.
-- Synthetic Pitchbook indexing remains accepted and must not be repeated merely for diagnosis.
+Make a Gemini API key from the same Google Cloud project available only to the local Codex process as `GEMINI_API_KEY`.
 
-## Target Final Matrix
+Do not paste or reveal the key in ChatGPT, a Codex prompt, GitHub, reports, screenshots, repository files, or logs. A temporary same-project key may be created and revoked after the qualification.
+
+After the secret is available locally, resume the existing `0020-CODEX-16` dispatch. Do not allocate `CODEX-17` merely for the resume.
+
+## Target next evidence
 
 ```text
-SELECTED_GEMINI_QUERY_TRANSPORT: INTERACTIONS | GENERATE_CONTENT
-GEMINI_QUERY_LATENCY_MS: <= 90000 for isolated one-document qualification
-PITCHBOOK_AUTHORITATIVE_CITATIONS: >= 1
-METADATA_FILTER: PASS
-LIFECYCLE: PASS
-LOGIC_VALIDATION: PASS
-SCHEMA_ALIGNMENT: PASS
-OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred
-GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: PASS
-FULL_OUTPUT_RUNTIME: PASS
-FINAL_INTEGRITY: PASS
-READY: YES
-BLOCKER: NO
+BASE_MODEL_CONTROL: PASS | FAIL
+EXISTING_STORE_UNFILTERED_CONTROL: PASS | FAIL | NOT_AVAILABLE
+EXISTING_STORE_FILTERED_CONTROL: PASS | FAIL | NOT_AVAILABLE
+FRESH_EMBEDDING_001_UNFILTERED_CONTROL: PASS | FAIL
+FRESH_EMBEDDING_001_FILTERED_CONTROL: PASS | FAIL | NOT_RUN
+FRESH_EMBEDDING_2_FILTERED_CONTROL: PASS | FAIL | NOT_RUN
+DIRECT_PROVIDER_CLASSIFICATION: one supported stable enum
+TEMP_RESOURCE_CLEANUP: PASS
+APPLICATION_SOURCE_CHANGED: NO
 ```
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-15`
-BALL: `CODEX`
-DISPATCH_STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0020-CODEX-16`
+BALL: `USER`
+DISPATCH_STATUS: `ACTION_REQUIRED`
 WORK_READY: `NO`
 BLOCKER: `YES`
