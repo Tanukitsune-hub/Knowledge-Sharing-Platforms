@@ -76,17 +76,37 @@ Work 0023 requires:
 - secret/private-ID exclusion;
 - fresh Shared Drive installation, installer rerun, Web App rendering, and representative end-to-end target-runtime evidence.
 
+## Post-plan hardening review
+
+A second independent design pass identified four issues that must be closed before implementation:
+
+1. The original plan said that the bundle header should contain the ordinary SHA-256 of the completed bundle. That is self-referential. The corrected design uses a versioned canonical `bundle_payload_sha256` inside the bundle and records the actual final-file `bundle_file_sha256` in `dist/release-manifest.json`.
+2. `installKnowledgeShare()` and `checkKnowledgeShareReadiness()` are intentionally editor-visible. Because top-level functions may be called by name from HTML Service, omission from the normal UI is not a security boundary. Strict server-side active-user/administrator authorization is now required before mutation, with forged-call regressions.
+3. JavaScript parity alone does not prove manifest/OAuth parity. Fresh-install qualification must verify Advanced Drive availability, actual required scopes, absence of unintended Gmail scope, and semantic equivalence to the approved source manifest.
+4. Single-file delivery must be proven against the actual Apps Script editor/runtime. Bundle byte/character/line counts and an exact one-paste save/execute test are now release gates.
+
+Authoritative clarification:
+
+`docs/decisions/bundle-integrity-and-installer-security.md`
+
+These are implementation safeguards, not a redesign of the product or its source architecture.
+
 ## Issue classification
 
 ### BLOCKER
 
-None for the design decision.
+None for the planning/specification decision.
+
+Work 0023 implementation must not be declared complete until all acceptance gates, including the four hardening gates above, pass.
 
 ### FOLLOW_UP / Work 0023 implementation scope
 
 - implement the deterministic build and resource loader;
-- implement installer/readiness wrappers and status sheet;
+- implement guarded installer/readiness wrappers and status sheet;
 - add source/bundle parity validators and tests;
+- implement canonical payload and final-file checksum verification;
+- verify manifest/OAuth/service parity;
+- prove exact one-paste save and execution in a fresh target runtime;
 - conduct fresh target-runtime installation and rerun qualification;
 - decide after inventory whether Advanced Drive remains one manual service step.
 
@@ -98,7 +118,7 @@ None for the design decision.
 
 ## Repository changes in this planning Work
 
-Created:
+Initial planning integration created:
 
 - `docs/decisions/modular-source-single-bundle-distribution.md`;
 - `docs/planning/work0023-bundle-installer-distribution.md`;
@@ -108,11 +128,13 @@ Created:
 - `docs/handoffs/0023-report.md`;
 - `docs/handoffs/0023-dispatches.md`.
 
-Updated:
+Initial planning integration updated:
 
 - `docs/planning/mvp-and-roadmap.md`;
 - `docs/decisions/decision-log.md`;
 - `docs/README.md`.
+
+The hardening follow-up adds the integrity/security clarification and aligns the active Work 0023 instruction plus repository/source agent routing.
 
 No Apps Script source, manifest, Google Drive resource, deployment, trigger, provider Store, API key, or runtime data was changed.
 

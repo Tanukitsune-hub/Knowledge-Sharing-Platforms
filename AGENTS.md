@@ -3,7 +3,7 @@
 This is the always-loaded contract and map for agent-assisted work in this repository.
 
 CORE_RULES_VERSION: 2.2
-REPOSITORY_RULES_SCHEMA_VERSION: 2.1
+REPOSITORY_RULES_SCHEMA_VERSION: 2.2
 
 <!-- CORE_RULES_START -->
 
@@ -93,6 +93,9 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Current implementation plan: `docs/planning/apps-script-implementation-plan.md`.
 - Runtime/operations: `docs/operations/runtime-policy.md`.
 - Current environment policy: `docs/decisions/target-runtime-first-development.md`.
+- Company distribution decision: `docs/decisions/modular-source-single-bundle-distribution.md`.
+- Bundle integrity and installer security clarification: `docs/decisions/bundle-integrity-and-installer-security.md`.
+- Bundle/installer implementation plan: `docs/planning/work0023-bundle-installer-distribution.md`.
 - Consolidated decisions: `docs/decisions/decision-log.md`.
 - Security: `docs/governance/security.md`.
 - If documents conflict, prefer the latest explicit user decision and closest current domain-specific source.
@@ -111,8 +114,11 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - One organization-controlled Web App serves authorized users.
 - Backend baseline remains `GP_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `Settings`; append columns rather than adding storage layers without a new decision.
 - Audit uses a separate Restricted Spreadsheet; normal users do not directly edit backend/Audit/File Search.
-- `setupKnowledgePlatform_()` is editor-only, private, idempotent create/reuse/migrate/repair; normal users cannot call it through `google.script.run`.
+- `src/` remains the modular source of truth. `dist/KnowledgeShare.bundle.gs` is generated for distribution only, is never hand-edited, and must be reproducible from an exact source commit/profile.
+- `setupKnowledgePlatform_()` remains editor-only, private, and idempotent. Work 0023 may add guarded editor-visible installer wrappers, but all underlying setup, validation, migration, trigger, provider, and Drive helpers remain private.
+- Any editor-visible top-level installer function is treated as externally invocable; omission from HTML is not authorization. Strict active-user/administrator checks must run before mutation, and normal/unidentified Web App callers must fail closed.
 - Only approved normal-user facade functions are browser-callable; other top-level Apps Script functions remain private with trailing `_` or non-top-level scope.
+- Bundle integrity uses a versioned canonical payload hash plus an external final-file checksum; do not define a bundle as containing its own ordinary final SHA-256.
 - Stable IDs, optimistic locking, short LockService critical sections, file-granular retry, and no duplicate Drive/Index records are durable contracts.
 - AI failure never rolls back authoritative source capture. Only Active sources are normally retrievable, and grounded output shows citations/Drive links.
 
@@ -131,6 +137,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Canonical deterministic check: `npm run check`.
 - Diff hygiene: `git diff --check`.
 - Agent foundation: `python tools/validate_agent_foundation.py` once added by Core 2.2 adoption.
+- Work 0023 distribution changes additionally require bundle coverage/order, syntax, collision, dangerous-top-level, source/bundle parity, canonical hash/final checksum, manifest/OAuth/service parity, installer authorization/idempotency, and exact one-paste target-runtime checks.
 - Run targeted tests first, then the canonical check when change risk justifies it.
 - Target-runtime evidence uses exact tested source and isolated data; mocks/test loaders may not inject missing production business behavior.
 - Report `LOGIC_VALIDATION`, `TARGET_RUNTIME_QUALIFICATION`, `SIDE_EFFECT_STATE`, and `READY` separately.

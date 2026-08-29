@@ -13,9 +13,12 @@ Preserve the modular GitHub development architecture while delivering a generate
 ## Authoritative sources
 
 - `docs/decisions/modular-source-single-bundle-distribution.md`
+- `docs/decisions/bundle-integrity-and-installer-security.md`
 - `docs/planning/work0023-bundle-installer-distribution.md`
 - `docs/operations/company-bundle-installation.md`
 - `docs/standards/apps-script-bundle-installer-standard.md`
+
+The security/integrity clarification governs conflicts involving bundle hashing, installer exposure, OAuth/service parity, or one-file feasibility.
 
 ## Acceptance evidence
 
@@ -24,6 +27,12 @@ SOURCE_ARCHITECTURE: MODULAR / PRESERVED
 BUNDLE_BUILD: PASS / REPRODUCIBLE
 BUNDLE_TEST_PARITY: PASS
 INSTALLER_IDEMPOTENCY: PASS
+INSTALLER_UNAUTHORIZED_CALL_REJECTION: PASS
+INSTALLER_FIRST_RUN_IDENTITY_GATE: PASS
+BUNDLE_HASH_CANONICALIZATION: PASS
+BUNDLE_FILE_CHECKSUM: PASS
+OAUTH_AND_SERVICE_PARITY: PASS
+ONE_PASTE_SAVE_AND_EXECUTE: PASS
 FRESH_SHARED_DRIVE_INSTALL: PASS
 WEB_APP_RENDER_FROM_BUNDLE: PASS
 COMPANY_INSTALL_GUIDE: PASS
@@ -42,6 +51,17 @@ BLOCKER: NO
 - Gmail labels/scopes are not added because Knowledge Share does not require them;
 - no major application/business-logic rewrite is authorized;
 - unavoidable platform actions are described accurately rather than hidden.
+
+## Security and integrity boundaries
+
+- `installKnowledgeShare()` and `checkKnowledgeShareReadiness()` are editor-visible but must be treated as externally invocable because any top-level function without a trailing underscore may be called by name from HTML Service;
+- no normal page links to them, and strict server-side active-user/administrator authorization must run before any mutation;
+- first installation requires an identified active user and an unambiguous active/effective-user identity boundary;
+- all setup, validation, migration, trigger, provider, and Drive helpers remain private;
+- the bundle header must not contain an undefined ordinary hash of its own final bytes;
+- use a versioned canonical payload hash in the bundle and record the actual final-file SHA-256 in `dist/release-manifest.json`;
+- fresh installation must verify actual OAuth/service behavior against the approved manifest contract;
+- the exact generated bundle must be proven pasteable, saveable, selectable, and executable as one file in the target Apps Script runtime.
 
 ## Planned timing
 
