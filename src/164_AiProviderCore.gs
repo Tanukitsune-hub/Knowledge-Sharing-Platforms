@@ -142,16 +142,29 @@ function kspIsProviderAiWorkEligible_(item, nowIso, settings, provider) {
     kspTemporalInstantComparisonKey_(lastError.nextAttemptAt) <= kspTemporalInstantComparisonKey_(nowIso);
 }
 
-function kspSelectProviderAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings, provider) {
+function kspNormalizeProviderAiSelection_(selection) {
+  var sourceType = kspAiTrim_(selection && selection.sourceType);
+  kspAssert_(!sourceType || sourceType === KSP_AI_SOURCE_TYPES.MEETING ||
+    sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK,
+    'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+  return { sourceType: sourceType };
+}
+
+function kspSelectProviderAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings, provider, selection) {
+  var normalizedSelection = kspNormalizeProviderAiSelection_(selection);
   var items = [];
-  (meetingRows || []).forEach(function (row) {
-    var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.MEETING, row);
-    if (kspIsProviderAiWorkEligible_(item, nowIso, settings, provider)) items.push(item);
-  });
-  (pitchbookRows || []).forEach(function (row) {
-    var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.PITCHBOOK, row);
-    if (kspIsProviderAiWorkEligible_(item, nowIso, settings, provider)) items.push(item);
-  });
+  if (!normalizedSelection.sourceType || normalizedSelection.sourceType === KSP_AI_SOURCE_TYPES.MEETING) {
+    (meetingRows || []).forEach(function (row) {
+      var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.MEETING, row);
+      if (kspIsProviderAiWorkEligible_(item, nowIso, settings, provider)) items.push(item);
+    });
+  }
+  if (!normalizedSelection.sourceType || normalizedSelection.sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK) {
+    (pitchbookRows || []).forEach(function (row) {
+      var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.PITCHBOOK, row);
+      if (kspIsProviderAiWorkEligible_(item, nowIso, settings, provider)) items.push(item);
+    });
+  }
   items.sort(function (left, right) {
     var leftInactive = String(left.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
     var rightInactive = String(right.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
@@ -612,6 +625,15 @@ function kspRunProviderNeutralAiSync_(environment, options) {
   var settings = kspNormalizeAiSettings_(context.settings);
   var report = kspBuildProviderSyncReport_(startedAt, settings);
   report.forced = force;
+  var selection;
+  try {
+    selection = kspNormalizeProviderAiSelection_({ sourceType: syncOptions.sourceType });
+  } catch (error) {
+    report.finishedAt = environment.nowIso();
+    report.ok = false;
+    report.errors.push({ code: kspGetErrorCode_(error, 'AI_SYNC_SOURCE_TYPE_INVALID') });
+    return report;
+  }
   if (!settings.syncEnabled && !force) { report.finishedAt = environment.nowIso(); return report; }
   var providerList = [KSP_AI_PROVIDERS.OPENAI, KSP_AI_PROVIDERS.GEMINI];
   providerList.forEach(function (provider) {
@@ -627,7 +649,7 @@ function kspRunProviderNeutralAiSync_(environment, options) {
       var effectiveConfig = kspDeepClone_(config);
       if (provider === KSP_AI_PROVIDERS.GEMINI && store && store.name) effectiveConfig.storeName = store.name;
       var items = kspSelectProviderAiWorkItems_(
-        context.meetingRows, context.pitchbookRows, startedAt, settings, provider
+        context.meetingRows, context.pitchbookRows, startedAt, settings, provider, selection
       );
       report.selected += items.length;
       report.providers[provider].selected = items.length;

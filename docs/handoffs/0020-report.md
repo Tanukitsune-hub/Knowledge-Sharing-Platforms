@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-09`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Current classification
 
@@ -11,12 +11,39 @@ STATUS: `READY`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: BLOCKED — no live-qualified Meeting index yet
+GEMINI_RUNTIME: BLOCKED — CODEX-09 Gate 0A administrator SYNC execution surface unavailable
 FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence
-FINAL_INTEGRITY: PENDING after Gemini runtime completion
+FINAL_INTEGRITY: PARTIAL — bounded pre/post readback only; dependent gates not run
 READY: NO
 BLOCKER: YES
 ```
+
+## CODEX-09 result
+
+CODEX-09 deterministic implementation and delivery passed:
+
+- focused provider-core/admin/transport/sync tests: `45/45 PASS`;
+- `npm run check`: `286/286 PASS`;
+- temporal/public-surface/diff validation: PASS; public facade `30`;
+- exact tested source sync/readback: `78/78`;
+- existing private Web App updated in place to immutable version `48` with its Web App/security boundary and Library deployments preserved.
+
+The optional administrator `sourceType` contract is implemented as:
+
+```text
+blank      -> unchanged combined Meeting+Pitchbook queue
+Meeting    -> eligible Meetings only, then existing sort/slice
+Pitchbook  -> eligible Pitchbooks only, then existing sort/slice
+```
+
+The accepted synthetic DEV state was read before the bounded attempt. `AI_SYNC_ENABLED=false`, `GEMINI_ENABLED=true`, `OPENAI_ENABLED=false`, one isolated Gemini Store remained configured, and two Active Meetings were eligible. `AI_SYNC_BATCH_SIZE` was temporarily changed from numeric `10` to numeric `1` and was restored/read back as `10`.
+
+The existing `/exec` rendered and the administrator settings surface was visible. The exact existing administrator SYNC payload was then attempted through the Apps Script execution routes with `sourceType=Meeting`. Both development and non-development execution returned the platform permission error before the function executed. Consequently, no safe SYNC response or observed selected-count result exists; no Gemini request was made. This is an execution-surface/automation limitation, not evidence of a Gemini provider or application-data defect.
+
+CODEX-09 report:
+`docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-report.md`
+
+The Meeting/Pitchbook Gemini gates and full provider integrity qualification remain not run under the bounded stop rule. The batch setting is restored, OpenAI remains disabled/uncalled, and no source/data/Audit/Store/deployment/Library/trigger/permission mutation was observed from the failed invocation.
 
 ## Accepted evidence
 

@@ -172,6 +172,78 @@ test('disable preserves the configured store, re-enable does not delete or recre
   });
 });
 
+test('administrator SYNC forwards a trimmed sourceType and blank sourceType preserves combined behavior', () => {
+  const env = makeAdminEnvironment();
+  withSyncStub(() => {
+    const meeting = plain(ksp.kspMutateAiProviderSettings_(env, {
+      action: 'SYNC', sourceType: '  Meeting  '
+    }));
+    const combined = plain(ksp.kspMutateAiProviderSettings_(env, {
+      action: 'SYNC', sourceType: '  '
+    }));
+    assert.equal(meeting.ok, true);
+    assert.equal(meeting.sync.sourceType, 'Meeting');
+    assert.equal(combined.ok, true);
+    assert.equal(combined.sync.sourceType, '');
+    assert.deepEqual(plain(env._debug.syncCalls), [
+      { force: true, sourceType: 'Meeting' },
+      { force: true, sourceType: '' }
+    ]);
+  });
+});
+
+test('invalid administrator SYNC sourceType fails closed without invoking provider-neutral sync', () => {
+  const env = makeAdminEnvironment();
+  withSyncStub(() => {
+    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+      action: 'SYNC', sourceType: 'Other'
+    }));
+    assert.equal(result.ok, false);
+    assert.equal(result.error.code, 'AI_SYNC_SOURCE_TYPE_INVALID');
+    assert.deepEqual(env._debug.syncCalls, []);
+    assert.doesNotMatch(JSON.stringify(result), /MTG-|DOC-|store|document/i);
+  });
+});
+
+test('administrator SYNC safe summary excludes source, store, and provider document identifiers', () => {
+  const env = makeAdminEnvironment();
+  const original = ksp.kspRunProviderNeutralAiSync_;
+  ksp.kspRunProviderNeutralAiSync_ = () => ({
+    ok: true,
+    indexed: 1,
+    reused: 0,
+    unchanged: 0,
+    removed: 0,
+    failed: 0,
+    providers: { GEMINI: { enabled: true, status: 'PASS', indexed: 1, failed: 0 } },
+    items: [{
+      provider: 'GEMINI',
+      sourceType: 'Meeting',
+      sourceId: 'MTG-PRIVATE-SYNTHETIC',
+      documentName: 'fileSearchStores/store-private/documents/doc-private',
+      providerDocumentId: 'doc-private',
+      storeName: 'fileSearchStores/store-private'
+    }],
+    errors: [{
+      provider: 'GEMINI',
+      sourceId: 'MTG-PRIVATE-SYNTHETIC',
+      documentName: 'fileSearchStores/store-private/documents/doc-private',
+      code: 'AI_SYNTHETIC_FAILURE'
+    }]
+  });
+  try {
+    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+      action: 'SYNC', sourceType: 'Meeting'
+    }));
+    assert.equal(result.ok, true);
+    assert.equal(result.sync.sourceType, 'Meeting');
+    assert.equal(result.sync.indexed, 1);
+    assert.doesNotMatch(JSON.stringify(result), /MTG-PRIVATE-SYNTHETIC|fileSearchStores|doc-private|store-private/);
+  } finally {
+    ksp.kspRunProviderNeutralAiSync_ = original;
+  }
+});
+
 test('non-administrator cannot mutate provider settings and the status response contains no private identifiers', () => {
   const env = makeAdminEnvironment({ admin: false, storeId: 'vs-private', key: true });
   const status = plain(ksp.kspGetAiProviderAdminData_(env));
@@ -185,6 +257,10 @@ test('non-administrator cannot mutate provider settings and the status response 
   assert.equal(env._debug.writes.length, 0);
   assert.equal(env._debug.created.length, 0);
   assert.doesNotMatch(JSON.stringify(status) + JSON.stringify(result), /vs-private|KSP_OPENAI_API_KEY/);
+  const sync = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC', sourceType: 'Meeting' }));
+  assert.equal(sync.ok, false);
+  assert.equal(sync.error.code, 'AI_PROVIDER_ADMIN_UNAUTHORIZED');
+  assert.equal(env._debug.syncCalls.length, 0);
 });
 
 test('admin provider surface is present while browser code never receives key, store ID, or model ID', () => {

@@ -5,6 +5,7 @@ function kspAiProviderAdminSafeMessage_(code) {
     OPENAI_API_KEY_NOT_CONFIGURED: 'OpenAI APIキーがScript Propertiesに設定されていません。',
     OPENAI_ACTIVATION_FAILED: 'OpenAIを有効化できませんでした。APIキーと権限を確認してください。',
     OPENAI_DISABLE_FAILED: 'OpenAIを無効化できませんでした。',
+    AI_SYNC_SOURCE_TYPE_INVALID: '同期対象のSource Typeが不正です。',
     OPENAI_SYNC_FAILED: 'AI同期を完了できませんでした。設定と権限を確認してください。'
   };
   return messages[String(code || '')] || 'AIプロバイダ操作を完了できませんでした。';
@@ -16,6 +17,14 @@ function kspAiProviderAdminFailure_(code) {
     workId: '0020',
     error: { code: String(code || 'OPENAI_ACTIVATION_FAILED'), message: kspAiProviderAdminSafeMessage_(code) }
   };
+}
+
+function kspAiProviderAdminNormalizeSourceType_(input) {
+  var sourceType = kspAiTrim_(input && input.sourceType);
+  if (!sourceType) return '';
+  kspAssert_(sourceType === KSP_AI_SOURCE_TYPES.MEETING || sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK,
+    'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+  return sourceType;
 }
 
 function kspAiProviderAdminSessionEmails_() {
@@ -208,16 +217,19 @@ function kspMutateAiProviderSettings_(environment, input) {
       kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_ENABLED, 'false');
       return { ok: true, workId: '0020', action: action, enabled: false, storePreserved: true };
     }
-    var sync = kspRunProviderNeutralAiSync_(environment, { force: true });
+    var sourceType = kspAiProviderAdminNormalizeSourceType_(input);
+    var sync = kspRunProviderNeutralAiSync_(environment, { force: true, sourceType: sourceType });
     if (!sync || !sync.ok) kspAssert_(false, 'OPENAI_SYNC_FAILED', 'Provider-neutral sync failed.');
-    return { ok: true, workId: '0020', action: action, sync: kspAiProviderAdminSafeSyncSummary_(sync) };
+    var summary = kspAiProviderAdminSafeSyncSummary_(sync);
+    summary.sourceType = sourceType;
+    return { ok: true, workId: '0020', action: action, sync: summary };
   } catch (error) {
     if (action === 'ENABLE_OPENAI' && context && openAiWasEnabled) {
       try { kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_ENABLED, 'false'); } catch (ignoredDisable) {}
     }
     var code = kspGetErrorCode_(error, 'OPENAI_ACTIVATION_FAILED');
     if (code !== 'AI_PROVIDER_ADMIN_UNAUTHORIZED' && code !== 'OPENAI_API_KEY_NOT_CONFIGURED' &&
-        code !== 'OPENAI_SYNC_FAILED') {
+        code !== 'AI_SYNC_SOURCE_TYPE_INVALID' && code !== 'OPENAI_SYNC_FAILED') {
       code = action === 'DISABLE_OPENAI' ? 'OPENAI_DISABLE_FAILED' : 'OPENAI_ACTIVATION_FAILED';
     }
     return kspAiProviderAdminFailure_(code);

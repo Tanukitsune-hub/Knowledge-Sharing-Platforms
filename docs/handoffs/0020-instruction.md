@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-09`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -69,6 +69,14 @@ Active hypothesis:
 10. Admin `SYNC sourceType=Pitchbook`: prove selected=1 Pitchbook and no Meeting processed; index/query one small synthetic TXT Pitchbook.
 11. Prove exact metadata filter + update/Inactive/Reactivate/delete-rebuild lifecycle using bounded source-type sync where useful.
 12. Restore batch value/type, `AI_SYNC_ENABLED=false`; OpenAI disabled/uncalled; triggers 0; final integrity PASS.
+
+## CODEX-09 bounded result
+
+The source-type implementation passed deterministic validation (`45/45` focused, `286/286` repository check, temporal/public-surface/diff checks) and the exact tested source was delivered once. The existing private Web App was updated in place to immutable version `48` with no new deployment or Library mutation.
+
+The accepted synthetic DEV state had two eligible Active Meetings and older eligible Pitchbooks. The batch setting was temporarily changed from numeric `10` to numeric `1`, then restored/read back as numeric `10`. The existing `/exec` rendered, but the exact administrator SYNC invocation with `sourceType=Meeting` could not be executed: both available Apps Script execution routes returned the platform permission error before the function ran. No Gemini request or application-data mutation occurred. This is an execution-surface/automation limitation, so Gate 0A and all dependent Gemini gates remain blocked/not run.
+
+Report: `docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-report.md`
 
 Stop on the first new Meeting Gate-A local/provider/operation/document-readback failure. Do not perform unrestricted broad sync merely to reach a test source.
 

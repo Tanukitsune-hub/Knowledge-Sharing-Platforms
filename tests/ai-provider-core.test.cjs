@@ -1,5 +1,20 @@
 const { test, assert, ksp, plain, baseContext, createSyncEnvironment } = require('./ai-test-helpers.cjs');
 
+function providerQueueRow(sourceType, sourceId, updatedAt, overrides = {}) {
+  return {
+    ...(sourceType === 'Meeting' ? { Meeting_ID: sourceId } : { Document_ID: sourceId }),
+    Status: 'Active',
+    AI_Provider_State_JSON: '',
+    AI_Index_Status: 'Pending',
+    AI_Document_Name: '',
+    AI_Indexed_At: '',
+    AI_Content_Hash: '',
+    AI_Last_Error: '',
+    Updated_At: updatedAt,
+    ...overrides
+  };
+}
+
 test('provider state migrates legacy Gemini fields without populating OpenAI', () => {
   const legacy = plain(ksp.kspParseAiProviderState_('', {
     AI_Document_Name: 'fileSearchStores/store-1/documents/gemini-1',
@@ -235,4 +250,67 @@ test('provider selector excludes permanent failures and selects exactly one elig
   assert.equal(selected.length, 1);
   assert.equal(selected[0].sourceType, 'Meeting');
   assert.equal(selected[0].sourceId, 'MTG-PENDING-1');
+});
+
+test('blank or absent sourceType preserves the combined queue ordering', () => {
+  const meetingRows = [
+    providerQueueRow('Meeting', 'MTG-COMBINED-LATE', '2026-08-04T00:00:00.000Z'),
+    providerQueueRow('Meeting', 'MTG-COMBINED-EARLY', '2026-08-03T00:00:00.000Z')
+  ];
+  const pitchbookRows = [
+    providerQueueRow('Pitchbook', 'DOC-COMBINED-LATE', '2026-08-05T00:00:00.000Z'),
+    providerQueueRow('Pitchbook', 'DOC-COMBINED-EARLY', '2026-08-02T00:00:00.000Z')
+  ];
+  const settings = ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '10' });
+  const absent = plain(ksp.kspSelectProviderAiWorkItems_(
+    meetingRows, pitchbookRows, '2026-08-29T00:00:00.000Z', settings, 'GEMINI'
+  ));
+  const blank = plain(ksp.kspSelectProviderAiWorkItems_(
+    meetingRows, pitchbookRows, '2026-08-29T00:00:00.000Z', settings, 'GEMINI', { sourceType: '  ' }
+  ));
+  const expected = [
+    ['Pitchbook', 'DOC-COMBINED-EARLY'],
+    ['Meeting', 'MTG-COMBINED-EARLY'],
+    ['Meeting', 'MTG-COMBINED-LATE'],
+    ['Pitchbook', 'DOC-COMBINED-LATE']
+  ];
+  assert.deepEqual(absent.map((item) => [item.sourceType, item.sourceId]), expected);
+  assert.deepEqual(blank.map((item) => [item.sourceType, item.sourceId]), expected);
+});
+
+test('sourceType filters before sort and slice, excluding permanent failures while keeping Pending Meetings eligible', () => {
+  const meetingRows = [
+    providerQueueRow('Meeting', 'MTG-PERMANENT-OLDER', '2026-08-01T00:00:00.000Z', {
+      AI_Index_Status: 'Failed',
+      AI_Last_Error: JSON.stringify({ attempt: 3, retryable: false, permanent: true, code: 'AI_SYNTHETIC_PERMANENT' })
+    }),
+    providerQueueRow('Meeting', 'MTG-PENDING-NEWER', '2026-08-03T00:00:00.000Z'),
+    providerQueueRow('Meeting', 'MTG-PENDING-LATER', '2026-08-04T00:00:00.000Z')
+  ];
+  const pitchbookRows = [
+    providerQueueRow('Pitchbook', 'DOC-PENDING-OLDEST', '2026-07-31T00:00:00.000Z'),
+    providerQueueRow('Pitchbook', 'DOC-PENDING-LATER', '2026-08-05T00:00:00.000Z')
+  ];
+  const settings = ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '1' });
+  const meetingSelection = plain(ksp.kspSelectProviderAiWorkItems_(
+    meetingRows, pitchbookRows, '2026-08-29T00:00:00.000Z', settings, 'GEMINI', { sourceType: 'Meeting' }
+  ));
+  const pitchbookSelection = plain(ksp.kspSelectProviderAiWorkItems_(
+    meetingRows, pitchbookRows, '2026-08-29T00:00:00.000Z', settings, 'GEMINI', { sourceType: 'Pitchbook' }
+  ));
+  assert.deepEqual(meetingSelection.map((item) => [item.sourceType, item.sourceId]), [
+    ['Meeting', 'MTG-PENDING-NEWER']
+  ]);
+  assert.deepEqual(pitchbookSelection.map((item) => [item.sourceType, item.sourceId]), [
+    ['Pitchbook', 'DOC-PENDING-OLDEST']
+  ]);
+});
+
+test('invalid sourceType fails closed before provider work is selected or processed', () => {
+  const env = createSyncEnvironment();
+  const result = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Other' }));
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.errors, [{ code: 'AI_SYNC_SOURCE_TYPE_INVALID' }]);
+  assert.equal(env._debug.uploaded.length, 0);
+  assert.doesNotMatch(JSON.stringify(result), /MTG-|DOC-|store|document/i);
 });

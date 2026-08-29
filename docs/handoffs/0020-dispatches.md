@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-09`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Active dispatch
 
-### 0020-CODEX-09 — READY
+### 0020-CODEX-09 — RETURNED / BLOCKER
 
 - mode: `BUILD / QUALIFICATION`;
 - route: `C`;
@@ -26,6 +26,19 @@ STATUS: `READY`
 - FULL_OUTPUT accepted PASS from CODEX-03; do not rerun absent contradiction;
 - one corrected source delivery maximum, then Meeting Gate A first; Pitchbook only after Meeting index/query PASS;
 - no unrestricted broad sync, no source-order mutation, no fake provider failures to force selection, no new Store/deployment/Library mutation.
+
+### 0020-CODEX-09 — RETURNED / BLOCKER
+
+- source-type bounded selector/admin contract: deterministic PASS;
+- focused tests `45/45 PASS`, repository check `286/286 PASS`, temporal/public-surface/diff checks PASS; public facade `30`;
+- exact tested source synchronized once/read back; existing private Web App updated in place to version `48`;
+- synthetic DEV preflight found two eligible Active Meetings and older eligible Pitchbooks; temporary numeric batch `1` was restored/read back as numeric `10`;
+- existing `/exec` rendered, but the exact administrator SYNC invocation with `sourceType=Meeting` was rejected by both available Apps Script execution routes before function execution with a platform permission error;
+- no Gemini request, query, source/data/Audit mutation, new Store/deployment, Library mutation, OpenAI call, or FULL_OUTPUT rerun occurred;
+- Gate 0A and all dependent Gemini qualification gates were not run; this is an execution-surface/automation limitation, not a confirmed application/provider defect.
+
+CODEX-09 report:
+`docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-report.md`
 
 ## Returned dispatch
 
@@ -84,4 +97,4 @@ Only one active Codex dispatch may exist.
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-09`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
