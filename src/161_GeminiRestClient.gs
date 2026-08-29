@@ -10,6 +10,7 @@ function kspGeminiStageMessage_(code) {
     AI_STORE_READ_FAILED: 'Gemini File Search Storeを確認できませんでした。',
     AI_UPLOAD_SESSION_FAILED: 'Gemini File Search upload sessionを開始できませんでした。',
     AI_UPLOAD_FINALIZE_REQUEST_INVALID: 'Gemini File Search upload requestを構成できませんでした。',
+    AI_UPLOAD_FINALIZE_CLIENT_FAILED: 'Gemini File Search upload通信を開始できませんでした。',
     AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED: 'Gemini File Search upload形式を利用できませんでした。',
     AI_UPLOAD_FINALIZE_FAILED: 'Gemini File Search uploadを完了できませんでした。',
     AI_OPERATION_POLL_FAILED: 'Gemini File Search upload operationを確認できませんでした。',
@@ -153,42 +154,6 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
   }, { retry: Boolean(settings.retry), stage: stage, errorCode: errorCode });
 }
 
-function kspGeminiHasHeader_(headers, name) {
-  var target = String(name || '').toLowerCase();
-  return Object.keys(headers || {}).some(function (key) {
-    return String(key).toLowerCase() === target;
-  });
-}
-
-function kspGeminiValidateUploadRequest_(uploadUrl, requestOptions, expectedMimeType) {
-  try {
-    kspAssert_(typeof UrlFetchApp !== 'undefined' && UrlFetchApp &&
-      typeof UrlFetchApp.getRequest === 'function',
-      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request projection is unavailable.');
-    var request = UrlFetchApp.getRequest(uploadUrl, requestOptions);
-    kspAssert_(request && typeof request === 'object',
-      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request projection is invalid.');
-    kspAssert_(String(request.method || '').toLowerCase() === 'post',
-      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request method is invalid.');
-    var requestHeaders = request.headers || {};
-    var contentType = String(request.contentType ||
-      kspGeminiHeaderValue_(requestHeaders, 'Content-Type') || '').trim();
-    kspAssert_(contentType === String(expectedMimeType || '').trim(),
-      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request MIME type is invalid.');
-    kspAssert_(kspGeminiHeaderValue_(requestHeaders, 'X-Goog-Upload-Offset') === '0',
-      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request offset is invalid.');
-    kspAssert_(kspGeminiHeaderValue_(requestHeaders, 'X-Goog-Upload-Command') === 'upload, finalize',
-      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request command is invalid.');
-    kspAssert_(!kspGeminiHasHeader_(requestOptions.headers, 'Content-Length'),
-      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request must not provide Content-Length.');
-    kspAssert_(request.payload !== undefined && request.payload !== null,
-      'AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'Upload request payload is missing.');
-    return true;
-  } catch (ignoredRequestError) {
-    return false;
-  }
-}
-
 function kspGeminiBuildFinalizeRequestOptions_(metadata, payload) {
   return {
     method: 'post',
@@ -198,46 +163,43 @@ function kspGeminiBuildFinalizeRequestOptions_(metadata, payload) {
       'X-Goog-Upload-Command': 'upload, finalize'
     },
     payload: payload,
+    escaping: false,
     muteHttpExceptions: true
   };
 }
 
 function kspGeminiBuildUploadBlob_(payloadBytes, metadata) {
-  kspAssert_(typeof Utilities !== 'undefined' && Utilities &&
-    typeof Utilities.newBlob === 'function',
-    'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload Blob construction is unavailable.');
-  var blob = Utilities.newBlob(Array.from(payloadBytes), metadata.mimeType, metadata.displayName);
-  kspAssert_(blob && typeof blob.getBytes === 'function',
-    'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload Blob construction is invalid.');
-  var blobBytes = kspNormalizeAiByteArray_(blob.getBytes());
-  var expectedBytes = kspNormalizeAiByteArray_(payloadBytes);
-  kspAssert_(blobBytes.length === expectedBytes.length && blobBytes.every(function (value, index) {
-    return value === expectedBytes[index];
-  }), 'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload Blob bytes are invalid.');
-  kspAssert_(typeof blob.getContentType === 'function' &&
-    String(blob.getContentType() || '').trim() === String(metadata.mimeType || '').trim(),
-    'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload Blob MIME type is invalid.');
-  return blob;
+  try {
+    kspAssert_(typeof Utilities !== 'undefined' && Utilities &&
+      typeof Utilities.newBlob === 'function',
+      'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload Blob construction is unavailable.');
+    var blob = Utilities.newBlob(Array.from(payloadBytes), metadata.mimeType, metadata.displayName);
+    kspAssert_(blob && typeof blob.getBytes === 'function',
+      'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload Blob construction is invalid.');
+    var blobBytes = kspNormalizeAiByteArray_(blob.getBytes());
+    var expectedBytes = kspNormalizeAiByteArray_(payloadBytes);
+    kspAssert_(blobBytes.length === expectedBytes.length && blobBytes.every(function (value, index) {
+      return value === expectedBytes[index];
+    }), 'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload Blob bytes are invalid.');
+    kspAssert_(typeof blob.getContentType === 'function' &&
+      String(blob.getContentType() || '').trim() === String(metadata.mimeType || '').trim(),
+      'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload Blob MIME type is invalid.');
+    return blob;
+  } catch (error) {
+    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
+  }
 }
 
-function kspGeminiSelectFinalizeRequest_(uploadUrl, metadata, payloadBytes) {
-  var candidates = [
-    function () { return payloadBytes.slice(); },
-    function () { return kspGeminiBuildUploadBlob_(payloadBytes, metadata); }
-  ];
-  for (var index = 0; index < candidates.length; index += 1) {
-    var payload;
-    try {
-      payload = candidates[index]();
-      var requestOptions = kspGeminiBuildFinalizeRequestOptions_(metadata, payload);
-      if (kspGeminiValidateUploadRequest_(uploadUrl, requestOptions, metadata.mimeType)) {
-        return requestOptions;
-      }
-    } catch (ignoredCandidateError) {
-      // Try the next representation without exposing request or provider details.
-    }
+function kspGeminiBuildBlobFinalizeRequest_(metadata, payloadBytes) {
+  try {
+    var displayName = String(metadata && metadata.displayName || '').trim();
+    kspAssert_(displayName && displayName.length <= 255,
+      'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload display name is invalid.');
+    var blob = kspGeminiBuildUploadBlob_(payloadBytes, metadata);
+    return kspGeminiBuildFinalizeRequestOptions_(metadata, blob);
+  } catch (error) {
+    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
   }
-  throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
 }
 
 function kspGeminiPrepareUploadBytes_(bytes, metadata) {
@@ -288,13 +250,13 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
     throw kspGeminiStageError_('AI_UPLOAD_SESSION_FAILED', 'UPLOAD_SESSION_START', startCode, startHeaders, false);
   }
 
-  var finalizeOptions = kspGeminiSelectFinalizeRequest_(String(uploadUrl), metadata, payloadBytes);
+  var finalizeOptions = kspGeminiBuildBlobFinalizeRequest_(metadata, payloadBytes);
 
   var uploadResponse;
   try {
     uploadResponse = UrlFetchApp.fetch(String(uploadUrl), finalizeOptions);
   } catch (ignoredFinalizeError) {
-    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_REQUEST_INVALID', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
+    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_CLIENT_FAILED', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
   }
   var code = uploadResponse.getResponseCode();
   var headers = kspGeminiResponseHeaders_(uploadResponse);

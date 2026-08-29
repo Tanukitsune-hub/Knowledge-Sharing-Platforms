@@ -206,3 +206,33 @@ test('a source revision signaled by the legacy Pending field is reconsidered per
   ));
   assert.deepEqual(selected.map((item) => item.sourceId), ['MTG-000001']);
 });
+
+test('provider selector excludes permanent failures and selects exactly one eligible Pending Meeting', () => {
+  const rows = [
+    {
+      Meeting_ID: 'MTG-PERMANENT-1', Status: 'Active', AI_Index_Status: 'Failed',
+      AI_Last_Error: JSON.stringify({ attempt: 3, retryable: false, permanent: true, code: 'AI_UPLOAD_FINALIZE_REQUEST_INVALID' }),
+      Updated_At: '2026-08-16T13:37:35.089Z'
+    },
+    {
+      Meeting_ID: 'MTG-PERMANENT-2', Status: 'Active', AI_Index_Status: 'Failed',
+      AI_Last_Error: JSON.stringify({ attempt: 2, retryable: false, permanent: true, code: 'AI_DOCUMENT_READBACK_FAILED' }),
+      Updated_At: '2026-08-16T15:14:47.316Z'
+    },
+    {
+      Meeting_ID: 'MTG-PENDING-1', Status: 'Active', AI_Index_Status: 'Pending', AI_Last_Error: '',
+      Updated_At: '2026-08-25T16:14:30.698Z'
+    },
+    {
+      Meeting_ID: 'MTG-PENDING-2', Status: 'Active', AI_Index_Status: 'Pending', AI_Last_Error: '',
+      Updated_At: '2026-08-27T20:42:34.008Z'
+    }
+  ];
+  const selected = plain(ksp.kspSelectProviderAiWorkItems_(
+    rows, [], '2026-08-29T02:10:00.000Z',
+    ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '1' }), 'GEMINI'
+  ));
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].sourceType, 'Meeting');
+  assert.equal(selected[0].sourceId, 'MTG-PENDING-1');
+});

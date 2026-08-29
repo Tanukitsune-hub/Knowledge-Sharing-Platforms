@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-08`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `INVESTIGATION / BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -59,7 +59,7 @@ Active hypothesis:
 
 ## CODEX-08 completion boundary
 
-1. Gate 0: read provider states and prove exactly one eligible Pending/NotIndexed synthetic Meeting is selected; do not use stale permanent-failed state as runtime evidence.
+1. Gate 0: read provider states and prove exactly one eligible Pending/NotIndexed synthetic Meeting is selected; do not use stale permanent-failed state as runtime evidence. CODEX-08 stopped here because the real selector selected an eligible Pitchbook instead.
 2. Remove `getRequest()` from live indexing prerequisites.
 3. Validate canonical bytes/MIME directly and build one exact Blob.
 4. Preserve offset `0`, `upload, finalize`, no caller `Content-Length`, opaque upload URL (`escaping:false` if required).
@@ -95,5 +95,7 @@ FINAL_INTEGRITY: PASS
 READY: YES
 BLOCKER: NO
 ```
+
+CODEX-08 result: deterministic direct-Blob repair PASS; target-runtime qualification BLOCKED at mandatory Gate 0 because `selectedCount=1` was a Pitchbook and `selectedMeetingCount=0`. No source delivery, deployment, or Gemini live attempt was performed; the temporary batch setting was restored to its original value.
 
 Completion Latch applies only after ChatGPT final review and merge.

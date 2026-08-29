@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-08`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Active dispatch
 
-### 0020-CODEX-08 — READY
+### 0020-CODEX-08 — RETURNED / BLOCKER
 
 - mode: `INVESTIGATION / BUILD / QUALIFICATION`;
 - route: `C`;
@@ -24,6 +24,8 @@ STATUS: `READY`
 - if no eligible source exists, reset only Gemini-derived AI state for one synthetic Meeting to `NotIndexed` through the existing provider-state contract and prove eligibility; do not alter authoritative Meeting data;
 - Gate A: one real Blob finalize `fetch()` maximum before any query;
 - no new Store, second Web App deployment, Library mutation, broad sync, Byte[] live fallback, or Files API/importFile fallback.
+
+Result: deterministic direct-Blob repair passed, but mandatory Gate 0 stopped the dispatch. With guarded batch size `1`, the real provider-neutral selector returned one eligible Pitchbook and zero Meetings because current older Pending/retryable Pitchbooks remain eligible. The temporary batch setting was restored to `10`; no source sync, deployment, or Gemini call occurred.
 
 ## Returned dispatches / accepted evidence
 

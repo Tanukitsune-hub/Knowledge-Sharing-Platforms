@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-08`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Current classification
 
@@ -11,9 +11,9 @@ STATUS: `READY`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: BLOCKED — no qualified indexed Meeting yet
+GEMINI_RUNTIME: BLOCKED — CODEX-08 Gate 0 selected Pitchbook, not Meeting
 FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence
-FINAL_INTEGRITY: PARTIAL after CODEX-07 bounded stop
+FINAL_INTEGRITY: NOT RUN after CODEX-08 mandatory Gate 0 stop
 READY: NO
 BLOCKER: YES
 ```
@@ -27,6 +27,12 @@ BLOCKER: YES
 - CODEX-07: transport `17/17`, focused AI/provider `41/41`, repository `282/282`, temporal/public-surface/diff PASS, exact source readback, version 47, same private Web App; no accepted Meeting Document/Indexed state and provider HTTP absent.
 
 Detailed reports through CODEX-07 remain authoritative under `docs/handoffs/`.
+
+## CODEX-08 bounded result
+
+CODEX-08 deterministic source repair passed (`39/39` focused, `280/280` repository, temporal/public-surface/diff checks). The current redacted provider-state snapshot contained two eligible Pending synthetic Meetings, but also older eligible Active Pending/retryable Pitchbooks. With guarded batch size `1`, the real provider-neutral selector returned `selectedCount=1` with source type `Pitchbook` and zero selected Meetings. The mandatory Gate 0 condition was therefore not met.
+
+The temporary batch size was restored from `1` to its original value `10` and read back. No source sync, version, Web App update, Gemini call, query, or dependent qualification was performed. The direct Blob repair is logic-validated but not target-runtime-qualified.
 
 ## New authoritative readback after CODEX-07
 
@@ -59,7 +65,7 @@ Active hypothesis:
 Evidence order:
 
 ```text
-Gate 0: eligible Meeting selected=1
+Gate 0: eligible Meeting selected=1 — BLOCKED; current selector selected Pitchbook
 -> one real Blob finalize invoked=1
 -> ACTIVE Meeting Document + Backend Indexed
 -> Meeting grounded query
@@ -83,9 +89,9 @@ Attempt boundary:
 
 ```text
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: PASS
+GEMINI_RUNTIME: BLOCKED — Gate 0 did not select a Meeting
 FULL_OUTPUT_RUNTIME: PASS
-FINAL_INTEGRITY: PASS
-READY: YES
-BLOCKER: NO
+FINAL_INTEGRITY: NOT RUN after mandatory Gate 0 stop
+READY: NO
+BLOCKER: YES
 ```
