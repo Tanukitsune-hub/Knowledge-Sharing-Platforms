@@ -168,7 +168,7 @@ BLOCKER: NO
 
 ## CODEX-14 execution result
 
-CODEX-14 delivered the exact request profile and cross-request query/UX lifecycle. Deterministic validation passed (`301/301`, temporal/public-surface/diff checks, public facade `30`), exact source readback was `78/78`, version `53` was created, and the same private Web App was updated in place.
+CODEX-14 delivered the exact request profile and cross-request query/UX lifecycle. Deterministic validation passed (`301/301`, temporal/public-surface/diff checks, public facade `30`), exact source readback was `78/78`, version `53` was created, and the same private Web App was updated in place. Final commit: `f63cb59`; GitHub Actions workflow runs and commit status checks: `0`.
 
 The one authorized synthetic Pitchbook Interaction returned a non-error pending state, survived one reload/resume via the same opaque token, and remained pending through the bounded observation window. No second Interaction, false `AI_QUERY_TIMEOUT`, pending failure Audit, lifecycle mutation, or provider retry occurred. The explicit handoff stop condition therefore applies:
 

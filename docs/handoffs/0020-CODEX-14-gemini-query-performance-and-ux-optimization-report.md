@@ -32,7 +32,8 @@ SCHEMA_ALIGNMENT: PASS — schema 6 and five Backend sheets preserved
 FINAL_INTEGRITY: PASS — authoritative readback found no application-data, Audit, settings, trigger, Store, Library, or deployment side effect from the pending query
 READY: NO
 BLOCKER: YES — the single authorized Interaction remained provider-pending at the bounded observation limit
-GITHUB_CI_ACTUALLY_RAN: NO — no workflow run or commit status was present for the final commit at report time
+FINAL_COMMIT: f63cb59
+GITHUB_CI_ACTUALLY_RAN: NO — no workflow run or commit status was present for commit f63cb59
 ```
 
 ## Implementation delivered

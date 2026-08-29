@@ -105,7 +105,7 @@ One active hypothesis:
 
 ## CODEX-14 actual execution result
 
-The exact tested source was delivered once and read back with `78/78` parity. One immutable Apps Script version (`53`) was created and the same private Web App was updated in place; the Web App type/security boundary and deployment inventory were preserved.
+The exact tested source was delivered once and read back with `78/78` parity. One immutable Apps Script version (`53`) was created and the same private Web App was updated in place; the Web App type/security boundary and deployment inventory were preserved. The scoped final commit is `f63cb59`; GitHub Actions workflow runs and commit status checks for it were both `0`.
 
 The one authorized synthetic Pitchbook START returned to pending in approximately `9115ms`. One reload/resume path and one manual recheck used the same opaque job token; no second START was observed. The maximum browser-observed POLL round trip was `9691ms`. The same Interaction remained nonterminal at the bounded `>=600000ms` observation limit. The UI preserved a non-error long-running state and did not generate `AI_QUERY_TIMEOUT`.
 
