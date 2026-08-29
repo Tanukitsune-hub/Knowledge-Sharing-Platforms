@@ -29,6 +29,7 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - `decisions/temporal-data-contract.md` — Business Date/Time, Instant, Duration
 - `decisions/ai-provider-selection-and-full-output.md` — ChatGPT/Gemini/full-output routes, no failover, output UX
 - `decisions/modular-source-single-bundle-distribution.md` — modular source, generated single-file bundle, installer, and platform boundaries
+- `decisions/bundle-integrity-and-installer-security.md` — guarded installer entry points, non-self-referential hashes, OAuth/service parity, and one-paste gate
 - `decisions/target-runtime-first-development.md` — target runtime, isolated data, effects, staging, readiness
 - `decisions/shared-drive-production-root.md` — production Shared Drive root
 - `decisions/pitchbook-upload-limits.md` — 25MB/file, 10 files, 100MB total
@@ -44,7 +45,7 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - `planning/work0019-entity-workspace-strategy-drilldown.md`
 - `planning/work0020-personal-pc-gemini-core-qualification.md` — AI Provider Core / dual File Search / full output
 - `planning/work0021-knowledge-search-filters-multi-entity-comparison.md` — filters / five modes / comparison / provider parity
-- `planning/work0023-bundle-installer-distribution.md` — generated bundle / installer / fresh-install qualification
+- `planning/work0023-bundle-installer-distribution.md` — generated bundle / guarded installer / fresh-install qualification
 
 ### Runtime, distribution, AI, and security
 
@@ -83,7 +84,7 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - explicit normal-user public facade and private setup/diagnostic/trigger helpers;
 - modular development source under `src/`;
 - generated `dist/KnowledgeShare.bundle.gs` distribution target;
-- idempotent installer/readiness flow that does not depend on a personal Drive template.
+- guarded idempotent installer/readiness flow that does not depend on a personal Drive template.
 
 ## AI route baseline
 
@@ -110,9 +111,9 @@ The full-output buttons appear above the body. The full-text preview is at the b
 ```text
 modular source under src/
 → deterministic bundle build
-→ source/bundle parity validation
+→ source/bundle + manifest/OAuth/service parity validation
 → KnowledgeShare.bundle.gs
-→ installKnowledgeShare()
+→ authorized installKnowledgeShare()
 → READY_FOR_DEPLOYMENT
 → one Web App deployment
 → READY
@@ -121,6 +122,8 @@ modular source under src/
 The bundle is generated and must not be edited manually. It embeds required HTML resources rather than asking the company operator to recreate multiple `.html` files.
 
 The target normal installation begins with one new Spreadsheet in the intended Shared Drive folder. It does not copy a personal Google Drive template and does not require Git, Node.js, `clasp`, raw resource IDs, manual JSON editing, or manual creation of source files.
+
+Installer wrappers are editor-visible but are treated as externally invocable. Normal/unidentified Web App callers must fail server-side authorization before any mutation. The bundle uses a canonical payload hash; the actual final-file SHA-256 remains in the release manifest. The exact generated file must pass a one-paste save and execution test in the target Apps Script runtime.
 
 Current platform boundaries remain explicit: Advanced Drive may require one Apps Script service-add step, and the first Web App deployment is a one-time manual action unless a separately authorized managed deployment route is later introduced.
 
@@ -146,7 +149,7 @@ Equivalent Sheets `Date`, canonical string, and strict ISO representations behav
 → 0019 Entity Workspace / Fund-Strategy drill-down [ACCEPTED]
 → 0020 AI provider core / OpenAI + Gemini File Search / full output [CURRENT]
 → 0021 structured filters / five modes / multi-Entity / provider parity
-→ 0023 generated bundle / idempotent installer / fresh-install qualification
+→ 0023 generated bundle / guarded idempotent installer / fresh-install qualification
 → historical migration (manual / hybrid / selective automation)
 → final company production qualification
 ```
@@ -165,7 +168,7 @@ bounded preflight
 → bounded TARGET_RUNTIME_QUALIFICATION
 → expand after native readback
 → generate and validate the release bundle after feature freeze
-→ fresh-install target-runtime qualification from the bundle
+→ fresh-install target-runtime qualification from the exact bundle
 → separately authorize production data/users/billing/triggers/destructive effects
 ```
 
@@ -180,7 +183,7 @@ READY
 
 AI Works additionally report OpenAI, Gemini, and full-output matrices separately.
 
-Bundle Works additionally report modular/bundle syntax, source coverage, collision/top-level-execution checks, reproducibility, source/bundle test parity, installer idempotency, and fresh-install evidence.
+Bundle Works additionally report modular/bundle syntax, source coverage, collision/top-level-execution checks, reproducibility, canonical payload/final-file hashes, source/bundle behavior parity, installer authorization/idempotency, manifest/OAuth/service parity, exact one-paste evidence, and fresh-install evidence.
 
 A mock, CI run, simulator, alternate runtime, or test loader proves only what it exercised.
 
