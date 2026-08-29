@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-10`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Active dispatch
 
-### 0020-CODEX-10 — READY
+### 0020-CODEX-10 — RETURNED / BLOCKER
 
 - mode: `QUALIFICATION` with one bounded UI repair fallback;
 - route: `C`;
@@ -23,6 +23,17 @@ STATUS: `READY`
 - preserve CODEX-03 through CODEX-09 accepted evidence; do not rerun FULL_OUTPUT or live-call OpenAI;
 - no Apps Script Execution API retry loop, unrestricted broad sync, source-order mutation, fake provider failures, new Store, new deployment, Library mutation, public/debug endpoint, or confidential data;
 - stop on the first new provider/runtime failure after an actual application execution begins.
+- result: the authorized minimal UI fallback was delivered as source readback `78/78`,
+  immutable version `49`, and an in-place update of the same private Web App;
+- the version-49 page rendered, `Meeting` was selected, and the existing admin
+  sync was clicked once. The batch size was read back as numeric `10`, so two
+  eligible Meetings were attempted instead of the required one;
+- both attempted Meetings ended in safe permanent `AI_DOCUMENT_READBACK_FAILED`
+  state with no accepted Gemini Document; no Pitchbook state changed;
+- dependent queries, Pitchbook lifecycle, and final qualification were not run;
+  no retry, state reset, OpenAI call, FULL_OUTPUT rerun, second deployment, or
+  Library mutation occurred;
+- report: `docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-report.md`;
 
 ## Returned dispatches
 
@@ -95,4 +106,4 @@ Only one active Codex dispatch may exist.
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-10`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`

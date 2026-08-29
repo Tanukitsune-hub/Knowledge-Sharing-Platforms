@@ -271,7 +271,11 @@ test('admin provider surface is present while browser code never receives key, s
   assert.match(page, /OpenAIを有効化/);
   assert.match(page, /OpenAIを無効化/);
   assert.match(page, /今すぐ同期/);
+  assert.match(page, /ai-provider-sync-source/);
+  assert.match(page, /value="Meeting"/);
+  assert.match(page, /value="Pitchbook"/);
   assert.match(client, /getAiProviderAdminData/);
   assert.match(client, /mutateAiProviderSettings/);
+  assert.match(client, /sourceType:action==='SYNC'\?\(sourceType\|\|''\):''/);
   assert.doesNotMatch(page + client, /KSP_OPENAI_API_KEY|OPENAI_VECTOR_STORE_ID|OPENAI_DEFAULT_MODEL|gpt-5\.6-terra/);
 });

@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-10`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `QUALIFICATION` with one bounded UI repair fallback
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -73,6 +73,25 @@ Fastest safe decisive action:
 9. Reactivate restoration.
 10. Exact delete/rebuild of derived provider document.
 11. Restore lifecycle/settings; final integrity PASS.
+
+## CODEX-10 bounded result
+
+The browser-harness limitation authorized the minimal administrator sync-scope
+fallback. The tested UI/source was synchronized exactly once, read back as
+`78/78`, packaged as immutable version `49`, and deployed to the same private
+Web App in place. No second deployment or Library mutation occurred.
+
+The deployed page rendered, `Meeting` was selected, and the existing
+administrator sync action was clicked once. Post-run authoritative readback
+showed the batch size was numeric `10` rather than the required temporary `1`,
+so two eligible Meetings were attempted. Both reached safe permanent
+`AI_DOCUMENT_READBACK_FAILED` state without an accepted Gemini document; no
+Pitchbook state changed. This was the first actual provider/runtime failure in
+the dispatch, so all dependent query/lifecycle/final-integrity gates were
+stopped and not run. No retry or state reset was performed.
+
+Report:
+`docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-report.md`
 
 ## Stop rules
 

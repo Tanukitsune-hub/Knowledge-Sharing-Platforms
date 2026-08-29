@@ -13,6 +13,12 @@
       </dl>
       <div class="actions">
         <div class="action-group">
+          <label for="ai-provider-sync-source">同期対象</label>
+          <select id="ai-provider-sync-source" disabled>
+            <option value="">All</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Pitchbook">Pitchbook</option>
+          </select>
           <button id="ai-provider-openai-enable" class="action primary" type="button" disabled>OpenAIを有効化</button>
           <button id="ai-provider-openai-disable" class="action secondary" type="button" disabled>OpenAIを無効化</button>
           <button id="ai-provider-openai-sync" class="action secondary" type="button" disabled>今すぐ同期</button>

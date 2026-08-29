@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-10`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Current classification
 
@@ -11,14 +11,39 @@ STATUS: `READY`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: BLOCKED — live Meeting/Pitchbook qualification not yet completed
+GEMINI_RUNTIME: BLOCKED — Gate A failed during Web App Meeting sync
 FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence
-FINAL_INTEGRITY: PARTIAL — dependent Gemini lifecycle gates remain not run
+FINAL_INTEGRITY: PARTIAL — bounded post-run readback only; dependent gates not run
 READY: NO
 BLOCKER: YES
 ```
 
-The remaining blocker is target-runtime qualification, not a confirmed application/Gemini defect.
+CODEX-10 reached actual provider execution and observed a Gemini document
+readback failure. The dependent qualification gates therefore remain blocked.
+
+## CODEX-10 result
+
+- focused provider/core/admin/transport/sync tests: `45/45 PASS`;
+- `npm run check`: `286/286 PASS`;
+- temporal/public-surface/diff validation: PASS; public facade remains `30`;
+- the authorized UI fallback added a minimal administrator-only `All / Meeting /
+  Pitchbook` selector backed by the existing sync facade;
+- exact source sync/readback: `78/78`; immutable Apps Script version `49`; the
+  same private Web App was updated in place with Web app, deploying-user, and
+  `Only myself` settings preserved;
+- the version-49 Web App rendered, `Meeting` was selected, and the existing
+  administrator `今すぐ同期` action was clicked exactly once;
+- post-run authoritative readback showed the batch size was numeric `10`, not
+  the required temporary `1`, so two eligible Meetings were attempted. Both
+  ended in safe permanent `AI_DOCUMENT_READBACK_FAILED` state with no accepted
+  Gemini document. No Pitchbook state changed;
+- the stop rule was applied immediately: no query, Pitchbook operation,
+  lifecycle mutation, or dependent final-integrity gate was run;
+- `AI_SYNC_ENABLED=false`, `GEMINI_ENABLED=true`, `OPENAI_ENABLED=false`;
+  OpenAI was not called and FULL_OUTPUT was not rerun.
+
+CODEX-10 report:
+`docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-report.md`
 
 ## ChatGPT GitHub review after CODEX-09
 
