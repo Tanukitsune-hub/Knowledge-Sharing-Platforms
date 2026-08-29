@@ -1,15 +1,15 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-08`
+DISPATCH_ID: `0020-CODEX-09`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
-MODE: `INVESTIGATION / BUILD / QUALIFICATION`
+STATUS: `READY`
+MODE: `BUILD / QUALIFICATION`
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
 Active instruction:
-`docs/handoffs/0020-CODEX-08-direct-blob-finalize-and-gemini-completion-instruction.md`
+`docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-instruction.md`
 
 ## Primary outcome
 
@@ -28,54 +28,54 @@ Gemini is the personal-DEV live provider. OpenAI is deliberately deferred/disabl
 Closed absent material contradiction:
 - CODEX-03: schema 6 / five Backend sheets / FULL_OUTPUT runtime and canonical output parity / disabled-provider no-failover / final integrity PASS;
 - CODEX-04: one isolated Gemini Store, future zero-code OpenAI activation deterministic PASS, OpenAI uncalled;
-- CODEX-05: transport-stage diagnostics + bounded retry, `274/274` PASS, version 45;
-- CODEX-06: caller `Content-Length` removed, `277/277` PASS, version 46;
-- CODEX-07: candidate-selection deterministic PASS (`17/17`, `41/41`, `282/282`), version 47, same private Web App.
+- CODEX-05: safe transport-stage diagnostics + bounded retry, repository `274/274 PASS`, version 45;
+- CODEX-06: caller `Content-Length` removed, repository `277/277 PASS`, version 46;
+- CODEX-07: candidate-selection/direct transport hardening deterministic PASS, repository `282/282 PASS`, version 47;
+- CODEX-08: direct Blob path deterministic PASS, focused `39/39`, repository `280/280`, temporal/public/diff PASS; no live Gemini call or deployment occurred.
 
 Do not rerun FULL_OUTPUT or live-call OpenAI.
 
-## Strategy Reset after CODEX-07
+## Strategy Reset after CODEX-08
 
-Post-return Backend readback materially changes the remaining diagnosis:
+CODEX-08 proved the normal provider-neutral selector is not defective. The combined Meeting+Pitchbook queue intentionally sorts eligible items using the existing lifecycle priority and oldest-first ordering. With batch size `1`, an older eligible Pitchbook legitimately preceded two eligible Pending Meetings.
 
-- the previously inspected synthetic Meeting is Gemini `Failed` with `retryable:false` / `permanent:true`;
-- another failed Meeting is also permanent-failed;
-- other synthetic Meetings remain Pending/eligible;
-- the real provider work-selection contract excludes permanent-failed entries.
+Do not change normal production ordering to Meeting-first. That would create starvation risk and would be a product behavior change merely to satisfy qualification.
 
-Therefore a completed provider-neutral sync plus an unchanged old safe error does not prove a new finalize attempt occurred. CODEX-08 must first prove exactly one eligible Pending/NotIndexed Meeting is selected.
+The correct bounded mechanism is to extend the existing provider-neutral sync `options` plus existing administrator `SYNC` action with optional `sourceType`:
 
-If no eligible source exists, only Gemini-derived provider state for one synthetic Meeting may be reset to `NotIndexed` via the existing provider-state contract; authoritative Meeting content/metadata must remain untouched.
+```text
+blank -> current combined queue unchanged
+Meeting -> eligible Meetings only, then existing sort/slice
+Pitchbook -> eligible Pitchbooks only, then existing sort/slice
+```
 
-Other closed conclusions:
-- Apps Script `fetch()` supports Blob/byte-array payloads;
-- `getRequest()` is optional inspection, not a live prerequisite;
-- Gemini Files API + `importFile` does not bypass this transport because its upload also uses resumable finalization;
-- production preflight/candidate refinement is no longer a target.
+The source-type filter must be applied before sort/slice. No new public/debug function is needed.
 
 Active hypothesis:
 
-> One currently eligible synthetic Meeting, one exact Blob, and no hard `getRequest()` gate will finally produce either an ACTIVE Gemini document or a genuine local/provider transport result.
+> An administrator-only sourceType constraint on the existing sync path will select exactly one eligible Meeting under batch size 1 without touching unrelated Pitchbooks. The already logic-validated direct Blob transport can then be live-qualified, followed by one bounded Pitchbook path.
 
-## CODEX-08 completion boundary
+## CODEX-09 completion boundary
 
-1. Gate 0: read provider states and prove exactly one eligible Pending/NotIndexed synthetic Meeting is selected; do not use stale permanent-failed state as runtime evidence. CODEX-08 stopped here because the real selector selected an eligible Pitchbook instead.
-2. Remove `getRequest()` from live indexing prerequisites.
-3. Validate canonical bytes/MIME directly and build one exact Blob.
-4. Preserve offset `0`, `upload, finalize`, no caller `Content-Length`, opaque upload URL (`escaping:false` if required).
-5. Run deterministic validation.
-6. Deliver exact tested source once and update the same private Web App once.
-7. Gate A: issue exactly one real Meeting finalize attempt and prove it was invoked in this dispatch.
-8. If Gate A PASS: one Meeting grounded query.
-9. One small TXT Pitchbook index/query.
-10. Exact metadata filter + update/Inactive/Reactivate/delete-rebuild lifecycle.
-11. Restore `AI_SYNC_ENABLED=false`, batch setting, keep OpenAI disabled/uncalled, triggers 0, final integrity PASS.
+1. Extend selector with optional source-type constraint; blank behavior unchanged.
+2. Extend `kspRunProviderNeutralAiSync_(environment, options)` with validated `options.sourceType`.
+3. Extend existing admin `SYNC` mutation to pass optional `input.sourceType`; preserve server-side admin authorization and safe summary.
+4. Add deterministic regression tests for default ordering, Meeting/Pitchbook filtering-before-slice, invalid filter fail-closed, security, and direct Blob transport.
+5. Run focused tests, `npm run check`, temporal/public-surface, `git diff --check`.
+6. Deliver exact tested source once; create one immutable Apps Script version; update same private Web App once.
+7. With guarded batch size `1`, admin `SYNC sourceType=Meeting`: prove selected=1 Meeting and no Pitchbook processed.
+8. Gate A: exactly one real Meeting Blob finalize; require ACTIVE Gemini document + Backend Indexed + no duplicate.
+9. Gate B: one Meeting grounded query with authoritative citation.
+10. Admin `SYNC sourceType=Pitchbook`: prove selected=1 Pitchbook and no Meeting processed; index/query one small synthetic TXT Pitchbook.
+11. Prove exact metadata filter + update/Inactive/Reactivate/delete-rebuild lifecycle using bounded source-type sync where useful.
+12. Restore batch value/type, `AI_SYNC_ENABLED=false`; OpenAI disabled/uncalled; triggers 0; final integrity PASS.
 
-If Blob `fetch()` throws locally before provider response, stop for architectural Strategy Reset. If a real provider HTTP/operation error appears, stop with that exact safe evidence. No Byte[] live fallback or Files API/importFile fallback in this dispatch.
+Stop on the first new Meeting Gate-A local/provider/operation/document-readback failure. Do not perform unrestricted broad sync merely to reach a test source.
 
 ## Closed contracts
 
 - exactly five Backend sheets/schema `6`;
+- normal provider-neutral queue remains combined/oldest-first when sourceType is blank;
 - independent OpenAI/Gemini derived state;
 - stable-ID citation resolution to authoritative Backend/Drive;
 - no automatic provider failover;
@@ -95,7 +95,5 @@ FINAL_INTEGRITY: PASS
 READY: YES
 BLOCKER: NO
 ```
-
-CODEX-08 result: deterministic direct-Blob repair PASS; target-runtime qualification BLOCKED at mandatory Gate 0 because `selectedCount=1` was a Pitchbook and `selectedMeetingCount=0`. No source delivery, deployment, or Gemini live attempt was performed; the temporary batch setting was restored to its original value.
 
 Completion Latch applies only after ChatGPT final review and merge.
