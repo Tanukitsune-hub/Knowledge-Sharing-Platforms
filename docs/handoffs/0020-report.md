@@ -27,6 +27,10 @@ runtime blocker. The detailed report is:
 
 The temporary AI_SYNC_BATCH_SIZE was restored to numeric 10 and read back.
 
+For the CODEX-11 final commit, GitHub Actions workflow runs were 0 and commit
+status checks were 0. Local deterministic results are not GitHub-hosted CI
+evidence.
+
 ## CODEX-10 GitHub-verified result
 
 GitHub source of truth confirms:

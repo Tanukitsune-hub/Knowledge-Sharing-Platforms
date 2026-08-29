@@ -108,4 +108,4 @@ rerun FULL_OUTPUT in this dispatch.
 The next action requires a fresh bounded handoff focused on the pending
 Pitchbook query/runtime behavior.
 
-GITHUB_CI_ACTUALLY_RAN: TO BE CHECKED AFTER PUSH
+GITHUB_CI_ACTUALLY_RAN: NO — final commit has 0 workflow runs and 0 commit status checks
