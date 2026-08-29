@@ -1,70 +1,66 @@
 # Work 0020 dispatch control
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-06`
+DISPATCH_ID: `0020-CODEX-07`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
+STATUS: `READY`
 
 ## Active dispatch
 
-### 0020-CODEX-06 — RETURNED / BLOCKER
+### 0020-CODEX-07 — READY
 
 - mode: `INVESTIGATION / BUILD / QUALIFICATION`;
 - route: `C`;
-- purpose: remove the Apps Script-specific upload-finalize transport blocker and complete bounded Gemini Meeting + Pitchbook qualification;
-- active hypothesis: the explicit `Content-Length` header causes a local `UrlFetchApp` request-construction failure before a provider HTTP response; `UrlFetchApp` must derive transport length from the payload;
+- purpose: remove the false-negative Apps Script `getRequest()` payload projection gate, select a compatible Byte[] or Blob request shape locally, and finish bounded Gemini Meeting + Pitchbook qualification;
+- active hypothesis: CODEX-06 stopped on an over-strict preflight assumption that `getRequest().payload` preserves the original Byte[] representation; the corrected direct `fetch()` has still never reached Gemini after removing manual `Content-Length`;
+- fastest decisive action: evaluate Byte[] and Blob candidates locally/non-mutating, select one, then issue exactly one live Meeting finalize request;
 - recommended model: `Sol High`;
 - branch: `agent/0020-ai-provider-core`;
 - Draft PR: `#26` — Draft / Open / unmerged;
-- instruction: `docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-instruction.md`;
-- exact execution ref: supplied by ChatGPT after the activation documentation commits;
+- instruction: `docs/handoffs/0020-CODEX-07-runtime-request-shape-selection-and-gemini-completion-instruction.md`;
+- exact execution ref: use the final branch head supplied in the ChatGPT dispatch prompt;
 - OpenAI: deliberately deferred, disabled, and not to be live-called;
 - FULL_OUTPUT: accepted PASS from CODEX-03; do not rerun absent contradiction;
-- attempt boundary: one corrected source deployment and one Meeting finalize attempt before any query;
-- deterministic validation: `277/277 PASS`, focused transport `12/12 PASS`, public facade `30`;
-- source delivery: exact `78`-file sync/readback PASS, immutable version `46`, same private Web App updated in place, `/exec` rendered;
-- Gate A result: `AI_UPLOAD_FINALIZE_REQUEST_INVALID`, classified as local `UPLOAD_FINALIZE_CLIENT`; provider HTTP status/body and provider document identity were absent;
-- temporary batch size was restored exactly to `10`;
-- no Meeting query, Pitchbook indexing/query, lifecycle, OpenAI call, FULL_OUTPUT rerun, second Store, second deployment, or Library mutation occurred;
-- report: `docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-report.md`;
-- stop condition: first post-repair Gate-A failure; later Strategy Reset required.
+- no Files API/import fallback in this dispatch;
+- one corrected source deployment and one live Meeting finalize request maximum.
 
 ## Returned dispatch
 
-### 0020-CODEX-05 — RETURNED / ACCEPTED EXCEPT BLOCKER
+### 0020-CODEX-06 — RETURNED / ACCEPTED EXCEPT BLOCKER
 
 Accepted evidence:
 
-- focused transport/provider validation `68/68 PASS`;
-- repository validation `274/274 PASS`;
-- temporal/public-surface/diff checks PASS;
-- public facade `30`;
-- exact `78`-file source readback PASS;
-- immutable Apps Script version `45` and same private Web App updated in place;
-- safe error staging/retry hardening and future OpenAI activation path preserved;
-- first one-Meeting indexing gate reached `UPLOAD_FINALIZE` and stopped at `AI_UPLOAD_FINALIZE_FAILED`;
-- no provider document identity or Indexed state was produced;
-- no Meeting query, Pitchbook qualification, broad sync, OpenAI call, or FULL_OUTPUT rerun occurred;
-- temporary batch-size setting was restored; Pitchbook data remained unchanged; triggers remained `0`.
+- manual final-upload `Content-Length` removed;
+- exact MIME type/bytes/offset/finalize command preserved;
+- focused Gemini transport `12/12 PASS`, AI-focused `78/78 PASS`, repository `277/277 PASS`;
+- temporal/public-surface/diff checks PASS; public facade `30`;
+- exact `78`-file source sync/readback PASS;
+- immutable Apps Script version `46`, same private Web App updated in place;
+- one bounded Meeting sync selected; batch size restored to `10`;
+- Backend remained five sheets/schema 6, Meeting/Pitchbook counts 4/16, Audit 71, `AI_SYNC_ENABLED=false`, `OPENAI_ENABLED=false`;
+- no query, Pitchbook qualification, OpenAI call, FULL_OUTPUT rerun, second Store, new deployment, or Library mutation.
 
-CODEX-05 report:
+Blocker evidence:
 
-`docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`
+- Gate A stopped at `AI_UPLOAD_FINALIZE_REQUEST_INVALID / UPLOAD_FINALIZE_CLIENT` before a provider HTTP response;
+- no provider Document identity or Indexed state was produced;
+- production code made `UrlFetchApp.getRequest()` a hard byte-for-byte payload projection gate;
+- deterministic tests mocked `getRequest()` by returning `options.payload` unchanged, which does not prove target-runtime representation parity.
 
-Strategy Reset finding:
+CODEX-06 report:
+`docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-report.md`
 
-- current source manually sets `Content-Length` in the final `UrlFetchApp` request;
-- the failure returned no provider response text/status;
-- this is consistent with a local Apps Script restricted-header/request-construction failure;
-- CODEX-06 must prove this with a safe request preflight and one bounded live upload.
+### 0020-CODEX-05 — RETURNED / ACCEPTED EXCEPT BLOCKER
+
+- focused `68/68 PASS`, repository `274/274 PASS`;
+- safe stage/error preservation and bounded retry hardening;
+- exact source readback, version `45`, same Web App update;
+- one Meeting upload reached finalization and returned `AI_UPLOAD_FINALIZE_FAILED` before CODEX-06 isolated the client-side gate.
 
 ### 0020-CODEX-04 — RETURNED / ACCEPTED EXCEPT GEMINI RUNTIME
 
-Accepted evidence:
-
 - focused `17/17 PASS`, repository `265/265 PASS`;
-- public facade `30`;
-- one isolated Gemini Store created;
+- one isolated Gemini Store;
 - future zero-code OpenAI administrator activation implemented and deterministically validated;
 - OpenAI remained disabled and uncalled.
 
@@ -95,6 +91,6 @@ ChatGPT/OpenAI -> visible but deliberately disabled in personal DEV
 Only one active Codex dispatch may exist.
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-06`
+DISPATCH_ID: `0020-CODEX-07`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
+STATUS: `READY`
