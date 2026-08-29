@@ -1,41 +1,57 @@
 # Work 0020 dispatch control
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-10`
+DISPATCH_ID: `0020-CODEX-11`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
+STATUS: `READY`
 
 ## Active dispatch
 
-### 0020-CODEX-10 — RETURNED / BLOCKER
+### 0020-CODEX-11 — READY
 
-- mode: `QUALIFICATION` with one bounded UI repair fallback;
+- mode: `INVESTIGATION -> BUILD / QUALIFICATION`;
 - route: `C`;
-- purpose: invoke the existing administrator `SYNC` through the authenticated private Web App runtime, then finish the one-Meeting / one-Pitchbook Gemini qualification and lifecycle/integrity gates;
-- active hypothesis: CODEX-09 proved only that Apps Script Execution API routes are permission-blocked. The already deployed Web App browser/server bridge should execute the existing `mutateAiProviderSettings` facade under the working Web App/session boundary;
-- fastest safe decisive action: version `48`, zero source/deployment change first; temporarily set batch size to numeric `1`, then call the existing Web App server bridge with `{ action: 'SYNC', sourceType: 'Meeting' }`;
-- if page-context custom invocation is impossible before any provider sync executes, one fallback is allowed: add a minimal administrator-only `All / Meeting / Pitchbook` sync-scope control to the existing AI Provider Settings page, with no new public/debug function, then one tested source delivery/version/Web App update maximum;
-- recommended model: `Sol High`;
+- purpose: repair the observed Gemini post-upload document reconciliation defect without creating duplicate provider documents, then complete the remaining bounded Gemini qualification;
+- one active hypothesis: CODEX-10 uploads may have succeeded in Gemini, but production code incorrectly requires the completed upload Operation to embed a FileSearchDocument; generic/empty successful Operation response therefore becomes permanent `AI_DOCUMENT_READBACK_FAILED`, and the failure state then prevents self-reconciliation;
+- expected pre-fix proof: a completed Operation with no embedded document plus exactly one matching ACTIVE document available from the Documents list must fail on the current baseline;
+- minimal repair: retain the embedded-document fast path, add bounded exact `source_type + source_id + content_hash` list/get reconciliation, and allow CODEX-10-style readback-failed rows to reconcile an already-existing document without upload/delete;
+- first live actions after one validated delivery are reconciliation-only for the two uncertain CODEX-10 Meeting rows;
+- mandatory safety precondition: `AI_SYNC_BATCH_SIZE` must be set and authoritatively read back as numeric `1` immediately before every provider-mutating sync; otherwise STOP;
+- recommended model: `Sol High` because the runtime/API response contract is now the unresolved part;
 - branch: `agent/0020-ai-provider-core`;
 - Draft PR: `#26` — Draft / Open / unmerged;
-- instruction: `docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-instruction.md`;
+- instruction: `docs/handoffs/0020-CODEX-11-gemini-document-reconciliation-and-final-qualification-instruction.md`;
 - exact execution ref: use the final branch head supplied in the ChatGPT dispatch prompt;
-- preserve CODEX-03 through CODEX-09 accepted evidence; do not rerun FULL_OUTPUT or live-call OpenAI;
-- no Apps Script Execution API retry loop, unrestricted broad sync, source-order mutation, fake provider failures, new Store, new deployment, Library mutation, public/debug endpoint, or confidential data;
-- stop on the first new provider/runtime failure after an actual application execution begins.
-- result: the authorized minimal UI fallback was delivered as source readback `78/78`,
-  immutable version `49`, and an in-place update of the same private Web App;
-- the version-49 page rendered, `Meeting` was selected, and the existing admin
-  sync was clicked once. The batch size was read back as numeric `10`, so two
-  eligible Meetings were attempted instead of the required one;
-- both attempted Meetings ended in safe permanent `AI_DOCUMENT_READBACK_FAILED`
-  state with no accepted Gemini Document; no Pitchbook state changed;
-- dependent queries, Pitchbook lifecycle, and final qualification were not run;
-  no retry, state reset, OpenAI call, FULL_OUTPUT rerun, second deployment, or
-  Library mutation occurred;
-- report: `docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-report.md`;
+- preserve CODEX-03 through CODEX-10 accepted evidence; do not rerun FULL_OUTPUT or live-call OpenAI;
+- one hypothesis, one minimal repair, one tested source delivery/version/Web App update maximum;
+- no broad sync, uncertain-row re-upload, new Store/Web App/Library/public debug route, confidential data, or provider retry loop.
 
 ## Returned dispatches
+
+### 0020-CODEX-10 — RETURNED / BLOCKER
+
+Accepted evidence:
+- focused provider/core/admin/transport/sync tests `45/45 PASS`;
+- repository `286/286 PASS`; temporal/public-surface/diff PASS; public facade `30`;
+- authorized minimal `All / Meeting / Pitchbook` admin UI fallback added;
+- exact source readback `78/78`, immutable Apps Script version `49`, same private Web App updated in place;
+- version-49 page rendered and authenticated Web App admin SYNC executed once.
+
+Observed blocker:
+- required temporary batch size `1` was not in effect; authoritative post-run readback remained numeric `10`;
+- two eligible synthetic Meetings were therefore attempted;
+- both ended safe permanent `AI_DOCUMENT_READBACK_FAILED` with no accepted local Gemini document identity;
+- no Pitchbook changed, no query/lifecycle/final-integrity gate ran;
+- no retry/state reset/OpenAI call/FULL_OUTPUT rerun/second deployment/Library mutation occurred.
+
+Interpretation after ChatGPT GitHub/API review:
+- current transport test success fixture assumes `operation.response.fileSearchDocument`;
+- current production code converts failure to extract a document from the completed Operation into permanent `AI_DOCUMENT_READBACK_FAILED`;
+- current Google File Search examples only poll the long-running Operation to `done`, while the API reference defines generic Operation responses and separate File Search Document list/get APIs;
+- the Work remains blocked pending CODEX-11 deterministic reproduction and bounded reconciliation repair.
+
+Report:
+`docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-report.md`
 
 ### 0020-CODEX-09 — RETURNED / BLOCKER
 
@@ -50,8 +66,7 @@ Accepted evidence:
 
 Interpretation:
 - execution-surface/automation limitation only;
-- not evidence of an application or Gemini provider defect;
-- Web App `google.script.run` / existing `serverCall` custom SYNC path was not observed and remains the next decisive route.
+- not evidence of an application or Gemini provider defect.
 
 Report:
 `docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-report.md`
@@ -99,11 +114,13 @@ ChatGPT/OpenAI -> visible but deliberately disabled in personal DEV
 
 ## GitHub review note
 
-At CODEX-09 head `26188b8e97ec9600ee08fb8e8518d630c2f1714d`, GitHub had no Actions workflow run and no commit status checks. The reported deterministic test results are repository/report evidence, not GitHub-hosted CI evidence. Do not claim GitHub CI PASS unless a real run exists.
+For CODEX-10 head `e8e022baf7d608b81f8a3bb164636781b46a0011`, GitHub had zero Actions workflow runs and zero commit status checks. The recorded local deterministic results are repository/Codex execution evidence, not GitHub-hosted CI evidence. Do not claim GitHub CI PASS unless a real run exists.
+
+Current `main` has advanced independently and the Work branch is behind it; do not merge/rebase unrelated main changes during the bounded runtime diagnosis unless required by a material dependency. Integrate current main before final Work merge after the blocker is resolved.
 
 Only one active Codex dispatch may exist.
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-10`
+DISPATCH_ID: `0020-CODEX-11`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
+STATUS: `READY`
