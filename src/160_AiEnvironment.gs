@@ -85,9 +85,7 @@ function kspCreateAiEnvironment_() {
   };
 
   base.queryFileSearch = function (request) {
-    return kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, request, {
-      retry: true, stage: 'QUERY_HTTP', errorCode: 'AI_QUERY_HTTP_FAILED', parseErrorCode: 'AI_QUERY_RESPONSE_INVALID'
-    });
+    return kspGeminiQueryInteractionLive_(request);
   };
 
   base.readMeetingText = function (fileId) {

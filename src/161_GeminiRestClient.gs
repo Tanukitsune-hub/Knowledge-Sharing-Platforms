@@ -20,7 +20,8 @@ function kspGeminiStageMessage_(code) {
     AI_DOCUMENT_DELETE_FAILED: 'Gemini File Search Documentを削除できませんでした。',
     AI_SOURCE_READ_FAILED: 'Gemini検索対象のソースを読み取れませんでした。',
     AI_QUERY_HTTP_FAILED: 'Gemini検索サービスを利用できません。',
-    AI_QUERY_RESPONSE_INVALID: 'Gemini検索結果を確認できませんでした。'
+    AI_QUERY_RESPONSE_INVALID: 'Gemini検索結果を確認できませんでした。',
+    AI_QUERY_TIMEOUT: 'Gemini検索が時間内に完了しませんでした。'
   };
   return messages[String(code || '')] || 'Gemini処理を完了できませんでした。';
 }
@@ -127,7 +128,13 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
   return kspGeminiRunWithRetry_(function () {
     var requestOptions = {
       method: String(method || 'GET').toLowerCase(),
-      headers: { 'x-goog-api-key': kspGeminiApiKeyLive_() },
+      headers: (function () {
+        var headers = { 'x-goog-api-key': kspGeminiApiKeyLive_() };
+        Object.keys(settings.headers || {}).forEach(function (key) {
+          headers[key] = settings.headers[key];
+        });
+        return headers;
+      }()),
       muteHttpExceptions: true
     };
     if (payload !== null && payload !== undefined) {
@@ -152,6 +159,69 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
       throw kspGeminiStageError_(settings.parseErrorCode || errorCode, stage, code, headers, false);
     }
   }, { retry: Boolean(settings.retry), stage: stage, errorCode: errorCode });
+}
+
+function kspGeminiInteractionId_(response) {
+  var value = response || {};
+  return kspAiTrim_(value.id || value.name);
+}
+
+function kspGeminiInteractionStatus_(response) {
+  return kspAiTrim_(response && response.status).toLowerCase();
+}
+
+function kspGeminiInteractionPath_(interactionId) {
+  var value = kspAiTrim_(interactionId);
+  return value.indexOf('interactions/') === 0
+    ? '/' + value
+    : KSP_AI_API.INTERACTIONS_PATH + '/' + encodeURIComponent(value);
+}
+
+function kspGeminiInteractionTerminalError_(status) {
+  var error = kspGeminiStageError_('AI_QUERY_RESPONSE_INVALID', 'QUERY_PROVIDER', 0, {}, false);
+  error.providerStatus = kspAiTrim_(status);
+  return error;
+}
+
+function kspGeminiQueryInteractionLive_(request) {
+  var payload = {};
+  Object.keys(request || {}).forEach(function (key) {
+    payload[key] = request[key];
+  });
+  payload.background = true;
+  var interactionHeaders = { 'Api-Revision': KSP_AI_DEFAULTS.INTERACTIONS_API_REVISION };
+  var current = kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, payload, {
+    retry: true,
+    stage: 'QUERY_HTTP',
+    errorCode: 'AI_QUERY_HTTP_FAILED',
+    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
+    headers: interactionHeaders
+  });
+  var interactionId = kspGeminiInteractionId_(current);
+  var status = kspGeminiInteractionStatus_(current);
+  if (status === 'completed' || (!status && Array.isArray(current && current.steps))) return current;
+  kspAssert_(interactionId, 'AI_QUERY_RESPONSE_INVALID', 'Gemini検索結果を確認できませんでした。');
+  if (status === 'failed' || status === 'cancelled' || status === 'requires_action') {
+    throw kspGeminiInteractionTerminalError_(status);
+  }
+  for (var attempt = 0; attempt < KSP_AI_DEFAULTS.MAX_INTERACTION_POLLS; attempt += 1) {
+    if (typeof Utilities !== 'undefined' && Utilities && typeof Utilities.sleep === 'function') {
+      Utilities.sleep(KSP_AI_DEFAULTS.INTERACTION_POLL_MILLIS);
+    }
+    current = kspGeminiJsonRequestLive_('GET', kspGeminiInteractionPath_(interactionId), null, {
+      retry: true,
+      stage: 'QUERY_POLL',
+      errorCode: 'AI_QUERY_HTTP_FAILED',
+      parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
+      headers: interactionHeaders
+    });
+    status = kspGeminiInteractionStatus_(current);
+    if (status === 'completed') return current;
+    if (status === 'failed' || status === 'cancelled' || status === 'requires_action') {
+      throw kspGeminiInteractionTerminalError_(status);
+    }
+  }
+  throw kspGeminiStageError_('AI_QUERY_TIMEOUT', 'QUERY_POLL', 0, {}, true);
 }
 
 function kspGeminiBuildFinalizeRequestOptions_(metadata, payload) {

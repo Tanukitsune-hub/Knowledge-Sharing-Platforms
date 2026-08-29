@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-12`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 
 ## Active dispatch
 
-### 0020-CODEX-12 — READY
+### 0020-CODEX-12 — RETURNED / BLOCKER
 
 - mode: `INVESTIGATION -> QUALIFICATION`, with one evidence-gated repair only;
 - route: `C`;
@@ -25,6 +25,28 @@ STATUS: `READY`
 - if late success is found, do not patch/retry; finish lifecycle and final integrity directly;
 - if a different explicit failure is found, STOP for Strategy Reset;
 - no OpenAI live call, FULL_OUTPUT rerun, broad sync, new Store/Web App/Library/public debug endpoint, confidential data, or unrelated current-main integration.
+
+## CODEX-12 returned result
+
+- the original Pitchbook query was classified as `TIMEOUT`: the matching
+  `searchKnowledge` execution ended after `360.804` seconds at the Apps Script
+  maximum-execution-time boundary without a normal Pitchbook `AI_QUERY` Audit
+  outcome;
+- the synchronous request-shape gap was reproduced deterministically;
+- the minimal Gemini background-Interaction repair passed focused `43/43` and
+  repository `294/294` validation, with temporal/public-surface/diff checks
+  passing and public facade `30`;
+- exact source delivery/readback was `78/78`, immutable version `51` was
+  created, and the same private Web App was updated in place with deployment
+  inventory `9` unchanged;
+- exactly one authorized final Pitchbook query returned safe
+  `AI_QUERY_TIMEOUT` after `134.96` seconds. Audit recorded one Pitchbook
+  `AI_QUERY` failure with zero citations;
+- the handoff stop rule was applied. No retry, lifecycle mutation, OpenAI call,
+  FULL_OUTPUT rerun, broad sync, new Store, trigger, permission, Library, or
+  second hypothesis occurred;
+- current classification is `GEMINI_RUNTIME: BLOCKED`,
+  `FINAL_INTEGRITY: PARTIAL`, `READY: NO`, `BLOCKER: YES`.
 
 ## Accepted CODEX-11 result
 
@@ -57,4 +79,4 @@ Only one active Codex dispatch may exist.
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-12`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`

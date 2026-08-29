@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-12`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED / BLOCKER`
 MODE: `INVESTIGATION -> QUALIFICATION`, with one evidence-gated repair only
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
@@ -39,11 +39,21 @@ Gemini is the personal-DEV live provider. OpenAI remains deliberately disabled/u
 
 ## Current blocker
 
-The single CODEX-11 Pitchbook query was submitted once. During the bounded ~1-minute observation, the browser remained loading and no Pitchbook `AI_QUERY` Audit outcome existed. No retry occurred. Therefore the Pitchbook query gate and all dependent metadata/lifecycle/final-integrity gates remain incomplete.
+The original CODEX-11 Pitchbook query was classified from authoritative
+execution evidence as a synchronous query-path timeout: Apps Script history
+showed `searchKnowledge`, `タイムアウト`, `360.804 秒`, and the maximum
+execution-time failure class, with no normal Pitchbook `AI_QUERY` Audit outcome.
 
-The browser loading state alone is not accepted defect evidence: the CODEX-11 Meeting query also remained visually loading even though authoritative Audit later proved server-side success.
+The required deterministic request-shape reproduction passed. The one
+authorized Gemini background-Interaction repair passed deterministic gates,
+was delivered once, and the existing private Web App was updated in place to
+version `51`.
 
-Current Google documentation states that standard Interactions requests can be interrupted by connection timeouts for long-running tasks and provides background execution (`background: true` plus Interaction polling). Apps Script currently limits normal script executions to 6 minutes. These are relevant possibilities, not yet proven as the CODEX-11 cause.
+The one permitted post-repair Pitchbook query then returned the safe
+`AI_QUERY_TIMEOUT` result. Audit recorded one Pitchbook `AI_QUERY` failure with
+zero citations. The stop rule therefore applies; the Pitchbook gate and all
+dependent lifecycle/final-integrity gates remain incomplete. No retry or second
+hypothesis was opened.
 
 ## CODEX-12 one active hypothesis
 
@@ -112,3 +122,26 @@ BLOCKER: NO
 ```
 
 Completion Latch applies only after ChatGPT final review, current-main integration, and merge.
+
+## CODEX-12 returned evidence
+
+See
+`docs/handoffs/0020-CODEX-12-pitchbook-query-outcome-and-final-qualification-report.md`.
+
+```text
+PITCHBOOK_EXISTING_QUERY_OUTCOME: TIMEOUT
+LOGIC_VALIDATION: PASS
+GEMINI_DOCUMENT_RECONCILIATION: PASS
+GEMINI_RUNTIME: BLOCKED
+FULL_OUTPUT_RUNTIME: PASS
+FINAL_INTEGRITY: PARTIAL
+READY: NO
+BLOCKER: YES
+```
+
+The exact source delivery/readback was `78/78`; one immutable version `51` was
+created; the same private Web App was updated in place; deployment inventory
+remained `9`. The final query execution completed in `134.96 秒` and returned
+the safe timeout result. The lifecycle gates were not run. OpenAI remained
+disabled and uncalled, `AI_SYNC_ENABLED=false`, `AI_SYNC_BATCH_SIZE=10`, and
+FULL_OUTPUT was not rerun.

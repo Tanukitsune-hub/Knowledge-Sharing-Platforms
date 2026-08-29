@@ -491,6 +491,7 @@ function kspProviderSafeMessage_(code) {
     GEMINI_CREDENTIALS_UNAVAILABLE: 'Gemini検索の設定を確認できません。',
     AI_QUERY_HTTP_FAILED: 'Gemini検索サービスを利用できません。',
     AI_QUERY_RESPONSE_INVALID: 'Gemini検索結果を確認できませんでした。',
+    AI_QUERY_TIMEOUT: 'Gemini検索が時間内に完了しませんでした。',
     AI_DOCUMENT_READBACK_FAILED: 'Gemini検索用Documentを確認できませんでした。',
     AI_PROVIDER_INVALID: '検索プロバイダが不正です。'
   };

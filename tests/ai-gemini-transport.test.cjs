@@ -454,6 +454,93 @@ test('authentication and invalid-request 4xx responses are not retried', () => {
   }
 });
 
+function interactionRequest() {
+  return {
+    model: 'gemini-3.7-flash',
+    input: 'synthetic question',
+    tools: [{ type: 'file_search', file_search_store_names: ['fileSearchStores/store-synthetic'] }]
+  };
+}
+
+function completedInteraction() {
+  return {
+    id: 'interaction-synthetic',
+    status: 'completed',
+    steps: [{ type: 'model_output', content: [{
+      type: 'text', text: 'synthetic answer', annotations: []
+    }] }]
+  };
+}
+
+test('background Gemini interaction completes immediately with the revision header', () => {
+  const calls = [];
+  withLiveFakes((url, options) => {
+    calls.push({ url, options });
+    return response(200, completedInteraction());
+  }, (sleeps) => {
+    const value = plain(ksp.kspGeminiQueryInteractionLive_(interactionRequest()));
+    const body = JSON.parse(calls[0].options.payload);
+    assert.equal(value.status, 'completed');
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].options.method, 'post');
+    assert.equal(body.background, true);
+    assert.equal(calls[0].options.headers['Api-Revision'], '2026-05-20');
+    assert.deepEqual(sleeps, []);
+  });
+});
+
+test('background Gemini interaction polls in_progress to completed without changing the request contract', () => {
+  const calls = [];
+  withLiveFakes((url, options) => {
+    calls.push({ url, options });
+    return calls.length === 1
+      ? response(200, { id: 'interaction-synthetic', status: 'in_progress' })
+      : response(200, completedInteraction());
+  }, (sleeps) => {
+    const value = plain(ksp.kspGeminiQueryInteractionLive_(interactionRequest()));
+    assert.equal(value.status, 'completed');
+    assert.equal(calls.length, 2);
+    assert.match(calls[1].url, /\/interactions\/interaction-synthetic$/);
+    assert.equal(calls[1].options.method, 'get');
+    assert.equal(calls[1].options.headers['Api-Revision'], '2026-05-20');
+    assert.deepEqual(sleeps, [5000]);
+  });
+});
+
+test('provider-failed background interaction returns a safe query error without raw provider text', () => {
+  let calls = 0;
+  withLiveFakes(() => {
+    calls += 1;
+    return calls === 1
+      ? response(200, { id: 'interaction-synthetic', status: 'in_progress' })
+      : response(200, { id: 'interaction-synthetic', status: 'failed', error: { message: 'PRIVATE_PROVIDER_RESPONSE' } });
+  }, () => {
+    assert.throws(
+      () => ksp.kspGeminiQueryInteractionLive_(interactionRequest()),
+      (error) => error.code === 'AI_QUERY_RESPONSE_INVALID' &&
+        error.stage === 'QUERY_PROVIDER' &&
+        !error.message.includes('PRIVATE_PROVIDER_RESPONSE')
+    );
+    assert.equal(calls, 2);
+  });
+});
+
+test('background Gemini interaction stops at the bounded polling deadline', () => {
+  let calls = 0;
+  withLiveFakes(() => {
+    calls += 1;
+    return response(200, { id: 'interaction-synthetic', status: 'in_progress' });
+  }, (sleeps) => {
+    assert.throws(
+      () => ksp.kspGeminiQueryInteractionLive_(interactionRequest()),
+      (error) => error.code === 'AI_QUERY_TIMEOUT' && error.stage === 'QUERY_POLL' && error.retryable === true
+    );
+    assert.equal(calls, 1 + 24);
+    assert.equal(sleeps.length, 24);
+    assert.ok(sleeps.every((millis) => millis === 5000));
+  });
+});
+
 test('one application query creates one final Audit outcome despite internal retries', () => {
   const calls = [];
   const env = createSyncEnvironment();

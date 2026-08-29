@@ -3,150 +3,91 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-12`
 BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+DISPATCH_STATUS: `RETURNED / BLOCKER`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
 ## Current classification
 
 ```text
+PITCHBOOK_EXISTING_QUERY_OUTCOME: TIMEOUT
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred/disabled; uncalled
 GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: BLOCKED — existing CODEX-11 Pitchbook query outcome unresolved
+GEMINI_RUNTIME: BLOCKED — the one authorized post-repair Pitchbook query returned AI_QUERY_TIMEOUT
 FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence; not rerun
-FINAL_INTEGRITY: PARTIAL — metadata/lifecycle/final provider gates remain
+FINAL_INTEGRITY: PARTIAL — lifecycle gates were not run after the first post-repair runtime failure
 READY: NO
 BLOCKER: YES
 ```
 
-## Accepted CODEX-11 evidence — closed
+## CODEX-12 result
 
-GitHub source of truth for final CODEX-11 commit `524674f5b6b14bf43e0233928560cd9e0c6ebba0` confirms:
+The original CODEX-11 Pitchbook query was conclusively classified as a
+synchronous query-path timeout: Apps Script history showed `searchKnowledge`,
+status `タイムアウト`, duration `360.804 秒`, and the maximum-execution-time
+failure class, with no normal Pitchbook `AI_QUERY` Audit outcome.
 
-- focused provider/transport/sync/admin validation `49/49 PASS`;
-- `npm run check` `290/290 PASS`;
-- temporal validation, public-surface validation and `git diff --check` PASS; public facade remains `30`;
-- exact tested Apps Script source readback `78/78`;
-- one immutable Apps Script version `50`; same existing private Web App updated in place;
-- both uncertain CODEX-10 Meetings reconciled to Indexed through exact Gemini Document list/get with no uncertain-row upload/delete;
-- one Meeting query produced authoritative successful `AI_QUERY` Audit with three citation references;
-- one bounded synthetic TXT Pitchbook indexed successfully with provider document identity/content hash;
-- before each provider-mutating sync, batch size was set/read back as numeric `1`;
-- final `AI_SYNC_BATCH_SIZE` restored/read back numeric `10`, `AI_SYNC_ENABLED=false`, `GEMINI_ENABLED=true`, `OPENAI_ENABLED=false`;
-- OpenAI remained uncalled and FULL_OUTPUT was not rerun.
+The pre-fix synchronous request shape was reproduced deterministically. The
+minimal Gemini-only background Interaction repair passed focused tests and the
+canonical deterministic gates, was synchronized once, and was deployed to the
+same private Web App as immutable version `51`.
 
-Detailed evidence:
-`docs/handoffs/0020-CODEX-11-gemini-document-reconciliation-and-final-qualification-report.md`
+Exactly one final Pitchbook query was then submitted. The Web App returned the
+safe `AI_QUERY_TIMEOUT` result; Audit recorded one Pitchbook `AI_QUERY`
+failure with zero citations. This is the first new runtime failure after the
+repair, so the handoff stop rule applies. No retry, lifecycle mutation, or
+second hypothesis was opened.
 
-The reconciliation repair is accepted and must not be reopened without material contradictory evidence.
+Detailed report:
+`docs/handoffs/0020-CODEX-12-pitchbook-query-outcome-and-final-qualification-report.md`
 
-## Current blocker
+## Validation and delivery
 
-CODEX-11 submitted exactly one Gemini query with `Source_Type_Filter=Pitchbook` after the synthetic TXT Pitchbook was Indexed.
+- Focused provider/query tests: `43/43 PASS`.
+- `npm run check`: `294/294 PASS`.
+- Temporal validation, public-surface validation, and `git diff --check`:
+  `PASS`; public facade remains `30`.
+- Exact tested source delivery/readback: `78/78`.
+- Immutable Apps Script version: `51`.
+- Existing private Web App updated in place; deployment inventory remained `9`,
+  with Web App / deploying user / only myself preserved.
 
-During an approximately one-minute bounded observation:
+## Preserved state at stop
 
-- the browser remained in a loading state;
-- no new Pitchbook `AI_QUERY` Audit success/failure row had appeared;
-- no provider HTTP/operation error was exposed;
-- no retry was submitted;
-- metadata-filter and lifecycle gates were not run after this first new runtime blocker.
+- Backend remains exactly five sheets with schema `6`.
+- Meeting_Index remains `4` Active rows; reconciled Meeting provider states
+  remain Indexed.
+- Pitchbook_Index remains `16` rows; the existing synthetic Indexed TXT
+  Pitchbook remains unchanged.
+- Audit contains `73` non-empty rows and `6` AI_QUERY rows, including the one
+  expected final safe timeout result.
+- `AI_SYNC_BATCH_SIZE=10`, `AI_SYNC_ENABLED=false`, `GEMINI_ENABLED=true`,
+  and `OPENAI_ENABLED=false` remain in place.
+- No OpenAI call, FULL_OUTPUT rerun, broad sync, new Store, trigger,
+  permission, or Library mutation occurred.
 
-This does not yet establish an application defect. The same CODEX-11 Meeting query continued to show browser loading even though authoritative Audit proved that its server-side query had succeeded. Therefore browser loading alone is weak evidence.
+The exact metadata filter and update/Inactive/Reactivate/delete-rebuild
+lifecycle gates remain incomplete and require a fresh strategy/reset.
 
-## Strategy Reset — CODEX-12
+## Accepted evidence — closed
 
-One active hypothesis:
+- CODEX-03 through CODEX-11 schema, FULL_OUTPUT, provider foundation,
+  document-reconciliation, Meeting-query, and synthetic Pitchbook-indexing
+  evidence remains accepted and was not reopened.
+- Current main was not merged or rebased during this bounded diagnosis.
 
-> The CODEX-11 Pitchbook query was not a File Search correctness failure. It outlived the initial browser observation and its definitive outcome is now available in existing Audit/Apps Script execution history. If that execution instead terminated while waiting on the synchronous Gemini Interactions request, provider-supported background Interactions is the minimal repair candidate.
+## GitHub evidence
 
-The first CODEX-12 action is read-only. No second query, source change, deployment, provider mutation or Settings mutation occurs until the existing CODEX-11 query is classified.
+GITHUB_CI_ACTUALLY_RAN: `NO` — no GitHub Actions workflow or commit status
+was present for the delivered commit.
 
-Evidence order:
-
-```text
-existing late Pitchbook AI_QUERY Audit outcome
--> matching Apps Script Web App execution status/duration/safe failure class
--> verify no duplicate query and no state drift
-```
-
-Outcomes:
-
-1. Late success + authoritative Pitchbook citation: accept query gate, do not retry, continue lifecycle/final integrity.
-2. Explicit different application/provider failure: record safe error and STOP for Strategy Reset.
-3. Proven termination while waiting on the synchronous Interactions request: reproduce deterministically, then one minimal Gemini background-Interaction repair and one final bounded Pitchbook query maximum.
-4. Existing execution still ambiguous/running: STOP without duplicate query.
-
-Active instruction:
-`docs/handoffs/0020-CODEX-12-pitchbook-query-outcome-and-final-qualification-instruction.md`
-
-## Remaining acceptance gates after Pitchbook query PASS
-
-```text
-exact Gemini metadata filter
--> update / reindex without duplicate
--> Inactive removal/exclusion
--> Reactivate restoration
--> exact derived-document delete/rebuild
--> restore synthetic lifecycle
--> final Backend/provider/Audit/settings/trigger/deployment integrity
-```
-
-Before every provider-mutating lifecycle SYNC:
-
-```text
-AI_SYNC_BATCH_SIZE = numeric 1
--> authoritative numeric 1 readback
--> one bounded SYNC
--> restore numeric 10 afterward
-```
-
-## Findings classification
-
-### BLOCKER
-
-- one grounded Pitchbook query with authoritative citation is not yet accepted; therefore dependent metadata/lifecycle/final-integrity evidence remains incomplete.
-
-### FIX SOON
-
-- GitHub-hosted CI is absent on CODEX-11 final commit: workflow runs `0`, commit status checks `0`; local `49/49` and `290/290` are not GitHub CI evidence.
-- the Work branch diverges from newer `main`. Do not mix current-main integration into this bounded runtime diagnosis; integrate current main only after the runtime blocker closes and before final Work merge.
-
-### BACKLOG
-
-- none created. Do not expand Work 0020 beyond the accepted provider-core completion boundary.
-
-## Closed evidence chain
-
-- CODEX-03: FULL_OUTPUT runtime/canonical package parity; schema 6/five Backend sheets; disabled-provider no-failover.
-- CODEX-04: one isolated Gemini Store; OpenAI disabled/uncalled path.
-- CODEX-05 through CODEX-08: bounded transport/direct Blob hardening and combined queue evidence.
-- CODEX-09: sourceType filtering-before-slice and version-48 delivery.
-- CODEX-10: authenticated private Web App administrator execution and minimal sync-scope UI.
-- CODEX-11: Gemini Document reconciliation PASS, Meeting query/citations PASS, synthetic Pitchbook indexing PASS.
-
-## Target final matrix
-
-```text
-DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
-LOGIC_VALIDATION: PASS
-SCHEMA_ALIGNMENT: PASS
-OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred
-GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: PASS
-FULL_OUTPUT_RUNTIME: PASS
-FINAL_INTEGRITY: PASS
-READY: YES
-BLOCKER: NO
-```
-
-Completion Latch applies only after runtime acceptance, ChatGPT final diff/evidence review, integration of current `main`, and merge of PR #26.
+FINAL_COMMIT: `recorded in the delivery response`
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-12`
 BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+DISPATCH_STATUS: `RETURNED / BLOCKER`
 WORK_READY: `NO`
 BLOCKER: `YES`
