@@ -3,11 +3,11 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-15`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0020-CODEX-15 — READY
+### 0020-CODEX-15 — RETURNED; BLOCKED
 
 - mode: `INVESTIGATION -> BUILD / QUALIFICATION`;
 - route: `C`;
@@ -22,6 +22,21 @@ STATUS: `READY`
 - preserve all accepted CODEX-03 through CODEX-14 source, upload, reconciliation, Meeting-query, request-profile, application-lifecycle, and UX evidence;
 - no blind Interactions retry, model downgrade, Store split/rebuild, reindex for diagnosis, chunking change, OpenAI call, FULL_OUTPUT rerun, paid service-tier change, new Web App/Library/webhook/public debug route, fresh key/project, or current-main integration;
 - Codex final chat must begin and end with the required `WORK_ID / DISPATCH_ID / BALL / STATUS` block.
+
+Returned evidence:
+
+- the existing CODEX-14 opaque job was polled once and was expired;
+- deterministic Generate Content + File Search validation passed;
+- exact tested source was delivered once, immutable version `54` was created,
+  and the same private Web App was updated in place;
+- exactly one synthetic Pitchbook query returned the safe service-unavailable
+  category after `83364ms` with zero authoritative citations;
+- metadata/lifecycle/final-integrity dependent gates were not run;
+- no retry, reindex, Store rebuild, model/credential change, or new deployment
+  was performed;
+- classification: `BLOCKED / GEMINI_FILE_SEARCH_PROVIDER_PATH`;
+- report:
+  `docs/handoffs/0020-CODEX-15-gemini-provider-path-isolation-and-final-qualification-report.md`.
 
 ## Accepted returned dispatch
 

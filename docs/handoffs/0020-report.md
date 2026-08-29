@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-15`
 BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+DISPATCH_STATUS: `RETURNED`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
@@ -19,13 +19,44 @@ LOGIC_VALIDATION: PASS — CODEX-14 local/repository evidence
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred/disabled; uncalled
 GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: BLOCKED / PROVIDER_LONG_RUNNING
+GEMINI_RUNTIME: BLOCKED / GEMINI_FILE_SEARCH_PROVIDER_PATH
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 STATE_INTEGRITY: PASS — pending query caused no unintended mutation
 FINAL_INTEGRITY: PARTIAL — metadata/lifecycle gates not run
 READY: NO
 BLOCKER: YES
 ```
+
+## CODEX-15 Return — Generate Content provider-path isolation
+
+CODEX-15 performed the one authorized read-only POLL of the CODEX-14 opaque
+job. The token was expired after the accepted long-running observation, so no
+new Interaction was created and no raw provider identity was recovered.
+
+The corrected Generate Content + File Search adapter passed deterministic
+validation and was delivered as source-equivalent version `54` to the same
+private Web App. One synthetic Pitchbook query was submitted through the
+normal UI. After `83364ms` the Web App returned only the safe application
+category `Gemini search service unavailable`, with no answer and zero
+authoritative citations. The query was not retried.
+
+Therefore the dependent metadata-filter, update/reindex, Inactive, Reactivate,
+delete/rebuild, and Work-level final-integrity gates were not run. No source,
+Store, or deployment expansion was made by those gates.
+
+```text
+GENERATE_CONTENT_FILE_SEARCH: FAIL
+PITCHBOOK_AUTHORITATIVE_CITATIONS: 0
+GEMINI_RUNTIME: BLOCKED / GEMINI_FILE_SEARCH_PROVIDER_PATH
+LOGIC_VALIDATION: PASS — 109 focused AI tests; 307/307 repository check
+FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
+FINAL_INTEGRITY: NOT RUN — blocked before dependent gates
+READY: NO
+BLOCKER: YES
+```
+
+Detailed report:
+`docs/handoffs/0020-CODEX-15-gemini-provider-path-isolation-and-final-qualification-report.md`
 
 ## ChatGPT GitHub Review of CODEX-14
 

@@ -3,7 +3,7 @@
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-15`
 BALL: `CODEX`
-STATUS: `READY`
+STATUS: `RETURNED`
 MODE: `INVESTIGATION -> BUILD / QUALIFICATION`
 
 Primary plan:
@@ -132,3 +132,28 @@ BLOCKER: NO
 ```
 
 Once reached, apply the Completion Latch. Broader representative latency benchmarking and user-selectable thinking levels are later Works.
+
+## CODEX-15 return
+
+CODEX-15 completed its one read-only POLL and one bounded Generate Content +
+File Search query. The prior opaque job was expired, and the Generate Content
+query returned the safe `Gemini search service unavailable` category after
+`83364ms` with zero authoritative Pitchbook citations. No retry or dependent
+lifecycle mutation was performed.
+
+Current Work classification:
+
+```text
+GEMINI_RUNTIME: BLOCKED / GEMINI_FILE_SEARCH_PROVIDER_PATH
+PITCHBOOK_AUTHORITATIVE_CITATIONS: 0
+METADATA_FILTER: NOT RUN
+LIFECYCLE: NOT RUN
+LOGIC_VALIDATION: PASS
+FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence
+FINAL_INTEGRITY: NOT RUN
+READY: NO
+BLOCKER: YES
+```
+
+Report:
+`docs/handoffs/0020-CODEX-15-gemini-provider-path-isolation-and-final-qualification-report.md`
