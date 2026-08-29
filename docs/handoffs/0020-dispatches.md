@@ -33,7 +33,7 @@ STATUS: `RETURNED / BLOCKER`
 - Codex final chat must begin and end with the exact identity block required by the instruction.
 - deterministic validation: `301/301 PASS`; temporal/public-surface/diff checks PASS; public facade `30`;
 - exact source readback `78/78`; one immutable Apps Script version `53`; same private Web App updated in place;
-- final commit `f63cb59`; GitHub Actions workflow runs and commit status checks: `0`;
+- final commit `3935ab7`; GitHub Actions workflow runs and commit status checks: `0`;
 - one synthetic Pitchbook START, one reload/resume, and one manual recheck used the same opaque job; no second START;
 - the Interaction remained pending at the bounded observation limit, so the dispatch stopped as `PROVIDER_LONG_RUNNING` without citation/lifecycle retries;
 - detailed report: `docs/handoffs/0020-CODEX-14-gemini-query-performance-and-ux-optimization-report.md`;
