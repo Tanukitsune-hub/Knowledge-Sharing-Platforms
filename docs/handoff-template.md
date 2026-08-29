@@ -96,7 +96,9 @@ Once required evidence passes, do not add success criteria or reopen weaker evid
 
 The report retains the same Work/Dispatch IDs and changes ownership to the next actor.
 
-Normal Codex return header:
+### Mandatory Codex final chat response contract
+
+The Codex final chat response MUST begin with this exact four-line block before any other text:
 
 ```text
 WORK_ID: <same Work ID>
@@ -104,6 +106,10 @@ DISPATCH_ID: <same Dispatch ID>
 BALL: CHATGPT
 STATUS: RETURNED
 ```
+
+Repeat the same four lines at the end of the response. If Codex stops for a native user action, use `BALL: USER` and `STATUS: ACTION_REQUIRED` instead.
+
+Do not omit, abbreviate, translate away, or replace this block with a table, prose status sentence, commit SHA, branch, PR number, or validation matrix. The report file must carry the same Work ID and Dispatch ID. Missing either the opening or closing identity block is a reporting-contract failure.
 
 Report:
 
