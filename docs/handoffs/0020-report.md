@@ -1,9 +1,9 @@
 # Work 0020 report
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-09`
+ACTIVE_DISPATCH_ID: `0020-CODEX-10`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
+STATUS: `READY`
 
 ## Current classification
 
@@ -11,115 +11,141 @@ STATUS: `RETURNED / BLOCKER`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: BLOCKED — CODEX-09 Gate 0A administrator SYNC execution surface unavailable
+GEMINI_RUNTIME: BLOCKED — live Meeting/Pitchbook qualification not yet completed
 FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence
-FINAL_INTEGRITY: PARTIAL — bounded pre/post readback only; dependent gates not run
+FINAL_INTEGRITY: PARTIAL — dependent Gemini lifecycle gates remain not run
 READY: NO
 BLOCKER: YES
 ```
 
-## CODEX-09 result
+The remaining blocker is target-runtime qualification, not a confirmed application/Gemini defect.
 
-CODEX-09 deterministic implementation and delivery passed:
+## ChatGPT GitHub review after CODEX-09
 
+GitHub was treated as source of truth and independently checked after the CODEX-09 return.
+
+Confirmed:
+- repository: `Tanukitsune-hub/Knowledge-Sharing-Platforms`;
+- branch: `agent/0020-ai-provider-core`;
+- CODEX-09 head/final commit: `26188b8e97ec9600ee08fb8e8518d630c2f1714d`;
+- parent/execution ref: `de5f2f69d890359fd34fd0e34e9fb81245a2c3c7`;
+- PR `#26`: Draft / Open / unmerged / mergeable, base `main`;
+- `main` remained `bc7c6efda63b13e8a998e32d97028ee3a3557e3b` during review;
+- no unresolved PR review threads were present.
+
+CODEX-09 commit delta from its parent is exactly eight files:
+- four handoff/report documents;
+- `src/164_AiProviderCore.gs`;
+- `src/165_AiProviderAdmin.gs`;
+- `tests/ai-provider-core.test.cjs`;
+- `tests/ai-provider-admin.test.cjs`.
+
+The reviewed implementation matches the approved scope:
+- blank/absent `sourceType` retains the existing combined queue;
+- Meeting/Pitchbook filtering occurs before existing sort and batch slice;
+- invalid source type fails closed;
+- administrator `SYNC` forwards the normalized source type;
+- server-side administrator authorization remains in place;
+- safe admin response excludes source IDs, Store IDs and provider document IDs;
+- no public/debug entry point was added for the source-type change.
+
+The added tests explicitly cover default-order preservation, Meeting/Pitchbook filtering-before-slice, permanent-failure exclusion, invalid-source fail-closed, admin forwarding, non-admin rejection, and safe-summary redaction.
+
+## Test / CI evidence status
+
+Repository documents record:
 - focused provider-core/admin/transport/sync tests: `45/45 PASS`;
 - `npm run check`: `286/286 PASS`;
-- temporal/public-surface/diff validation: PASS; public facade `30`;
-- exact tested source sync/readback: `78/78`;
-- existing private Web App updated in place to immutable version `48` with its Web App/security boundary and Library deployments preserved.
+- temporal/public-surface/diff validation: PASS; public facade `30`.
 
-The optional administrator `sourceType` contract is implemented as:
+The canonical `npm run check` command in `package.json` runs agent-foundation validation, Apps Script validation, temporal validation, public-surface validation, and all Node tests.
 
-```text
-blank      -> unchanged combined Meeting+Pitchbook queue
-Meeting    -> eligible Meetings only, then existing sort/slice
-Pitchbook  -> eligible Pitchbooks only, then existing sort/slice
-```
+However, GitHub contained no Actions workflow run and no commit status checks for CODEX-09 head `26188b8e...`. Therefore the deterministic results are accepted as repository/Codex execution evidence but are not independently corroborated by GitHub-hosted CI. This is not a Work 0020 completion blocker because its acceptance contract requires logic and target-runtime evidence, not hosted CI, but no `CI PASS` claim is allowed.
 
-The accepted synthetic DEV state was read before the bounded attempt. `AI_SYNC_ENABLED=false`, `GEMINI_ENABLED=true`, `OPENAI_ENABLED=false`, one isolated Gemini Store remained configured, and two Active Meetings were eligible. `AI_SYNC_BATCH_SIZE` was temporarily changed from numeric `10` to numeric `1` and was restored/read back as `10`.
+## CODEX-09 result
 
-The existing `/exec` rendered and the administrator settings surface was visible. The exact existing administrator SYNC payload was then attempted through the Apps Script execution routes with `sourceType=Meeting`. Both development and non-development execution returned the platform permission error before the function executed. Consequently, no safe SYNC response or observed selected-count result exists; no Gemini request was made. This is an execution-surface/automation limitation, not evidence of a Gemini provider or application-data defect.
+CODEX-09 implementation and delivery passed:
+- exact tested Apps Script source synchronized/read back as `78/78`;
+- existing private Web App updated in place to immutable version `48`;
+- no new deployment, Store or Library mutation;
+- synthetic DEV preflight found eligible Meetings and older eligible Pitchbooks;
+- batch size temporarily numeric `1`, restored/read back numeric `10`.
+
+The deployed `/exec` rendered and the administrator settings page was visible. The attempted administrator `SYNC sourceType=Meeting` was then sent through both available Apps Script Execution API routes. Both returned a platform permission error before function execution. No safe SYNC result, Gemini request, provider operation, application-data mutation or Audit result occurred.
+
+Conclusion: CODEX-09 proves an Apps Script Execution API automation limitation only. It does not prove the private Web App browser/server bridge is unavailable and does not identify an application/Gemini provider defect.
 
 CODEX-09 report:
 `docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-report.md`
 
-The Meeting/Pitchbook Gemini gates and full provider integrity qualification remain not run under the bounded stop rule. The batch setting is restored, OpenAI remains disabled/uncalled, and no source/data/Audit/Store/deployment/Library/trigger/permission mutation was observed from the failed invocation.
+## Strategy Reset for CODEX-10
 
-## Accepted evidence
+The existing client already uses the browser/server bridge to call the public `mutateAiProviderSettings` facade for administrator operations. The next decisive route is therefore the authenticated private Web App itself, not Apps Script Execution API.
 
-- CODEX-03: focused `52/52`, repository `256/256`, schema 6/five sheets, FULL_OUTPUT/canonical output parity, disabled-provider/no-failover, final integrity PASS; version 42.
-- CODEX-04: one isolated Gemini Store; future zero-code OpenAI activation deterministic PASS; OpenAI disabled/uncalled.
-- CODEX-05: transport/provider `68/68`, repository `274/274`, safe transport-stage diagnostics and bounded transient retry; version 45.
-- CODEX-06: caller `Content-Length` removed; transport `12/12`, AI-focused `78/78`, repository `277/277`; version 46.
-- CODEX-07: transport `17/17`, focused AI/provider `41/41`, repository `282/282`, temporal/public/diff PASS, exact source readback, version 47, same private Web App.
-- CODEX-08: direct Blob implementation deterministic PASS, focused `39/39`, repository `280/280`, temporal/public/diff PASS; no source delivery/deployment/Gemini call after Gate 0 stop.
-
-## CODEX-08 authoritative result
-
-The current provider-neutral selector combines eligible Meeting and Pitchbook items. It preserves lifecycle priority, then sorts by oldest `Updated_At/Created_At`, then stable source key, and only then applies `syncBatchSize`.
-
-CODEX-08 confirmed:
-- two eligible Pending synthetic Meetings existed;
-- older eligible Pending/retryable Pitchbooks also existed;
-- with batch size `1`, the real selector selected one Pitchbook and zero Meetings;
-- batch size was restored to `10`;
-- no Gemini call, Apps Script source sync/version/deployment, query, lifecycle, OpenAI call, or FULL_OUTPUT rerun occurred.
-
-This is expected queue behavior, not a selector defect. Production ordering must not be changed to Meeting-first merely for qualification.
-
-## Strategy Reset for CODEX-09
-
-Fastest safe decisive action:
-
-Extend the existing sync contract with an optional validated source-type constraint while preserving blank/default behavior exactly:
+Primary path, with no source/deployment change:
 
 ```text
-sourceType blank      -> current combined Meeting+Pitchbook queue
-sourceType Meeting    -> eligible Meetings only -> existing sort -> batch slice
-sourceType Pitchbook  -> eligible Pitchbooks only -> existing sort -> batch slice
+existing /exec version 48
+-> authenticated admin page context
+-> existing serverCall/google.script.run bridge
+-> mutateAiProviderSettings({ action: 'SYNC', sourceType: 'Meeting' })
+-> bounded Gemini Meeting index/query
+-> same path for Pitchbook
+-> lifecycle + final integrity
 ```
 
-Apply the filter before sorting/slicing.
+Accepted safety bound:
+- CODEX-09 already proved sourceType filtering-before-slice;
+- batch size `1` limits the bounded operation to one source for the enabled provider;
+- server-side administrator authorization remains authoritative.
 
-Reuse the existing administrator `SYNC` operation and existing `kspRunProviderNeutralAiSync_(environment, options)` function. Do not add a public/debug wrapper. Existing server-side administrator authorization and safe sync summary remain authoritative.
+If the available browser harness cannot pass the custom sourceType payload before any provider operation executes, one minimal durable UI fallback is authorized: add an administrator-only `All / Meeting / Pitchbook` sync-scope control to the existing settings page, backed by the same existing facade. No new public/debug function is permitted. One tested source delivery/version/Web App update maximum is allowed only for that fallback.
 
-Why this is durable rather than test-only:
-- administrators can bound a manual repair/sync by source class without disturbing unrelated backlog;
-- normal 「今すぐ同期」 with no sourceType is unchanged;
-- no stable source ID needs to be exposed to the browser;
-- lifecycle ordering remains consistent inside the selected source class.
+Active instruction:
+`docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-instruction.md`
 
-## Active evidence order
+## Remaining acceptance evidence
 
 ```text
-CODEX-09 deterministic sourceType contract
--> admin SYNC sourceType=Meeting / selected Meeting=1
--> one real Blob finalize invoked
--> ACTIVE Meeting Document + Backend Indexed
--> one grounded Meeting query
--> admin SYNC sourceType=Pitchbook / selected Pitchbook=1
--> one small TXT Pitchbook index + grounded query
+bounded Web App Meeting SYNC
+-> one Meeting Gemini document / Backend Indexed / no duplicate
+-> one grounded Meeting query + authoritative citation
+-> bounded Web App Pitchbook SYNC
+-> one Pitchbook Gemini document / Backend Indexed / no duplicate
+-> one grounded Pitchbook query + authoritative citation
 -> exact metadata filter
 -> update / Inactive / Reactivate / delete-rebuild
+-> settings/lifecycle restoration
 -> final integrity
 ```
 
-Active instruction:
-`docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-instruction.md`
+## Findings classification
+
+### BLOCKER
+- Gemini target-runtime qualification is incomplete. No live Meeting/Pitchbook Gemini index/query/lifecycle proof exists yet.
+
+### FIX SOON
+- GitHub-hosted CI/check evidence is absent for the current Work branch. This does not block Work 0020 under the current acceptance contract, but future PRs should ideally have an automated check if repository workflow policy later adds one.
+
+### BACKLOG
+- None created from this review. Existing later Work scope remains governed by the roadmap; do not expand Work 0020.
 
 ## Stop rules
 
-- one corrected source delivery/deployment maximum;
-- no unrestricted broad sync for qualification;
-- no Meeting-first production priority change;
-- no mutating Pitchbooks into fake failure state to reach a Meeting;
-- stop on first new Meeting indexing local/provider/operation/document-readback failure;
-- OpenAI remains disabled and uncalled;
-- FULL_OUTPUT remains accepted and is not rerun absent contradiction.
+- one actual Meeting SYNC attempt;
+- one Meeting query only after Meeting index PASS;
+- one actual Pitchbook SYNC attempt only after Meeting query PASS;
+- one Pitchbook query only after Pitchbook index PASS;
+- one optional minimal admin UI repair/source delivery/version/Web App update maximum only if page-context custom invocation is impossible before provider execution;
+- no Apps Script Execution API retry loop, unrestricted broad sync, Meeting-first priority, queue manipulation, fake provider failures, new Store/deployment/Library/public endpoint, OpenAI live call, FULL_OUTPUT rerun or confidential data;
+- stop on first new provider/runtime failure after application execution begins.
 
 ## Target final matrix
 
 ```text
+DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
+LOGIC_VALIDATION: PASS
+SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
 GEMINI_RUNTIME: PASS
 FULL_OUTPUT_RUNTIME: PASS
@@ -127,3 +153,8 @@ FINAL_INTEGRITY: PASS
 READY: YES
 BLOCKER: NO
 ```
+
+WORK_ID: `0020`
+ACTIVE_DISPATCH_ID: `0020-CODEX-10`
+BALL: `CODEX`
+STATUS: `READY`
