@@ -1,9 +1,9 @@
 # Work 0020 report
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-06`
+ACTIVE_DISPATCH_ID: `0020-CODEX-07`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
+STATUS: `READY`
 
 ## Current classification
 
@@ -11,8 +11,8 @@ STATUS: `RETURNED / BLOCKER`
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
-GEMINI_RUNTIME: BLOCKED — local upload-finalize request construction/preflight error
-FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence, not rerun
+GEMINI_RUNTIME: BLOCKED — corrected direct finalize fetch not yet observed
+FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence
 FINAL_INTEGRITY: PARTIAL after CODEX-06 bounded stop
 READY: NO
 BLOCKER: YES
@@ -21,80 +21,89 @@ BLOCKER: YES
 ## Accepted evidence
 
 CODEX-03 remains accepted:
-
 - focused `52/52 PASS`, repository `256/256 PASS`;
 - schema `6`, exactly five Backend sheets;
-- FULL_OUTPUT Preview/Copy/Docs/PDF contract PASS;
-- disabled-provider/no-failover behavior PASS;
+- FULL_OUTPUT Preview/Copy/Docs/PDF contract and canonical package parity PASS;
+- disabled-provider safe errors/no-failover PASS;
 - final integrity PASS;
-- Apps Script version `42`, triggers `0`, same private Web App, no Library/permission mutation.
+- Apps Script version `42`, triggers `0`, same private Web App.
 
 CODEX-04 remains accepted:
-
 - focused `17/17 PASS`, repository `265/265 PASS`;
 - public facade `30`;
-- one isolated Gemini Store created;
-- future zero-code OpenAI administrator activation path implemented and deterministically validated;
-- OpenAI disabled/unconfigured and uncalled.
+- one isolated Gemini Store;
+- future zero-code OpenAI administrator activation implemented/deterministically validated;
+- OpenAI disabled and uncalled.
 
-CODEX-05 remains accepted except for the unresolved live gate:
+CODEX-05 remains accepted except for its live blocker:
+- focused `68/68 PASS`, repository `274/274 PASS`;
+- exact source readback, version `45`, same Web App update;
+- safe transport-stage errors and bounded retry hardening.
 
-- focused transport/provider validation `68/68 PASS`;
-- repository validation `274/274 PASS`;
+CODEX-06 remains accepted except for its live blocker:
+- manual final-upload `Content-Length` removed;
+- exact MIME type/bytes/offset/finalize command preserved;
+- focused transport `12/12 PASS`, AI-focused `78/78 PASS`, repository `277/277 PASS`;
 - temporal/public-surface/diff checks PASS;
-- exact `78`-file source readback PASS;
-- immutable version `45` and same private Web App update PASS;
-- safe stage/error preservation and bounded retry hardening delivered;
-- one bounded Meeting upload reached `UPLOAD_FINALIZE` and returned `AI_UPLOAD_FINALIZE_FAILED` with no provider document identity;
-- no query, Pitchbook qualification, OpenAI call, broad sync, or FULL_OUTPUT rerun;
-- settings restored, Pitchbook data unchanged, triggers `0`.
+- exact `78`-file source sync/readback, version `46`, same Web App update;
+- Backend stayed five sheets/schema 6, Meeting/Pitchbook counts 4/16, Audit 71, batch size restored to 10, `AI_SYNC_ENABLED=false`, `OPENAI_ENABLED=false`;
+- no query, Pitchbook qualification, OpenAI call, FULL_OUTPUT rerun, new Store/deployment, or Library mutation.
 
 Detailed reports:
-
 - `docs/handoffs/0020-CODEX-03-schema6-alignment-and-runtime-qualification-report.md`
 - `docs/handoffs/0020-CODEX-04-gemini-only-provider-qualification-report.md`
 - `docs/handoffs/0020-CODEX-05-gemini-indexing-transport-repair-and-final-qualification-report.md`
 - `docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-report.md`
 
-## CODEX-06 result
+## CODEX-06 authoritative return
 
-CODEX-06 completed the deterministic repair and one bounded target-runtime attempt:
+Gate A ended before a provider response:
 
 ```text
-focused Gemini transport tests: 12/12 PASS
-repository validation: 277/277 PASS
-temporal/public-surface/diff checks: PASS
-source sync/readback: PASS
-immutable version: 46
-same private Web App update: PASS
-one Meeting sync action: bounded to one source
-Meeting result: Failed
+Meeting state: Failed
 safe code: AI_UPLOAD_FINALIZE_REQUEST_INVALID
 classification: UPLOAD_FINALIZE_CLIENT
-provider HTTP status/body: not observed
+provider HTTP status/body: absent
 provider document identity: absent
 indexed timestamp/content hash: absent
-batch size: restored to 10
 ```
 
-The final request no longer supplies a manual `Content-Length`; exact bytes, MIME type, offset, and finalize command remain unchanged. The corrected live path stopped at the safe Apps Script request preflight/construction classification before a Gemini HTTP response was available. This is a local request-construction failure, not an observed provider HTTP/operation failure.
+The final request no longer manually supplies `Content-Length`, but production code invokes `UrlFetchApp.getRequest()` and requires the projected payload to be byte-for-byte equivalent to the original Byte[]. The target runtime stopped on that local preflight before `UrlFetchApp.fetch()` was executed.
 
-No unchanged retry was made. Meeting query, Pitchbook indexing/query, metadata lifecycle, and browser query Audit qualification were not run because Gate A failed.
+The deterministic test harness returns `options.payload` unchanged from its fake `getRequest()`, so the test does not establish target-runtime projection parity.
 
-Read-only post-attempt integrity remained bounded and showed five Backend sheets/schema 6, Meeting/Pitchbook row counts 4/16, Audit row count 71, `AI_SYNC_ENABLED=false`, `OPENAI_ENABLED=false`, and no new deployment or Library mutation.
+## Strategy Reset — CODEX-07
 
-## CODEX-06 stop decision
+Closed conclusions:
 
-The one corrected Meeting attempt is exhausted. The Work remains blocked pending a later Strategy Reset; no Files API fallback or second Gemini live attempt is authorized by this dispatch.
+- Apps Script `fetch()` officially accepts byte-array and Blob payloads;
+- `getRequest()` is an inspection tool and does not promise identical JavaScript payload representation;
+- Gemini's direct `uploadToFileSearchStore` remains an official supported path;
+- the post-Content-Length direct finalize fetch has not yet been exercised;
+- architecture fallback is premature.
+
+Active hypothesis:
+
+> The CODEX-06 hard preflight is a false negative. Evaluate Byte[] and Blob request candidates locally, select one based on structural request compatibility rather than projected payload representation, then issue exactly one real finalize request.
+
+Required evidence order:
+
+```text
+local candidate selection
+-> one Meeting index
+-> one Meeting grounded query
+-> one small TXT Pitchbook index/query
+-> exact metadata filter
+-> update / Inactive / Reactivate / delete-rebuild
+-> final integrity
+```
 
 Active instruction:
+`docs/handoffs/0020-CODEX-07-runtime-request-shape-selection-and-gemini-completion-instruction.md`
 
-`docs/handoffs/0020-CODEX-06-apps-script-content-length-finalize-repair-and-completion-instruction.md`
+The officially supported Files-API-then-importFile route is reserved as a later Strategy Reset only if CODEX-07 proves direct upload cannot be constructed/executed from Apps Script.
 
-## Target final matrix (not reached in CODEX-06)
-
-The completion target remains below for a later authorized Strategy Reset;
-CODEX-06 returned blocked at Gate A.
+## Expected final matrix
 
 ```text
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred by user
