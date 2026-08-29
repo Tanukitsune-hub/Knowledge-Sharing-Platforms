@@ -1,7 +1,7 @@
 # Work 0020 report
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-13`
+ACTIVE_DISPATCH_ID: `0020-CODEX-14`
 BALL: `CODEX`
 DISPATCH_STATUS: `READY`
 WORK_READY: `NO`
@@ -10,86 +10,132 @@ BLOCKER: `YES`
 ## Current classification
 
 ```text
-PITCHBOOK_EXISTING_QUERY_OUTCOME: TIMEOUT
-LOGIC_VALIDATION: PASS
+GEMINI_MODEL: gemini-3.7-flash — user-approved stable Flash
+GEMINI_REQUEST_PROFILE: NOT IMPLEMENTED — thinking/output bounds absent in current source
+GEMINI_BACKGROUND_LIFECYCLE: NOT IMPLEMENTED — same-call polling remains in current source
+GEMINI_USER_EXPERIENCE: NOT QUALIFIED — reload/resume/dedupe/progress contract pending
+PITCHBOOK_AUTHORITATIVE_CITATIONS: 0
+LOGIC_VALIDATION: PASS — accepted CODEX-12 evidence
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred/disabled; uncalled
 GEMINI_DOCUMENT_RECONCILIATION: PASS
-GEMINI_RUNTIME: BLOCKED — no authoritative Pitchbook citation yet
+GEMINI_RUNTIME: BLOCKED
 FULL_OUTPUT_RUNTIME: PASS — accepted CODEX-03 evidence; not rerun
 FINAL_INTEGRITY: PARTIAL
 READY: NO
 BLOCKER: YES
 ```
 
-## ChatGPT review of CODEX-12
+## CODEX-12 GitHub-verified result
 
 GitHub source of truth confirms:
 
 - branch `agent/0020-ai-provider-core`;
 - CODEX-12 final commit `6373ec1bb70f341eb6878ede51b17eb0cfc4286a`;
-- PR `#26` Draft / Open / unmerged / mergeable;
+- PR `#26` remains Draft / Open / unmerged;
 - CODEX-12 delta is one commit touching the CODEX-12 report/tracking docs, Gemini query constants/environment/client transport/provider core, and direct transport tests;
 - focused `43/43 PASS` and `npm run check 294/294 PASS` are repository/Codex evidence;
-- GitHub Actions runs `0` and commit status checks `0`, so no GitHub CI PASS claim is allowed.
+- GitHub Actions runs `0` and commit status checks `0`, so no GitHub-hosted CI PASS claim is allowed.
 
 Target-runtime evidence:
 
-- original synchronous Pitchbook query terminated at Apps Script maximum execution after `360.804s` with no normal Pitchbook `AI_QUERY` Audit outcome;
-- CODEX-12 then implemented `background=true` plus status polling;
+- the original synchronous Pitchbook query terminated at Apps Script maximum execution after `360.804s` with no normal Pitchbook `AI_QUERY` Audit outcome;
+- CODEX-12 then implemented `background=true` but retained polling inside the same Apps Script call;
 - exact source readback `78/78`, immutable Apps Script version `51`, same private Web App updated in place, deployment inventory `9` unchanged;
-- exactly one post-repair Pitchbook query returned safe application `AI_QUERY_TIMEOUT` after `134.96s`;
+- exactly one post-repair Pitchbook query returned safe application-generated `AI_QUERY_TIMEOUT` after `134.96s`;
 - Audit recorded one Pitchbook `AI_QUERY` Failure with `Error_Code=AI_QUERY_TIMEOUT` and zero citations;
-- no provider terminal `failed/cancelled/requires_action/incomplete` result was established;
+- no provider terminal `failed/cancelled/requires_action/incomplete/budget_exceeded` outcome was established;
 - no lifecycle mutation followed; settings remained safe and OpenAI/FULL_OUTPUT were untouched.
 
 Detailed report:
 `docs/handoffs/0020-CODEX-12-pitchbook-query-outcome-and-final-qualification-report.md`
 
-## New decisive finding
+## User decision and current provider review
 
-CODEX-12 changed the provider request to a background Interaction, but the application still waits inside the same Apps Script execution for up to `24 * 5s` and then generates its own timeout. The background Interaction identity is not preserved as a resumable cross-request application state when that local deadline is reached.
+The user confirmed that the current latest stable Flash model is sufficient and requested end-to-end optimization of the surrounding system for speed and user experience rather than a model downgrade.
 
-Google's current Interactions contract defines background execution specifically so a client can retain the Interaction ID and poll/reconnect later. The documented status enum also includes terminal `incomplete`; current CODEX-12 code does not classify `incomplete` as terminal.
+Current official Gemini API documentation identifies `gemini-3.7-flash` as the latest stable Flash model and provides explicit `thinking_level` and `max_output_tokens` controls through the Interactions API. File Search is supported through Interactions, and background execution is intended to be retrieved across later requests.
 
-Therefore the observed `AI_QUERY_TIMEOUT` is not evidence that the Indexed Pitchbook or Gemini File Search failed. It is evidence that the application background lifecycle remains incomplete.
+Current repository source already targets `gemini-3.7-flash`, but the active request path does not include `generation_config.thinking_level` or `generation_config.max_output_tokens`. It sets `background=true`, then sleeps/polls `24 * 5s` inside one Apps Script execution and raises a local timeout if the Interaction remains pending. The browser waits on that long `searchKnowledge` call and has no proven secure page-reload resume or identical-pending-query reuse path.
 
-## Strategy Reset — CODEX-13
+Therefore the currently observed latency cannot be attributed to Flash model inadequacy, Store size, Pitchbook file size, period length, or File Search indexing. The decisive confirmed defect is an unoptimized request/application lifecycle; provider thinking/tool latency remains unmeasured because safe terminal telemetry is incomplete.
+
+## Accepted architecture
+
+Decision:
+`docs/decisions/gemini-search-latency-and-ux-architecture.md`
+
+Normal request profile:
+
+```text
+model = gemini-3.7-flash
+background = true
+thinking_level = low
+max_output_tokens = 2048
+```
+
+Application contract:
+
+```text
+immediate browser feedback
+-> one short START call
+-> exactly one provider Interaction
+-> opaque server-owned resumable token
+-> later short POLL calls, one provider GET maximum each
+-> same Interaction until terminal
+-> exactly one terminal Audit outcome
+```
+
+Pending statuses are `queued` and `in_progress`. Terminal non-success statuses are `requires_action`, `failed`, `cancelled`, `incomplete`, and `budget_exceeded`. A browser observation limit must not falsely mark a pending provider Interaction as failed.
+
+The UX must prevent duplicate START, preserve the previous result, show elapsed progress, back off polling, resume after page reload using only an opaque token in `sessionStorage`, and provide a manual result check after automatic polling stops.
+
+Safe terminal telemetry must distinguish START/POLL overhead, provider elapsed time, and numeric thought/tool/token usage without retaining raw questions, source text, provider payloads, or raw provider identities.
+
+## Strategy Reset — CODEX-14
+
+`0020-CODEX-13` was committed but not executed. The user then materially expanded the execution contract from a narrow resume-path repair to coherent request, lifecycle, performance-evidence, and UX optimization. CODEX-13 is therefore `SUPERSEDED / NOT EXECUTED`.
+
+Active instruction:
+`docs/handoffs/0020-CODEX-14-gemini-query-performance-and-ux-optimization-instruction.md`
 
 One active hypothesis:
 
-> Make Gemini background search resumable across short Web App calls rather than holding one Apps Script call open. Complete the documented terminal-status state machine, preserve provider identity server-side behind a safe opaque token, and write only one terminal Audit outcome.
-
-Active instruction:
-`docs/handoffs/0020-CODEX-13-resumable-gemini-query-lifecycle-and-final-qualification-instruction.md`
+> The latest stable Flash model is appropriate, but the application is invoking it through an unconstrained thinking/output profile and a non-resumable same-call polling lifecycle. One coherent low-latency request profile plus secure cross-request state, duplicate suppression, responsive browser UX, and safe telemetry will remove false timeouts and materially improve usability while preserving File Search and the provider-neutral architecture.
 
 ## Findings
 
 ### BLOCKER
 
 1. No grounded Pitchbook query with authoritative citation has passed.
-2. Current background query lifecycle converts a still-nonterminal Interaction at the local ~120-second poll deadline into `AI_QUERY_TIMEOUT` and loses resumability.
-3. Documented terminal Interaction status `incomplete` is not currently terminalized.
-4. Exact metadata-filter and lifecycle/final-integrity gates remain dependent on Pitchbook query PASS.
+2. The current request does not explicitly select the low-latency thinking level or cap output tokens.
+3. The current background flow sleeps/polls inside one Apps Script request and converts a still-pending provider Interaction into a local timeout.
+4. Secure page-reload resume, identical-pending START reuse, complete current terminal-status mapping, and one-terminal-Audit idempotency are not qualified.
+5. Exact metadata-filter and update/Inactive/Reactivate/delete-rebuild/final-integrity gates remain dependent on Pitchbook query PASS.
 
 ### FOLLOW_UP
 
 - GitHub-hosted CI/check evidence remains absent.
-- Work branch is behind newer `main`; integrate current main after the runtime blocker closes and before final Work merge.
+- Work branch is behind newer `main`; integrate current main only after the runtime blocker closes and before final Work merge.
+- A representative Meeting/Pitchbook latency benchmark across document sizes and modes should be a separate Work after the core closes; it must not delay Work 0020 completion.
 
 ### OPTIONAL
 
-None added. Do not expand Work 0020 beyond the provider-core completion boundary.
+None added to the active implementation. Do not split Stores, alter chunking, reindex accepted documents, add another retrieval layer, or enable paid Priority inference without material evidence from completed safe telemetry.
 
 ## Accepted evidence preserved
 
 - CODEX-03 through CODEX-11 accepted schema/FULL_OUTPUT/provider/upload/reconciliation/Meeting-query evidence remains closed.
 - Synthetic Pitchbook indexing is accepted and must not be repeated merely to diagnose query lifecycle.
+- CODEX-12 request-shape tests and delivery evidence remain accepted for what they observed.
 
 ## Target final matrix
 
 ```text
-DEV QUALIFIED — WORK 0020 AI PROVIDER CORE
+GEMINI_REQUEST_PROFILE: PASS
+GEMINI_BACKGROUND_LIFECYCLE: PASS
+GEMINI_USER_EXPERIENCE: PASS
+PITCHBOOK_AUTHORITATIVE_CITATIONS: >= 1
 LOGIC_VALIDATION: PASS
 SCHEMA_ALIGNMENT: PASS
 OPENAI_RUNTIME: SAFE_DISABLED_ERROR — deliberately deferred
@@ -102,7 +148,7 @@ BLOCKER: NO
 ```
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-13`
+ACTIVE_DISPATCH_ID: `0020-CODEX-14`
 BALL: `CODEX`
 DISPATCH_STATUS: `READY`
 WORK_READY: `NO`
