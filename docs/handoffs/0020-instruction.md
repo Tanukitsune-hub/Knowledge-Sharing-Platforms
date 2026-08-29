@@ -1,19 +1,19 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-09`
+DISPATCH_ID: `0020-CODEX-10`
 BALL: `CODEX`
-STATUS: `RETURNED / BLOCKER`
-MODE: `BUILD / QUALIFICATION`
+STATUS: `READY`
+MODE: `QUALIFICATION` with one bounded UI repair fallback
 
 Primary plan: `docs/planning/work0020-personal-pc-gemini-core-qualification.md`
 
 Active instruction:
-`docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-instruction.md`
+`docs/handoffs/0020-CODEX-10-webapp-admin-sync-and-gemini-final-qualification-instruction.md`
 
 ## Primary outcome
 
-Deliver one provider-neutral Knowledge Search core with exactly three routes:
+Deliver and qualify one provider-neutral Knowledge Search core with exactly three user-facing routes:
 
 ```text
 ChatGPT
@@ -23,62 +23,71 @@ Gemini
 
 Gemini is the personal-DEV live provider. OpenAI is deliberately deferred/disabled. File Search scope is Meeting + Pitchbook/source; FULL_EXPORT body is Meeting Google Docs full text with optional Pitchbook references only.
 
-## Accepted evidence
+## Accepted evidence — closed absent material contradiction
 
-Closed absent material contradiction:
-- CODEX-03: schema 6 / five Backend sheets / FULL_OUTPUT runtime and canonical output parity / disabled-provider no-failover / final integrity PASS;
-- CODEX-04: one isolated Gemini Store, future zero-code OpenAI activation deterministic PASS, OpenAI uncalled;
-- CODEX-05: safe transport-stage diagnostics + bounded retry, repository `274/274 PASS`, version 45;
-- CODEX-06: caller `Content-Length` removed, repository `277/277 PASS`, version 46;
-- CODEX-07: candidate-selection/direct transport hardening deterministic PASS, repository `282/282 PASS`, version 47;
-- CODEX-08: direct Blob path deterministic PASS, focused `39/39`, repository `280/280`, temporal/public/diff PASS; no live Gemini call or deployment occurred.
+- CODEX-03: schema `6`, exactly five Backend sheets, FULL_OUTPUT runtime/canonical package parity, disabled-provider no-failover, final integrity PASS.
+- CODEX-04: one isolated Gemini Store, future zero-code OpenAI activation deterministic PASS, OpenAI uncalled.
+- CODEX-05: safe transport-stage diagnostics + bounded retry, repository `274/274 PASS`, version `45`.
+- CODEX-06: caller `Content-Length` removed, repository `277/277 PASS`, version `46`.
+- CODEX-07: transport/candidate hardening deterministic PASS, repository `282/282 PASS`, version `47`.
+- CODEX-08: direct Blob path deterministic PASS, focused `39/39`, repository `280/280`, temporal/public/diff PASS; normal combined queue ordering confirmed.
+- CODEX-09: optional administrator `sourceType` contract deterministic PASS, focused `45/45`, repository `286/286`, temporal/public/diff PASS; exact source readback `78/78`; existing private Web App version `48`; batch restored to numeric `10`.
 
-Do not rerun FULL_OUTPUT or live-call OpenAI.
+Do not rerun FULL_OUTPUT. Do not live-call OpenAI. Do not reopen accepted selector/transport design absent contradictory evidence.
 
-## Strategy Reset after CODEX-08
+## CODEX-09 authoritative blocker
 
-CODEX-08 proved the normal provider-neutral selector is not defective. The combined Meeting+Pitchbook queue intentionally sorts eligible items using the existing lifecycle priority and oldest-first ordering. With batch size `1`, an older eligible Pitchbook legitimately preceded two eligible Pending Meetings.
+CODEX-09 did not reach Gemini. The deployed `/exec` rendered and the administrator settings surface was visible, but both Apps Script Execution API routes rejected the attempted administrator function invocation before function execution with a platform permission error. No Gemini request or application-data mutation occurred.
 
-Do not change normal production ordering to Meeting-first. That would create starvation risk and would be a product behavior change merely to satisfy qualification.
+This proves only an execution-surface/automation limitation. It does not prove that the deployed Web App browser/server bridge is unavailable, and it is not evidence of an application/Gemini defect.
 
-The correct bounded mechanism is to extend the existing provider-neutral sync `options` plus existing administrator `SYNC` action with optional `sourceType`:
+## Strategy Reset for CODEX-10
 
-```text
-blank -> current combined queue unchanged
-Meeting -> eligible Meetings only, then existing sort/slice
-Pitchbook -> eligible Pitchbooks only, then existing sort/slice
-```
-
-The source-type filter must be applied before sort/slice. No new public/debug function is needed.
+Closed implementation facts:
+- `sourceType` blank preserves the combined Meeting+Pitchbook queue;
+- `sourceType=Meeting` / `Pitchbook` filters before existing sort/slice;
+- invalid source types fail closed;
+- server-side administrator authorization remains mandatory;
+- normal browser code already calls the public `mutateAiProviderSettings` facade through the Web App for administrator operations.
 
 Active hypothesis:
 
-> An administrator-only sourceType constraint on the existing sync path will select exactly one eligible Meeting under batch size 1 without touching unrelated Pitchbooks. The already logic-validated direct Blob transport can then be live-qualified, followed by one bounded Pitchbook path.
+> The authenticated private Web App page context can invoke the existing `mutateAiProviderSettings` facade with `{ action: 'SYNC', sourceType: 'Meeting' }`, avoiding the separate Apps Script Execution API permission restriction.
 
-## CODEX-09 completion boundary
+Fastest safe decisive action:
+- use already deployed version `48` with zero source/deployment change first;
+- temporarily set batch size to numeric `1` using the accepted guarded mechanism;
+- invoke the existing Web App browser/server bridge with `sourceType=Meeting`;
+- if the available browser harness cannot send the custom payload before any provider execution, add only a minimal administrator `All / Meeting / Pitchbook` sync-scope control to the existing AI Provider Settings page, with no new public/debug endpoint, then one tested source delivery/version/Web App update maximum.
 
-1. Extend selector with optional source-type constraint; blank behavior unchanged.
-2. Extend `kspRunProviderNeutralAiSync_(environment, options)` with validated `options.sourceType`.
-3. Extend existing admin `SYNC` mutation to pass optional `input.sourceType`; preserve server-side admin authorization and safe summary.
-4. Add deterministic regression tests for default ordering, Meeting/Pitchbook filtering-before-slice, invalid filter fail-closed, security, and direct Blob transport.
-5. Run focused tests, `npm run check`, temporal/public-surface, `git diff --check`.
-6. Deliver exact tested source once; create one immutable Apps Script version; update same private Web App once.
-7. With guarded batch size `1`, admin `SYNC sourceType=Meeting`: prove selected=1 Meeting and no Pitchbook processed.
-8. Gate A: exactly one real Meeting Blob finalize; require ACTIVE Gemini document + Backend Indexed + no duplicate.
-9. Gate B: one Meeting grounded query with authoritative citation.
-10. Admin `SYNC sourceType=Pitchbook`: prove selected=1 Pitchbook and no Meeting processed; index/query one small synthetic TXT Pitchbook.
-11. Prove exact metadata filter + update/Inactive/Reactivate/delete-rebuild lifecycle using bounded source-type sync where useful.
-12. Restore batch value/type, `AI_SYNC_ENABLED=false`; OpenAI disabled/uncalled; triggers 0; final integrity PASS.
+## Remaining completion gates
 
-## CODEX-09 bounded result
+1. Bounded Web App administrator SYNC `sourceType=Meeting`, batch `1`.
+2. One Gemini Meeting index/finalize with ACTIVE Document + Backend `Indexed` + no duplicate.
+3. One grounded Meeting query with authoritative citation.
+4. Bounded Web App administrator SYNC `sourceType=Pitchbook`, batch `1`, using only synthetic/non-confidential source.
+5. One Pitchbook index and grounded query with authoritative citation.
+6. Exact metadata filter.
+7. Update -> reindex without duplicate.
+8. Inactive removal/exclusion.
+9. Reactivate restoration.
+10. Exact delete/rebuild of derived provider document.
+11. Restore lifecycle/settings; final integrity PASS.
 
-The source-type implementation passed deterministic validation (`45/45` focused, `286/286` repository check, temporal/public-surface/diff checks) and the exact tested source was delivered once. The existing private Web App was updated in place to immutable version `48` with no new deployment or Library mutation.
+## Stop rules
 
-The accepted synthetic DEV state had two eligible Active Meetings and older eligible Pitchbooks. The batch setting was temporarily changed from numeric `10` to numeric `1`, then restored/read back as numeric `10`. The existing `/exec` rendered, but the exact administrator SYNC invocation with `sourceType=Meeting` could not be executed: both available Apps Script execution routes returned the platform permission error before the function ran. No Gemini request or application-data mutation occurred. This is an execution-surface/automation limitation, so Gate 0A and all dependent Gemini gates remain blocked/not run.
+- one actual Meeting SYNC attempt;
+- one Meeting query only after Meeting index PASS;
+- one actual Pitchbook SYNC attempt only after Meeting query PASS;
+- one Pitchbook query only after Pitchbook index PASS;
+- one optional minimal admin UI repair and one source delivery/version/Web App update maximum, only if page-context custom invocation is impossible before provider execution;
+- no Apps Script Execution API retry loop;
+- no unrestricted broad sync, Meeting-first priority change, queue manipulation, fake failure state, new Store, new deployment, Library mutation, new public/debug endpoint, OpenAI live call, FULL_OUTPUT rerun, or confidential data;
+- stop on first new provider/runtime failure after actual application execution begins.
 
-Report: `docs/handoffs/0020-CODEX-09-source-type-bounded-sync-and-gemini-final-qualification-report.md`
+## GitHub evidence note
 
-Stop on the first new Meeting Gate-A local/provider/operation/document-readback failure. Do not perform unrestricted broad sync merely to reach a test source.
+At CODEX-09 head `26188b8e97ec9600ee08fb8e8518d630c2f1714d`, GitHub had no Actions workflow run and no commit status checks. The recorded `45/45` and `286/286` results are deterministic local/report evidence, not GitHub-hosted CI evidence. Do not claim GitHub CI PASS without a real run.
 
 ## Closed contracts
 
