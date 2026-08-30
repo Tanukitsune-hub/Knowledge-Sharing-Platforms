@@ -151,6 +151,102 @@ test('OpenAI query explicitly requests File Search results without exposing prov
   assert.doesNotMatch(JSON.stringify(captured), /OPENAI_API_KEY|secret/i);
 });
 
+test('OpenAI upload cleans attachment and File after attach failure while preserving the primary error', () => {
+  const originals = {
+    fetch: ksp.UrlFetchApp,
+    apiKey: ksp.kspOpenAiApiKeyLive_,
+    payload: ksp.kspBuildOpenAiUploadPayload_,
+    request: ksp.kspOpenAiJsonRequestLive_
+  };
+  const calls = [];
+  ksp.UrlFetchApp = {
+    fetch: () => ({
+      getResponseCode: () => 200,
+      getContentText: () => JSON.stringify({ id: 'file-private' })
+    })
+  };
+  ksp.kspOpenAiApiKeyLive_ = () => 'synthetic-key';
+  ksp.kspBuildOpenAiUploadPayload_ = () => ({ synthetic: true });
+  ksp.kspOpenAiJsonRequestLive_ = (method, path) => {
+    calls.push([method, path]);
+    if (method === 'POST') {
+      throw Object.assign(new Error('primary attach failure'), { code: 'OPENAI_HTTP_503', retryable: true });
+    }
+    if (path.includes('/vector_stores/')) {
+      throw Object.assign(new Error('attachment cleanup failure'), { code: 'OPENAI_HTTP_500', retryable: true });
+    }
+    if (method === 'DELETE') {
+      throw Object.assign(new Error('file cleanup failure with private identity'), { code: 'OPENAI_HTTP_503', retryable: true });
+    }
+    return { deleted: true };
+  };
+  let thrown;
+  try {
+    ksp.kspOpenAiUploadSourceLive_('vs-private', {
+      sourceType: 'Pitchbook', sourceId: 'DOC-000001', contentHash: 'hash-private'
+    });
+  } catch (error) {
+    thrown = error;
+  } finally {
+    if (originals.fetch === undefined) delete ksp.UrlFetchApp;
+    else ksp.UrlFetchApp = originals.fetch;
+    ksp.kspOpenAiApiKeyLive_ = originals.apiKey;
+    ksp.kspBuildOpenAiUploadPayload_ = originals.payload;
+    ksp.kspOpenAiJsonRequestLive_ = originals.request;
+  }
+  assert.equal(thrown.code, 'OPENAI_HTTP_503');
+  assert.deepEqual(plain(thrown.cleanupDiagnostics), [
+    'OPENAI_ATTACHMENT_CLEANUP_FAILED', 'OPENAI_FILE_CLEANUP_FAILED'
+  ]);
+  assert.deepEqual(calls.map(([method]) => method), ['POST', 'DELETE', 'DELETE']);
+  assert.match(calls[2][1], /^\/files\//);
+  assert.doesNotMatch(JSON.stringify(thrown.cleanupDiagnostics), /file-private|vs-private/);
+});
+
+test('OpenAI upload cleans attachment and File after indexing failure', () => {
+  const originals = {
+    fetch: ksp.UrlFetchApp,
+    apiKey: ksp.kspOpenAiApiKeyLive_,
+    payload: ksp.kspBuildOpenAiUploadPayload_,
+    request: ksp.kspOpenAiJsonRequestLive_,
+    wait: ksp.kspOpenAiWaitVectorStoreFileLive_
+  };
+  const calls = [];
+  ksp.UrlFetchApp = {
+    fetch: () => ({
+      getResponseCode: () => 200,
+      getContentText: () => JSON.stringify({ id: 'file-private' })
+    })
+  };
+  ksp.kspOpenAiApiKeyLive_ = () => 'synthetic-key';
+  ksp.kspBuildOpenAiUploadPayload_ = () => ({ synthetic: true });
+  ksp.kspOpenAiJsonRequestLive_ = (method, path) => {
+    calls.push([method, path]);
+    return method === 'POST' ? { status: 'in_progress' } : { deleted: true };
+  };
+  ksp.kspOpenAiWaitVectorStoreFileLive_ = () => {
+    throw Object.assign(new Error('primary indexing failure'), { code: 'OPENAI_INDEX_TIMEOUT', retryable: true });
+  };
+  let thrown;
+  try {
+    ksp.kspOpenAiUploadSourceLive_('vs-private', {
+      sourceType: 'Meeting', sourceId: 'MTG-000001', contentHash: 'hash-private'
+    });
+  } catch (error) {
+    thrown = error;
+  } finally {
+    if (originals.fetch === undefined) delete ksp.UrlFetchApp;
+    else ksp.UrlFetchApp = originals.fetch;
+    ksp.kspOpenAiApiKeyLive_ = originals.apiKey;
+    ksp.kspBuildOpenAiUploadPayload_ = originals.payload;
+    ksp.kspOpenAiJsonRequestLive_ = originals.request;
+    ksp.kspOpenAiWaitVectorStoreFileLive_ = originals.wait;
+  }
+  assert.equal(thrown.code, 'OPENAI_INDEX_TIMEOUT');
+  assert.deepEqual(plain(thrown.cleanupDiagnostics), []);
+  assert.deepEqual(calls.map(([method]) => method), ['POST', 'DELETE', 'DELETE']);
+});
+
 test('OpenAI request filters use exact stable fields and both citation forms map Meeting and Pitchbook', () => {
   const filter = plain(ksp.kspBuildOpenAiFilter_({
     dateFrom: '2026-08-01', dateTo: '2026-08-31', gpId: 'GP-000001',
@@ -682,9 +778,10 @@ test('synthetic OpenAI lifecycle reindexes exactly once, excludes Inactive, and 
   env._debug.documents.push({ ...plain(revisionDocument), name: `${revisionDocument.name}-duplicate` });
   meeting.Updated_At = '2026-09-01T00:00:00.000Z';
   const duplicateCleanup = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
-  assert.equal(duplicateCleanup.unchanged, 1);
-  assert.equal(env._debug.documents.filter((item) => item.attributes.source_id === meeting.Meeting_ID).length, 1);
-  assert.ok(env._debug.deleted.includes(`${revisionDocument.name}-duplicate`));
+  assert.equal(duplicateCleanup.ok, false);
+  assert.deepEqual(duplicateCleanup.items.map((item) => item.code), ['AI_CURRENT_SOURCE_RECONCILIATION_NOT_UNIQUE']);
+  assert.equal(env._debug.documents.filter((item) => item.attributes.source_id === meeting.Meeting_ID).length, 2);
+  assert.equal(env._debug.deleted.includes(`${revisionDocument.name}-duplicate`), false);
 
   meeting.Status = 'Inactive';
   const inactive = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
@@ -819,6 +916,103 @@ test('item-level OpenAI replacement failure preserves the prior indexed document
   assert.match(after.lastError, /OPENAI_INDEX_TIMEOUT/);
 });
 
+test('OpenAI replacement persistence failure removes only the unrecorded replacement and retains prior state', () => {
+  const context = baseContext({ pitchbookRows: [] });
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const first = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, providers: ['OPENAI'] }));
+  assert.equal(first.indexed, 1);
+  const priorDocument = plain(env._debug.documents[0]);
+  const priorState = plain(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'OPENAI'));
+  context.meetingRows[0].Updated_At = '2026-09-02T00:00:00.000Z';
+  env.readMeetingText = () => 'Meeting replacement whose state write fails';
+  const persistedUpdate = env.updateAiProviderState;
+  let failReplacementWrite = true;
+  env.updateAiProviderState = (sourceType, sourceId, provider, patch) => {
+    if (failReplacementWrite && patch.status === 'Indexed' && patch.contentHash !== priorState.contentHash) {
+      failReplacementWrite = false;
+      throw Object.assign(new Error('synthetic state persistence failure'), {
+        code: 'AI_PROVIDER_STATE_WRITE_FAILED', retryable: true
+      });
+    }
+    return persistedUpdate(sourceType, sourceId, provider, patch);
+  };
+
+  const failed = plain(ksp.kspRunProviderNeutralAiSync_(env, {
+    force: true, sourceType: 'Meeting', providers: ['OPENAI']
+  }));
+  assert.equal(failed.ok, false);
+  assert.deepEqual(failed.items.map((item) => item.code), ['AI_PROVIDER_STATE_WRITE_FAILED']);
+  assert.deepEqual(env._debug.documents, [priorDocument]);
+  assert.equal(env._debug.deleted.length, 1);
+  assert.notEqual(env._debug.deleted[0], priorDocument.name);
+  const after = plain(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'OPENAI'));
+  assert.equal(after.status, 'Indexed');
+  assert.equal(after.providerDocumentId, priorState.providerDocumentId);
+  assert.equal(after.contentHash, priorState.contentHash);
+  assert.match(after.lastError, /AI_PROVIDER_STATE_WRITE_FAILED/);
+});
+
+test('stale cleanup failure keeps the persisted replacement and scheduled retry cleans without another upload', () => {
+  const context = baseContext({ pitchbookRows: [] });
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const first = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, providers: ['OPENAI'] }));
+  assert.equal(first.indexed, 1);
+  const priorDocument = plain(env._debug.documents[0]);
+  context.meetingRows[0].Updated_At = '2026-09-02T00:00:00.000Z';
+  env.readMeetingText = () => 'Meeting replacement whose stale cleanup initially fails';
+  const deleteDocument = env.deleteProviderDocument;
+  let failStaleCleanup = true;
+  env.deleteProviderDocument = (provider, config, documentValue) => {
+    if (failStaleCleanup && documentValue.name === priorDocument.name) {
+      failStaleCleanup = false;
+      throw Object.assign(new Error('synthetic stale cleanup failure'), {
+        code: 'OPENAI_HTTP_503', retryable: true,
+        cleanupDiagnostics: ['OPENAI_FILE_CLEANUP_FAILED']
+      });
+    }
+    return deleteDocument(provider, config, documentValue);
+  };
+
+  const partial = plain(ksp.kspRunProviderNeutralAiSync_(env, {
+    force: true, sourceType: 'Meeting', providers: ['OPENAI']
+  }));
+  assert.equal(partial.ok, false);
+  assert.deepEqual(partial.items.map((item) => item.code), ['AI_STALE_DOCUMENT_CLEANUP_FAILED']);
+  assert.equal(env._debug.documents.length, 2);
+  const stateAfterReplacement = plain(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'OPENAI'));
+  assert.equal(stateAfterReplacement.status, 'Indexed');
+  assert.notEqual(stateAfterReplacement.providerDocumentId, priorDocument.providerDocumentId);
+  assert.match(stateAfterReplacement.lastError, /AI_STALE_DOCUMENT_CLEANUP_FAILED/);
+  const uploadsAfterReplacement = env._debug.uploaded.length;
+
+  const retryState = ksp.kspParseAiProviderState_(context.meetingRows[0].AI_Provider_State_JSON, context.meetingRows[0]);
+  retryState.OPENAI.lastError = JSON.stringify({
+    attempt: 1, retryable: true, permanent: false,
+    nextAttemptAt: '2026-08-16T00:00:00.000Z', code: 'AI_STALE_DOCUMENT_CLEANUP_FAILED'
+  });
+  context.meetingRows[0].AI_Provider_State_JSON = ksp.kspSerializeAiProviderState_(retryState);
+  const retried = plain(ksp.kspRunProviderNeutralAiSync_(env, { providers: ['OPENAI'] }));
+  assert.equal(retried.ok, true, JSON.stringify(retried));
+  assert.equal(retried.unchanged, 1);
+  assert.equal(env._debug.uploaded.length, uploadsAfterReplacement);
+  assert.equal(env._debug.documents.length, 1);
+  assert.equal(env._debug.documents[0].providerDocumentId, stateAfterReplacement.providerDocumentId);
+  const finalState = plain(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'OPENAI'));
+  assert.equal(finalState.lastError, '');
+});
+
 test('provider configuration failure is reported separately from item failures', () => {
   const env = createSyncEnvironment();
   env.getProviderConfig = () => { throw Object.assign(new Error('safe synthetic config failure'), { code: 'OPENAI_CONFIGURATION_INVALID' }); };
@@ -853,6 +1047,27 @@ test('a current provider entry is not reselected solely because the legacy statu
     ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '10' }), 'OPENAI'
   ));
   assert.deepEqual(revised.map((item) => item.sourceId), ['MTG-000001']);
+});
+
+test('a preserved Indexed OpenAI entry with a due retryable error remains scheduled-retry eligible', () => {
+  const context = baseContext({ pitchbookRows: [] });
+  const state = ksp.kspBuildEmptyAiProviderState_();
+  state.OPENAI.status = 'Indexed';
+  state.OPENAI.documentName = 'openai:vs-synthetic/files/file-current';
+  state.OPENAI.providerDocumentId = 'file-current';
+  state.OPENAI.contentHash = 'current-hash';
+  state.OPENAI.indexedAt = '2026-08-03T00:00:00.000Z';
+  state.OPENAI.lastError = JSON.stringify({
+    attempt: 1, retryable: true, permanent: false,
+    nextAttemptAt: '2026-08-16T00:00:00.000Z', code: 'AI_STALE_DOCUMENT_CLEANUP_FAILED'
+  });
+  context.meetingRows[0].AI_Provider_State_JSON = ksp.kspSerializeAiProviderState_(state);
+  context.meetingRows[0].AI_Index_Status = 'Pending';
+  const selected = plain(ksp.kspSelectProviderAiWorkItems_(
+    context.meetingRows, context.pitchbookRows, '2026-08-16T00:01:00.000Z',
+    ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '10', AI_MAX_RETRY_ATTEMPTS: '5' }), 'OPENAI'
+  ));
+  assert.deepEqual(selected.map((item) => item.sourceId), ['MTG-000001']);
 });
 
 test('provider selector excludes permanent failures and selects exactly one eligible Pending Meeting', () => {

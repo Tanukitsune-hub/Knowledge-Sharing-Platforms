@@ -112,19 +112,25 @@ function kspOpenAiUploadSourceLive_(vectorStoreId, source) {
   }
 
   var attributes = kspBuildOpenAiAttributes_(source);
-  var attached = kspOpenAiJsonRequestLive_('POST',
-    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files',
-    { file_id: String(uploaded.id), attributes: attributes });
-  var vectorStoreFile = kspOpenAiWaitVectorStoreFileLive_(storeId, String(uploaded.id), attached);
-  return {
-    name: 'openai:' + storeId + '/files/' + String(uploaded.id),
-    providerDocumentId: String(uploaded.id),
-    fileId: String(uploaded.id),
-    vectorStoreId: storeId,
-    status: kspAiTrim_(vectorStoreFile.status || attached.status || KSP_OPENAI_FILE_STATUS.COMPLETED),
-    attributes: attributes,
-    customMetadata: attributes
-  };
+  try {
+    var attached = kspOpenAiJsonRequestLive_('POST',
+      KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files',
+      { file_id: String(uploaded.id), attributes: attributes });
+    var vectorStoreFile = kspOpenAiWaitVectorStoreFileLive_(storeId, String(uploaded.id), attached);
+    return {
+      name: 'openai:' + storeId + '/files/' + String(uploaded.id),
+      providerDocumentId: String(uploaded.id),
+      fileId: String(uploaded.id),
+      vectorStoreId: storeId,
+      status: kspAiTrim_(vectorStoreFile.status || attached.status || KSP_OPENAI_FILE_STATUS.COMPLETED),
+      attributes: attributes,
+      customMetadata: attributes
+    };
+  } catch (primaryError) {
+    var cleanup = kspOpenAiCleanupDocumentResourcesLive_(storeId, String(uploaded.id));
+    kspOpenAiAddCleanupDiagnostics_(primaryError, cleanup.diagnostics);
+    throw primaryError;
+  }
 }
 
 function kspOpenAiCreateVectorStoreLive_(displayName) {
@@ -150,6 +156,41 @@ function kspOpenAiDeleteUploadedFileLive_(fileId) {
   kspAssert_(normalized, 'OPENAI_DOCUMENT_INVALID', 'ChatGPT document identity is invalid.');
   kspOpenAiJsonRequestLive_('DELETE', KSP_OPENAI_API.FILES_PATH + '/' + encodeURIComponent(normalized));
   return true;
+}
+
+function kspOpenAiAddCleanupDiagnostics_(error, diagnostics) {
+  if (!error || typeof error !== 'object') return error;
+  var safeCodes = [];
+  (Array.isArray(error.cleanupDiagnostics) ? error.cleanupDiagnostics : []).concat(diagnostics || [])
+    .forEach(function (code) {
+      var normalized = kspAiTrim_(code);
+      if (normalized && safeCodes.indexOf(normalized) < 0) safeCodes.push(normalized);
+    });
+  error.cleanupDiagnostics = safeCodes;
+  return error;
+}
+
+function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId) {
+  var storeId = kspAiTrim_(vectorStoreId);
+  var normalizedFileId = kspAiTrim_(fileId);
+  var firstError = null;
+  var diagnostics = [];
+  try {
+    kspOpenAiJsonRequestLive_('DELETE',
+      KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(normalizedFileId));
+  } catch (attachmentError) {
+    firstError = attachmentError;
+    diagnostics.push('OPENAI_ATTACHMENT_CLEANUP_FAILED');
+  }
+  try {
+    // File cleanup is independent from attachment cleanup and must always be
+    // attempted after a successful /files upload.
+    kspOpenAiDeleteUploadedFileLive_(normalizedFileId);
+  } catch (fileError) {
+    if (!firstError) firstError = fileError;
+    diagnostics.push('OPENAI_FILE_CLEANUP_FAILED');
+  }
+  return { error: firstError, diagnostics: diagnostics };
 }
 
 function kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId) {
@@ -217,12 +258,11 @@ function kspOpenAiDeleteDocumentLive_(vectorStoreId, documentValue) {
   var storeId = kspAiTrim_(vectorStoreId);
   var fileId = kspAiTrim_(documentValue && (documentValue.providerDocumentId || documentValue.fileId));
   kspAssert_(storeId && fileId, 'OPENAI_DOCUMENT_INVALID', 'ChatGPT document identity is invalid.');
-  kspOpenAiJsonRequestLive_('DELETE',
-    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(fileId));
-  // Removing a vector-store attachment does not remove the uploaded File
-  // object. Delete both derived resources so replacement/inactivation cannot
-  // accumulate orphaned provider files.
-  kspOpenAiDeleteUploadedFileLive_(fileId);
+  var cleanup = kspOpenAiCleanupDocumentResourcesLive_(storeId, fileId);
+  if (cleanup.error) {
+    kspOpenAiAddCleanupDiagnostics_(cleanup.error, cleanup.diagnostics);
+    throw cleanup.error;
+  }
   return true;
 }
 

@@ -1,19 +1,19 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-08-31 JST
-LAST_VERIFIED_BY: Codex browser qualification + Apps Script source/deployment readback + CODEX-20 GitHub reconciliation + ChatGPT final review
-STATUS: ACTIVE / VERIFIED RUNTIME, GITHUB REVIEW FIX PENDING
+LAST_VERIFIED_BY: CODEX-21 exact source readback + bounded OpenAI native qualification + GitHub review closure
+STATUS: ACTIVE / VERIFIED RUNTIME, READY FOR CHATGPT FINAL MERGE
 
 ## Source
 
 - SOURCE_REPOSITORY: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 - WORK_BRANCH: `agent/0020-ai-provider-core`
-- DEPLOYED_SOURCE_COMMIT: `d61dc166c835d65e8bbabd17dc2894b4aef69cd8`
-- DEPLOYED_SOURCE_DESCRIPTION: final CODEX-19 exact tested source and qualification records
-- CURRENT_GITHUB_DISPATCH: `0020-CODEX-21 — review-finding repair`
+- DEPLOYED_SOURCE_COMMIT: `CODEX-21 FINAL COMMIT — exact pushed SHA is recorded in the PR and final return`
+- DEPLOYED_SOURCE_DESCRIPTION: CODEX-21 retry/replacement/orphan-cleanup hardening, exact tested source
+- CURRENT_GITHUB_DISPATCH: `0020-CODEX-21 — RETURNED`
 - CODEX_20_MAIN_INTEGRATION_COMMIT: `655ce6e00b14e20e8ed6af85cef95d872de4caef`
 - CODEX_20_FINAL_REPORTING_HEAD: `4176c98344bcbe495b1f062001e2e26e0860479b`
-- CURRENT_BRANCH_HEAD: `NOT YET FINAL — CODEX-21 handoff/tracking commits are newer and make no runtime change`
+- CURRENT_BRANCH_HEAD: `CODEX-21 FINAL COMMIT — local/remote/PR equality reverified at return`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB` — keep machine-specific absolute paths local unless explicitly safe and useful
 
 ## Application runtime
@@ -24,12 +24,12 @@ STATUS: ACTIVE / VERIFIED RUNTIME, GITHUB REVIEW FIX PENDING
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `57`
+- DEPLOYMENT_VERSION: `58`
 - ENVIRONMENT: personal DEV / qualification
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
 
-CODEX-21 is not yet deployed. Until its deterministic validation passes and an explicitly authorized bounded update occurs, version 57 and deployed commit `d61dc166c835d65e8bbabd17dc2894b4aef69cd8` remain the runtime baseline.
+Version 57 remains the historical CODEX-19 baseline. CODEX-21 delivered and read back only the two changed production source files, created immutable version 58, and updated the same existing private Web App deployment once.
 
 ## Data and control artifacts
 
@@ -74,13 +74,13 @@ CODEX-21 is not yet deployed. Until its deterministic validation passes and an e
 - ACTIVE_WORK_ID: `0020`
 - ACTIVE_DISPATCH_ID: `0020-CODEX-21`
 - PRIMARY_COMPLETION_PROVIDER: OpenAI
-- WEB_APP_VERSION: `57`
-- NATIVE_ACCEPTANCE_STATE: PASS for CODEX-19 behavior; review hardening not yet deployed
+- WEB_APP_VERSION: `58`
+- NATIVE_ACCEPTANCE_STATE: PASS for CODEX-19 behavior and CODEX-21 review hardening
 - OPENAI_CONNECTION_STATE: key configured, Vector Store ready, readiness ACTIVE after disable/re-enable and exact unchanged sync
-- SMALL_SYNTHETIC_PITCHBOOK_STATE: `DOC-000017` Active and OpenAI Indexed; exact final sync unchanged without duplicate
-- SMALL_SYNTHETIC_MEETING_STATE: `MTG-000005` Active and OpenAI Indexed; native grounded query/citation PASS
+- SMALL_SYNTHETIC_PITCHBOOK_STATE: `DOC-000017` Active and OpenAI Indexed; CODEX-21 exact sync unchanged with one current provider document and grounded citation PASS
+- SMALL_SYNTHETIC_MEETING_STATE: `MTG-000005` Active and OpenAI Indexed; CODEX-21 grounded citation PASS without resync
 - LARGE_FIXTURE_STATE: old 5–25 MiB size-matrix Pitchbooks include `OPENAI_INDEX_TIMEOUT`; do not broad-retry or mutate for cosmetic cleanup
-- GITHUB_DELIVERY_STATE: current main reconciled, but 3 pre-merge recovery/cleanup review findings remain open
+- GITHUB_DELIVERY_STATE: current main reconciled; three recovery/cleanup findings closed; zero unresolved review threads; PR Open/unmerged and ready for ChatGPT final merge
 
 ## Completed CODEX-19 sequence
 
@@ -100,16 +100,17 @@ CODEX-21 is not yet deployed. Until its deterministic validation passes and an e
 - runtime deployment/provider/data mutation: none;
 - final PR review then identified three unresolved recovery/cleanup defects, so merge was withheld.
 
-## CODEX-21 required update
+## Completed CODEX-21 update
 
-Before CODEX-21 returns:
-
-- record its exact final pushed source commit;
-- if deployed, record the new immutable Apps Script version and confirm the same deployment was updated once;
-- keep version 57 as historical deployed baseline and explicitly distinguish it from the new version;
-- record that only `DOC-000017` and `MTG-000005` were used for bounded native regression qualification;
-- record unresolved review-thread count and final PR state;
-- never record provider IDs, API keys, private URLs, or confidential contents.
+- focused failure injection and canonical 330/330 validation passed;
+- exact tested source delivered/read back once;
+- immutable version 58 created and the same private Web App updated once;
+- stored API key preserved without reading or exposure;
+- exact `DOC-000017` sync returned one unchanged current source with no duplicate upload;
+- one bounded grounded query each returned the authoritative `DOC-000017` and `MTG-000005` source;
+- `DOC-000018` remained one Active row; old large fixtures received zero sync/lifecycle actions;
+- Gemini, FULL_OUTPUT, broad sync, new provider resources, and confidential data remained out of scope;
+- three review threads resolved; final count zero; PR remains Open and unmerged.
 
 ## Update rule
 

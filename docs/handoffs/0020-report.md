@@ -2,17 +2,17 @@
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-21`
-BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+BALL: `CHATGPT`
+DISPATCH_STATUS: `RETURNED`
 FUNCTIONAL_READY: `YES`
-READY_FOR_CHATGPT_FINAL_MERGE: `NO`
-BLOCKER: `PRE_MERGE_REVIEW_FINDINGS`
+READY_FOR_CHATGPT_FINAL_MERGE: `YES`
+BLOCKER: `NONE`
 
 ## Executive conclusion
 
-Work 0020 remains functionally complete on the OpenAI provider path, and CODEX-20 successfully reconciled the branch with current main. The deployed private Web App version 57 evidence remains valid.
+Work 0020 is functionally complete on the OpenAI provider path, reconciled with current main, and hardened against the three final retry/replacement/orphan-cleanup review findings. CODEX-21 added failure-injection coverage, passed the canonical 330/330 suite, updated the same private Web App once to version 58, and requalified only `DOC-000017` and `MTG-000005`.
 
-However, final review of PR #26 found three unresolved implementation defects in recovery/cleanup paths. They do not invalidate the successful small-source query and lifecycle evidence, but they can cause automatic retry suppression, inconsistent provider state after replacement failure, and orphaned OpenAI File objects. PR #26 must not merge until CODEX-21 fixes and requalifies these paths.
+PR #26 is Open, unmerged, mergeable, has zero unresolved non-outdated review threads, and is ready for ChatGPT's final merge. No Gemini, FULL_OUTPUT, broad sync, large-fixture retry/mutation, confidential-data use, or new runtime/provider resource occurred.
 
 ## Accepted evidence retained
 
@@ -32,6 +32,8 @@ MAIN_RECONCILIATION: PASS
 CODEX_20_LOGIC_VALIDATION: PASS — 325/325
 RUNTIME_DEPLOYMENT_CHANGED_BY_CODEX_20: NO
 GITHUB_CI_ACTUALLY_RAN: NO
+CODEX_21_LOGIC_VALIDATION: PASS — focused 35/35; canonical 330/330
+CODEX_21_TARGET_RUNTIME_QUALIFICATION: PASS — existing private Web App version 58
 ```
 
 ## Final-review findings
@@ -62,24 +64,20 @@ Review comment IDs:
 3890736055
 ```
 
-All three remain unresolved by design until fixing commits and tests exist.
+All three are closed by CODEX-21 and retained here as historical problem classification.
 
-## Active repair
+## Completed repair
 
 Instruction:
 `docs/handoffs/0020-CODEX-21-openai-retry-replacement-and-orphan-cleanup-hardening-instruction.md`
 
-CODEX-21 will add focused failure-injection tests, rerun the canonical suite, and only after deterministic PASS update the same private Web App at most once and requalify the designated small synthetic sources. It will not broad-sync, retry large fixtures, call Gemini, rerun FULL_OUTPUT, or merge the PR.
+CODEX-21 added focused failure-injection tests, passed the canonical suite, delivered/read back the exact tested source, updated the same private Web App once to version 58, exact-synced `DOC-000017` unchanged, and obtained one grounded authoritative citation each for `DOC-000017` and `MTG-000005`. The detailed evidence is in `docs/handoffs/0020-CODEX-21-openai-retry-replacement-and-orphan-cleanup-hardening-report.md`.
 
 ## Problem classification
 
 ### BLOCKER
 
-- retryable preserved Indexed state can be skipped indefinitely;
-- replacement state/document ordering can become inconsistent;
-- upload/attachment/index failure can accumulate orphaned provider Files;
-- 3 unresolved review threads;
-- PR #26 is not approved for final merge despite remaining GitHub-mergeable at last readback.
+- none.
 
 ### FIX SOON / FOLLOW-UP
 
@@ -97,16 +95,18 @@ CODEX-21 will add focused failure-injection tests, rerun the canonical suite, an
 ```text
 FUNCTIONAL_RUNTIME_QUALIFICATION: PASS
 MAIN_RECONCILIATION: PASS
-REVIEW_P1_INDEXED_RETRY_ELIGIBILITY: FAIL / OPEN
-REVIEW_P2_REPLACEMENT_TRANSACTION: FAIL / OPEN
-REVIEW_P2_UPLOAD_ORPHAN_CLEANUP: FAIL / OPEN
-UNRESOLVED_REVIEW_THREADS: 3
-PR_READY_FOR_FINAL_MERGE: NO
-WORK_READY: NO
-BLOCKER: PRE_MERGE_REVIEW_FINDINGS
+REVIEW_P1_INDEXED_RETRY_ELIGIBILITY: PASS
+REVIEW_P2_REPLACEMENT_TRANSACTION: PASS
+REVIEW_P2_UPLOAD_ORPHAN_CLEANUP: PASS
+LOGIC_VALIDATION: PASS — 330/330
+TARGET_RUNTIME_QUALIFICATION: PASS — version 58
+UNRESOLVED_REVIEW_THREADS: 0
+PR_READY_FOR_FINAL_MERGE: YES
+WORK_READY: YES
+BLOCKER: NONE
 ```
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-21`
-BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+BALL: `CHATGPT`
+DISPATCH_STATUS: `RETURNED`

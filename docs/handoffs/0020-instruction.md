@@ -2,12 +2,15 @@
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-21`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `REVIEW_FIX -> QUALIFICATION`
 
-Active instruction:
+Completed instruction:
 `docs/handoffs/0020-CODEX-21-openai-retry-replacement-and-orphan-cleanup-hardening-instruction.md`
+
+Completion report:
+`docs/handoffs/0020-CODEX-21-openai-retry-replacement-and-orphan-cleanup-hardening-report.md`
 
 Latest completed integration report:
 `docs/handoffs/0020-CODEX-20-main-reconciliation-and-final-merge-readiness-report.md`
@@ -39,15 +42,15 @@ CODEX_20_LOGIC_VALIDATION: PASS — 325/325
 
 Do not reopen or broadly repeat those gates.
 
-## New pre-merge blocker
+## Closed pre-merge review findings
 
-Final PR review found three unresolved code-level findings after CODEX-20 returned:
+Final PR review found three code-level findings after CODEX-20 returned:
 
 - an `Indexed` last-known-good entry with retryable `lastError` is not generally selected by the normal retry path;
 - replacement currently deletes prior provider documents before replacement state is durably written;
 - a successful OpenAI File upload is not guaranteed to be cleaned when attachment/indexing later fails.
 
-These findings affect automatic recovery and provider-resource integrity. PR #26 must not merge until CODEX-21 closes them.
+CODEX-21 closed all three with failure-injection coverage and bounded target-runtime requalification.
 
 Review comments:
 
@@ -57,11 +60,11 @@ Review comments:
 3890736055 — upload/attachment/index failure cleanup
 ```
 
-ChatGPT has replied to all three and left the threads unresolved pending evidence.
+All three threads were replied to with the fixing commit/test evidence and resolved.
 
-## CODEX-21 outcome
+## CODEX-21 completed outcome
 
-CODEX-21 must:
+CODEX-21 completed:
 
 1. honor due retry metadata while retaining the last known-good Indexed source;
 2. make replacement state transition recoverable and cleanup idempotent;
@@ -69,7 +72,9 @@ CODEX-21 must:
 4. add failure-injection regression tests;
 5. rerun focused and canonical validation;
 6. after deterministic PASS only, deploy/read back at most one version and requalify exact `DOC-000017` / `MTG-000005` paths;
-7. resolve all three review threads and return the PR for final ChatGPT merge review.
+7. resolved all three review threads and returned the Open/unmerged PR for final ChatGPT merge review.
+
+The same private Web App is now version 58. Exact `DOC-000017` sync was unchanged with one current provider document, and one bounded grounded query each returned `DOC-000017` and `MTG-000005` as the sole authoritative normalized source.
 
 ## Safety boundary
 
@@ -85,14 +90,16 @@ CODEX-21 must:
 ```text
 FUNCTIONAL_RUNTIME_QUALIFICATION: PASS
 MAIN_RECONCILIATION: PASS
-REVIEW_HARDENING: PENDING CODEX-21
-UNRESOLVED_REVIEW_THREADS: 3
-READY_FOR_CHATGPT_FINAL_MERGE: NO
-WORK_READY: NO
-BLOCKER: PRE_MERGE_REVIEW_FINDINGS
+REVIEW_HARDENING: PASS
+CODEX_21_LOGIC_VALIDATION: PASS — 330/330
+TARGET_RUNTIME_QUALIFICATION: PASS — version 58, designated synthetic sources only
+UNRESOLVED_REVIEW_THREADS: 0
+READY_FOR_CHATGPT_FINAL_MERGE: YES
+WORK_READY: YES
+BLOCKER: NONE
 ```
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-21`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

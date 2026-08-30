@@ -127,6 +127,14 @@ function kspIsGeminiReadbackRecoveryEntry_(entry, provider) {
     lastError.permanent === true && !entry.documentName && !entry.contentHash;
 }
 
+function kspIsAiProviderRetryDue_(entry, nowIso, settings) {
+  var lastError = kspAiProviderLastError_(entry && entry.lastError);
+  if (lastError.permanent || !lastError.retryable ||
+      lastError.attempt >= Number(settings.maxRetryAttempts || KSP_AI_DEFAULTS.MAX_RETRY_ATTEMPTS)) return false;
+  return !lastError.nextAttemptAt ||
+    kspTemporalInstantComparisonKey_(lastError.nextAttemptAt) <= kspTemporalInstantComparisonKey_(nowIso);
+}
+
 function kspIsProviderAiWorkEligible_(item, nowIso, settings, provider) {
   var row = item.row || {};
   var entry = kspGetAiProviderStateEntry_(row, provider);
@@ -136,6 +144,11 @@ function kspIsProviderAiWorkEligible_(item, nowIso, settings, provider) {
       entry.status === KSP_AI_INDEX_STATUS.PENDING || entry.status === KSP_AI_INDEX_STATUS.FAILED;
   }
   if (sourceStatus !== KSP_STATUS.ACTIVE) return false;
+  // An Indexed entry can carry a retryable cleanup failure while continuing
+  // to serve its last-known-good document. Scheduled sync must revisit that
+  // entry after its retry deadline instead of treating Indexed as terminal.
+  if (entry.status === KSP_AI_INDEX_STATUS.INDEXED &&
+      kspIsAiProviderRetryDue_(entry, nowIso, settings)) return true;
   // The legacy status can remain Pending after an OpenAI-specific successful
   // sync. Treat it as a revision signal only when the authoritative row is
   // newer than that provider's complete Indexed entry.
@@ -152,12 +165,8 @@ function kspIsProviderAiWorkEligible_(item, nowIso, settings, provider) {
   if (entry.status === KSP_AI_INDEX_STATUS.PENDING || entry.status === KSP_AI_INDEX_STATUS.NOT_INDEXED) return true;
   if (entry.status === KSP_AI_INDEX_STATUS.INDEXED && !entry.documentName) return true;
   if (entry.status !== KSP_AI_INDEX_STATUS.FAILED) return false;
-  var lastError = kspAiProviderLastError_(entry.lastError);
   if (kspIsGeminiReadbackRecoveryEntry_(entry, provider)) return true;
-  if (lastError.permanent || !lastError.retryable ||
-      lastError.attempt >= Number(settings.maxRetryAttempts || KSP_AI_DEFAULTS.MAX_RETRY_ATTEMPTS)) return false;
-  return !lastError.nextAttemptAt ||
-    kspTemporalInstantComparisonKey_(lastError.nextAttemptAt) <= kspTemporalInstantComparisonKey_(nowIso);
+  return kspIsAiProviderRetryDue_(entry, nowIso, settings);
 }
 
 function kspNormalizeProviderAiSelection_(selection) {
@@ -1285,6 +1294,61 @@ function kspProviderStatePatch_(environment, item, provider, patch) {
   return rowPatch;
 }
 
+function kspProviderIndexedStatePatch_(provider, config, documentValue, contentHash, indexedAt) {
+  return {
+    status: KSP_AI_INDEX_STATUS.INDEXED,
+    documentName: String(documentValue && documentValue.name || ''),
+    providerDocumentId: String(documentValue && (documentValue.providerDocumentId || documentValue.fileId) || ''),
+    storeName: provider === KSP_AI_PROVIDERS.OPENAI ? config.vectorStoreId : config.storeName,
+    indexedAt: indexedAt,
+    contentHash: contentHash,
+    lastError: ''
+  };
+}
+
+function kspProviderDocumentIdentity_(documentValue) {
+  var value = documentValue || {};
+  return String(value.providerDocumentId || value.fileId || value.name || '');
+}
+
+function kspAddSafeCleanupDiagnostic_(target, code) {
+  var normalized = kspAiTrim_(code);
+  if (normalized && target.indexOf(normalized) < 0) target.push(normalized);
+}
+
+function kspDeleteProviderDocumentsBestEffort_(environment, provider, config, documents, fallbackCode) {
+  var diagnostics = [];
+  (documents || []).forEach(function (documentValue) {
+    try {
+      if (environment.deleteProviderDocument) environment.deleteProviderDocument(provider, config, documentValue);
+    } catch (cleanupError) {
+      kspAddSafeCleanupDiagnostic_(diagnostics, fallbackCode);
+      (Array.isArray(cleanupError.cleanupDiagnostics) ? cleanupError.cleanupDiagnostics : []).forEach(function (code) {
+        kspAddSafeCleanupDiagnostic_(diagnostics, code);
+      });
+    }
+  });
+  return diagnostics;
+}
+
+function kspProviderCleanupFailure_(code, diagnostics, preserveProviderStatePatch) {
+  var error = new Error('Provider document cleanup did not complete.');
+  error.code = code;
+  error.retryable = true;
+  error.cleanupDiagnostics = (diagnostics || []).slice();
+  if (preserveProviderStatePatch) error.preserveProviderStatePatch = kspDeepClone_(preserveProviderStatePatch);
+  return error;
+}
+
+function kspAttachProviderCleanupDiagnostics_(primaryError, diagnostics) {
+  if (!primaryError || typeof primaryError !== 'object') return primaryError;
+  var safeCodes = [];
+  (Array.isArray(primaryError.cleanupDiagnostics) ? primaryError.cleanupDiagnostics : []).concat(diagnostics || [])
+    .forEach(function (code) { kspAddSafeCleanupDiagnostic_(safeCodes, code); });
+  primaryError.cleanupDiagnostics = safeCodes;
+  return primaryError;
+}
+
 function kspBuildProviderSyncReport_(startedAt, settings) {
   return {
     workId: '0020', startedAt: startedAt, finishedAt: null, ok: true, providerOk: true, partial: false,
@@ -1430,33 +1494,49 @@ function kspRunProviderNeutralAiSync_(environment, options) {
               'Exact OpenAI source reconciliation did not return one current document.');
           }
           if (matching.length) {
-            matching.slice(1).forEach(function (doc) { if (environment.deleteProviderDocument) environment.deleteProviderDocument(provider, effectiveConfig, doc); });
+            if (provider === KSP_AI_PROVIDERS.OPENAI) {
+              kspAssert_(matching.length === 1, 'AI_CURRENT_SOURCE_RECONCILIATION_NOT_UNIQUE',
+                'OpenAI source reconciliation did not return one current document.');
+            }
             var selected = matching[0];
-            kspProviderStatePatch_(environment, item, provider, {
-              status: KSP_AI_INDEX_STATUS.INDEXED,
-              documentName: String(selected.name || ''),
-              providerDocumentId: String(selected.providerDocumentId || selected.fileId || ''),
-              storeName: provider === KSP_AI_PROVIDERS.OPENAI ? effectiveConfig.vectorStoreId : effectiveConfig.storeName,
-              indexedAt: environment.nowIso(), contentHash: source.contentHash, lastError: ''
+            var selectedIdentity = kspProviderDocumentIdentity_(selected);
+            var staleDocuments = (docs || []).filter(function (doc) {
+              return kspProviderDocumentIdentity_(doc) !== selectedIdentity;
             });
+            if (provider !== KSP_AI_PROVIDERS.OPENAI) staleDocuments = matching.slice(1);
+            var currentPatch = kspProviderIndexedStatePatch_(provider, effectiveConfig, selected,
+              source.contentHash, providerState.indexedAt || environment.nowIso());
+            var staleDiagnostics = kspDeleteProviderDocumentsBestEffort_(environment, provider,
+              effectiveConfig, staleDocuments, 'AI_STALE_DOCUMENT_DELETE_FAILED');
+            if (staleDiagnostics.length) {
+              throw kspProviderCleanupFailure_('AI_STALE_DOCUMENT_CLEANUP_FAILED',
+                staleDiagnostics, currentPatch);
+            }
+            kspProviderStatePatch_(environment, item, provider, currentPatch);
             report.unchanged += 1;
             return;
           }
           var uploaded = environment.uploadProviderSource(provider, effectiveConfig, source);
           kspAssert_(uploaded && uploaded.name, 'AI_UPLOAD_DOCUMENT_MISSING', 'Provider upload did not return a document.');
-          // Keep the last known-good provider document until the replacement
-          // upload has completed. An item-level upload/indexing failure must not
-          // discard a source that was already usable.
-          (docs || []).forEach(function (doc) {
-            if (environment.deleteProviderDocument) environment.deleteProviderDocument(provider, effectiveConfig, doc);
-          });
-          kspProviderStatePatch_(environment, item, provider, {
-            status: KSP_AI_INDEX_STATUS.INDEXED,
-            documentName: String(uploaded.name || ''),
-            providerDocumentId: String(uploaded.providerDocumentId || uploaded.fileId || ''),
-            storeName: provider === KSP_AI_PROVIDERS.OPENAI ? effectiveConfig.vectorStoreId : effectiveConfig.storeName,
-            indexedAt: environment.nowIso(), contentHash: source.contentHash, lastError: ''
-          });
+          var replacementPatch = kspProviderIndexedStatePatch_(provider, effectiveConfig, uploaded,
+            source.contentHash, environment.nowIso());
+          try {
+            // The new document becomes authoritative before stale documents
+            // are removed. This makes interruption recoverable without losing
+            // the last known-good state or uploading the same replacement twice.
+            kspProviderStatePatch_(environment, item, provider, replacementPatch);
+          } catch (persistenceError) {
+            var replacementDiagnostics = kspDeleteProviderDocumentsBestEffort_(environment, provider,
+              effectiveConfig, [uploaded], 'AI_REPLACEMENT_DOCUMENT_CLEANUP_FAILED');
+            kspAttachProviderCleanupDiagnostics_(persistenceError, replacementDiagnostics);
+            throw persistenceError;
+          }
+          var priorCleanupDiagnostics = kspDeleteProviderDocumentsBestEffort_(environment, provider,
+            effectiveConfig, docs, 'AI_STALE_DOCUMENT_DELETE_FAILED');
+          if (priorCleanupDiagnostics.length) {
+            throw kspProviderCleanupFailure_('AI_STALE_DOCUMENT_CLEANUP_FAILED',
+              priorCleanupDiagnostics, replacementPatch);
+          }
           report.indexed += 1;
           report.providers[provider].indexed += 1;
         } catch (error) {
@@ -1465,17 +1545,20 @@ function kspRunProviderNeutralAiSync_(environment, options) {
           report.items.push({ provider: provider, sourceType: item.sourceType, sourceId: item.sourceId, action: 'failed', code: kspGetErrorCode_(error) });
           try {
             var previousState = kspGetAiProviderStateEntry_(item.row, provider);
+            var preservedState = error.preserveProviderStatePatch
+              ? kspDeepClone_(error.preserveProviderStatePatch) : null;
+            var retryBaseState = preservedState || previousState;
             var lastError = kspBuildAiProviderLastError_(error,
-              kspAiProviderLastError_(previousState.lastError), settings, environment.nowIso());
-            var previousUsable = previousState.status === KSP_AI_INDEX_STATUS.INDEXED &&
-              previousState.documentName && previousState.contentHash;
+              kspAiProviderLastError_(retryBaseState.lastError), settings, environment.nowIso());
+            var previousUsable = retryBaseState.status === KSP_AI_INDEX_STATUS.INDEXED &&
+              retryBaseState.documentName && retryBaseState.contentHash;
             kspProviderStatePatch_(environment, item, provider, previousUsable ? {
               status: KSP_AI_INDEX_STATUS.INDEXED,
-              documentName: previousState.documentName,
-              providerDocumentId: previousState.providerDocumentId,
-              storeName: previousState.storeName,
-              indexedAt: previousState.indexedAt,
-              contentHash: previousState.contentHash,
+              documentName: retryBaseState.documentName,
+              providerDocumentId: retryBaseState.providerDocumentId,
+              storeName: retryBaseState.storeName,
+              indexedAt: retryBaseState.indexedAt,
+              contentHash: retryBaseState.contentHash,
               lastError: lastError
             } : {
               status: KSP_AI_INDEX_STATUS.FAILED, documentName: '', providerDocumentId: '', indexedAt: '', contentHash: '',
