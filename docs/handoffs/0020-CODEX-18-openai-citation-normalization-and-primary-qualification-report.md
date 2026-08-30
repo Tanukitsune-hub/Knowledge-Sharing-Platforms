@@ -115,7 +115,7 @@ FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 FINAL_INTEGRITY: NOT RUN native Web App; repository/source-readback integrity PASS
 READY: NO
 BLOCKER: ACTION_REQUIRED — enable Chrome extension file access, then resume native synthetic Pitchbook upload and bounded runtime qualification
-FINAL_COMMIT: PENDING — scoped OpenAI-only sync guard and qualification-state documentation are in this dispatch
+FINAL_COMMIT: ccfe915 — scoped OpenAI-only sync guard, qualification-state documentation, and preserved remote handoff updates
 GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
