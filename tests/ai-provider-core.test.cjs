@@ -627,6 +627,28 @@ test('synthetic OpenAI Meeting and Pitchbook sync/query uses exact metadata and 
   assert.doesNotMatch(JSON.stringify(env._debug.audits), /openai-qualification|vs-synthetic/);
 });
 
+test('explicit OpenAI sync scope excludes an enabled Gemini provider', () => {
+  const context = baseContext();
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'true', GEMINI_FILE_SEARCH_STORE: 'fileSearchStores/gemini-synthetic'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const originalGetProviderConfig = env.getProviderConfig;
+  env.getProviderConfig = (provider) => {
+    if (provider === 'GEMINI') {
+      return { provider, enabled: true, storeName: 'fileSearchStores/gemini-synthetic', modelId: 'gemini-3.7-flash', credentialConfigured: true };
+    }
+    return originalGetProviderConfig(provider);
+  };
+  const result = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, providers: ['OPENAI', 'OPENAI'] }));
+  assert.equal(result.ok, true);
+  assert.equal(result.providers.OPENAI.status, 'PASS');
+  assert.equal(result.providers.GEMINI, undefined);
+});
+
 test('synthetic OpenAI lifecycle reindexes exactly once, excludes Inactive, and restores on Reactivate', () => {
   const context = baseContext();
   context.settings = {

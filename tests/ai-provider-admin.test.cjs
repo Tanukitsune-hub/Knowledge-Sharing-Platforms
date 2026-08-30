@@ -299,8 +299,8 @@ test('administrator SYNC forwards a trimmed sourceType and blank sourceType pres
     assert.equal(combined.ok, true);
     assert.equal(combined.sync.sourceType, '');
     assert.deepEqual(plain(env._debug.syncCalls), [
-      { force: true, sourceType: 'Meeting' },
-      { force: true, sourceType: '' }
+      { force: true, sourceType: 'Meeting', providers: ['OPENAI'] },
+      { force: true, sourceType: '', providers: ['OPENAI'] }
     ]);
   });
 });

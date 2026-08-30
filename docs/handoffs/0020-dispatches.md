@@ -2,12 +2,12 @@
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
 
 ## Active dispatch
 
-### 0020-CODEX-18 — READY
+### 0020-CODEX-18 — ACTION_REQUIRED
 
 - mode: `REPAIR -> BUILD / QUALIFICATION`;
 - purpose: close the narrow OpenAI citation/source-normalization blocker proven by CODEX-17, then finish the existing OpenAI primary qualification path;
@@ -43,8 +43,10 @@ STATUS: `READY`
 - exact fail-closed OpenAI RETRIEVED_SOURCE normalization integrated while preserving INLINE_CITATION;
 - direct synthetic OpenAI control passed with exact metadata, one normalized authoritative source, grounded answer, and verified cleanup;
 - focused and canonical repository validation passed;
-- existing Work 0020 Web App source was read back successfully and updated in place to version 55;
-- native private-admin onboarding, bounded Meeting/Pitchbook runtime qualification, lifecycle, and final runtime integrity remain unobserved because they require authorized private Web App user operation;
+- existing Work 0020 Web App source was read back successfully and updated in place to version 56;
+- the user completed private-admin connection in the existing Web App, which displayed active status, and one synthetic Meeting was registered;
+- bounded Meeting/Pitchbook runtime qualification, lifecycle, and final runtime integrity remain pending; synthetic Pitchbook upload is blocked by the connected Chrome extension file-access setting;
+- administrator source sync is explicitly scoped to OpenAI so this dispatch does not call Gemini;
 - local OPENAI_API_KEY was not copied to Script Properties; no Gemini live call or provider fallback was used;
 - report: docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md;
 - PR #26 remains Draft / Open / unmerged.
@@ -58,7 +60,7 @@ OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: PASS direct synthetic and deterministic /
 OPENAI_METADATA_FILTER: PASS deterministic / NOT RUN native
 OPENAI_LIFECYCLE: PASS deterministic / NOT RUN native
 READY: NO
-BLOCKER: ACTION_REQUIRED
+BLOCKER: ACTION_REQUIRED — CHROME_FILE_UPLOAD_PERMISSION_REQUIRED
 GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
@@ -96,5 +98,5 @@ Only one active Codex dispatch may exist.
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`

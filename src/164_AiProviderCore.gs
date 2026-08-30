@@ -203,6 +203,18 @@ function kspNormalizeAiProvider_(value) {
   return normalized === KSP_AI_PROVIDERS.OPENAI || normalized === KSP_AI_PROVIDERS.GEMINI ? normalized : '';
 }
 
+function kspNormalizeProviderAiSyncProviders_(value) {
+  if (value === undefined) return [KSP_AI_PROVIDERS.OPENAI, KSP_AI_PROVIDERS.GEMINI];
+  kspAssert_(Array.isArray(value) && value.length > 0, 'AI_PROVIDER_INVALID', 'AI provider is invalid.');
+  var normalized = [];
+  value.forEach(function (provider) {
+    var normalizedProvider = kspNormalizeAiProvider_(provider);
+    kspAssert_(normalizedProvider, 'AI_PROVIDER_INVALID', 'AI provider is invalid.');
+    if (normalized.indexOf(normalizedProvider) === -1) normalized.push(normalizedProvider);
+  });
+  return normalized;
+}
+
 function kspBuildAiProviderConfig_(settings, provider) {
   var normalizedProvider = kspNormalizeAiProvider_(provider);
   kspAssert_(normalizedProvider, 'AI_PROVIDER_INVALID', 'AI provider is invalid.');
@@ -1270,7 +1282,15 @@ function kspRunProviderNeutralAiSync_(environment, options) {
     return report;
   }
   if (!settings.syncEnabled && !force) { report.finishedAt = environment.nowIso(); return report; }
-  var providerList = [KSP_AI_PROVIDERS.OPENAI, KSP_AI_PROVIDERS.GEMINI];
+  var providerList;
+  try {
+    providerList = kspNormalizeProviderAiSyncProviders_(syncOptions.providers);
+  } catch (providerError) {
+    report.finishedAt = environment.nowIso();
+    report.ok = false;
+    report.errors.push({ code: kspGetErrorCode_(providerError, 'AI_PROVIDER_INVALID') });
+    return report;
+  }
   providerList.forEach(function (provider) {
     var config = typeof environment.getProviderConfig === 'function'
       ? environment.getProviderConfig(provider)

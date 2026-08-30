@@ -2,8 +2,8 @@
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+BALL: `USER`
+DISPATCH_STATUS: `ACTION_REQUIRED`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
@@ -13,7 +13,7 @@ The current OpenAI no-annotation normalization gap was reproduced deterministica
 
 The direct synthetic OpenAI qualification passed with one temporary Vector Store, one tiny synthetic TXT, exact metadata, one exact-filter File Search query, one authoritative normalized source, grounded output, and verified cleanup. Focused tests, npm run check, temporal validation, public-surface validation, and git diff --check passed.
 
-The repaired source was read back with 78/78 deployable files matching and updated in place on the existing Work 0020 Web App deployment at version 55. Native private-admin key entry, native synthetic self-test, bounded Meeting/Pitchbook runtime qualification, lifecycle, and final runtime integrity remain NOT RUN; the local OPENAI_API_KEY was intentionally not copied to Script Properties. See docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
+The repaired source was read back with 78/78 deployable files matching and updated in place on the existing Work 0020 Web App deployment at version 56. The user completed the private-admin connection flow and the existing Web App displayed active status; one synthetic Meeting was registered. Explicit administrator sync is now OpenAI-only. Native bounded Meeting/Pitchbook sync, lifecycle, and final runtime integrity remain pending; Pitchbook upload is currently blocked by the connected Chrome extension file-access setting. The local OPENAI_API_KEY was intentionally not copied to Script Properties. See docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
 
 Latest classification:
 
@@ -23,12 +23,12 @@ OPENAI_DIRECT_BASE_MODEL: PASS — accepted CODEX-17 evidence
 OPENAI_DIRECT_FILE_SEARCH: PASS
 OPENAI_CITATION_NORMALIZATION: PASS
 OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-OPENAI_RUNTIME: PARTIAL — native private-admin qualification pending
+OPENAI_RUNTIME: PARTIAL — connection active; synthetic source sync/query pending
 GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 FINAL_INTEGRITY: NOT RUN native Web App
 READY: NO
-BLOCKER: ACTION_REQUIRED
+BLOCKER: ACTION_REQUIRED — enable Chrome extension file access for synthetic Pitchbook upload and resume bounded runtime qualification
 GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
@@ -40,19 +40,19 @@ OPENAI_DIRECT_BASE_MODEL: PASS
 OPENAI_DIRECT_FILE_SEARCH: PASS
 OPENAI_PROVIDER_RESOURCES: PASS — create/upload/attributes/index/filter/cleanup
 OPENAI_GROUNDED_SYNTHETIC_ANSWER: PASS
-OPENAI_CITATION_NORMALIZATION: BLOCKED — OPENAI_CITATION_NORMALIZATION_FAILURE
-OPENAI_SYNTHETIC_SELF_TEST: NOT YET APP-INTEGRATED
+OPENAI_CITATION_NORMALIZATION: PASS
+OPENAI_SYNTHETIC_SELF_TEST: CONNECTION ACTIVE IN EXISTING WEB APP; SOURCE QUALIFICATION PENDING
 OPENAI_MEETING_INDEX_QUERY: NOT RUN
 OPENAI_PITCHBOOK_INDEX_QUERY: NOT RUN
 OPENAI_METADATA_FILTER: DIRECT EXACT source_id FILTER PASS; app qualification pending
 OPENAI_LIFECYCLE: NOT RUN
-OPENAI_RUNTIME: PARTIAL / PROVIDER PATH VIABLE
+OPENAI_RUNTIME: PARTIAL — connection active; source sync/query pending
 GEMINI_RUNTIME: BLOCKED / PROVIDER RECOVERY DEFERRED
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 SCHEMA_ALIGNMENT: PASS
 FINAL_INTEGRITY: NOT RUN
 READY: NO
-BLOCKER: YES
+BLOCKER: YES — CHROME_FILE_UPLOAD_PERMISSION_REQUIRED
 ```
 
 ## CODEX-17 result
@@ -144,10 +144,9 @@ The current pushed Gemini source from CODEX-15 still contains an unqualified dia
 
 ### BLOCKER
 
-1. OpenAI source/citation normalization is not yet qualified.
-2. Application synthetic self-test/onboarding has not yet been integrated and live-qualified.
-3. OpenAI Meeting/Pitchbook application queries and lifecycle/final-integrity gates remain incomplete.
-4. PR #26 cannot merge while the user-ready provider route is unqualified.
+1. Chrome extension file access is required before the synthetic Pitchbook can be uploaded through the existing Web App.
+2. OpenAI Meeting/Pitchbook application queries and lifecycle/final-integrity gates remain incomplete.
+3. PR #26 cannot merge while the user-ready provider route is unqualified.
 
 ### FOLLOW_UP
 
@@ -157,7 +156,7 @@ The current pushed Gemini source from CODEX-15 still contains an unqualified dia
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+BALL: `USER`
+DISPATCH_STATUS: `ACTION_REQUIRED`
 WORK_READY: `NO`
 BLOCKER: `YES`

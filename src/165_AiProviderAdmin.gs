@@ -384,7 +384,11 @@ function kspMutateAiProviderSettings_(environment, input) {
       currentSettings.openaiReadiness === 'ACTIVE' || currentSettings.openaiEnabled || !currentSettings.openaiReadiness,
       'OPENAI_NOT_READY_FOR_SYNC', 'OpenAI connection test is required before source sync.');
     kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_ENABLED, 'true');
-    var sync = kspRunProviderNeutralAiSync_(environment, { force: true, sourceType: sourceType });
+    var sync = kspRunProviderNeutralAiSync_(environment, {
+      force: true,
+      sourceType: sourceType,
+      providers: [KSP_AI_PROVIDERS.OPENAI]
+    });
     if (!sync || !sync.ok) {
       try {
         kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_ENABLED, 'false');

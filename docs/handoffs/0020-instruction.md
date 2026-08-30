@@ -2,14 +2,14 @@
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-18`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
 
 ## CODEX-18 returned boundary
 
 The deterministic no-annotation failure was reproduced and the OpenAI normalizer was repaired. Direct synthetic OpenAI qualification passed, including exact retrieved-source metadata agreement and cleanup. The implementation was integrated and delivered to the existing Work 0020 Web App deployment in place.
 
-The remaining qualification is target-runtime-only: a private administrator must use the existing Web App to complete APIキーを保存して接続確認, observe the synthetic self-test and READY_FOR_SYNC, then explicitly run 資料を同期して利用開始 before Meeting/Pitchbook and lifecycle evidence can be accepted. The Codex local key was not copied to Script Properties. Until those user-authorized checks are observed, READY: NO and BLOCKER: ACTION_REQUIRED.
+The private administrator has completed APIキーを保存して接続確認 in the existing Web App; the UI now displays an active OpenAI status, and one synthetic Meeting has been registered. The remaining target-runtime qualification is the explicit OpenAI-only source sync, synthetic Meeting/Pitchbook citation proof, lifecycle, and final integrity. Pitchbook upload is currently blocked by the connected Chrome extension file-access setting. The Codex local key was not copied to Script Properties. Until the bounded source and lifecycle checks are observed, READY: NO and BLOCKER: ACTION_REQUIRED.
 
 Full details: docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
 MODE: `REPAIR -> BUILD / QUALIFICATION`
@@ -131,14 +131,14 @@ FULL_OUTPUT remains accepted and must not be rerun.
 PRIMARY_COMPLETION_PROVIDER: OPENAI
 OPENAI_DIRECT_BASE_MODEL: PASS
 OPENAI_DIRECT_FILE_SEARCH: PASS
-OPENAI_CITATION_NORMALIZATION: BLOCKED — narrow normalization contract
-OPENAI_RUNTIME: PARTIAL / PROVIDER PATH VIABLE
+OPENAI_CITATION_NORMALIZATION: PASS
+OPENAI_RUNTIME: PARTIAL — connection active; source sync/query pending
 GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
 FULL_OUTPUT_RUNTIME: PASS
 SCHEMA_ALIGNMENT: PASS
 FINAL_INTEGRITY: NOT RUN
 READY: NO
-BLOCKER: YES
+BLOCKER: YES — CHROME_FILE_UPLOAD_PERMISSION_REQUIRED
 ```
 
 ## Boundaries
@@ -155,5 +155,5 @@ BLOCKER: YES
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-18`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`

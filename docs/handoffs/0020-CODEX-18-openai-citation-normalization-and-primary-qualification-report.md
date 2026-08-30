@@ -10,7 +10,7 @@ PR: #26 — Draft / Open / unmerged
 
 The current no-annotation normalization failure was reproduced deterministically. The OpenAI normalizer now supports both valid output-text file_citation annotations and an exact fail-closed file_search_call.results retrieved-source path. Provider Store/File IDs remain server-side and are never used as UI or Audit source identities.
 
-The direct synthetic OpenAI qualification passed. The repaired source was pushed to the existing Work 0020 Web App deployment and read back byte-for-byte after normalizing the Apps Script .gs/.js filename convention. Native private-admin onboarding and the subsequent native Meeting/Pitchbook lifecycle gates were not run because they require an authorized user to enter the key through the existing private Web App. No local key was copied to Script Properties.
+The direct synthetic OpenAI qualification passed. The repaired source was pushed to the existing Work 0020 Web App deployment and read back byte-for-byte after normalizing the Apps Script .gs/.js filename convention. The private-admin connection flow was subsequently completed by the user in the existing Web App; the UI displayed API key configured, Vector Store ready, and status active. A synthetic Meeting was registered, but bounded source sync/query and lifecycle gates remain pending. The explicit administrator sync path is now OpenAI-only so this dispatch does not call Gemini. No local key was copied to Script Properties.
 
 ## Gate evidence
 
@@ -43,11 +43,11 @@ PASS:
 PASS:
 
 ~~~
-focused provider/admin/contract tests: 48/48
+focused provider/admin/contract tests: PASS, including explicit OpenAI-only sync scope regression
 focused query UI tests: 10/10
-canonical repository tests: 315/315
+canonical repository tests: 316/316
 temporal validation: PASS
-public-surface validation: PASS
+public-surface validation: PASS — 30 public, 603 private top-level
 git diff --check: PASS
 npm run check: PASS
 ~~~
@@ -78,15 +78,23 @@ PASS:
 - source push to the existing project completed;
 - isolated source readback matched 78/78 deployable files;
 - repository-only src/AGENTS.md was excluded from deployable parity;
-- the existing Work 0020 deployment was updated in place to version 55;
+- the existing Work 0020 deployment was updated in place to version 56;
 - no new Web App, Library, public debug endpoint, or deployment was created.
+
+OBSERVED:
+
+- private-admin connection flow completed in the existing Web App; status displayed active;
+- one non-confidential synthetic Meeting was registered in the existing Web App.
 
 NOT RUN:
 
-- native private-admin key entry and synthetic self-test;
 - native bounded Meeting/Pitchbook sync and query citation evidence;
 - native provider metadata/lifecycle sequence;
 - final native integrity.
+
+BLOCKED:
+
+- synthetic Pitchbook upload could not be started because the connected Chrome extension does not currently expose a file chooser; the required local setting is “Allow access to file URLs” for the ChatGPT extension.
 
 These checks require a user-authorized private Web App session. The Codex process local OPENAI_API_KEY was used only for direct OpenAI qualification and was never displayed, logged, committed, or copied to Script Properties.
 
@@ -97,7 +105,7 @@ OPENAI_DIRECT_BASE_MODEL: PASS — accepted CODEX-17 evidence; not rerun
 OPENAI_DIRECT_FILE_SEARCH: PASS — accepted CODEX-17 evidence plus CODEX-18 direct synthetic control
 OPENAI_CITATION_NORMALIZATION: PASS
 OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-OPENAI_SYNTHETIC_SELF_TEST: PASS deterministic path; NOT RUN native Web App
+OPENAI_SYNTHETIC_SELF_TEST: PASS deterministic path; native connection flow reached active status
 OPENAI_MEETING_INDEX_QUERY_CITATION: PASS deterministic path; NOT RUN native Web App
 OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: PASS deterministic/direct synthetic path; NOT RUN native Web App
 OPENAI_METADATA_FILTER: PASS deterministic/direct synthetic path; NOT RUN native Web App
@@ -106,8 +114,8 @@ LOGIC_VALIDATION: PASS
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 FINAL_INTEGRITY: NOT RUN native Web App; repository/source-readback integrity PASS
 READY: NO
-BLOCKER: ACTION_REQUIRED — native private-admin qualification and bounded runtime lifecycle remain unobserved
-FINAL_COMMIT: c88625e4865f3322dc21b3d7d269ab2bf99e26d7 — implementation commit; documentation result update is subsequent
+BLOCKER: ACTION_REQUIRED — enable Chrome extension file access, then resume native synthetic Pitchbook upload and bounded runtime qualification
+FINAL_COMMIT: PENDING — scoped OpenAI-only sync guard and qualification-state documentation are in this dispatch
 GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
