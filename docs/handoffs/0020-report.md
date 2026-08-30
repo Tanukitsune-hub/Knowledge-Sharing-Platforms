@@ -2,162 +2,86 @@
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+BALL: `USER`
+DISPATCH_STATUS: `ACTION_REQUIRED`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
-## CODEX-18 execution result
-
-The current OpenAI no-annotation normalization gap was reproduced deterministically and repaired with an explicit file_search_call.results request, annotation-preserving INLINE_CITATION, and exact fail-closed RETRIEVED_SOURCE normalization. Retrieved-source identity requires provider file identity plus source_type, source_id, and content_hash; filename-only identity is not accepted, repeated results are deduplicated, and provider Store/File IDs remain server-side.
-
-The direct synthetic OpenAI qualification passed with one temporary Vector Store, one tiny synthetic TXT, exact metadata, one exact-filter File Search query, one authoritative normalized source, grounded output, and verified cleanup. Focused tests, npm run check, temporal validation, public-surface validation, and git diff --check passed.
-
-The repaired source was read back with 78/78 deployable files matching and updated in place on the existing Work 0020 Web App deployment at version 55. Native private-admin key entry, native synthetic self-test, bounded Meeting/Pitchbook runtime qualification, lifecycle, and final runtime integrity remain NOT RUN; the local OPENAI_API_KEY was intentionally not copied to Script Properties. See docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
-
-Latest classification:
-
-~~~
-PRIMARY_COMPLETION_PROVIDER: OPENAI
-OPENAI_DIRECT_BASE_MODEL: PASS — accepted CODEX-17 evidence
-OPENAI_DIRECT_FILE_SEARCH: PASS
-OPENAI_CITATION_NORMALIZATION: PASS
-OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-OPENAI_RUNTIME: PARTIAL — native private-admin qualification pending
-GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
-FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
-FINAL_INTEGRITY: NOT RUN native Web App
-READY: NO
-BLOCKER: ACTION_REQUIRED
-GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
-~~~
-
-## Current classification
+## Current authoritative classification
 
 ```text
 PRIMARY_COMPLETION_PROVIDER: OPENAI
 OPENAI_DIRECT_BASE_MODEL: PASS
 OPENAI_DIRECT_FILE_SEARCH: PASS
+OPENAI_CITATION_NORMALIZATION: PASS
+OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
 OPENAI_PROVIDER_RESOURCES: PASS — create/upload/attributes/index/filter/cleanup
 OPENAI_GROUNDED_SYNTHETIC_ANSWER: PASS
-OPENAI_CITATION_NORMALIZATION: BLOCKED — OPENAI_CITATION_NORMALIZATION_FAILURE
-OPENAI_SYNTHETIC_SELF_TEST: NOT YET APP-INTEGRATED
-OPENAI_MEETING_INDEX_QUERY: NOT RUN
-OPENAI_PITCHBOOK_INDEX_QUERY: NOT RUN
-OPENAI_METADATA_FILTER: DIRECT EXACT source_id FILTER PASS; app qualification pending
-OPENAI_LIFECYCLE: NOT RUN
-OPENAI_RUNTIME: PARTIAL / PROVIDER PATH VIABLE
-GEMINI_RUNTIME: BLOCKED / PROVIDER RECOVERY DEFERRED
+OPENAI_SYNTHETIC_SELF_TEST: PASS deterministic / NOT RUN native Web App
+OPENAI_MEETING_INDEX_QUERY_CITATION: PASS deterministic / NOT RUN native Web App
+OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: PASS direct synthetic + deterministic / NOT RUN native Web App
+OPENAI_METADATA_FILTER: PASS deterministic/direct synthetic / NOT RUN native Web App
+OPENAI_LIFECYCLE: PASS deterministic / NOT RUN native Web App
+OPENAI_RUNTIME: PARTIAL — authorized private-admin native qualification pending
+GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 SCHEMA_ALIGNMENT: PASS
-FINAL_INTEGRITY: NOT RUN
+SOURCE_READBACK: PASS — 78/78 deployable files
+WEB_APP_DELIVERY: PASS — version 55, existing deployment updated in place
+FINAL_INTEGRITY: NOT RUN native Web App
 READY: NO
-BLOCKER: YES
+BLOCKER: ACTION_REQUIRED
+GITHUB_CI_ACTUALLY_RAN: NO
 ```
 
-## CODEX-17 result
+## CODEX-18 result
 
-The user returned the CODEX-17 direct-provider result. CODEX-17 did not modify or deploy application source and did not push a new application commit.
+CODEX-18 reproduced the OpenAI no-annotation gap and repaired the normalizer. The implementation now preserves explicit `INLINE_CITATION` evidence and also supports exact fail-closed `RETRIEVED_SOURCE` normalization using provider file identity plus `source_type`, `source_id`, and `content_hash`. Filename-only or ambiguous/stale identity is rejected and provider resource IDs remain server-side.
 
-Direct OpenAI evidence:
+The direct synthetic OpenAI qualification passed with one temporary Vector Store and one synthetic TXT. Exact filtering, grounded answer, authoritative normalized source and cleanup all passed. Repository validation passed (`315/315`; focused `48/48`; UI `10/10` plus temporal/public/diff checks).
+
+The repaired source was delivered to the existing Apps Script project, read back `78/78`, and the existing private Web App was updated in place to version `55`.
+
+No local API key was copied to Script Properties. Therefore the remaining checks are deliberately native/private-admin only.
+
+## Remaining authorized-user sequence
 
 ```text
-Control: PASS
-Vector Store create: PASS
-synthetic TXT upload: PASS
-safe attributes: PASS
-index completion: PASS
-exact source_id filter: PASS
-File Search request: completed
-synthetic grounded answer: completed
-required Knowledge Share citation normalization: FAIL
-classification: OPENAI_CITATION_NORMALIZATION_FAILURE
-cleanup: PASS — no residual temporary provider resources
+1. open the existing private Web App version 55 as an authorized administrator;
+2. enter the OpenAI API key only in the private admin field;
+3. run APIキーを保存して接続確認;
+4. require isolated synthetic self-test PASS and READY_FOR_SYNC;
+5. confirm that this step did not sync/read Meeting or Pitchbook source bodies;
+6. run 資料を同期して利用開始;
+7. observe bounded native Meeting and Pitchbook indexing/query/source evidence;
+8. complete native metadata filter, update/reindex, Inactive, Reactivate, delete/rebuild and disable/re-enable checks;
+9. complete final five-sheet/schema/provider/Audit/settings/trigger/deployment integrity.
 ```
 
-This is materially different from the Gemini blocker. OpenAI retrieval/provider execution reached a grounded answer. The remaining direct blocker is how provider source evidence is mapped into the Knowledge Share source/citation contract.
-
-The CODEX-17 returned report is local evidence supplied by the user; because CODEX-17 did not push a report/commit, GitHub does not independently contain that returned report. Preserve that distinction.
-
-## Official OpenAI evidence shapes relevant to CODEX-18
-
-Responses output may expose:
-
-1. output-text annotations containing `type: file_citation`, `file_id`, `filename`, etc.;
-2. a `file_search_call` output item whose `results` are available when requested with `include: ["file_search_call.results"]`, including provider file identity, score/text and attributes.
-
-The application must not equate these two provenance types silently.
-
-Accepted Knowledge Share classifications:
-
-```text
-INLINE_CITATION
-= provider emitted a file_citation annotation tied to model output
-
-RETRIEVED_SOURCE
-= File Search retrieved the source and exact provider/source metadata maps it uniquely back to Knowledge Share
-```
-
-A retrieved source may support the user-facing source list, but must not be represented as an inline citation when no annotation exists.
-
-## Active CODEX-18
-
-Instruction:
-`docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-instruction.md`
-
-Fastest safe sequence:
-
-```text
-deterministic reproduction of current normalization gap
--> explicit file_search_call.results include
--> annotation-first + exact retrieved-source fallback normalizer
--> canonical tests
--> exactly one temporary synthetic direct-provider control
--> cleanup
--> only if PASS, application integration
--> private-admin isolated synthetic self-test
--> explicit bounded source activation
--> synthetic/non-confidential Meeting + Pitchbook index/query/source proof
--> metadata/lifecycle gates
--> final integrity
-```
-
-No Web App mutation is authorized before the direct synthetic control passes.
-
-## Current source warning
-
-The current pushed Gemini source from CODEX-15 still contains an unqualified diagnostic Generate Content default. PR #26 remains Draft / Open / unmerged. CODEX-18 must ensure the final user-ready provider selection does not treat that failed Gemini diagnostic path as qualified.
-
-## Preserved accepted evidence
-
-- schema `6`, exactly five Backend sheets;
-- FULL_OUTPUT PASS;
-- provider-neutral no-auto-failover architecture;
-- Gemini document reconciliation PASS;
-- one earlier grounded Gemini Meeting query with three citations;
-- CODEX-14 request/lifecycle/dedupe/reload UX evidence;
-- CODEX-15 Gemini provider-path failure evidence;
-- CODEX-17 OpenAI provider reachability/index/filter/grounded-answer evidence;
-- GitHub-hosted CI remains absent; local/repository tests are not CI evidence.
+Do not create a new Codex dispatch merely for these authorized UI actions. Keep `0020-CODEX-18` while the user action is pending. If native qualification passes, ChatGPT should close/integrate Work 0020. If it exposes a real implementation defect, create the next dispatch only for that defect.
 
 ## Problem classification
 
 ### BLOCKER
 
-1. OpenAI source/citation normalization is not yet qualified.
-2. Application synthetic self-test/onboarding has not yet been integrated and live-qualified.
-3. OpenAI Meeting/Pitchbook application queries and lifecycle/final-integrity gates remain incomplete.
-4. PR #26 cannot merge while the user-ready provider route is unqualified.
+1. Native private-admin OpenAI self-test has not yet been observed.
+2. Native bounded Meeting/Pitchbook application evidence has not yet been observed.
+3. Native lifecycle/final-integrity qualification is not yet complete.
+4. PR #26 cannot merge until the native provider route is qualified and the branch is reconciled with current main.
 
-### FOLLOW_UP
+### FIX SOON / FOLLOW-UP
 
-- Gemini provider recovery after Work 0020 completes on OpenAI, if OpenAI qualifies.
-- user-selectable reasoning level and representative latency benchmark in later Works.
-- current-main integration after provider blocker closes and before final merge.
+- GitHub-hosted CI is still absent; local/repository tests are not CI evidence.
+- PR #26 is currently non-mergeable relative to main and must be reconciled only after provider qualification closes.
+- Gemini provider recovery is a later provider-specific Work.
+- Work 0025 will add administrator-controlled model/thinking selection after Work 0020 closes.
+
+Report:
+`docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md`
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `CODEX`
-DISPATCH_STATUS: `READY`
+BALL: `USER`
+DISPATCH_STATUS: `ACTION_REQUIRED`
 WORK_READY: `NO`
 BLOCKER: `YES`
