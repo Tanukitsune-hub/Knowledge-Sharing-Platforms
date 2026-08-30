@@ -7,25 +7,34 @@ STATUS: `ACTION_REQUIRED`
 
 ## Active dispatch
 
-### 0020-CODEX-18 — ACTION_REQUIRED
+### 0020-CODEX-18 — RETURNED / USER NATIVE ACCEPTANCE REQUIRED
 
-- mode: `REPAIR -> BUILD / QUALIFICATION`;
-- purpose: close the narrow OpenAI citation/source-normalization blocker proven by CODEX-17, then finish the existing OpenAI primary qualification path;
-- accepted CODEX-17 direct evidence: base model PASS, Vector Store PASS, synthetic upload/attributes/indexing PASS, exact `source_id` filter PASS, File Search execution PASS, grounded synthetic answer PASS, cleanup PASS;
-- CODEX-17 blocker: the direct response did not expose a citation representation accepted by the current Knowledge Share normalizer;
-- active hypothesis: retrieval succeeded but the qualification/parser accepted only one citation representation;
-- CODEX-18 must explicitly request `include: ["file_search_call.results"]`, preserve valid `file_citation` annotations, and normalize exact/unambiguous retrieved-source evidence without overstating provenance;
-- `INLINE_CITATION` and `RETRIEVED_SOURCE` provenance must remain distinguishable;
-- filename-only identity is forbidden;
-- provider Store/File IDs remain server-side only;
-- direct synthetic provider control must PASS before any Web App/source delivery;
-- after direct PASS, complete the accepted private-admin synthetic self-test, bounded OpenAI activation, Meeting/Pitchbook citation/source qualification, metadata filters, lifecycle, disable/re-enable, and final integrity;
-- instruction: `docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-instruction.md`;
-- branch: `agent/0020-ai-provider-core`;
-- Draft PR: `#26` — Draft / Open / unmerged;
-- no Gemini live calls, provider failover, confidential DEV data, FULL_OUTPUT rerun, new Web App/Library/public debug endpoint, or current-main integration in this dispatch.
+Accepted CODEX-18 evidence:
 
-## Returned dispatch
+- deterministic no-annotation failure reproduced;
+- OpenAI INLINE_CITATION and exact fail-closed RETRIEVED_SOURCE normalization PASS;
+- direct synthetic File Search/filter/source normalization PASS;
+- focused provider/admin/core tests PASS, UI tests `10/10`, canonical `316/316` PASS;
+- temporal/public-surface/diff checks PASS;
+- source readback `78/78` PASS;
+- existing private Web App updated in place to version `56`;
+- no Gemini live call, fallback, confidential DEV data, FULL_OUTPUT rerun, or new deployment;
+- GitHub Actions/status checks remain absent.
+
+Remaining action is not a new Codex implementation dispatch. An authorized private-admin user must use the existing Web App:
+
+```text
+APIキーを保存して接続確認
+-> require synthetic self-test PASS / READY_FOR_SYNC
+-> enable Chrome extension “Allow access to file URLs” for synthetic Pitchbook upload
+-> 資料を同期して利用開始
+-> observe native bounded Meeting/Pitchbook source/query evidence
+-> complete native metadata/lifecycle/final-integrity qualification
+```
+
+Keep Dispatch ID `0020-CODEX-18` while this user action is pending. Create `0020-CODEX-19` only if the native result exposes a real residual implementation defect requiring Codex.
+
+## Returned history
 
 ### 0020-CODEX-17 — RETURNED / NARROW BLOCKER
 
@@ -68,33 +77,29 @@ GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed
 
 ### 0020-CODEX-16 — SUPERSEDED / NOT EXECUTED
 
-- CODEX-16 was prepared for direct Gemini same-project controls;
-- before execution, the user chose OpenAI API as the active completion strategy because Google AI Studio itself was also repeatedly erroring;
-- preserve the CODEX-16 handoff for history only.
+Prepared for additional Gemini diagnosis, then superseded when OpenAI became the active completion provider.
 
 ## Accepted Gemini evidence retained
 
-- CODEX-14 application request/lifecycle/UX work PASS; one Interactions + File Search job stayed pending for at least `600000ms`;
-- CODEX-15 Generate Content + File Search returned a safe failure after `83364ms` with zero citations;
-- Gemini document reconciliation and one earlier grounded Meeting query remain accepted evidence;
-- Gemini recovery is deferred and is not a prerequisite for Work 0020 if OpenAI fully qualifies.
+Gemini implementation/reconciliation evidence remains preserved, but provider recovery is deferred and is not required for Work 0020 if OpenAI passes native qualification. No automatic failover is permitted.
 
-## Current Work classification
+## Current classification
 
 ```text
 PRIMARY_COMPLETION_PROVIDER: OPENAI
 OPENAI_DIRECT_BASE_MODEL: PASS
 OPENAI_DIRECT_FILE_SEARCH: PASS
-OPENAI_CITATION_NORMALIZATION: BLOCKED — narrow parser/provenance contract
-OPENAI_RUNTIME: PARTIAL / PROVIDER PATH VIABLE
-GEMINI_RUNTIME: BLOCKED / PROVIDER PATH DEFERRED
-FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence
-FINAL_INTEGRITY: NOT RUN
+OPENAI_CITATION_NORMALIZATION: PASS
+OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
+OPENAI_NATIVE_RUNTIME: ACTION_REQUIRED
+GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
+FULL_OUTPUT_RUNTIME: PASS
+FINAL_INTEGRITY: NOT RUN native Web App
 READY: NO
-BLOCKER: YES
+BLOCKER: ACTION_REQUIRED
 ```
 
-Only one active Codex dispatch may exist.
+Only one active dispatch may exist.
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`

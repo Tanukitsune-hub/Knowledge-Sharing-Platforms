@@ -5,9 +5,9 @@ DISPATCH_ID: `0020-CODEX-18`
 BALL: `USER`
 STATUS: `ACTION_REQUIRED`
 
-## CODEX-18 returned boundary
+## Current boundary
 
-The deterministic no-annotation failure was reproduced and the OpenAI normalizer was repaired. Direct synthetic OpenAI qualification passed, including exact retrieved-source metadata agreement and cleanup. The implementation was integrated and delivered to the existing Work 0020 Web App deployment in place.
+CODEX-18 returned successfully for the repair/build portion.
 
 The private administrator has completed APIキーを保存して接続確認 in the existing Web App; the UI now displays an active OpenAI status, and one synthetic Meeting has been registered. The remaining target-runtime qualification is the explicit OpenAI-only source sync, synthetic Meeting/Pitchbook citation proof, lifecycle, and final integrity. Pitchbook upload is currently blocked by the connected Chrome extension file-access setting. The Codex local key was not copied to Script Properties. Until the bounded source and lifecycle checks are observed, READY: NO and BLOCKER: ACTION_REQUIRED.
 
@@ -23,109 +23,48 @@ Active decision:
 ## Primary outcome
 
 Deliver and qualify one provider-neutral Knowledge Search core with exactly three user-facing routes:
+## Accepted evidence
 
 ```text
-ChatGPT
-Gemini
-全文出力
+OPENAI_DIRECT_BASE_MODEL: PASS
+OPENAI_DIRECT_FILE_SEARCH: PASS
+OPENAI_CITATION_NORMALIZATION: PASS
+OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
+LOGIC_VALIDATION: PASS — 316/316; focused provider/admin/core regression PASS; UI 10/10
+FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence
+SOURCE_READBACK: PASS — 78/78 deployable files
+WEB_APP_DELIVERY: PASS — existing deployment updated in place to version 56
 ```
 
-For Work 0020 completion, OpenAI is the active provider path. Gemini remains implemented but disabled/not user-ready until a later provider-recovery Work requalifies it. There is no automatic cross-provider failover.
+The remaining Work 0020 qualification is native private-Web-App acceptance only. The connection flow is active; synthetic source sync/query and lifecycle evidence remain pending because the Chrome extension file chooser is not currently available.
 
-## Current decisive evidence
-
-CODEX-17 direct OpenAI qualification materially advanced the Work:
-
-```text
-base Responses API control: PASS
-Vector Store create: PASS
-synthetic TXT upload: PASS
-attributes/indexing/readback: PASS
-exact source_id filter: PASS
-File Search execution: PASS
-grounded synthetic answer: PASS
-cleanup/no residual provider resources: PASS
-citation normalization: BLOCKED
-```
-
-The remaining immediate blocker is not provider reachability. The direct query completed, but the qualification did not obtain a citation representation accepted by the current Knowledge Share normalizer.
-
-OpenAI Responses can expose source evidence through output-text `file_citation` annotations and/or explicitly included `file_search_call.results`. CODEX-18 must support the official shapes without weakening provenance or ambiguity checks.
-
-## Active CODEX-18 outcome
-
-Before Web App changes:
-
-1. reproduce the narrow citation-normalization gap deterministically;
-2. explicitly include `file_search_call.results` in the Responses request;
-3. preserve valid `file_citation` annotation handling;
-4. normalize authoritative retrieved-source evidence to Knowledge Share source identity only when exact and unambiguous;
-5. never use filename alone;
-6. run the canonical tests;
-7. run exactly one temporary synthetic direct-provider control and verify cleanup;
-8. only after PASS, integrate the existing private-admin synthetic self-test/activation flow and complete Meeting/Pitchbook + lifecycle qualification.
-
-## Citation/source provenance contract
-
-Knowledge Share distinguishes:
-
-```text
-INLINE_CITATION
-= provider output-text annotation explicitly cites the file
-
-RETRIEVED_SOURCE
-= File Search result identifies a file retrieved for the answer and maps exactly to one Knowledge Share source
-```
-
-Both may support the user-facing source list when authoritative and unambiguous, but a retrieved source must not be falsely described as a character-level inline citation.
-
-Provider file/store IDs remain server-side only. Source identity must be recovered through exact provider-document/source metadata and the existing Drive/source-link contract.
-
-## Credential/onboarding contract
-
-Normal private-admin flow remains:
+Required authorized-user sequence:
 
 ```text
 APIキーを保存して接続確認
--> administrator authorization
--> key stored only in Script Properties
--> isolated synthetic self-test
--> no Meeting/Pitchbook source body read
+-> synthetic self-test
 -> READY_FOR_SYNC
-
-資料を同期して利用開始
--> explicit bounded OpenAI sync
--> ACTIVE only after safe source indexing
+-> 資料を同期して利用開始
+-> bounded native Meeting/Pitchbook query + source proof
+-> metadata/lifecycle qualification
+-> final native integrity
 ```
 
-A stored key alone must not enable OpenAI or trigger source synchronization.
+The Codex-local OPENAI_API_KEY was intentionally not copied to Script Properties.
 
-The key must never be returned, displayed after save, logged, audited, stored in Sheets, exported, or committed.
+Do not create a new Dispatch merely to perform the user-authorized UI actions. Keep `0020-CODEX-18` until the native outcome is returned. After the user action, ChatGPT will inspect the runtime evidence and either close Work 0020 or create the next Codex dispatch only for any actual residual defect.
 
-## Completion gates
+## Safety boundary
 
-OpenAI path must prove:
+- use the existing private Web App version 56;
+- preserve the completed private-admin connection and do not expose the key;
+- do not paste the key into ChatGPT/Codex/GitHub/logs;
+- `APIキーを保存して接続確認` must run only the isolated synthetic self-test and must not read/sync Meeting/Pitchbook bodies;
+- only after `READY_FOR_SYNC`, run `資料を同期して利用開始`;
+- keep sync bounded and follow the UI/runtime safeguards already implemented;
+- no Gemini live call, provider fallback, FULL_OUTPUT rerun, new Web App/Library/public debug endpoint, or current-main integration during this native acceptance.
 
-```text
-DIRECT_BASE_MODEL: PASS
-DIRECT_FILE_SEARCH: PASS
-CITATION_OR_RETRIEVED_SOURCE_NORMALIZATION: PASS
-SYNTHETIC_SELF_TEST: PASS
-MEETING_INDEX_QUERY_CITATION: PASS
-PITCHBOOK_INDEX_QUERY_CITATION: PASS
-METADATA_FILTER: PASS
-UPDATE_REINDEX_NO_DUPLICATE: PASS
-INACTIVE_EXCLUSION: PASS
-REACTIVATE_RESTORE: PASS
-DELETE_REBUILD: PASS
-DISABLE_REENABLE: PASS
-NO_PROVIDER_FAILOVER: PASS
-FINAL_INTEGRITY: PASS
-```
-
-FULL_OUTPUT remains accepted and must not be rerun.
-
-## Current Work classification
+## Work status
 
 ```text
 PRIMARY_COMPLETION_PROVIDER: OPENAI
@@ -141,17 +80,8 @@ READY: NO
 BLOCKER: YES — CHROME_FILE_UPLOAD_PERMISSION_REQUIRED
 ```
 
-## Boundaries
-
-- no automatic OpenAI/Gemini failover;
-- no confidential data in DEV qualification;
-- no Gemini live calls in CODEX-18;
-- no FULL_OUTPUT rerun;
-- no second Web App/Library/public debug endpoint;
-- no filename-only source normalization;
-- no weakening exact metadata/filter gates;
-- no current-main integration until provider qualification closes;
-- keep PR #26 Draft/Open/unmerged until final review.
+Report:
+`docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md`
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-18`
