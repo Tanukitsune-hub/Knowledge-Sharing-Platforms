@@ -26,7 +26,7 @@ The slug explains the purpose; the Dispatch ID supplies the stable join key.
 
 ## 3. Ball and status
 
-Every active instruction, report, dispatch register, PR status block, and material repository-status message shows:
+Every active instruction, report, dispatch register, PR status block, and material repository-status message must show:
 
 ```text
 WORK_ID: 0014
@@ -67,7 +67,24 @@ Allowed `STATUS` values:
 
 A report that returns a blocker hands the ball to the party able to act. Do not leave `BALL: CODEX` after Codex has stopped.
 
-## 5. Work dispatch register
+## 5. Codex final-return identity contract
+
+A Codex final chat response is always a material repository-status message. It MUST begin with the exact four-line identity block below before any prose, bullets, validation matrix, or summary:
+
+```text
+WORK_ID: <same Work ID>
+DISPATCH_ID: <same Dispatch ID>
+BALL: CHATGPT
+STATUS: RETURNED
+```
+
+If Codex stops specifically for a native user action, use `BALL: USER` and `STATUS: ACTION_REQUIRED` instead. If an external dependency leaves nobody able to act, use the status/ball required by the handoff and dispatch register.
+
+The same four identity lines MUST be repeated at the end of the final chat response. Do not replace these lines with a table, prose sentence, abbreviated `ID`, branch name, commit SHA, PR number, or validation fields. Commit/PR/test details are additional evidence, not identity substitutes.
+
+The committed report file MUST carry the same Work ID and Dispatch ID. A response that omits either identity block is a reporting-contract failure even when the implementation itself is correct.
+
+## 6. Work dispatch register
 
 Create `docs/handoffs/<WORK_ID>-dispatches.md` when Route B/C is first used. It is the canonical current-ball record.
 
@@ -87,7 +104,13 @@ Update only at durable transitions: instruction committed, user action required,
 
 The PR body mirrors `ACTIVE_DISPATCH_ID`, `BALL`, and `STATUS`; the register is authoritative if a mirror becomes stale.
 
-## 6. Guardrails
+## 7. User-facing display
+
+At the start and end of material repository status or completion messages, show the identity block. Localized explanatory text may follow it, but the machine-readable `WORK_ID`, `DISPATCH_ID`, `BALL`, and `STATUS` lines remain mandatory.
+
+Use `DISPATCH_ID: N/A` for ChatGPT-only work. This display is a concise mirror, not a replacement for the GitHub register.
+
+## 8. Guardrails
 
 - Never change the Work ID merely because a new Dispatch is created.
 - Never reuse or renumber a Dispatch ID.

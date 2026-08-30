@@ -1,6 +1,6 @@
 # Decision Log
 
-Current as of: 2026-08-28
+Current as of: 2026-08-31
 
 This file records active major decisions. Detailed domain sources take precedence:
 
@@ -12,7 +12,9 @@ This file records active major decisions. Detailed domain sources take precedenc
 - target-runtime delivery: `docs/decisions/target-runtime-first-development.md`
 - temporal data: `docs/decisions/temporal-data-contract.md`
 - AI provider selection: `docs/decisions/ai-provider-selection-and-full-output.md`
+- AI model/thinking policy: `docs/decisions/ai-model-policy-and-thinking-controls.md`
 - AI/File Search: `docs/ai/provider-neutral-file-search.md`
+- distribution/installer: `docs/decisions/modular-source-single-bundle-distribution.md`
 - security: `docs/governance/security.md`
 
 ## 2026-08-14 — Google Workspace-centered product reset
@@ -300,10 +302,15 @@ FULL_EXPORT
 - ChatGPT uses the approved OpenAI API and File Search;
 - Gemini uses the approved Gemini API and File Search;
 - File Search is the required default source-reading path for both API routes;
+- both API routes may retrieve authoritative Meeting records and Pitchbook/source materials;
 - 全文出力 calls no AI API;
+- FULL_EXPORT body contains authoritative Meeting Google Docs text only;
+- matching Pitchbooks may appear only as bounded reference metadata and authoritative Drive links, without body extraction;
 - no automatic cross-provider failover;
 - disabled/unconfigured providers return provider-specific safe errors;
-- model names remain admin settings, not user choices;
+- normal users may select only model/thinking combinations allowed by administrator policy, accessible to the current credential/project, and qualified for the route;
+- administrators may hide Sol, retain approved older models, and control model-specific thinking choices;
+- discovery or a newer/latest provider release never auto-enables a model;
 - Canonical AI Source, Knowledge Request, Knowledge Package, structured filters, and citation model are provider-neutral;
 - provider adapters own provider-native Store/index/query/filter/citation/retry/cleanup details;
 - OpenAI and Gemini index state must be independently observable;
@@ -316,31 +323,57 @@ FULL_EXPORT
 Detailed decisions:
 
 - `docs/decisions/ai-provider-selection-and-full-output.md`;
+- `docs/decisions/ai-model-policy-and-thinking-controls.md`;
 - `docs/ai/provider-neutral-file-search.md`.
 
 ## 2026-08-28 — Optimized AI implementation order
 
-Status: Accepted
+Status: Accepted and extended on 2026-08-29
 
 ```text
 0019 Entity Workspace / Fund-Strategy drill-down
 → 0020 AI provider core / OpenAI + Gemini File Search / full output
+→ 0025 administrator-governed model / thinking selection
 → 0021 structured filters / five modes / multi-Entity / provider parity
+→ 0023 generated bundle / installer / fresh-install qualification
 → historical migration
 → final production qualification
 ```
 
 Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and export Works. It implements three-route UX, provider-neutral contracts, independent provider state, both adapters, at least one enabled-provider live path, every enabled-provider qualification, disabled-provider safe errors, and full-output parity.
 
+Work 0025 follows the stable Work 0020 OpenAI path. It adds policy-governed model/thinking choices without automatically enabling discovered/latest models or allowing users to bypass administrator policy.
+
 Work 0021 builds the intended search product once on that core: structured filters, five modes, 2–5 Entity comparison, provider parity, full-output parity, and the bounded six-format matrix.
+
+Work 0023 separates modular development source from low-friction distribution and proves the generated bundle before loading historical volume or qualifying the company environment.
 
 Personal-PC AI qualification precedes historical migration so actual provider index/metadata/search contracts are proven before loading volume.
 
+## 2026-08-31 — Work 0020 OpenAI primary qualification
+
+Status: Accepted and completed for the personal DEV OpenAI path
+
+- the OpenAI base model, temporary Vector Store/File lifecycle, exact metadata filter, grounded answer and cleanup passed directly;
+- inline citation and retrieved-source normalization passed fail closed using provider file identity plus `source_type`, `source_id` and `content_hash`;
+- the existing private Web App version 57 passed exact native Pitchbook `DOC-000017` and Meeting `MTG-000005` grounded query/citation gates;
+- exact sync, metadata filtering, update/reindex, Inactive, Reactivate, delete/rebuild, disable/re-enable and no-duplicate reuse passed;
+- item-level sync failure no longer invalidates a viable provider or discards a last known-good source;
+- old large-file OpenAI indexing timeouts remain separate follow-up evidence;
+- Gemini provider recovery remains deferred, with no automatic provider fallback;
+- FULL_EXPORT accepted evidence remains Meeting-body-only and was not rerun during final Git reconciliation.
+
+Detailed report:
+
+`docs/handoffs/0020-CODEX-19-openai-native-sync-scope-and-partial-failure-recovery-report.md`
+
 ## 2026-08-28 — Historical migration and final production
 
-Status: Accepted
+Status: Accepted and extended on 2026-08-29
 
 Historical materials are heterogeneous. Manual entry is a valid default. Use hybrid/selective automation only for repeatable subsets with measurable benefit.
+
+The generated bundle/installer path is qualified before historical migration so company installation does not depend on personal Drive resources or manual reconstruction of source files.
 
 Final production qualification is last and includes actual company Shared Drive hierarchy/permissions, organization-controlled Apps Script, Backend/Audit boundaries, full-output permissions/retention, real users, and every provider enabled by company policy:
 
@@ -353,6 +386,41 @@ Final production qualification is last and includes actual company Shared Drive 
 
 The company may enable OpenAI, Gemini, both, or neither. Personal-PC/synthetic success is not company production readiness.
 
+## 2026-08-29 — Modular source, generated bundle, and low-friction installer
+
+Status: Accepted design direction
+
+Development and distribution are deliberately separated:
+
+```text
+modular GitHub source
+→ deterministic generated distribution bundle
+→ project-specific idempotent installer
+→ fresh target-runtime installation qualification
+```
+
+- `.gs` and `.html` sources under `src/` remain authoritative and modular;
+- the product is not developed as one giant hand-maintained script;
+- company operators do not manually create or paste dozens of source files;
+- `dist/KnowledgeShare.bundle.gs` is generated from GitHub source and is never hand-edited;
+- all HTML resources are embedded in the generated bundle and loaded through one modular/bundle-compatible abstraction;
+- the normal install begins from a new Spreadsheet in the intended Shared Drive folder and does not copy a personal Drive template;
+- `installKnowledgeShare()` reuses the existing setup/migration engine and is safe to rerun;
+- `checkKnowledgeShareReadiness()` reports plain-language `READY_FOR_DEPLOYMENT`, `READY`, or action-required states;
+- AI providers and recurring AI synchronization remain disabled by default;
+- Knowledge Share does not add Gmail labels or Gmail scopes because the current product does not require them;
+- bundle generation validates syntax, source coverage/order, global collisions, dangerous top-level execution, template resolution, facade/test parity, deterministic hashes, and secret/private-ID exclusion;
+- current platform boundaries are stated honestly: the Advanced Drive service may require one editor service-add step and the first Web App deployment remains a one-time manual platform action;
+- Work 0023 follows Work 0021 and precedes historical migration and final company qualification;
+- the underlying standard is designed for later reuse by other Apps Script products, including the task-management tool.
+
+Detailed sources:
+
+- `docs/decisions/modular-source-single-bundle-distribution.md`;
+- `docs/planning/work0023-bundle-installer-distribution.md`;
+- `docs/operations/company-bundle-installation.md`;
+- `docs/standards/apps-script-bundle-installer-standard.md`.
+
 ## Current genuine choices
 
 - whether scale later requires caching/materialized summaries;
@@ -362,6 +430,8 @@ The company may enable OpenAI, Gemini, both, or neither. Personal-PC/synthetic s
 - exact provider-state physical compatibility/mirroring after source inventory;
 - exact Related GP/Meeting Type multi-value filter strategy from actual provider behavior;
 - observed rate limit, retry, batch size, cost, and retention guardrails per provider;
+- whether Work 0023 can safely remove the Advanced Drive service dependency or retains one simple service-enable step;
+- whether bundle files are committed under `dist/` or generated only as CI/GitHub Release assets, subject to freshness/hash enforcement;
 - which providers are enabled by company policy in final production;
 - manual/hybrid/selective historical migration method;
 - final production permissions/cleanup/rollback/rollout route.
