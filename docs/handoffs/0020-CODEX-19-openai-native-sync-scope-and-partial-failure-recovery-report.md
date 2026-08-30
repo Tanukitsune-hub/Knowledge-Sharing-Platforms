@@ -88,7 +88,7 @@ RUNTIME_LOCATOR_UPDATED: PASS
 READY: YES
 BLOCKER: NONE
 FINAL_COMMIT: THIS_COMMIT — exact pushed SHA is reported in the PR and final return
-GITHUB_CI_ACTUALLY_RAN: pending exact pushed-head observation
+GITHUB_CI_ACTUALLY_RAN: NO — PR #26 returned no GitHub check rollup for the pushed CODEX-19 head; final head is reverified in the return
 ```
 
 ## Residual follow-up

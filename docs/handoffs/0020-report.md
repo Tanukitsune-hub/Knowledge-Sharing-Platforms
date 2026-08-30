@@ -32,6 +32,7 @@ FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun in CODEX-19
 SOURCE_READBACK: PASS
 WEB_APP_DELIVERY: PASS — existing standalone deployment version 57
 FINAL_INTEGRITY: PASS
+GITHUB_CI_ACTUALLY_RAN: NO — no check rollup was returned for the pushed CODEX-19 head
 READY: YES
 BLOCKER: NONE
 ```
