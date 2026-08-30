@@ -2,8 +2,8 @@
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `USER`
-DISPATCH_STATUS: `ACTION_REQUIRED`
+BALL: `CHATGPT`
+DISPATCH_STATUS: `RETURNED`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
@@ -13,7 +13,7 @@ The current OpenAI no-annotation normalization gap was reproduced deterministica
 
 The direct synthetic OpenAI qualification passed with one temporary Vector Store, one tiny synthetic TXT, exact metadata, one exact-filter File Search query, one authoritative normalized source, grounded output, and verified cleanup. Focused tests, npm run check, temporal validation, public-surface validation, and git diff --check passed.
 
-The repaired source was read back with 78/78 deployable files matching and updated in place on the existing Work 0020 Web App deployment at version 56. The user completed the private-admin connection flow and the existing Web App displayed active status; one synthetic Meeting was registered. Explicit administrator sync is now OpenAI-only. Native bounded Meeting/Pitchbook sync, lifecycle, and final runtime integrity remain pending; Pitchbook upload is currently blocked by the connected Chrome extension file-access setting. The local OPENAI_API_KEY was intentionally not copied to Script Properties. See docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
+The repaired source was read back with 78/78 deployable files matching and updated in place on the existing Work 0020 Web App deployment at version 56. The user completed the private-admin connection flow and the existing Web App displayed active status; one synthetic Meeting and one synthetic Pitchbook were registered. Explicit administrator sync is OpenAI-only. The explicit Meeting sync returned to an interactive state, but the explicit OpenAI-only Pitchbook sync ended in the generic UI state `エラー` after a bounded wait. Per the CODEX-18 stop rule, native queries, lifecycle, and final runtime integrity were not run. The local OPENAI_API_KEY was intentionally not copied to Script Properties. See docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
 
 Latest classification:
 
@@ -23,12 +23,12 @@ OPENAI_DIRECT_BASE_MODEL: PASS — accepted CODEX-17 evidence
 OPENAI_DIRECT_FILE_SEARCH: PASS
 OPENAI_CITATION_NORMALIZATION: PASS
 OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-OPENAI_RUNTIME: PARTIAL — connection active; synthetic source sync/query pending
+OPENAI_RUNTIME: BLOCKED — native OpenAI-only Pitchbook sync failed
 GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 FINAL_INTEGRITY: NOT RUN native Web App
 READY: NO
-BLOCKER: ACTION_REQUIRED — enable Chrome extension file access for synthetic Pitchbook upload and resume bounded runtime qualification
+BLOCKER: OPENAI_SYNC_FAILED — native OpenAI-only Pitchbook sync ended in the generic UI error state; no retry was performed
 GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
@@ -42,12 +42,12 @@ OPENAI_CITATION_NORMALIZATION: PASS
 OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
 OPENAI_PROVIDER_RESOURCES: PASS — create/upload/attributes/index/filter/cleanup
 OPENAI_GROUNDED_SYNTHETIC_ANSWER: PASS
-OPENAI_SYNTHETIC_SELF_TEST: CONNECTION ACTIVE IN EXISTING WEB APP; SOURCE QUALIFICATION PENDING
-OPENAI_MEETING_INDEX_QUERY_CITATION: NOT RUN native Web App
-OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: BLOCKED — Chrome file chooser permission; native query not run
+OPENAI_SYNTHETIC_SELF_TEST: PASS — connection active and synthetic Pitchbook registered; source-sync gate failed
+OPENAI_MEETING_INDEX_QUERY_CITATION: NOT RUN native Web App — stopped after Pitchbook sync failure
+OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: BLOCKED — OpenAI-only native sync ended in generic ERROR; query not run
 OPENAI_METADATA_FILTER: PASS deterministic/direct synthetic; native qualification pending
 OPENAI_LIFECYCLE: PASS deterministic; native qualification pending
-OPENAI_RUNTIME: PARTIAL — connection active; source sync/query pending
+OPENAI_RUNTIME: BLOCKED — native OpenAI-only Pitchbook sync failed
 GEMINI_RUNTIME: BLOCKED / PROVIDER RECOVERY DEFERRED
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 SCHEMA_ALIGNMENT: PASS
@@ -55,7 +55,7 @@ SOURCE_READBACK: PASS — 78/78 deployable files
 WEB_APP_DELIVERY: PASS — version 56, existing deployment updated in place
 FINAL_INTEGRITY: NOT RUN native Web App
 READY: NO
-BLOCKER: ACTION_REQUIRED — CHROME_FILE_UPLOAD_PERMISSION_REQUIRED
+BLOCKER: OPENAI_SYNC_FAILED — native OpenAI-only Pitchbook sync ended in the generic UI error state; CODEX-18 stop rule applied
 GITHUB_CI_ACTUALLY_RAN: NO
 ```
 
@@ -72,22 +72,18 @@ No local API key was copied to Script Properties. Therefore the remaining checks
 ## Remaining authorized-user sequence
 
 ```text
-1. enable Chrome extension “Allow access to file URLs” for the existing private Web App session;
-2. upload one non-confidential synthetic Pitchbook through the existing Web App;
-3. run the explicit OpenAI-only 資料を同期して利用開始 action for Meeting and Pitchbook;
-4. observe bounded native Meeting and Pitchbook indexing/query/source evidence with exact metadata;
-5. complete native metadata filter, update/reindex, Inactive, Reactivate, delete/rebuild and disable/re-enable checks;
-6. complete final five-sheet/schema/provider/Audit/settings/trigger/deployment integrity.
+1. STOP after the native OpenAI-only Pitchbook sync failure; do not retry during this dispatch.
+2. Preserve the observed connection and synthetic registration evidence; native query, lifecycle, and final-integrity gates remain not run.
 ```
 
-Do not create a new Codex dispatch merely for these authorized UI actions. Keep `0020-CODEX-18` while the user action is pending. If native qualification passes, ChatGPT should close/integrate Work 0020. If it exposes a real implementation defect, create the next dispatch only for that defect.
+Do not create another dispatch merely to retry this runtime failure. Keep `0020-CODEX-18` returned with the safe `OPENAI_SYNC_FAILED` blocker. A later dispatch requires a separately scoped diagnosis or repair decision.
 
 ## Problem classification
 
 ### BLOCKER
 
-1. Chrome extension file access is required before the synthetic Pitchbook can be uploaded through the existing Web App.
-2. OpenAI Meeting/Pitchbook application queries and lifecycle/final-integrity gates remain incomplete.
+1. Native OpenAI-only Pitchbook source sync ended in a generic error state; the underlying error was not safely exposed.
+2. OpenAI Meeting/Pitchbook application queries and lifecycle/final-integrity gates remain incomplete because the stop rule was applied.
 3. PR #26 cannot merge while the user-ready provider route is unqualified.
 
 ### FIX SOON / FOLLOW-UP
@@ -102,7 +98,7 @@ Report:
 
 WORK_ID: `0020`
 ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `USER`
-DISPATCH_STATUS: `ACTION_REQUIRED`
+BALL: `CHATGPT`
+DISPATCH_STATUS: `RETURNED`
 WORK_READY: `NO`
 BLOCKER: `YES`

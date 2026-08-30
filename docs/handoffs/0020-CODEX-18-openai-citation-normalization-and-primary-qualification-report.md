@@ -10,7 +10,7 @@ PR: #26 — Draft / Open / unmerged
 
 The current no-annotation normalization failure was reproduced deterministically. The OpenAI normalizer now supports both valid output-text file_citation annotations and an exact fail-closed file_search_call.results retrieved-source path. Provider Store/File IDs remain server-side and are never used as UI or Audit source identities.
 
-The direct synthetic OpenAI qualification passed. The repaired source was pushed to the existing Work 0020 Web App deployment and read back byte-for-byte after normalizing the Apps Script .gs/.js filename convention. The private-admin connection flow was subsequently completed by the user in the existing Web App; the UI displayed API key configured, Vector Store ready, and status active. A synthetic Meeting was registered, but bounded source sync/query and lifecycle gates remain pending. The explicit administrator sync path is now OpenAI-only so this dispatch does not call Gemini. No local key was copied to Script Properties.
+The direct synthetic OpenAI qualification passed. The repaired source was pushed to the existing Work 0020 Web App deployment and read back byte-for-byte after normalizing the Apps Script .gs/.js filename convention. The private-admin connection flow was subsequently completed by the user in the existing Web App; the UI displayed API key configured, Vector Store ready, and status active. One synthetic Meeting and one synthetic Pitchbook were registered. The explicit Meeting sync returned to an interactive state, but the explicit OpenAI-only Pitchbook sync ended with the safe UI state `エラー` after a bounded wait. Because the native synthetic source-sync gate failed, CODEX-18 stopped before application queries, lifecycle, or final native integrity. The explicit administrator sync path remains OpenAI-only, and no local key was copied to Script Properties.
 
 ## Gate evidence
 
@@ -84,17 +84,20 @@ PASS:
 OBSERVED:
 
 - private-admin connection flow completed in the existing Web App; status displayed active;
-- one non-confidential synthetic Meeting was registered in the existing Web App.
+- one non-confidential synthetic Meeting was registered in the existing Web App;
+- one non-confidential synthetic Pitchbook was registered in the existing Web App;
+- the explicit OpenAI-only Meeting sync was invoked once and returned to an interactive state;
+- the explicit OpenAI-only Pitchbook sync was invoked once and ended in the safe UI state `エラー` after a bounded wait.
 
 NOT RUN:
 
-- native bounded Meeting/Pitchbook sync and query citation evidence;
+- native bounded Meeting/Pitchbook query citation evidence;
 - native provider metadata/lifecycle sequence;
 - final native integrity.
 
 BLOCKED:
 
-- synthetic Pitchbook upload could not be started because the connected Chrome extension does not currently expose a file chooser; the required local setting is “Allow access to file URLs” for the ChatGPT extension.
+- `OPENAI_SYNC_FAILED` — native OpenAI-only Pitchbook sync ended in the generic UI error state after a bounded wait. The underlying provider/application error was not exposed safely, so no retry or deeper runtime action was taken.
 
 These checks require a user-authorized private Web App session. The Codex process local OPENAI_API_KEY was used only for direct OpenAI qualification and was never displayed, logged, committed, or copied to Script Properties.
 
@@ -105,20 +108,20 @@ OPENAI_DIRECT_BASE_MODEL: PASS — accepted CODEX-17 evidence; not rerun
 OPENAI_DIRECT_FILE_SEARCH: PASS — accepted CODEX-17 evidence plus CODEX-18 direct synthetic control
 OPENAI_CITATION_NORMALIZATION: PASS
 OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-OPENAI_SYNTHETIC_SELF_TEST: PASS deterministic path; native connection flow reached active status
-OPENAI_MEETING_INDEX_QUERY_CITATION: PASS deterministic path; NOT RUN native Web App
-OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: PASS deterministic/direct synthetic path; NOT RUN native Web App
+OPENAI_SYNTHETIC_SELF_TEST: PASS — native connection flow reached active status and one synthetic Pitchbook was registered; native source-sync gate failed afterward
+OPENAI_MEETING_INDEX_QUERY_CITATION: NOT RUN native Web App — stopped after native Pitchbook sync failure
+OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: BLOCKED — native OpenAI-only Pitchbook sync ended in generic ERROR; query not run
 OPENAI_METADATA_FILTER: PASS deterministic/direct synthetic path; NOT RUN native Web App
 OPENAI_LIFECYCLE: PASS deterministic path; NOT RUN native Web App
 LOGIC_VALIDATION: PASS
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 FINAL_INTEGRITY: NOT RUN native Web App; repository/source-readback integrity PASS
 READY: NO
-BLOCKER: ACTION_REQUIRED — enable Chrome extension file access, then resume native synthetic Pitchbook upload and bounded runtime qualification
-FINAL_COMMIT: ccfe915 — scoped OpenAI-only sync guard, qualification-state documentation, and preserved remote handoff updates
+BLOCKER: OPENAI_SYNC_FAILED — native OpenAI-only Pitchbook sync ended in the generic UI error state; CODEX-18 stop rule applied
+FINAL_COMMIT: pending scoped runtime-failure report commit
 GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
 ## Scope controls
 
-No Gemini live call, provider fallback, confidential data, FULL_OUTPUT rerun, current-main merge, filename-only normalization, weakened metadata check, or public endpoint was used. PR #26 remains Draft / Open / unmerged.
+No Gemini live call, provider fallback, confidential data, FULL_OUTPUT rerun, current-main merge, filename-only normalization, weakened metadata check, or public endpoint was used. After the native OpenAI-only Pitchbook sync failure, no query, lifecycle action, retry, or additional deployment was performed. PR #26 remains Draft / Open / unmerged.
