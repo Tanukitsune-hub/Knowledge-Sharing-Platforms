@@ -1,0 +1,34 @@
+<section id="page-ai-provider-settings" class="page">
+  <div class="card">
+    <div class="section-heading">
+      <div><h2>AIプロバイダ設定</h2><p class="hint">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>
+    </div>
+    <div id="ai-provider-admin-notice" class="status" role="status" aria-live="polite"></div>
+    <section class="card ai-provider-card" aria-labelledby="ai-provider-openai-heading">
+      <h3 id="ai-provider-openai-heading">ChatGPT / OpenAI</h3>
+      <dl class="ai-provider-state">
+        <dt>APIキー</dt><dd id="ai-provider-openai-key">確認中…</dd>
+        <dt>Vector Store</dt><dd id="ai-provider-openai-store">確認中…</dd>
+        <dt>状態</dt><dd id="ai-provider-openai-status">確認中…</dd>
+      </dl>
+      <div class="actions">
+        <div class="action-group">
+          <label for="ai-provider-openai-key-input">OpenAI APIキー</label>
+          <input id="ai-provider-openai-key-input" type="password" autocomplete="new-password" spellcheck="false" placeholder="Script Propertiesへ安全に保存">
+          <label for="ai-provider-sync-source">同期対象</label>
+          <select id="ai-provider-sync-source" disabled>
+            <option value="">All</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Pitchbook">Pitchbook</option>
+          </select>
+          <label for="ai-provider-sync-source-id">Source ID（個別同期・任意）</label>
+          <input id="ai-provider-sync-source-id" type="text" autocomplete="off" spellcheck="false" placeholder="例: DOC-000017" disabled>
+          <button id="ai-provider-openai-enable" class="action primary" type="button" disabled>APIキーを保存して接続確認</button>
+          <button id="ai-provider-openai-disable" class="action secondary" type="button" disabled>OpenAIを無効化</button>
+          <button id="ai-provider-openai-sync" class="action secondary" type="button" disabled>資料を同期して利用開始</button>
+        </div>
+      </div>
+      <p id="ai-provider-openai-readonly" class="hint ai-provider-readonly"></p>
+    </section>
+  </div>
+</section>

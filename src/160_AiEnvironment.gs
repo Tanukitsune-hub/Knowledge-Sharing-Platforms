@@ -27,6 +27,13 @@ function kspCreateAiEnvironment_() {
     return kspUpsertMissingSettingsLive_(spreadsheetId, rows || []);
   };
 
+  base.saveOpenAiApiKey = function (value) {
+    var key = kspAiTrim_(value);
+    kspAssert_(key && key.length <= 512, 'OPENAI_API_KEY_INVALID', 'OpenAI API key is invalid.');
+    scriptProperties.setProperty(KSP_AI_PROPERTY_KEYS.OPENAI_API_KEY, key);
+    return true;
+  };
+
   base.ensureFileSearchStore = function (settings, displayName) {
     if (settings.storeName) return base.getFileSearchStore(settings.storeName);
     var created = base.createFileSearchStore(
@@ -42,11 +49,25 @@ function kspCreateAiEnvironment_() {
   };
 
   base.getFileSearchStore = function (storeName) {
-    return kspNormalizeFileSearchStore_(kspGeminiJsonRequestLive_('GET', '/' + kspAiStoreResourcePath_(storeName), null));
+    try {
+      return kspNormalizeFileSearchStore_(kspGeminiJsonRequestLive_('GET', '/' + kspAiStoreResourcePath_(storeName), null, {
+        retry: true, stage: 'STORE_READ', errorCode: 'AI_STORE_READ_FAILED'
+      }));
+    } catch (error) {
+      if (error && (error.code === 'AI_STORE_READ_FAILED' || error.code === 'AI_CREDENTIAL_NOT_CONFIGURED')) throw error;
+      throw kspGeminiStageError_('AI_STORE_READ_FAILED', 'STORE_READ', 0, {}, false);
+    }
   };
 
   base.createFileSearchStore = function (request) {
-    return kspNormalizeFileSearchStore_(kspGeminiJsonRequestLive_('POST', KSP_AI_API.STORES_PATH, request));
+    try {
+      return kspNormalizeFileSearchStore_(kspGeminiJsonRequestLive_('POST', KSP_AI_API.STORES_PATH, request, {
+        retry: false, stage: 'STORE_CREATE', errorCode: 'AI_STORE_CREATE_FAILED'
+      }));
+    } catch (error) {
+      if (error && (error.code === 'AI_STORE_CREATE_FAILED' || error.code === 'AI_CREDENTIAL_NOT_CONFIGURED')) throw error;
+      throw kspGeminiStageError_('AI_STORE_CREATE_FAILED', 'STORE_CREATE', 0, {}, false);
+    }
   };
 
   base.findFileSearchDocumentsBySource = function (storeName, sourceId) {
@@ -60,7 +81,9 @@ function kspCreateAiEnvironment_() {
     var name = kspAiTrim_(documentName);
     kspAssert_(name.indexOf(normalizedStore + '/documents/') === 0, 'AI_DOCUMENT_STORE_MISMATCH',
       'File Search Document does not belong to the configured Store.');
-    kspGeminiJsonRequestLive_('DELETE', '/' + name + '?force=true', null);
+    kspGeminiJsonRequestLive_('DELETE', '/' + name + '?force=true', null, {
+      retry: true, stage: 'DOCUMENT_DELETE', errorCode: 'AI_DOCUMENT_DELETE_FAILED'
+    });
     return true;
   };
 
@@ -68,8 +91,19 @@ function kspCreateAiEnvironment_() {
     return kspUploadSourceLive_(storeName, source);
   };
 
+  base.startQueryFileSearch = function (request) {
+    return kspGeminiStartInteractionLive_(request);
+  };
+
+  base.pollQueryFileSearch = function (interactionId) {
+    return kspGeminiPollInteractionLive_(interactionId);
+  };
+
   base.queryFileSearch = function (request) {
-    return kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, request);
+    var lifecycle = kspGeminiStartInteractionLive_(request);
+    kspAssert_(lifecycle && lifecycle.status === 'completed', 'AI_QUERY_ASYNC_REQUIRED',
+      'Gemini検索は後続の確認が必要です。');
+    return lifecycle.response;
   };
 
   base.readMeetingText = function (fileId) {

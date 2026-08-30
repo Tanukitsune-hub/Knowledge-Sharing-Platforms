@@ -1,19 +1,32 @@
 function runAiSyncWorker_() {
-  return kspRunFeatureFreezeAiSync_(kspCreateFeatureFreezeAiEnvironment_());
+  return kspRunProviderNeutralAiSync_(kspCreateProviderNeutralAiEnvironment_());
 }
 
 function getKnowledgeSearchBootstrapData() {
-  return kspGetFeatureFreezeKnowledgeBootstrap_(kspCreateFeatureFreezeAiEnvironment_());
+  return kspGetProviderNeutralKnowledgeBootstrap_(kspCreateProviderNeutralAiEnvironment_());
 }
 
 function searchKnowledge(input) {
-  return kspRunFeatureFreezeKnowledgeSearch_(kspCreateFeatureFreezeAiEnvironment_(), input);
+  var payload = input || {};
+  var route = String(payload.route || payload.provider || KSP_AI_ROUTES.OPENAI).toUpperCase();
+  if (route === KSP_AI_ROUTES.FULL_EXPORT) {
+    return { ok: false, workId: '0020', error: { code: 'AI_ROUTE_FULL_EXPORT_USE_PREVIEW', message: '全文出力は書き出し欄から実行してください。' } };
+  }
+  return kspRunProviderKnowledgeSearch_(kspCreateProviderNeutralAiEnvironment_(), route, payload);
+}
+
+function getAiProviderAdminData() {
+  return kspGetAiProviderAdminData_(kspCreateProviderNeutralAiEnvironment_());
+}
+
+function mutateAiProviderSettings(input) {
+  return kspMutateAiProviderSettings_(kspCreateProviderNeutralAiEnvironment_(), input || {});
 }
 
 function askKnowledgeQuestion_(input) {
   var payload = kspDeepClone_(input || {});
   payload.mode = KSP_FEATURE_FREEZE_SEARCH_MODES.FREE_QUESTION;
-  return kspRunFeatureFreezeKnowledgeSearch_(kspCreateFeatureFreezeAiEnvironment_(), payload);
+  return kspRunProviderKnowledgeSearch_(kspCreateProviderNeutralAiEnvironment_(), KSP_AI_ROUTES.OPENAI, payload);
 }
 
 function getFeatureFreezeDiagnostics_() {

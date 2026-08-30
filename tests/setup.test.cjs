@@ -243,8 +243,8 @@ test('defines exactly five baseline backend sheets', () => {
   ]);
   assert.ok(schemas.Meeting_Index.includes('AI_Index_Status'));
   assert.ok(schemas.Pitchbook_Index.includes('Original_Filename'));
-  assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-12)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs','Admin_Check_Completed','Admin_Check_Updated_At','Admin_Check_Updated_By']);
-  assert.equal(schemas.Pitchbook_Index.at(-1), 'Fund_Strategy');
+  assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-13)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs','Admin_Check_Completed','Admin_Check_Updated_At','Admin_Check_Updated_By','AI_Provider_State_JSON']);
+  assert.equal(schemas.Pitchbook_Index.at(-1), 'AI_Provider_State_JSON');
 });
 
 test('defines a separate audit log schema', () => {
@@ -383,7 +383,7 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const exportsFolder = env._debug.resources.get(state.resources.knowledgeExportsFolderId);
   assert.equal(exportsFolder.name, 'Knowledge Exports');
   assert.deepEqual(exportsFolder.parents, ['knowledge-parent']);
-  assert.equal(state.schemaVersion, 5);
+  assert.equal(state.schemaVersion, 6);
   assert.equal(backend.sheets.size, 5);
   assert.equal(audit.sheets.size, 1);
   assert.equal(backend.sheets.get('GP_Master').rows.length, 30);

@@ -130,8 +130,8 @@ test('feature-freeze diagnostics report six formats, five modes, and pending liv
 });
 
 test('binary upload implementation preserves MIME and exact byte count contract',()=>{
-  const source=fs.readFileSync(path.resolve(__dirname,'..','src','181_FeatureFreezeSync.gs'),'utf8');
-  for(const token of ['kspAiSourcePayloadBytes_(source)','X-Goog-Upload-Header-Content-Length','X-Goog-Upload-Header-Content-Type','Content-Length','payload: kspFfSignedBytes_(bytes)'])assert.ok(source.includes(token),token);
+  const source=fs.readFileSync(path.resolve(__dirname,'..','src','161_GeminiRestClient.gs'),'utf8')+'\n'+fs.readFileSync(path.resolve(__dirname,'..','src','181_FeatureFreezeSync.gs'),'utf8');
+  for(const token of ['kspAiSourcePayloadBytes_(source)','X-Goog-Upload-Header-Content-Length','X-Goog-Upload-Header-Content-Type','Content-Length','kspFfSignedBytes_(bytes)'])assert.ok(source.includes(token),token);
 });
 
 test('Knowledge Search UI exposes all modes and generic endpoint',()=>{

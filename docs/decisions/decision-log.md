@@ -1,6 +1,6 @@
 # Decision Log
 
-Current as of: 2026-08-29
+Current as of: 2026-08-31
 
 This file records active major decisions. Detailed domain sources take precedence:
 
@@ -12,6 +12,7 @@ This file records active major decisions. Detailed domain sources take precedenc
 - target-runtime delivery: `docs/decisions/target-runtime-first-development.md`
 - temporal data: `docs/decisions/temporal-data-contract.md`
 - AI provider selection: `docs/decisions/ai-provider-selection-and-full-output.md`
+- AI model/thinking policy: `docs/decisions/ai-model-policy-and-thinking-controls.md`
 - AI/File Search: `docs/ai/provider-neutral-file-search.md`
 - distribution/installer: `docs/decisions/modular-source-single-bundle-distribution.md`
 - security: `docs/governance/security.md`
@@ -194,6 +195,9 @@ Detailed decision:
 
 `docs/decisions/target-runtime-first-development.md`
 
+The permanent DEV/PROD project separation is superseded; future Works use the
+accepted target runtime with isolated synthetic data and guarded side effects.
+
 ## 2026-08-27 — Counterparty entity classification
 
 Status: Accepted and implemented
@@ -298,10 +302,15 @@ FULL_EXPORT
 - ChatGPT uses the approved OpenAI API and File Search;
 - Gemini uses the approved Gemini API and File Search;
 - File Search is the required default source-reading path for both API routes;
+- both API routes may retrieve authoritative Meeting records and Pitchbook/source materials;
 - 全文出力 calls no AI API;
+- FULL_EXPORT body contains authoritative Meeting Google Docs text only;
+- matching Pitchbooks may appear only as bounded reference metadata and authoritative Drive links, without body extraction;
 - no automatic cross-provider failover;
 - disabled/unconfigured providers return provider-specific safe errors;
-- model names remain admin settings, not user choices;
+- normal users may select only model/thinking combinations allowed by administrator policy, accessible to the current credential/project, and qualified for the route;
+- administrators may hide Sol, retain approved older models, and control model-specific thinking choices;
+- discovery or a newer/latest provider release never auto-enables a model;
 - Canonical AI Source, Knowledge Request, Knowledge Package, structured filters, and citation model are provider-neutral;
 - provider adapters own provider-native Store/index/query/filter/citation/retry/cleanup details;
 - OpenAI and Gemini index state must be independently observable;
@@ -314,6 +323,7 @@ FULL_EXPORT
 Detailed decisions:
 
 - `docs/decisions/ai-provider-selection-and-full-output.md`;
+- `docs/decisions/ai-model-policy-and-thinking-controls.md`;
 - `docs/ai/provider-neutral-file-search.md`.
 
 ## 2026-08-28 — Optimized AI implementation order
@@ -323,6 +333,7 @@ Status: Accepted and extended on 2026-08-29
 ```text
 0019 Entity Workspace / Fund-Strategy drill-down
 → 0020 AI provider core / OpenAI + Gemini File Search / full output
+→ 0025 administrator-governed model / thinking selection
 → 0021 structured filters / five modes / multi-Entity / provider parity
 → 0023 generated bundle / installer / fresh-install qualification
 → historical migration
@@ -331,11 +342,30 @@ Status: Accepted and extended on 2026-08-29
 
 Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and export Works. It implements three-route UX, provider-neutral contracts, independent provider state, both adapters, at least one enabled-provider live path, every enabled-provider qualification, disabled-provider safe errors, and full-output parity.
 
+Work 0025 follows the stable Work 0020 OpenAI path. It adds policy-governed model/thinking choices without automatically enabling discovered/latest models or allowing users to bypass administrator policy.
+
 Work 0021 builds the intended search product once on that core: structured filters, five modes, 2–5 Entity comparison, provider parity, full-output parity, and the bounded six-format matrix.
 
 Work 0023 separates modular development source from low-friction distribution and proves the generated bundle before loading historical volume or qualifying the company environment.
 
 Personal-PC AI qualification precedes historical migration so actual provider index/metadata/search contracts are proven before loading volume.
+
+## 2026-08-31 — Work 0020 OpenAI primary qualification
+
+Status: Accepted and completed for the personal DEV OpenAI path
+
+- the OpenAI base model, temporary Vector Store/File lifecycle, exact metadata filter, grounded answer and cleanup passed directly;
+- inline citation and retrieved-source normalization passed fail closed using provider file identity plus `source_type`, `source_id` and `content_hash`;
+- the existing private Web App version 57 passed exact native Pitchbook `DOC-000017` and Meeting `MTG-000005` grounded query/citation gates;
+- exact sync, metadata filtering, update/reindex, Inactive, Reactivate, delete/rebuild, disable/re-enable and no-duplicate reuse passed;
+- item-level sync failure no longer invalidates a viable provider or discards a last known-good source;
+- old large-file OpenAI indexing timeouts remain separate follow-up evidence;
+- Gemini provider recovery remains deferred, with no automatic provider fallback;
+- FULL_EXPORT accepted evidence remains Meeting-body-only and was not rerun during final Git reconciliation.
+
+Detailed report:
+
+`docs/handoffs/0020-CODEX-19-openai-native-sync-scope-and-partial-failure-recovery-report.md`
 
 ## 2026-08-28 — Historical migration and final production
 

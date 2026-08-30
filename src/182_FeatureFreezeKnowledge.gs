@@ -92,10 +92,10 @@ function kspBuildFeatureFreezePrompt_(input) {
   var mode = kspGetFeatureFreezeModeDefinition_(input.mode).mode;
   var instruction = kspAiTrim_(input.questionOrInstruction || input.question);
   var common = [
-    '社内ナレッジベースからFile Searchで取得された資料だけを根拠として、日本語で回答してください。',
+    '社内ナレッジベースから取得された資料だけを根拠として、日本語で回答してください。',
     '根拠が不足する箇所は推測で埋めず、確認できない点と証拠不足を明示してください。',
     '外部知識や一般論を、資料に記載された事実として扱わないでください。',
-    '重要な事実・比較・変化には、取得資料に対応するCitationを付けてください。',
+    '重要な事実・比較・変化には、取得資料に対応する出典情報を付けてください。',
     '', 'モード: ' + mode
   ];
   var lines = [];
@@ -127,7 +127,16 @@ function kspBuildFeatureFreezeInteractionRequest_(params) {
   var tool = { type: 'file_search', file_search_store_names: [storeName] };
   var filter = kspAiTrim_(options.metadataFilter);
   if (filter) tool.metadata_filter = filter;
-  return { model: modelId, input: kspBuildFeatureFreezePrompt_(input), tools: [tool] };
+  return {
+    model: modelId,
+    input: kspBuildFeatureFreezePrompt_(input),
+    tools: [tool],
+    background: true,
+    generation_config: {
+      thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
+      max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
+    }
+  };
 }
 
 function kspBuildFeatureFreezeAuditRow_(params) {

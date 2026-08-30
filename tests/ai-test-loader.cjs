@@ -13,9 +13,14 @@ function formatDateInTimeZone(value, timezone, pattern) {
 }
 
 function loadAi() {
+  let uuidCounter = 0;
   const context = vm.createContext({
     console, JSON, Object, Array, String, Number, Boolean, Date, Math, RegExp, Error, TypeError,
-    Set, Map, Intl, encodeURIComponent, Utilities: { formatDate: formatDateInTimeZone }
+    Set, Map, Intl, encodeURIComponent,
+    Utilities: {
+      formatDate: formatDateInTimeZone,
+      getUuid: () => `test-query-token-${++uuidCounter}`
+    }
   });
   const stub = `
     var KSP_AI_INDEX_STATUS={NOT_INDEXED:'NotIndexed',PENDING:'Pending',INDEXED:'Indexed',FAILED:'Failed'};
@@ -38,10 +43,10 @@ function loadAi() {
   new vm.Script(stub, { filename: 'base-stub.gs' }).runInContext(context);
   const root = path.resolve(__dirname, '..');
   for (const file of [
-    '00_Core.gs','05_TemporalContracts.gs','30_MeetingCore.gs','130_AiConstants.gs','131_AiFileSearchContracts.gs','132_AiKnowledgeContracts.gs','133_AiRetryContracts.gs','161_GeminiRestClient.gs',
+    '00_Core.gs','05_TemporalContracts.gs','30_MeetingCore.gs','130_AiConstants.gs','131_AiFileSearchContracts.gs','132_AiKnowledgeContracts.gs','133_AiRetryContracts.gs','161_GeminiRestClient.gs','163_OpenAiRestClient.gs','164_AiProviderCore.gs',
     '140_AiSourceModels.gs','141_AiSyncHelpers.gs','142_AiSyncWorker.gs',
     '150_KnowledgeSearchModels.gs','151_KnowledgeSearchService.gs',
-    '180_FeatureFreezeFormats.gs','181_FeatureFreezeSync.gs','182_FeatureFreezeKnowledge.gs','190_FeatureFreezeDiagnostics.gs','170_AiEntryPoints.gs'
+    '180_FeatureFreezeFormats.gs','181_FeatureFreezeSync.gs','182_FeatureFreezeKnowledge.gs','190_FeatureFreezeDiagnostics.gs','165_AiProviderAdmin.gs','170_AiEntryPoints.gs'
   ]) {
     new vm.Script(fs.readFileSync(path.join(root,'src',file),'utf8'), { filename:file }).runInContext(context);
   }

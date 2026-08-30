@@ -120,6 +120,8 @@ function createFakeEnvironment(options = {}) {
   const audits = [];
   const artifacts = [];
   const reads = [];
+  const pitchbookMetadataReads = [];
+  const pitchbookByteReads = [];
   const publicOperations = new Map();
   const idempotency = new Map();
   let tick = 0;
@@ -152,14 +154,22 @@ function createFakeEnvironment(options = {}) {
       return documents.get(id) ? documents.get(id).text : '';
     },
     getDriveFileMetadata(id) {
+      pitchbookMetadataReads.push(id);
       if (options.driveMetadataError) throw new Error(String(options.driveMetadataError));
+      const metadata = options.driveMetadata || {};
       return {
-        id,
-        mimeType: 'application/pdf',
-        parents: ['pitchbooks-synthetic'],
-        trashed: false,
-        webViewLink: options.driveWebViewLink || `https://drive.google.com/file/d/${id}/view`
+        id: metadata.id === undefined ? id : metadata.id,
+        mimeType: metadata.mimeType === undefined ? 'application/pdf' : metadata.mimeType,
+        parents: metadata.parents === undefined ? ['pitchbooks-synthetic'] : metadata.parents,
+        trashed: metadata.trashed === undefined ? false : metadata.trashed,
+        webViewLink: metadata.webViewLink === undefined
+          ? (options.driveWebViewLink || `https://drive.google.com/file/d/${id}/view`)
+          : metadata.webViewLink
       };
+    },
+    readPitchbookSource(id) {
+      pitchbookByteReads.push(id);
+      return { mimeType: 'application/pdf', bytes: [37, 80, 68, 70] };
     },
     claimPublicOperation(key, expirationSeconds) {
       const now = Date.now();
@@ -196,7 +206,7 @@ function createFakeEnvironment(options = {}) {
       if (options.auditError) throw new Error('synthetic audit failure');
       audits.push({ ...row });
     },
-    _debug: { meetingRows, pitchbookRows, documents, audits, artifacts, reads, publicOperations, idempotency }
+    _debug: { meetingRows, pitchbookRows, documents, audits, artifacts, reads, pitchbookMetadataReads, pitchbookByteReads, publicOperations, idempotency }
   };
   return environment;
 }
@@ -310,9 +320,58 @@ test('creation preserves Meeting bodies and exports Pitchbook metadata and links
   assert.match(model.pitchbookLines.join('\n'), /https:\/\/drive\.google\.com\/open\?id=file-1/);
   assert.doesNotMatch(model.pitchbookLines.join('\n'), /Pitchbook body/);
   assert.deepEqual(env._debug.reads, ['doc-1', 'doc-1']);
+  assert.deepEqual(env._debug.pitchbookMetadataReads, ['file-1', 'file-2', 'file-1', 'file-2']);
+  assert.deepEqual(env._debug.pitchbookByteReads, []);
   assert.equal(env._debug.audits.at(-1).Question_Or_Instruction, '');
   assert.doesNotMatch(JSON.stringify(env._debug.audits), /Meeting body: synthetic/);
   assert.equal(JSON.stringify({ meetings: env._debug.meetingRows, pitchbooks: env._debug.pitchbookRows }), sourceRowsBefore);
+  assert.equal(result.preview.meetingPreviewText, undefined);
+  assert.match(result.preview.packageText, /Pitchbooks \/ reference metadata and authoritative links only/);
+});
+
+test('Pitchbook-only FULL_EXPORT is a no-result hard stop and cannot create a reference-only artifact', () => {
+  const env = createFakeEnvironment({
+    meetingRows: [],
+    pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: 'file-1' })]
+  });
+  const input = baseInput({ sourceType: 'Pitchbook' });
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
+  assert.equal(preview.ok, true, JSON.stringify(preview));
+  assert.equal(preview.preview.meetingCount, 0);
+  assert.equal(preview.preview.pitchbookCount, 1);
+  assert.equal(preview.preview.noResults, true);
+  const result = ksp.kspRunKnowledgeExportCreation_(env, {
+    ...input,
+    previewFingerprint: preview.preview.previewFingerprint,
+    outputType: 'GOOGLE_DOCS'
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_NO_RESULTS');
+  assert.equal(env._debug.artifacts.length, 0);
+  assert.deepEqual(env._debug.pitchbookMetadataReads, ['file-1', 'file-1']);
+  assert.deepEqual(env._debug.pitchbookByteReads, []);
+});
+
+test('Pitchbook reference metadata validates identity and boundary without reading body bytes', () => {
+  const invalidMetadataCases = [
+    { id: 'file-other' },
+    { mimeType: 'application/vnd.google-apps.folder' },
+    { trashed: true },
+    { webViewLink: 'https://drive.google.com/file/d/file-other/view' }
+  ];
+  invalidMetadataCases.forEach((driveMetadata) => {
+    const env = createFakeEnvironment({
+      meetingRows: [],
+      pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: 'file-1' })],
+      driveMetadata
+    });
+    const result = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: 'Pitchbook' }));
+    assert.equal(result.ok, false, JSON.stringify(result));
+    assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID');
+    assert.deepEqual(env._debug.pitchbookMetadataReads, ['file-1']);
+    assert.deepEqual(env._debug.pitchbookByteReads, []);
+    assert.deepEqual(env._debug.artifacts, []);
+  });
 });
 
 test('Knowledge Export includes structured Meeting and Pitchbook metadata but not follow-up note Audit content', () => {
@@ -350,6 +409,28 @@ test('creation is idempotent for the same preview fingerprint and output type', 
   assert.equal(second.idempotentReplay, true);
   assert.equal(second.artifact.id, first.artifact.id);
   assert.equal(env._debug.artifacts.length, 1);
+});
+
+test('Copy, Google Docs, and PDF use one Meeting package and fingerprint', () => {
+  const env = createFakeEnvironment();
+  const input = baseInput({ sourceType: '' });
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
+  assert.equal(preview.ok, true, JSON.stringify(preview));
+  const request = (outputType) => ksp.kspRunKnowledgeExportCreation_(env, {
+    ...input,
+    previewFingerprint: preview.preview.packageFingerprint,
+    outputType
+  });
+  const docs = request('GOOGLE_DOCS');
+  const pdf = request('PDF');
+  assert.equal(docs.ok, true, JSON.stringify(docs));
+  assert.equal(pdf.ok, true, JSON.stringify(pdf));
+  assert.equal(docs.packageFingerprint, preview.preview.packageFingerprint);
+  assert.equal(pdf.packageFingerprint, preview.preview.packageFingerprint);
+  assert.equal(docs.packageText, preview.preview.packageText);
+  assert.equal(pdf.packageText, preview.preview.packageText);
+  assert.equal(env._debug.artifacts.length, 2);
+  assert.deepEqual(env._debug.pitchbookByteReads, []);
 });
 
 test('artifact URL must identify the returned artifact ID', () => {

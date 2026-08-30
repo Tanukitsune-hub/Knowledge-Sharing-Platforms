@@ -42,6 +42,9 @@ test('Knowledge Export UI is deterministic, keyboard-native, and Gemini-independ
   assert.match(standalone, /include_\('KnowledgeSearchPage'\)/);
   assert.match(standalone, /include_\('ClientKnowledgeSearch'\)/);
   assert.match(client, /knowledgeState\.configured/);
+  assert.match(client, /kEl\('knowledge-export-body-preview'\)\.textContent=preview\.packageText\|\|''/);
+  assert.doesNotMatch(client, /meetingPreviewText|pitchbookReferenceLines/);
+  assert.doesNotMatch(page, /knowledge-export-pitchbook-references/);
   assert.match(client, /const knowledgeBack=kEl\('knowledge-back'\);if\(knowledgeBack\)/);
   const exportBusyFunction = client.match(/function kSetExportBusy\([^}]+\}/)[0];
   assert.doesNotMatch(exportBusyFunction, /configured/);

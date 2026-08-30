@@ -47,6 +47,8 @@ Work IDs and application release versions are separate. Historical Works remain 
 - canonical Meeting ↔ Pitchbook relationship remains `Meeting_Index.Related_Pitchbook_IDs` with reverse lookup derived at read time;
 - AI provider selection is explicit; no automatic cross-provider failover;
 - ChatGPT and Gemini use File Search as the required default source-reading path;
+- normal-user model/thinking choices are restricted to administrator-enabled, credential-accessible, route-qualified combinations;
+- model discovery and newer/latest releases never auto-enable a model;
 - full output calls no AI API and reuses one canonical package for Copy/Docs/PDF;
 - modular `.gs` and `.html` files under `src/` remain the development source of truth;
 - `dist/KnowledgeShare.bundle.gs` is a generated release artifact, never a hand-maintained development source;
@@ -96,7 +98,7 @@ AI Works additionally report provider matrices separately rather than hiding par
 
 ### Work 0020 — AI Provider Core, dual File Search, and full output
 
-Status: CURRENT after accepted/merged Work 0019.
+Status: FUNCTIONALLY COMPLETE / target-runtime qualified; final PR reconciliation is Work 0020 CODEX-20.
 
 Detailed plan:
 
@@ -129,6 +131,26 @@ Primary outcome:
 - no company confidential data or production rollout.
 
 Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and export Works.
+
+### Work 0025 — Administrator-governed model and thinking selection
+
+Status: PLANNED after the stable Work 0020 OpenAI primary path.
+
+Detailed plan:
+
+`docs/planning/work0025-ai-model-policy-and-user-selection.md`
+
+Authoritative decision:
+
+`docs/decisions/ai-model-policy-and-thinking-controls.md`
+
+Outcome:
+
+- normal users select only administrator-enabled, credential-accessible and route-qualified model/thinking combinations;
+- administrators may hide Sol, retain approved older models and configure per-model thinking choices;
+- provider discovery never auto-enables a newly listed/latest model;
+- server-side policy rejects stale, hidden, inaccessible or unsupported combinations;
+- no silent provider or stronger/more-expensive model fallback.
 
 ## 6. Next implementation-ready Work
 
@@ -215,7 +237,6 @@ The production release bundle is cut after the intended feature surface is stabl
 - standalone GP Workspace enhancement;
 - generalized legacy converter as mandatory product;
 - automatic AI provider routing/failover;
-- user-facing model selector;
 - popup/modal long-form export;
 - full-context API route as a substitute for File Search;
 - developing the product directly as one giant hand-maintained Apps Script file;
@@ -263,7 +284,8 @@ The company may enable OpenAI, Gemini, both, or neither. Production readiness is
   -> 0017 analytics / monthly checks [ACCEPTED]
   -> 0018 Relationship Explorer [ACCEPTED]
   -> 0019 Entity Workspace / Fund-Strategy drill-down [ACCEPTED]
-  -> 0020 AI provider core / OpenAI + Gemini File Search / full output [CURRENT]
+  -> 0020 AI provider core / OpenAI + Gemini File Search / full output [FUNCTIONALLY COMPLETE]
+  -> 0025 administrator-governed model / thinking selection [PLANNED]
   -> 0021 structured filters / five modes / multi-Entity / provider parity
   -> 0023 generated bundle / idempotent installer / fresh-install qualification
   -> historical migration (manual / hybrid / selective automation)
