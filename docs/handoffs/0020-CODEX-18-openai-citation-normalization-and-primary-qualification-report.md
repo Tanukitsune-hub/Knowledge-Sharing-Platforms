@@ -118,7 +118,7 @@ FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 FINAL_INTEGRITY: NOT RUN native Web App; repository/source-readback integrity PASS
 READY: NO
 BLOCKER: OPENAI_SYNC_FAILED — native OpenAI-only Pitchbook sync ended in the generic UI error state; CODEX-18 stop rule applied
-FINAL_COMMIT: pending scoped runtime-failure report commit
+FINAL_COMMIT: cd202d9 — scoped runtime-failure report and handoff update
 GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
