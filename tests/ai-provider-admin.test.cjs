@@ -305,6 +305,87 @@ test('administrator SYNC forwards a trimmed sourceType and blank sourceType pres
   });
 });
 
+test('administrator exact SYNC forwards the trimmed sourceId with its sourceType', () => {
+  const env = makeAdminEnvironment();
+  env._debug.context.pitchbookRows[0].Document_ID = 'DOC-000017';
+  withSyncStub(() => {
+    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+      action: 'SYNC', sourceType: '  Pitchbook  ', sourceId: '  DOC-000017  '
+    }));
+    assert.equal(result.ok, true);
+    assert.equal(result.sync.sourceType, 'Pitchbook');
+    assert.equal(result.sync.exact, true);
+    assert.deepEqual(plain(env._debug.syncCalls), [
+      { force: true, sourceType: 'Pitchbook', sourceId: 'DOC-000017', providers: ['OPENAI'] }
+    ]);
+    assert.doesNotMatch(JSON.stringify(result), /DOC-000017/);
+  });
+});
+
+test('item-level OpenAI sync failure preserves the valid connection and returns safe diagnostics', () => {
+  const env = makeAdminEnvironment({ enabled: true, storeId: 'vs-private', model: 'gpt-5.6-terra', readiness: 'ACTIVE' });
+  const original = ksp.kspRunProviderNeutralAiSync_;
+  ksp.kspRunProviderNeutralAiSync_ = () => ({
+    ok: false,
+    providerOk: true,
+    partial: true,
+    selected: 2,
+    indexed: 1,
+    reused: 0,
+    unchanged: 0,
+    removed: 0,
+    failed: 1,
+    skippedClaims: 0,
+    providers: { OPENAI: { enabled: true, usable: true, status: 'PARTIAL', selected: 2, indexed: 1, failed: 1 } },
+    items: [{ provider: 'OPENAI', sourceType: 'Pitchbook', sourceId: 'DOC-PRIVATE', action: 'failed', code: 'OPENAI_INDEX_TIMEOUT' }],
+    errors: []
+  });
+  try {
+    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+      action: 'SYNC', sourceType: 'Pitchbook'
+    }));
+    assert.equal(result.ok, true);
+    assert.equal(result.sync.ok, false);
+    assert.equal(result.sync.partial, true);
+    assert.equal(result.sync.usable, true);
+    assert.equal(result.sync.selected, 2);
+    assert.equal(result.sync.indexed, 1);
+    assert.equal(result.sync.failed, 1);
+    assert.deepEqual(result.sync.errorCodes, ['OPENAI_INDEX_TIMEOUT']);
+    assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'true');
+    assert.equal(env._debug.context.settings.OPENAI_READINESS, 'ACTIVE_WITH_SYNC_ERRORS');
+    assert.doesNotMatch(JSON.stringify(result), /DOC-PRIVATE|vs-private/);
+  } finally {
+    ksp.kspRunProviderNeutralAiSync_ = original;
+  }
+});
+
+test('provider-level OpenAI sync failure invalidates readiness without exposing provider details', () => {
+  const env = makeAdminEnvironment({ enabled: true, storeId: 'vs-private', model: 'gpt-5.6-terra', readiness: 'ACTIVE' });
+  const original = ksp.kspRunProviderNeutralAiSync_;
+  ksp.kspRunProviderNeutralAiSync_ = () => ({
+    ok: false,
+    providerOk: false,
+    partial: false,
+    selected: 0,
+    indexed: 0,
+    failed: 0,
+    providers: { OPENAI: { enabled: true, usable: false, status: 'FAILED', errorCode: 'OPENAI_HTTP_401' } },
+    items: [],
+    errors: [{ provider: 'OPENAI', code: 'OPENAI_HTTP_401', privateDetail: 'must-not-leak' }]
+  });
+  try {
+    const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC', sourceType: 'Meeting' }));
+    assert.equal(result.ok, false);
+    assert.equal(result.error.code, 'OPENAI_SYNC_FAILED');
+    assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
+    assert.equal(env._debug.context.settings.OPENAI_READINESS, 'ERROR');
+    assert.doesNotMatch(JSON.stringify(result), /OPENAI_HTTP_401|must-not-leak|vs-private/);
+  } finally {
+    ksp.kspRunProviderNeutralAiSync_ = original;
+  }
+});
+
 test('invalid administrator SYNC sourceType fails closed without invoking provider-neutral sync', () => {
   const env = makeAdminEnvironment();
   withSyncStub(() => {
@@ -337,12 +418,7 @@ test('administrator SYNC safe summary excludes source, store, and provider docum
       providerDocumentId: 'doc-private',
       storeName: 'fileSearchStores/store-private'
     }],
-    errors: [{
-      provider: 'GEMINI',
-      sourceId: 'MTG-PRIVATE-SYNTHETIC',
-      documentName: 'fileSearchStores/store-private/documents/doc-private',
-      code: 'AI_SYNTHETIC_FAILURE'
-    }]
+    errors: []
   });
   try {
     const result = plain(ksp.kspMutateAiProviderSettings_(env, {
@@ -386,10 +462,15 @@ test('admin provider surface is present while browser code never receives key, s
   assert.match(page, /資料を同期して利用開始/);
   assert.match(page, /id="ai-provider-openai-key-input" type="password"/);
   assert.match(page, /ai-provider-sync-source/);
+  assert.match(page, /id="ai-provider-sync-source-id"/);
   assert.match(page, /value="Meeting"/);
   assert.match(page, /value="Pitchbook"/);
   assert.match(client, /getAiProviderAdminData/);
   assert.match(client, /mutateAiProviderSettings/);
   assert.match(client, /sourceType:action==='SYNC'\?\(sourceType\|\|''\):''/);
+  assert.match(client, /sourceId:action==='SYNC'\?\(sourceId\|\|''\):''/);
+  assert.match(client, /OPENAI_INDEX_TIMEOUT/);
+  assert.match(client, /sync\.selected/);
+  assert.match(client, /sync\.failed/);
   assert.doesNotMatch(page + client, /KSP_OPENAI_API_KEY|OPENAI_VECTOR_STORE_ID|OPENAI_DEFAULT_MODEL|gpt-5\.6-terra/);
 });

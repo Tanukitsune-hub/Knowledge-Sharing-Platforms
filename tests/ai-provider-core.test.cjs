@@ -662,7 +662,8 @@ test('synthetic OpenAI lifecycle reindexes exactly once, excludes Inactive, and 
   assert.equal(first.indexed, 2);
   const uploadedAfterFirst = env._debug.uploaded.length;
   const second = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true }));
-  assert.equal(second.unchanged, 2);
+  assert.equal(second.selected, 0);
+  assert.equal(second.unchanged, 0);
   assert.equal(env._debug.uploaded.length, uploadedAfterFirst);
   assert.equal(env._debug.documents.length, 2);
 
@@ -679,6 +680,7 @@ test('synthetic OpenAI lifecycle reindexes exactly once, excludes Inactive, and 
 
   const revisionDocument = env._debug.documents.find((item) => item.attributes.source_id === meeting.Meeting_ID);
   env._debug.documents.push({ ...plain(revisionDocument), name: `${revisionDocument.name}-duplicate` });
+  meeting.Updated_At = '2026-09-01T00:00:00.000Z';
   const duplicateCleanup = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
   assert.equal(duplicateCleanup.unchanged, 1);
   assert.equal(env._debug.documents.filter((item) => item.attributes.source_id === meeting.Meeting_ID).length, 1);
@@ -704,20 +706,153 @@ test('synthetic OpenAI lifecycle reindexes exactly once, excludes Inactive, and 
   assert.ok(reactivatedState.contentHash);
 });
 
-test('a source revision signaled by the legacy Pending field is reconsidered per provider', () => {
+test('exact current OpenAI reconciliation reuses one document and stops on zero or multiple without mutation', () => {
+  const context = baseContext({ meetingRows: [] });
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const selection = { force: true, sourceType: 'Pitchbook', sourceId: 'DOC-000001', providers: ['OPENAI'] };
+  const first = plain(ksp.kspRunProviderNeutralAiSync_(env, selection));
+  assert.equal(first.indexed, 1);
+  const authoritative = plain(env._debug.documents[0]);
+  const uploads = env._debug.uploaded.length;
+  const second = plain(ksp.kspRunProviderNeutralAiSync_(env, selection));
+  assert.equal(second.ok, true);
+  assert.equal(second.unchanged, 1);
+  assert.equal(env._debug.uploaded.length, uploads);
+  assert.equal(env._debug.deleted.length, 0);
+
+  env._debug.documents.length = 0;
+  const zero = plain(ksp.kspRunProviderNeutralAiSync_(env, selection));
+  assert.equal(zero.ok, false);
+  assert.equal(zero.providerOk, true);
+  assert.equal(zero.partial, true);
+  assert.deepEqual(zero.items.map((item) => item.code), ['AI_EXACT_SOURCE_RECONCILIATION_NOT_UNIQUE']);
+  assert.equal(env._debug.uploaded.length, uploads);
+  assert.equal(env._debug.deleted.length, 0);
+  const stateAfterZero = plain(ksp.kspGetAiProviderStateEntry_(context.pitchbookRows[0], 'OPENAI'));
+  assert.equal(stateAfterZero.status, 'Indexed');
+  assert.equal(stateAfterZero.providerDocumentId, authoritative.providerDocumentId);
+
+  env._debug.documents.push(authoritative, { ...plain(authoritative), name: `${authoritative.name}-duplicate` });
+  const multiple = plain(ksp.kspRunProviderNeutralAiSync_(env, selection));
+  assert.equal(multiple.ok, false);
+  assert.equal(multiple.partial, true);
+  assert.deepEqual(multiple.items.map((item) => item.code), ['AI_EXACT_SOURCE_RECONCILIATION_NOT_UNIQUE']);
+  assert.equal(env._debug.uploaded.length, uploads);
+  assert.equal(env._debug.deleted.length, 0);
+});
+
+test('exact OpenAI lifecycle safely reconciles update, Inactive removal, and Reactivate rebuild', () => {
+  const context = baseContext({ pitchbookRows: [] });
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const selection = { force: true, sourceType: 'Meeting', sourceId: 'MTG-000001', providers: ['OPENAI'] };
+  const first = plain(ksp.kspRunProviderNeutralAiSync_(env, selection));
+  assert.equal(first.indexed, 1);
+  const firstDocumentName = env._debug.documents[0].name;
+
+  context.meetingRows[0].Updated_At = '2026-09-03T00:00:00.000Z';
+  env.readMeetingText = () => 'Exact Meeting lifecycle revision';
+  const revised = plain(ksp.kspRunProviderNeutralAiSync_(env, selection));
+  assert.equal(revised.ok, true);
+  assert.equal(revised.indexed, 1);
+  assert.equal(env._debug.documents.length, 1);
+  assert.ok(env._debug.deleted.includes(firstDocumentName));
+
+  context.meetingRows[0].Status = 'Inactive';
+  const inactive = plain(ksp.kspRunProviderNeutralAiSync_(env, selection));
+  assert.equal(inactive.ok, true);
+  assert.equal(inactive.removed, 1);
+  assert.equal(env._debug.documents.length, 0);
+  assert.equal(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'OPENAI').status, 'NotIndexed');
+
+  context.meetingRows[0].Status = 'Active';
+  context.meetingRows[0].Updated_At = '2026-09-04T00:00:00.000Z';
+  const reactivated = plain(ksp.kspRunProviderNeutralAiSync_(env, selection));
+  assert.equal(reactivated.ok, true);
+  assert.equal(reactivated.indexed, 1);
+  assert.equal(env._debug.documents.length, 1);
+  assert.equal(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'OPENAI').status, 'Indexed');
+});
+
+test('item-level OpenAI replacement failure preserves the prior indexed document and provider usability', () => {
+  const context = baseContext({ pitchbookRows: [] });
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const first = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, providers: ['OPENAI'] }));
+  assert.equal(first.indexed, 1);
+  const priorDocument = plain(env._debug.documents[0]);
+  const priorState = plain(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'OPENAI'));
+  context.meetingRows[0].Updated_At = '2026-09-02T00:00:00.000Z';
+  env.readMeetingText = () => 'Meeting revised after the prior successful index';
+  env.uploadProviderSource = () => { throw Object.assign(new Error('safe synthetic timeout'), { code: 'OPENAI_INDEX_TIMEOUT' }); };
+  const failed = plain(ksp.kspRunProviderNeutralAiSync_(env, {
+    force: true, sourceType: 'Meeting', providers: ['OPENAI']
+  }));
+  assert.equal(failed.ok, false);
+  assert.equal(failed.providerOk, true);
+  assert.equal(failed.partial, true);
+  assert.equal(failed.providers.OPENAI.usable, true);
+  assert.equal(failed.providers.OPENAI.status, 'PARTIAL');
+  assert.deepEqual(failed.items.map((item) => item.code), ['OPENAI_INDEX_TIMEOUT']);
+  assert.deepEqual(env._debug.documents, [priorDocument]);
+  assert.equal(env._debug.deleted.length, 0);
+  const after = plain(ksp.kspGetAiProviderStateEntry_(context.meetingRows[0], 'OPENAI'));
+  assert.equal(after.status, 'Indexed');
+  assert.equal(after.providerDocumentId, priorState.providerDocumentId);
+  assert.equal(after.contentHash, priorState.contentHash);
+  assert.match(after.lastError, /OPENAI_INDEX_TIMEOUT/);
+});
+
+test('provider configuration failure is reported separately from item failures', () => {
+  const env = createSyncEnvironment();
+  env.getProviderConfig = () => { throw Object.assign(new Error('safe synthetic config failure'), { code: 'OPENAI_CONFIGURATION_INVALID' }); };
+  const result = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, providers: ['OPENAI'] }));
+  assert.equal(result.ok, false);
+  assert.equal(result.providerOk, false);
+  assert.equal(result.partial, false);
+  assert.equal(result.failed, 0);
+  assert.equal(result.providers.OPENAI.usable, false);
+  assert.deepEqual(result.errors, [{ provider: 'OPENAI', code: 'OPENAI_CONFIGURATION_INVALID' }]);
+});
+
+test('a current provider entry is not reselected solely because the legacy status remains Pending', () => {
   const context = baseContext({ pitchbookRows: [] });
   const state = ksp.kspBuildEmptyAiProviderState_();
   state.OPENAI.status = 'Indexed';
   state.OPENAI.documentName = 'openai:vs-synthetic/files/file-old';
   state.OPENAI.providerDocumentId = 'file-old';
   state.OPENAI.contentHash = 'old-hash';
+  state.OPENAI.indexedAt = '2026-08-03T00:00:00.000Z';
   context.meetingRows[0].AI_Provider_State_JSON = ksp.kspSerializeAiProviderState_(state);
   context.meetingRows[0].AI_Index_Status = 'Pending';
   const selected = plain(ksp.kspSelectProviderAiWorkItems_(
     context.meetingRows, context.pitchbookRows, '2026-08-16T00:00:00.000Z',
     ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '10' }), 'OPENAI'
   ));
-  assert.deepEqual(selected.map((item) => item.sourceId), ['MTG-000001']);
+  assert.deepEqual(selected.map((item) => item.sourceId), []);
+
+  context.meetingRows[0].Updated_At = '2026-08-04T00:00:00.000Z';
+  const revised = plain(ksp.kspSelectProviderAiWorkItems_(
+    context.meetingRows, context.pitchbookRows, '2026-08-16T00:00:00.000Z',
+    ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '10' }), 'OPENAI'
+  ));
+  assert.deepEqual(revised.map((item) => item.sourceId), ['MTG-000001']);
 });
 
 test('provider selector excludes permanent failures and selects exactly one eligible Pending Meeting', () => {
@@ -919,6 +1054,40 @@ test('sourceType filters before sort and slice, excluding permanent failures whi
   assert.deepEqual(pitchbookSelection.map((item) => [item.sourceType, item.sourceId]), [
     ['Pitchbook', 'DOC-PENDING-OLDEST']
   ]);
+});
+
+test('exact sourceType and sourceId selection returns only the authoritative requested source', () => {
+  const meetingRows = [providerQueueRow('Meeting', 'MTG-000005', '2026-08-01T00:00:00.000Z')];
+  const pitchbookRows = [
+    providerQueueRow('Pitchbook', 'DOC-000016', '2026-07-01T00:00:00.000Z'),
+    providerQueueRow('Pitchbook', 'DOC-000017', '2026-08-01T00:00:00.000Z')
+  ];
+  const selected = plain(ksp.kspSelectProviderAiWorkItems_(
+    meetingRows, pitchbookRows, '2026-08-29T00:00:00.000Z',
+    ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '1' }), 'OPENAI',
+    { sourceType: 'Pitchbook', sourceId: 'DOC-000017' }
+  ));
+  assert.deepEqual(selected.map((item) => [item.sourceType, item.sourceId]), [
+    ['Pitchbook', 'DOC-000017']
+  ]);
+});
+
+test('exact source selection fails closed for missing type, mismatched type, and missing source', () => {
+  const meetingRows = [providerQueueRow('Meeting', 'MTG-000005', '2026-08-01T00:00:00.000Z')];
+  const pitchbookRows = [providerQueueRow('Pitchbook', 'DOC-000017', '2026-08-01T00:00:00.000Z')];
+  const settings = ksp.kspNormalizeAiSettings_({ AI_SYNC_BATCH_SIZE: '10' });
+  assert.throws(() => ksp.kspSelectProviderAiWorkItems_(
+    meetingRows, pitchbookRows, '2026-08-29T00:00:00.000Z', settings, 'OPENAI',
+    { sourceId: 'DOC-000017' }
+  ), (error) => error && error.code === 'AI_SYNC_SOURCE_TYPE_REQUIRED');
+  assert.throws(() => ksp.kspSelectProviderAiWorkItems_(
+    meetingRows, pitchbookRows, '2026-08-29T00:00:00.000Z', settings, 'OPENAI',
+    { sourceType: 'Meeting', sourceId: 'DOC-000017' }
+  ), (error) => error && error.code === 'AI_SYNC_SOURCE_TYPE_MISMATCH');
+  assert.throws(() => ksp.kspSelectProviderAiWorkItems_(
+    meetingRows, pitchbookRows, '2026-08-29T00:00:00.000Z', settings, 'OPENAI',
+    { sourceType: 'Pitchbook', sourceId: 'DOC-999999' }
+  ), (error) => error && error.code === 'AI_SYNC_SOURCE_NOT_FOUND');
 });
 
 test('invalid sourceType fails closed before provider work is selected or processed', () => {

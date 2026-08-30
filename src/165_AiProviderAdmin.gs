@@ -9,6 +9,11 @@ function kspAiProviderAdminSafeMessage_(code) {
     OPENAI_NOT_READY_FOR_SYNC: 'OpenAI接続確認が完了していないため、資料同期を開始できません。',
     OPENAI_DISABLE_FAILED: 'OpenAIを無効化できませんでした。',
     AI_SYNC_SOURCE_TYPE_INVALID: '同期対象のSource Typeが不正です。',
+    AI_SYNC_SOURCE_TYPE_REQUIRED: '個別同期ではSource Typeを選択してください。',
+    AI_SYNC_SOURCE_TYPE_MISMATCH: 'Source TypeとSource IDが一致しません。',
+    AI_SYNC_SOURCE_ID_INVALID: '同期対象のSource IDが不正です。',
+    AI_SYNC_SOURCE_NOT_FOUND: '同期対象の資料が見つかりません。',
+    AI_SYNC_SOURCE_AMBIGUOUS: '同期対象の資料を一意に確認できません。',
     OPENAI_SYNC_FAILED: 'AI同期を完了できませんでした。設定と権限を確認してください。'
   };
   return messages[String(code || '')] || 'AIプロバイダ操作を完了できませんでした。';
@@ -23,11 +28,7 @@ function kspAiProviderAdminFailure_(code) {
 }
 
 function kspAiProviderAdminNormalizeSourceType_(input) {
-  var sourceType = kspAiTrim_(input && input.sourceType);
-  if (!sourceType) return '';
-  kspAssert_(sourceType === KSP_AI_SOURCE_TYPES.MEETING || sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK,
-    'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
-  return sourceType;
+  return kspNormalizeProviderAiSelection_(input).sourceType;
 }
 
 function kspAiProviderAdminSessionEmails_() {
@@ -248,7 +249,9 @@ function kspAiProviderAdminSafeSyncSummary_(report) {
     providerErrorCodes.forEach(function (code) { addErrorCode(errorCodes, code); });
     providers[provider] = {
       enabled: Boolean(value.enabled),
+      usable: value.usable !== false,
       status: String(value.status || ''),
+      selected: Number(value.selected || 0) || 0,
       indexed: Number(value.indexed || 0) || 0,
       failed: Number(value.failed || 0) || 0,
       errorCodes: providerErrorCodes
@@ -258,11 +261,15 @@ function kspAiProviderAdminSafeSyncSummary_(report) {
   (source.errors || []).forEach(function (item) { addErrorCode(errorCodes, item && item.code); });
   return {
     ok: Boolean(source.ok),
+    usable: source.providerOk !== false && (source.errors || []).length === 0,
+    partial: Boolean(source.partial) || (source.providerOk !== false && (source.errors || []).length === 0 && Number(source.failed || 0) > 0),
+    selected: Number(source.selected || 0) || 0,
     indexed: Number(source.indexed || 0) || 0,
     reused: Number(source.reused || 0) || 0,
     unchanged: Number(source.unchanged || 0) || 0,
     removed: Number(source.removed || 0) || 0,
     failed: Number(source.failed || 0) || 0,
+    skippedClaims: Number(source.skippedClaims || 0) || 0,
     errorCodes: errorCodes,
     providers: providers
   };
@@ -275,7 +282,8 @@ function kspGetAiProviderAdminData_(environment) {
     var keyConfigured = kspAiProviderAdminCredentialConfigured_(environment);
     var storeReady = Boolean(settings.openaiVectorStoreId);
     var enabled = Boolean(settings.openaiEnabled);
-    var status = enabled && keyConfigured && storeReady && settings.openaiModelId ? 'ACTIVE' : enabled ? 'ERROR'
+    var status = enabled && keyConfigured && storeReady && settings.openaiModelId
+      ? (settings.openaiReadiness === 'ACTIVE_WITH_SYNC_ERRORS' ? 'ACTIVE_WITH_SYNC_ERRORS' : 'ACTIVE') : enabled ? 'ERROR'
       : settings.openaiReadiness || (keyConfigured || storeReady ? 'DISABLED' : 'UNCONFIGURED');
     return {
       ok: true,
@@ -378,27 +386,39 @@ function kspMutateAiProviderSettings_(environment, input) {
       kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_READINESS, 'DISABLED');
       return { ok: true, workId: '0020', action: action, enabled: false, readiness: 'DISABLED', storePreserved: true };
     }
-    var sourceType = kspAiProviderAdminNormalizeSourceType_(input);
+    var normalizedSelection = kspNormalizeProviderAiSelection_(input);
+    var sourceType = normalizedSelection.sourceType;
+    var sourceId = normalizedSelection.sourceId;
     var currentSettings = kspNormalizeAiSettings_(context.settings);
     kspAssert_(currentSettings.openaiReadiness === 'READY_FOR_SYNC' ||
       currentSettings.openaiReadiness === 'ACTIVE' || currentSettings.openaiEnabled || !currentSettings.openaiReadiness,
       'OPENAI_NOT_READY_FOR_SYNC', 'OpenAI connection test is required before source sync.');
+    if (sourceId) {
+      kspSelectProviderAiWorkItems_(context.meetingRows, context.pitchbookRows, environment.nowIso(),
+        currentSettings, KSP_AI_PROVIDERS.OPENAI, normalizedSelection);
+    }
     kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_ENABLED, 'true');
-    var sync = kspRunProviderNeutralAiSync_(environment, {
+    var syncOptions = {
       force: true,
       sourceType: sourceType,
       providers: [KSP_AI_PROVIDERS.OPENAI]
-    });
-    if (!sync || !sync.ok) {
+    };
+    if (sourceId) syncOptions.sourceId = sourceId;
+    var sync = kspRunProviderNeutralAiSync_(environment, syncOptions);
+    var providerFailure = !sync || sync.providerOk === false || (sync.errors || []).length > 0 ||
+      (sync.ok === false && !sync.partial && !Number(sync.failed || 0));
+    if (providerFailure) {
       try {
         kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_ENABLED, 'false');
         kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_READINESS, 'ERROR');
       } catch (ignoredSyncState) {}
       kspAssert_(false, 'OPENAI_SYNC_FAILED', 'Provider-neutral sync failed.');
     }
-    kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_READINESS, 'ACTIVE');
     var summary = kspAiProviderAdminSafeSyncSummary_(sync);
     summary.sourceType = sourceType;
+    summary.exact = Boolean(sourceId);
+    kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_READINESS,
+      summary.partial ? 'ACTIVE_WITH_SYNC_ERRORS' : 'ACTIVE');
     return { ok: true, workId: '0020', action: action, sync: summary };
   } catch (error) {
     var code = kspGetErrorCode_(error, 'OPENAI_ACTIVATION_FAILED');
@@ -410,7 +430,10 @@ function kspMutateAiProviderSettings_(environment, input) {
     }
     if (code !== 'AI_PROVIDER_ADMIN_UNAUTHORIZED' && code !== 'OPENAI_API_KEY_NOT_CONFIGURED' &&
         code !== 'OPENAI_API_KEY_INVALID' && code !== 'AI_SYNC_SOURCE_TYPE_INVALID' &&
-        code !== 'OPENAI_SYNC_FAILED' && code !== 'OPENAI_NOT_READY_FOR_SYNC') {
+        code !== 'AI_SYNC_SOURCE_TYPE_REQUIRED' && code !== 'AI_SYNC_SOURCE_TYPE_MISMATCH' &&
+        code !== 'AI_SYNC_SOURCE_ID_INVALID' && code !== 'AI_SYNC_SOURCE_NOT_FOUND' &&
+        code !== 'AI_SYNC_SOURCE_AMBIGUOUS' && code !== 'OPENAI_SYNC_FAILED' &&
+        code !== 'OPENAI_NOT_READY_FOR_SYNC') {
       code = action === 'DISABLE_OPENAI' ? 'OPENAI_DISABLE_FAILED'
         : action === 'CONNECT_OPENAI' ? 'OPENAI_CONNECTION_TEST_FAILED' : 'OPENAI_ACTIVATION_FAILED';
     }

@@ -136,10 +136,19 @@ function kspIsProviderAiWorkEligible_(item, nowIso, settings, provider) {
       entry.status === KSP_AI_INDEX_STATUS.PENDING || entry.status === KSP_AI_INDEX_STATUS.FAILED;
   }
   if (sourceStatus !== KSP_STATUS.ACTIVE) return false;
-  // Existing source mutations signal a new revision through the preserved
-  // legacy status column. The provider state remains independently owned, so
-  // this signal must make every enabled provider reconsider its own entry.
-  if (String(row.AI_Index_Status || '') === KSP_AI_INDEX_STATUS.PENDING) return true;
+  // The legacy status can remain Pending after an OpenAI-specific successful
+  // sync. Treat it as a revision signal only when the authoritative row is
+  // newer than that provider's complete Indexed entry.
+  if (String(row.AI_Index_Status || '') === KSP_AI_INDEX_STATUS.PENDING) {
+    var completeOpenAiEntry = provider === KSP_AI_PROVIDERS.OPENAI &&
+      entry.status === KSP_AI_INDEX_STATUS.INDEXED && entry.documentName &&
+      entry.providerDocumentId && entry.contentHash && entry.indexedAt;
+    if (completeOpenAiEntry && row.Updated_At &&
+        kspTemporalInstantComparisonKey_(entry.indexedAt) >= kspTemporalInstantComparisonKey_(row.Updated_At)) {
+      return false;
+    }
+    return true;
+  }
   if (entry.status === KSP_AI_INDEX_STATUS.PENDING || entry.status === KSP_AI_INDEX_STATUS.NOT_INDEXED) return true;
   if (entry.status === KSP_AI_INDEX_STATUS.INDEXED && !entry.documentName) return true;
   if (entry.status !== KSP_AI_INDEX_STATUS.FAILED) return false;
@@ -153,14 +162,36 @@ function kspIsProviderAiWorkEligible_(item, nowIso, settings, provider) {
 
 function kspNormalizeProviderAiSelection_(selection) {
   var sourceType = kspAiTrim_(selection && selection.sourceType);
+  var sourceId = kspAiTrim_(selection && selection.sourceId);
   kspAssert_(!sourceType || sourceType === KSP_AI_SOURCE_TYPES.MEETING ||
     sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK,
     'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
-  return { sourceType: sourceType };
+  if (sourceId) {
+    kspAssert_(sourceType, 'AI_SYNC_SOURCE_TYPE_REQUIRED', 'Exact AI sync requires a source type.');
+    var meetingId = /^MTG-\d{6}$/.test(sourceId);
+    var pitchbookId = /^DOC-\d{6}$/.test(sourceId);
+    if ((sourceType === KSP_AI_SOURCE_TYPES.MEETING && pitchbookId) ||
+        (sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK && meetingId)) {
+      kspAssert_(false, 'AI_SYNC_SOURCE_TYPE_MISMATCH', 'Exact AI sync source type does not match the source ID.');
+    }
+    kspAssert_(sourceType === KSP_AI_SOURCE_TYPES.MEETING ? meetingId : pitchbookId,
+      'AI_SYNC_SOURCE_ID_INVALID', 'Exact AI sync source ID is invalid.');
+  }
+  return { sourceType: sourceType, sourceId: sourceId };
 }
 
 function kspSelectProviderAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings, provider, selection) {
   var normalizedSelection = kspNormalizeProviderAiSelection_(selection);
+  if (normalizedSelection.sourceId) {
+    var exactRows = normalizedSelection.sourceType === KSP_AI_SOURCE_TYPES.MEETING
+      ? (meetingRows || []) : (pitchbookRows || []);
+    var exactItems = exactRows.map(function (row) {
+      return kspAiWorkItemFromRow_(normalizedSelection.sourceType, row);
+    }).filter(function (item) { return item.sourceId === normalizedSelection.sourceId; });
+    kspAssert_(exactItems.length > 0, 'AI_SYNC_SOURCE_NOT_FOUND', 'Exact AI sync source was not found.');
+    kspAssert_(exactItems.length === 1, 'AI_SYNC_SOURCE_AMBIGUOUS', 'Exact AI sync source is ambiguous.');
+    return exactItems;
+  }
   var items = [];
   if (!normalizedSelection.sourceType || normalizedSelection.sourceType === KSP_AI_SOURCE_TYPES.MEETING) {
     (meetingRows || []).forEach(function (row) {
@@ -1256,7 +1287,7 @@ function kspProviderStatePatch_(environment, item, provider, patch) {
 
 function kspBuildProviderSyncReport_(startedAt, settings) {
   return {
-    workId: '0020', startedAt: startedAt, finishedAt: null, ok: true,
+    workId: '0020', startedAt: startedAt, finishedAt: null, ok: true, providerOk: true, partial: false,
     syncEnabled: settings.syncEnabled, providers: {}, selected: 0, indexed: 0,
     reused: 0, unchanged: 0, removed: 0, failed: 0, skippedClaims: 0, items: [], errors: []
   };
@@ -1274,10 +1305,11 @@ function kspRunProviderNeutralAiSync_(environment, options) {
   report.forced = force;
   var selection;
   try {
-    selection = kspNormalizeProviderAiSelection_({ sourceType: syncOptions.sourceType });
+    selection = kspNormalizeProviderAiSelection_({ sourceType: syncOptions.sourceType, sourceId: syncOptions.sourceId });
   } catch (error) {
     report.finishedAt = environment.nowIso();
     report.ok = false;
+    report.providerOk = false;
     report.errors.push({ code: kspGetErrorCode_(error, 'AI_SYNC_SOURCE_TYPE_INVALID') });
     return report;
   }
@@ -1292,10 +1324,23 @@ function kspRunProviderNeutralAiSync_(environment, options) {
     return report;
   }
   providerList.forEach(function (provider) {
-    var config = typeof environment.getProviderConfig === 'function'
-      ? environment.getProviderConfig(provider)
-      : kspBuildAiProviderConfig_(settings, provider);
-    report.providers[provider] = { enabled: Boolean(config.enabled), indexed: 0, failed: 0, status: config.enabled ? 'READY' : 'DISABLED_BY_CONFIG' };
+    var config;
+    try {
+      config = typeof environment.getProviderConfig === 'function'
+        ? environment.getProviderConfig(provider)
+        : kspBuildAiProviderConfig_(settings, provider);
+    } catch (configError) {
+      report.providers[provider] = {
+        enabled: false, usable: false, indexed: 0, failed: 0, status: 'FAILED',
+        errorCode: kspGetErrorCode_(configError)
+      };
+      report.errors.push({ provider: provider, code: kspGetErrorCode_(configError) });
+      return;
+    }
+    report.providers[provider] = {
+      enabled: Boolean(config.enabled), usable: Boolean(config.enabled), indexed: 0, failed: 0,
+      status: config.enabled ? 'READY' : 'DISABLED_BY_CONFIG'
+    };
     if (!config.enabled) return;
     try {
       kspProviderConfigurationError_(provider, config);
@@ -1315,6 +1360,27 @@ function kspRunProviderNeutralAiSync_(environment, options) {
         try {
           var docs = typeof environment.findProviderDocumentsBySource === 'function'
             ? environment.findProviderDocumentsBySource(provider, effectiveConfig, item.sourceType, item.sourceId) : [];
+          var providerState = kspGetAiProviderStateEntry_(item.row, provider);
+          if (provider === KSP_AI_PROVIDERS.OPENAI && selection.sourceId) {
+            var priorIdentityMatches = (docs || []).filter(function (doc) {
+              var priorMetadata = doc.attributes || doc.customMetadata || {};
+              var priorDocumentId = String(doc.providerDocumentId || doc.fileId || '');
+              return String(priorMetadata.source_type || '') === item.sourceType &&
+                String(priorMetadata.source_id || '') === item.sourceId &&
+                String(priorMetadata.content_hash || '') === providerState.contentHash &&
+                (!providerState.providerDocumentId || providerState.providerDocumentId === priorDocumentId);
+            });
+            var hasPriorIdentity = providerState.status === KSP_AI_INDEX_STATUS.INDEXED &&
+              providerState.documentName && providerState.contentHash;
+            if (hasPriorIdentity) {
+              kspAssert_((docs || []).length === 1 && priorIdentityMatches.length === 1,
+                'AI_EXACT_SOURCE_RECONCILIATION_NOT_UNIQUE',
+                'Exact OpenAI source reconciliation did not return one prior document.');
+            } else {
+              kspAssert_((docs || []).length === 0, 'AI_EXACT_SOURCE_RECONCILIATION_NOT_UNIQUE',
+                'Exact OpenAI source reconciliation found an unowned document.');
+            }
+          }
           if (String(item.row.Status) === KSP_STATUS.INACTIVE) {
             (docs || []).forEach(function (doc) { if (environment.deleteProviderDocument) environment.deleteProviderDocument(provider, effectiveConfig, doc); });
             kspProviderStatePatch_(environment, item, provider, { status: KSP_AI_INDEX_STATUS.NOT_INDEXED, documentName: '', providerDocumentId: '', indexedAt: '', contentHash: '', lastError: '' });
@@ -1322,7 +1388,6 @@ function kspRunProviderNeutralAiSync_(environment, options) {
             return;
           }
           var source = kspBuildFeatureFreezeAiSource_(environment, item, maps);
-          var providerState = kspGetAiProviderStateEntry_(item.row, provider);
           if (kspIsGeminiReadbackRecoveryEntry_(providerState, provider)) {
             var exactMatches = (docs || []).filter(function (doc) {
               return kspGeminiDocumentMatchesSource_(doc, source);
@@ -1350,10 +1415,20 @@ function kspRunProviderNeutralAiSync_(environment, options) {
           var matching = (docs || []).filter(function (doc) {
             var metadata = doc.attributes || doc.customMetadata || {};
             var documentId = String(doc.providerDocumentId || doc.fileId || '');
-            return String(metadata.source_id || '') === item.sourceId &&
+            var exactIdentity = String(metadata.source_type || '') === item.sourceType &&
+              String(metadata.source_id || '') === item.sourceId &&
+              String(metadata.content_hash || '') === source.contentHash;
+            return (provider === KSP_AI_PROVIDERS.OPENAI ? exactIdentity : String(metadata.source_id || '') === item.sourceId) &&
               providerState.contentHash === source.contentHash &&
               (!providerState.providerDocumentId || providerState.providerDocumentId === documentId);
           });
+          var exactCurrentOpenAi = provider === KSP_AI_PROVIDERS.OPENAI && selection.sourceId &&
+            providerState.status === KSP_AI_INDEX_STATUS.INDEXED &&
+            providerState.contentHash === source.contentHash;
+          if (exactCurrentOpenAi) {
+            kspAssert_(matching.length === 1, 'AI_EXACT_SOURCE_RECONCILIATION_NOT_UNIQUE',
+              'Exact OpenAI source reconciliation did not return one current document.');
+          }
           if (matching.length) {
             matching.slice(1).forEach(function (doc) { if (environment.deleteProviderDocument) environment.deleteProviderDocument(provider, effectiveConfig, doc); });
             var selected = matching[0];
@@ -1367,9 +1442,14 @@ function kspRunProviderNeutralAiSync_(environment, options) {
             report.unchanged += 1;
             return;
           }
-          (docs || []).forEach(function (doc) { if (environment.deleteProviderDocument) environment.deleteProviderDocument(provider, effectiveConfig, doc); });
           var uploaded = environment.uploadProviderSource(provider, effectiveConfig, source);
           kspAssert_(uploaded && uploaded.name, 'AI_UPLOAD_DOCUMENT_MISSING', 'Provider upload did not return a document.');
+          // Keep the last known-good provider document until the replacement
+          // upload has completed. An item-level upload/indexing failure must not
+          // discard a source that was already usable.
+          (docs || []).forEach(function (doc) {
+            if (environment.deleteProviderDocument) environment.deleteProviderDocument(provider, effectiveConfig, doc);
+          });
           kspProviderStatePatch_(environment, item, provider, {
             status: KSP_AI_INDEX_STATUS.INDEXED,
             documentName: String(uploaded.name || ''),
@@ -1384,11 +1464,22 @@ function kspRunProviderNeutralAiSync_(environment, options) {
           report.providers[provider].failed += 1;
           report.items.push({ provider: provider, sourceType: item.sourceType, sourceId: item.sourceId, action: 'failed', code: kspGetErrorCode_(error) });
           try {
-            kspProviderStatePatch_(environment, item, provider, {
+            var previousState = kspGetAiProviderStateEntry_(item.row, provider);
+            var lastError = kspBuildAiProviderLastError_(error,
+              kspAiProviderLastError_(previousState.lastError), settings, environment.nowIso());
+            var previousUsable = previousState.status === KSP_AI_INDEX_STATUS.INDEXED &&
+              previousState.documentName && previousState.contentHash;
+            kspProviderStatePatch_(environment, item, provider, previousUsable ? {
+              status: KSP_AI_INDEX_STATUS.INDEXED,
+              documentName: previousState.documentName,
+              providerDocumentId: previousState.providerDocumentId,
+              storeName: previousState.storeName,
+              indexedAt: previousState.indexedAt,
+              contentHash: previousState.contentHash,
+              lastError: lastError
+            } : {
               status: KSP_AI_INDEX_STATUS.FAILED, documentName: '', providerDocumentId: '', indexedAt: '', contentHash: '',
-              lastError: kspBuildAiProviderLastError_(error,
-                kspAiProviderLastError_(kspGetAiProviderStateEntry_(item.row, provider).lastError),
-                settings, environment.nowIso())
+              lastError: lastError
             });
           } catch (stateError) {
             report.errors.push({ provider: provider, code: kspGetErrorCode_(stateError) });
@@ -1397,14 +1488,17 @@ function kspRunProviderNeutralAiSync_(environment, options) {
           if (environment.releaseAiSourceClaim) environment.releaseAiSourceClaim(item.sourceType, item.sourceId, claim.token);
         }
       });
-      report.providers[provider].status = report.providers[provider].failed ? 'FAILED' : 'PASS';
+      report.providers[provider].status = report.providers[provider].failed ? 'PARTIAL' : 'PASS';
     } catch (providerError) {
       report.providers[provider].status = 'FAILED';
+      report.providers[provider].usable = false;
       report.providers[provider].errorCode = kspGetErrorCode_(providerError);
       report.errors.push({ provider: provider, code: kspGetErrorCode_(providerError) });
     }
   });
   report.finishedAt = environment.nowIso();
-  report.ok = report.errors.length === 0 && report.failed === 0;
+  report.providerOk = report.errors.length === 0;
+  report.partial = report.providerOk && report.failed > 0;
+  report.ok = report.providerOk && report.failed === 0;
   return report;
 }
