@@ -2,91 +2,52 @@
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-20`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `QUALIFICATION`
 
-Active instruction:
+Returned instruction:
 `docs/handoffs/0020-CODEX-20-main-reconciliation-and-final-merge-readiness-instruction.md`
 
-Latest completed functional report:
-`docs/handoffs/0020-CODEX-19-openai-native-sync-scope-and-partial-failure-recovery-report.md`
+Final report:
+`docs/handoffs/0020-CODEX-20-main-reconciliation-and-final-merge-readiness-report.md`
 
 Runtime locator:
 `docs/operations/runtime-artifact-locator.md`
 
-## Functional outcome — complete and latched
+## Outcome
 
-Work 0020 is functionally ready on the OpenAI completion path. CODEX-17 direct provider qualification and CODEX-18 citation/source normalization remain accepted. CODEX-19 repaired exact native sync scoping, provider-current eligibility, partial item-failure readiness and safe private-admin diagnostics, then completed native Pitchbook/Meeting grounded citation, metadata, lifecycle and final-integrity gates.
-
-```text
-OPENAI_DIRECT_BASE_MODEL: PASS
-OPENAI_DIRECT_FILE_SEARCH: PASS
-OPENAI_CITATION_NORMALIZATION: PASS
-OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-OPENAI_CONNECTION_SELF_TEST: PASS native
-OPENAI_EXACT_SOURCE_SYNC: PASS native
-OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: PASS native — DOC-000017
-OPENAI_MEETING_INDEX_QUERY_CITATION: PASS native — MTG-000005
-OPENAI_METADATA_FILTER: PASS native
-OPENAI_LIFECYCLE: PASS native
-LOGIC_VALIDATION_AT_CODEX_19: PASS — focused 47/47; canonical 325/325
-FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun in CODEX-19
-SOURCE_READBACK: PASS
-WEB_APP_DELIVERY: PASS — same existing private Web App, version 57
-FINAL_INTEGRITY: PASS
-FUNCTIONAL_READY: YES
-FUNCTIONAL_BLOCKER: NONE
-```
-
-Do not reopen or repeat this target-runtime qualification without material contradictory evidence.
-
-## Remaining GitHub delivery work
-
-PR #26 remains Draft/Open/unmerged and is currently non-mergeable because the Work branch diverged from `main`.
-
-At dispatch preparation:
-
-```text
-WORK_BRANCH_FUNCTIONAL_HEAD: d61dc166c835d65e8bbabd17dc2894b4aef69cd8
-OBSERVED_MAIN: 0d9238293b1f5612956e206d22e4e75cfc767694
-MERGE_BASE: bc7c6efda63b13e8a998e32d97028ee3a3557e3b
-WORK_BRANCH_AHEAD: 124
-WORK_BRANCH_BEHIND: 16
-```
-
-CODEX-20 must merge the latest main normally, preserve Work 0023 bundle/installer and Work 0025 administrator-governed model/thinking decisions, preserve Work 0020's Meeting-only `FULL_EXPORT` body boundary and OpenAI implementation, run the canonical checks, and leave PR #26 mergeable and ready for ChatGPT's final merge review.
-
-## Residual routing
-
-- Old 5–25 MiB size-matrix Pitchbooks with item-level `OPENAI_INDEX_TIMEOUT` remain a separate bounded follow-up and are not a Work 0020 blocker.
-- Gemini provider recovery remains deferred; there is no automatic provider fallback.
-- Work 0025 will implement policy-governed user model/thinking selection after integration.
-- GitHub-hosted CI is absent; do not report it as passed.
-
-## Safety boundary
-
-CODEX-20 is GitHub integration-only:
-
-- no OpenAI or Gemini API calls;
-- no Apps Script version or Web App deployment;
-- no source-data, Drive, Backend, Audit, or Vector Store mutation;
-- no FULL_OUTPUT rerun;
-- no broad Pitchbook retry or old-fixture mutation;
-- no rebase, force-push, history rewrite, or PR merge.
-
-## Current Work status
+Work 0020 is functionally and GitHub-integration ready. CODEX-19 target-runtime evidence remains latched. CODEX-20 normally merged the latest fetched main, retained Work 0023/0025 governance, resolved the AI decision semantics, passed all deterministic checks and left PR #26 mergeable and ready for final ChatGPT review.
 
 ```text
 FUNCTIONAL_RUNTIME_QUALIFICATION: PASS
-GITHUB_MAIN_RECONCILIATION: PENDING
-PR_MERGEABLE: NO
-READY_FOR_CHATGPT_FINAL_MERGE: NO
-WORK_READY: NO
-BLOCKER: GITHUB_INTEGRATION_CONFLICT
+OPENAI_DIRECT/File_SEARCH/CITATION/SOURCE_NORMALIZATION: PASS
+OPENAI_EXACT_SOURCE_SYNC: PASS
+OPENAI_NATIVE_MEETING/PITCHBOOK_QUERY_LIFECYCLE: PASS
+FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
+MAIN_RECONCILIATION: PASS
+LOGIC_VALIDATION: PASS — 325/325
+PR_MERGEABLE: YES
+PR_READY_FOR_REVIEW: YES
+GITHUB_CI_ACTUALLY_RAN: NO
+RUNTIME_DEPLOYMENT_CHANGED: NO
+READY_FOR_CHATGPT_FINAL_MERGE: YES
+BLOCKER: NONE
 ```
+
+## Preserved boundaries
+
+- File Search may use Meeting and Pitchbook/source materials;
+- FULL_EXPORT body uses authoritative Meeting Google Docs text only;
+- Pitchbooks are bounded reference metadata/links only in FULL_EXPORT;
+- model/thinking choices are administrator-enabled, accessible and qualified;
+- administrators may hide Sol, retain older approved models and control thinking per model;
+- new/latest models are never auto-enabled;
+- Work 0023 installer/bundle decisions and all Work 0025 policy files remain present;
+- no provider/runtime/deployment operation occurred in CODEX-20;
+- PR #26 remains unmerged.
 
 WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-20`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
