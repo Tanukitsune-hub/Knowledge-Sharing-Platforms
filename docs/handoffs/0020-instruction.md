@@ -1,13 +1,13 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-17`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
-MODE: `INVESTIGATION -> BUILD / QUALIFICATION`
+DISPATCH_ID: `0020-CODEX-18`
+BALL: `CODEX`
+STATUS: `READY`
+MODE: `REPAIR -> BUILD / QUALIFICATION`
 
 Active instruction:
-`docs/handoffs/0020-CODEX-17-openai-file-search-primary-qualification-instruction.md`
+`docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-instruction.md`
 
 Active decision:
 `docs/decisions/openai-zero-friction-onboarding-and-project-switch.md`
@@ -22,59 +22,60 @@ Gemini
 全文出力
 ```
 
-For Work 0020 completion, OpenAI is now the active provider path. Gemini remains implemented but disabled/not user-ready until a later provider-recovery Work requalifies it. There is no automatic cross-provider failover.
+For Work 0020 completion, OpenAI is the active provider path. Gemini remains implemented but disabled/not user-ready until a later provider-recovery Work requalifies it. There is no automatic cross-provider failover.
 
-## User decision / Strategy Reset
+## Current decisive evidence
 
-Google AI Studio is also showing repeated errors. The user chose to try OpenAI API instead of continuing active Gemini diagnosis.
-
-Therefore:
-
-- preserve all accepted Gemini evidence;
-- supersede unexecuted CODEX-16;
-- qualify OpenAI Responses API + File Search end to end;
-- if OpenAI satisfies Meeting/Pitchbook indexing, grounded citation, filters, lifecycle, security, and final-integrity gates, Work 0020 may complete without Gemini runtime PASS;
-- Gemini recovery becomes a later provider-specific Work rather than blocking Knowledge Search availability.
-
-## Existing OpenAI foundation
-
-Current source already includes:
-
-- Responses API client;
-- Files upload/delete;
-- Vector Store create/get/list;
-- Vector Store file attach/index/readback;
-- provider attributes/custom metadata;
-- File Search query with filters;
-- provider document cleanup;
-- provider-neutral sync hooks;
-- administrator enable/disable skeleton.
-
-The remaining work is qualification plus safe onboarding/activation separation, not a rebuild.
-
-Default OpenAI model for this Work:
+CODEX-17 direct OpenAI qualification materially advanced the Work:
 
 ```text
-gpt-5.6-terra
+base Responses API control: PASS
+Vector Store create: PASS
+synthetic TXT upload: PASS
+attributes/indexing/readback: PASS
+exact source_id filter: PASS
+File Search execution: PASS
+grounded synthetic answer: PASS
+cleanup/no residual provider resources: PASS
+citation normalization: BLOCKED
 ```
 
-Use `store=false` for Responses and a low-latency grounded retrieval profile. Do not silently switch to a materially more expensive tier.
+The remaining immediate blocker is not provider reachability. The direct query completed, but the qualification did not obtain a citation representation accepted by the current Knowledge Share normalizer.
 
-## Fastest safe decisive action
+OpenAI Responses can expose source evidence through output-text `file_citation` annotations and/or explicitly included `file_search_call.results`. CODEX-18 must support the official shapes without weakening provenance or ambiguity checks.
 
-Before modifying Apps Script:
+## Active CODEX-18 outcome
 
-1. make an OpenAI project API key available only to local Codex as `OPENAI_API_KEY`;
-2. run one direct text-only Responses API control;
-3. run one temporary synthetic Vector Store + File Search + exact attributes filter + citation control;
-4. clean up all temporary provider resources;
-5. if direct File Search fails, STOP without Web App changes;
-6. if direct File Search passes, implement the accepted synthetic self-test and zero-friction private-admin activation flow;
-7. then run bounded synthetic/non-confidential Meeting + Pitchbook indexing/query/citation/lifecycle qualification.
+Before Web App changes:
+
+1. reproduce the narrow citation-normalization gap deterministically;
+2. explicitly include `file_search_call.results` in the Responses request;
+3. preserve valid `file_citation` annotation handling;
+4. normalize authoritative retrieved-source evidence to Knowledge Share source identity only when exact and unambiguous;
+5. never use filename alone;
+6. run the canonical tests;
+7. run exactly one temporary synthetic direct-provider control and verify cleanup;
+8. only after PASS, integrate the existing private-admin synthetic self-test/activation flow and complete Meeting/Pitchbook + lifecycle qualification.
+
+## Citation/source provenance contract
+
+Knowledge Share distinguishes:
+
+```text
+INLINE_CITATION
+= provider output-text annotation explicitly cites the file
+
+RETRIEVED_SOURCE
+= File Search result identifies a file retrieved for the answer and maps exactly to one Knowledge Share source
+```
+
+Both may support the user-facing source list when authoritative and unambiguous, but a retrieved source must not be falsely described as a character-level inline citation.
+
+Provider file/store IDs remain server-side only. Source identity must be recovered through exact provider-document/source metadata and the existing Drive/source-link contract.
 
 ## Credential/onboarding contract
 
-Normal private-admin flow:
+Normal private-admin flow remains:
 
 ```text
 APIキーを保存して接続確認
@@ -100,6 +101,7 @@ OpenAI path must prove:
 ```text
 DIRECT_BASE_MODEL: PASS
 DIRECT_FILE_SEARCH: PASS
+CITATION_OR_RETRIEVED_SOURCE_NORMALIZATION: PASS
 SYNTHETIC_SELF_TEST: PASS
 MEETING_INDEX_QUERY_CITATION: PASS
 PITCHBOOK_INDEX_QUERY_CITATION: PASS
@@ -119,26 +121,31 @@ FULL_OUTPUT remains accepted and must not be rerun.
 
 ```text
 PRIMARY_COMPLETION_PROVIDER: OPENAI
-OPENAI_RUNTIME: NOT YET LIVE-QUALIFIED
+OPENAI_DIRECT_BASE_MODEL: PASS
+OPENAI_DIRECT_FILE_SEARCH: PASS
+OPENAI_CITATION_NORMALIZATION: BLOCKED — narrow normalization contract
+OPENAI_RUNTIME: PARTIAL / PROVIDER PATH VIABLE
 GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
 FULL_OUTPUT_RUNTIME: PASS
 SCHEMA_ALIGNMENT: PASS
 FINAL_INTEGRITY: NOT RUN
 READY: NO
-BLOCKER: YES — OpenAI qualification/key prerequisite
+BLOCKER: YES
 ```
 
 ## Boundaries
 
 - no automatic OpenAI/Gemini failover;
 - no confidential data in DEV qualification;
-- no Gemini live retry in CODEX-17;
+- no Gemini live calls in CODEX-18;
 - no FULL_OUTPUT rerun;
 - no second Web App/Library/public debug endpoint;
+- no filename-only source normalization;
+- no weakening exact metadata/filter gates;
 - no current-main integration until provider qualification closes;
 - keep PR #26 Draft/Open/unmerged until final review.
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-17`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+DISPATCH_ID: `0020-CODEX-18`
+BALL: `CODEX`
+STATUS: `READY`
