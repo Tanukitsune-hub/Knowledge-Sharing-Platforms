@@ -1,104 +1,114 @@
 # Work 0020 report
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `CHATGPT`
-DISPATCH_STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0020-CODEX-19`
+BALL: `CODEX`
+DISPATCH_STATUS: `READY`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
-## CODEX-18 execution result
+## Executive conclusion
 
-The current OpenAI no-annotation normalization gap was reproduced deterministically and repaired with an explicit file_search_call.results request, annotation-preserving INLINE_CITATION, and exact fail-closed RETRIEVED_SOURCE normalization. Retrieved-source identity requires provider file identity plus source_type, source_id, and content_hash; filename-only identity is not accepted, repeated results are deduplicated, and provider Store/File IDs remain server-side.
+CODEX-18 materially qualified the OpenAI provider path and successfully indexed the intended small synthetic Pitchbook. The generic native `OPENAI_SYNC_FAILED` was caused by orchestration of a broad Pitchbook batch containing unrelated old large size-matrix fixtures, not by failure of the intended small synthetic source or the OpenAI connection itself.
 
-The direct synthetic OpenAI qualification passed with one temporary Vector Store, one tiny synthetic TXT, exact metadata, one exact-filter File Search query, one authoritative normalized source, grounded output, and verified cleanup. Focused tests, npm run check, temporal validation, public-surface validation, and git diff --check passed.
+Work 0020 remains open because exact native Meeting/Pitchbook query, metadata, lifecycle and final integrity are not yet complete. CODEX-19 is prepared to repair exact sync scoping, partial-failure/readiness semantics and safe admin diagnostics, then finish those native gates.
 
-The repaired source was read back with 78/78 deployable files matching and updated in place on the existing Work 0020 Web App deployment at version 56. The user completed the private-admin connection flow and the existing Web App displayed active status; one synthetic Meeting and one synthetic Pitchbook were registered. Explicit administrator sync is OpenAI-only. The explicit Meeting sync returned to an interactive state, but the explicit OpenAI-only Pitchbook sync ended in the generic UI state `エラー` after a bounded wait. Per the CODEX-18 stop rule, native queries, lifecycle, and final runtime integrity were not run. The local OPENAI_API_KEY was intentionally not copied to Script Properties. See docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
-
-Latest classification:
-
-~~~
-PRIMARY_COMPLETION_PROVIDER: OPENAI
-OPENAI_DIRECT_BASE_MODEL: PASS — accepted CODEX-17 evidence
-OPENAI_DIRECT_FILE_SEARCH: PASS
-OPENAI_CITATION_NORMALIZATION: PASS
-OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-OPENAI_RUNTIME: BLOCKED — native OpenAI-only Pitchbook sync failed
-GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
-FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
-FINAL_INTEGRITY: NOT RUN native Web App
-READY: NO
-BLOCKER: OPENAI_SYNC_FAILED — native OpenAI-only Pitchbook sync ended in the generic UI error state; no retry was performed
-GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
-~~~
-
-## Current authoritative classification
+## Accepted evidence
 
 ```text
-PRIMARY_COMPLETION_PROVIDER: OPENAI
 OPENAI_DIRECT_BASE_MODEL: PASS
 OPENAI_DIRECT_FILE_SEARCH: PASS
+OPENAI_VECTOR_STORE/UPLOAD/ATTRIBUTES/INDEX/FILTER/CLEANUP: PASS
 OPENAI_CITATION_NORMALIZATION: PASS
 OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-OPENAI_PROVIDER_RESOURCES: PASS — create/upload/attributes/index/filter/cleanup
-OPENAI_GROUNDED_SYNTHETIC_ANSWER: PASS
-OPENAI_SYNTHETIC_SELF_TEST: PASS — connection active and synthetic Pitchbook registered; source-sync gate failed
-OPENAI_MEETING_INDEX_QUERY_CITATION: NOT RUN native Web App — stopped after Pitchbook sync failure
-OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: BLOCKED — OpenAI-only native sync ended in generic ERROR; query not run
-OPENAI_METADATA_FILTER: PASS deterministic/direct synthetic; native qualification pending
-OPENAI_LIFECYCLE: PASS deterministic; native qualification pending
-OPENAI_RUNTIME: BLOCKED — native OpenAI-only Pitchbook sync failed
-GEMINI_RUNTIME: BLOCKED / PROVIDER RECOVERY DEFERRED
-FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
-SCHEMA_ALIGNMENT: PASS
+OPENAI_NATIVE_CONNECTION_SELF_TEST: PASS
+OPENAI_SMALL_SYNTHETIC_PITCHBOOK_INDEX: PASS — DOC-000017 is OpenAI Indexed
+OPENAI_SYNTHETIC_MEETING_INDEX: PASS — MTG-000005 is OpenAI Indexed
+LOGIC_VALIDATION: PASS through CODEX-18 — 316/316
+FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence
 SOURCE_READBACK: PASS — 78/78 deployable files
-WEB_APP_DELIVERY: PASS — version 56, existing deployment updated in place
-FINAL_INTEGRITY: NOT RUN native Web App
-READY: NO
-BLOCKER: OPENAI_SYNC_FAILED — native OpenAI-only Pitchbook sync ended in the generic UI error state; CODEX-18 stop rule applied
+WEB_APP_DELIVERY: PASS — existing standalone deployment version 56
 GITHUB_CI_ACTUALLY_RAN: NO
 ```
 
-## CODEX-18 result
+## Independent read-only runtime diagnosis
 
-CODEX-18 reproduced the OpenAI no-annotation gap and repaired the normalizer. The implementation now preserves explicit `INLINE_CITATION` evidence and also supports exact fail-closed `RETRIEVED_SOURCE` normalization using provider file identity plus `source_type`, `source_id`, and `content_hash`. Filename-only or ambiguous/stale identity is rejected and provider resource IDs remain server-side.
+After CODEX-18 returned, ChatGPT read the authoritative Backend Settings, Pitchbook_Index and Meeting_Index plus the Restricted Audit without mutating data.
 
-The direct synthetic OpenAI qualification passed with one temporary Vector Store and one synthetic TXT. Exact filtering, grounded answer, authoritative normalized source and cleanup all passed. Repository validation passed (`316/316`; focused provider/admin/core tests passed, including the OpenAI-only sync scope regression; UI `10/10` plus temporal/public/diff checks).
+Observed facts:
 
-The repaired source was delivered to the existing Apps Script project, read back `78/78`, and the existing private Web App was updated in place to version `56`. The explicit administrator sync now passes `providers: [OPENAI]` and therefore does not invoke Gemini during this dispatch.
+1. The small CODEX-18 synthetic Pitchbook `DOC-000017` has a complete OpenAI Indexed provider state.
+2. The synthetic Meeting `MTG-000005` and multiple earlier Meetings have complete OpenAI Indexed provider states.
+3. Old size-matrix Pitchbooks at 5, 10, 15, 20 and 25 MiB show item-level `OPENAI_INDEX_TIMEOUT` or related failed/pending state.
+4. `AI_SYNC_BATCH_SIZE` was 10.
+5. Current source supports admin selection by `sourceType` only, not exact `sourceId`.
+6. Provider work selection sorts eligible rows oldest-first before applying the batch limit.
+7. Current eligibility can reconsider an otherwise current provider entry solely because the legacy shared AI status is Pending.
+8. Any non-OK aggregate sync causes the admin action to disable OpenAI, set readiness `ERROR` and throw generic `OPENAI_SYNC_FAILED`.
+9. The private-admin UI displays only the generic message even though the sync report already contains sanitized per-item error codes.
+10. Settings now show OpenAI disabled/readiness `ERROR`, while usable OpenAI-indexed sources remain present.
 
-No local API key was copied to Script Properties. Therefore the remaining checks are deliberately native/private-admin only.
-
-## Remaining authorized-user sequence
+## Root-cause classification
 
 ```text
-1. STOP after the native OpenAI-only Pitchbook sync failure; do not retry during this dispatch.
-2. Preserve the observed connection and synthetic registration evidence; native query, lifecycle, and final-integrity gates remain not run.
+OPENAI_PROVIDER_REACHABILITY: PASS
+OPENAI_SMALL_SOURCE_INDEXING: PASS
+OPENAI_CITATION/SOURCE_MAPPING: PASS
+PRIMARY_NATIVE_FAILURE: broad mixed Pitchbook batch + synchronous large-file indexing timeout
+DIAGNOSTIC_DEFECT: item-level safe errors collapsed to generic UI failure
+READINESS_DEFECT: partial item failure globally disables a valid provider
+QUALIFICATION_SCOPE_DEFECT: no exact admin source selection
 ```
 
-Do not create another dispatch merely to retry this runtime failure. Keep `0020-CODEX-18` returned with the safe `OPENAI_SYNC_FAILED` blocker. A later dispatch requires a separately scoped diagnosis or repair decision.
+This is a bounded application orchestration defect. It is not evidence that OpenAI File Search failed for the intended small synthetic Pitchbook.
+
+## Active CODEX-19
+
+Instruction:
+`docs/handoffs/0020-CODEX-19-openai-native-sync-scope-and-partial-failure-recovery-instruction.md`
+
+Required result:
+
+- optional exact administrator-only `sourceType + sourceId` sync;
+- current OpenAI Indexed entries are not repeatedly selected solely due stale legacy Pending status;
+- item-level failures do not invalidate credentials/store or discard successful indexed sources;
+- safe counts and error codes reach the admin UI;
+- no broad retry or mutation of old large fixtures;
+- exact small synthetic Pitchbook and Meeting query/citation PASS;
+- metadata filter, update/reindex, Inactive, Reactivate, delete/rebuild, disable/re-enable and final integrity PASS.
 
 ## Problem classification
 
 ### BLOCKER
 
-1. Native OpenAI-only Pitchbook source sync ended in a generic error state; the underlying error was not safely exposed.
-2. OpenAI Meeting/Pitchbook application queries and lifecycle/final-integrity gates remain incomplete because the stop rule was applied.
-3. PR #26 cannot merge while the user-ready provider route is unqualified.
+1. Native admin sync cannot isolate one exact source, so old large fixtures contaminate qualification.
+2. Aggregate item failures globally disable OpenAI and hide the safe underlying item errors.
+3. Native Meeting/Pitchbook query, lifecycle and final-integrity gates remain incomplete.
+4. PR #26 remains non-mergeable and cannot be reconciled until provider qualification closes.
 
 ### FIX SOON / FOLLOW-UP
 
-- GitHub-hosted CI is still absent; local/repository tests are not CI evidence.
-- PR #26 is currently non-mergeable relative to main and must be reconciled only after provider qualification closes.
+- OpenAI indexing of 5–25 MiB sources needs a separately bounded long-running/pending lifecycle assessment after Work 0020; do not hide or delete this evidence.
+- GitHub-hosted CI remains absent.
 - Gemini provider recovery is a later provider-specific Work.
-- Work 0025 will add administrator-controlled model/thinking selection after Work 0020 closes.
+- Work 0025 will add administrator-governed model/thinking selection after Work 0020 closes.
 
-Report:
-`docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md`
+## Current status
+
+```text
+PRIMARY_COMPLETION_PROVIDER: OPENAI
+OPENAI_RUNTIME: PARTIAL / SMALL-SOURCE PATH VIABLE
+OPENAI_NATIVE_SYNC_ORCHESTRATION: BLOCKED — CODEX-19 active
+GEMINI_RUNTIME: BLOCKED / DEFERRED
+FULL_OUTPUT_RUNTIME: PASS
+FINAL_INTEGRITY: NOT RUN
+READY: NO
+BLOCKER: YES
+```
 
 WORK_ID: `0020`
-ACTIVE_DISPATCH_ID: `0020-CODEX-18`
-BALL: `CHATGPT`
-DISPATCH_STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0020-CODEX-19`
+BALL: `CODEX`
+DISPATCH_STATUS: `READY`
 WORK_READY: `NO`
 BLOCKER: `YES`
