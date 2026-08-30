@@ -1,28 +1,21 @@
 # Work 0020 — AI Provider Core
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-18`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
-
-## Current boundary
-
-CODEX-18 returned successfully for the repair/build portion.
-
-The private administrator has completed APIキーを保存して接続確認 in the existing Web App; the UI displayed an active OpenAI status, and one synthetic Meeting plus one synthetic Pitchbook were registered. The explicit Meeting sync returned to an interactive state, but the explicit OpenAI-only Pitchbook sync ended in the generic UI state `エラー` after a bounded wait. CODEX-18 therefore stopped before native queries, lifecycle, and final integrity. The Codex local key was not copied to Script Properties. READY: NO and BLOCKER: OPENAI_SYNC_FAILED.
-
-Full details: docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
-MODE: `REPAIR -> BUILD / QUALIFICATION`
+DISPATCH_ID: `0020-CODEX-19`
+BALL: `CODEX`
+STATUS: `READY`
+MODE: `INCIDENT_RECOVERY -> QUALIFICATION`
 
 Active instruction:
-`docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-instruction.md`
+`docs/handoffs/0020-CODEX-19-openai-native-sync-scope-and-partial-failure-recovery-instruction.md`
 
-Active decision:
-`docs/decisions/openai-zero-friction-onboarding-and-project-switch.md`
+Runtime locator:
+`docs/operations/runtime-artifact-locator.md`
 
 ## Primary outcome
 
-Deliver and qualify one provider-neutral Knowledge Search core with exactly three user-facing routes:
+Deliver and qualify one provider-neutral Knowledge Search core with ChatGPT, Gemini and full-output routes. OpenAI is the active completion provider. Gemini recovery is deferred and no automatic provider failover is permitted.
+
 ## Accepted evidence
 
 ```text
@@ -30,62 +23,69 @@ OPENAI_DIRECT_BASE_MODEL: PASS
 OPENAI_DIRECT_FILE_SEARCH: PASS
 OPENAI_CITATION_NORMALIZATION: PASS
 OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
-LOGIC_VALIDATION: PASS — 316/316; focused provider/admin/core regression PASS; UI 10/10
+OPENAI_CONNECTION_SELF_TEST: PASS native
+OPENAI_SMALL_SYNTHETIC_PITCHBOOK_INDEX: PASS native
+OPENAI_SYNTHETIC_MEETING_INDEX: PASS native
+LOGIC_VALIDATION: PASS through CODEX-18 — 316/316
 FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence
 SOURCE_READBACK: PASS — 78/78 deployable files
-WEB_APP_DELIVERY: PASS — existing deployment updated in place to version 56
+WEB_APP_DELIVERY: PASS — existing standalone private Web App version 56
 ```
 
-The remaining Work 0020 qualification is native private-Web-App acceptance only. The connection flow and synthetic registrations are observed, but the native OpenAI-only Pitchbook source-sync gate failed; query, lifecycle, and final integrity evidence remain unavailable under the stop rule.
+## CODEX-18 blocker reclassified by read-only runtime evidence
 
-Observed authorized-user sequence and stop boundary:
+The generic `OPENAI_SYNC_FAILED` did not mean the intended small synthetic Pitchbook failed to index.
 
-```text
-APIキーを保存して接続確認
--> synthetic self-test
--> READY_FOR_SYNC
--> 資料を同期して利用開始
--> bounded native Meeting/Pitchbook query + source proof
--> metadata/lifecycle qualification
--> final native integrity
-```
+Authoritative Backend inspection shows:
 
-The synthetic registrations were observed and the OpenAI-only Pitchbook sync then ended in the generic UI state `エラー`. Stop here for CODEX-18; do not retry or continue to native query, lifecycle, or final-integrity checks in this dispatch.
+- `DOC-000017`, the small CODEX-18 synthetic Pitchbook, is already OpenAI Indexed;
+- `MTG-000005` and other synthetic Meetings are already OpenAI Indexed;
+- old 5–25 MiB size-matrix Pitchbooks recorded item-level `OPENAI_INDEX_TIMEOUT`;
+- the broad Pitchbook sync used `AI_SYNC_BATCH_SIZE = 10`;
+- the current source can restrict only by `sourceType`, sorts eligible work oldest-first and cannot target one exact source;
+- the aggregate item failures disabled OpenAI and changed readiness to `ERROR` despite usable indexed sources;
+- the private-admin UI reduced the safe item-level result to generic `エラー`.
 
-The Codex-local OPENAI_API_KEY was intentionally not copied to Script Properties.
+The active defect is therefore bounded native sync orchestration and error/readiness handling, not OpenAI provider reachability or the new small synthetic Pitchbook.
 
-Do not create another dispatch merely to retry this runtime failure. Keep `0020-CODEX-18` returned with the safe `OPENAI_SYNC_FAILED` blocker. A later dispatch requires a separately scoped diagnosis or repair decision.
+## CODEX-19 required outcome
 
-## Safety boundary
+Implement and qualify the smallest coherent repair:
 
-- use the existing private Web App version 56;
-- preserve the completed private-admin connection and do not expose the key;
-- do not paste the key into ChatGPT/Codex/GitHub/logs;
-- `APIキーを保存して接続確認` must run only the isolated synthetic self-test and must not read/sync Meeting/Pitchbook bodies;
-- only after `READY_FOR_SYNC`, run `資料を同期して利用開始`;
-- keep sync bounded and follow the UI/runtime safeguards already implemented; after a native sync failure, stop without retry;
-- no Gemini live call, provider fallback, FULL_OUTPUT rerun, new Web App/Library/public debug endpoint, or current-main integration during this native acceptance.
+1. optional administrator-only exact `sourceType + sourceId` sync selection;
+2. provider-current eligibility that does not reselect a current OpenAI entry solely because the legacy shared AI status remains Pending;
+3. item-level partial failures do not invalidate a valid provider connection or discard successful indexed sources;
+4. sanitized sync counts and safe error codes reach the admin UI;
+5. no broad Pitchbook retry or mutation of old large fixtures;
+6. exact small synthetic Pitchbook and Meeting queries/citations, metadata filters, lifecycle and final integrity complete natively.
 
-## Work status
+## Current status
 
 ```text
 PRIMARY_COMPLETION_PROVIDER: OPENAI
-OPENAI_DIRECT_BASE_MODEL: PASS
-OPENAI_DIRECT_FILE_SEARCH: PASS
-OPENAI_CITATION_NORMALIZATION: PASS
-OPENAI_RUNTIME: BLOCKED — native OpenAI-only Pitchbook sync failed
+OPENAI_PROVIDER_PATH: PASS
+OPENAI_SMALL_SOURCE_INDEXING: PASS
+OPENAI_NATIVE_SYNC_ORCHESTRATION: BLOCKED — broad mixed batch / generic aggregate failure
+OPENAI_NATIVE_QUERY_AND_LIFECYCLE: pending CODEX-19
 GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
 FULL_OUTPUT_RUNTIME: PASS
-SCHEMA_ALIGNMENT: PASS
 FINAL_INTEGRITY: NOT RUN
 READY: NO
-BLOCKER: YES — OPENAI_SYNC_FAILED (native Pitchbook sync ended in generic UI ERROR)
+BLOCKER: YES
 ```
 
-Report:
-`docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md`
+## Safety boundary
+
+- use only existing isolated synthetic DEV data;
+- preserve the stored API key without reading, printing or logging it;
+- no Gemini calls or cross-provider fallback;
+- no broad Pitchbook sync;
+- no deletion/mutation of old large fixtures merely to get a pass;
+- no confidential data, FULL_OUTPUT rerun, new Vector Store, Web App, Library or public/debug endpoint;
+- keep PR #26 Draft/Open/unmerged;
+- do not reconcile current main until provider qualification closes.
 
 WORK_ID: `0020`
-DISPATCH_ID: `0020-CODEX-18`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+DISPATCH_ID: `0020-CODEX-19`
+BALL: `CODEX`
+STATUS: `READY`
