@@ -39,6 +39,7 @@ var KSP_AI_SETTINGS = Object.freeze({
   OPENAI_ENABLED: 'OPENAI_ENABLED',
   OPENAI_VECTOR_STORE_ID: 'OPENAI_VECTOR_STORE_ID',
   OPENAI_MODEL_ID: 'OPENAI_DEFAULT_MODEL',
+  OPENAI_READINESS: 'OPENAI_READINESS',
   GEMINI_ENABLED: 'GEMINI_ENABLED',
   GEMINI_MODEL_ID: 'GEMINI_DEFAULT_MODEL'
 });
@@ -133,6 +134,9 @@ function kspNormalizeAiSettings_(settings) {
     openaiModelId: kspAiTrim_(
       source[KSP_AI_SETTINGS.OPENAI_MODEL_ID] || source.openaiModelId
     ),
+    openaiReadiness: kspAiTrim_(
+      source[KSP_AI_SETTINGS.OPENAI_READINESS] || source.openaiReadiness
+    ),
     syncEnabled: kspToBoolean_(
       source[KSP_AI_SETTINGS.SYNC_ENABLED] !== undefined ? source[KSP_AI_SETTINGS.SYNC_ENABLED] : source.syncEnabled,
       false
@@ -183,6 +187,7 @@ function kspGetAiSettingSeedRows_(nowIso) {
     { Key: KSP_AI_SETTINGS.OPENAI_ENABLED, Value: 'false', Description: 'Whether the administrator has enabled the OpenAI provider.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.OPENAI_VECTOR_STORE_ID, Value: '', Description: 'Configured OpenAI Vector Store identifier.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.OPENAI_MODEL_ID, Value: '', Description: 'Configured OpenAI model identifier.', Updated_At: nowIso },
+    { Key: KSP_AI_SETTINGS.OPENAI_READINESS, Value: 'UNCONFIGURED', Description: 'OpenAI connection readiness; real-source sync is separate from synthetic connection validation.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.GEMINI_ENABLED, Value: 'false', Description: 'Whether the administrator has enabled the Gemini provider.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.GEMINI_MODEL_ID, Value: '', Description: 'Configured Gemini model identifier.', Updated_At: nowIso }
   ];

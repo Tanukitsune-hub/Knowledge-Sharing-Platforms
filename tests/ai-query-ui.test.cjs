@@ -39,6 +39,9 @@ test('all new Apps Script and client files parse and contain required live contr
   const page=fs.readFileSync(path.join(root,'src','KnowledgeSearchPage.html'),'utf8');
   const standalone=fs.readFileSync(path.join(root,'src','KnowledgeSearch.html'),'utf8');
   for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation','queryPhase:\'POLL\'','queryToken','sessionStorage','setTimeout','KSP_QUERY_AUTO_POLL_LIMIT','pendingQueryAutoStopped','knowledge-recheck'])assert.ok((page+'\n'+client).includes(token),token);
+  assert.match(page, /<option value="OPENAI">ChatGPT<\/option>/);
+  assert.match(client, /pendingQueryRoute/);
+  assert.match(client, /kEl\('knowledge-route'\)\.value='OPENAI'/);
   assert.match(standalone,/include_\('KnowledgeSearchPage'\)/);
   assert.match(standalone,/include_\('ClientKnowledgeSearch'\)/);
   assert.doesNotMatch(client,/askKnowledgeQuestion/);

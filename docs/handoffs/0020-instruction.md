@@ -4,6 +4,14 @@ WORK_ID: `0020`
 DISPATCH_ID: `0020-CODEX-18`
 BALL: `CODEX`
 STATUS: `READY`
+
+## CODEX-18 returned boundary
+
+The deterministic no-annotation failure was reproduced and the OpenAI normalizer was repaired. Direct synthetic OpenAI qualification passed, including exact retrieved-source metadata agreement and cleanup. The implementation was integrated and delivered to the existing Work 0020 Web App deployment in place.
+
+The remaining qualification is target-runtime-only: a private administrator must use the existing Web App to complete APIキーを保存して接続確認, observe the synthetic self-test and READY_FOR_SYNC, then explicitly run 資料を同期して利用開始 before Meeting/Pitchbook and lifecycle evidence can be accepted. The Codex local key was not copied to Script Properties. Until those user-authorized checks are observed, READY: NO and BLOCKER: ACTION_REQUIRED.
+
+Full details: docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
 MODE: `REPAIR -> BUILD / QUALIFICATION`
 
 Active instruction:

@@ -8,7 +8,7 @@ function getKnowledgeSearchBootstrapData() {
 
 function searchKnowledge(input) {
   var payload = input || {};
-  var route = String(payload.route || payload.provider || KSP_AI_ROUTES.GEMINI).toUpperCase();
+  var route = String(payload.route || payload.provider || KSP_AI_ROUTES.OPENAI).toUpperCase();
   if (route === KSP_AI_ROUTES.FULL_EXPORT) {
     return { ok: false, workId: '0020', error: { code: 'AI_ROUTE_FULL_EXPORT_USE_PREVIEW', message: '全文出力は書き出し欄から実行してください。' } };
   }
@@ -26,7 +26,7 @@ function mutateAiProviderSettings(input) {
 function askKnowledgeQuestion_(input) {
   var payload = kspDeepClone_(input || {});
   payload.mode = KSP_FEATURE_FREEZE_SEARCH_MODES.FREE_QUESTION;
-  return kspRunProviderKnowledgeSearch_(kspCreateProviderNeutralAiEnvironment_(), KSP_AI_ROUTES.GEMINI, payload);
+  return kspRunProviderKnowledgeSearch_(kspCreateProviderNeutralAiEnvironment_(), KSP_AI_ROUTES.OPENAI, payload);
 }
 
 function getFeatureFreezeDiagnostics_() {

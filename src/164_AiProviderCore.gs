@@ -245,6 +245,7 @@ function kspBuildOpenAiAttributes_(source) {
   add('team_id', value.teamId);
   add('fund_strategy', value.fundStrategy);
   if (value.followUpRequired === true) attributes.follow_up_required = 'true';
+  add('content_hash', value.contentHash);
   return attributes;
 }
 
@@ -266,7 +267,7 @@ function kspBuildOpenAiFilter_(filters) {
 
 function kspBuildCanonicalKnowledgeRequest_(rawInput) {
   var source = rawInput || {};
-  var route = kspAiTrim_(source.route || source.provider).toUpperCase() || KSP_AI_ROUTES.GEMINI;
+  var route = kspAiTrim_(source.route || source.provider).toUpperCase() || KSP_AI_ROUTES.OPENAI;
   return {
     route: route,
     provider: route === KSP_AI_ROUTES.FULL_EXPORT ? '' : kspNormalizeAiProvider_(route),
@@ -317,16 +318,88 @@ function kspProviderCitationMetadata_(citation) {
   return kspMetadataArrayToMap_(metadata);
 }
 
+function kspOpenAiMetadataAgreement_(left, right) {
+  var leftMetadata = kspMetadataArrayToMap_(left || {});
+  var rightMetadata = kspMetadataArrayToMap_(right || {});
+  return Object.keys(leftMetadata).every(function (key) {
+    if (!Object.prototype.hasOwnProperty.call(rightMetadata, key)) return true;
+    var leftValue = kspAiTrim_(leftMetadata[key]);
+    var rightValue = kspAiTrim_(rightMetadata[key]);
+    return !leftValue || !rightValue || leftValue === rightValue;
+  });
+}
+
+function kspOpenAiCitationIdentity_(metadata) {
+  var normalized = kspMetadataArrayToMap_(metadata || {});
+  var sourceType = kspAiTrim_(normalized.source_type);
+  var sourceId = kspAiTrim_(normalized.source_id);
+  var contentHash = kspAiTrim_(normalized.content_hash);
+  return {
+    metadata: normalized,
+    sourceType: sourceType,
+    sourceId: sourceId,
+    contentHash: contentHash,
+    key: sourceType + '|' + sourceId + '|' + contentHash,
+    complete: Boolean(sourceType && sourceId && contentHash)
+  };
+}
+
 function kspNormalizeOpenAiResponse_(response) {
   var value = response || {};
   var answerParts = [];
   var citations = [];
-  var resultAttributes = {};
+  var normalizationWarnings = [];
+  var warningSeen = {};
+  var resultByFileId = {};
+  var sourceFileIds = {};
+  var ambiguousSourceKeys = {};
+  var annotations = [];
+
+  function warn(code) {
+    if (warningSeen[code]) return;
+    warningSeen[code] = true;
+    normalizationWarnings.push({ code: code, message: 'OpenAI citation identity was excluded.' });
+  }
+
+  function registerSourceFile(identity, fileId) {
+    if (!identity.complete) return;
+    var ids = sourceFileIds[identity.key] || [];
+    if (ids.indexOf(fileId) === -1) ids.push(fileId);
+    sourceFileIds[identity.key] = ids;
+    if (ids.length > 1) {
+      ambiguousSourceKeys[identity.key] = true;
+      warn('OPENAI_CITATION_IDENTITY_AMBIGUOUS');
+    }
+  }
+
   (value.output || []).forEach(function (item) {
     if (!item) return;
     if (String(item.type) === 'file_search_call') {
+      if (kspAiTrim_(item.status).toLowerCase() !== 'completed') return;
       (item.results || item.search_results || []).forEach(function (result) {
-        if (result && result.file_id) resultAttributes[String(result.file_id)] = result.attributes || result.metadata || {};
+        var fileId = kspAiTrim_(result && (result.file_id || result.fileId));
+        if (!fileId) {
+          warn('OPENAI_CITATION_IDENTITY_INVALID');
+          return;
+        }
+        var metadata = kspProviderCitationMetadata_(result);
+        var identity = kspOpenAiCitationIdentity_(metadata);
+        var record = resultByFileId[fileId];
+        if (!record) {
+          resultByFileId[fileId] = {
+            fileId: fileId,
+            fileName: kspAiTrim_(result.filename || result.file_name || result.fileName),
+            metadata: metadata,
+            identity: identity,
+            ambiguous: !identity.complete
+          };
+        } else if (!identity.complete || !record.identity.complete ||
+            !kspOpenAiMetadataAgreement_(record.metadata, metadata) ||
+            record.identity.key !== identity.key) {
+          record.ambiguous = true;
+          warn('OPENAI_CITATION_IDENTITY_CONFLICT');
+        }
+        registerSourceFile(identity, fileId);
       });
     }
     if (String(item.type) !== 'message') return;
@@ -335,35 +408,86 @@ function kspNormalizeOpenAiResponse_(response) {
       if (block.text !== undefined && block.text !== null) answerParts.push(String(block.text));
       (block.annotations || []).forEach(function (annotation) {
         if (!annotation || (annotation.type && String(annotation.type) !== 'file_citation')) return;
-        var fileId = kspAiTrim_(annotation.file_id || annotation.fileId);
-        citations.push({
-          type: 'file_citation',
-          fileName: kspAiTrim_(annotation.filename || annotation.file_name || annotation.fileName),
-          source: fileId,
-          pageNumber: Number(annotation.page_number || annotation.pageNumber || 0) || null,
-          metadata: kspProviderCitationMetadata_(annotation).source_id
-            ? kspProviderCitationMetadata_(annotation)
-            : kspMetadataArrayToMap_(resultAttributes[fileId] || {})
-        });
+        annotations.push(annotation);
       });
     });
   });
   var outputText = value.output_text;
   if (!answerParts.length && outputText) answerParts.push(String(outputText));
+
   var seen = {};
-  citations = citations.filter(function (citation) {
-    var metadata = kspProviderCitationMetadata_(citation);
-    var key = (metadata.source_type || '') + '|' + (metadata.source_id || '') + '|' + (citation.source || '') + '|' + (citation.pageNumber || '');
-    if (seen[key]) return false;
+  var blockedFileIds = {};
+
+  function addCitation(citation, identity, provenance) {
+    if (!identity.complete || ambiguousSourceKeys[identity.key]) return;
+    var key = provenance + '|' + citation.source + '|' + identity.key + '|' + String(citation.pageNumber || '');
+    if (seen[key]) return;
     seen[key] = true;
-    citation.metadata = metadata;
-    return true;
+    citation.metadata = identity.metadata;
+    citations.push(citation);
+  }
+
+  annotations.forEach(function (annotation) {
+    var fileId = kspAiTrim_(annotation.file_id || annotation.fileId);
+    if (!fileId) {
+      warn('OPENAI_CITATION_IDENTITY_INVALID');
+      return;
+    }
+    var record = resultByFileId[fileId];
+    var annotationMetadata = kspProviderCitationMetadata_(annotation);
+    if (record && record.ambiguous) {
+      blockedFileIds[fileId] = true;
+      warn('OPENAI_CITATION_IDENTITY_AMBIGUOUS');
+      return;
+    }
+    if (record && !kspOpenAiMetadataAgreement_(annotationMetadata, record.metadata)) {
+      blockedFileIds[fileId] = true;
+      warn('OPENAI_CITATION_IDENTITY_CONFLICT');
+      return;
+    }
+    var mergedMetadata = {};
+    Object.keys(record ? record.metadata : {}).forEach(function (key) { mergedMetadata[key] = record.metadata[key]; });
+    Object.keys(annotationMetadata).forEach(function (key) { mergedMetadata[key] = annotationMetadata[key]; });
+    var identity = kspOpenAiCitationIdentity_(mergedMetadata);
+    if (!identity.complete) {
+      blockedFileIds[fileId] = true;
+      warn('OPENAI_CITATION_IDENTITY_INVALID');
+      return;
+    }
+    if (record && record.identity.key !== identity.key) {
+      blockedFileIds[fileId] = true;
+      warn('OPENAI_CITATION_IDENTITY_CONFLICT');
+      return;
+    }
+    addCitation({
+      type: 'file_citation',
+      provenance: 'INLINE_CITATION',
+      fileName: kspAiTrim_(annotation.filename || annotation.file_name || annotation.fileName || (record && record.fileName)),
+      source: fileId,
+      pageNumber: Number(annotation.page_number || annotation.pageNumber || 0) || null,
+      metadata: identity.metadata
+    }, identity, 'INLINE_CITATION');
   });
+
+  Object.keys(resultByFileId).forEach(function (fileId) {
+    var record = resultByFileId[fileId];
+    if (!record || record.ambiguous || blockedFileIds[fileId] || !record.identity.complete) return;
+    addCitation({
+      type: 'retrieved_source',
+      provenance: 'RETRIEVED_SOURCE',
+      fileName: record.fileName,
+      source: fileId,
+      pageNumber: null,
+      metadata: record.identity.metadata
+    }, record.identity, 'RETRIEVED_SOURCE');
+  });
+
   return {
     answer: answerParts.join('\n').trim(),
     citations: citations,
     interactionId: kspAiTrim_(value.id),
-    rawStatus: kspAiTrim_(value.status)
+    rawStatus: kspAiTrim_(value.status),
+    warnings: normalizationWarnings
   };
 }
 
@@ -817,7 +941,7 @@ function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, c
       : kspParseInteractionResponse_(rawResponse);
   var mapped = kspMapKnowledgeCitations_(parsed.citations,
     kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
-  var allWarnings = (warnings || []).concat(mapped.warnings);
+  var allWarnings = (warnings || []).concat(parsed.warnings || [], mapped.warnings);
   var answer = parsed.answer || '確認できる根拠が不足しています。';
   var insufficientEvidence = !parsed.answer || mapped.citations.length === 0;
   if (insufficientEvidence) allWarnings.push({ code: 'AI_INSUFFICIENT_EVIDENCE', message: '回答または authoritative citation が不足しています。' });

@@ -7,6 +7,30 @@ DISPATCH_STATUS: `READY`
 WORK_READY: `NO`
 BLOCKER: `YES`
 
+## CODEX-18 execution result
+
+The current OpenAI no-annotation normalization gap was reproduced deterministically and repaired with an explicit file_search_call.results request, annotation-preserving INLINE_CITATION, and exact fail-closed RETRIEVED_SOURCE normalization. Retrieved-source identity requires provider file identity plus source_type, source_id, and content_hash; filename-only identity is not accepted, repeated results are deduplicated, and provider Store/File IDs remain server-side.
+
+The direct synthetic OpenAI qualification passed with one temporary Vector Store, one tiny synthetic TXT, exact metadata, one exact-filter File Search query, one authoritative normalized source, grounded output, and verified cleanup. Focused tests, npm run check, temporal validation, public-surface validation, and git diff --check passed.
+
+The repaired source was read back with 78/78 deployable files matching and updated in place on the existing Work 0020 Web App deployment at version 55. Native private-admin key entry, native synthetic self-test, bounded Meeting/Pitchbook runtime qualification, lifecycle, and final runtime integrity remain NOT RUN; the local OPENAI_API_KEY was intentionally not copied to Script Properties. See docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md.
+
+Latest classification:
+
+~~~
+PRIMARY_COMPLETION_PROVIDER: OPENAI
+OPENAI_DIRECT_BASE_MODEL: PASS — accepted CODEX-17 evidence
+OPENAI_DIRECT_FILE_SEARCH: PASS
+OPENAI_CITATION_NORMALIZATION: PASS
+OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
+OPENAI_RUNTIME: PARTIAL — native private-admin qualification pending
+GEMINI_RUNTIME: BLOCKED / DEFERRED PROVIDER RECOVERY
+FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
+FINAL_INTEGRITY: NOT RUN native Web App
+READY: NO
+BLOCKER: ACTION_REQUIRED
+~~~
+
 ## Current classification
 
 ```text

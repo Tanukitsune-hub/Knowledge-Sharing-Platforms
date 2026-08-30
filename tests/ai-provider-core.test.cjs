@@ -123,14 +123,35 @@ test('OpenAI attributes stay within 16 slots and remain stable-ID-first', () => 
   assert.deepEqual(Object.keys(attributes), [
     'source_type', 'source_id', 'date_key', 'entity_key', 'counterparty_type',
     'gp_id', 'asset_class_id', 'capital_type_id', 'team_id', 'fund_strategy',
-    'follow_up_required'
+    'follow_up_required', 'content_hash'
   ]);
   assert.equal(Object.hasOwn(attributes, 'drive_url'), false);
   assert.equal(Object.hasOwn(attributes, 'saved_filename'), false);
-  assert.equal(Object.hasOwn(attributes, 'content_hash'), false);
+  assert.equal(attributes.content_hash, 'secret-hash');
 });
 
-test('OpenAI request filters use exact stable fields and response citations map Meeting and Pitchbook', () => {
+test('OpenAI query explicitly requests File Search results without exposing provider identity', () => {
+  const originalRequest = ksp.kspOpenAiJsonRequestLive_;
+  let captured = null;
+  ksp.kspOpenAiJsonRequestLive_ = (method, path, payload) => {
+    captured = { method, path, payload: plain(payload) };
+    return { id: 'response-synthetic' };
+  };
+  try {
+    plain(ksp.kspOpenAiQueryFileSearchLive_(
+      { model: 'gpt-synthetic', vectorStoreId: 'vs-synthetic', input: 'Q', filters: { type: 'eq' } }
+    ));
+  } finally {
+    ksp.kspOpenAiJsonRequestLive_ = originalRequest;
+  }
+  assert.equal(captured.method, 'POST');
+  assert.equal(captured.path, '/responses');
+  assert.deepEqual(captured.payload.include, ['file_search_call.results']);
+  assert.deepEqual(captured.payload.tools[0].filters, { type: 'eq' });
+  assert.doesNotMatch(JSON.stringify(captured), /OPENAI_API_KEY|secret/i);
+});
+
+test('OpenAI request filters use exact stable fields and both citation forms map Meeting and Pitchbook', () => {
   const filter = plain(ksp.kspBuildOpenAiFilter_({
     dateFrom: '2026-08-01', dateTo: '2026-08-31', gpId: 'GP-000001',
     assetClassId: 'AC-001', capitalTypeId: 'CT-001', sourceType: 'Meeting'
@@ -154,16 +175,22 @@ test('OpenAI request filters use exact stable fields and response citations map 
 
   const state = ksp.kspBuildEmptyAiProviderState_();
   state.OPENAI.providerDocumentId = 'openai-meeting-file';
+  state.OPENAI.contentHash = 'meeting-hash';
   const meeting = { ...baseContext().meetingRows[0], AI_Provider_State_JSON: ksp.kspSerializeAiProviderState_(state) };
   const pitchbookState = ksp.kspBuildEmptyAiProviderState_();
   pitchbookState.OPENAI.providerDocumentId = 'openai-pitchbook-file';
+  pitchbookState.OPENAI.contentHash = 'pitchbook-hash';
   const pitchbook = { ...baseContext().pitchbookRows[0], AI_Provider_State_JSON: ksp.kspSerializeAiProviderState_(pitchbookState) };
   const response = ksp.kspNormalizeOpenAiResponse_({
     id: 'response-synthetic',
     output: [
-      { type: 'file_search_call', results: [
-        { file_id: 'openai-meeting-file', attributes: { source_type: 'Meeting', source_id: 'MTG-000001' } },
-        { file_id: 'openai-pitchbook-file', attributes: { source_type: 'Pitchbook', source_id: 'DOC-000001' } }
+      { type: 'file_search_call', status: 'completed', results: [
+        { file_id: 'openai-meeting-file', filename: 'meeting.txt', attributes: {
+          source_type: 'Meeting', source_id: 'MTG-000001', content_hash: 'meeting-hash'
+        } },
+        { file_id: 'openai-pitchbook-file', filename: 'pitchbook.txt', attributes: {
+          source_type: 'Pitchbook', source_id: 'DOC-000001', content_hash: 'pitchbook-hash'
+        } }
       ] },
       { type: 'message', content: [{
         type: 'output_text', text: 'Grounded synthetic answer', annotations: [
@@ -173,11 +200,79 @@ test('OpenAI request filters use exact stable fields and response citations map 
       }] }
     ]
   });
+  assert.equal(response.citations.filter((item) => item.provenance === 'INLINE_CITATION').length, 2);
+  assert.equal(response.citations.filter((item) => item.provenance === 'RETRIEVED_SOURCE').length, 2);
   const mapped = plain(ksp.kspMapKnowledgeCitations_(response.citations,
     ksp.kspBuildAuthoritativeSourceMaps_([meeting], [pitchbook])));
   assert.equal(mapped.citations.length, 2);
   assert.deepEqual(mapped.citations.map((item) => item.sourceType).sort(), ['Meeting', 'Pitchbook']);
   assert.equal(mapped.warnings.length, 0);
+  assert.doesNotMatch(JSON.stringify(mapped), /openai-(meeting|pitchbook)-file|vs-synthetic/);
+});
+
+test('OpenAI retrieved-source fallback normalizes one exact source and deduplicates repeated chunks', () => {
+  const state = ksp.kspBuildEmptyAiProviderState_();
+  state.OPENAI.providerDocumentId = 'openai-retrieved-file';
+  state.OPENAI.contentHash = 'retrieved-hash';
+  const pitchbook = { ...baseContext().pitchbookRows[0], AI_Provider_State_JSON: ksp.kspSerializeAiProviderState_(state) };
+  const response = ksp.kspNormalizeOpenAiResponse_({
+    id: 'response-retrieved',
+    output: [
+      { type: 'file_search_call', status: 'completed', results: [
+        { file_id: 'openai-retrieved-file', filename: 'pitchbook.txt', text: 'chunk 1', attributes: {
+          source_type: 'Pitchbook', source_id: 'DOC-000001', content_hash: 'retrieved-hash'
+        } },
+        { file_id: 'openai-retrieved-file', filename: 'pitchbook.txt', text: 'chunk 2', attributes: {
+          source_type: 'Pitchbook', source_id: 'DOC-000001', content_hash: 'retrieved-hash'
+        } }
+      ] },
+      { type: 'message', content: [{ type: 'output_text', text: 'Grounded retrieved answer', annotations: [] }] }
+    ]
+  });
+  assert.equal(response.answer, 'Grounded retrieved answer');
+  assert.equal(response.citations.length, 1);
+  assert.equal(response.citations[0].provenance, 'RETRIEVED_SOURCE');
+  const mapped = plain(ksp.kspMapKnowledgeCitations_(response.citations,
+    ksp.kspBuildAuthoritativeSourceMaps_([], [pitchbook])));
+  assert.equal(mapped.citations.length, 1);
+  assert.equal(mapped.citations[0].sourceId, 'DOC-000001');
+  assert.equal(mapped.citations[0].provenance, 'RETRIEVED_SOURCE');
+  assert.equal(mapped.warnings.length, 0);
+});
+
+test('OpenAI retrieved-source normalization fails closed for zero, missing, ambiguous, and stale identity', () => {
+  const empty = plain(ksp.kspNormalizeOpenAiResponse_({
+    output: [{ type: 'file_search_call', status: 'completed', results: [] }]
+  }));
+  assert.equal(empty.citations.length, 0);
+
+  const missing = plain(ksp.kspNormalizeOpenAiResponse_({
+    output: [{ type: 'file_search_call', status: 'completed', results: [{
+      file_id: 'openai-missing-metadata', filename: 'same-name.txt', attributes: { source_id: 'DOC-000001' }
+    }] }]
+  }));
+  assert.equal(missing.citations.length, 0);
+  assert.doesNotMatch(JSON.stringify(missing), /openai-missing-metadata|same-name\.txt/);
+
+  const ambiguous = plain(ksp.kspNormalizeOpenAiResponse_({
+    output: [{ type: 'file_search_call', status: 'completed', results: [
+      { file_id: 'openai-ambiguous-a', attributes: { source_type: 'Pitchbook', source_id: 'DOC-000001', content_hash: 'same-hash' } },
+      { file_id: 'openai-ambiguous-b', attributes: { source_type: 'Pitchbook', source_id: 'DOC-000001', content_hash: 'same-hash' } }
+    ] }]
+  }));
+  assert.equal(ambiguous.citations.length, 0);
+
+  const state = ksp.kspBuildEmptyAiProviderState_();
+  state.OPENAI.providerDocumentId = 'openai-stale-file';
+  state.OPENAI.contentHash = 'current-hash';
+  const row = { ...baseContext().pitchbookRows[0], AI_Provider_State_JSON: ksp.kspSerializeAiProviderState_(state) };
+  const stale = plain(ksp.kspMapKnowledgeCitations_([{
+    type: 'retrieved_source', provenance: 'RETRIEVED_SOURCE', source: 'openai-stale-file', metadata: {
+      source_type: 'Pitchbook', source_id: 'DOC-000001', content_hash: 'old-hash'
+    }
+  }], ksp.kspBuildAuthoritativeSourceMaps_([], [row])));
+  assert.equal(stale.citations.length, 0);
+  assert.equal(stale.warnings[0].code, 'OPENAI_CITATION_IDENTITY_STALE');
 });
 
 test('disabled provider returns its own safe error and never fails over', () => {
@@ -411,6 +506,180 @@ test('provider sync selects each provider independently and indexes both source 
   const meetingState = plain(ksp.kspParseAiProviderState_(context.meetingRows[0].AI_Provider_State_JSON, context.meetingRows[0]));
   assert.equal(meetingState.OPENAI.providerDocumentId, 'file-MTG-000001');
   assert.equal(meetingState.GEMINI.providerDocumentId, '');
+});
+
+function configureOpenAiSyncQualificationEnvironment(env, context) {
+  let uploadSequence = 0;
+  env.getProviderConfig = (provider) => provider === 'OPENAI'
+    ? { provider, enabled: true, vectorStoreId: 'vs-synthetic', modelId: 'gpt-5.6-terra', credentialConfigured: true }
+    : { provider, enabled: false, vectorStoreId: '', storeName: '', modelId: '', credentialConfigured: false };
+  env.ensureProviderStore = () => ({ name: 'vs-synthetic' });
+  env.findProviderDocumentsBySource = (provider, config, sourceType, sourceId) => env._debug.documents
+    .filter((documentValue) => {
+      const metadata = documentValue.attributes || documentValue.customMetadata || {};
+      return metadata.source_type === sourceType && metadata.source_id === sourceId;
+    }).map(plain);
+  env.deleteProviderDocument = (provider, config, documentValue) => {
+    env._debug.deleted.push(documentValue.name);
+    const index = env._debug.documents.findIndex((item) => item.name === documentValue.name);
+    if (index >= 0) env._debug.documents.splice(index, 1);
+  };
+  env.uploadProviderSource = (provider, config, source) => {
+    const providerDocumentId = `openai-qualification-${++uploadSequence}`;
+    const attributes = plain(ksp.kspBuildOpenAiAttributes_(source));
+    const documentValue = {
+      name: `openai:${config.vectorStoreId}/files/${providerDocumentId}`,
+      providerDocumentId,
+      fileId: providerDocumentId,
+      attributes,
+      customMetadata: attributes,
+      status: 'completed'
+    };
+    env._debug.documents.push(documentValue);
+    env._debug.uploaded.push(plain(source));
+    return plain(documentValue);
+  };
+  env.updateAiProviderState = (sourceType, sourceId, provider, patch) => {
+    const rows = sourceType === 'Meeting' ? context.meetingRows : context.pitchbookRows;
+    const row = rows.find((item) => String(item.Meeting_ID || item.Document_ID) === String(sourceId));
+    const state = ksp.kspBuildAiProviderStatePatch_(row, provider, patch);
+    row.AI_Provider_State_JSON = ksp.kspSerializeAiProviderState_(state);
+  };
+  return { nextProviderDocumentId: () => `openai-qualification-${uploadSequence + 1}` };
+}
+
+function openAiFilterValue(filter, key) {
+  if (!filter) return '';
+  if (filter.key === key) return filter.value;
+  for (const child of filter.filters || []) {
+    const found = openAiFilterValue(child, key);
+    if (found) return found;
+  }
+  return '';
+}
+
+test('synthetic OpenAI Meeting and Pitchbook sync/query uses exact metadata and authoritative retrieved sources', () => {
+  const context = baseContext();
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const sync = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true }));
+  assert.equal(sync.ok, true);
+  assert.equal(sync.providers.OPENAI.status, 'PASS');
+  assert.equal(sync.providers.OPENAI.indexed, 2);
+  assert.equal(env._debug.documents.length, 2);
+
+  const rowsByType = { Meeting: context.meetingRows[0], Pitchbook: context.pitchbookRows[0] };
+  const requests = {};
+  env.startQueryProvider = (provider, config, request) => {
+    const sourceType = openAiFilterValue(request.filters, 'source_type');
+    const row = rowsByType[sourceType];
+    const state = ksp.kspParseAiProviderState_(row.AI_Provider_State_JSON, row).OPENAI;
+    requests[sourceType] = plain(request);
+    const answer = `${sourceType} synthetic grounded answer`;
+    return {
+      status: 'completed',
+      response: {
+        id: `response-${sourceType.toLowerCase()}`,
+        output: [
+          { type: 'file_search_call', status: 'completed', results: [{
+            file_id: state.providerDocumentId,
+            filename: row.Saved_Filename,
+            attributes: { source_type: sourceType, source_id: sourceType === 'Meeting' ? row.Meeting_ID : row.Document_ID, content_hash: state.contentHash }
+          }] },
+          { type: 'message', content: [{ type: 'output_text', text: answer, annotations: [] }] }
+        ]
+      }
+    };
+  };
+
+  for (const sourceType of ['Meeting', 'Pitchbook']) {
+    const row = rowsByType[sourceType];
+    const sourceId = sourceType === 'Meeting' ? row.Meeting_ID : row.Document_ID;
+    const result = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'OPENAI', {
+      mode: '自由質問', questionOrInstruction: `${sourceType} synthetic question`,
+      dateFrom: '2026-08-01', dateTo: '2026-08-31', gpId: 'GP-1',
+      assetClassId: 'AC-1', capitalTypeId: 'CT-1', sourceType
+    }));
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(result.insufficientEvidence, false);
+    assert.equal(result.citations.length, 1);
+    assert.equal(result.citations[0].sourceType, sourceType);
+    assert.equal(result.citations[0].sourceId, sourceId);
+    assert.equal(result.citations[0].provenance, 'RETRIEVED_SOURCE');
+    assert.doesNotMatch(JSON.stringify(result), /openai-qualification|vs-synthetic/);
+    assert.equal(openAiFilterValue(requests[sourceType].filters, 'date_key'), '2026-08-01');
+    assert.equal(openAiFilterValue(requests[sourceType].filters, 'gp_id'), 'GP-1');
+    assert.equal(openAiFilterValue(requests[sourceType].filters, 'asset_class_id'), 'AC-1');
+    assert.equal(openAiFilterValue(requests[sourceType].filters, 'capital_type_id'), 'CT-1');
+    assert.equal(openAiFilterValue(requests[sourceType].filters, 'source_type'), sourceType);
+    assert.equal(requests[sourceType].filters.type, 'and');
+    assert.deepEqual(requests[sourceType].filters.filters.slice(0, 2), [
+      { type: 'gte', key: 'date_key', value: '2026-08-01' },
+      { type: 'lte', key: 'date_key', value: '2026-08-31' }
+    ]);
+  }
+  assert.deepEqual(env._debug.audits.map((row) => row.Cited_Source_IDs).sort(), ['DOC-000001', 'MTG-000001']);
+  assert.doesNotMatch(JSON.stringify(env._debug.audits), /openai-qualification|vs-synthetic/);
+});
+
+test('synthetic OpenAI lifecycle reindexes exactly once, excludes Inactive, and restores on Reactivate', () => {
+  const context = baseContext();
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const first = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true }));
+  assert.equal(first.indexed, 2);
+  const uploadedAfterFirst = env._debug.uploaded.length;
+  const second = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true }));
+  assert.equal(second.unchanged, 2);
+  assert.equal(env._debug.uploaded.length, uploadedAfterFirst);
+  assert.equal(env._debug.documents.length, 2);
+
+  const meeting = context.meetingRows[0];
+  const meetingStateBeforeRevision = ksp.kspParseAiProviderState_(meeting.AI_Provider_State_JSON, meeting).OPENAI;
+  meeting.Updated_At = '2026-08-30T00:00:00.000Z';
+  env.readMeetingText = () => 'Meeting body revision';
+  const revised = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
+  assert.equal(revised.indexed, 1);
+  assert.equal(env._debug.documents.filter((item) => item.attributes.source_id === meeting.Meeting_ID).length, 1);
+  assert.ok(env._debug.deleted.includes(meetingStateBeforeRevision.documentName));
+  const meetingStateAfterRevision = ksp.kspParseAiProviderState_(meeting.AI_Provider_State_JSON, meeting).OPENAI;
+  assert.notEqual(meetingStateAfterRevision.contentHash, meetingStateBeforeRevision.contentHash);
+
+  const revisionDocument = env._debug.documents.find((item) => item.attributes.source_id === meeting.Meeting_ID);
+  env._debug.documents.push({ ...plain(revisionDocument), name: `${revisionDocument.name}-duplicate` });
+  const duplicateCleanup = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
+  assert.equal(duplicateCleanup.unchanged, 1);
+  assert.equal(env._debug.documents.filter((item) => item.attributes.source_id === meeting.Meeting_ID).length, 1);
+  assert.ok(env._debug.deleted.includes(`${revisionDocument.name}-duplicate`));
+
+  meeting.Status = 'Inactive';
+  const inactive = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
+  assert.equal(inactive.removed, 1);
+  assert.equal(env._debug.documents.some((item) => item.attributes.source_id === meeting.Meeting_ID), false);
+  const inactiveState = ksp.kspParseAiProviderState_(meeting.AI_Provider_State_JSON, meeting).OPENAI;
+  assert.equal(inactiveState.status, 'NotIndexed');
+  assert.equal(inactiveState.providerDocumentId, '');
+  assert.equal(inactiveState.contentHash, '');
+
+  meeting.Status = 'Active';
+  meeting.Updated_At = '2026-08-31T00:00:00.000Z';
+  const reactivated = plain(ksp.kspRunProviderNeutralAiSync_(env, { force: true, sourceType: 'Meeting' }));
+  assert.equal(reactivated.indexed, 1);
+  assert.equal(env._debug.documents.filter((item) => item.attributes.source_id === meeting.Meeting_ID).length, 1);
+  const reactivatedState = ksp.kspParseAiProviderState_(meeting.AI_Provider_State_JSON, meeting).OPENAI;
+  assert.equal(reactivatedState.status, 'Indexed');
+  assert.ok(reactivatedState.providerDocumentId);
+  assert.ok(reactivatedState.contentHash);
 });
 
 test('a source revision signaled by the legacy Pending field is reconsidered per provider', () => {

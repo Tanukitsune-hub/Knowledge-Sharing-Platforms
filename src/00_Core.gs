@@ -516,6 +516,7 @@ function kspBuildSettingsRows_(config, resources, nowIso) {
     { Key: 'OPENAI_ENABLED', Value: 'false', Description: 'Whether the administrator has enabled the ChatGPT / OpenAI provider.', Updated_At: nowIso },
     { Key: 'OPENAI_VECTOR_STORE_ID', Value: '', Description: 'Server-side OpenAI Vector Store identifier.', Updated_At: nowIso },
     { Key: 'OPENAI_DEFAULT_MODEL', Value: '', Description: 'Administrator-selected OpenAI model ID.', Updated_At: nowIso },
+    { Key: 'OPENAI_READINESS', Value: 'UNCONFIGURED', Description: 'OpenAI connection readiness; real-source sync is separate from synthetic connection validation.', Updated_At: nowIso },
     { Key: 'GEMINI_ENABLED', Value: 'false', Description: 'Whether the administrator has enabled the Gemini provider.', Updated_At: nowIso },
     { Key: 'GEMINI_DEFAULT_MODEL', Value: '', Description: 'Administrator-selected Gemini model ID.', Updated_At: nowIso },
     { Key: 'LAST_SETUP_AT', Value: nowIso, Description: 'Last successful setup/repair execution.', Updated_At: nowIso }
@@ -532,6 +533,7 @@ function kspGetSettingsPreserveExistingKeys_() {
     'OPENAI_ENABLED',
     'OPENAI_VECTOR_STORE_ID',
     'OPENAI_DEFAULT_MODEL',
+    'OPENAI_READINESS',
     'GEMINI_ENABLED',
     'GEMINI_DEFAULT_MODEL'
   ];

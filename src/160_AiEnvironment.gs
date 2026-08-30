@@ -27,6 +27,13 @@ function kspCreateAiEnvironment_() {
     return kspUpsertMissingSettingsLive_(spreadsheetId, rows || []);
   };
 
+  base.saveOpenAiApiKey = function (value) {
+    var key = kspAiTrim_(value);
+    kspAssert_(key && key.length <= 512, 'OPENAI_API_KEY_INVALID', 'OpenAI API key is invalid.');
+    scriptProperties.setProperty(KSP_AI_PROPERTY_KEYS.OPENAI_API_KEY, key);
+    return true;
+  };
+
   base.ensureFileSearchStore = function (settings, displayName) {
     if (settings.storeName) return base.getFileSearchStore(settings.storeName);
     var created = base.createFileSearchStore(

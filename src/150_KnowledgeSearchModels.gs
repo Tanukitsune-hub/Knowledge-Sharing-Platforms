@@ -40,15 +40,25 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
 function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
   var maps = { bySourceId: {}, bySourceKey: {}, byAiDocumentName: {}, byProviderDocumentId: {} };
 
+  function addMapping(map, key, source) {
+    var normalizedKey = kspAiTrim_(key);
+    if (!normalizedKey) return;
+    if (!Object.prototype.hasOwnProperty.call(map, normalizedKey)) {
+      map[normalizedKey] = source;
+      return;
+    }
+    if (map[normalizedKey] === null) return;
+    if (!kspKnowledgeSourceIdentityEquivalent_(map[normalizedKey], source)) map[normalizedKey] = null;
+  }
+
   function add(source) {
     if (!source.sourceId) return;
     var sourceKey = kspAiSourceKey_(source.sourceType, source.sourceId);
-    maps.bySourceKey[sourceKey] = source;
-    if (!maps.bySourceId[source.sourceId]) maps.bySourceId[source.sourceId] = source;
-    else if (maps.bySourceId[source.sourceId].sourceType !== source.sourceType) maps.bySourceId[source.sourceId] = null;
-    if (source.aiDocumentName) maps.byAiDocumentName[source.aiDocumentName] = source;
+    addMapping(maps.bySourceKey, sourceKey, source);
+    addMapping(maps.bySourceId, source.sourceId, source);
+    addMapping(maps.byAiDocumentName, source.aiDocumentName, source);
     (source.providerDocumentIds || []).forEach(function (providerDocumentId) {
-      if (providerDocumentId) maps.byProviderDocumentId[String(providerDocumentId)] = source;
+      addMapping(maps.byProviderDocumentId, providerDocumentId, source);
     });
   }
 
@@ -61,6 +71,8 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
       savedFilename: String(row.Saved_Filename || row.Meeting_ID || ''),
       status: String(row.Status || ''),
       aiDocumentName: String(row.AI_Document_Name || ''),
+      providerContentHashes: kspKnowledgeSourceProviderContentHashes_(row),
+      contentHash: kspKnowledgeSourceContentHash_(row),
       providerDocumentIds: kspKnowledgeSourceProviderDocumentIds_(row)
     });
   });
@@ -74,11 +86,36 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
       savedFilename: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
       status: String(row.Status || ''),
       aiDocumentName: String(row.AI_Document_Name || ''),
+      providerContentHashes: kspKnowledgeSourceProviderContentHashes_(row),
+      contentHash: kspKnowledgeSourceContentHash_(row),
       providerDocumentIds: kspKnowledgeSourceProviderDocumentIds_(row)
     });
   });
 
   return maps;
+}
+
+function kspKnowledgeSourceIdentityEquivalent_(left, right) {
+  return left && right && left.sourceType === right.sourceType &&
+    left.sourceId === right.sourceId && left.contentHash === right.contentHash;
+}
+
+function kspKnowledgeSourceProviderContentHashes_(row) {
+  var hashes = { OPENAI: '', GEMINI: '' };
+  if (row && row.AI_Provider_State_JSON && typeof kspParseAiProviderState_ === 'function') {
+    try {
+      var state = kspParseAiProviderState_(row.AI_Provider_State_JSON, row);
+      hashes.OPENAI = kspAiTrim_(state.OPENAI && state.OPENAI.contentHash);
+      hashes.GEMINI = kspAiTrim_(state.GEMINI && state.GEMINI.contentHash);
+    } catch (ignored) { /* Keep malformed derived state fail-closed for strict OpenAI citations. */ }
+  }
+  if (!hashes.GEMINI && row && row.AI_Content_Hash) hashes.GEMINI = String(row.AI_Content_Hash);
+  return hashes;
+}
+
+function kspKnowledgeSourceContentHash_(row) {
+  var hashes = kspKnowledgeSourceProviderContentHashes_(row);
+  return hashes.OPENAI || hashes.GEMINI || '';
 }
 
 function kspKnowledgeSourceProviderDocumentIds_(row) {
@@ -106,23 +143,65 @@ function kspMapKnowledgeCitations_(rawCitations, sourceMaps) {
     var metadata = citation && citation.metadata ? kspMetadataArrayToMap_(citation.metadata) : {};
     var sourceId = kspAiTrim_(metadata.source_id);
     var sourceType = kspAiTrim_(metadata.source_type);
-    var authoritative = sourceId && sourceType && maps.bySourceKey
-      ? maps.bySourceKey[kspAiSourceKey_(sourceType, sourceId)] : null;
-    if (!authoritative && sourceId) authoritative = maps.bySourceId[sourceId] || null;
-    if (!authoritative && citation && (citation.fileId || citation.file_id || citation.source)) {
-      var providerDocumentId = String(citation.fileId || citation.file_id || citation.source);
-      authoritative = maps.byProviderDocumentId ? maps.byProviderDocumentId[providerDocumentId] : null;
-      if (!authoritative && maps.byAiDocumentName) authoritative = maps.byAiDocumentName[providerDocumentId] || null;
-    }
-    if (!authoritative && citation && citation.source) {
-      authoritative = maps.byAiDocumentName[String(citation.source)] || null;
-      if (authoritative) sourceId = authoritative.sourceId;
+    var provenance = kspAiTrim_(citation && citation.provenance);
+    var strictOpenAiCitation = provenance === 'INLINE_CITATION' || provenance === 'RETRIEVED_SOURCE';
+    var authoritative = null;
+
+    if (strictOpenAiCitation) {
+      var providerDocumentId = kspAiTrim_(citation && (citation.fileId || citation.file_id || citation.source));
+      var contentHash = kspAiTrim_(metadata.content_hash);
+      if (!providerDocumentId || !sourceType || !sourceId || !contentHash) {
+        warnings.push({
+          code: 'OPENAI_CITATION_IDENTITY_INVALID',
+          message: 'OpenAI citation identity was incomplete and was excluded.'
+        });
+        return;
+      }
+      authoritative = maps.bySourceKey ? maps.bySourceKey[kspAiSourceKey_(sourceType, sourceId)] : null;
+      var providerAuthoritative = maps.byProviderDocumentId
+        ? maps.byProviderDocumentId[providerDocumentId] : null;
+      if (!authoritative || !providerAuthoritative) {
+        warnings.push({
+          code: 'OPENAI_CITATION_SOURCE_NOT_FOUND',
+          message: 'OpenAI citation could not be matched to one authoritative source.'
+        });
+        return;
+      }
+      if (!kspKnowledgeSourceIdentityEquivalent_(authoritative, providerAuthoritative)) {
+        warnings.push({
+          code: 'OPENAI_CITATION_IDENTITY_CONFLICT',
+          message: 'OpenAI citation identity conflicted with the authoritative source.'
+        });
+        return;
+      }
+      var openAiHash = authoritative.providerContentHashes
+        ? kspAiTrim_(authoritative.providerContentHashes.OPENAI) : '';
+      if (!openAiHash || openAiHash !== contentHash) {
+        warnings.push({
+          code: 'OPENAI_CITATION_IDENTITY_STALE',
+          message: 'OpenAI citation content identity was stale or unavailable.'
+        });
+        return;
+      }
+    } else {
+      authoritative = sourceId && sourceType && maps.bySourceKey
+        ? maps.bySourceKey[kspAiSourceKey_(sourceType, sourceId)] : null;
+      if (!authoritative && sourceId) authoritative = maps.bySourceId[sourceId] || null;
+      if (!authoritative && citation && (citation.fileId || citation.file_id || citation.source)) {
+        var legacyProviderDocumentId = String(citation.fileId || citation.file_id || citation.source);
+        authoritative = maps.byProviderDocumentId ? maps.byProviderDocumentId[legacyProviderDocumentId] : null;
+        if (!authoritative && maps.byAiDocumentName) authoritative = maps.byAiDocumentName[legacyProviderDocumentId] || null;
+      }
+      if (!authoritative && citation && citation.source) {
+        authoritative = maps.byAiDocumentName[String(citation.source)] || null;
+        if (authoritative) sourceId = authoritative.sourceId;
+      }
     }
 
     if (!authoritative) {
       warnings.push({
         code: 'AI_CITATION_SOURCE_NOT_FOUND',
-        message: 'Gemini citation could not be matched to an authoritative source record.'
+        message: 'Citation could not be matched to an authoritative source record.'
       });
       return;
     }
@@ -147,14 +226,16 @@ function kspMapKnowledgeCitations_(rawCitations, sourceMaps) {
     var key = authoritative.sourceType + ':' + authoritative.sourceId + '|' + String(pageNumber || '');
     if (seen[key]) return;
     seen[key] = true;
-    citations.push({
+    var normalizedCitation = {
       sourceType: authoritative.sourceType,
       sourceId: authoritative.sourceId,
       date: authoritative.date,
       title: authoritative.savedFilename || (citation ? citation.fileName : ''),
       driveUrl: authoritative.driveUrl,
       pageNumber: pageNumber
-    });
+    };
+    if (provenance) normalizedCitation.provenance = provenance;
+    citations.push(normalizedCitation);
   });
 
   return { citations: citations, warnings: warnings };

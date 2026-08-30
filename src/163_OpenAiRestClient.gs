@@ -235,6 +235,7 @@ function kspOpenAiQueryFileSearchLive_(request) {
     model: String(value.model),
     input: String(value.input),
     store: false,
+    include: ['file_search_call.results'],
     tools: [{
       type: 'file_search',
       vector_store_ids: [String(value.vectorStoreId)],

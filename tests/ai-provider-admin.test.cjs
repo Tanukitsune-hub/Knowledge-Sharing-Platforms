@@ -7,13 +7,20 @@ function makeAdminEnvironment(options = {}) {
     ...context.settings,
     OPENAI_ENABLED: options.enabled ? 'true' : 'false',
     OPENAI_VECTOR_STORE_ID: options.storeId || '',
-    OPENAI_DEFAULT_MODEL: options.model === undefined ? '' : options.model
+    OPENAI_DEFAULT_MODEL: options.model === undefined ? '' : options.model,
+    OPENAI_READINESS: options.readiness === undefined ? '' : options.readiness
   };
   const writes = [];
   const created = [];
   const read = [];
   const deleted = [];
   const syncCalls = [];
+  const savedKeys = [];
+  const connectionUploads = [];
+  const connectionQueries = [];
+  const connectionDeletes = [];
+  let credentialConfigured = options.key !== false;
+  let readErrorRemaining = options.readError ? (options.readErrorOnce ? 1 : Number.MAX_SAFE_INTEGER) : 0;
   let clock = 0;
   return {
     nowIso() { clock += 1; return `2026-08-28T00:00:${String(clock).padStart(2, '0')}.000Z`; },
@@ -24,23 +31,59 @@ function makeAdminEnvironment(options = {}) {
       });
     },
     isAdministrator() { return options.admin !== false; },
-    isOpenAiCredentialConfigured() { return options.key !== false; },
+    isOpenAiCredentialConfigured() { return credentialConfigured; },
+    saveOpenAiApiKey() { savedKeys.push(true); credentialConfigured = true; },
     createOpenAiVectorStore(name) {
       if (options.createError) throw options.createError;
       created.push(name);
       return { id: options.createdStoreId || 'vs-synthetic-created', name };
     },
     getOpenAiVectorStore(id) {
-      if (options.readError) throw options.readError;
       read.push(id);
+      if (readErrorRemaining > 0) {
+        readErrorRemaining -= 1;
+        throw options.readError;
+      }
       return { id };
+    },
+    hashText(text) { return ksp.kspAiHashTextFallback_(text); },
+    uploadProviderSource(provider, config, source) {
+      connectionUploads.push({ provider, config: plain(config), source: plain(source) });
+      if (options.connectionError) throw options.connectionError;
+      return {
+        name: 'openai:vs-synthetic/files/openai-connection-file',
+        providerDocumentId: 'openai-connection-file',
+        fileId: 'openai-connection-file',
+        attributes: plain(ksp.kspBuildOpenAiAttributes_(source))
+      };
+    },
+    queryProvider(provider, config, request) {
+      connectionQueries.push({ provider, config: plain(config), request: plain(request) });
+      if (options.connectionQueryError) throw options.connectionQueryError;
+      const text = 'Knowledge Sharing Platforms synthetic connection test. The unique answer token is OPENAI_CONNECTION_READY.';
+      return {
+        id: 'response-synthetic',
+        output: [
+          { type: 'file_search_call', status: 'completed', results: [{
+            file_id: 'openai-connection-file', filename: 'ksp-openai-connection-test.txt',
+            attributes: {
+              source_type: 'Pitchbook', source_id: 'KSP-OPENAI-CONNECTION-TEST',
+              content_hash: ksp.kspAiHashTextFallback_(text)
+            }
+          }] },
+          { type: 'message', content: [{ type: 'output_text', text: 'OPENAI_CONNECTION_READY', annotations: [] }] }
+        ]
+      };
+    },
+    deleteProviderDocument(provider, config, documentValue) {
+      connectionDeletes.push({ provider, config: plain(config), document: plain(documentValue) });
     },
     writeAiSetting(key, value) {
       writes.push({ key, value });
       context.settings[key] = String(value);
     },
     deleteOpenAiVectorStore() { deleted.push(true); },
-    _debug: { context, writes, created, read, deleted, syncCalls }
+    _debug: { context, writes, created, read, deleted, syncCalls, savedKeys, connectionUploads, connectionQueries, connectionDeletes }
   };
 }
 
@@ -104,47 +147,56 @@ test('OpenAI Store creation uses a synthetic official REST POST and returns only
   }
 });
 
-test('first OpenAI activation creates one store, sets only the blank model, validates, and reuses provider-neutral sync', () => {
-  const env = makeAdminEnvironment();
-  withSyncStub(() => {
-    const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
-    assert.equal(result.ok, true, JSON.stringify(result));
-    assert.equal(result.enabled, true);
-    assert.deepEqual(env._debug.created, ['Private Assets Knowledge - OpenAI']);
-    assert.deepEqual(env._debug.read, ['vs-synthetic-created']);
-    assert.equal(env._debug.syncCalls.length, 1);
-    assert.equal(env._debug.syncCalls[0].force, true);
-    assert.equal(env._debug.context.settings.OPENAI_DEFAULT_MODEL, 'gpt-5.6-terra');
-    assert.equal(env._debug.context.settings.OPENAI_VECTOR_STORE_ID, 'vs-synthetic-created');
-    assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'true');
-    assert.equal(env._debug.context.settings.AI_SYNC_ENABLED, 'true');
-    assert.equal(JSON.stringify(result).includes('vs-synthetic-created'), false);
+test('OpenAI connection saves the key, runs an isolated synthetic self-test, and stops at READY_FOR_SYNC', () => {
+  const env = makeAdminEnvironment({ key: false });
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'CONNECT_OPENAI', apiKey: 'sk-synthetic-only'
+  }));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.readyForSync, true);
+  assert.equal(result.enabled, false);
+  assert.deepEqual(env._debug.created, ['Private Assets Knowledge - OpenAI']);
+  assert.deepEqual(env._debug.read, ['vs-synthetic-created']);
+  assert.equal(env._debug.savedKeys.length, 1);
+  assert.equal(env._debug.connectionUploads.length, 1);
+  assert.equal(env._debug.connectionQueries.length, 1);
+  assert.deepEqual(env._debug.connectionQueries[0].request.filters, {
+    type: 'eq', key: 'source_id', value: 'KSP-OPENAI-CONNECTION-TEST'
   });
+  assert.deepEqual(env._debug.connectionQueries[0].request.include, ['file_search_call.results']);
+  assert.equal(env._debug.connectionDeletes.length, 1);
+  assert.equal(env._debug.syncCalls.length, 0);
+  assert.equal(env._debug.context.settings.OPENAI_DEFAULT_MODEL, 'gpt-5.6-terra');
+  assert.equal(env._debug.context.settings.OPENAI_VECTOR_STORE_ID, 'vs-synthetic-created');
+  assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
+  assert.equal(env._debug.context.settings.OPENAI_READINESS, 'READY_FOR_SYNC');
+  assert.equal(JSON.stringify(result).includes('sk-synthetic-only'), false);
+  assert.equal(JSON.stringify(result).includes('vs-synthetic-created'), false);
 });
 
-test('repeated activation reuses the configured store and preserves an existing model', () => {
+test('repeated OpenAI connection reuses the configured store and preserves an existing model', () => {
   const env = makeAdminEnvironment({ storeId: 'vs-existing', model: 'gpt-existing' });
-  withSyncStub(() => {
-    const first = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
-    const second = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
-    assert.equal(first.ok, true);
-    assert.equal(second.ok, true);
-    assert.deepEqual(env._debug.created, []);
-    assert.deepEqual(env._debug.read, ['vs-existing', 'vs-existing']);
-    assert.equal(env._debug.context.settings.OPENAI_DEFAULT_MODEL, 'gpt-existing');
-    assert.equal(env._debug.writes.filter((item) => item.key === 'OPENAI_DEFAULT_MODEL').length, 0);
-  });
+  const first = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+  const second = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+  assert.equal(first.ok, true);
+  assert.equal(second.ok, true);
+  assert.deepEqual(env._debug.created, []);
+  assert.deepEqual(env._debug.read, ['vs-existing', 'vs-existing']);
+  assert.equal(env._debug.connectionUploads.length, 2);
+  assert.equal(env._debug.connectionDeletes.length, 2);
+  assert.equal(env._debug.context.settings.OPENAI_DEFAULT_MODEL, 'gpt-existing');
+  assert.equal(env._debug.writes.filter((item) => item.key === 'OPENAI_DEFAULT_MODEL').length, 0);
 });
 
 test('store capability failure keeps OpenAI disabled and does not invoke Gemini fallback', () => {
-  const env = makeAdminEnvironment({ readError: Object.assign(new Error('private response'), { code: 'OPENAI_HTTP_403' }) });
+  const env = makeAdminEnvironment({ readError: Object.assign(new Error('private response'), { code: 'OPENAI_HTTP_500' }) });
   const original = ksp.kspRunProviderNeutralAiSync_;
   let syncCalls = 0;
   ksp.kspRunProviderNeutralAiSync_ = () => { syncCalls += 1; throw new Error('must not run'); };
   try {
     const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
     assert.equal(result.ok, false);
-    assert.equal(result.error.code, 'OPENAI_ACTIVATION_FAILED');
+    assert.equal(result.error.code, 'OPENAI_CONNECTION_TEST_FAILED');
     assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
     assert.equal(syncCalls, 0);
     assert.doesNotMatch(JSON.stringify(result), /private response|vs-synthetic-created|GEMINI/);
@@ -153,22 +205,83 @@ test('store capability failure keeps OpenAI disabled and does not invoke Gemini 
   }
 });
 
-test('disable preserves the configured store, re-enable does not delete or recreate it, and sync is provider-neutral', () => {
+test('inaccessible configured Store is replaced once and old provider state is not deleted', () => {
+  const env = makeAdminEnvironment({
+    storeId: 'vs-inaccessible',
+    readError: Object.assign(new Error('private response'), { code: 'OPENAI_HTTP_403' }),
+    readErrorOnce: true,
+    createdStoreId: 'vs-replacement'
+  });
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.deepEqual(env._debug.read, ['vs-inaccessible', 'vs-replacement']);
+  assert.deepEqual(env._debug.created, ['Private Assets Knowledge - OpenAI']);
+  assert.equal(env._debug.context.settings.OPENAI_VECTOR_STORE_ID, 'vs-replacement');
+  assert.equal(env._debug.deleted.length, 0);
+  assert.equal(env._debug.syncCalls.length, 0);
+  assert.equal(env._debug.context.settings.OPENAI_READINESS, 'READY_FOR_SYNC');
+  assert.doesNotMatch(JSON.stringify(result), /vs-inaccessible|vs-replacement/);
+});
+
+test('invalid OpenAI key fails before Store or source mutation', () => {
+  const env = makeAdminEnvironment({
+    key: false,
+    createError: Object.assign(new Error('private response'), { code: 'OPENAI_HTTP_401' })
+  });
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'CONNECT_OPENAI', apiKey: 'sk-invalid-synthetic'
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'OPENAI_CONNECTION_TEST_FAILED');
+  assert.equal(env._debug.created.length, 0);
+  assert.equal(env._debug.connectionUploads.length, 0);
+  assert.equal(env._debug.connectionQueries.length, 0);
+  assert.equal(env._debug.connectionDeletes.length, 0);
+  assert.equal(env._debug.syncCalls.length, 0);
+  assert.doesNotMatch(JSON.stringify(result), /sk-invalid-synthetic|private response|vs-/);
+});
+
+test('invalid OpenAI connection fails before source sync and cleans the synthetic document', () => {
+  const env = makeAdminEnvironment({
+    connectionQueryError: Object.assign(new Error('synthetic provider response'), { code: 'OPENAI_HTTP_401' })
+  });
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'CONNECT_OPENAI', apiKey: 'sk-invalid-synthetic'
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'OPENAI_CONNECTION_TEST_FAILED');
+  assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
+  assert.equal(env._debug.context.settings.OPENAI_READINESS, 'ERROR');
+  assert.equal(env._debug.syncCalls.length, 0);
+  assert.equal(env._debug.connectionUploads.length, 1);
+  assert.equal(env._debug.connectionDeletes.length, 1);
+  assert.doesNotMatch(JSON.stringify(result), /sk-invalid-synthetic|openai-connection-file|vs-synthetic-created/);
+});
+
+test('disable preserves the configured store, re-enable returns to READY_FOR_SYNC, and source sync is explicit', () => {
   const env = makeAdminEnvironment({ storeId: 'vs-existing', enabled: true, model: 'gpt-existing' });
   withSyncStub(() => {
+    const connected = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+    assert.equal(connected.ok, true);
     const disabled = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'DISABLE_OPENAI' }));
     assert.equal(disabled.ok, true);
     assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
     assert.equal(env._debug.context.settings.OPENAI_VECTOR_STORE_ID, 'vs-existing');
     assert.deepEqual(env._debug.deleted, []);
+    const blocked = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC' }));
+    assert.equal(blocked.ok, false);
+    assert.equal(blocked.error.code, 'OPENAI_NOT_READY_FOR_SYNC');
+    const enabled = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+    assert.equal(enabled.ok, true);
+    assert.deepEqual(env._debug.created, []);
+    assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
+    assert.equal(env._debug.context.settings.OPENAI_READINESS, 'READY_FOR_SYNC');
     const sync = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC' }));
     assert.equal(sync.ok, true);
     assert.equal(env._debug.syncCalls.length, 1);
     assert.equal(env._debug.syncCalls[0].force, true);
-    const enabled = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
-    assert.equal(enabled.ok, true);
-    assert.deepEqual(env._debug.created, []);
     assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'true');
+    assert.equal(env._debug.context.settings.OPENAI_READINESS, 'ACTIVE');
   });
 });
 
@@ -268,9 +381,10 @@ test('admin provider surface is present while browser code never receives key, s
   const page = fs.readFileSync(path.join(root, 'src', 'AiProviderSettingsPage.html'), 'utf8');
   const client = fs.readFileSync(path.join(root, 'src', 'ClientAiProviderSettings.html'), 'utf8');
   assert.match(page, /ChatGPT \/ OpenAI/);
-  assert.match(page, /OpenAIを有効化/);
+  assert.match(page, /APIキーを保存して接続確認/);
   assert.match(page, /OpenAIを無効化/);
-  assert.match(page, /今すぐ同期/);
+  assert.match(page, /資料を同期して利用開始/);
+  assert.match(page, /id="ai-provider-openai-key-input" type="password"/);
   assert.match(page, /ai-provider-sync-source/);
   assert.match(page, /value="Meeting"/);
   assert.match(page, /value="Pitchbook"/);

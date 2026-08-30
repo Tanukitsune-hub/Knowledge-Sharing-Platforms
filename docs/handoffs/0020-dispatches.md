@@ -37,6 +37,30 @@ STATUS: `READY`
 - Web App/source/deployment mutation was not performed;
 - preserve this provider-viability evidence; do not repeat the entire provider investigation.
 
+### 0020-CODEX-18 — RETURNED / DIRECT PASS, NATIVE QUALIFICATION ACTION_REQUIRED
+
+- deterministic pre-fix no-annotation normalization failure reproduced;
+- exact fail-closed OpenAI RETRIEVED_SOURCE normalization integrated while preserving INLINE_CITATION;
+- direct synthetic OpenAI control passed with exact metadata, one normalized authoritative source, grounded answer, and verified cleanup;
+- focused and canonical repository validation passed;
+- existing Work 0020 Web App source was read back successfully and updated in place to version 55;
+- native private-admin onboarding, bounded Meeting/Pitchbook runtime qualification, lifecycle, and final runtime integrity remain unobserved because they require authorized private Web App user operation;
+- local OPENAI_API_KEY was not copied to Script Properties; no Gemini live call or provider fallback was used;
+- report: docs/handoffs/0020-CODEX-18-openai-citation-normalization-and-primary-qualification-report.md;
+- PR #26 remains Draft / Open / unmerged.
+
+~~~
+OPENAI_CITATION_NORMALIZATION: PASS
+OPENAI_RETRIEVED_SOURCE_NORMALIZATION: PASS
+OPENAI_SYNTHETIC_SELF_TEST: PASS deterministic / NOT RUN native
+OPENAI_MEETING_INDEX_QUERY_CITATION: PASS deterministic / NOT RUN native
+OPENAI_PITCHBOOK_INDEX_QUERY_CITATION: PASS direct synthetic and deterministic / NOT RUN native
+OPENAI_METADATA_FILTER: PASS deterministic / NOT RUN native
+OPENAI_LIFECYCLE: PASS deterministic / NOT RUN native
+READY: NO
+BLOCKER: ACTION_REQUIRED
+~~~
+
 ## Superseded dispatch
 
 ### 0020-CODEX-16 — SUPERSEDED / NOT EXECUTED
