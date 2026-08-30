@@ -1,8 +1,8 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-08-31 JST
-LAST_VERIFIED_BY: Codex browser qualification + Apps Script source/deployment readback + CODEX-20 GitHub reconciliation
-STATUS: ACTIVE / VERIFIED (sensitive runtime identities intentionally redacted)
+LAST_VERIFIED_BY: Codex browser qualification + Apps Script source/deployment readback + CODEX-20 GitHub reconciliation + ChatGPT final review
+STATUS: ACTIVE / VERIFIED RUNTIME, GITHUB REVIEW FIX PENDING
 
 ## Source
 
@@ -10,10 +10,10 @@ STATUS: ACTIVE / VERIFIED (sensitive runtime identities intentionally redacted)
 - WORK_BRANCH: `agent/0020-ai-provider-core`
 - DEPLOYED_SOURCE_COMMIT: `d61dc166c835d65e8bbabd17dc2894b4aef69cd8`
 - DEPLOYED_SOURCE_DESCRIPTION: final CODEX-19 exact tested source and qualification records
-- CURRENT_GITHUB_INTEGRATION_DISPATCH: `0020-CODEX-20 — RETURNED`
-- MAIN_INTEGRATION_COMMIT: `655ce6e00b14e20e8ed6af85cef95d872de4caef`
-- VALIDATED_INTEGRATION_COMMIT: `383412715b7617abef00622661c70c6a40dbbc46`
-- FINAL_REPORTING_HEAD: exact pushed reporting commit is recorded in PR #26 and the CODEX-20 chat return; it contains documentation only
+- CURRENT_GITHUB_DISPATCH: `0020-CODEX-21 — review-finding repair`
+- CODEX_20_MAIN_INTEGRATION_COMMIT: `655ce6e00b14e20e8ed6af85cef95d872de4caef`
+- CODEX_20_FINAL_REPORTING_HEAD: `4176c98344bcbe495b1f062001e2e26e0860479b`
+- CURRENT_BRANCH_HEAD: `NOT YET FINAL — CODEX-21 handoff/tracking commits are newer and make no runtime change`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB` — keep machine-specific absolute paths local unless explicitly safe and useful
 
 ## Application runtime
@@ -29,7 +29,7 @@ STATUS: ACTIVE / VERIFIED (sensitive runtime identities intentionally redacted)
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
 
-CODEX-20 is GitHub integration-only. It must not create an Apps Script version, update the Web App, call an AI provider, or mutate runtime data. Version 57 remains the deployed target until a later explicitly authorized deployment.
+CODEX-21 is not yet deployed. Until its deterministic validation passes and an explicitly authorized bounded update occurs, version 57 and deployed commit `d61dc166c835d65e8bbabd17dc2894b4aef69cd8` remain the runtime baseline.
 
 ## Data and control artifacts
 
@@ -72,15 +72,15 @@ CODEX-20 is GitHub integration-only. It must not create an Apps Script version, 
 ## Current Work 0020 runtime state
 
 - ACTIVE_WORK_ID: `0020`
-- ACTIVE_DISPATCH_ID: `NONE — 0020-CODEX-20 RETURNED`
+- ACTIVE_DISPATCH_ID: `0020-CODEX-21`
 - PRIMARY_COMPLETION_PROVIDER: OpenAI
 - WEB_APP_VERSION: `57`
-- NATIVE_ACCEPTANCE_STATE: PASS / FUNCTIONALLY READY
+- NATIVE_ACCEPTANCE_STATE: PASS for CODEX-19 behavior; review hardening not yet deployed
 - OPENAI_CONNECTION_STATE: key configured, Vector Store ready, readiness ACTIVE after disable/re-enable and exact unchanged sync
 - SMALL_SYNTHETIC_PITCHBOOK_STATE: `DOC-000017` Active and OpenAI Indexed; exact final sync unchanged without duplicate
 - SMALL_SYNTHETIC_MEETING_STATE: `MTG-000005` Active and OpenAI Indexed; native grounded query/citation PASS
 - LARGE_FIXTURE_STATE: old 5–25 MiB size-matrix Pitchbooks include `OPENAI_INDEX_TIMEOUT`; do not broad-retry or mutate for cosmetic cleanup
-- GITHUB_DELIVERY_STATE: latest fetched main reconciled; PR #26 mergeable and ready for final ChatGPT merge review
+- GITHUB_DELIVERY_STATE: current main reconciled, but 3 pre-merge recovery/cleanup review findings remain open
 
 ## Completed CODEX-19 sequence
 
@@ -92,19 +92,24 @@ CODEX-20 is GitHub integration-only. It must not create an Apps Script version, 
 6. designated small Meeting/Pitchbook query, metadata, lifecycle and final-integrity qualification passed;
 7. stable runtime identities verified and intentionally not recorded to preserve the private boundary.
 
-## Identity verification result
-
-The standalone Apps Script identity, stable editor target, existing private Web App deployment, access mode and deployed version were directly verified. Their private values are intentionally not stored in this repository.
-
 ## Completed CODEX-20 integration
 
-- latest `origin/main` used: `0d9238293b1f5612956e206d22e4e75cfc767694`;
+- latest main used: `0d9238293b1f5612956e206d22e4e75cfc767694`;
 - normal merge commit: `655ce6e00b14e20e8ed6af85cef95d872de4caef`;
-- validated integration commit: `383412715b7617abef00622661c70c6a40dbbc46`;
-- production Apps Script diff from the CODEX-20 execution ref: none;
+- canonical validation: PASS, 325/325;
 - runtime deployment/provider/data mutation: none;
-- deployed source remains `d61dc166c835d65e8bbabd17dc2894b4aef69cd8`, version 57;
-- PR #26 is mergeable and ready for review but remains unmerged.
+- final PR review then identified three unresolved recovery/cleanup defects, so merge was withheld.
+
+## CODEX-21 required update
+
+Before CODEX-21 returns:
+
+- record its exact final pushed source commit;
+- if deployed, record the new immutable Apps Script version and confirm the same deployment was updated once;
+- keep version 57 as historical deployed baseline and explicitly distinguish it from the new version;
+- record that only `DOC-000017` and `MTG-000005` were used for bounded native regression qualification;
+- record unresolved review-thread count and final PR state;
+- never record provider IDs, API keys, private URLs, or confidential contents.
 
 ## Update rule
 
