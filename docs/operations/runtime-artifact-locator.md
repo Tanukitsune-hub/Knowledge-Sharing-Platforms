@@ -1,15 +1,17 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-08-31 JST
-LAST_VERIFIED_BY: Codex browser qualification + Apps Script source/deployment readback
+LAST_VERIFIED_BY: Codex browser qualification + Apps Script source/deployment readback + ChatGPT GitHub verification
 STATUS: ACTIVE / VERIFIED (sensitive runtime identities intentionally redacted)
 
 ## Source
 
 - SOURCE_REPOSITORY: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
-- SOURCE_BRANCH: `agent/0020-ai-provider-core`
-- SOURCE_COMMIT: final CODEX-19 branch commit; exact pushed SHA is recorded in PR #26 and the return report
-- LAST_DEPLOYED_SOURCE_BASELINE: CODEX-19 exact tested source, existing Web App version 57
+- WORK_BRANCH: `agent/0020-ai-provider-core`
+- DEPLOYED_SOURCE_COMMIT: `d61dc166c835d65e8bbabd17dc2894b4aef69cd8`
+- DEPLOYED_SOURCE_DESCRIPTION: final CODEX-19 exact tested source and qualification records
+- CURRENT_GITHUB_INTEGRATION_DISPATCH: `0020-CODEX-20`
+- CURRENT_INTEGRATION_HEAD: `NOT YET FINAL — CODEX-20 handoff/tracking commits are newer than the deployed source and make no runtime change`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB` — keep machine-specific absolute paths local unless explicitly safe and useful
 
 ## Application runtime
@@ -24,6 +26,8 @@ STATUS: ACTIVE / VERIFIED (sensitive runtime identities intentionally redacted)
 - ENVIRONMENT: personal DEV / qualification
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
+
+CODEX-20 is GitHub integration-only. It must not create an Apps Script version, update the Web App, call an AI provider, or mutate runtime data. Version 57 remains the deployed target until a later explicitly authorized deployment.
 
 ## Data and control artifacts
 
@@ -66,14 +70,15 @@ Important: this is a standalone Apps Script project. It is not container-bound t
 ## Current Work 0020 runtime state
 
 - ACTIVE_WORK_ID: `0020`
-- ACTIVE_DISPATCH_ID: `NONE — 0020-CODEX-19 RETURNED`
-- PRIMARY_PROVIDER_UNDER_ACCEPTANCE: OpenAI
+- ACTIVE_DISPATCH_ID: `0020-CODEX-20 — GitHub integration only`
+- PRIMARY_COMPLETION_PROVIDER: OpenAI
 - WEB_APP_VERSION: `57`
-- NATIVE_ACCEPTANCE_STATE: PASS / READY
+- NATIVE_ACCEPTANCE_STATE: PASS / FUNCTIONALLY READY
 - OPENAI_CONNECTION_STATE: key configured, Vector Store ready, readiness ACTIVE after disable/re-enable and exact unchanged sync
 - SMALL_SYNTHETIC_PITCHBOOK_STATE: `DOC-000017` Active and OpenAI Indexed; exact final sync unchanged without duplicate
 - SMALL_SYNTHETIC_MEETING_STATE: `MTG-000005` Active and OpenAI Indexed; native grounded query/citation PASS
 - LARGE_FIXTURE_STATE: old 5–25 MiB size-matrix Pitchbooks include `OPENAI_INDEX_TIMEOUT`; do not broad-retry or mutate for cosmetic cleanup
+- GITHUB_DELIVERY_STATE: PR #26 requires latest-main reconciliation before final merge
 
 ## Completed CODEX-19 sequence
 
@@ -87,7 +92,11 @@ Important: this is a standalone Apps Script project. It is not container-bound t
 
 ## Identity verification result
 
-The standalone Apps Script identity, stable editor target, existing private Web App deployment, access mode and deployed version were directly verified. Their private values are intentionally not stored in this repository. The exact pushed source commit is recorded in PR #26 and the final return.
+The standalone Apps Script identity, stable editor target, existing private Web App deployment, access mode and deployed version were directly verified. Their private values are intentionally not stored in this repository.
+
+## CODEX-20 update requirement
+
+Before CODEX-20 returns, replace `CURRENT_INTEGRATION_HEAD` with the exact pushed merge/integration commit and state explicitly that no runtime deployment occurred. Keep `DEPLOYED_SOURCE_COMMIT` pinned to `d61dc166c835d65e8bbabd17dc2894b4aef69cd8` unless a later dispatch explicitly deploys another source.
 
 ## Update rule
 
