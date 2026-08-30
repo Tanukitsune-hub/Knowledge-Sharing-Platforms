@@ -8,7 +8,7 @@ STATUS: ACTIVE / VERIFIED RUNTIME, READY FOR CHATGPT FINAL MERGE
 
 - SOURCE_REPOSITORY: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 - WORK_BRANCH: `agent/0020-ai-provider-core`
-- DEPLOYED_SOURCE_COMMIT: `CODEX-21 FINAL COMMIT — exact pushed SHA is recorded in the PR and final return`
+- DEPLOYED_SOURCE_COMMIT: `f1e1841a77af325f9ec8fb3b756c55f507f4b0c1`
 - DEPLOYED_SOURCE_DESCRIPTION: CODEX-21 retry/replacement/orphan-cleanup hardening, exact tested source
 - CURRENT_GITHUB_DISPATCH: `0020-CODEX-21 — RETURNED`
 - CODEX_20_MAIN_INTEGRATION_COMMIT: `655ce6e00b14e20e8ed6af85cef95d872de4caef`
