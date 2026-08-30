@@ -59,6 +59,7 @@ OPENAI_METADATA_FILTER: PASS deterministic / NOT RUN native
 OPENAI_LIFECYCLE: PASS deterministic / NOT RUN native
 READY: NO
 BLOCKER: ACTION_REQUIRED
+GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
 ## Superseded dispatch

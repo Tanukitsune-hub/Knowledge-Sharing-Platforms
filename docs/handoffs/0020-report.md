@@ -29,6 +29,7 @@ FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 FINAL_INTEGRITY: NOT RUN native Web App
 READY: NO
 BLOCKER: ACTION_REQUIRED
+GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
 ## Current classification

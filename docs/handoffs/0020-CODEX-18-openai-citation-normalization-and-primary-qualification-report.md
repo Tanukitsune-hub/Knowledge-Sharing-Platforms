@@ -107,11 +107,10 @@ FULL_OUTPUT_RUNTIME: PASS — accepted prior evidence; not rerun
 FINAL_INTEGRITY: NOT RUN native Web App; repository/source-readback integrity PASS
 READY: NO
 BLOCKER: ACTION_REQUIRED — native private-admin qualification and bounded runtime lifecycle remain unobserved
-FINAL_COMMIT: recorded in the final dispatch response
-GITHUB_CI_ACTUALLY_RAN: to be recorded after push observation
+FINAL_COMMIT: c88625e4865f3322dc21b3d7d269ab2bf99e26d7 — implementation commit; documentation result update is subsequent
+GITHUB_CI_ACTUALLY_RAN: NO — no GitHub Actions run was returned for the pushed head
 ~~~
 
 ## Scope controls
 
 No Gemini live call, provider fallback, confidential data, FULL_OUTPUT rerun, current-main merge, filename-only normalization, weakened metadata check, or public endpoint was used. PR #26 remains Draft / Open / unmerged.
-
