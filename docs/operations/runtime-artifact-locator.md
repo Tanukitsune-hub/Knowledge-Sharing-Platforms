@@ -1,15 +1,16 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-08-30 JST
-LAST_VERIFIED_BY: ChatGPT + user visual confirmation + Google Drive metadata
+LAST_VERIFIED_BY: ChatGPT + user visual confirmation + Google Drive/Sheets metadata
 STATUS: ACTIVE / PARTIALLY VERIFIED
 
 ## Source
 
 - SOURCE_REPOSITORY: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 - SOURCE_BRANCH: `agent/0020-ai-provider-core`
-- SOURCE_COMMIT: `747dc1c905023022c29db4f3f16b6d5ab887cdf7` at last locator update; verify again before deployment
-- LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB` — keep machine-specific absolute paths local; record only when repository visibility and privacy policy make it safe
+- SOURCE_COMMIT: current CODEX-19 handoff head; verify exact branch HEAD before source delivery
+- LAST_DEPLOYED_SOURCE_BASELINE: CODEX-18 tested source, existing Web App version 56
+- LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB` — keep machine-specific absolute paths local unless explicitly safe and useful
 
 ## Application runtime
 
@@ -19,7 +20,7 @@ STATUS: ACTIVE / PARTIALLY VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `NOT YET VERIFIED`
 - WEB_APP_DEPLOYMENT_URL: `NOT YET VERIFIED`
 - DEPLOYMENT_ID: `NOT YET VERIFIED`
-- DEPLOYMENT_VERSION: `55`
+- DEPLOYMENT_VERSION: `56`
 - ENVIRONMENT: personal DEV / qualification
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
@@ -60,45 +61,45 @@ Important: this is a standalone Apps Script project. It is not container-bound t
 
 - NAME: `Private Assets Knowledge`
 - DRIVE_FOLDER_ID: `1b9r_NdS2P0Qwb0-cz2Ix1cXNGM0gLb_b`
-- ROLE: authoritative knowledge root used by the application; verify environment intent before any production-like mutation
+- ROLE: authoritative knowledge root used by the application; verify environment intent before production-like mutation
 
 ## Current Work 0020 runtime state
 
 - ACTIVE_WORK_ID: `0020`
-- ACTIVE_DISPATCH_ID: `0020-CODEX-18`
+- ACTIVE_DISPATCH_ID: `0020-CODEX-19`
 - PRIMARY_PROVIDER_UNDER_ACCEPTANCE: OpenAI
-- WEB_APP_VERSION: `55`
-- NATIVE_ACCEPTANCE_STATE: user action required
-- REQUIRED_SEQUENCE:
-  1. private Web App: `APIキーを保存して接続確認`
-  2. require `READY_FOR_SYNC`
-  3. `資料を同期して利用開始`
-  4. bounded Meeting/Pitchbook native qualification
-  5. metadata/lifecycle qualification
-  6. final native integrity
+- WEB_APP_VERSION: `56`
+- NATIVE_ACCEPTANCE_STATE: bounded application repair required
+- OPENAI_CONNECTION_STATE_AFTER_CODEX18: credential/store self-test passed; aggregate broad sync later set enabled false/readiness ERROR
+- SMALL_SYNTHETIC_PITCHBOOK_STATE: `DOC-000017` OpenAI Indexed
+- SMALL_SYNTHETIC_MEETING_STATE: `MTG-000005` OpenAI Indexed
+- LARGE_FIXTURE_STATE: old 5–25 MiB size-matrix Pitchbooks include `OPENAI_INDEX_TIMEOUT`; do not broad-retry or mutate for cosmetic cleanup
 
-## Next verification items
+## Active CODEX-19 sequence
 
-At the next authorized Apps Script/Web App interaction, record all of the following before or immediately after the action:
+1. reproduce exact-selection, partial-failure/readiness and generic-UI defects deterministically;
+2. add optional private-admin exact `sourceType + sourceId` sync;
+3. prevent current provider entries from being reselected solely due stale legacy Pending state;
+4. preserve provider usability on item-level partial failure and return safe sync diagnostics;
+5. deliver/read back exact source once and update the same private Web App at most once;
+6. use only designated small synthetic Meeting/Pitchbook sources for native query/lifecycle/final-integrity qualification;
+7. record Script ID/editor URL/deployment ID/exec URL if safely observed.
+
+## Next identity verification items
+
+Before or immediately after the next authorized Apps Script/Web App deployment action, record:
 
 1. standalone Apps Script Script ID;
 2. stable Apps Script editor URL;
 3. existing Web App deployment ID;
 4. stable `/exec` Web App URL;
-5. currently deployed version;
-6. source branch/commit corresponding to that deployment.
+5. deployed version;
+6. exact source commit delivered to runtime.
 
 Do not infer these values from a Spreadsheet name. Do not replace `NOT YET VERIFIED` with guesses.
 
 ## Update rule
 
-Update this file whenever any material runtime identity changes, including:
+Update this file whenever any material runtime identity changes, including Apps Script project, deployment/version, Backend/Audit artifact, Drive folder/namespace, delivered source commit or environment transition.
 
-- Apps Script project replacement;
-- Web App deployment replacement or version update;
-- Backend/Audit Spreadsheet replacement;
-- Drive control/knowledge folder replacement;
-- source branch/commit delivered to runtime;
-- environment transition from personal DEV to company runtime.
-
-Never store API keys, credentials, signed secret-bearing URLs, confidential source contents, or provider secret resource IDs here.
+Never store API keys, credentials, signed secret-bearing URLs, confidential source contents or provider secret resource IDs here.
