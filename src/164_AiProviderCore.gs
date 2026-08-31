@@ -314,6 +314,7 @@ function kspBuildOpenAiFilter_(filters) {
   add('eq', 'asset_class_id', input.assetClassId);
   add('eq', 'capital_type_id', input.capitalTypeId);
   add('eq', 'source_type', input.sourceType);
+  add('eq', 'source_id', input.sourceId);
   return clauses.length === 0 ? undefined : clauses.length === 1 ? clauses[0] : { type: 'and', filters: clauses };
 }
 
@@ -330,7 +331,9 @@ function kspBuildCanonicalKnowledgeRequest_(rawInput) {
     gpId: kspAiTrim_(source.gpId),
     assetClassId: kspAiTrim_(source.assetClassId),
     capitalTypeId: kspAiTrim_(source.capitalTypeId),
-    sourceType: kspAiTrim_(source.sourceType)
+    sourceType: kspAiTrim_(source.sourceType),
+    modelProfileId: kspAiTrim_(source.modelProfileId).toLowerCase(),
+    thinkingProfileId: kspAiTrim_(source.thinkingProfileId).toLowerCase()
   };
 }
 
@@ -340,13 +343,19 @@ function kspBuildProviderSearchRequest_(provider, config, input) {
   var promptInput = kspValidateFeatureFreezeSearchInput_(kspNormalizeFeatureFreezeSearchInput_(value));
   var prompt = kspBuildFeatureFreezePrompt_(promptInput);
   if (normalizedProvider === KSP_AI_PROVIDERS.OPENAI) {
-    return {
+    var openAiRequest = {
       provider: normalizedProvider,
       model: config.modelId,
       vectorStoreId: config.vectorStoreId,
       input: prompt,
-      filters: kspBuildOpenAiFilter_(value)
+      filters: kspBuildOpenAiFilter_(value),
+      thinkingProviderDefault: config.thinkingProviderDefault !== false,
+      thinkingRawValue: config.thinkingRawValue
     };
+    if (config.maxOutputTokens !== null && config.maxOutputTokens !== undefined) {
+      openAiRequest.maxOutputTokens = config.maxOutputTokens;
+    }
+    return openAiRequest;
   }
   return {
     provider: normalizedProvider,
@@ -357,10 +366,14 @@ function kspBuildProviderSearchRequest_(provider, config, input) {
     metadataFilter: kspBuildMetadataFilter_(value),
     queryTransport: config.queryTransport || KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
     background: true,
-    generation_config: {
-      thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
-      max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
-    }
+    generation_config: (function () {
+      var generation = {};
+      if (config.thinkingRawValue) generation.thinking_level = config.thinkingRawValue;
+      if (config.maxOutputTokens !== null && config.maxOutputTokens !== undefined) {
+        generation.max_output_tokens = config.maxOutputTokens;
+      }
+      return generation;
+    })()
   };
 }
 
@@ -696,7 +709,19 @@ function kspProviderSafeMessage_(code) {
     AI_QUERY_TOKEN_EXPIRED: '検索状態の有効期限が切れています。',
     AI_QUERY_STATE_UNAVAILABLE: '検索状態を保存できませんでした。',
     AI_DOCUMENT_READBACK_FAILED: 'Gemini検索用Documentを確認できませんでした。',
-    AI_PROVIDER_INVALID: '検索プロバイダが不正です。'
+    AI_PROVIDER_INVALID: '検索プロバイダが不正です。',
+    AI_MODEL_POLICY_RAW_VALUE_REJECTED: '選択したモデル設定を確認してください。',
+    AI_MODEL_SELECTION_STALE: '選択したモデルは現在利用できません。設定を読み直してください。',
+    AI_MODEL_PROFILE_PROVIDER_MISMATCH: '選択したモデルとプロバイダが一致しません。',
+    AI_MODEL_PROFILE_DISABLED: '選択したモデルは管理者設定で利用できません。',
+    AI_MODEL_PROFILE_INACCESSIBLE: '選択したモデルは現在のプロジェクトでは利用できません。',
+    AI_MODEL_PROFILE_UNQUALIFIED: '選択したモデルはKnowledge Searchで利用確認されていません。',
+    AI_THINKING_SELECTION_STALE: '選択した思考レベルは現在利用できません。設定を読み直してください。',
+    AI_THINKING_PROFILE_DISABLED: '選択した思考レベルは管理者設定で利用できません。',
+    AI_THINKING_PROFILE_UNQUALIFIED: '選択した思考レベルはKnowledge Searchで利用確認されていません。',
+    AI_MODEL_POLICY_INVALID: 'モデル設定を確認できませんでした。',
+    AI_MODEL_POLICY_JSON_INVALID: 'モデル設定を確認できませんでした。',
+    AI_MODEL_POLICY_SCHEMA_UNSUPPORTED: 'モデル設定を確認できませんでした。'
   };
   return messages[String(code || '')] || '';
 }
@@ -771,7 +796,9 @@ function kspKnowledgeQueryInputForState_(input) {
     gpId: kspAiTrim_(value.gpId),
     assetClassId: kspAiTrim_(value.assetClassId),
     capitalTypeId: kspAiTrim_(value.capitalTypeId),
-    sourceType: kspAiTrim_(value.sourceType)
+    sourceType: kspAiTrim_(value.sourceType),
+    modelProfileId: kspAiTrim_(value.modelProfileId).toLowerCase(),
+    thinkingProfileId: kspAiTrim_(value.thinkingProfileId).toLowerCase()
   };
 }
 
@@ -787,6 +814,10 @@ function kspKnowledgeQueryFingerprint_(provider, config, input) {
   var payload = {
     provider: provider,
     model: kspAiTrim_(config && config.modelId),
+    modelProfileId: kspAiTrim_(config && config.modelProfileId),
+    thinkingProfileId: kspAiTrim_(config && config.thinkingProfileId),
+    thinkingValue: config && config.thinkingProviderDefault ? 'PROVIDER_DEFAULT' : kspAiTrim_(config && config.thinkingRawValue),
+    maxOutputTokens: config && config.maxOutputTokens !== undefined ? config.maxOutputTokens : null,
     profile: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
     mode: kspAiTrim_(value.mode),
     dateFrom: kspAiTrim_(value.dateFrom),
@@ -837,6 +868,8 @@ function kspKnowledgeQueryPendingState_(environment, actor, provider, token, fin
     input: kspKnowledgeQueryInputForState_(input),
     questionHash: kspKnowledgeQueryQuestionHash_(input.questionOrInstruction),
     modelId: kspAiTrim_(config && config.modelId),
+    modelProfileId: kspAiTrim_(config && config.modelProfileId),
+    thinkingProfileId: kspAiTrim_(config && config.thinkingProfileId),
     requestProfileVersion: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
     providerStatus: kspKnowledgeQueryPendingStatus_(status) ? status : 'in_progress',
     createdAt: startedAt,
@@ -911,11 +944,18 @@ function kspKnowledgeQueryAuditTargetId_(token) {
 
 function kspBuildSafeKnowledgeQueryTelemetry_(state, providerStatus, response, extra) {
   var options = extra || {};
-  var output = {
-    request_profile_version: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
-    thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
-    max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
-  };
+  var selection = options.modelSelection || {};
+  var output = { request_profile_version: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION };
+  if (selection.modelProfileId || selection.profileId) {
+    output.model_profile_id = selection.modelProfileId || selection.profileId;
+  }
+  if (selection.modelId) output.effective_model_id = selection.modelId;
+  if (selection.thinkingProfileId) output.thinking_profile_id = selection.thinkingProfileId;
+  if (selection.thinkingProviderDefault === true) output.thinking_mode = 'PROVIDER_DEFAULT';
+  else if (selection.thinkingRawValue) output.thinking_level = selection.thinkingRawValue;
+  if (selection.maxOutputTokens !== null && selection.maxOutputTokens !== undefined) {
+    output.max_output_tokens = selection.maxOutputTokens;
+  }
   var queryTransport = kspAiTrim_(options.queryTransport || (state && state.queryTransport));
   if (queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT ||
       queryTransport === KSP_AI_QUERY_TRANSPORTS.INTERACTIONS) {
@@ -1000,7 +1040,7 @@ function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, c
   kspAppendKnowledgeQueryAuditOnce_(environment, actor, auditToken, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
     timestamp: environment.nowIso(), actor: actor, input: input, modelId: config.modelId,
     interactionId: kspKnowledgeQueryAuditTargetId_(auditToken), result: KSP_AUDIT_RESULTS.SUCCESS, citations: mapped.citations,
-    provider: provider, telemetry: telemetry
+    provider: provider, telemetry: Object.assign({}, telemetry || {}, { modelSelection: config })
   }), allWarnings);
   return {
     result: {
@@ -1038,6 +1078,10 @@ function kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, ra
       : kspBuildAiProviderConfig_(kspNormalizeAiSettings_(context.settings), normalizedProvider);
     if (typeof environment.getProviderConfig !== 'function') config.credentialConfigured = true;
     kspProviderConfigurationError_(normalizedProvider, config);
+    var modelSelection = kspResolveAiModelSelection_(
+      kspNormalizeAiSettings_(context.settings), normalizedProvider, rawInput, config, startedAt
+    );
+    config = kspApplyAiModelSelectionToConfig_(config, modelSelection);
     var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows);
     kspValidateKnowledgeFilterIds_(input, catalog);
     var fingerprint = kspKnowledgeQueryFingerprint_(normalizedProvider, config, input);
@@ -1096,7 +1140,8 @@ function kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, ra
     if (context && context.auditSpreadsheetId) {
       kspTryAppendKnowledgeAudit_(environment, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
         timestamp: environment.nowIso(), actor: actor, input: input, modelId: config ? config.modelId : '',
-        result: KSP_AUDIT_RESULTS.FAILURE, errorCode: code, citations: [], provider: normalizedProvider
+        result: KSP_AUDIT_RESULTS.FAILURE, errorCode: code, citations: [], provider: normalizedProvider,
+        telemetry: config ? { modelSelection: config } : null
       }), warnings);
     }
     return kspKnowledgeQueryFailureResult_(normalizedProvider, input.mode, error, warnings, false, '');
@@ -1155,6 +1200,10 @@ function kspRunProviderKnowledgeSearchPoll_(environment, requestedProvider, rawI
       : kspBuildAiProviderConfig_(kspNormalizeAiSettings_(context.settings), requestedProvider);
     if (typeof environment.getProviderConfig !== 'function') config.credentialConfigured = true;
     kspProviderConfigurationError_(requestedProvider, config);
+    var pollSelection = kspResolveAiModelSelection_(
+      kspNormalizeAiSettings_(context.settings), requestedProvider, state.input, config, environment.nowIso()
+    );
+    config = kspApplyAiModelSelectionToConfig_(config, pollSelection);
     kspAssert_(typeof environment.pollQueryProvider === 'function',
       'AI_QUERY_STATE_UNAVAILABLE', '検索状態を確認できませんでした。');
     var pollStarted = Date.now();
@@ -1204,7 +1253,8 @@ function kspRunProviderKnowledgeSearchPoll_(environment, requestedProvider, rawI
           interactionId: kspKnowledgeQueryAuditTargetId_(token), result: KSP_AUDIT_RESULTS.FAILURE, errorCode: kspGetErrorCode_(error), citations: [],
           provider: requestedProvider, telemetry: {
             state: state, providerStatus: terminalStatus, pollCount: Number(state.pollCount || 0) + 1,
-            maxPollLatencyMs: Math.max(Number(state.maxPollLatencyMs || 0), Number(error.pollLatencyMs || 0))
+            maxPollLatencyMs: Math.max(Number(state.maxPollLatencyMs || 0), Number(error.pollLatencyMs || 0)),
+            modelSelection: config
           }
         }), terminalFailure.warnings);
       }
@@ -1217,7 +1267,8 @@ function kspRunProviderKnowledgeSearchPoll_(environment, requestedProvider, rawI
         kspAppendKnowledgeQueryAuditOnce_(environment, actor, token, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
           timestamp: environment.nowIso(), actor: actor, input: state.input, modelId: state.modelId || (config && config.modelId),
           interactionId: kspKnowledgeQueryAuditTargetId_(token), result: KSP_AUDIT_RESULTS.FAILURE, errorCode: kspGetErrorCode_(error), citations: [],
-          provider: requestedProvider, telemetry: { state: state, providerStatus: 'failed', pollCount: state.pollCount || 0 }
+          provider: requestedProvider, telemetry: { state: state, providerStatus: 'failed', pollCount: state.pollCount || 0,
+            modelSelection: config }
         }), transportFailure.warnings);
       }
       kspStoreKnowledgeQueryTerminal_(environment, actor, token, requestedProvider, transportFailure);
@@ -1244,6 +1295,7 @@ function kspGetProviderNeutralKnowledgeBootstrap_(environment) {
     var context = environment.loadAiContext();
     var settings = kspNormalizeAiSettings_(context.settings);
     var providers = {};
+    var modelPolicies = {};
     [KSP_AI_PROVIDERS.OPENAI, KSP_AI_PROVIDERS.GEMINI].forEach(function (provider) {
       var config = typeof environment.getProviderConfig === 'function'
         ? environment.getProviderConfig(provider)
@@ -1253,6 +1305,8 @@ function kspGetProviderNeutralKnowledgeBootstrap_(environment) {
         configured: Boolean(config.enabled && config.modelId && (config.vectorStoreId || config.storeName) &&
           (typeof environment.getProviderConfig !== 'function' || config.credentialConfigured))
       };
+      modelPolicies[provider] = kspGetEffectiveAiModelChoices_(settings, provider, config,
+        typeof environment.nowIso === 'function' ? environment.nowIso() : '');
     });
     return {
       ok: true,
@@ -1260,6 +1314,7 @@ function kspGetProviderNeutralKnowledgeBootstrap_(environment) {
       appVersion: '0.6.0',
       configured: true,
       providers: providers,
+      modelPolicies: modelPolicies,
       routes: [
         { id: KSP_AI_ROUTES.CHATGPT, label: 'ChatGPT' },
         { id: KSP_AI_ROUTES.GEMINI, label: 'Gemini' },

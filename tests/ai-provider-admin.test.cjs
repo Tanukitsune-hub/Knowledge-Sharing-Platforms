@@ -60,6 +60,11 @@ function makeAdminEnvironment(options = {}) {
     queryProvider(provider, config, request) {
       connectionQueries.push({ provider, config: plain(config), request: plain(request) });
       if (options.connectionQueryError) throw options.connectionQueryError;
+      if (options.connectionQueryErrorRawValue && request.thinkingRawValue === options.connectionQueryErrorRawValue) {
+        const error = new Error('synthetic tuple failure');
+        error.code = 'OPENAI_HTTP_400';
+        throw error;
+      }
       const text = 'Knowledge Sharing Platforms synthetic connection test. The unique answer token is OPENAI_CONNECTION_READY.';
       return {
         id: 'response-synthetic',
@@ -452,7 +457,7 @@ test('non-administrator cannot mutate provider settings and the status response 
   assert.equal(env._debug.syncCalls.length, 0);
 });
 
-test('admin provider surface is present while browser code never receives key, store ID, or model ID', () => {
+test('admin provider surface exposes policy-safe exact model fields without credentials or provider resource IDs', () => {
   const root = path.resolve(__dirname, '..');
   const page = fs.readFileSync(path.join(root, 'src', 'AiProviderSettingsPage.html'), 'utf8');
   const client = fs.readFileSync(path.join(root, 'src', 'ClientAiProviderSettings.html'), 'utf8');
@@ -465,6 +470,9 @@ test('admin provider surface is present while browser code never receives key, s
   assert.match(page, /id="ai-provider-sync-source-id"/);
   assert.match(page, /value="Meeting"/);
   assert.match(page, /value="Pitchbook"/);
+  assert.match(page, /id="ai-model-id"/);
+  assert.match(page, /id="ai-model-thinking-profiles"/);
+  assert.match(page, /id="ai-model-thinking-qualification-state"/);
   assert.match(client, /getAiProviderAdminData/);
   assert.match(client, /mutateAiProviderSettings/);
   assert.match(client, /sourceType:action==='SYNC'\?\(sourceType\|\|''\):''/);
@@ -473,4 +481,148 @@ test('admin provider surface is present while browser code never receives key, s
   assert.match(client, /sync\.selected/);
   assert.match(client, /sync\.failed/);
   assert.doesNotMatch(page + client, /KSP_OPENAI_API_KEY|OPENAI_VECTOR_STORE_ID|OPENAI_DEFAULT_MODEL|gpt-5\.6-terra/);
+});
+
+test('administrator migrates the accepted OpenAI default into a persisted qualified model policy', () => {
+  const env = makeAdminEnvironment({
+    enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
+  });
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' }));
+  assert.equal(result.ok, true);
+  assert.equal(result.workId, '0025');
+  assert.equal(result.modelPolicy.schemaVersion, 1);
+  assert.equal(result.modelPolicy.profiles.length, 1);
+  assert.equal(result.modelPolicy.profiles[0].modelId, 'gpt-5.6-terra');
+  assert.equal(result.modelPolicy.profiles[0].qualification, 'QUALIFIED');
+  assert.equal(result.modelPolicy.profiles[0].defaultThinkingProfileId, 'provider-default');
+  assert.equal(result.modelPolicy.profiles[0].thinkingProfiles[0].qualification, 'QUALIFIED');
+  const write = env._debug.writes.find((item) => item.key === 'AI_MODEL_POLICY_JSON');
+  assert.ok(write);
+  assert.doesNotMatch(write.value, /vs-synthetic-existing|API_KEY|secret/i);
+});
+
+test('administrator can retain a historical model without auto-qualifying it or changing the current default', () => {
+  const env = makeAdminEnvironment({
+    enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
+  });
+  assert.equal(ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' }).ok, true);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'SAVE_MODEL_PROFILE',
+    profile: {
+      profileId: 'openai-historical', provider: 'OPENAI', modelId: 'gpt-5.4',
+      displayName: 'Historical', family: 'GPT-5.4', enabled: true, userVisible: true,
+      isProviderDefault: false,
+      thinkingProfiles: [{ thinkingProfileId: 'medium', label: 'Medium', rawValue: 'medium', enabled: true }],
+      defaultThinkingProfileId: 'medium', maxOutputTokens: 1024
+    }
+  }));
+  assert.equal(result.ok, true);
+  const historical = result.modelPolicy.profiles.find((item) => item.profileId === 'openai-historical');
+  assert.equal(historical.apiAccess, 'UNKNOWN');
+  assert.equal(historical.qualification, 'UNQUALIFIED');
+  assert.equal(historical.thinkingProfiles[0].qualification, 'UNQUALIFIED');
+  assert.equal(historical.fileSearch, false);
+  assert.equal(result.modelPolicy.profiles.find((item) => item.isProviderDefault).modelId, 'gpt-5.6-terra');
+  assert.equal(env._debug.connectionQueries.length, 0);
+});
+
+test('bounded model qualification uses the existing OpenAI store and persists safe capability status', () => {
+  const env = makeAdminEnvironment({
+    enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
+  });
+  const migrated = ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' });
+  const profileId = migrated.modelPolicy.profiles[0].profileId;
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId
+  }));
+  assert.equal(result.ok, true);
+  assert.equal(result.qualification.status, 'PASS');
+  assert.equal(env._debug.connectionUploads.length, 1);
+  assert.equal(env._debug.connectionQueries.length, 1);
+  assert.equal(env._debug.connectionQueries[0].request.thinkingProviderDefault, true);
+  assert.equal(env._debug.connectionQueries[0].request.thinkingRawValue, null);
+  assert.equal(Object.hasOwn(env._debug.connectionQueries[0].request, 'maxOutputTokens'), false);
+  assert.deepEqual(env._debug.connectionQueries[0].request.filters, {
+    type: 'eq', key: 'source_id', value: 'KSP-OPENAI-CONNECTION-TEST'
+  });
+  assert.equal(env._debug.connectionDeletes.length, 1);
+  const qualified = result.modelPolicy.profiles.find((item) => item.profileId === profileId);
+  assert.equal(qualified.apiAccess, 'AVAILABLE');
+  assert.equal(qualified.qualification, 'QUALIFIED');
+  assert.equal(qualified.thinkingProfiles[0].qualification, 'QUALIFIED');
+  assert.equal(qualified.fileSearch, true);
+  assert.doesNotMatch(JSON.stringify(result), /vs-synthetic-existing|openai-connection-file/);
+});
+
+test('qualification sends each exact thinking tuple and output ceiling through one synthetic source', () => {
+  const env = makeAdminEnvironment({
+    enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
+  });
+  ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' });
+  const saved = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'SAVE_MODEL_PROFILE', profile: {
+      profileId: 'openai-historical', provider: 'OPENAI', modelId: 'gpt-5.4',
+      displayName: 'Historical', family: 'GPT-5.4', enabled: true, userVisible: true,
+      isProviderDefault: false,
+      thinkingProfiles: [{ thinkingProfileId: 'medium', label: 'Medium', rawValue: 'medium', enabled: true }],
+      defaultThinkingProfileId: 'medium', maxOutputTokens: 1024
+    }
+  }));
+  assert.equal(saved.ok, true);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId: 'openai-historical'
+  }));
+  assert.equal(result.ok, true);
+  assert.equal(result.qualification.status, 'PASS');
+  assert.equal(env._debug.connectionUploads.length, 1);
+  assert.equal(env._debug.connectionQueries.length, 1);
+  assert.equal(env._debug.connectionDeletes.length, 1);
+  const request = env._debug.connectionQueries[0].request;
+  assert.equal(request.model, 'gpt-5.4');
+  assert.equal(request.thinkingProviderDefault, false);
+  assert.equal(request.thinkingRawValue, 'medium');
+  assert.equal(request.maxOutputTokens, 1024);
+  assert.deepEqual(request.include, ['file_search_call.results']);
+  const qualified = result.modelPolicy.profiles.find((item) => item.profileId === 'openai-historical');
+  assert.equal(qualified.thinkingProfiles[0].qualification, 'QUALIFIED');
+});
+
+test('partial thinking qualification keeps passing tuples and rejects the failed tuple server-side', () => {
+  const env = makeAdminEnvironment({
+    enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE',
+    connectionQueryErrorRawValue: 'high'
+  });
+  ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' });
+  const current = plain(ksp.kspGetAiProviderAdminData_(env)).modelPolicy.profiles[0];
+  const saved = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'SAVE_MODEL_PROFILE', profile: {
+      ...current,
+      thinkingProfiles: [
+        { thinkingProfileId: 'provider-default', label: 'Provider default', rawValue: null, providerDefault: true, enabled: true },
+        { thinkingProfileId: 'high', label: 'High', rawValue: 'high', providerDefault: false, enabled: true }
+      ],
+      defaultThinkingProfileId: 'provider-default'
+    }
+  }));
+  assert.equal(saved.ok, true);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId: current.profileId
+  }));
+  assert.equal(result.ok, true);
+  assert.equal(result.qualification.status, 'PARTIAL');
+  assert.equal(env._debug.connectionUploads.length, 1);
+  assert.equal(env._debug.connectionQueries.length, 2);
+  assert.equal(env._debug.connectionDeletes.length, 1);
+  const qualified = result.modelPolicy.profiles.find((item) => item.profileId === current.profileId);
+  assert.equal(qualified.qualification, 'QUALIFIED');
+  assert.equal(qualified.thinkingProfiles.find((item) => item.thinkingProfileId === 'provider-default').qualification, 'QUALIFIED');
+  assert.equal(qualified.thinkingProfiles.find((item) => item.thinkingProfileId === 'high').qualification, 'FAILED');
+  const settings = ksp.kspNormalizeAiSettings_(env._debug.context.settings);
+  const config = { provider: 'OPENAI', enabled: true, credentialConfigured: true,
+    vectorStoreId: 'vs-synthetic-existing', modelId: 'gpt-5.6-terra' };
+  const choices = plain(ksp.kspGetEffectiveAiModelChoices_(settings, 'OPENAI', config, ''));
+  assert.deepEqual(choices.profiles[0].thinkingProfiles.map((item) => item.thinkingProfileId), ['provider-default']);
+  assert.throws(() => ksp.kspResolveAiModelSelection_(settings, 'OPENAI', {
+    modelProfileId: current.profileId, thinkingProfileId: 'high'
+  }, config, ''), (error) => error.code === 'AI_THINKING_PROFILE_UNQUALIFIED');
 });

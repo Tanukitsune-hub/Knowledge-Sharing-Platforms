@@ -40,8 +40,8 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 | Delivery order | Work ID | Outcome | Status | Dependency | Next action |
 |---:|---|---|---|---|---|
 | 0 | 0020 | AI provider core, OpenAI File Search, citations, lifecycle, full output | ACCEPTED | — | Preserve version-58/runtime evidence; do not reopen absent contradictory evidence |
-| 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACTIVE | 0020 | Implement the shortest coherent registry/admin/user/resolver vertical slice |
-| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | READY | 0025 | Execute through bounded dispatches on the completed model-policy request contract |
+| 1 | 0025 | Administrator-governed model and thinking/reasoning selection | COMPLETE | 0020 | Preserve version-60 exact tuple qualification/runtime evidence; route non-blocking refinements separately |
+| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | READY | 0025 complete | Execute through bounded dispatches on the completed model-policy request contract |
 | 3 | 0023 | Generated single-file bundle and idempotent installer | READY | 0021 feature surface stable | Build and fresh-install-qualify the distribution path |
 | 4 | Unassigned future Work | Gemini provider recovery against the completed OpenAI reference path | DEFERRED | 0021/0023 substantially complete; current Gemini APIs rechecked | Allocate the next unused Work ID when the recovery campaign starts |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with general provider recovery unless the outcome is genuinely the same |

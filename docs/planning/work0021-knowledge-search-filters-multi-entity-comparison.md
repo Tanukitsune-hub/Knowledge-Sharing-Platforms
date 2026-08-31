@@ -2,7 +2,7 @@
 
 WORK_ID: `0021`
 
-Status: Planned after Work 0020
+Status: READY after completed Work 0025
 
 Mode: `BUILD / QUALIFICATION`
 
@@ -49,6 +49,8 @@ Work 0020 must first prove:
 
 Do not reopen provider architecture or implement filters against an assumed API shape.
 
+Work 0025 must also complete the administrator-governed model/thinking registry, normal-user selectors, and server-side effective-policy resolver. Work 0021 extends that request contract for filters, modes, comparison, and format coverage; it must not add a competing selector or bypass the Work 0025 resolver.
+
 ## 1. Unified UI and route behavior
 
 Knowledge Search keeps one conditions/mode form and one explicit generation selector:
@@ -63,7 +65,7 @@ ChatGPT | Gemini | 全文出力
 - show answer and normalized citations;
 - do not send data to the other provider;
 - show a safe provider-specific error if disabled/unavailable;
-- do not expose model names as normal-user choices.
+- preserve the Work 0025 administrator-governed model/thinking selectors and resolve every choice through its server-side effective-policy contract.
 
 ### 全文出力
 
@@ -266,7 +268,7 @@ provider route
 mode
 structured filter IDs
 selected Entity stable keys
-configured model alias
+effective model profile ID and thinking profile ID
 result
 cited stable source IDs
 safe error/limitation code
@@ -346,7 +348,7 @@ No company confidential data, production users/Stores, recurring triggers, publi
 
 - static GP comparison screen;
 - automatic provider routing/failover;
-- user-facing model selector/Deep mode;
+- a competing model/thinking selector, raw model-ID path, or bypass of the Work 0025 effective-policy resolver;
 - full-context API route replacing File Search;
 - autonomous investment recommendations;
 - public-web enrichment in the same request;

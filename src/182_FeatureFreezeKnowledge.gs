@@ -68,7 +68,9 @@ function kspNormalizeFeatureFreezeSearchInput_(input) {
     gpId: kspAiTrim_(source.gpId),
     assetClassId: kspAiTrim_(source.assetClassId),
     capitalTypeId: kspAiTrim_(source.capitalTypeId),
-    sourceType: kspAiTrim_(source.sourceType)
+    sourceType: kspAiTrim_(source.sourceType),
+    modelProfileId: kspAiTrim_(source.modelProfileId).toLowerCase(),
+    thinkingProfileId: kspAiTrim_(source.thinkingProfileId).toLowerCase()
   };
 }
 

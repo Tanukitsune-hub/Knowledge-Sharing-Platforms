@@ -1,55 +1,59 @@
 # Work 0025 dispatch control
 
 WORK_ID: `0025`
-ACTIVE_DISPATCH_ID: `0025-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `NONE`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
-## Active dispatch
+## Returned dispatches
 
-### 0025-CODEX-01 — READY / MODEL POLICY FOUNDATION
+### 0025-CODEX-02 — RETURNED / EXACT THINKING QUALIFICATION PASS
 
-Primary outcome:
+Completed evidence:
 
-- implement the shortest coherent administrator-governed model/thinking policy vertical slice;
-- preserve the accepted Work 0020 OpenAI File Search behavior and version-58 runtime evidence;
-- add normal-user model/thinking selectors backed by server-side policy enforcement;
-- support historical models and model-specific thinking profiles without automatic latest-model activation;
-- reconcile Work 0021 planning to consume the Work 0025 effective-policy resolver;
-- stop after the major vertical slice passes; route non-blocking refinements to FIX SOON/BACKLOG.
+- per-thinking `QUALIFIED / UNQUALIFIED / FAILED` state;
+- exact model + thinking omission/raw value + output ceiling + File Search qualification;
+- individually qualified normal-user choices and server-side enforcement;
+- one synthetic source per administrator qualification action with bounded tuple queries and cleanup;
+- compact per-thinking administrator status;
+- focused 101/101 and canonical 345/345 PASS;
+- exact 79/79 source readback;
+- same private Web App version 60;
+- current `gpt-5.6-terra` + provider-default live qualification PASS;
+- designated DOC-000017 and MTG-000005 grounded query/citation PASS;
+- no Gemini, sync, lifecycle, FULL_OUTPUT runtime or large-fixture mutation.
 
-Authoritative instruction:
+Report:
 
-`docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-instruction.md`
+`docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-report.md`
 
-Planning source of truth:
+### 0025-CODEX-01 — RETURNED / MODEL POLICY VERTICAL SLICE
 
-`docs/planning/work-registry.md`
+Accepted evidence remains preserved: Settings-backed model policy, administrator controls, normal-user selectors, raw-value rejection, current default migration, historical model registration, OpenAI citation regression and version-59 baseline.
 
-Runtime locator:
+CODEX-02 supersedes only CODEX-01's model-only qualification scope.
 
-`docs/operations/runtime-artifact-locator.md`
+Report:
 
-## Safety / scope boundary
+`docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`
 
-- no Gemini live call;
-- no broad Meeting/Pitchbook sync;
-- no old 5–25 MiB fixture retry/mutation;
-- no confidential/company source data;
-- no automatic provider failover;
-- no automatic newest-model activation;
-- no Work 0021 or Work 0023 implementation;
-- no exhaustive model benchmark campaign;
-- no new Web App or provider Store merely for this Work;
-- no rebase, force-push, history rewrite, or PR merge.
+## Final classification
 
-## Completion discipline
-
-Extend Work 0025 only for a material blocker to the same outcome: policy/authorization bypass, credential/confidential-data exposure, data/provider-state corruption, authoritative source/citation regression, normal admin/user flow failure, material provider side effect, or required deterministic/target-runtime qualification failure.
-
-Cosmetic UX, exhaustive model coverage, optional user-preference persistence, and non-blocking observability/hardening go to FIX SOON/BACKLOG.
+```text
+MODEL_POLICY_REGISTRY: PASS
+ADMIN_MODEL/THINKING_CONTROL: PASS
+USER_MODEL/THINKING_SELECTOR: PASS
+RAW_MODEL/THINKING_BYPASS: BLOCKED
+CURRENT_DEFAULT_OPENAI_PATH: PASS
+THINKING_PROFILE_QUALIFICATION: PASS
+TARGET_RUNTIME: same private Web App version 60
+PR_32: Draft / Open / unmerged
+GITHUB_CI_ACTUALLY_RAN: NO
+READY_FOR_CHATGPT_FINAL_MERGE: YES
+BLOCKER: NONE
+```
 
 WORK_ID: `0025`
-ACTIVE_DISPATCH_ID: `0025-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `NONE`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

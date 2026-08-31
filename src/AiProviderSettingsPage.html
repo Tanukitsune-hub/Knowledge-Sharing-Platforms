@@ -30,5 +30,41 @@
       </div>
       <p id="ai-provider-openai-readonly" class="hint ai-provider-readonly"></p>
     </section>
+    <section class="card ai-provider-card" aria-labelledby="ai-model-policy-heading">
+      <h3 id="ai-model-policy-heading">モデル / Thinking ポリシー</h3>
+      <p class="hint">利用者に表示する組み合わせだけを登録します。プロバイダが返す新しいモデルは自動で有効化されません。</p>
+      <div class="field full">
+        <label for="ai-model-profile-select">登録済みプロファイル</label>
+        <select id="ai-model-profile-select" disabled><option value="">新規作成</option></select>
+      </div>
+      <div class="filter-grid">
+        <div class="field"><label for="ai-model-profile-id">Profile ID</label><input id="ai-model-profile-id" type="text" autocomplete="off" placeholder="openai-approved-model" disabled></div>
+        <div class="field"><label for="ai-model-provider">Provider</label><select id="ai-model-provider" disabled><option value="OPENAI">OpenAI</option><option value="GEMINI">Gemini</option></select></div>
+        <div class="field"><label for="ai-model-id">Exact Model ID</label><input id="ai-model-id" type="text" autocomplete="off" disabled></div>
+        <div class="field"><label for="ai-model-display-name">表示名</label><input id="ai-model-display-name" type="text" autocomplete="off" disabled></div>
+        <div class="field"><label for="ai-model-family">Family</label><input id="ai-model-family" type="text" autocomplete="off" disabled></div>
+        <div class="field"><label for="ai-model-max-output">Output上限（任意）</label><input id="ai-model-max-output" type="number" min="1" max="65536" disabled></div>
+      </div>
+      <div class="field full">
+        <label for="ai-model-thinking-profiles">Thinking profiles（1行: ID | 表示名 | provider value。value空欄はプロバイダ標準）</label>
+        <textarea id="ai-model-thinking-profiles" placeholder="provider-default | プロバイダ標準 |&#10;low | Low | low" disabled></textarea>
+      </div>
+      <div class="filter-grid">
+        <div class="field"><label for="ai-model-default-thinking">既定Thinking Profile ID</label><input id="ai-model-default-thinking" type="text" autocomplete="off" disabled></div>
+        <label class="field"><span>状態</span><span><input id="ai-model-enabled" type="checkbox" disabled> 有効</span></label>
+        <label class="field"><span>利用者表示</span><span><input id="ai-model-user-visible" type="checkbox" disabled> 表示</span></label>
+        <label class="field"><span>Provider既定</span><span><input id="ai-model-provider-default" type="checkbox" disabled> 既定</span></label>
+      </div>
+      <dl class="ai-provider-state">
+        <dt>API access</dt><dd id="ai-model-access-state">未確認</dd>
+        <dt>File Search qualification</dt><dd id="ai-model-qualification-state">未確認</dd>
+        <dt>Thinking qualification</dt><dd id="ai-model-thinking-qualification-state">未確認</dd>
+      </dl>
+      <div class="actions"><div class="action-group">
+        <button id="ai-model-policy-migrate" class="action secondary" type="button" disabled>現行設定から初期化</button>
+        <button id="ai-model-profile-save" class="action primary" type="button" disabled>プロファイルを保存</button>
+        <button id="ai-model-profile-qualify" class="action secondary" type="button" disabled>接続・File Search確認</button>
+      </div></div>
+    </section>
   </div>
 </section>

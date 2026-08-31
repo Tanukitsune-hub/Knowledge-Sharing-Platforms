@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-08-31 JST
-LAST_VERIFIED_BY: CODEX-21 exact source readback + bounded OpenAI native qualification + ChatGPT final GitHub merge verification
+LAST_VERIFIED_BY: CODEX-02 exact source readback + exact thinking-tuple/OpenAI qualification
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -9,8 +9,8 @@ STATUS: ACTIVE / VERIFIED
 - SOURCE_REPOSITORY: `Tanukitsune-hub/Knowledge-Sharing-Platforms`
 - DEFAULT_BRANCH: `main`
 - WORK_0020_MERGE_COMMIT: `185fd197cd531bf74e77af33b32e82706bebe0b5`
-- DEPLOYED_SOURCE_COMMIT: `f1e1841a77af325f9ec8fb3b756c55f507f4b0c1`
-- DEPLOYED_SOURCE_DESCRIPTION: CODEX-21 retry/replacement/orphan-cleanup hardening, exact tested source
+- DEPLOYED_SOURCE_COMMIT: `2fee55970aa0542197c3a97d64b67aeaa50df714`
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0025 CODEX-02 exact per-thinking qualification gate, exact tested source
 - SOURCE_BRANCH_USED_FOR_WORK_0020: `agent/0020-ai-provider-core`
 - WORK_0020_STATUS: `ACCEPTED / MERGED`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB` — keep machine-specific absolute paths local unless explicitly safe and useful
@@ -23,12 +23,12 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `58`
+- DEPLOYMENT_VERSION: `60`
 - ENVIRONMENT: personal DEV / qualification
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
 
-Version 58 is the current verified private-Web-App baseline for the accepted Work 0020 OpenAI path. The GitHub merge itself did not create another Apps Script version or deployment.
+Version 60 is the current verified private-Web-App baseline. It preserves the accepted Work 0020 OpenAI path and Work 0025 CODEX-01 policy slice, and adds exact per-thinking qualification.
 
 ## Data and control artifacts
 
@@ -80,10 +80,26 @@ Version 58 is the current verified private-Web-App baseline for the accepted Wor
 - LARGE_FIXTURE_STATE: old 5–25 MiB size-matrix Pitchbooks include `OPENAI_INDEX_TIMEOUT`; separate follow-up only, not a Work 0020 blocker
 - GITHUB_DELIVERY_STATE: PR #26 merged to `main`; zero unresolved review threads at merge
 
+## Work 0025 runtime state
+
+- ACTIVE_WORK_ID: `NONE — Work 0025 complete / Draft PR #32 open for final review`
+- WEB_APP_VERSION: `60`
+- MODEL_POLICY_STATE: persisted Settings-backed registry with per-thinking qualification; one current qualified default and one hidden/disabled unqualified synthetic profile
+- CURRENT_OPENAI_PROFILE: `openai-current-default` / `gpt-5.6-terra` / provider-default thinking
+- CURRENT_PROFILE_QUALIFICATION: exact `gpt-5.6-terra` + provider-default omission + File Search tuple qualified
+- USER_SELECTOR_STATE: exactly one effective OpenAI model and one provider-default thinking choice; hidden synthetic profile excluded
+- OPENAI_CONNECTION_STATE: key configured, Vector Store ready, readiness ACTIVE
+- EXACT_SYNC_STATE: accepted CODEX-01 evidence preserved; CODEX-02 performed no source sync
+- PITCHBOOK_QUERY_STATE: one bounded query returned expected synthetic facts and an authoritative normalized `Pitchbook / DOC-000017` source; older synthetic citations were read only
+- MEETING_QUERY_STATE: one bounded query returned expected synthetic facts and an authoritative normalized `Meeting / MTG-000005` source
+- FULL_OUTPUT_STATE: accepted Work 0020 runtime evidence preserved; Work 0025 verified AI controls hidden and did not run FULL_OUTPUT
+- FINAL_ROW_STATE: one Active `DOC-000017`, one Active `DOC-000018`, one Active `MTG-000005`
+- SIDE_EFFECT_BOUNDARY: no Gemini call, source sync/lifecycle, large-fixture retry/mutation, confidential data, new Store/Web App/Library or provider fallback
+
 ## Follow-up routing
 
-- Next large product slice: Work 0021 structured Knowledge Search / filters / comparison.
-- Model/thinking control implementation: Work 0025 after the broader search flow is in place.
+- Next large product slice: Work 0021 structured Knowledge Search / filters / comparison, consuming the completed Work 0025 effective-policy resolver.
+- Model/thinking control implementation: Work 0025 complete; preserve version-60 evidence and route optional discovery/user-preference refinements separately.
 - Distribution/install: Work 0023 after intended feature surface stabilization.
 - Gemini: re-evaluate near product completion against current APIs/runtime rather than continuing the historical troubleshooting loop now.
 - Large OpenAI files: create a separate bounded Work only if representative operating files require asynchronous indexing/progress handling.

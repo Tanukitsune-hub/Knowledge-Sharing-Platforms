@@ -40,6 +40,7 @@ var KSP_AI_SETTINGS = Object.freeze({
   OPENAI_VECTOR_STORE_ID: 'OPENAI_VECTOR_STORE_ID',
   OPENAI_MODEL_ID: 'OPENAI_DEFAULT_MODEL',
   OPENAI_READINESS: 'OPENAI_READINESS',
+  MODEL_POLICY_JSON: 'AI_MODEL_POLICY_JSON',
   GEMINI_ENABLED: 'GEMINI_ENABLED',
   GEMINI_MODEL_ID: 'GEMINI_DEFAULT_MODEL'
 });
@@ -53,6 +54,9 @@ var KSP_AI_DEFAULTS = Object.freeze({
   STORE_DISPLAY_NAME: 'Private Assets Knowledge',
   OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
   OPENAI_STORE_DISPLAY_NAME: 'Private Assets Knowledge - OpenAI',
+  MODEL_POLICY_SCHEMA_VERSION: 1,
+  OPENAI_DEFAULT_PROFILE_ID: 'openai-current-default',
+  PROVIDER_DEFAULT_THINKING_PROFILE_ID: 'provider-default',
   MAX_QUESTION_LENGTH: 5000,
   MAX_OPERATION_POLLS: 8,
   OPERATION_POLL_MILLIS: 1500,
@@ -137,6 +141,9 @@ function kspNormalizeAiSettings_(settings) {
     openaiReadiness: kspAiTrim_(
       source[KSP_AI_SETTINGS.OPENAI_READINESS] || source.openaiReadiness
     ),
+    modelPolicyJson: kspAiTrim_(
+      source[KSP_AI_SETTINGS.MODEL_POLICY_JSON] || source.modelPolicyJson
+    ),
     syncEnabled: kspToBoolean_(
       source[KSP_AI_SETTINGS.SYNC_ENABLED] !== undefined ? source[KSP_AI_SETTINGS.SYNC_ENABLED] : source.syncEnabled,
       false
@@ -188,6 +195,7 @@ function kspGetAiSettingSeedRows_(nowIso) {
     { Key: KSP_AI_SETTINGS.OPENAI_VECTOR_STORE_ID, Value: '', Description: 'Configured OpenAI Vector Store identifier.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.OPENAI_MODEL_ID, Value: '', Description: 'Configured OpenAI model identifier.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.OPENAI_READINESS, Value: 'UNCONFIGURED', Description: 'OpenAI connection readiness; real-source sync is separate from synthetic connection validation.', Updated_At: nowIso },
+    { Key: KSP_AI_SETTINGS.MODEL_POLICY_JSON, Value: '', Description: 'Administrator-governed AI model and thinking policy registry.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.GEMINI_ENABLED, Value: 'false', Description: 'Whether the administrator has enabled the Gemini provider.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.GEMINI_MODEL_ID, Value: '', Description: 'Configured Gemini model identifier.', Updated_At: nowIso }
   ];
