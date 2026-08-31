@@ -1,81 +1,80 @@
 # Work 0021 dispatch control
 
 WORK_ID: `0021`
-ACTIVE_DISPATCH_ID: `0021-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0021-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
 
 ## Active dispatch
 
-### 0021-CODEX-01 — RETURNED / TARGET-RUNTIME BLOCKER
+### 0021-CODEX-02 — READY / OPENAI FILTER METADATA RECONCILIATION
 
-Primary outcome:
+Purpose:
 
-- implement one canonical core filter contract shared by OpenAI and FULL_OUTPUT;
-- extend the existing single Knowledge Search conditions/mode UI;
-- qualify all five mode contracts on bounded scope;
-- preserve Work 0025 administrator-governed model/thinking resolution;
-- preserve Work 0020 grounded citations and FULL_OUTPUT source boundary;
-- use OpenAI + FULL_OUTPUT only; keep Gemini disabled/deferred with safe no-failover behavior;
-- stop after the major core slice passes and route multi-Entity/advanced filters/formats to later Work 0021 dispatches.
+- reconcile authoritative `DOC-000017` row metadata against the exact current OpenAI vector-store file attributes before mutation;
+- verify the suspected Date range attribute-type issue rather than weakening compound filters;
+- repair metadata-only reconciliation so provider attributes can stay current even when source content hash is unchanged;
+- requalify the decisive compound-filter query and, only after PASS, complete the bounded remaining five-mode/FULL_OUTPUT runtime gates;
+- preserve accepted Work 0020/0025 behavior and the CODEX-01 deterministic implementation.
 
 Instruction:
 
-`docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-instruction.md`
+`docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-instruction.md`
 
-Planning source of truth:
-
-`docs/planning/work-registry.md`
-
-Runtime locator:
-
-`docs/operations/runtime-artifact-locator.md`
-
-## Accepted dependencies
+Current runtime baseline:
 
 ```text
-WORK_0020: ACCEPTED / MERGED
-WORK_0025: ACCEPTED / MERGED
-CURRENT_PRIVATE_WEB_APP_VERSION: 60
-CURRENT_OPENAI_TUPLE: openai-current-default / gpt-5.6-terra / provider-default
+PRIVATE_WEB_APP_VERSION: 61
+CODEX_01_LOGIC_VALIDATION: PASS — 355/355
+CODEX_01_READBACK: PASS — 80/80
+OPENAI_COMPOUND_FILTER_RUNTIME: BLOCKED — zero retrieved authoritative source
 GEMINI: DISABLED / DEFERRED
 ```
 
-## Dispatch boundaries
+ChatGPT read-only reconciliation already confirmed the authoritative `DOC-000017` row matches the failed UI scope for GP, Asset Class, Capital Type, Fund/Strategy, Source Type and canonical Business Date. The OpenAI indexed timestamp is later than the row update timestamp. Provider attributes and their value types remain to be read directly.
 
-Deferred to `0021-CODEX-02`:
+## Returned dispatches
 
-- explicit 2–5 Entity comparison;
-- per-Entity citation attribution;
-- advanced exact Related GP / Meeting Type filters and any associated metadata strategy.
+### 0021-CODEX-01 — RETURNED / CORE IMPLEMENTED, TARGET-RUNTIME BLOCKER
 
-Deferred to `0021-CODEX-03`:
+- canonical core filters and all five modes implemented;
+- OpenAI/FULL_OUTPUT share one normalized filter/mode contract;
+- focused `32/32` and canonical `355/355` PASS;
+- exact Apps Script readback `80/80` PASS;
+- same private Web App updated once to version `61`;
+- first compound-filter query returned safe insufficient evidence and zero citations;
+- STOP applied before any second query, FULL_OUTPUT runtime gate, Gemini observation, sync, or second deployment.
 
-- six-format matrix;
-- provider-parity evidence beyond currently enabled OpenAI;
-- Gemini recovery/live qualification.
+Report:
 
-No broad sync, large-fixture retry/mutation, Work 0023 implementation, historical migration, company rollout, new Vector Store/Web App/Library/public endpoint, rebase, force-push, or PR merge is authorized.
+`docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`
 
-## CODEX-01 result
+## Remaining Work 0021 dispatch order
 
-- canonical core filters and all five modes: implemented;
-- focused tests: `32/32` PASS;
-- canonical repository checks: `355/355` PASS;
-- exact Apps Script readback: `80/80` PASS;
-- same private Web App: updated once to version `61`;
-- first OpenAI compound-filter qualification: safe insufficient-evidence result with zero citations;
-- STOP applied before any second query, FULL_OUTPUT runtime, Gemini attempt, source sync, or second deployment;
-- blocker: `OPENAI_COMPOUND_FILTER_EXISTING_INDEX_METADATA_MISMATCH_OR_EMPTY_RETRIEVAL`;
-- report: `docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`.
+```text
+0021-CODEX-02
+  provider-attribute/date-range reconciliation + core runtime completion
 
-## Completion discipline
+0021-CODEX-03
+  2–5 Entity comparison + advanced exact filters/citation attribution
 
-Extend this dispatch only for a material blocker to the core shared filters/modes, authoritative citations, Work 0025 policy enforcement, FULL_OUTPUT API independence/source boundary, data integrity, or required deterministic/native qualification.
+0021-CODEX-04
+  bounded six-format matrix + explicit provider capability/parity evidence
+```
 
-Cosmetic UX, broad benchmarking, exhaustive edge cases and deferred features go to later dispatches or backlog.
+Gemini live recovery remains deferred to a separate near-completion Work.
+
+## Safety / scope boundary
+
+- no Gemini API call;
+- no broad source sync;
+- no `DOC-000018` or large-fixture mutation;
+- no confidential data;
+- no new Vector Store/Web App/Library/public endpoint;
+- no 2–5 Entity comparison, advanced Related GP/Meeting Type work, format campaign, Work 0023, historical migration, or company rollout;
+- no rebase, force-push, history rewrite, or PR merge.
 
 WORK_ID: `0021`
-ACTIVE_DISPATCH_ID: `0021-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0021-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
