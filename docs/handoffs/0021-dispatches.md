@@ -2,12 +2,12 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CODEX`
+STATUS: `READY`
 
 ## Active dispatch
 
-### 0021-CODEX-04 — ACTION REQUIRED / LOCAL FILE UPLOAD BRIDGE DIAGNOSIS
+### 0021-CODEX-04 — READY / LOCAL FILE UPLOAD BRIDGE DIAGNOSIS THEN SIX-FORMAT QUALIFICATION
 
 Primary outcome remains unchanged:
 
@@ -25,19 +25,15 @@ Browser diagnostic note:
 
 `docs/handoffs/0021-CODEX-04-browser-upload-diagnostic-note.md`
 
-## Current pause state
+## Resume state
 
-Codex stopped before runtime registration/provider mutation because its browser-assisted local-file upload path reported that Chrome extension file-URL access was unavailable.
+Codex previously stopped before runtime registration/provider mutation because its browser-assisted local-file upload path reported that Chrome extension file-URL access was unavailable.
 
 The user subsequently confirmed that **Allow access to file URLs / ファイルのURLへのアクセスを許可する is already ON** in the ChatGPT/Codex Chrome extension settings.
 
-Therefore the earlier blocker label `CHROME_EXTENSION_FILE_UPLOAD_PERMISSION` is not proven. The current blocker is:
+No further user action is currently known. Therefore the ball returns to CODEX for diagnosis.
 
-```text
-BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
-```
-
-Current safe state:
+The earlier blocker label `CHROME_EXTENSION_FILE_UPLOAD_PERMISSION` is not proven. Current diagnostic state:
 
 ```text
 LOCAL_LOGIC_VALIDATION: PASS — 371/371
@@ -47,6 +43,7 @@ RUNTIME_MUTATION: NONE
 PROVIDER_MUTATION: NONE
 NEW_FORMAT_FIXTURES_REGISTERED: 0
 PR_34: Draft / Open / unmerged
+DIAGNOSTIC: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
 ```
 
 Resume the SAME `0021-CODEX-04` dispatch. Do not create CODEX-05.
@@ -77,5 +74,5 @@ Do not call Gemini, retry/mutate old large fixtures, run broad sync, implement W
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CODEX`
+STATUS: `READY`
