@@ -3,7 +3,8 @@ function kspEscapeMetadataFilterString_(value) {
 }
 
 function kspBuildMetadataFilter_(filters) {
-  var input = filters || {};
+  var input = typeof kspKnowledgeRequestFilters_ === 'function'
+    ? kspKnowledgeRequestFilters_(filters) : (filters || {});
   var clauses = [];
   function addComparison(key, operator, value) {
     var normalized = kspAiTrim_(value);
@@ -11,9 +12,15 @@ function kspBuildMetadataFilter_(filters) {
   }
   addComparison('date_key', '>=', input.dateFrom);
   addComparison('date_key', '<=', input.dateTo);
+  addComparison('counterparty_type', '=', input.counterpartyType);
+  addComparison('entity_key', '=', input.entityKey);
   addComparison('gp_id', '=', input.gpId);
   addComparison('asset_class_id', '=', input.assetClassId);
   addComparison('capital_type_id', '=', input.capitalTypeId);
+  addComparison('team_id', '=', input.teamId);
+  addComparison('fund_strategy', '=', input.fundStrategy);
+  addComparison('follow_up_required', '=', input.followUp === 'REQUIRED' ? 'true' :
+    (input.followUp === 'NOT_REQUIRED' ? 'false' : ''));
   addComparison('source_type', '=', input.sourceType);
   return clauses.join(' AND ');
 }

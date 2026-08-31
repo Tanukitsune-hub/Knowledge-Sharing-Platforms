@@ -49,6 +49,7 @@ function kspBuildKnowledgeExportIndexPreview_(input, sources, catalog) {
     workId: KSP_KNOWLEDGE_EXPORT_WORK_ID,
     filters: kspKnowledgeExportPublicFilters_(input),
     mode: input.mode,
+    scopeSummary: kspKnowledgeScopeSummary_(input),
     meetingCount: counts.meetingCount,
     meetingCharacterCount: null,
     characterCountDeferred: true,
@@ -172,6 +173,7 @@ function kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials,
     workId: KSP_KNOWLEDGE_EXPORT_WORK_ID,
     filters: kspKnowledgeExportPublicFilters_(input),
     mode: input.mode,
+    scopeSummary: kspKnowledgeScopeSummary_(input),
     meetingCount: counts.meetingCount,
     meetingCharacterCount: counts.meetingCharacterCount,
     pitchbookCount: counts.pitchbookCount,
@@ -219,8 +221,9 @@ function kspRunKnowledgeExportPreview_(environment, rawInput) {
       '少し待ってから再試行してください。');
     context = environment.loadKnowledgeExportContext();
     auditSpreadsheetId = context.auditSpreadsheetId || '';
-    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows);
-    input = kspValidateKnowledgeExportFilters_(input, catalog);
+    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+      context.meetingRows, context.pitchbookRows);
+    input = kspValidateKnowledgeExportPromptInput_(input, catalog);
     sources = kspResolveKnowledgeExportSources_(context.meetingRows, context.pitchbookRows, input);
     var indexCounts = kspKnowledgeExportIndexCounts_(sources);
     var indexLimits = kspBuildKnowledgeExportLimitState_(indexCounts.meetingCount, 0, indexCounts.pitchbookCount);
@@ -277,8 +280,9 @@ function kspRunKnowledgeExportCreation_(environment, rawInput) {
   try {
     context = environment.loadKnowledgeExportContext();
     auditSpreadsheetId = context.auditSpreadsheetId || '';
-    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows);
-    input = kspValidateKnowledgeExportFilters_(input, catalog);
+    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+      context.meetingRows, context.pitchbookRows);
+    input = kspValidateKnowledgeExportPromptInput_(input, catalog);
     input.outputType = kspValidateKnowledgeExportOutputType_(input.outputType);
     kspAssert_(input.previewFingerprint, 'KNOWLEDGE_EXPORT_PREVIEW_REQUIRED', '先に対象資料を確認してください。');
     idempotencyKey = kspBuildPublicOperationCacheKey_('KNOWLEDGE_EXPORT_CREATE', actor,
@@ -398,7 +402,8 @@ function kspRunKnowledgeExportCreation_(environment, rawInput) {
 function kspGetKnowledgeExportPrompt_(environment, rawInput) {
   try {
     var context = environment.loadKnowledgeExportContext();
-    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows);
+    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+      context.meetingRows, context.pitchbookRows);
     var input = kspValidateKnowledgeExportPromptInput_(
       kspNormalizeKnowledgeExportInput_(rawInput),
       catalog
@@ -425,7 +430,8 @@ function kspRecordKnowledgeExportPromptCopy_(environment, rawInput) {
     context = environment.loadKnowledgeExportContext();
     auditSpreadsheetId = context.auditSpreadsheetId || '';
     input = kspValidateKnowledgeExportCopyInput_(input,
-      kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows));
+      kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+        context.meetingRows, context.pitchbookRows));
     kspTryAppendKnowledgeExportAudit_(environment, auditSpreadsheetId, kspBuildKnowledgeExportAuditRow_({
       timestamp: environment.nowIso(),
       actor: actor,

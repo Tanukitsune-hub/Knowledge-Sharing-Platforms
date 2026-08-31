@@ -214,7 +214,7 @@ function createFakeEnvironment(options = {}) {
 function baseInput(overrides = {}) {
   return {
     mode: '自由質問',
-    questionOrInstruction: '',
+    questionOrInstruction: '合意事項を整理してください。',
     dateFrom: '2026-08-01',
     dateTo: '2026-08-03',
     ...overrides

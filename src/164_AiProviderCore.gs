@@ -291,18 +291,21 @@ function kspBuildOpenAiAttributes_(source) {
   add('date_key', value.dateKey);
   add('entity_key', value.entityKey);
   add('counterparty_type', value.counterpartyType);
+  add('counterparty_id', value.counterpartyId);
   add('gp_id', value.gpId);
   add('asset_class_id', value.assetClassId);
   add('capital_type_id', value.capitalTypeId);
   add('team_id', value.teamId);
   add('fund_strategy', value.fundStrategy);
-  if (value.followUpRequired === true) attributes.follow_up_required = 'true';
+  if (value.sourceType === KSP_AI_SOURCE_TYPES.MEETING) {
+    attributes.follow_up_required = value.followUpRequired === true ? 'true' : 'false';
+  }
   add('content_hash', value.contentHash);
   return attributes;
 }
 
 function kspBuildOpenAiFilter_(filters) {
-  var input = filters || {};
+  var input = kspKnowledgeRequestFilters_(filters);
   var clauses = [];
   function add(operator, key, value) {
     var normalized = kspAiTrim_(value);
@@ -310,38 +313,32 @@ function kspBuildOpenAiFilter_(filters) {
   }
   add('gte', 'date_key', input.dateFrom);
   add('lte', 'date_key', input.dateTo);
+  add('eq', 'counterparty_type', input.counterpartyType);
+  add('eq', 'entity_key', input.entityKey);
   add('eq', 'gp_id', input.gpId);
   add('eq', 'asset_class_id', input.assetClassId);
   add('eq', 'capital_type_id', input.capitalTypeId);
+  add('eq', 'team_id', input.teamId);
+  add('eq', 'fund_strategy', input.fundStrategy);
+  add('eq', 'follow_up_required', input.followUp === KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.REQUIRED ? 'true' :
+    (input.followUp === KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.NOT_REQUIRED ? 'false' : ''));
   add('eq', 'source_type', input.sourceType);
   add('eq', 'source_id', input.sourceId);
   return clauses.length === 0 ? undefined : clauses.length === 1 ? clauses[0] : { type: 'and', filters: clauses };
 }
 
 function kspBuildCanonicalKnowledgeRequest_(rawInput) {
-  var source = rawInput || {};
-  var route = kspAiTrim_(source.route || source.provider).toUpperCase() || KSP_AI_ROUTES.OPENAI;
-  return {
-    route: route,
-    provider: route === KSP_AI_ROUTES.FULL_EXPORT ? '' : kspNormalizeAiProvider_(route),
-    mode: kspAiTrim_(source.mode) || KSP_FEATURE_FREEZE_SEARCH_MODES.FREE_QUESTION,
-    questionOrInstruction: kspAiTrim_(source.questionOrInstruction || source.question || source.instruction),
-    dateFrom: kspAiTrim_(source.dateFrom),
-    dateTo: kspAiTrim_(source.dateTo),
-    gpId: kspAiTrim_(source.gpId),
-    assetClassId: kspAiTrim_(source.assetClassId),
-    capitalTypeId: kspAiTrim_(source.capitalTypeId),
-    sourceType: kspAiTrim_(source.sourceType),
-    modelProfileId: kspAiTrim_(source.modelProfileId).toLowerCase(),
-    thinkingProfileId: kspAiTrim_(source.thinkingProfileId).toLowerCase()
-  };
+  var output = kspNormalizeCanonicalKnowledgeRequest_(rawInput);
+  output.route = output.route || KSP_AI_ROUTES.OPENAI;
+  output.provider = output.route === KSP_AI_ROUTES.FULL_EXPORT ? '' : kspNormalizeAiProvider_(output.route);
+  return output;
 }
 
 function kspBuildProviderSearchRequest_(provider, config, input) {
   var normalizedProvider = kspNormalizeAiProvider_(provider);
   var value = input || {};
-  var promptInput = kspValidateFeatureFreezeSearchInput_(kspNormalizeFeatureFreezeSearchInput_(value));
-  var prompt = kspBuildFeatureFreezePrompt_(promptInput);
+  var promptInput = kspValidateCanonicalKnowledgeRequest_(kspNormalizeCanonicalKnowledgeRequest_(value));
+  var prompt = kspBuildCanonicalKnowledgePrompt_(promptInput);
   if (normalizedProvider === KSP_AI_PROVIDERS.OPENAI) {
     var openAiRequest = {
       provider: normalizedProvider,
@@ -357,6 +354,10 @@ function kspBuildProviderSearchRequest_(provider, config, input) {
     }
     return openAiRequest;
   }
+  var geminiFilters = kspKnowledgeRequestFilters_(value);
+  kspAssert_(!geminiFilters.counterpartyType && !geminiFilters.entityKey && !geminiFilters.teamId &&
+    !geminiFilters.fundStrategy && !geminiFilters.followUp,
+    'AI_FILTER_UNSUPPORTED_PROVIDER', 'Geminiでは選択された構造化フィルターを利用できません。');
   return {
     provider: normalizedProvider,
     modelId: config.modelId,
@@ -719,6 +720,17 @@ function kspProviderSafeMessage_(code) {
     AI_THINKING_SELECTION_STALE: '選択した思考レベルは現在利用できません。設定を読み直してください。',
     AI_THINKING_PROFILE_DISABLED: '選択した思考レベルは管理者設定で利用できません。',
     AI_THINKING_PROFILE_UNQUALIFIED: '選択した思考レベルはKnowledge Searchで利用確認されていません。',
+    AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE: '選択されたCounterparty Typeは利用できません。',
+    AI_ENTITY_FILTER_INVALID: 'Counterparty Entityが不正です。',
+    AI_ENTITY_FILTER_UNAVAILABLE: '選択されたCounterparty Entityは利用できません。',
+    AI_ENTITY_TYPE_CONFLICT: 'Counterparty TypeとEntityが一致しません。',
+    AI_ENTITY_GP_CONFLICT: 'Counterparty EntityとGPが一致しません。',
+    AI_TEAM_FILTER_UNAVAILABLE: '選択されたTeamは利用できません。',
+    AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Teamと要フォローはMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
+    AI_FILTER_UNSUPPORTED_PROVIDER: '選択された構造化フィルターはこのプロバイダでは利用できません。',
+    AI_MULTI_ENTITY_DEFERRED: '2–5 Entity比較は現在のdispatchでは利用できません。',
+    AI_MEETING_PREP_TARGET_REQUIRED: '面談準備ではCounterparty EntityまたはGPを選択してください。',
     AI_MODEL_POLICY_INVALID: 'モデル設定を確認できませんでした。',
     AI_MODEL_POLICY_JSON_INVALID: 'モデル設定を確認できませんでした。',
     AI_MODEL_POLICY_SCHEMA_UNSUPPORTED: 'モデル設定を確認できませんでした。'
@@ -788,15 +800,11 @@ function kspKnowledgeQueryExpires_(environment, state) {
 }
 
 function kspKnowledgeQueryInputForState_(input) {
-  var value = input || {};
+  var value = kspNormalizeCanonicalKnowledgeRequest_(input);
   return {
     mode: kspAiTrim_(value.mode),
-    dateFrom: kspAiTrim_(value.dateFrom),
-    dateTo: kspAiTrim_(value.dateTo),
-    gpId: kspAiTrim_(value.gpId),
-    assetClassId: kspAiTrim_(value.assetClassId),
-    capitalTypeId: kspAiTrim_(value.capitalTypeId),
-    sourceType: kspAiTrim_(value.sourceType),
+    filters: kspKnowledgeRequestFilters_(value),
+    selectedEntityKeys: (value.selectedEntityKeys || []).slice(),
     modelProfileId: kspAiTrim_(value.modelProfileId).toLowerCase(),
     thinkingProfileId: kspAiTrim_(value.thinkingProfileId).toLowerCase()
   };
@@ -811,6 +819,7 @@ function kspKnowledgeQueryQuestionHash_(question) {
 
 function kspKnowledgeQueryFingerprint_(provider, config, input) {
   var value = input || {};
+  var filters = kspKnowledgeRequestFilters_(value);
   var payload = {
     provider: provider,
     model: kspAiTrim_(config && config.modelId),
@@ -820,12 +829,8 @@ function kspKnowledgeQueryFingerprint_(provider, config, input) {
     maxOutputTokens: config && config.maxOutputTokens !== undefined ? config.maxOutputTokens : null,
     profile: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
     mode: kspAiTrim_(value.mode),
-    dateFrom: kspAiTrim_(value.dateFrom),
-    dateTo: kspAiTrim_(value.dateTo),
-    gpId: kspAiTrim_(value.gpId),
-    assetClassId: kspAiTrim_(value.assetClassId),
-    capitalTypeId: kspAiTrim_(value.capitalTypeId),
-    sourceType: kspAiTrim_(value.sourceType),
+    filters: filters,
+    selectedEntityKeys: (value.selectedEntityKeys || []).slice(),
     questionHash: kspKnowledgeQueryQuestionHash_(value.questionOrInstruction)
   };
   var serialized = JSON.stringify(payload);
@@ -897,7 +902,7 @@ function kspKnowledgeQueryPendingResult_(provider, mode, token, warnings, state,
   var elapsedMillis = state && environment ? kspKnowledgeQueryElapsedMillis_(environment, state) :
     Math.max(0, Number(state && state.elapsedMillis || 0));
   return {
-    ok: true, workId: '0020', provider: provider, mode: mode,
+    ok: true, workId: '0021', provider: provider, mode: mode,
     status: 'pending', pending: true, queryToken: token,
     pollAfterMillis: kspKnowledgeQueryPollDelayMillis_(pollCount),
     pollCount: pollCount,
@@ -911,14 +916,14 @@ function kspKnowledgeQueryFailureResult_(provider, mode, error, warnings, pendin
   var code = kspGetErrorCode_(error);
   if (pending) {
     return {
-      ok: true, workId: '0020', provider: provider, mode: mode,
+      ok: true, workId: '0021', provider: provider, mode: mode,
       status: 'pending', pending: true, queryToken: token,
       pollAfterMillis: KSP_AI_DEFAULTS.INTERACTION_POLL_MILLIS,
       warnings: (warnings || []).concat([{ code: 'AI_QUERY_POLL_PENDING', message: '検索状態を確認できないため、再確認できます。' }])
     };
   }
   var result = {
-    ok: false, workId: '0020', provider: provider, mode: mode,
+    ok: false, workId: '0021', provider: provider, mode: mode,
     status: 'failed',
     error: { code: code, message: kspProviderSafeMessage_(code) || kspSafePublicErrorMessage_(code, 'SEARCH') },
     warnings: warnings || []
@@ -1044,8 +1049,14 @@ function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, c
   }), allWarnings);
   return {
     result: {
-      ok: true, workId: '0020', provider: provider, mode: input.mode, status: 'completed',
+      ok: true, workId: '0021', provider: provider, mode: input.mode, status: 'completed',
       answer: answer, citations: mapped.citations, insufficientEvidence: insufficientEvidence,
+      scopeSummary: kspKnowledgeScopeSummary_(input),
+      effectiveSelection: {
+        modelProfileId: config.modelProfileId || '',
+        thinkingProfileId: config.thinkingProfileId || '',
+        modelId: config.modelId || ''
+      },
       warnings: allWarnings
     },
     interactionId: parsed.interactionId
@@ -1066,12 +1077,12 @@ function kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, ra
   var actor = kspGetAiActorSafely_(environment, warnings);
   var context = null;
   var config = null;
-  var input = kspNormalizeFeatureFreezeSearchInput_(rawInput);
+  var input = kspNormalizeCanonicalKnowledgeRequest_(rawInput);
   var startedAt = typeof environment.nowIso === 'function' ? environment.nowIso() : new Date().toISOString();
   var startClock = Date.now();
   try {
     kspAssert_(normalizedProvider, 'AI_PROVIDER_INVALID', 'AI provider is invalid.');
-    input = kspValidateFeatureFreezeSearchInput_(input);
+    input = kspValidateCanonicalKnowledgeRequest_(input);
     context = environment.loadAiContext();
     config = typeof environment.getProviderConfig === 'function'
       ? environment.getProviderConfig(normalizedProvider)
@@ -1082,7 +1093,8 @@ function kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, ra
       kspNormalizeAiSettings_(context.settings), normalizedProvider, rawInput, config, startedAt
     );
     config = kspApplyAiModelSelectionToConfig_(config, modelSelection);
-    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows);
+    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+      context.meetingRows, context.pitchbookRows);
     kspValidateKnowledgeFilterIds_(input, catalog);
     var fingerprint = kspKnowledgeQueryFingerprint_(normalizedProvider, config, input);
     var pointer = kspKnowledgeQueryReadCache_(environment, kspKnowledgeQueryDedupeKey_(actor, fingerprint));
@@ -1152,7 +1164,7 @@ function kspRunProviderKnowledgeSearchPoll_(environment, requestedProvider, rawI
   var warnings = [];
   var actor = kspGetAiActorSafely_(environment, warnings);
   var token = kspAiTrim_(rawInput && rawInput.queryToken);
-  var input = kspNormalizeFeatureFreezeSearchInput_(rawInput);
+  var input = kspNormalizeCanonicalKnowledgeRequest_(rawInput);
   if (!token || token.length > 128) {
     return kspKnowledgeQueryFailureResult_(requestedProvider, input.mode,
       { code: 'AI_QUERY_TOKEN_INVALID' }, warnings, false, '');
@@ -1310,8 +1322,8 @@ function kspGetProviderNeutralKnowledgeBootstrap_(environment) {
     });
     return {
       ok: true,
-      workId: '0020',
-      appVersion: '0.6.0',
+      workId: '0021',
+      appVersion: '0.7.0',
       configured: true,
       providers: providers,
       modelPolicies: modelPolicies,
@@ -1322,8 +1334,9 @@ function kspGetProviderNeutralKnowledgeBootstrap_(environment) {
       ],
       implementedModes: KSP_FEATURE_FREEZE_MODE_ORDER.slice(),
       targetModes: KSP_FEATURE_FREEZE_MODE_ORDER.slice(),
-      modeDefinitions: kspGetFeatureFreezeModeDefinitions_(),
-      options: kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows),
+      modeDefinitions: kspGetKnowledgeModeDefinitions_(),
+      options: kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+        context.meetingRows, context.pitchbookRows),
       syncIntervalMinutes: settings.syncIntervalMinutes
     };
   } catch (error) {

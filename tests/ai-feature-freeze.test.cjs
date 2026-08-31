@@ -115,7 +115,7 @@ test('mode prompts encode synthesis, chronology, comparison, and meeting prep gu
   assert.match(ksp.kspBuildFeatureFreezePrompt_({mode:'要約'}),/単純に並べない/);
   assert.match(ksp.kspBuildFeatureFreezePrompt_({mode:'時系列'}),/変化と継続/);
   assert.match(ksp.kspBuildFeatureFreezePrompt_({mode:'比較'}),/順位付け/);
-  assert.match(ksp.kspBuildFeatureFreezePrompt_({mode:'面談準備'}),/未解決論点/);
+  assert.match(ksp.kspBuildFeatureFreezePrompt_({mode:'面談準備',gpId:'GP-1'}),/未解決論点/);
 });
 
 test('generic five-mode service audits mode without answer or chunks',()=>{
