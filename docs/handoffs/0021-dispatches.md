@@ -1,28 +1,28 @@
 # Work 0021 dispatch control
 
 WORK_ID: `0021`
-ACTIVE_DISPATCH_ID: `0021-CODEX-03`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0021-CODEX-04`
+BALL: `CODEX`
+STATUS: `READY`
 
-## Returned dispatches
+## Active dispatch
 
-### 0021-CODEX-03 — RETURNED / MULTI-ENTITY COMPARISON + ADVANCED EXACT FILTERS QUALIFIED
+### 0021-CODEX-04 — READY / SIX-FORMAT MATRIX + FINAL WORK QUALIFICATION
 
 Primary outcome:
 
-- explicit 2–5 Entity comparison in the existing Knowledge Search product;
-- per-Entity evidence and normalized citation attribution;
-- exact Related GP filter using authoritative `Related_GP_IDs` token membership;
-- exact Meeting Type filter using authoritative `Meeting_Type_Codes` token membership;
-- identical selected-Entity/filter semantics in API-independent FULL_OUTPUT;
-- bounded OpenAI target-runtime qualification using existing synthetic records only where sufficient.
+- qualify `.pdf / .pptx / .xlsx / .docx / .txt / .eml` through the current OpenAI Pitchbook path;
+- prove authoritative source identity and normalized citation per supported format;
+- record any genuine provider limitation explicitly rather than silently weakening the product contract;
+- preserve EML normalized-header/body and no-attachment-auto-index boundary;
+- prove FULL_OUTPUT keeps every Pitchbook format reference-only and API-independent;
+- return PR #34 ready for final ChatGPT merge if all Work 0021 gates pass.
 
 Instruction:
 
-`docs/handoffs/0021-CODEX-03-multi-entity-comparison-and-advanced-exact-filters-instruction.md`
+`docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-instruction.md`
 
-Returned evidence:
+Current runtime baseline:
 
 ```text
 PRIVATE_WEB_APP_VERSION: 63
@@ -32,20 +32,28 @@ OPENAI_MULTI_ENTITY_RUNTIME: PASS
 OPENAI_ADVANCED_EXACT_FILTER_RUNTIME: PASS
 FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS
 GEMINI_API_CALLED: NO
-BLOCKER: NONE
+OPENAI_PROVIDER_BASELINE: 16 completed documents
+BLOCKER: NONE AT DISPATCH
 ```
 
-Existing synthetic qualification targets include:
+Fixture inventory reviewed before dispatch:
 
-```text
-Entity A: GP:GP-000031
-  DOC-000017 / MTG-000005
+- current Pitchbook rows are effectively TXT only;
+- `DOC-000017` is a safe small TXT source;
+- there is no current small PDF/PPTX/XLSX/DOCX/EML Pitchbook matrix;
+- old Matrix-C 1–25 MiB TXT fixtures and `DOC-000018` are not test targets;
+- CODEX-04 may register at most six very small non-confidential format fixtures through the normal Pitchbook flow when needed.
 
-Entity B: LP_ASSET_OWNER:OPT-CPLP-001
-  MTG-000004
-  Related GP: GP-000031
-  Meeting Type: ANNUAL_REVIEW, OFFICE_VISIT
-```
+## Returned dispatches
+
+### 0021-CODEX-03 — RETURNED / MULTI-ENTITY + ADVANCED FILTERS QUALIFIED
+
+- explicit 2–5 Entity comparison: PASS;
+- per-Entity citation/evidence attribution: PASS;
+- Related GP / Meeting Type exact filtering: PASS;
+- OpenAI runtime and FULL_OUTPUT parity: PASS;
+- canonical `368/368`, Apps Script readback `80/80`, private Web App version `63`;
+- no Gemini call, broad sync, provider mutation or new fixture.
 
 Report:
 
@@ -53,11 +61,9 @@ Report:
 
 ### 0021-CODEX-02 — RETURNED / CORE RUNTIME QUALIFIED
 
-- root cause was metadata-only provider drift plus Pitchbook Fund Strategy source omission;
-- exact in-place attribute reconciliation passed without duplicate upload;
-- string Business Date range passed after metadata repair;
-- all five modes, FULL_OUTPUT preview parity, and Gemini no-transport/no-failover gate passed;
-- canonical `360/360`, readback `80/80`, same private Web App version `62`.
+- metadata-only provider drift repaired via exact in-place attribute reconciliation;
+- compound filter, five modes and FULL_OUTPUT parity qualified at version `62`;
+- canonical `360/360` PASS.
 
 Report:
 
@@ -66,33 +72,19 @@ Report:
 ### 0021-CODEX-01 — RETURNED / CORE IMPLEMENTED
 
 - canonical core filters/shared UI/five-mode contracts implemented;
-- deterministic PASS;
-- initial version-61 compound-filter blocker was closed by CODEX-02.
+- initial runtime blocker was closed by CODEX-02.
 
 Report:
 
 `docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`
 
-## Remaining Work 0021 order
+## Completion discipline
 
-```text
-0021-CODEX-04
-  bounded six-format matrix + explicit provider capability/parity evidence
-```
+CODEX-04 is the last planned Work 0021 dispatch. After a passing six-format/final integrity matrix, stop and return PR #34 for final merge.
 
-Gemini live recovery remains a separate near-completion Work.
-
-## Safety / scope boundary
-
-- no Gemini API call;
-- no broad source sync or corpus reindex;
-- no `DOC-000018` or large-fixture mutation;
-- no confidential data;
-- no new Vector Store/Web App/Library/public endpoint;
-- no six-format campaign, Work 0023, historical migration, company rollout, or general hardening;
-- no rebase, force-push, history rewrite, or PR merge.
+Do not call Gemini, retry/mutate old large fixtures, run broad sync, implement Work 0023, add unrelated hardening, benchmark formats repeatedly, or create CODEX-05 absent a real Work 0021 blocker.
 
 WORK_ID: `0021`
-ACTIVE_DISPATCH_ID: `0021-CODEX-03`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0021-CODEX-04`
+BALL: `CODEX`
+STATUS: `READY`
