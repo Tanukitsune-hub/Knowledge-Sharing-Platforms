@@ -320,7 +320,8 @@ function kspOpenAiAttributesEqual_(leftValue, rightValue) {
 }
 
 function kspBuildOpenAiFilter_(filters) {
-  var input = kspKnowledgeRequestFilters_(filters);
+  var request = filters || {};
+  var input = kspKnowledgeRequestFilters_(request);
   var clauses = [];
   function add(operator, key, value) {
     var normalized = kspAiTrim_(value);
@@ -339,6 +340,20 @@ function kspBuildOpenAiFilter_(filters) {
     (input.followUp === KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.NOT_REQUIRED ? 'false' : ''));
   add('eq', 'source_type', input.sourceType);
   add('eq', 'source_id', input.sourceId);
+  var selectedEntityKeys = Array.isArray(request.selectedEntityKeys) ? request.selectedEntityKeys : [];
+  if (selectedEntityKeys.length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN) {
+    clauses.push({ type: 'or', filters: selectedEntityKeys.map(function (entityKey) {
+      return { type: 'eq', key: 'entity_key', value: entityKey };
+    }) });
+  }
+  var resolvedSourceIds = Array.isArray(request.resolvedSourceIds) ? request.resolvedSourceIds : [];
+  if (request.advancedFilterResolved === true && resolvedSourceIds.length) {
+    clauses.push(resolvedSourceIds.length === 1
+      ? { type: 'eq', key: 'source_id', value: resolvedSourceIds[0] }
+      : { type: 'or', filters: resolvedSourceIds.map(function (sourceId) {
+        return { type: 'eq', key: 'source_id', value: sourceId };
+      }) });
+  }
   return clauses.length === 0 ? undefined : clauses.length === 1 ? clauses[0] : { type: 'and', filters: clauses };
 }
 
@@ -371,7 +386,8 @@ function kspBuildProviderSearchRequest_(provider, config, input) {
   }
   var geminiFilters = kspKnowledgeRequestFilters_(value);
   kspAssert_(!geminiFilters.counterpartyType && !geminiFilters.entityKey && !geminiFilters.teamId &&
-    !geminiFilters.fundStrategy && !geminiFilters.followUp,
+    !geminiFilters.fundStrategy && !geminiFilters.followUp && !geminiFilters.relatedGpId &&
+    !geminiFilters.meetingTypeCode && !(value.selectedEntityKeys || []).length,
     'AI_FILTER_UNSUPPORTED_PROVIDER', 'Geminiでは選択された構造化フィルターを利用できません。');
   return {
     provider: normalizedProvider,
@@ -747,9 +763,15 @@ function kspProviderSafeMessage_(code) {
     AI_ENTITY_GP_CONFLICT: 'Counterparty EntityとGPが一致しません。',
     AI_TEAM_FILTER_UNAVAILABLE: '選択されたTeamは利用できません。',
     AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Teamと要フォローはMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Team、要フォロー、Related GP、Meeting TypeはMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
     AI_FILTER_UNSUPPORTED_PROVIDER: '選択された構造化フィルターはこのプロバイダでは利用できません。',
-    AI_MULTI_ENTITY_DEFERRED: '2–5 Entity比較は現在のdispatchでは利用できません。',
+    AI_MULTI_ENTITY_COUNT_INVALID: '比較するEntityは2–5件で選択してください。',
+    AI_MULTI_ENTITY_DUPLICATE: '同じEntityを複数回選択できません。',
+    AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
+    AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
+    AI_RELATED_GP_FILTER_UNAVAILABLE: '選択されたRelated GPは利用できません。',
+    AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMeeting Typeは利用できません。',
+    AI_ADVANCED_FILTER_TOO_BROAD: '該当するMeetingが多すぎます。条件を絞ってください。',
     AI_MEETING_PREP_TARGET_REQUIRED: '面談準備ではCounterparty EntityまたはGPを選択してください。',
     AI_MODEL_POLICY_INVALID: 'モデル設定を確認できませんでした。',
     AI_MODEL_POLICY_JSON_INVALID: 'モデル設定を確認できませんでした。',
@@ -825,6 +847,8 @@ function kspKnowledgeQueryInputForState_(input) {
     mode: kspAiTrim_(value.mode),
     filters: kspKnowledgeRequestFilters_(value),
     selectedEntityKeys: (value.selectedEntityKeys || []).slice(),
+    resolvedSourceIds: (value.resolvedSourceIds || []).slice(),
+    advancedFilterResolved: value.advancedFilterResolved === true,
     modelProfileId: kspAiTrim_(value.modelProfileId).toLowerCase(),
     thinkingProfileId: kspAiTrim_(value.thinkingProfileId).toLowerCase()
   };
@@ -851,6 +875,8 @@ function kspKnowledgeQueryFingerprint_(provider, config, input) {
     mode: kspAiTrim_(value.mode),
     filters: filters,
     selectedEntityKeys: (value.selectedEntityKeys || []).slice(),
+    resolvedSourceIds: (value.resolvedSourceIds || []).slice(),
+    advancedFilterResolved: value.advancedFilterResolved === true,
     questionHash: kspKnowledgeQueryQuestionHash_(value.questionOrInstruction)
   };
   var serialized = JSON.stringify(payload);
@@ -1058,19 +1084,30 @@ function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, c
       : kspParseInteractionResponse_(rawResponse);
   var mapped = kspMapKnowledgeCitations_(parsed.citations,
     kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
-  var allWarnings = (warnings || []).concat(parsed.warnings || [], mapped.warnings);
+  var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+    context.meetingRows, context.pitchbookRows);
+  var guarded = kspGuardKnowledgeComparisonCitations_(input, catalog, mapped.citations);
+  var allWarnings = (warnings || []).concat(parsed.warnings || [], mapped.warnings, guarded.warnings);
   var answer = parsed.answer || '確認できる根拠が不足しています。';
-  var insufficientEvidence = !parsed.answer || mapped.citations.length === 0;
+  if (guarded.rejectedUnselected) {
+    answer = '選択外Entityの根拠が混入したため、比較結果を表示できません。';
+  }
+  var insufficientEvidence = !parsed.answer || guarded.citations.length === 0 || guarded.rejectedUnselected === true;
   if (insufficientEvidence) allWarnings.push({ code: 'AI_INSUFFICIENT_EVIDENCE', message: '回答または authoritative citation が不足しています。' });
   kspAppendKnowledgeQueryAuditOnce_(environment, actor, auditToken, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
     timestamp: environment.nowIso(), actor: actor, input: input, modelId: config.modelId,
-    interactionId: kspKnowledgeQueryAuditTargetId_(auditToken), result: KSP_AUDIT_RESULTS.SUCCESS, citations: mapped.citations,
+    interactionId: kspKnowledgeQueryAuditTargetId_(auditToken), result: KSP_AUDIT_RESULTS.SUCCESS, citations: guarded.citations,
+    entityEvidence: guarded.entityEvidence,
     provider: provider, telemetry: Object.assign({}, telemetry || {}, { modelSelection: config })
   }), allWarnings);
   return {
     result: {
       ok: true, workId: '0021', provider: provider, mode: input.mode, status: 'completed',
-      answer: answer, citations: mapped.citations, insufficientEvidence: insufficientEvidence,
+      answer: answer, citations: guarded.citations, entityEvidence: guarded.entityEvidence,
+      insufficientEvidence: insufficientEvidence,
+      selectedEntities: guarded.entityEvidence.map(function (item) {
+        return { entityKey: item.entityKey, counterpartyType: item.counterpartyType, displayName: item.displayName };
+      }),
       scopeSummary: kspKnowledgeScopeSummary_(input),
       effectiveSelection: {
         modelProfileId: config.modelProfileId || '',
@@ -1116,6 +1153,28 @@ function kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, ra
     var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
       context.meetingRows, context.pitchbookRows);
     kspValidateKnowledgeFilterIds_(input, catalog);
+    input = kspResolveKnowledgeAdvancedSourceIds_(input, context.meetingRows);
+    if (input.advancedFilterResolved === true && input.resolvedSourceIds.length === 0) {
+      var emptyEvidence = kspBuildKnowledgeEntityEvidence_(input, catalog, []);
+      var emptyWarnings = warnings.concat([{ code: 'AI_ADVANCED_FILTER_NO_EVIDENCE', message: '指定したexact filterに一致するActive Meetingはありません。' }]);
+      emptyEvidence.forEach(function (item) {
+        emptyWarnings.push({ code: 'AI_ENTITY_EVIDENCE_GAP', message: item.displayName + 'の根拠資料が確認できません。' });
+      });
+      kspTryAppendKnowledgeAudit_(environment, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
+        timestamp: environment.nowIso(), actor: actor, input: input, modelId: config.modelId,
+        result: KSP_AUDIT_RESULTS.SUCCESS, citations: [], entityEvidence: emptyEvidence,
+        provider: normalizedProvider, telemetry: { modelSelection: config }
+      }), emptyWarnings);
+      return {
+        ok: true, workId: '0021', provider: normalizedProvider, mode: input.mode, status: 'completed',
+        answer: '指定した条件に一致する根拠資料は確認できません。', citations: [],
+        entityEvidence: emptyEvidence, selectedEntities: emptyEvidence.map(function (item) {
+          return { entityKey: item.entityKey, counterpartyType: item.counterpartyType, displayName: item.displayName };
+        }),
+        insufficientEvidence: true, scopeSummary: kspKnowledgeScopeSummary_(input), warnings: emptyWarnings,
+        effectiveSelection: { modelProfileId: config.modelProfileId || '', thinkingProfileId: config.thinkingProfileId || '', modelId: config.modelId || '' }
+      };
+    }
     var fingerprint = kspKnowledgeQueryFingerprint_(normalizedProvider, config, input);
     var pointer = kspKnowledgeQueryReadCache_(environment, kspKnowledgeQueryDedupeKey_(actor, fingerprint));
     if (pointer && pointer.kind === 'PENDING_POINTER' && pointer.actor === actor &&

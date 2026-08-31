@@ -85,13 +85,13 @@ test('empty filters are omitted while false follow-up remains an exact clause', 
   ] });
 });
 
-test('source-incompatible filters and explicit multi-Entity comparison fail closed', () => {
+test('source-incompatible filters fail closed and explicit 2-Entity comparison validates', () => {
   assert.throws(() => ksp.kspValidateCanonicalKnowledgeRequest_(canonical({ filters: {
     teamId: 'TEAM-1', sourceType: 'Pitchbook'
   } })), (error) => error.code === 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE');
-  assert.throws(() => ksp.kspValidateCanonicalKnowledgeRequest_(canonical({
+  assert.doesNotThrow(() => ksp.kspValidateCanonicalKnowledgeRequest_(canonical({
     mode: '比較', selectedEntityKeys: ['GP:GP-1', 'LP_ASSET_OWNER:LP-OLD']
-  })), (error) => error.code === 'AI_MULTI_ENTITY_DEFERRED');
+  })));
 });
 
 test('meeting preparation accepts one exact Entity or GP and rejects an unscoped request', () => {
@@ -115,7 +115,7 @@ test('all five modes share one registry and emit distinct bounded prompt contrac
   })));
   modes.forEach((mode, index) => assert.match(prompts[index], new RegExp(`モード: ${mode}`)));
   assert.match(prompts[2], /証拠が途切れる期間/);
-  assert.match(prompts[3], /複数Entityを選択した比較として扱わず/);
+  assert.match(prompts[3], /選択Entityごとに資料で確認できる事実を帰属/);
   assert.match(prompts[4], /投資判断や推奨を自動生成しない/);
 });
 

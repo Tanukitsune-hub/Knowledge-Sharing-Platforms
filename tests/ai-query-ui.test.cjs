@@ -38,7 +38,7 @@ test('all new Apps Script and client files parse and contain required live contr
   const client=fs.readFileSync(path.join(root,'src','ClientKnowledgeSearch.html'),'utf8');const match=client.match(/<script>([\s\S]*?)<\/script>/);assert.ok(match);new vm.Script(match[1],{filename:'ClientKnowledgeSearch.js'});
   const page=fs.readFileSync(path.join(root,'src','KnowledgeSearchPage.html'),'utf8');
   const standalone=fs.readFileSync(path.join(root,'src','KnowledgeSearch.html'),'utf8');
-  for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation','queryPhase:\'POLL\'','queryToken','sessionStorage','setTimeout','KSP_QUERY_AUTO_POLL_LIMIT','pendingQueryAutoStopped','knowledge-recheck','knowledge-counterpartyType','knowledge-entityKey','knowledge-teamId','knowledge-fundStrategy','knowledge-followUp','selectedEntityKeys','pendingQueryFingerprint','kApplyRouteSurface'])assert.ok((page+'\n'+client).includes(token),token);
+  for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation','queryPhase:\'POLL\'','queryToken','sessionStorage','setTimeout','KSP_QUERY_AUTO_POLL_LIMIT','pendingQueryAutoStopped','knowledge-recheck','knowledge-counterpartyType','knowledge-entityKey','knowledge-entityKeys','knowledge-relatedGpId','knowledge-meetingTypeCode','knowledge-entity-evidence','selectedEntityKeys','entityEvidence','pendingQueryFingerprint','kApplyRouteSurface'])assert.ok((page+'\n'+client).includes(token),token);
   assert.match(page, /<option value="OPENAI">ChatGPT<\/option>/);
   assert.match(client, /pendingQueryRoute/);
   assert.match(client, /kEl\('knowledge-route'\)\.value='OPENAI'/);

@@ -19,6 +19,10 @@ var KSP_KNOWLEDGE_FOLLOW_UP_FILTERS = Object.freeze({
   NOT_REQUIRED: 'NOT_REQUIRED'
 });
 
+var KSP_KNOWLEDGE_MULTI_ENTITY_MIN = 2;
+var KSP_KNOWLEDGE_MULTI_ENTITY_MAX = 5;
+var KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX = 40;
+
 function kspGetKnowledgeModeDefinition_(mode) {
   var definitions = {};
   definitions[KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION] = {
@@ -63,11 +67,11 @@ function kspGetKnowledgeModeDefinition_(mode) {
     placeholder: '任意: 投資機会、リスク、見通しの共通軸で比較してください。',
     inputRequired: false,
     targetRequired: false,
-    instruction: '現在の単一Entity/GP/条件内で、期間、資料、戦略またはテーマを共通軸で比較してください。2–5 Entity比較は対象外です。',
+    instruction: '選択された2–5 Entityを共通軸で比較し、Entityごとの根拠と証拠不足を区別してください。',
     apiInstructions: [
-      '現在の単一Entity、単一GPまたは選択条件の内側で、期間、資料、戦略またはテーマを共通軸にそろえて比較してください。',
-      '裏付けがある場合は簡潔な比較表を使い、共通点、相違点、合意、見解の不一致、証拠の非対称性を示してください。',
-      '複数Entityを選択した比較として扱わず、資料にない評価軸、順位付け、優劣を作らないでください。'
+      '選択Entityごとに資料で確認できる事実を帰属させ、共通軸の簡潔な比較表を作成してください。',
+      '裏付けられた共通点、相違点、時系列の変化、証拠の非対称性を区別してください。',
+      '根拠のないEntityは証拠不足と明示し、資料にない評価軸、順位付け、優劣、投資推奨を作らないでください。'
     ]
   };
   definitions[KSP_KNOWLEDGE_SEARCH_MODES.MEETING_PREP] = {
@@ -118,7 +122,9 @@ function kspNormalizeKnowledgeFilters_(value) {
     fundStrategy: kspAiTrim_(source.fundStrategy),
     followUp: kspNormalizeKnowledgeFollowUpFilter_(source.followUp !== undefined ? source.followUp : source.followUpRequired),
     sourceType: kspAiTrim_(source.sourceType),
-    sourceId: kspAiTrim_(source.sourceId)
+    sourceId: kspAiTrim_(source.sourceId),
+    relatedGpId: kspAiTrim_(source.relatedGpId || source.relatedGp),
+    meetingTypeCode: kspAiTrim_(source.meetingTypeCode || source.meetingType).toUpperCase()
   };
 }
 
@@ -143,13 +149,18 @@ function kspNormalizeCanonicalKnowledgeRequest_(input) {
     (Array.isArray(source.selectedEntities) ? source.selectedEntities : []);
   var filters = kspKnowledgeRequestFilters_(source);
   var selectedEntityKeys = rawEntities.map(kspAiTrim_).filter(Boolean);
-  if (filters.entityKey && selectedEntityKeys.indexOf(filters.entityKey) === -1) selectedEntityKeys.unshift(filters.entityKey);
+  if ((filters.relatedGpId || filters.meetingTypeCode) && !filters.sourceType) {
+    filters.sourceType = KSP_AI_SOURCE_TYPES.MEETING;
+  }
   return {
     route: kspAiTrim_(source.route || source.provider).toUpperCase(),
     mode: kspAiTrim_(source.mode) || KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION,
     questionOrInstruction: kspAiTrim_(instruction),
     filters: filters,
-    selectedEntityKeys: kspUniqueStrings_(selectedEntityKeys),
+    selectedEntityKeys: selectedEntityKeys,
+    resolvedSourceIds: Array.isArray(source.resolvedSourceIds)
+      ? source.resolvedSourceIds.map(kspAiTrim_).filter(Boolean) : [],
+    advancedFilterResolved: source.advancedFilterResolved === true,
     modelProfileId: kspAiTrim_(source.modelProfileId).toLowerCase(),
     thinkingProfileId: kspAiTrim_(source.thinkingProfileId).toLowerCase()
   };
@@ -185,15 +196,36 @@ function kspValidateCanonicalKnowledgeRequest_(request) {
         'AI_ENTITY_GP_CONFLICT', 'Counterparty EntityとGPが一致しません。');
     }
   }
-  kspAssert_((input.selectedEntityKeys || []).length <= 1, 'AI_MULTI_ENTITY_DEFERRED',
-    '2–5 Entity比較は次のWork 0021 dispatchで対応します。');
+  var selectedEntityKeys = input.selectedEntityKeys || [];
+  var selectedSeen = {};
+  selectedEntityKeys.forEach(function (entityKey) {
+    kspAssert_(/^[A-Z][A-Z0-9_]*:[A-Za-z0-9_-]+$/.test(entityKey),
+      'AI_ENTITY_FILTER_INVALID', '選択されたCounterparty Entityが不正です。');
+    kspAssert_(!selectedSeen[entityKey], 'AI_MULTI_ENTITY_DUPLICATE', '同じEntityを複数回選択できません。');
+    selectedSeen[entityKey] = true;
+  });
+  if (selectedEntityKeys.length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN) {
+    kspAssert_(input.mode === KSP_KNOWLEDGE_SEARCH_MODES.COMPARISON,
+      'AI_MULTI_ENTITY_MODE_REQUIRED', '2–5 Entity選択は比較モードでのみ利用できます。');
+    kspAssert_(selectedEntityKeys.length <= KSP_KNOWLEDGE_MULTI_ENTITY_MAX,
+      'AI_MULTI_ENTITY_COUNT_INVALID', '比較するEntityは2–5件で選択してください。');
+    kspAssert_(!filters.entityKey, 'AI_MULTI_ENTITY_AMBIGUOUS_SCOPE',
+      '複数Entity比較では単一Entityフィルターを同時に指定できません。');
+  }
+  if (input.mode === KSP_KNOWLEDGE_SEARCH_MODES.COMPARISON && selectedEntityKeys.length === 1) {
+    kspAssert_(filters.entityKey === selectedEntityKeys[0],
+      filters.entityKey ? 'AI_MULTI_ENTITY_AMBIGUOUS_SCOPE' : 'AI_MULTI_ENTITY_COUNT_INVALID',
+      filters.entityKey ? '比較Entityと単一Entityフィルターが一致しません。' :
+        '明示的なEntity比較では2–5件を選択してください。');
+  }
   if (definition.targetRequired) {
     kspAssert_(filters.entityKey || filters.gpId, 'AI_MEETING_PREP_TARGET_REQUIRED',
       '面談準備ではCounterparty EntityまたはGPを選択してください。');
   }
-  if ((filters.teamId || filters.followUp) && filters.sourceType !== KSP_AI_SOURCE_TYPES.MEETING) {
+  if ((filters.teamId || filters.followUp || filters.relatedGpId || filters.meetingTypeCode) &&
+      filters.sourceType !== KSP_AI_SOURCE_TYPES.MEETING) {
     kspAssert_(false, 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE',
-      'Teamと要フォローはMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
+      'Team、要フォロー、Related GP、Meeting TypeはMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
   }
   return input;
 }
@@ -204,6 +236,8 @@ function kspKnowledgeFilterAuditMetadata_(request) {
   Object.keys(filters).forEach(function (key) {
     if (filters[key] !== '' && filters[key] !== null && filters[key] !== undefined) output[key] = filters[key];
   });
+  var selected = request && Array.isArray(request.selectedEntityKeys) ? request.selectedEntityKeys : [];
+  if (selected.length) output.selectedEntityKeys = selected.slice();
   return output;
 }
 
@@ -214,12 +248,15 @@ function kspKnowledgeScopeSummary_(request) {
   if (filters.dateFrom || filters.dateTo) parts.push('Date ' + (filters.dateFrom || '…') + '–' + (filters.dateTo || '…'));
   if (filters.counterpartyType) parts.push('Type ' + filters.counterpartyType);
   if (filters.entityKey) parts.push('Entity ' + filters.entityKey);
+  if ((input.selectedEntityKeys || []).length) parts.push('Entities ' + input.selectedEntityKeys.join(', '));
   if (filters.gpId) parts.push('GP ' + filters.gpId);
   if (filters.assetClassId) parts.push('Asset ' + filters.assetClassId);
   if (filters.capitalTypeId) parts.push('Capital ' + filters.capitalTypeId);
   if (filters.teamId) parts.push('Team ' + filters.teamId);
   if (filters.fundStrategy) parts.push('Fund/Strategy ' + filters.fundStrategy);
   if (filters.followUp) parts.push('Follow-up ' + filters.followUp);
+  if (filters.relatedGpId) parts.push('Related GP ' + filters.relatedGpId);
+  if (filters.meetingTypeCode) parts.push('Meeting Type ' + filters.meetingTypeCode);
   parts.push('Source ' + (filters.sourceType || 'Meeting+Pitchbook'));
   return parts.join(' / ');
 }
@@ -236,7 +273,78 @@ function kspBuildCanonicalKnowledgePrompt_(request) {
     'モード: ' + definition.mode,
     '選択範囲: ' + kspKnowledgeScopeSummary_(input)
   ].concat(definition.apiInstructions || []);
+  if ((input.selectedEntityKeys || []).length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN) {
+    lines.push('比較対象Entity（この安定キー以外を根拠に含めない）:');
+    input.selectedEntityKeys.forEach(function (entityKey) { lines.push('- ' + entityKey); });
+    lines.push('各Entityの事実と出典を対応付け、証拠がないEntityは明示的に証拠不足と記載してください。');
+  }
   if (input.mode === KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION) lines.push('質問:', input.questionOrInstruction);
   else if (input.questionOrInstruction) lines.push('追加指示:', input.questionOrInstruction);
   return lines.join('\n');
+}
+
+function kspKnowledgeExactTokens_(value) {
+  return kspMaintenanceSplitCodes_(value).map(kspAiTrim_).filter(Boolean);
+}
+
+function kspResolveKnowledgeAdvancedSourceIds_(request, meetingRows) {
+  var input = kspKnowledgeRequestWithLegacyFilterAliases_(kspNormalizeCanonicalKnowledgeRequest_(request));
+  var filters = kspKnowledgeRequestFilters_(input);
+  if (!filters.relatedGpId && !filters.meetingTypeCode) return input;
+  input.filters.sourceType = KSP_AI_SOURCE_TYPES.MEETING;
+  input.sourceType = KSP_AI_SOURCE_TYPES.MEETING;
+  var sourceIds = (meetingRows || []).filter(function (row) {
+    if (String(row.Status || '') !== KSP_STATUS.ACTIVE) return false;
+    if (filters.relatedGpId && kspKnowledgeExactTokens_(kspMeetingRelatedGpIds_(row)).indexOf(filters.relatedGpId) === -1) return false;
+    if (filters.meetingTypeCode && kspKnowledgeExactTokens_(row.Meeting_Type_Codes).indexOf(filters.meetingTypeCode) === -1) return false;
+    return typeof kspKnowledgeExportRowMatches_ !== 'function' || kspKnowledgeExportRowMatches_(row, input);
+  }).map(function (row) { return kspAiTrim_(row.Meeting_ID); }).filter(Boolean);
+  sourceIds = kspUniqueStrings_(sourceIds);
+  kspAssert_(sourceIds.length <= KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX,
+    'AI_ADVANCED_FILTER_TOO_BROAD', '該当するMeetingが多すぎます。条件を絞ってください。');
+  input.resolvedSourceIds = sourceIds;
+  input.advancedFilterResolved = true;
+  return kspKnowledgeRequestWithLegacyFilterAliases_(input);
+}
+
+function kspBuildKnowledgeEntityEvidence_(request, catalog, citations) {
+  var selected = request && Array.isArray(request.selectedEntityKeys) ? request.selectedEntityKeys : [];
+  var entities = catalog && catalog.counterpartyEntities || [];
+  return selected.map(function (entityKey) {
+    var catalogItem = entities.filter(function (item) { return item.entityKey === entityKey; })[0] || {};
+    var entityCitations = (citations || []).filter(function (citation) { return citation.entityKey === entityKey; });
+    return {
+      entityKey: entityKey,
+      counterpartyType: catalogItem.type || entityKey.split(':')[0],
+      displayName: catalogItem.name || entityKey,
+      evidenceStatus: entityCitations.length ? 'CITED' : 'NO_EVIDENCE',
+      citationCount: entityCitations.length,
+      citations: entityCitations
+    };
+  });
+}
+
+function kspGuardKnowledgeComparisonCitations_(request, catalog, citations) {
+  var selected = request && Array.isArray(request.selectedEntityKeys) ? request.selectedEntityKeys : [];
+  if (selected.length < KSP_KNOWLEDGE_MULTI_ENTITY_MIN) {
+    return { citations: citations || [], warnings: [], entityEvidence: [] };
+  }
+  var allowed = {};
+  selected.forEach(function (entityKey) { allowed[entityKey] = true; });
+  var rejected = false;
+  var kept = (citations || []).filter(function (citation) {
+    if (allowed[citation.entityKey]) return true;
+    rejected = true;
+    return false;
+  });
+  var evidence = kspBuildKnowledgeEntityEvidence_(request, catalog, kept);
+  var warnings = [];
+  if (rejected) warnings.push({
+    code: 'AI_UNSELECTED_ENTITY_CITATION',
+    message: '選択外EntityのCitationを検出したため比較結果から除外しました。'
+  });
+  evidence.filter(function (item) { return item.evidenceStatus === 'NO_EVIDENCE'; }).forEach(function (item) {
+    warnings.push({ code: 'AI_ENTITY_EVIDENCE_GAP', message: item.displayName + 'の根拠資料が確認できません。' });
+  });
+  return { citations: kept, warnings: warnings, entityEvidence: evidence, rejectedUnselected: rejected };
 }

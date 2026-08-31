@@ -46,6 +46,10 @@ function kspBuildKnowledgeSearchCatalog_(gpRows, optionRows, meetingRows, pitchb
       return { id: definition.code, code: definition.code, name: definition.label, label: definition.label };
     }),
     counterpartyEntities: counterpartyEntities,
+    relatedGps: gps.slice(),
+    meetingTypes: KSP_MEETING_TYPE_DEFINITIONS.map(function (definition) {
+      return { id: definition.code, code: definition.code, name: definition.label, label: definition.label };
+    }),
     fundStrategies: Object.keys(fundStrategies).sort().map(function (value) { return { id: value, name: value }; }),
     followUpOptions: [
       { id: KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.REQUIRED, name: '必要' },
@@ -96,6 +100,18 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
     kspRequireCatalogItem_(safeCatalog.fundStrategies, filters.fundStrategy,
       'AI_FUND_STRATEGY_FILTER_UNAVAILABLE', '選択されたFund / Strategyは利用できません。');
   }
+  if (filters.relatedGpId) {
+    kspRequireCatalogItem_(safeCatalog.relatedGps || safeCatalog.gps, filters.relatedGpId,
+      'AI_RELATED_GP_FILTER_UNAVAILABLE', '選択されたRelated GPは利用できません。');
+  }
+  if (filters.meetingTypeCode) {
+    kspRequireCatalogItem_(safeCatalog.meetingTypes || [], filters.meetingTypeCode,
+      'AI_MEETING_TYPE_FILTER_UNAVAILABLE', '選択されたMeeting Typeは利用できません。');
+  }
+  (input && input.selectedEntityKeys || []).forEach(function (entityKey) {
+    kspRequireCatalogItem_(safeCatalog.counterpartyEntities, entityKey,
+      'AI_ENTITY_FILTER_UNAVAILABLE', '選択されたCounterparty Entityは利用できません。');
+  });
   return input;
 }
 
@@ -326,6 +342,12 @@ function kspBuildKnowledgeSearchAuditRow_(params) {
   telemetry.route = kspAiTrim_(options.provider || input.route);
   telemetry.mode = input.mode || KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION;
   telemetry.structured_filters = kspKnowledgeFilterAuditMetadata_(input);
+  if ((input.selectedEntityKeys || []).length) telemetry.selected_entity_keys = input.selectedEntityKeys.slice();
+  if ((options.entityEvidence || []).length) {
+    telemetry.entity_evidence = options.entityEvidence.map(function (item) {
+      return { entity_key: item.entityKey, status: item.evidenceStatus, cited_source_count: Number(item.citationCount || 0) };
+    });
+  }
   return {
     Event_Timestamp: kspCanonicalInstantIso_(options.timestamp),
     Actor: options.actor || 'UNIDENTIFIED',
