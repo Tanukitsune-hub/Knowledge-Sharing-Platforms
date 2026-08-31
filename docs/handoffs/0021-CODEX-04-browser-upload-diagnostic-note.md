@@ -37,7 +37,23 @@ PRIVATE_WEB_APP_VERSION: 63 / UNCHANGED
 RUNTIME_MUTATION: NONE
 PROVIDER_MUTATION: NONE
 NEW_FORMAT_FIXTURES_REGISTERED: 0
-BLOCKER: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
+BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
 ```
 
 This is a continuation of `0021-CODEX-04`, not a new Dispatch.
+
+## Read-only diagnosis completed 2026-09-01 JST
+
+- actual surface: Chrome extension, not the desktop built-in browser;
+- attached browser profile: Chrome Profile 2, matching the enabled/connected extension profile;
+- extension installed/enabled and native-host manifest: PASS;
+- six temporary workspace-local fixture copies: byte-readable, all non-empty, expected sizes/types;
+- Web App file input: connected, enabled, multiple, intentionally hidden behind the visible drop zone;
+- visible drop-zone click, keyboard activation and DOM/CUA click: native chooser did not open;
+- fresh Chrome Profile 2 window: same result;
+- browser console errors: none;
+- failure occurs before any file path assignment or local-file read by the upload bridge.
+
+The agent could not independently inspect `chrome://extensions` because the browser security policy blocks that page. Keep the user's ON confirmation as user evidence; do not relabel the blocker as a proven OFF toggle.
+
+Next action: fully exit Chrome and reopen Profile 2 to reload the extension/permission process, then resume this same CODEX-04. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI. Do not create CODEX-05.

@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
-LAST_VERIFIED_AT: 2026-08-31 JST
-LAST_VERIFIED_BY: Work 0021 CODEX-04 local six-format qualification pause
+LAST_VERIFIED_AT: 2026-09-01 JST
+LAST_VERIFIED_BY: Work 0021 CODEX-04 Chrome Profile 2 file-chooser diagnosis
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -33,7 +33,7 @@ Version 63 remains the current private-Web-App deployment. CODEX-04 has not crea
 
 CODEX-04 deterministic/local validation reached `371/371` PASS, then stopped before fixture registration or provider/runtime mutation because the browser-assisted local-file upload bridge was unavailable.
 
-The user reports that Chrome extension `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. Therefore the root cause is not yet proven to be the permission toggle itself.
+The user reports that Chrome extension `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. Read-only diagnosis proved the selected surface is that enabled Chrome extension in Profile 2, all six workspace-local fixtures are readable, and the failure occurs before path assignment because the native chooser does not open. The permission page itself was not agent-readable under browser security policy, so the toggle is not independently relabeled OFF.
 
 ```text
 TARGET_RUNTIME_QUALIFICATION: BLOCKED / NOT RUN
@@ -41,10 +41,10 @@ WEB_APP_VERSION: 63 / UNCHANGED
 RUNTIME_MUTATION: NONE
 PROVIDER_MUTATION: NONE
 NEW_FORMAT_FIXTURES_REGISTERED: 0
-BLOCKER: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
+BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
 ```
 
-Resume the same `0021-CODEX-04` after diagnosing actual browser mode/profile/session, stale extension state, and local workspace-file readability. Do not mutate Drive/Backend/OpenAI/deployment during diagnosis and do not create CODEX-05 solely for this pause.
+Fully exit Chrome and reopen Profile 2 to reload the extension/permission process, then resume the same `0021-CODEX-04`. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI. No Drive/Backend/OpenAI/deployment mutation occurred; do not create CODEX-05.
 
 ## Data and control artifacts
 

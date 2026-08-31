@@ -2,8 +2,8 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
 MODE: `BUILD / QUALIFICATION -> FINAL WORK READINESS`
 
 Active instruction:
@@ -53,7 +53,7 @@ Work 0021 is accepted through CODEX-03:
 
 Local deterministic validation reached `371/371` PASS, but runtime qualification has not started because the browser-assisted local-file upload bridge was unavailable before any fixture registration/provider mutation.
 
-The user confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. No further user-side action is currently known.
+The user confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. Read-only diagnosis then proved the task is attached to the enabled Chrome extension in Profile 2, all six workspace-local fixture copies are readable, and the failure occurs before file assignment because the native chooser never opens.
 
 Resume the SAME `0021-CODEX-04` dispatch and first diagnose the actual browser/profile/session/local-file path using the committed diagnostic note. Do not ask the user to repeat the already-enabled toggle without fresh evidence.
 
@@ -65,10 +65,11 @@ PRIVATE_WEB_APP_VERSION: 63 / UNCHANGED
 RUNTIME_MUTATION: NONE
 PROVIDER_MUTATION: NONE
 NEW_FORMAT_FIXTURES_REGISTERED: 0
-DIAGNOSTIC: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
+DIAGNOSTIC: COMPLETE
+BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
 ```
 
-Do not create CODEX-05.
+Fully exit Chrome and reopen Profile 2 to reload the extension/permission process, then resume this same CODEX-04. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI. Do not repeat the toggle and do not create CODEX-05.
 
 ## CODEX-04 outcome after diagnosis
 
@@ -88,5 +89,5 @@ Keep PR #34 Draft/Open/unmerged. Do not merge it.
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`

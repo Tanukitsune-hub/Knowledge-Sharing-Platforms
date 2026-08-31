@@ -374,6 +374,34 @@ test('Pitchbook reference metadata validates identity and boundary without readi
   });
 });
 
+test('FULL_OUTPUT keeps all six Pitchbook formats reference-only without reading source bytes', () => {
+  const extensions = ['pdf', 'pptx', 'xlsx', 'docx', 'txt', 'eml'];
+  const pitchbookRows = extensions.map((extension, index) => pitchbookRow(
+    `DOC-${String(index + 1).padStart(6, '0')}`,
+    '2026-08-01',
+    {
+      File_ID: `file-${extension}`,
+      Original_Filename: `KSP-CODEX04-${extension.toUpperCase()}.${extension}`,
+      Saved_Filename: `KSP-CODEX04-${extension.toUpperCase()}.${extension}`
+    }
+  ));
+  const env = createFakeEnvironment({
+    meetingRows: [meetingRow('MTG-000001', '2026-08-01', { Doc_File_ID: 'doc-1' })],
+    pitchbookRows,
+    documents: { 'doc-1': { text: 'Authoritative Meeting body only.' } }
+  });
+  const result = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: '' }));
+  assert.equal(result.ok, true);
+  assert.equal(result.preview.pitchbookCount, 6);
+  assert.deepEqual(env._debug.pitchbookByteReads, []);
+  assert.match(result.preview.packageText, /Pitchbooks \/ reference metadata and authoritative links only/);
+  for (const extension of extensions) {
+    assert.match(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}\\.${extension}`));
+    assert.doesNotMatch(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}-BODY`));
+  }
+  assert.match(result.preview.packageText, /Authoritative Meeting body only\./);
+});
+
 test('Knowledge Export includes structured Meeting and Pitchbook metadata but not follow-up note Audit content', () => {
   const env=createFakeEnvironment({
     meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-000002',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up'})],

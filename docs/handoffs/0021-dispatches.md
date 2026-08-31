@@ -2,12 +2,12 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
 
 ## Active dispatch
 
-### 0021-CODEX-04 — READY / LOCAL FILE UPLOAD BRIDGE DIAGNOSIS THEN SIX-FORMAT QUALIFICATION
+### 0021-CODEX-04 — ACTION REQUIRED / CHROME FILE-CHOOSER BRIDGE RELOAD
 
 Primary outcome remains unchanged:
 
@@ -31,7 +31,7 @@ Codex previously stopped before runtime registration/provider mutation because i
 
 The user subsequently confirmed that **Allow access to file URLs / ファイルのURLへのアクセスを許可する is already ON** in the ChatGPT/Codex Chrome extension settings.
 
-No further user action is currently known. Therefore the ball returns to CODEX for diagnosis.
+Read-only diagnosis completed against the attached Chrome extension and Profile 2. The extension is installed/enabled, the native host is valid, and all six workspace-local fixture copies are readable. The Web App input is connected/enabled, but the native chooser does not open through visible click, keyboard activation or DOM/CUA click. The same failure occurs in a fresh Profile 2 window before any file path assignment.
 
 The earlier blocker label `CHROME_EXTENSION_FILE_UPLOAD_PERMISSION` is not proven. Current diagnostic state:
 
@@ -43,12 +43,13 @@ RUNTIME_MUTATION: NONE
 PROVIDER_MUTATION: NONE
 NEW_FORMAT_FIXTURES_REGISTERED: 0
 PR_34: Draft / Open / unmerged
-DIAGNOSTIC: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
+DIAGNOSTIC: COMPLETE
+BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
 ```
 
 Resume the SAME `0021-CODEX-04` dispatch. Do not create CODEX-05.
 
-Before asking the user to change another setting, diagnose the actual browser/profile/session and local-file path in read-only fashion as specified in the diagnostic note. Do not mutate Drive, Backend, OpenAI, deployment, or provider state during that diagnosis.
+Do not ask the user to repeat the already-enabled toggle. Fully exit Chrome and reopen Profile 2 so the extension/permission process is reloaded, then resume this same dispatch. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI before resuming.
 
 Once the local upload bridge is positively available, continue the same bounded CODEX-04 matrix under the committed instruction.
 
@@ -74,5 +75,5 @@ Do not call Gemini, retry/mutate old large fixtures, run broad sync, implement W
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`

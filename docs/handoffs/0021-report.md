@@ -9,14 +9,14 @@ STATUS: `ACTION_REQUIRED`
 
 Work 0021 is accepted through CODEX-03. The canonical filters, five modes, explicit 2–5 Entity comparison, per-Entity citation attribution, exact Related GP / Meeting Type filters, and FULL_OUTPUT parity remain qualified on private Web App version 63.
 
-CODEX-04 local deterministic validation reached `371/371` PASS. Target-runtime six-format qualification has not started because the browser-assisted local-file upload bridge stopped before any registration/provider mutation.
+CODEX-04 local deterministic validation reached `371/371` PASS. Target-runtime six-format qualification has not started because the attached Chrome extension in Profile 2 cannot open/expose the native chooser for the normal registration flow. All six workspace-local fixture copies were readable; the failure occurs before file assignment.
 
 The user confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. The earlier label `CHROME_EXTENSION_FILE_UPLOAD_PERMISSION` is therefore not considered a proven root cause.
 
 Current blocker classification:
 
 ```text
-BLOCKER: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
+BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
 TARGET_RUNTIME_QUALIFICATION: BLOCKED / NOT RUN
 PRIVATE_WEB_APP_VERSION: 63 / UNCHANGED
 RUNTIME_MUTATION: NONE
@@ -24,7 +24,7 @@ PROVIDER_MUTATION: NONE
 NEW_FORMAT_FIXTURES_REGISTERED: 0
 ```
 
-Resume the same `0021-CODEX-04` dispatch after diagnosing whether the task is using the intended Chrome profile/extension versus the desktop built-in browser or another local-file access path. Do not create CODEX-05 merely for this pause.
+Fully exit Chrome and reopen Profile 2 to reload the extension/permission process, then resume the same `0021-CODEX-04`. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI. Do not create CODEX-05.
 
 ## Accepted CODEX-02 evidence
 
@@ -80,6 +80,10 @@ Detailed instruction:
 Operational pause/resume diagnostic:
 
 `docs/handoffs/0021-dispatches.md`
+
+Current CODEX-04 report:
+
+`docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-report.md`
 
 After local upload access is positively established, CODEX-04 continues the bounded six-format matrix only:
 

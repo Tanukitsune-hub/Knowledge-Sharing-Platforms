@@ -76,6 +76,98 @@ test('EML source dispatch uploads normalized text and not attachment bytes',()=>
   assert.equal(built.payloadKind,'text');assert.equal(built.mimeType,'text/plain');assert.match(built.text,/Visible & grounded/);assert.doesNotMatch(built.text,/SECRET_ATTACHMENT/);
 });
 
+test('all six format sources hash the exact provider payload and preserve canonical identity metadata',()=>{
+  const rawEml=[
+    'Subject: CODEX-04 synthetic mail',
+    'From: sender@example.invalid',
+    'To: recipient@example.invalid',
+    'Cc: observer@example.invalid',
+    'Date: Mon, 31 Aug 2026 09:00:00 +0900',
+    'MIME-Version: 1.0',
+    'Content-Type: multipart/mixed; boundary="matrix"',
+    '',
+    '--matrix',
+    'Content-Type: text/plain; charset=UTF-8',
+    '',
+    'KSP-CODEX04-EML-BODY',
+    '--matrix',
+    'Content-Type: text/plain; name="attachment.txt"',
+    'Content-Disposition: attachment; filename="attachment.txt"',
+    '',
+    'KSP-CODEX04-EML-ATTACHMENT-NOT-INDEXED',
+    '--matrix--'
+  ].join('\r\n');
+  const cases={
+    ...formatCases,
+    eml:{mime:'message/rfc822',bytes:Array.from(Buffer.from(rawEml,'utf8'))}
+  };
+  for(const [extension,driveSource] of Object.entries(cases)){
+    const c=baseContext({meetingRows:[]});
+    Object.assign(c.pitchbookRows[0],{
+      Original_Filename:`source.${extension}`,Saved_Filename:`saved.${extension}`,
+      Fund_Strategy:'CODEX-04 Six Format Matrix',File_URL:'https://drive.test/authoritative-source'
+    });
+    const env=createSyncEnvironment({context:c,pitchbookSource:driveSource});
+    const built=plain(ksp.kspBuildFeatureFreezeAiSource_(env,{sourceType:'Pitchbook',sourceId:'DOC-000001',row:c.pitchbookRows[0]},ksp.kspBuildAiMasterMaps_(c.gpRows,c.optionRows)));
+    const expectedHash=built.payloadKind==='text'
+      ? ksp.kspAiHashTextFallback_(built.text)
+      : ksp.kspAiHashBytesFallback_(built.bytes);
+    assert.equal(built.contentHash,expectedHash,extension);
+    assert.equal(built.sourceType,'Pitchbook',extension);
+    assert.equal(built.sourceId,'DOC-000001',extension);
+    assert.equal(built.dateKey,'2026-08-01',extension);
+    assert.equal(built.gpId,'GP-1',extension);
+    assert.equal(built.entityKey,'GP:GP-1',extension);
+    assert.equal(built.assetClassId,'AC-1',extension);
+    assert.equal(built.capitalTypeId,'CT-1',extension);
+    assert.equal(built.fundStrategy,'CODEX-04 Six Format Matrix',extension);
+    assert.equal(built.driveUrl,'https://drive.test/authoritative-source',extension);
+    const attributes=plain(ksp.kspBuildOpenAiAttributes_(built));
+    assert.deepEqual({
+      source_type:attributes.source_type,source_id:attributes.source_id,date_key:attributes.date_key,
+      entity_key:attributes.entity_key,gp_id:attributes.gp_id,asset_class_id:attributes.asset_class_id,
+      capital_type_id:attributes.capital_type_id,fund_strategy:attributes.fund_strategy,
+      content_hash:attributes.content_hash
+    },{
+      source_type:'Pitchbook',source_id:'DOC-000001',date_key:'2026-08-01',entity_key:'GP:GP-1',
+      gp_id:'GP-1',asset_class_id:'AC-1',capital_type_id:'CT-1',
+      fund_strategy:'CODEX-04 Six Format Matrix',content_hash:expectedHash
+    },extension);
+    if(extension==='eml'){
+      assert.match(built.text,/Subject: CODEX-04 synthetic mail/);
+      assert.match(built.text,/KSP-CODEX04-EML-BODY/);
+      assert.doesNotMatch(built.text,/KSP-CODEX04-EML-ATTACHMENT-NOT-INDEXED/);
+    }
+  }
+});
+
+test('six-format retrieved sources normalize only through authoritative provider and source identity',()=>{
+  const extensions=['pdf','pptx','xlsx','docx','txt','eml'];
+  const c=baseContext({meetingRows:[]});
+  c.pitchbookRows=extensions.map((extension,index)=>{
+    const sourceId=`DOC-${String(index+1).padStart(6,'0')}`;
+    const contentHash=`hash-${extension}`;
+    const providerId=`provider-${extension}`;
+    const state=ksp.kspBuildEmptyAiProviderState_();
+    Object.assign(state.OPENAI,{status:'Indexed',providerDocumentId:providerId,documentName:`openai:private/${providerId}`,contentHash,indexedAt:'2026-08-31T00:00:00.000Z'});
+    return {...c.pitchbookRows[0],Document_ID:sourceId,File_ID:`file-${extension}`,
+      File_URL:`https://drive.test/${sourceId}`,Original_Filename:`source.${extension}`,
+      Saved_Filename:`saved.${extension}`,AI_Content_Hash:contentHash,
+      AI_Provider_State_JSON:ksp.kspSerializeAiProviderState_(state)};
+  });
+  const response=ksp.kspNormalizeOpenAiResponse_({output:[{
+    type:'file_search_call',status:'completed',results:extensions.map((extension,index)=>({
+      file_id:`provider-${extension}`,filename:'same-provider-filename.bin',text:`chunk-${extension}`,
+      attributes:{source_type:'Pitchbook',source_id:`DOC-${String(index+1).padStart(6,'0')}`,content_hash:`hash-${extension}`}
+    }))
+  }]});
+  const mapped=plain(ksp.kspMapKnowledgeCitations_(response.citations,ksp.kspBuildAuthoritativeSourceMaps_([],c.pitchbookRows)));
+  assert.equal(mapped.citations.length,6);
+  assert.deepEqual(mapped.citations.map(item=>item.sourceId),extensions.map((_,index)=>`DOC-${String(index+1).padStart(6,'0')}`));
+  assert.ok(mapped.citations.every(item=>item.sourceType==='Pitchbook'&&/^https:\/\/drive\.test\/DOC-/.test(item.driveUrl)));
+  assert.doesNotMatch(JSON.stringify(mapped),/provider-(pdf|pptx|xlsx|docx|txt|eml)|same-provider-filename/);
+});
+
 test('NotIndexed active source is eligible after Work 0008 deferral',()=>{
   const c=baseContext({meetingRows:[]});c.pitchbookRows[0].AI_Index_Status='NotIndexed';c.pitchbookRows[0].AI_Last_Error=JSON.stringify({permanent:true,code:'AI_FORMAT_DEFERRED_TO_WORK_0009'});
   const selected=plain(ksp.kspFfSelectAiWorkItems_(c.meetingRows,c.pitchbookRows,'2026-08-16T00:00:00.000Z',ksp.kspNormalizeAiSettings_(c.settings)));
