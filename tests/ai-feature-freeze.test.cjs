@@ -124,6 +124,24 @@ test('generic five-mode service audits mode without answer or chunks',()=>{
   assert.equal(result.ok,true);assert.equal(result.mode,'要約');assert.equal(env._debug.audits[0].Search_Mode,'要約');assert.equal(env._debug.audits[0].Question_Or_Instruction,'');assert.equal(JSON.stringify(env._debug.audits[0]).includes('risk focus'),false);assert.equal(JSON.stringify(env._debug.audits[0]).includes('SECRET_ANSWER'),false);
 });
 
+test('Pitchbook source derives exact filter attributes from the authoritative row',()=>{
+  const c=baseContext({meetingRows:[]});
+  Object.assign(c.pitchbookRows[0],{Fund_Strategy:'Exact Strategy',GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:'CT-1'});
+  const env=createSyncEnvironment({context:c});
+  const built=plain(ksp.kspBuildFeatureFreezeAiSource_(env,{sourceType:'Pitchbook',sourceId:'DOC-000001',row:c.pitchbookRows[0]},ksp.kspBuildAiMasterMaps_(c.gpRows,c.optionRows)));
+  const attributes=plain(ksp.kspBuildOpenAiAttributes_(built));
+  assert.equal(built.fundStrategy,'Exact Strategy');
+  assert.deepEqual({
+    source_type:attributes.source_type,source_id:attributes.source_id,date_key:attributes.date_key,
+    gp_id:attributes.gp_id,asset_class_id:attributes.asset_class_id,capital_type_id:attributes.capital_type_id,
+    fund_strategy:attributes.fund_strategy,counterparty_id:attributes.counterparty_id,content_hash:attributes.content_hash
+  },{
+    source_type:'Pitchbook',source_id:'DOC-000001',date_key:'2026-08-01',gp_id:'GP-1',
+    asset_class_id:'AC-1',capital_type_id:'CT-1',fund_strategy:'Exact Strategy',counterparty_id:'GP-1',
+    content_hash:built.contentHash
+  });
+});
+
 test('feature-freeze diagnostics report six formats, five modes, and pending live qualification',()=>{
   const result=plain(ksp.kspGetFeatureFreezeDiagnostics_(createSyncEnvironment()));
   assert.equal(result.featureFreezeCandidate,true);assert.equal(result.formats.length,6);assert.equal(result.modes.length,5);assert.equal(result.sharedRetrievalPath,'kspRunFeatureFreezeKnowledgeSearch_');assert.equal(result.liveQualified,false);assert.equal(result.syncHandlerAvailable,true);assert.equal(Object.hasOwn(result,'apiKey'),false);

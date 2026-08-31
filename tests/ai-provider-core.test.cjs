@@ -151,6 +151,32 @@ test('OpenAI query explicitly requests File Search results without exposing prov
   assert.doesNotMatch(JSON.stringify(captured), /OPENAI_API_KEY|secret/i);
 });
 
+test('OpenAI attribute update uses one in-place update and exact readback', () => {
+  const originalRequest = ksp.kspOpenAiJsonRequestLive_;
+  const calls = [];
+  ksp.kspOpenAiJsonRequestLive_ = (method, path, payload) => {
+    calls.push({ method, path, payload: payload ? plain(payload) : null });
+    if (method === 'GET') {
+      return { id: 'file-synthetic', status: 'completed', attributes: {
+        source_type: 'Pitchbook', source_id: 'DOC-SYNTHETIC', content_hash: 'same', fund_strategy: 'Exact'
+      } };
+    }
+    return { id: 'file-synthetic' };
+  };
+  let result;
+  try {
+    result = plain(ksp.kspOpenAiUpdateVectorStoreFileAttributesLive_('vs-synthetic', {
+      providerDocumentId: 'file-synthetic'
+    }, { source_type: 'Pitchbook', source_id: 'DOC-SYNTHETIC', content_hash: 'same', fund_strategy: 'Exact' }));
+  } finally {
+    ksp.kspOpenAiJsonRequestLive_ = originalRequest;
+  }
+  assert.deepEqual(calls.map((call) => call.method), ['POST', 'GET']);
+  assert.equal(calls[0].path, '/vector_stores/vs-synthetic/files/file-synthetic');
+  assert.deepEqual(result.attributes, calls[0].payload.attributes);
+  assert.equal(result.status, 'completed');
+});
+
 test('OpenAI upload cleans attachment and File after attach failure while preserving the primary error', () => {
   const originals = {
     fetch: ksp.UrlFetchApp,
@@ -606,6 +632,7 @@ test('provider sync selects each provider independently and indexes both source 
 
 function configureOpenAiSyncQualificationEnvironment(env, context) {
   let uploadSequence = 0;
+  env._debug.metadataUpdates = [];
   env.getProviderConfig = (provider) => provider === 'OPENAI'
     ? { provider, enabled: true, vectorStoreId: 'vs-synthetic', modelId: 'gpt-5.6-terra', credentialConfigured: true }
     : { provider, enabled: false, vectorStoreId: '', storeName: '', modelId: '', credentialConfigured: false };
@@ -619,6 +646,14 @@ function configureOpenAiSyncQualificationEnvironment(env, context) {
     env._debug.deleted.push(documentValue.name);
     const index = env._debug.documents.findIndex((item) => item.name === documentValue.name);
     if (index >= 0) env._debug.documents.splice(index, 1);
+  };
+  env.updateProviderDocumentAttributes = (provider, config, documentValue, attributes) => {
+    const index = env._debug.documents.findIndex((item) => item.name === documentValue.name);
+    assert.notEqual(index, -1);
+    env._debug.metadataUpdates.push({ name: documentValue.name, attributes: plain(attributes) });
+    env._debug.documents[index].attributes = plain(attributes);
+    env._debug.documents[index].customMetadata = plain(attributes);
+    return plain(env._debug.documents[index]);
   };
   env.uploadProviderSource = (provider, config, source) => {
     const providerDocumentId = `openai-qualification-${++uploadSequence}`;
@@ -643,6 +678,82 @@ function configureOpenAiSyncQualificationEnvironment(env, context) {
   };
   return { nextProviderDocumentId: () => `openai-qualification-${uploadSequence + 1}` };
 }
+
+test('OpenAI metadata-only drift is detected and refreshed in place without duplicate upload', () => {
+  const context = baseContext({ meetingRows: [] });
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  const initial = plain(ksp.kspRunProviderNeutralAiSync_(env, {
+    force: true, sourceType: 'Pitchbook', sourceId: 'DOC-000001', providers: ['OPENAI']
+  }));
+  assert.equal(initial.indexed, 1);
+  assert.equal(env._debug.uploaded.length, 1);
+  const originalName = env._debug.documents[0].name;
+
+  context.pitchbookRows[0].Fund_Strategy = 'Exact Strategy';
+  const refreshed = plain(ksp.kspRunProviderNeutralAiSync_(env, {
+    force: true, sourceType: 'Pitchbook', sourceId: 'DOC-000001', providers: ['OPENAI']
+  }));
+  assert.equal(refreshed.ok, true);
+  assert.equal(refreshed.indexed, 0);
+  assert.equal(refreshed.unchanged, 1);
+  assert.equal(refreshed.metadataRefreshed, 1);
+  assert.equal(refreshed.providers.OPENAI.metadataRefreshed, 1);
+  assert.equal(env._debug.metadataUpdates.length, 1);
+  assert.equal(env._debug.uploaded.length, 1);
+  assert.equal(env._debug.documents.length, 1);
+  assert.equal(env._debug.documents[0].name, originalName);
+  assert.equal(env._debug.documents[0].attributes.fund_strategy, 'Exact Strategy');
+  assert.equal(env._debug.documents[0].attributes.counterparty_id, 'GP-1');
+
+  const noOp = plain(ksp.kspRunProviderNeutralAiSync_(env, {
+    force: true, sourceType: 'Pitchbook', sourceId: 'DOC-000001', providers: ['OPENAI']
+  }));
+  assert.equal(noOp.ok, true);
+  assert.equal(noOp.unchanged, 1);
+  assert.equal(noOp.metadataRefreshed, 0);
+  assert.equal(env._debug.metadataUpdates.length, 1);
+  assert.equal(env._debug.uploaded.length, 1);
+});
+
+test('OpenAI attribute refresh fails closed when readback does not match the authoritative attributes', () => {
+  const context = baseContext({ meetingRows: [] });
+  context.settings = {
+    ...context.settings,
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'vs-synthetic', OPENAI_DEFAULT_MODEL: 'gpt-5.6-terra',
+    GEMINI_ENABLED: 'false'
+  };
+  const env = createSyncEnvironment({ context });
+  configureOpenAiSyncQualificationEnvironment(env, context);
+  assert.equal(plain(ksp.kspRunProviderNeutralAiSync_(env, {
+    force: true, sourceType: 'Pitchbook', sourceId: 'DOC-000001', providers: ['OPENAI']
+  })).indexed, 1);
+  context.pitchbookRows[0].Fund_Strategy = 'Exact Strategy';
+  env.updateProviderDocumentAttributes = (provider, config, documentValue) => plain(documentValue);
+  const failed = plain(ksp.kspRunProviderNeutralAiSync_(env, {
+    force: true, sourceType: 'Pitchbook', sourceId: 'DOC-000001', providers: ['OPENAI']
+  }));
+  assert.equal(failed.ok, false);
+  assert.equal(failed.failed, 1);
+  assert.equal(failed.items[0].code, 'OPENAI_ATTRIBUTE_REFRESH_READBACK_MISMATCH');
+  assert.equal(env._debug.uploaded.length, 1);
+  assert.equal(env._debug.deleted.length, 0);
+  assert.equal(env._debug.documents.length, 1);
+  const state = plain(ksp.kspGetAiProviderStateEntry_(context.pitchbookRows[0], 'OPENAI'));
+  assert.equal(state.status, 'Indexed');
+});
+
+test('OpenAI attribute equality detects value and type drift independently of content hash', () => {
+  const expected = { source_type: 'Pitchbook', source_id: 'DOC-1', content_hash: 'same', ordinal: 1 };
+  assert.equal(ksp.kspOpenAiAttributesEqual_(expected, { ...expected }), true);
+  assert.equal(ksp.kspOpenAiAttributesEqual_(expected, { ...expected, fund_strategy: 'New' }), false);
+  assert.equal(ksp.kspOpenAiAttributesEqual_(expected, { ...expected, ordinal: '1' }), false);
+});
 
 function openAiFilterValue(filter, key) {
   if (!filter) return '';

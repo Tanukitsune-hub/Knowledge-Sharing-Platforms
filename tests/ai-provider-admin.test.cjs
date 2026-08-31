@@ -338,6 +338,7 @@ test('item-level OpenAI sync failure preserves the valid connection and returns 
     indexed: 1,
     reused: 0,
     unchanged: 0,
+    metadataRefreshed: 1,
     removed: 0,
     failed: 1,
     skippedClaims: 0,
@@ -355,6 +356,7 @@ test('item-level OpenAI sync failure preserves the valid connection and returns 
     assert.equal(result.sync.usable, true);
     assert.equal(result.sync.selected, 2);
     assert.equal(result.sync.indexed, 1);
+    assert.equal(result.sync.metadataRefreshed, 1);
     assert.equal(result.sync.failed, 1);
     assert.deepEqual(result.sync.errorCodes, ['OPENAI_INDEX_TIMEOUT']);
     assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'true');

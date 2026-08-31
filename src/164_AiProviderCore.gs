@@ -304,6 +304,21 @@ function kspBuildOpenAiAttributes_(source) {
   return attributes;
 }
 
+function kspOpenAiAttributesEqual_(leftValue, rightValue) {
+  var left = leftValue || {};
+  var right = rightValue || {};
+  var leftKeys = Object.keys(left).sort();
+  var rightKeys = Object.keys(right).sort();
+  if (leftKeys.length !== rightKeys.length) return false;
+  for (var index = 0; index < leftKeys.length; index += 1) {
+    var key = leftKeys[index];
+    if (key !== rightKeys[index] || typeof left[key] !== typeof right[key] || left[key] !== right[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function kspBuildOpenAiFilter_(filters) {
   var input = kspKnowledgeRequestFilters_(filters);
   var clauses = [];
@@ -629,6 +644,11 @@ function kspCreateProviderNeutralAiEnvironment_() {
     return provider === KSP_AI_PROVIDERS.OPENAI
       ? kspOpenAiDeleteDocumentLive_(config.vectorStoreId, documentValue)
       : base.deleteFileSearchDocument(config.storeName, documentValue.name);
+  };
+  base.updateProviderDocumentAttributes = function (provider, config, documentValue, attributes) {
+    kspAssert_(provider === KSP_AI_PROVIDERS.OPENAI, 'AI_PROVIDER_UNSUPPORTED',
+      'Provider document attributes cannot be updated for this provider.');
+    return kspOpenAiUpdateVectorStoreFileAttributesLive_(config.vectorStoreId, documentValue, attributes);
   };
   base.queryProvider = function (provider, config, request) {
     if (provider === KSP_AI_PROVIDERS.OPENAI) return kspOpenAiQueryFileSearchLive_(request);
@@ -1421,7 +1441,7 @@ function kspBuildProviderSyncReport_(startedAt, settings) {
   return {
     workId: '0020', startedAt: startedAt, finishedAt: null, ok: true, providerOk: true, partial: false,
     syncEnabled: settings.syncEnabled, providers: {}, selected: 0, indexed: 0,
-    reused: 0, unchanged: 0, removed: 0, failed: 0, skippedClaims: 0, items: [], errors: []
+    reused: 0, unchanged: 0, metadataRefreshed: 0, removed: 0, failed: 0, skippedClaims: 0, items: [], errors: []
   };
 }
 
@@ -1470,7 +1490,7 @@ function kspRunProviderNeutralAiSync_(environment, options) {
       return;
     }
     report.providers[provider] = {
-      enabled: Boolean(config.enabled), usable: Boolean(config.enabled), indexed: 0, failed: 0,
+      enabled: Boolean(config.enabled), usable: Boolean(config.enabled), indexed: 0, metadataRefreshed: 0, failed: 0,
       status: config.enabled ? 'READY' : 'DISABLED_BY_CONFIG'
     };
     if (!config.enabled) return;
@@ -1567,6 +1587,27 @@ function kspRunProviderNeutralAiSync_(environment, options) {
                 'OpenAI source reconciliation did not return one current document.');
             }
             var selected = matching[0];
+            if (provider === KSP_AI_PROVIDERS.OPENAI && selection.sourceId) {
+              var desiredAttributes = kspBuildOpenAiAttributes_(source);
+              var currentAttributes = selected.attributes || selected.customMetadata || {};
+              if (!kspOpenAiAttributesEqual_(currentAttributes, desiredAttributes)) {
+                kspAssert_(typeof environment.updateProviderDocumentAttributes === 'function',
+                  'OPENAI_ATTRIBUTE_REFRESH_UNAVAILABLE', 'ChatGPT source attribute refresh is unavailable.');
+                var refreshed = environment.updateProviderDocumentAttributes(provider, effectiveConfig,
+                  selected, desiredAttributes);
+                kspAssert_(kspProviderDocumentIdentity_(refreshed) === kspProviderDocumentIdentity_(selected),
+                  'OPENAI_ATTRIBUTE_REFRESH_IDENTITY_MISMATCH',
+                  'ChatGPT source attribute refresh returned a different document.');
+                kspAssert_(kspOpenAiAttributesEqual_(refreshed.attributes || refreshed.customMetadata || {}, desiredAttributes),
+                  'OPENAI_ATTRIBUTE_REFRESH_READBACK_MISMATCH',
+                  'ChatGPT source attribute refresh readback did not match the authoritative source.');
+                selected = refreshed;
+                report.metadataRefreshed += 1;
+                report.providers[provider].metadataRefreshed += 1;
+                report.items.push({ provider: provider, sourceType: item.sourceType,
+                  sourceId: item.sourceId, action: 'metadata-refreshed' });
+              }
+            }
             var selectedIdentity = kspProviderDocumentIdentity_(selected);
             var staleDocuments = (docs || []).filter(function (doc) {
               return kspProviderDocumentIdentity_(doc) !== selectedIdentity;
