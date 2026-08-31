@@ -2,23 +2,23 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
 MODE: `BUILD / QUALIFICATION -> FINAL WORK READINESS`
 
 Active instruction:
 
 `docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-instruction.md`
 
+Current operational/ball state and resume diagnostic:
+
+`docs/handoffs/0021-dispatches.md`
+
 Accepted reports:
 
 - `docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`;
 - `docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-report.md`;
 - `docs/handoffs/0021-CODEX-03-multi-entity-comparison-and-advanced-exact-filters-report.md`.
-
-Dispatch register:
-
-`docs/handoffs/0021-dispatches.md`
 
 Canonical delivery order:
 
@@ -50,7 +50,26 @@ Work 0021 is accepted through CODEX-03:
 
 No contradictory evidence exists for those accepted gates.
 
-## CODEX-04 outcome
+## CODEX-04 current pause
+
+Local deterministic validation reached `371/371` PASS, but runtime qualification has not started because the browser-assisted local-file upload bridge was unavailable before any fixture registration/provider mutation.
+
+The user has confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. Therefore do not ask the user to repeat that toggle without first diagnosing the actual browser/profile/session and local workspace path as specified in `docs/handoffs/0021-dispatches.md`.
+
+Current safe state:
+
+```text
+TARGET_RUNTIME_QUALIFICATION: BLOCKED / NOT RUN
+PRIVATE_WEB_APP_VERSION: 63 / UNCHANGED
+RUNTIME_MUTATION: NONE
+PROVIDER_MUTATION: NONE
+NEW_FORMAT_FIXTURES_REGISTERED: 0
+BLOCKER: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
+```
+
+Resume the SAME `0021-CODEX-04` dispatch after diagnosis. Do not create CODEX-05.
+
+## CODEX-04 outcome after resume
 
 Complete only the bounded six-format/provider-capability matrix for:
 
@@ -68,5 +87,5 @@ Keep PR #34 Draft/Open/unmerged. Do not merge it.
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `USER`
+STATUS: `ACTION_REQUIRED`
