@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-08-31 JST
-LAST_VERIFIED_BY: CODEX-02 exact source readback + exact thinking-tuple/OpenAI qualification + ChatGPT GitHub merge verification
+LAST_VERIFIED_BY: Work 0021 CODEX-02 exact provider-attribute reconciliation and core runtime qualification
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -10,8 +10,8 @@ STATUS: ACTIVE / VERIFIED
 - DEFAULT_BRANCH: `main`
 - WORK_0020_MERGE_COMMIT: `185fd197cd531bf74e77af33b32e82706bebe0b5`
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
-- DEPLOYED_SOURCE_COMMIT: `2fee55970aa0542197c3a97d64b67aeaa50df714`
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0025 CODEX-02 exact per-thinking qualification gate, exact tested source
+- DEPLOYED_SOURCE_COMMIT: `a16d835` implementation commit; final Work 0021 documentation commit follows on the same branch
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-02 exact OpenAI metadata reconciliation and core filter/five-mode qualification source
 - SOURCE_BRANCH_USED_FOR_WORK_0020: `agent/0020-ai-provider-core`
 - SOURCE_BRANCH_USED_FOR_WORK_0025: `agent/0025-model-thinking-policy`
 - WORK_0020_STATUS: `ACCEPTED / MERGED`
@@ -27,14 +27,14 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `61`
+- DEPLOYMENT_VERSION: `62`
 - ENVIRONMENT: personal DEV / qualification
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
 
-Version 61 is the current private-Web-App deployment. It preserves the accepted Work 0020/0025 source and policy baseline and adds the Work 0021 canonical filter/five-mode implementation. Its exact source readback passed, but its first new compound-filter OpenAI qualification returned no retrieved source/citation; Work 0021 target-runtime readiness is therefore blocked.
+Version 62 is the current private-Web-App deployment. It preserves the accepted Work 0020/0025 source and policy baseline, the Work 0021 canonical filter/five-mode implementation, and adds exact OpenAI metadata-only reconciliation. Exact source readback passed `80/80`; the decisive compound filter, all five modes, FULL_OUTPUT preview parity, and no-transport/no-failover gate passed.
 
-No later Work 0021 dispatch may create another immutable version without a fresh committed instruction and deterministic validation. The next action is exact read-only reconciliation of designated row metadata and provider attributes, not broad sync or deployment experimentation.
+No later Work 0021 dispatch may create another immutable version without a fresh committed instruction and deterministic validation. The next planned feature dispatch is CODEX-03 explicit 2–5 Entity comparison and advanced exact filters; do not reopen the accepted version-62 core qualification absent contradictory evidence.
 
 ## Data and control artifacts
 
@@ -95,7 +95,7 @@ No later Work 0021 dispatch may create another immutable version without a fresh
 - CURRENT_PROFILE_QUALIFICATION: exact `gpt-5.6-terra` + provider-default omission + File Search tuple qualified
 - USER_SELECTOR_STATE: exactly one effective OpenAI model and one provider-default thinking choice; hidden synthetic profile excluded
 - OPENAI_CONNECTION_STATE: key configured, Vector Store ready, readiness ACTIVE
-- EXACT_SYNC_STATE: accepted CODEX-01 evidence preserved; CODEX-02 performed no source sync
+- EXACT_SYNC_STATE: Work 0025 evidence preserved; Work 0021 CODEX-02 exact-synced only `DOC-000017` and refreshed attributes in place without upload
 - PITCHBOOK_QUERY_STATE: one bounded query returned expected synthetic facts and an authoritative normalized `Pitchbook / DOC-000017` source; older synthetic citations were read only
 - MEETING_QUERY_STATE: one bounded query returned expected synthetic facts and an authoritative normalized `Meeting / MTG-000005` source
 - FULL_OUTPUT_STATE: accepted Work 0020 runtime evidence preserved; Work 0025 verified AI controls hidden and did not run FULL_OUTPUT
@@ -123,6 +123,21 @@ No later Work 0021 dispatch may create another immutable version without a fresh
 - STOP_STATE: no second OpenAI query, FULL_OUTPUT runtime, Gemini attempt, source sync/lifecycle, export artifact, or second deployment
 - BLOCKER: `OPENAI_COMPOUND_FILTER_EXISTING_INDEX_METADATA_MISMATCH_OR_EMPTY_RETRIEVAL`
 - PRESERVED_STATE: accepted Work 0020/0025 evidence remains valid; no application source row, `DOC-000018`, large fixture, provider Store, Library, trigger, or confidential data was mutated
+
+## Work 0021 CODEX-02 runtime state
+
+- DEPLOYED_SOURCE_COMMIT: `a16d835`; exact `80/80` pull-back parity PASS
+- WEB_APP_VERSION: `62`; one immutable version and one update of the same private `/exec` deployment
+- LOGIC_VALIDATION: PASS (`360/360` canonical tests)
+- ROOT_CAUSE: current-content `DOC-000017` provider attributes omitted `fund_strategy` and `counterparty_id`; Pitchbook sync source omitted Fund Strategy
+- EXACT_ATTRIBUTE_SYNC: selected 1 / indexed 0 / metadata refreshed 1 / unchanged 1 / failed 0; no upload or duplicate
+- OPENAI_RUNTIME_GATE: PASS — exact compound filter returned grounded facts and exactly one authoritative normalized `DOC-000017` source
+- FIVE_MODE_RUNTIME_CORE: PASS — free question, summary, timeline, core comparison, and meeting preparation
+- FULL_OUTPUT_RUNTIME_PARITY: PASS — one bounded preview; Meeting bodies authoritative and Pitchbooks reference-only; no artifact or AI call
+- GEMINI_NO_FAILOVER: PASS — zero effective choices, safe server selection error before transport, no Gemini API call
+- FINAL_PROVIDER_STATE: 16/16 completed documents; one exact current provider document each for `DOC-000017` and `MTG-000005`; `DOC-000018` absent from OpenAI as before
+- BLOCKER: NONE; ready for CODEX-03
+- PRESERVED_STATE: no broad sync, large-fixture retry/mutation, confidential data, new Store/Web App/Library/endpoint, or provider fallback
 
 ## Follow-up routing
 

@@ -2,8 +2,8 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `REVIEW_FIX -> QUALIFICATION`
 
 Active instruction:
@@ -38,13 +38,15 @@ Work 0020 and Work 0025 are accepted and merged. Preserve OpenAI File Search/cit
 
 The canonical core structured-filter model, shared OpenAI/FULL_OUTPUT contract, shared UI, five mode templates, Audit redaction, and deterministic validation are accepted. CODEX-01 passed `355/355`, exact `80/80` Apps Script readback, and updated the same private Web App once to version 61.
 
-## Active blocker / CODEX-02 outcome
+## CODEX-02 accepted outcome
 
-The first new version-61 compound-filter OpenAI query returned no retrieved authoritative source. ChatGPT read-only reconciliation confirms the authoritative `DOC-000017` row matches the selected GP / Asset Class / Capital Type / Fund-Strategy / Source Type and canonical Business Date, with provider indexing later than the row update. CODEX-02 must read the exact current provider attributes/types first, verify the actual root cause, repair only the metadata/filter compatibility defect, then complete the bounded core runtime gates.
+Read-only reconciliation proved metadata-only drift: the one exact current `DOC-000017` provider file had current content but lacked authoritative `fund_strategy` and `counterparty_id`. The production Pitchbook sync source also omitted Fund Strategy. CODEX-02 added exact typed attribute comparison, in-place update/readback, fail-closed identity checks, and authoritative Pitchbook Fund Strategy derivation.
 
-A strong hypothesis is that Date range filtering currently applies `gte/lte` to string `date_key` values while current OpenAI retrieval examples use numeric date attributes. This is not yet considered proven until provider attribute readback/reconciliation.
+After exact attribute refresh, the existing string Date range compound filter passed with one grounded authoritative `DOC-000017` citation. Numeric Date was therefore not applicable. All five modes, one bounded FULL_OUTPUT preview, and the zero-effective-Gemini-choice no-transport/no-failover gate passed on version 62. Canonical validation passed `360/360` and Apps Script readback passed `80/80`.
 
-Do not weaken exact filters or broad-sync the corpus to obtain a pass.
+CODEX-02 report:
+
+`docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-report.md`
 
 ## Deferred after CODEX-02
 
@@ -56,5 +58,5 @@ Follow the active detailed instruction's validation, bounded target-runtime, STO
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

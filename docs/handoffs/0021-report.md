@@ -2,22 +2,22 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Executive conclusion
 
-CODEX-01 completed the major core filter/five-mode implementation and passed deterministic validation, but its first version-61 compound-filter OpenAI runtime query returned a safe insufficient-evidence result with zero authoritative citations. The target-runtime gate therefore remains blocked.
+CODEX-02 closed the CODEX-01 runtime blocker. Exact provider readback proved metadata-only drift on the current `DOC-000017` file, not a Date range type failure. In-place attribute refresh preserved provider identity and content, made no duplicate upload, and restored authoritative `fund_strategy` and `counterparty_id`.
 
-ChatGPT read-only reconciliation narrowed the blocker:
+Version 62 then passed:
 
-- authoritative `DOC-000017` row matches the selected GP, Asset Class, Capital Type, Fund/Strategy, Pitchbook source scope and canonical 2026-08-30 Business Date;
-- its OpenAI indexed timestamp is later than the row update timestamp;
-- current source builders derive the expected stable metadata;
-- exact provider attributes/types have not yet been read back directly;
-- current code uses string `date_key` values with `gte/lte`, while current OpenAI retrieval documentation demonstrates numeric date attributes for range filtering.
+- the formerly failing exact compound filter with one grounded authoritative `DOC-000017` citation;
+- all five runtime modes on the bounded synthetic scope;
+- FULL_OUTPUT Meeting-body/Pitchbook-reference preview parity without an AI call;
+- a zero-effective-Gemini-choice safe error before transport and no OpenAI fallback;
+- final provider integrity with 16 completed documents before and after and one current document each for `DOC-000017` and `MTG-000005`.
 
-CODEX-02 is authorized to read exact provider attributes first, verify the root cause, repair only the metadata/filter compatibility issue, and finish the bounded CODEX-01 OpenAI/FULL_OUTPUT runtime campaign.
+No Gemini API call, broad sync, large-fixture mutation, confidential data, new runtime resource, FULL_OUTPUT artifact, or PR merge occurred.
 
 ## Accepted CODEX-01 evidence
 
@@ -38,19 +38,27 @@ CODEX-01 report:
 
 `docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`
 
-## Active blocker
+## CODEX-02 completion
 
 ```text
-EXACT_PROVIDER_ATTRIBUTE_READBACK: PENDING
-ROOT_CAUSE: PENDING EXACT RECONCILIATION
-OPENAI_COMPOUND_FILTER_QUERY: BLOCKED
-TARGET_RUNTIME_QUALIFICATION: BLOCKED
-BLOCKER: OPENAI_COMPOUND_FILTER_EXISTING_INDEX_METADATA_MISMATCH_OR_EMPTY_RETRIEVAL
+EXACT_PROVIDER_ATTRIBUTE_READBACK: PASS
+ROOT_CAUSE: METADATA_ONLY_PROVIDER_ATTRIBUTE_DRIFT_AND_PITCHBOOK_FUND_STRATEGY_SOURCE_OMISSION
+NUMERIC_DATE_RANGE_FILTER: NOT_APPLICABLE
+METADATA_ONLY_RECONCILIATION: PASS
+OPENAI_COMPOUND_FILTER_QUERY: PASS
+FIVE_MODE_RUNTIME_CORE: PASS
+FULL_OUTPUT_RUNTIME_PARITY: PASS
+GEMINI_DISABLED_NO_FAILOVER: PASS
+LOGIC_VALIDATION: PASS — 360/360
+TARGET_RUNTIME_QUALIFICATION: PASS
+PRIVATE_WEB_APP_VERSION: 62
+READY_FOR_CODEX_03: YES
+BLOCKER: NONE
 ```
 
-Active instruction:
+CODEX-02 report:
 
-`docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-instruction.md`
+`docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-report.md`
 
 ## Dispatch routing
 
@@ -65,5 +73,5 @@ Do not broaden this blocker into a corpus reindex, filter weakening, Gemini debu
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

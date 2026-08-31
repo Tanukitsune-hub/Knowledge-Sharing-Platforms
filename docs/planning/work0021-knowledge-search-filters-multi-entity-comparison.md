@@ -2,9 +2,9 @@
 
 WORK_ID: `0021`
 
-Status: BLOCKED at CODEX-01 target-runtime qualification
+Status: CORE QUALIFIED at CODEX-02; ready for CODEX-03
 
-CODEX-01 implemented the canonical core filters and five-mode OpenAI/FULL_OUTPUT contracts and passed deterministic validation. The first version-61 OpenAI compound-filter query returned no retrievable source/citation, so the dispatch stopped before remaining live gates. A fresh dispatch must reconcile exact designated-source row metadata with current provider attributes before the smallest bounded requalification; do not weaken exact filters or broaden sync.
+CODEX-01 implemented the canonical core filters and five-mode OpenAI/FULL_OUTPUT contracts. CODEX-02 proved the blocker was metadata-only provider drift, repaired exact in-place attribute reconciliation, and qualified the decisive compound filter, all five modes, FULL_OUTPUT parity, and no-failover behavior on version 62. The existing string Business Date range passed after metadata refresh; no numeric Date representation was needed. CODEX-03 may now implement explicit 2–5 Entity comparison and advanced exact filters without reopening the accepted core runtime campaign.
 
 Mode: `BUILD / QUALIFICATION`
 
