@@ -2,7 +2,9 @@
 
 WORK_ID: `0021`
 
-Status: READY after completed Work 0025
+Status: BLOCKED at CODEX-01 target-runtime qualification
+
+CODEX-01 implemented the canonical core filters and five-mode OpenAI/FULL_OUTPUT contracts and passed deterministic validation. The first version-61 OpenAI compound-filter query returned no retrievable source/citation, so the dispatch stopped before remaining live gates. A fresh dispatch must reconcile exact designated-source row metadata with current provider attributes before the smallest bounded requalification; do not weaken exact filters or broaden sync.
 
 Mode: `BUILD / QUALIFICATION`
 

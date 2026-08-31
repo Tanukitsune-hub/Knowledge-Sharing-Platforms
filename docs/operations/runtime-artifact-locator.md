@@ -27,14 +27,14 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `60`
+- DEPLOYMENT_VERSION: `61`
 - ENVIRONMENT: personal DEV / qualification
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
 
-Version 60 is the current verified private-Web-App baseline. It preserves the accepted Work 0020 OpenAI path and adds the accepted Work 0025 administrator-governed model/thinking policy with exact per-thinking qualification.
+Version 61 is the current private-Web-App deployment. It preserves the accepted Work 0020/0025 source and policy baseline and adds the Work 0021 canonical filter/five-mode implementation. Its exact source readback passed, but its first new compound-filter OpenAI qualification returned no retrieved source/citation; Work 0021 target-runtime readiness is therefore blocked.
 
-GitHub planning/tracking changes after the Work 0025 merge do not change the deployed Apps Script source. A later Work 0021 dispatch may create a new immutable version only after deterministic validation and bounded target-runtime qualification.
+No later Work 0021 dispatch may create another immutable version without a fresh committed instruction and deterministic validation. The next action is exact read-only reconciliation of designated row metadata and provider attributes, not broad sync or deployment experimentation.
 
 ## Data and control artifacts
 
@@ -113,6 +113,16 @@ GitHub planning/tracking changes after the Work 0025 merge do not change the dep
 - GEMINI_STATE: disabled/deferred; safe no-failover behavior must remain
 - DESIGNATED_EXISTING_SOURCES: `DOC-000017`, `MTG-000005`; inspect bounded synthetic coverage before creating any additional test source
 - PROHIBITED_TEST_TARGETS: `DOC-000018` and old 5–25 MiB fixtures unless an explicit later Work authorizes them
+
+## Work 0021 CODEX-01 runtime state
+
+- DEPLOYED_SOURCE_COMMIT: `07e4761` implementation commit; exact `80/80` pull-back parity PASS
+- WEB_APP_VERSION: `61`; one immutable version and one update of the same private `/exec` deployment
+- LOGIC_VALIDATION: PASS (`355/355` canonical tests)
+- OPENAI_RUNTIME_GATE: BLOCKED — first exact compound-filter query on designated synthetic Pitchbook scope returned insufficient evidence and zero citations
+- STOP_STATE: no second OpenAI query, FULL_OUTPUT runtime, Gemini attempt, source sync/lifecycle, export artifact, or second deployment
+- BLOCKER: `OPENAI_COMPOUND_FILTER_EXISTING_INDEX_METADATA_MISMATCH_OR_EMPTY_RETRIEVAL`
+- PRESERVED_STATE: accepted Work 0020/0025 evidence remains valid; no application source row, `DOC-000018`, large fixture, provider Store, Library, trigger, or confidential data was mutated
 
 ## Follow-up routing
 

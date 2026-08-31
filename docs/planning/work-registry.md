@@ -41,7 +41,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 |---:|---|---|---|---|---|
 | 0 | 0020 | AI provider core, OpenAI File Search, citations, lifecycle, full output | ACCEPTED | — | Preserve version-58/runtime evidence; do not reopen absent contradictory evidence |
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve version-60 exact tuple qualification/runtime evidence; route non-blocking refinements separately |
-| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | ACTIVE | 0025 accepted | Execute bounded dispatch `0021-CODEX-01`: unified core filters and five modes on OpenAI/FULL_OUTPUT |
+| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | BLOCKED | 0025 accepted | Reconcile exact `DOC-000017` row metadata with current provider attributes, then issue a fresh bounded dispatch for the smallest decisive compound-filter requalification |
 | 3 | 0023 | Generated single-file bundle and idempotent installer | READY | 0021 feature surface stable | Build and fresh-install-qualify the distribution path |
 | 4 | Unassigned future Work | Gemini provider recovery against the completed OpenAI reference path | DEFERRED | 0021/0023 substantially complete; current Gemini APIs rechecked | Allocate the next unused Work ID when the recovery campaign starts |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with general provider recovery unless the outcome is genuinely the same |

@@ -2,8 +2,8 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `BUILD -> QUALIFICATION`
 
 Active instruction:
@@ -57,7 +57,15 @@ This Work prioritizes broad product completion. Do not reopen accepted provider/
 
 Follow the detailed instruction's completion and STOP rules. Open one Draft PR and return it for ChatGPT review; do not merge.
 
+## CODEX-01 returned state
+
+The canonical filter/mode implementation and all deterministic checks passed. Exact source readback passed and the same private Web App was updated once to version 61. The first new OpenAI compound-filter runtime query returned no retrieved source and no citation, so the STOP rule closed the dispatch before remaining live gates. Work 0021 remains blocked pending a fresh dispatch that reconciles the designated source's exact row metadata with current provider attributes without broad sync or weakened filtering.
+
+Report:
+
+`docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`
+
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

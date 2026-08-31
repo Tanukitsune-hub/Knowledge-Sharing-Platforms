@@ -2,12 +2,12 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0021-CODEX-01 — READY / STRUCTURED FILTERS AND FIVE-MODE CORE
+### 0021-CODEX-01 — RETURNED / TARGET-RUNTIME BLOCKER
 
 Primary outcome:
 
@@ -57,6 +57,18 @@ Deferred to `0021-CODEX-03`:
 
 No broad sync, large-fixture retry/mutation, Work 0023 implementation, historical migration, company rollout, new Vector Store/Web App/Library/public endpoint, rebase, force-push, or PR merge is authorized.
 
+## CODEX-01 result
+
+- canonical core filters and all five modes: implemented;
+- focused tests: `32/32` PASS;
+- canonical repository checks: `355/355` PASS;
+- exact Apps Script readback: `80/80` PASS;
+- same private Web App: updated once to version `61`;
+- first OpenAI compound-filter qualification: safe insufficient-evidence result with zero citations;
+- STOP applied before any second query, FULL_OUTPUT runtime, Gemini attempt, source sync, or second deployment;
+- blocker: `OPENAI_COMPOUND_FILTER_EXISTING_INDEX_METADATA_MISMATCH_OR_EMPTY_RETRIEVAL`;
+- report: `docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`.
+
 ## Completion discipline
 
 Extend this dispatch only for a material blocker to the core shared filters/modes, authoritative citations, Work 0025 policy enforcement, FULL_OUTPUT API independence/source boundary, data integrity, or required deterministic/native qualification.
@@ -65,5 +77,5 @@ Cosmetic UX, broad benchmarking, exhaustive edge cases and deferred features go 
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
