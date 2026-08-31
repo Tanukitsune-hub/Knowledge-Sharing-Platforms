@@ -2,7 +2,7 @@
 
 WORK_ID: `0021`
 
-Status: Planned after Work 0025
+Status: READY after completed Work 0025
 
 Mode: `BUILD / QUALIFICATION`
 
@@ -65,7 +65,7 @@ ChatGPT | Gemini | 全文出力
 - show answer and normalized citations;
 - do not send data to the other provider;
 - show a safe provider-specific error if disabled/unavailable;
-- do not expose model names as normal-user choices.
+- preserve the Work 0025 administrator-governed model/thinking selectors and resolve every choice through its server-side effective-policy contract.
 
 ### 全文出力
 
@@ -268,7 +268,7 @@ provider route
 mode
 structured filter IDs
 selected Entity stable keys
-configured model alias
+effective model profile ID and thinking profile ID
 result
 cited stable source IDs
 safe error/limitation code

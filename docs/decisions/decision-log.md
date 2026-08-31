@@ -344,6 +344,8 @@ Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and exp
 
 Work 0025 follows the stable Work 0020 OpenAI path. It adds policy-governed model/thinking choices without automatically enabling discovered/latest models or allowing users to bypass administrator policy.
 
+Work 0025 CODEX-01 completed this foundation on 2026-08-31: the Settings-backed registry, administrator controls, normal-user selectors, server-side resolver and bounded current-default qualification passed on private Web App version 59. Work 0021 now consumes this contract rather than introducing a competing selector.
+
 Work 0021 builds the intended search product once on that core: structured filters, five modes, 2–5 Entity comparison, provider parity, full-output parity, and the bounded six-format matrix.
 
 Work 0023 separates modular development source from low-friction distribution and proves the generated bundle before loading historical volume or qualifying the company environment.

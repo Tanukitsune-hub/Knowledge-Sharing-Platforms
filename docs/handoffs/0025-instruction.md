@@ -2,8 +2,8 @@
 
 WORK_ID: `0025`
 DISPATCH_ID: `0025-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `BUILD -> QUALIFICATION`
 
 Authoritative dispatch instruction:
@@ -52,7 +52,15 @@ Open one Draft PR against `main`. Do not merge it.
 
 The detailed instruction owns implementation, tests, target-runtime qualification, safety boundaries, completion gates, reporting, and final-return format.
 
+## Completion
+
+CODEX-01 completed the model/thinking policy foundation and target-runtime qualification on the existing private Web App version 59. Focused 74/74 and canonical 341/341 checks passed. The current OpenAI default, hidden-profile policy, normal-user selectors, exact designated-source queries and normalized citations passed with no blocker.
+
+Detailed report:
+
+`docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`
+
 WORK_ID: `0025`
 DISPATCH_ID: `0025-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

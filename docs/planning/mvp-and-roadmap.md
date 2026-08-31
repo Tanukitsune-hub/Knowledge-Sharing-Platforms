@@ -134,7 +134,7 @@ Work 0020 is one coherent core Work rather than separate OpenAI, Gemini, and exp
 
 ### Work 0025 — Administrator-governed model and thinking selection
 
-Status: ACTIVE — deterministic model-policy vertical slice PASS; target-runtime qualification pending.
+Status: COMPLETE — deterministic and bounded target-runtime qualification PASS on private Web App version 59.
 
 Detailed plan:
 
@@ -285,7 +285,7 @@ The company may enable OpenAI, Gemini, both, or neither. Production readiness is
   -> 0018 Relationship Explorer [ACCEPTED]
   -> 0019 Entity Workspace / Fund-Strategy drill-down [ACCEPTED]
   -> 0020 AI provider core / OpenAI + Gemini File Search / full output [FUNCTIONALLY COMPLETE]
-  -> 0025 administrator-governed model / thinking selection [ACTIVE]
+  -> 0025 administrator-governed model / thinking selection [COMPLETE]
   -> 0021 structured filters / five modes / multi-Entity / provider parity
   -> 0023 generated bundle / idempotent installer / fresh-install qualification
   -> historical migration (manual / hybrid / selective automation)

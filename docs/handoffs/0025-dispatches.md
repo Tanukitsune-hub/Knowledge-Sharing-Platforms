@@ -2,12 +2,12 @@
 
 WORK_ID: `0025`
 ACTIVE_DISPATCH_ID: `0025-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0025-CODEX-01 — READY / MODEL POLICY FOUNDATION
+### 0025-CODEX-01 — RETURNED / COMPLETE
 
 Primary outcome:
 
@@ -17,6 +17,21 @@ Primary outcome:
 - support historical models and model-specific thinking profiles without automatic latest-model activation;
 - reconcile Work 0021 planning to consume the Work 0025 effective-policy resolver;
 - stop after the major vertical slice passes; route non-blocking refinements to FIX SOON/BACKLOG.
+
+Completion evidence:
+
+- structured Settings-backed policy, administrator controls, normal-user selectors and server resolver PASS;
+- focused 74/74 and canonical 341/341 PASS;
+- exact 79/79 Apps Script source readback;
+- same private Web App updated once to version 59;
+- current OpenAI default synthetic qualification PASS;
+- exact `DOC-000017` sync unchanged and one authoritative source returned by each designated Pitchbook/Meeting query;
+- hidden/disabled synthetic profile absent from normal-user choices;
+- no Gemini call, broad sync, FULL_OUTPUT runtime call or large-fixture mutation.
+
+Report:
+
+`docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`
 
 Authoritative instruction:
 
@@ -51,5 +66,5 @@ Cosmetic UX, exhaustive model coverage, optional user-preference persistence, an
 
 WORK_ID: `0025`
 ACTIVE_DISPATCH_ID: `0025-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

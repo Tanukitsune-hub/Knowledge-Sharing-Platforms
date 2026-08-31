@@ -1,7 +1,7 @@
 # Work 0025 — AI model policy and user selection
 
 WORK_ID: 0025
-STATUS: IMPLEMENTED / LOGIC PASS / TARGET-RUNTIME QUALIFICATION PENDING
+STATUS: COMPLETE / LOGIC PASS / TARGET-RUNTIME PASS
 DEPENDENCY: Work 0020 OpenAI primary path stable
 
 Authoritative decision:
@@ -174,3 +174,16 @@ Do not start implementation while Work 0020 provider qualification is still bein
 8. run deterministic/full tests;
 9. perform bounded live qualification with approved non-confidential data;
 10. update deployment/readiness documentation.
+
+## Completion evidence
+
+- focused policy/admin/provider tests: 74/74 PASS;
+- canonical repository checks: 341/341 PASS;
+- current OpenAI default migration and synthetic File Search qualification: PASS;
+- administrator hidden/disabled profile control: PASS;
+- normal-user model/thinking choice filtering: PASS;
+- `DOC-000017` and `MTG-000005` grounded query/citation gates: PASS;
+- same private Web App updated once to version 59;
+- blocker: NONE.
+
+See `docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`.
