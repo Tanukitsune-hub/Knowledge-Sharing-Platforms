@@ -2,8 +2,8 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `BUILD -> QUALIFICATION`
 
 Active instruction:
@@ -43,9 +43,9 @@ CODEX-02 proved the first runtime blocker was metadata-only drift, added exact i
 
 Accepted evidence includes `360/360` canonical validation and exact `80/80` Apps Script readback. Do not reopen this core absent contradictory evidence.
 
-## Active CODEX-03 outcome
+## Completed CODEX-03 outcome
 
-Implement:
+Completed and qualified:
 
 - explicit 2–5 Entity comparison;
 - per-Entity citation/evidence attribution and evidence-gap handling;
@@ -55,11 +55,11 @@ Implement:
 
 Do not call Gemini, perform broad sync, implement formats/installer work, retry large fixtures, or start a general hardening loop.
 
-After CODEX-03 passes, Work 0021 proceeds to CODEX-04 six-format/provider-capability qualification. Gemini live recovery remains a separate near-completion Work.
+CODEX-03 passed canonical `368/368`, exact Apps Script `80/80` readback, private Web App version-63 OpenAI comparison/advanced-filter runtime gates, and FULL_OUTPUT multi-Entity parity. Work 0021 now proceeds only under a fresh CODEX-04 dispatch for the six-format/provider-capability qualification. Gemini live recovery remains a separate near-completion Work.
 
 Keep PR #34 Draft/Open/unmerged and follow the detailed instruction's validation, runtime, STOP and reporting rules.
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

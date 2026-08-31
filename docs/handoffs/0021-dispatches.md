@@ -2,12 +2,12 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
-## Active dispatch
+## Returned dispatches
 
-### 0021-CODEX-03 — READY / MULTI-ENTITY COMPARISON + ADVANCED EXACT FILTERS
+### 0021-CODEX-03 — RETURNED / MULTI-ENTITY COMPARISON + ADVANCED EXACT FILTERS QUALIFIED
 
 Primary outcome:
 
@@ -22,15 +22,15 @@ Instruction:
 
 `docs/handoffs/0021-CODEX-03-multi-entity-comparison-and-advanced-exact-filters-instruction.md`
 
-Current runtime baseline:
+Returned evidence:
 
 ```text
-PRIVATE_WEB_APP_VERSION: 62
-CODEX_02_LOGIC_VALIDATION: PASS — 360/360
-CODEX_02_READBACK: PASS — 80/80
-OPENAI_COMPOUND_FILTER_RUNTIME: PASS
-FIVE_MODE_RUNTIME_CORE: PASS
-FULL_OUTPUT_RUNTIME_PARITY: PASS
+PRIVATE_WEB_APP_VERSION: 63
+CODEX_03_LOGIC_VALIDATION: PASS — 368/368
+CODEX_03_READBACK: PASS — 80/80
+OPENAI_MULTI_ENTITY_RUNTIME: PASS
+OPENAI_ADVANCED_EXACT_FILTER_RUNTIME: PASS
+FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS
 GEMINI_API_CALLED: NO
 BLOCKER: NONE
 ```
@@ -47,7 +47,9 @@ Entity B: LP_ASSET_OWNER:OPT-CPLP-001
   Meeting Type: ANNUAL_REVIEW, OFFICE_VISIT
 ```
 
-## Returned dispatches
+Report:
+
+`docs/handoffs/0021-CODEX-03-multi-entity-comparison-and-advanced-exact-filters-report.md`
 
 ### 0021-CODEX-02 — RETURNED / CORE RUNTIME QUALIFIED
 
@@ -74,9 +76,6 @@ Report:
 ## Remaining Work 0021 order
 
 ```text
-0021-CODEX-03
-  2–5 Entity comparison + advanced exact filters/citation attribution
-
 0021-CODEX-04
   bounded six-format matrix + explicit provider capability/parity evidence
 ```
@@ -95,5 +94,5 @@ Gemini live recovery remains a separate near-completion Work.
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

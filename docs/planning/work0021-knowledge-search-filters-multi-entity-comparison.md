@@ -2,9 +2,9 @@
 
 WORK_ID: `0021`
 
-Status: CORE QUALIFIED at CODEX-02; ready for CODEX-03
+Status: COMPARISON / ADVANCED EXACT FILTERS QUALIFIED at CODEX-03; ready for CODEX-04
 
-CODEX-01 implemented the canonical core filters and five-mode OpenAI/FULL_OUTPUT contracts. CODEX-02 proved the blocker was metadata-only provider drift, repaired exact in-place attribute reconciliation, and qualified the decisive compound filter, all five modes, FULL_OUTPUT parity, and no-failover behavior on version 62. The existing string Business Date range passed after metadata refresh; no numeric Date representation was needed. CODEX-03 may now implement explicit 2–5 Entity comparison and advanced exact filters without reopening the accepted core runtime campaign.
+CODEX-01 implemented the canonical core filters and five-mode OpenAI/FULL_OUTPUT contracts. CODEX-02 repaired exact in-place metadata reconciliation and qualified the core runtime on version 62. CODEX-03 then implemented and qualified explicit 2–5 Entity comparison, per-Entity citation/evidence attribution, exact Related GP and Meeting Type filters, and matching FULL_OUTPUT semantics on version 63. Canonical `368/368` and exact Apps Script `80/80` readback passed. CODEX-04 remains the bounded six-format/provider-capability campaign and must not reopen the accepted comparison/filter behavior absent contradictory evidence.
 
 Mode: `BUILD / QUALIFICATION`
 

@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-08-31 JST
-LAST_VERIFIED_BY: Work 0021 CODEX-02 exact provider-attribute reconciliation and core runtime qualification
+LAST_VERIFIED_BY: Work 0021 CODEX-03 multi-Entity comparison and advanced exact-filter qualification
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -10,8 +10,8 @@ STATUS: ACTIVE / VERIFIED
 - DEFAULT_BRANCH: `main`
 - WORK_0020_MERGE_COMMIT: `185fd197cd531bf74e77af33b32e82706bebe0b5`
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
-- DEPLOYED_SOURCE_COMMIT: `a16d835` implementation commit; final Work 0021 documentation commit follows on the same branch
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-02 exact OpenAI metadata reconciliation and core filter/five-mode qualification source
+- DEPLOYED_SOURCE_COMMIT: `d5af191ad83b990f6023e3e41b53f194db629e4b` implementation commit; final CODEX-03 documentation commit follows on the same branch
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-03 explicit multi-Entity comparison, per-Entity attribution, advanced exact filters and FULL_OUTPUT parity source
 - SOURCE_BRANCH_USED_FOR_WORK_0020: `agent/0020-ai-provider-core`
 - SOURCE_BRANCH_USED_FOR_WORK_0025: `agent/0025-model-thinking-policy`
 - WORK_0020_STATUS: `ACCEPTED / MERGED`
@@ -32,9 +32,9 @@ STATUS: ACTIVE / VERIFIED
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
 
-Version 62 is the current private-Web-App deployment. It preserves the accepted Work 0020/0025 source and policy baseline, the Work 0021 canonical filter/five-mode implementation, and adds exact OpenAI metadata-only reconciliation. Exact source readback passed `80/80`; the decisive compound filter, all five modes, FULL_OUTPUT preview parity, and no-transport/no-failover gate passed.
+Version 63 is the current private-Web-App deployment. It preserves the accepted Work 0020/0025 source and policy baseline plus the Work 0021 version-62 core, and adds explicit 2–5 Entity comparison, per-Entity authoritative citation attribution, exact Related GP / Meeting Type filters, and matching FULL_OUTPUT semantics. Exact source readback passed `80/80`; bounded OpenAI comparison, advanced-filter and FULL_OUTPUT runtime gates passed.
 
-No later Work 0021 dispatch may create another immutable version without a fresh committed instruction and deterministic validation. The next planned feature dispatch is CODEX-03 explicit 2–5 Entity comparison and advanced exact filters; do not reopen the accepted version-62 core qualification absent contradictory evidence.
+No later Work 0021 dispatch may create another immutable version without a fresh committed instruction and deterministic validation. The next planned dispatch is CODEX-04 bounded six-format/provider-capability qualification; do not reopen the accepted version-63 comparison/filter qualification absent contradictory evidence.
 
 ## Data and control artifacts
 
@@ -138,6 +138,18 @@ No later Work 0021 dispatch may create another immutable version without a fresh
 - FINAL_PROVIDER_STATE: 16/16 completed documents; one exact current provider document each for `DOC-000017` and `MTG-000005`; `DOC-000018` absent from OpenAI as before
 - BLOCKER: NONE; ready for CODEX-03
 - PRESERVED_STATE: no broad sync, large-fixture retry/mutation, confidential data, new Store/Web App/Library/endpoint, or provider fallback
+
+## Work 0021 CODEX-03 runtime state
+
+- DEPLOYED_SOURCE_COMMIT: `d5af191ad83b990f6023e3e41b53f194db629e4b`; exact `80/80` pull-back parity PASS
+- WEB_APP_VERSION: `63`; one immutable version and one update of the same private `/exec` deployment; `USER_DEPLOYING` / `MYSELF` preserved
+- LOGIC_VALIDATION: PASS (`368/368` canonical tests; 57 gs / 22 html; temporal and public-surface validation PASS)
+- OPENAI_MULTI_ENTITY_COMPARISON: PASS — `GP:GP-000031` and `LP_ASSET_OWNER:OPT-CPLP-001`; authoritative citations 10/1; zero unselected-Entity citations; expected `DOC-000017`, `MTG-000005`, `MTG-000004` evidence present
+- OPENAI_ADVANCED_EXACT_FILTER: PASS — exact `LP_ASSET_OWNER:OPT-CPLP-001` + `GP-000031` + `ANNUAL_REVIEW` returned only authoritative `MTG-000004` and its known Meeting body token
+- FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS — both Entities grouped; five Meeting bodies authoritative; twelve Pitchbooks reference-only; no artifact or AI submission for preview
+- FINAL_PROVIDER_STATE: accepted 16-completed-document baseline structurally unchanged; CODEX-03 invoked no sync/upload/index/update/delete/lifecycle path and created no duplicate
+- BLOCKER: NONE; ready for CODEX-04
+- PRESERVED_STATE: no Gemini call, broad sync/reindex, `DOC-000018` or large-fixture mutation, confidential data, new Store/Web App/Library/endpoint, provider fallback, or FULL_OUTPUT artifact
 
 ## Follow-up routing
 

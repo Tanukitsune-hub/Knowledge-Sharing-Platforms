@@ -2,14 +2,12 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Executive conclusion
 
-The Work 0021 core is accepted through CODEX-02. The canonical filters, shared OpenAI/FULL_OUTPUT contract, all five modes and exact metadata reconciliation are qualified on private Web App version 62.
-
-CODEX-03 now expands the product to its intended qualitative comparison flow and the two remaining advanced exact Meeting filters. This is a feature dispatch, not a repair of the accepted core.
+Work 0021 is accepted through CODEX-03. The canonical filters, all five modes, explicit 2–5 Entity comparison, per-Entity citation attribution, exact Related GP / Meeting Type filters, and FULL_OUTPUT parity are qualified on private Web App version 63.
 
 ## Accepted CODEX-02 evidence
 
@@ -33,31 +31,37 @@ CODEX-02 report:
 
 `docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-report.md`
 
-## Active CODEX-03
+## Completed CODEX-03
 
 Instruction:
 
 `docs/handoffs/0021-CODEX-03-multi-entity-comparison-and-advanced-exact-filters-instruction.md`
 
-Target:
+Result:
 
 ```text
-MULTI_ENTITY_REQUEST_VALIDATION: PENDING
-MULTI_ENTITY_COMPARISON: PENDING
-PER_ENTITY_CITATION_ATTRIBUTION: PENDING
-EVIDENCE_GAP_HANDLING: PENDING
-RELATED_GP_EXACT_FILTER: PENDING
-MEETING_TYPE_EXACT_FILTER: PENDING
-FULL_OUTPUT_MULTI_ENTITY_PARITY: PENDING
-OPENAI_RUNTIME_MULTI_ENTITY: PENDING
-OPENAI_RUNTIME_ADVANCED_FILTER: PENDING
-LOGIC_VALIDATION: PENDING
-TARGET_RUNTIME_QUALIFICATION: PENDING
-READY_FOR_CODEX_04: NO
-BLOCKER: NONE AT DISPATCH
+MULTI_ENTITY_REQUEST_VALIDATION: PASS
+MULTI_ENTITY_COMPARISON: PASS
+PER_ENTITY_CITATION_ATTRIBUTION: PASS
+EVIDENCE_GAP_HANDLING: PASS
+RELATED_GP_EXACT_FILTER: PASS
+MEETING_TYPE_EXACT_FILTER: PASS
+FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS
+OPENAI_RUNTIME_MULTI_ENTITY: PASS
+OPENAI_RUNTIME_ADVANCED_FILTER: PASS
+LOGIC_VALIDATION: PASS — 368/368
+TARGET_RUNTIME_QUALIFICATION: PASS
+PRIVATE_WEB_APP_VERSION: 63
+APPS_SCRIPT_READBACK: PASS — 80/80
+READY_FOR_CODEX_04: YES
+BLOCKER: NONE
 ```
 
-Existing synthetic targets are sufficient for the intended bounded campaign: `GP:GP-000031`, `LP_ASSET_OWNER:OPT-CPLP-001`, `DOC-000017`, `MTG-000005`, and `MTG-000004`.
+The existing synthetic targets were sufficient: `GP:GP-000031`, `LP_ASSET_OWNER:OPT-CPLP-001`, `DOC-000017`, `MTG-000005`, and `MTG-000004`. No source sync, new fixture, provider mutation, Gemini call, or FULL_OUTPUT artifact was required.
+
+CODEX-03 report:
+
+`docs/handoffs/0021-CODEX-03-multi-entity-comparison-and-advanced-exact-filters-report.md`
 
 ## Deferred
 
@@ -71,5 +75,5 @@ Do not reopen accepted CODEX-02 core evidence or broaden CODEX-03 into Gemini de
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
