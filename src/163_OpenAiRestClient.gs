@@ -271,7 +271,7 @@ function kspOpenAiQueryFileSearchLive_(request) {
   kspAssert_(value.model, 'OPENAI_MODEL_NOT_CONFIGURED', 'ChatGPT modelが設定されていません。');
   kspAssert_(value.vectorStoreId, 'OPENAI_VECTOR_STORE_NOT_CONFIGURED', 'ChatGPT Vector Storeが設定されていません。');
   kspAssert_(value.input, 'AI_QUESTION_REQUIRED', '質問を入力してください。');
-  return kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.RESPONSES_PATH, {
+  var payload = {
     model: String(value.model),
     input: String(value.input),
     store: false,
@@ -281,5 +281,12 @@ function kspOpenAiQueryFileSearchLive_(request) {
       vector_store_ids: [String(value.vectorStoreId)],
       filters: value.filters || undefined
     }]
-  });
+  };
+  if (value.thinkingProviderDefault !== true && value.thinkingRawValue) {
+    payload.reasoning = { effort: String(value.thinkingRawValue) };
+  }
+  if (value.maxOutputTokens !== null && value.maxOutputTokens !== undefined) {
+    payload.max_output_tokens = Number(value.maxOutputTokens);
+  }
+  return kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.RESPONSES_PATH, payload);
 }

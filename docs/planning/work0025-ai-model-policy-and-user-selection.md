@@ -1,7 +1,7 @@
 # Work 0025 — AI model policy and user selection
 
 WORK_ID: 0025
-STATUS: PLANNED / NOT STARTED
+STATUS: IMPLEMENTED / LOGIC PASS / TARGET-RUNTIME QUALIFICATION PENDING
 DEPENDENCY: Work 0020 OpenAI primary path stable
 
 Authoritative decision:
@@ -166,7 +166,7 @@ Do not start implementation while Work 0020 provider qualification is still bein
 
 1. inventory current Settings/admin/user search UI;
 2. implement validated policy registry;
-3. implement provider model/capability discovery adapters;
+3. retain exact administrator-entered model IDs; defer optional provider discovery unless it adds decision-relevant value;
 4. implement admin policy UI;
 5. implement user model/thinking selectors;
 6. implement server-side effective-policy resolver;

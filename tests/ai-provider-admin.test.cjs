@@ -452,7 +452,7 @@ test('non-administrator cannot mutate provider settings and the status response 
   assert.equal(env._debug.syncCalls.length, 0);
 });
 
-test('admin provider surface is present while browser code never receives key, store ID, or model ID', () => {
+test('admin provider surface exposes policy-safe exact model fields without credentials or provider resource IDs', () => {
   const root = path.resolve(__dirname, '..');
   const page = fs.readFileSync(path.join(root, 'src', 'AiProviderSettingsPage.html'), 'utf8');
   const client = fs.readFileSync(path.join(root, 'src', 'ClientAiProviderSettings.html'), 'utf8');
@@ -465,6 +465,8 @@ test('admin provider surface is present while browser code never receives key, s
   assert.match(page, /id="ai-provider-sync-source-id"/);
   assert.match(page, /value="Meeting"/);
   assert.match(page, /value="Pitchbook"/);
+  assert.match(page, /id="ai-model-id"/);
+  assert.match(page, /id="ai-model-thinking-profiles"/);
   assert.match(client, /getAiProviderAdminData/);
   assert.match(client, /mutateAiProviderSettings/);
   assert.match(client, /sourceType:action==='SYNC'\?\(sourceType\|\|''\):''/);
@@ -473,4 +475,66 @@ test('admin provider surface is present while browser code never receives key, s
   assert.match(client, /sync\.selected/);
   assert.match(client, /sync\.failed/);
   assert.doesNotMatch(page + client, /KSP_OPENAI_API_KEY|OPENAI_VECTOR_STORE_ID|OPENAI_DEFAULT_MODEL|gpt-5\.6-terra/);
+});
+
+test('administrator migrates the accepted OpenAI default into a persisted qualified model policy', () => {
+  const env = makeAdminEnvironment({
+    enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
+  });
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' }));
+  assert.equal(result.ok, true);
+  assert.equal(result.workId, '0025');
+  assert.equal(result.modelPolicy.schemaVersion, 1);
+  assert.equal(result.modelPolicy.profiles.length, 1);
+  assert.equal(result.modelPolicy.profiles[0].modelId, 'gpt-5.6-terra');
+  assert.equal(result.modelPolicy.profiles[0].qualification, 'QUALIFIED');
+  assert.equal(result.modelPolicy.profiles[0].defaultThinkingProfileId, 'provider-default');
+  const write = env._debug.writes.find((item) => item.key === 'AI_MODEL_POLICY_JSON');
+  assert.ok(write);
+  assert.doesNotMatch(write.value, /vs-synthetic-existing|API_KEY|secret/i);
+});
+
+test('administrator can retain a historical model without auto-qualifying it or changing the current default', () => {
+  const env = makeAdminEnvironment({
+    enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
+  });
+  assert.equal(ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' }).ok, true);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'SAVE_MODEL_PROFILE',
+    profile: {
+      profileId: 'openai-historical', provider: 'OPENAI', modelId: 'gpt-5.4',
+      displayName: 'Historical', family: 'GPT-5.4', enabled: true, userVisible: true,
+      isProviderDefault: false,
+      thinkingProfiles: [{ thinkingProfileId: 'medium', label: 'Medium', rawValue: 'medium', enabled: true }],
+      defaultThinkingProfileId: 'medium', maxOutputTokens: 1024
+    }
+  }));
+  assert.equal(result.ok, true);
+  const historical = result.modelPolicy.profiles.find((item) => item.profileId === 'openai-historical');
+  assert.equal(historical.apiAccess, 'UNKNOWN');
+  assert.equal(historical.qualification, 'UNQUALIFIED');
+  assert.equal(historical.fileSearch, false);
+  assert.equal(result.modelPolicy.profiles.find((item) => item.isProviderDefault).modelId, 'gpt-5.6-terra');
+  assert.equal(env._debug.connectionQueries.length, 0);
+});
+
+test('bounded model qualification uses the existing OpenAI store and persists safe capability status', () => {
+  const env = makeAdminEnvironment({
+    enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
+  });
+  const migrated = ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' });
+  const profileId = migrated.modelPolicy.profiles[0].profileId;
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId
+  }));
+  assert.equal(result.ok, true);
+  assert.equal(result.qualification.status, 'PASS');
+  assert.equal(env._debug.connectionUploads.length, 1);
+  assert.equal(env._debug.connectionQueries.length, 1);
+  assert.equal(env._debug.connectionDeletes.length, 1);
+  const qualified = result.modelPolicy.profiles.find((item) => item.profileId === profileId);
+  assert.equal(qualified.apiAccess, 'AVAILABLE');
+  assert.equal(qualified.qualification, 'QUALIFIED');
+  assert.equal(qualified.fileSearch, true);
+  assert.doesNotMatch(JSON.stringify(result), /vs-synthetic-existing|openai-connection-file/);
 });

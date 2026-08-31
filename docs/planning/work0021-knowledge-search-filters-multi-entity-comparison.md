@@ -2,7 +2,7 @@
 
 WORK_ID: `0021`
 
-Status: Planned after Work 0020
+Status: Planned after Work 0025
 
 Mode: `BUILD / QUALIFICATION`
 
@@ -48,6 +48,8 @@ Work 0020 must first prove:
 - current metadata-filter limitations.
 
 Do not reopen provider architecture or implement filters against an assumed API shape.
+
+Work 0025 must also complete the administrator-governed model/thinking registry, normal-user selectors, and server-side effective-policy resolver. Work 0021 extends that request contract for filters, modes, comparison, and format coverage; it must not add a competing selector or bypass the Work 0025 resolver.
 
 ## 1. Unified UI and route behavior
 
@@ -346,7 +348,7 @@ No company confidential data, production users/Stores, recurring triggers, publi
 
 - static GP comparison screen;
 - automatic provider routing/failover;
-- user-facing model selector/Deep mode;
+- a competing model/thinking selector, raw model-ID path, or bypass of the Work 0025 effective-policy resolver;
 - full-context API route replacing File Search;
 - autonomous investment recommendations;
 - public-web enrichment in the same request;
