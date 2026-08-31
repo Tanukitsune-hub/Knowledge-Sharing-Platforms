@@ -41,7 +41,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 |---:|---|---|---|---|---|
 | 0 | 0020 | AI provider core, OpenAI File Search, citations, lifecycle, full output | ACCEPTED | — | Preserve version-58/runtime evidence; do not reopen absent contradictory evidence |
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve version-60 exact tuple qualification/runtime evidence; route non-blocking refinements separately |
-| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | ACTIVE | 0025 accepted | Prepare `0021-CODEX-03`: 2–5 Entity comparison plus advanced exact filters/citation attribution; preserve version-62 core runtime evidence |
+| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | ACTIVE | 0025 accepted | Execute `0021-CODEX-03`: 2–5 Entity comparison, per-Entity citations, exact Related GP / Meeting Type filters, and FULL_OUTPUT parity on the accepted version-62 core |
 | 3 | 0023 | Generated single-file bundle and idempotent installer | READY | 0021 feature surface stable | Build and fresh-install-qualify the distribution path |
 | 4 | Unassigned future Work | Gemini provider recovery against the completed OpenAI reference path | DEFERRED | 0021/0023 substantially complete; current Gemini APIs rechecked | Allocate the next unused Work ID when the recovery campaign starts |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with general provider recovery unless the outcome is genuinely the same |
@@ -76,7 +76,8 @@ Keep one Work ID because the primary outcome is one intended Knowledge Search pr
   PASS at private Web App version 62
 
 0021-CODEX-03
-  2–5 Entity comparison + advanced exact filters/citation attribution
+  2–5 Entity comparison + advanced exact filters/citation attribution;
+  CURRENT
 
 0021-CODEX-04
   bounded six-format matrix + explicit provider-capability/parity evidence
