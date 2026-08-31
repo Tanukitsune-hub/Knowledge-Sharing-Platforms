@@ -2,15 +2,15 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CODEX`
+STATUS: `READY`
 MODE: `BUILD / QUALIFICATION -> FINAL WORK READINESS`
 
 Active instruction:
 
 `docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-instruction.md`
 
-Current operational/ball state and resume diagnostic:
+Current operational state and browser diagnostic:
 
 - `docs/handoffs/0021-dispatches.md`
 - `docs/handoffs/0021-CODEX-04-browser-upload-diagnostic-note.md`
@@ -49,13 +49,13 @@ Work 0021 is accepted through CODEX-03:
 - private Web App version 63;
 - canonical `368/368` PASS and Apps Script readback `80/80` PASS.
 
-No contradictory evidence exists for those accepted gates.
-
-## CODEX-04 current pause
+## CODEX-04 resume condition
 
 Local deterministic validation reached `371/371` PASS, but runtime qualification has not started because the browser-assisted local-file upload bridge was unavailable before any fixture registration/provider mutation.
 
-The user has confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. Therefore do not ask the user to repeat that toggle without first diagnosing the actual browser/profile/session and local workspace path as specified in the diagnostic note.
+The user confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. No further user-side action is currently known.
+
+Resume the SAME `0021-CODEX-04` dispatch and first diagnose the actual browser/profile/session/local-file path using the committed diagnostic note. Do not ask the user to repeat the already-enabled toggle without fresh evidence.
 
 Current safe state:
 
@@ -65,12 +65,12 @@ PRIVATE_WEB_APP_VERSION: 63 / UNCHANGED
 RUNTIME_MUTATION: NONE
 PROVIDER_MUTATION: NONE
 NEW_FORMAT_FIXTURES_REGISTERED: 0
-BLOCKER: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
+DIAGNOSTIC: BROWSER_LOCAL_FILE_UPLOAD_BRIDGE_UNAVAILABLE_PENDING_DIAGNOSIS
 ```
 
-Resume the SAME `0021-CODEX-04` dispatch after diagnosis. Do not create CODEX-05.
+Do not create CODEX-05.
 
-## CODEX-04 outcome after resume
+## CODEX-04 outcome after diagnosis
 
 Complete only the bounded six-format/provider-capability matrix for:
 
@@ -82,11 +82,11 @@ The source adapters/format registry already exist. Connect/fix only proven defec
 
 Current DEV Pitchbook inventory does not contain a small complete six-format matrix. CODEX-04 may create at most six tiny non-confidential synthetic Pitchbooks through the normal registration flow. Never use `DOC-000018` or the old 5–25 MiB fixtures.
 
-This is the final planned Work 0021 dispatch. If required gates pass, stop and return PR #34 for ChatGPT final review/merge. Do not create CODEX-05 for non-blocking refinements.
+This is the final planned Work 0021 dispatch. If required gates pass, stop and return PR #34 for ChatGPT final review/merge.
 
 Keep PR #34 Draft/Open/unmerged. Do not merge it.
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CODEX`
+STATUS: `READY`
