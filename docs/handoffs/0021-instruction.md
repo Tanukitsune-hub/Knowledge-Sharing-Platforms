@@ -1,18 +1,19 @@
 # Work 0021 — Structured Knowledge Search
 
 WORK_ID: `0021`
-DISPATCH_ID: `0021-CODEX-02`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
-MODE: `REVIEW_FIX -> QUALIFICATION`
+DISPATCH_ID: `0021-CODEX-03`
+BALL: `CODEX`
+STATUS: `READY`
+MODE: `BUILD -> QUALIFICATION`
 
 Active instruction:
 
-`docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-instruction.md`
+`docs/handoffs/0021-CODEX-03-multi-entity-comparison-and-advanced-exact-filters-instruction.md`
 
-Accepted CODEX-01 report:
+Accepted prior reports:
 
-`docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`
+- `docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-report.md`;
+- `docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-report.md`.
 
 Dispatch register:
 
@@ -34,29 +35,31 @@ Runtime locator:
 
 Work 0020 and Work 0025 are accepted and merged. Preserve OpenAI File Search/citation/lifecycle/recovery, FULL_OUTPUT source boundaries, model/thinking policy, exact tuple qualification, and no-failover behavior.
 
-## Accepted CODEX-01 implementation
+## Accepted Work 0021 core
 
-The canonical core structured-filter model, shared OpenAI/FULL_OUTPUT contract, shared UI, five mode templates, Audit redaction, and deterministic validation are accepted. CODEX-01 passed `355/355`, exact `80/80` Apps Script readback, and updated the same private Web App once to version 61.
+CODEX-01 implemented the canonical core structured-filter model, shared OpenAI/FULL_OUTPUT UI/contract, five mode templates and Audit redaction.
 
-## CODEX-02 accepted outcome
+CODEX-02 proved the first runtime blocker was metadata-only drift, added exact in-place provider attribute reconciliation, and qualified the formerly failing compound filter, all five runtime modes, FULL_OUTPUT preview parity and Gemini-disabled/no-failover behavior on the same private Web App version 62.
 
-Read-only reconciliation proved metadata-only drift: the one exact current `DOC-000017` provider file had current content but lacked authoritative `fund_strategy` and `counterparty_id`. The production Pitchbook sync source also omitted Fund Strategy. CODEX-02 added exact typed attribute comparison, in-place update/readback, fail-closed identity checks, and authoritative Pitchbook Fund Strategy derivation.
+Accepted evidence includes `360/360` canonical validation and exact `80/80` Apps Script readback. Do not reopen this core absent contradictory evidence.
 
-After exact attribute refresh, the existing string Date range compound filter passed with one grounded authoritative `DOC-000017` citation. Numeric Date was therefore not applicable. All five modes, one bounded FULL_OUTPUT preview, and the zero-effective-Gemini-choice no-transport/no-failover gate passed on version 62. Canonical validation passed `360/360` and Apps Script readback passed `80/80`.
+## Active CODEX-03 outcome
 
-CODEX-02 report:
+Implement:
 
-`docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-report.md`
+- explicit 2–5 Entity comparison;
+- per-Entity citation/evidence attribution and evidence-gap handling;
+- exact Related GP and Meeting Type filters via authoritative Meeting token membership and bounded exact source-ID resolution;
+- the same selected-Entity/advanced-filter semantics in FULL_OUTPUT;
+- bounded OpenAI and FULL_OUTPUT runtime qualification using existing synthetic data.
 
-## Deferred after CODEX-02
+Do not call Gemini, perform broad sync, implement formats/installer work, retry large fixtures, or start a general hardening loop.
 
-- `0021-CODEX-03`: explicit 2–5 Entity comparison + advanced exact filters/citation attribution;
-- `0021-CODEX-04`: bounded six-format matrix + provider-capability/parity evidence;
-- Gemini live recovery: separate near-completion Work.
+After CODEX-03 passes, Work 0021 proceeds to CODEX-04 six-format/provider-capability qualification. Gemini live recovery remains a separate near-completion Work.
 
-Follow the active detailed instruction's validation, bounded target-runtime, STOP, GitHub delivery, and final-return rules. Keep PR #34 Draft/Open/unmerged.
+Keep PR #34 Draft/Open/unmerged and follow the detailed instruction's validation, runtime, STOP and reporting rules.
 
 WORK_ID: `0021`
-DISPATCH_ID: `0021-CODEX-02`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+DISPATCH_ID: `0021-CODEX-03`
+BALL: `CODEX`
+STATUS: `READY`
