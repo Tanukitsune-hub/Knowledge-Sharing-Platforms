@@ -13,7 +13,7 @@ The user has verified that `Allow access to file URLs / ファイルのURLへの
 
 Therefore do not treat that setting as the proven root cause.
 
-The leading hypothesis is now browser-state/profile mismatch or a stale browser task session, not the toggle itself. OpenAI documents that the ChatGPT desktop built-in browser has its own browser state and does not share the user's Chrome profile; the Codex Chrome extension is the path that uses an existing Chrome profile/session.
+The leading hypothesis is browser-state/profile mismatch, a stale browser task session, or a local-file upload bridge/path issue rather than the toggle itself. OpenAI documents that the ChatGPT desktop built-in browser has its own browser state and does not share the user's Chrome profile; the Codex Chrome extension is the path that uses an existing Chrome profile/session.
 
 ## Resume order
 
