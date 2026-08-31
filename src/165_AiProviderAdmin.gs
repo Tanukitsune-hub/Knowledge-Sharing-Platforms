@@ -25,7 +25,8 @@ function kspAiProviderAdminSafeMessage_(code) {
     AI_MODEL_SELECTION_STALE: '対象のモデルプロファイルを確認してください。',
     AI_MODEL_PROFILE_PROVIDER_MISMATCH: 'モデルとプロバイダの組み合わせを確認してください。',
     AI_MODEL_QUALIFICATION_PROVIDER_UNSUPPORTED: 'このプロバイダの接続確認は現在利用できません。',
-    AI_MODEL_QUALIFICATION_FAILED: 'モデルのFile Search接続確認に失敗しました。'
+    AI_MODEL_QUALIFICATION_FAILED: 'モデルのFile Search接続確認に失敗しました。',
+    AI_THINKING_PROFILE_UNQUALIFIED: 'Thinkingの接続確認が完了していません。'
   };
   return messages[String(code || '')] || 'AIプロバイダ操作を完了できませんでした。';
 }
@@ -145,8 +146,20 @@ function kspAiProviderAdminResetOpenAiState_(environment, context) {
   });
 }
 
-function kspRunOpenAiSyntheticConnectionTest_(environment, vectorStoreId, modelId) {
-  kspAssert_(vectorStoreId && modelId, 'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test configuration is incomplete.');
+function kspRunOpenAiSyntheticConnectionTest_(environment, vectorStoreId, profileOrModelId) {
+  var legacyModelOnly = typeof profileOrModelId === 'string';
+  var profile = legacyModelOnly ? {
+    modelId: profileOrModelId,
+    maxOutputTokens: null,
+    defaultThinkingProfileId: KSP_AI_DEFAULTS.PROVIDER_DEFAULT_THINKING_PROFILE_ID,
+    thinkingProfiles: [kspBuildProviderDefaultThinkingProfile_()]
+  } : profileOrModelId || {};
+  var modelId = kspAiTrim_(profile.modelId);
+  var thinkingProfiles = (profile.thinkingProfiles || []).filter(function (thinking) {
+    return thinking && thinking.enabled !== false;
+  });
+  kspAssert_(vectorStoreId && modelId && thinkingProfiles.length,
+    'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test configuration is incomplete.');
   var sourceId = 'KSP-OPENAI-CONNECTION-TEST';
   var text = 'Knowledge Sharing Platforms synthetic connection test. The unique answer token is OPENAI_CONNECTION_READY.';
   var contentHash = typeof environment.hashText === 'function'
@@ -186,41 +199,70 @@ function kspRunOpenAiSyntheticConnectionTest_(environment, vectorStoreId, modelI
       'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test upload identity is invalid.');
     kspAssert_(typeof environment.queryProvider === 'function',
       'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test query is unavailable.');
-    var rawResponse = environment.queryProvider(KSP_AI_PROVIDERS.OPENAI, config, {
-      provider: KSP_AI_PROVIDERS.OPENAI,
-      model: modelId,
-      vectorStoreId: vectorStoreId,
-      input: 'According to the synthetic connection test source, what is the unique answer token?',
-      filters: { type: 'eq', key: 'source_id', value: sourceId },
-      include: ['file_search_call.results']
+    var thinkingResults = [];
+    var inaccessible = false;
+    thinkingProfiles.forEach(function (thinking) {
+      if (inaccessible) {
+        thinkingResults.push({ thinkingProfileId: thinking.thinkingProfileId, passed: false });
+        return;
+      }
+      try {
+        var tupleConfig = {
+          provider: KSP_AI_PROVIDERS.OPENAI,
+          vectorStoreId: vectorStoreId,
+          modelId: modelId,
+          thinkingProfileId: thinking.thinkingProfileId,
+          thinkingProviderDefault: thinking.providerDefault === true,
+          thinkingRawValue: thinking.providerDefault === true ? null : thinking.rawValue,
+          maxOutputTokens: profile.maxOutputTokens === undefined ? null : profile.maxOutputTokens
+        };
+        var request = kspBuildProviderSearchRequest_(KSP_AI_PROVIDERS.OPENAI, tupleConfig, {
+          mode: KSP_FEATURE_FREEZE_SEARCH_MODES.FREE_QUESTION,
+          questionOrInstruction: 'According to the synthetic connection test source, what is the unique answer token?',
+          sourceId: sourceId
+        });
+        request.include = ['file_search_call.results'];
+        var rawResponse = environment.queryProvider(KSP_AI_PROVIDERS.OPENAI, tupleConfig, request);
+        var parsed = kspNormalizeOpenAiResponse_(rawResponse);
+        var state = kspBuildEmptyAiProviderState_();
+        state.OPENAI.providerDocumentId = providerDocumentId;
+        state.OPENAI.contentHash = contentHash;
+        var syntheticRow = {
+          Document_ID: sourceId,
+          Date: source.dateKey,
+          File_URL: 'https://drive.example.invalid/ksp-openai-connection-test',
+          Saved_Filename: source.savedFilename,
+          Status: KSP_STATUS.ACTIVE,
+          AI_Provider_State_JSON: kspSerializeAiProviderState_(state)
+        };
+        var mapped = kspMapKnowledgeCitations_(parsed.citations,
+          kspBuildAuthoritativeSourceMaps_([], [syntheticRow]));
+        kspAssert_(parsed.answer && parsed.answer.indexOf('OPENAI_CONNECTION_READY') !== -1,
+          'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test answer was not grounded.');
+        kspAssert_(!parsed.warnings || parsed.warnings.length === 0,
+          'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test citation normalization failed.');
+        kspAssert_(mapped.citations.length === 1 && mapped.warnings.length === 0,
+          'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test citation was not authoritative.');
+        kspAssert_(mapped.citations[0].sourceType === source.sourceType &&
+          mapped.citations[0].sourceId === source.sourceId,
+          'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test source identity was not exact.');
+        thinkingResults.push({ thinkingProfileId: thinking.thinkingProfileId, passed: true,
+          provenance: kspAiTrim_(parsed.citations[0] && parsed.citations[0].provenance) || 'RETRIEVED_SOURCE' });
+      } catch (queryError) {
+        var queryCode = kspGetErrorCode_(queryError);
+        inaccessible = queryCode === 'OPENAI_HTTP_401' || queryCode === 'OPENAI_HTTP_403' ||
+          queryCode === 'OPENAI_HTTP_404';
+        thinkingResults.push({ thinkingProfileId: thinking.thinkingProfileId, passed: false });
+      }
     });
-    var parsed = kspNormalizeOpenAiResponse_(rawResponse);
-    var state = kspBuildEmptyAiProviderState_();
-    state.OPENAI.providerDocumentId = providerDocumentId;
-    state.OPENAI.contentHash = contentHash;
-    var syntheticRow = {
-      Document_ID: sourceId,
-      Date: source.dateKey,
-      File_URL: 'https://drive.example.invalid/ksp-openai-connection-test',
-      Saved_Filename: source.savedFilename,
-      Status: KSP_STATUS.ACTIVE,
-      AI_Provider_State_JSON: kspSerializeAiProviderState_(state)
-    };
-    var mapped = kspMapKnowledgeCitations_(parsed.citations,
-      kspBuildAuthoritativeSourceMaps_([], [syntheticRow]));
-    kspAssert_(parsed.answer && parsed.answer.indexOf('OPENAI_CONNECTION_READY') !== -1,
-      'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test answer was not grounded.');
-    kspAssert_(!parsed.warnings || parsed.warnings.length === 0,
-      'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test citation normalization failed.');
-    kspAssert_(mapped.citations.length === 1 && mapped.warnings.length === 0,
-      'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test citation was not authoritative.');
-    kspAssert_(mapped.citations[0].sourceType === source.sourceType &&
-      mapped.citations[0].sourceId === source.sourceId,
-      'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test source identity was not exact.');
+    var passedCount = thinkingResults.filter(function (item) { return item.passed; }).length;
     result = {
-      status: 'PASS',
+      status: passedCount === thinkingResults.length ? 'PASS' : passedCount ? 'PARTIAL' : 'FAIL',
       sourceCount: 1,
-      provenance: kspAiTrim_(parsed.citations[0] && parsed.citations[0].provenance) || 'RETRIEVED_SOURCE'
+      qualified: passedCount,
+      failed: thinkingResults.length - passedCount,
+      accessible: !inaccessible,
+      thinkingResults: thinkingResults
     };
   } catch (error) {
     primaryError = error;
@@ -237,6 +279,10 @@ function kspRunOpenAiSyntheticConnectionTest_(environment, vectorStoreId, modelI
   if (cleanupError) {
     cleanupError.code = 'OPENAI_CONNECTION_TEST_CLEANUP_FAILED';
     throw cleanupError;
+  }
+  if (legacyModelOnly) {
+    kspAssert_(result && result.status === 'PASS',
+      'OPENAI_CONNECTION_TEST_FAILED', 'OpenAI connection test did not qualify the default tuple.');
   }
   return result;
 }
@@ -452,10 +498,15 @@ function kspMutateAiProviderSettings_(environment, input) {
         'OPENAI_API_KEY_NOT_CONFIGURED', 'OpenAI is not configured.');
       try {
         var qualification = kspRunOpenAiSyntheticConnectionTest_(environment,
-          policySettings.openaiVectorStoreId, qualifyingProfile.modelId);
+          policySettings.openaiVectorStoreId, qualifyingProfile);
         policy = kspMarkAiModelProfileQualification_(policy, profileId,
-          { passed: true, accessible: true }, environment.nowIso());
+          { passed: qualification.qualified > 0, accessible: qualification.accessible,
+            thinkingResults: qualification.thinkingResults }, environment.nowIso());
         policy = kspPersistAiModelPolicy_(environment, context, policy);
+        var qualifiedDefault = policy.profiles.filter(function (item) { return item.profileId === profileId; })[0];
+        kspAssert_(qualifiedDefault &&
+          qualifiedDefault.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED,
+          'AI_MODEL_QUALIFICATION_FAILED', 'Default thinking profile qualification failed.');
         return { ok: true, workId: '0025', action: action, qualification: qualification,
           modelPolicy: kspAiModelPolicyForAdmin_(policy) };
       } catch (qualificationError) {

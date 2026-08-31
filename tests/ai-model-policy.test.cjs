@@ -1,7 +1,8 @@
 const { test, assert, fs, path, ksp, plain, baseContext, createSyncEnvironment } = require('./ai-test-helpers.cjs');
 
-function thinking(id, label, rawValue = null) {
-  return { thinkingProfileId: id, label, rawValue, providerDefault: rawValue === null, enabled: true };
+function thinking(id, label, rawValue = null, qualification = 'QUALIFIED') {
+  return { thinkingProfileId: id, label, rawValue, providerDefault: rawValue === null, enabled: true,
+    qualification, qualifiedAt: qualification === 'QUALIFIED' ? '2026-08-31T00:00:00.000Z' : '' };
 }
 
 function profile(overrides = {}) {
@@ -45,6 +46,7 @@ test('current OpenAI migration preserves the exact model and provider-default re
   }));
   assert.equal(migrated.schemaVersion, 1);
   assert.equal(migrated.profiles.length, 1);
+  assert.equal(migrated.profiles[0].thinkingProfiles[0].qualification, 'QUALIFIED');
   const selection = plain(ksp.kspResolveAiModelSelection_(
     { ...settings, modelPolicyJson: JSON.stringify(migrated) }, 'OPENAI', {}, openAiConfig(), ''
   ));
@@ -59,6 +61,28 @@ test('current OpenAI migration preserves the exact model and provider-default re
   assert.equal(request.model, 'gpt-5.6-terra');
   assert.equal(request.thinkingProviderDefault, true);
   assert.equal(Object.hasOwn(request, 'maxOutputTokens'), false);
+});
+
+test('a new explicit thinking tuple starts unqualified and remains absent from effective choices', () => {
+  const registry = policy([profile({ isProviderDefault: true, thinkingProfiles: [
+    thinking('provider-default', 'Provider default'),
+    thinking('high', 'High', 'high', 'UNQUALIFIED')
+  ] })]);
+  const choices = plain(ksp.kspGetEffectiveAiModelChoices_(policySettings(registry), 'OPENAI', openAiConfig(), ''));
+  assert.deepEqual(choices.profiles[0].thinkingProfiles.map((item) => item.thinkingProfileId), ['provider-default']);
+  assert.throws(() => ksp.kspResolveAiModelSelection_(policySettings(registry), 'OPENAI', {
+    modelProfileId: 'openai-terra', thinkingProfileId: 'high'
+  }, openAiConfig(), ''), (error) => error.code === 'AI_THINKING_PROFILE_UNQUALIFIED');
+});
+
+test('an unqualified configured default prevents the model from becoming effective', () => {
+  const registry = policy([profile({ isProviderDefault: true, qualification: 'QUALIFIED', fileSearch: true,
+    thinkingProfiles: [thinking('provider-default', 'Provider default', null, 'UNQUALIFIED')]
+  })]);
+  const choices = plain(ksp.kspGetEffectiveAiModelChoices_(policySettings(registry), 'OPENAI', openAiConfig(), ''));
+  assert.deepEqual(choices.profiles, []);
+  assert.throws(() => ksp.kspResolveAiModelSelection_(policySettings(registry), 'OPENAI', {}, openAiConfig(), ''),
+    (error) => error.code === 'AI_THINKING_PROFILE_UNQUALIFIED');
 });
 
 test('effective choices include qualified historical models and hide Sol, inaccessible latest, and unqualified profiles', () => {
@@ -121,7 +145,7 @@ test('registry requires exactly one default for every enabled provider', () => {
   ]), (error) => error.code === 'AI_MODEL_DEFAULT_DUPLICATE');
 });
 
-test('changing a qualified model or thinking contract invalidates qualification before it can be selected', () => {
+test('changing a qualified model, thinking raw value, or output ceiling invalidates tuple qualification', () => {
   const registry = policy([profile({ isProviderDefault: true })]);
   const changed = plain(ksp.kspUpsertAiModelProfile_(registry, {
     ...registry.profiles[0], modelId: 'gpt-5.4', displayName: 'Changed'
@@ -131,6 +155,16 @@ test('changing a qualified model or thinking contract invalidates qualification 
   assert.equal(changed.profiles[0].fileSearch, false);
   assert.throws(() => ksp.kspResolveAiModelSelection_(policySettings(changed), 'OPENAI', {}, openAiConfig(), ''),
     (error) => error.code === 'AI_MODEL_PROFILE_INACCESSIBLE');
+  const withExplicit = policy([profile({ isProviderDefault: true, maxOutputTokens: 1024,
+    thinkingProfiles: [thinking('medium', 'Medium', 'medium')], defaultThinkingProfileId: 'medium' })]);
+  const rawChanged = plain(ksp.kspUpsertAiModelProfile_(withExplicit, {
+    ...withExplicit.profiles[0], thinkingProfiles: [thinking('medium', 'Medium', 'high')]
+  }, '2026-08-31T02:00:00.000Z'));
+  assert.equal(rawChanged.profiles[0].thinkingProfiles[0].qualification, 'UNQUALIFIED');
+  const outputChanged = plain(ksp.kspUpsertAiModelProfile_(withExplicit, {
+    ...withExplicit.profiles[0], maxOutputTokens: 2048
+  }, '2026-08-31T03:00:00.000Z'));
+  assert.equal(outputChanged.profiles[0].thinkingProfiles[0].qualification, 'UNQUALIFIED');
 });
 
 test('validated selection is the only model/reasoning data passed to OpenAI and audit metadata stays safe', () => {

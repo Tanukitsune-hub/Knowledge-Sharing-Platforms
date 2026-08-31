@@ -314,6 +314,7 @@ function kspBuildOpenAiFilter_(filters) {
   add('eq', 'asset_class_id', input.assetClassId);
   add('eq', 'capital_type_id', input.capitalTypeId);
   add('eq', 'source_type', input.sourceType);
+  add('eq', 'source_id', input.sourceId);
   return clauses.length === 0 ? undefined : clauses.length === 1 ? clauses[0] : { type: 'and', filters: clauses };
 }
 
@@ -717,6 +718,7 @@ function kspProviderSafeMessage_(code) {
     AI_MODEL_PROFILE_UNQUALIFIED: '選択したモデルはKnowledge Searchで利用確認されていません。',
     AI_THINKING_SELECTION_STALE: '選択した思考レベルは現在利用できません。設定を読み直してください。',
     AI_THINKING_PROFILE_DISABLED: '選択した思考レベルは管理者設定で利用できません。',
+    AI_THINKING_PROFILE_UNQUALIFIED: '選択した思考レベルはKnowledge Searchで利用確認されていません。',
     AI_MODEL_POLICY_INVALID: 'モデル設定を確認できませんでした。',
     AI_MODEL_POLICY_JSON_INVALID: 'モデル設定を確認できませんでした。',
     AI_MODEL_POLICY_SCHEMA_UNSUPPORTED: 'モデル設定を確認できませんでした。'
