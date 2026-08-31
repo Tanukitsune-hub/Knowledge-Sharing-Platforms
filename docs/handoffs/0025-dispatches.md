@@ -2,40 +2,56 @@
 
 WORK_ID: `0025`
 ACTIVE_DISPATCH_ID: `NONE`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `NONE`
+STATUS: `ACCEPTED`
 
-## Returned dispatches
+## Accepted dispatches
 
-### 0025-CODEX-02 — RETURNED / EXACT THINKING QUALIFICATION PASS
+### 0025-CODEX-02 — ACCEPTED / EXACT THINKING QUALIFICATION
 
-Completed evidence:
+Accepted evidence:
 
 - per-thinking `QUALIFIED / UNQUALIFIED / FAILED` state;
-- exact model + thinking omission/raw value + output ceiling + File Search qualification;
-- individually qualified normal-user choices and server-side enforcement;
-- one synthetic source per administrator qualification action with bounded tuple queries and cleanup;
-- compact per-thinking administrator status;
+- exact provider + model + thinking omission/raw value + output ceiling + File Search qualification;
+- only individually qualified thinking choices exposed to normal users;
+- server-side rejection of stale, disabled, unqualified and failed thinking choices;
+- one temporary synthetic source per bounded administrator qualification action with cleanup;
 - focused 101/101 and canonical 345/345 PASS;
-- exact 79/79 source readback;
-- same private Web App version 60;
-- current `gpt-5.6-terra` + provider-default live qualification PASS;
-- designated DOC-000017 and MTG-000005 grounded query/citation PASS;
-- no Gemini, sync, lifecycle, FULL_OUTPUT runtime or large-fixture mutation.
+- exact 79/79 Apps Script source readback;
+- same private Web App updated once to version 60;
+- current `gpt-5.6-terra` + provider-default tuple qualification PASS;
+- designated `DOC-000017` and `MTG-000005` grounded query/citation PASS;
+- no Gemini, source sync/lifecycle, FULL_OUTPUT runtime call, or large-fixture mutation.
 
 Report:
 
 `docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-report.md`
 
-### 0025-CODEX-01 — RETURNED / MODEL POLICY VERTICAL SLICE
+### 0025-CODEX-01 — ACCEPTED / MODEL POLICY VERTICAL SLICE
 
-Accepted evidence remains preserved: Settings-backed model policy, administrator controls, normal-user selectors, raw-value rejection, current default migration, historical model registration, OpenAI citation regression and version-59 baseline.
+Accepted foundation:
 
-CODEX-02 supersedes only CODEX-01's model-only qualification scope.
+- Settings-backed model-policy registry;
+- administrator model/thinking controls;
+- normal-user selectors;
+- raw model/thinking rejection;
+- current default migration and historical model registration;
+- no automatic latest-model activation;
+- no stronger/more-expensive or cross-provider fallback;
+- OpenAI search/citation non-regression.
+
+CODEX-02 superseded only CODEX-01's model-only qualification scope.
 
 Report:
 
 `docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`
+
+## GitHub delivery
+
+- Draft PR #32 was closed unmerged only because the connected ready-for-review mutation failed before changing GitHub state.
+- The exact same branch head was recreated as non-draft PR #33 without implementation changes.
+- PR #33 merged to `main` at merge commit `121f2a1c4655ece46c7e07163b0d12866600923e`.
+- GitHub CI/status checks did not run.
 
 ## Final classification
 
@@ -47,13 +63,12 @@ RAW_MODEL/THINKING_BYPASS: BLOCKED
 CURRENT_DEFAULT_OPENAI_PATH: PASS
 THINKING_PROFILE_QUALIFICATION: PASS
 TARGET_RUNTIME: same private Web App version 60
-PR_32: Draft / Open / unmerged
+PR_33: MERGED
 GITHUB_CI_ACTUALLY_RAN: NO
-READY_FOR_CHATGPT_FINAL_MERGE: YES
 BLOCKER: NONE
 ```
 
 WORK_ID: `0025`
 ACTIVE_DISPATCH_ID: `NONE`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `NONE`
+STATUS: `ACCEPTED`
