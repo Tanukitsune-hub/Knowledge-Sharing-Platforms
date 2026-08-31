@@ -1,70 +1,76 @@
 # Work 0025 dispatch control
 
 WORK_ID: `0025`
-ACTIVE_DISPATCH_ID: `0025-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0025-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
 
 ## Active dispatch
 
-### 0025-CODEX-01 — RETURNED / COMPLETE
+### 0025-CODEX-02 — READY / THINKING QUALIFICATION GATE
 
-Primary outcome:
+Final review of CODEX-01 found one material mismatch in the primary Work 0025 outcome:
 
-- implement the shortest coherent administrator-governed model/thinking policy vertical slice;
-- preserve the accepted Work 0020 OpenAI File Search behavior and version-58 runtime evidence;
-- add normal-user model/thinking selectors backed by server-side policy enforcement;
-- support historical models and model-specific thinking profiles without automatic latest-model activation;
-- reconcile Work 0021 planning to consume the Work 0025 effective-policy resolver;
-- stop after the major vertical slice passes; route non-blocking refinements to FIX SOON/BACKLOG.
+- model qualification currently tests `modelId` only;
+- it does not send each configured thinking value/provider-default omission and output ceiling;
+- a successful model-only test marks the whole model profile qualified;
+- all enabled thinking profiles then become user-selectable even when the exact model/thinking tuple was never qualified.
 
-Completion evidence:
+Instruction:
 
-- structured Settings-backed policy, administrator controls, normal-user selectors and server resolver PASS;
+`docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-instruction.md`
+
+Required outcome:
+
+- per-thinking qualification state;
+- exact model + thinking + output qualification request;
+- only individually qualified thinking choices exposed;
+- server-side rejection of unqualified/failed thinking choices;
+- preserve current `gpt-5.6-terra` + provider-default behavior;
+- bounded deterministic and version-60 target-runtime qualification;
+- return PR #32 for final merge without another broad hardening loop.
+
+## Returned dispatches
+
+### 0025-CODEX-01 — RETURNED / MAJOR VERTICAL SLICE PASS, ONE CORE REVIEW GAP
+
+Accepted evidence:
+
+- Settings-backed model policy registry;
+- administrator model/thinking controls;
+- normal-user selectors;
+- raw model/thinking rejection and server-side model-policy enforcement;
+- current OpenAI default migration;
 - focused 74/74 and canonical 341/341 PASS;
-- exact 79/79 Apps Script source readback;
-- same private Web App updated once to version 59;
-- current OpenAI default synthetic qualification PASS;
-- exact `DOC-000017` sync unchanged and one authoritative source returned by each designated Pitchbook/Meeting query;
-- hidden/disabled synthetic profile absent from normal-user choices;
-- no Gemini call, broad sync, FULL_OUTPUT runtime call or large-fixture mutation.
+- exact 79/79 source readback;
+- same private Web App version 59;
+- designated OpenAI Meeting/Pitchbook query and citation PASS;
+- no Gemini, broad sync, FULL_OUTPUT runtime call, or large-fixture mutation.
 
-Report:
+CODEX-01 report:
 
 `docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`
 
-Authoritative instruction:
+## Current classification
 
-`docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-instruction.md`
+```text
+MODEL_POLICY_REGISTRY: PASS
+ADMIN_MODEL_CONTROL: PASS
+USER_MODEL_SELECTOR: PASS
+RAW_MODEL/THINKING_BYPASS: BLOCKED
+CURRENT_DEFAULT_OPENAI_PATH: PASS
+THINKING_PROFILE_QUALIFICATION: INCOMPLETE
+PR_32: Draft / Open / unmerged / mergeable before handoff commits
+GITHUB_CI_ACTUALLY_RAN: NO
+READY_FOR_FINAL_MERGE: NO
+BLOCKER: THINKING_PROFILE_QUALIFICATION_NOT_EXACT
+```
 
-Planning source of truth:
+## Scope discipline
 
-`docs/planning/work-registry.md`
-
-Runtime locator:
-
-`docs/operations/runtime-artifact-locator.md`
-
-## Safety / scope boundary
-
-- no Gemini live call;
-- no broad Meeting/Pitchbook sync;
-- no old 5–25 MiB fixture retry/mutation;
-- no confidential/company source data;
-- no automatic provider failover;
-- no automatic newest-model activation;
-- no Work 0021 or Work 0023 implementation;
-- no exhaustive model benchmark campaign;
-- no new Web App or provider Store merely for this Work;
-- no rebase, force-push, history rewrite, or PR merge.
-
-## Completion discipline
-
-Extend Work 0025 only for a material blocker to the same outcome: policy/authorization bypass, credential/confidential-data exposure, data/provider-state corruption, authoritative source/citation regression, normal admin/user flow failure, material provider side effect, or required deterministic/target-runtime qualification failure.
-
-Cosmetic UX, exhaustive model coverage, optional user-preference persistence, and non-blocking observability/hardening go to FIX SOON/BACKLOG.
+CODEX-02 fixes only the exact qualification mismatch. Do not call Gemini, broad-sync sources, retry large fixtures, implement Work 0021/0023, add discovery, benchmark the model catalog, or redesign the UI.
 
 WORK_ID: `0025`
-ACTIVE_DISPATCH_ID: `0025-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0025-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
