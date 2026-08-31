@@ -12,7 +12,8 @@ Active instruction:
 
 Current operational/ball state and resume diagnostic:
 
-`docs/handoffs/0021-dispatches.md`
+- `docs/handoffs/0021-dispatches.md`
+- `docs/handoffs/0021-CODEX-04-browser-upload-diagnostic-note.md`
 
 Accepted reports:
 
@@ -54,7 +55,7 @@ No contradictory evidence exists for those accepted gates.
 
 Local deterministic validation reached `371/371` PASS, but runtime qualification has not started because the browser-assisted local-file upload bridge was unavailable before any fixture registration/provider mutation.
 
-The user has confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. Therefore do not ask the user to repeat that toggle without first diagnosing the actual browser/profile/session and local workspace path as specified in `docs/handoffs/0021-dispatches.md`.
+The user has confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. Therefore do not ask the user to repeat that toggle without first diagnosing the actual browser/profile/session and local workspace path as specified in the diagnostic note.
 
 Current safe state:
 
