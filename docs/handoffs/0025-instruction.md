@@ -2,13 +2,13 @@
 
 WORK_ID: `0025`
 DISPATCH_ID: `0025-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `REVIEW_FIX -> QUALIFICATION`
 
-Active dispatch instruction:
+Completion report:
 
-`docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-instruction.md`
+`docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-report.md`
 
 Accepted CODEX-01 report:
 
@@ -26,25 +26,19 @@ Runtime locator:
 
 `docs/operations/runtime-artifact-locator.md`
 
-## Accepted CODEX-01 outcome
+## Completed outcome
 
-The Settings-backed registry, administrator controls, normal-user selectors, raw model/thinking rejection, current OpenAI default migration, OpenAI File Search/citation regression, and private Web App version-59 qualification remain accepted.
+The Settings-backed registry, administrator controls, normal-user selectors, raw model/thinking rejection, current OpenAI default migration and historical model support remain accepted.
 
-## Active residual
+CODEX-02 closes the qualification mismatch: every user-selectable thinking tuple is now individually qualified using the exact model, provider-default omission or raw thinking value, output ceiling and File Search request shape. Unqualified and failed thinking choices remain hidden and are rejected server-side.
 
-CODEX-01 qualifies a selected model with a model-only synthetic request, then exposes every enabled thinking profile under the qualified model. The qualification request does not prove the exact thinking raw value/provider-default omission or output ceiling for each user-selectable combination.
+The exact tested source is deployed on the same private Web App as version 60. The current `gpt-5.6-terra` + provider-default tuple and designated synthetic OpenAI Pitchbook/Meeting paths passed bounded live qualification.
 
-CODEX-02 must add the smallest per-thinking qualification state and exact tuple gate so only combinations actually qualified for model + thinking + output + File Search are selectable and executable.
+## Closed scope
 
-This is a material completion gap because company/project thinking support is intentionally treated as unknown. It is not permission for another broad hardening campaign.
-
-## Scope discipline
-
-Preserve Work 0020 and all accepted CODEX-01 behavior. Do not call Gemini, broad-sync source data, retry large fixtures, implement Work 0021/0023, add model discovery, or run exhaustive model/thinking benchmarks.
-
-After the exact gate and bounded non-regression qualification pass, stop and return PR #32 for final merge.
+Work 0025 is complete. Provider discovery, per-user preference persistence, exhaustive model/latency benchmarking and cosmetic administrator refinements remain separate backlog items. Work 0021 may consume the completed effective-policy request contract. Work 0023, Gemini recovery and large-file recovery remain separate Works.
 
 WORK_ID: `0025`
 DISPATCH_ID: `0025-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

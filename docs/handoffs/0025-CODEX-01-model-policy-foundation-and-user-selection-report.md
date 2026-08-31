@@ -49,6 +49,8 @@ No Gemini call, broad Meeting/Pitchbook sync, old 5–25 MiB fixture retry/mutat
 
 ## Scope and follow-up
 
+CODEX-02 later corrected one qualification-scope limitation in this report: CODEX-01's live action qualified the model/File Search path but did not independently qualify every configured thinking raw value and output ceiling. The accepted CODEX-01 policy/UI/OpenAI evidence remains valid; exact tuple qualification is established by `0025-CODEX-02-thinking-profile-qualification-gate-report.md` and private Web App version 60.
+
 Optional provider model discovery was intentionally deferred. Manual exact model entry, access/qualification gates and no-auto-enable semantics satisfy this dispatch without expanding into provider catalog benchmarking. Work 0021 should consume the effective-policy resolver for its structured filters and modes. Work 0023, Gemini recovery and representative large-file recovery remain separate Works.
 
 ## Completion latch

@@ -1,76 +1,59 @@
 # Work 0025 dispatch control
 
 WORK_ID: `0025`
-ACTIVE_DISPATCH_ID: `0025-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
-
-## Active dispatch
-
-### 0025-CODEX-02 — READY / THINKING QUALIFICATION GATE
-
-Final review of CODEX-01 found one material mismatch in the primary Work 0025 outcome:
-
-- model qualification currently tests `modelId` only;
-- it does not send each configured thinking value/provider-default omission and output ceiling;
-- a successful model-only test marks the whole model profile qualified;
-- all enabled thinking profiles then become user-selectable even when the exact model/thinking tuple was never qualified.
-
-Instruction:
-
-`docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-instruction.md`
-
-Required outcome:
-
-- per-thinking qualification state;
-- exact model + thinking + output qualification request;
-- only individually qualified thinking choices exposed;
-- server-side rejection of unqualified/failed thinking choices;
-- preserve current `gpt-5.6-terra` + provider-default behavior;
-- bounded deterministic and version-60 target-runtime qualification;
-- return PR #32 for final merge without another broad hardening loop.
+ACTIVE_DISPATCH_ID: `NONE`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Returned dispatches
 
-### 0025-CODEX-01 — RETURNED / MAJOR VERTICAL SLICE PASS, ONE CORE REVIEW GAP
+### 0025-CODEX-02 — RETURNED / EXACT THINKING QUALIFICATION PASS
 
-Accepted evidence:
+Completed evidence:
 
-- Settings-backed model policy registry;
-- administrator model/thinking controls;
-- normal-user selectors;
-- raw model/thinking rejection and server-side model-policy enforcement;
-- current OpenAI default migration;
-- focused 74/74 and canonical 341/341 PASS;
+- per-thinking `QUALIFIED / UNQUALIFIED / FAILED` state;
+- exact model + thinking omission/raw value + output ceiling + File Search qualification;
+- individually qualified normal-user choices and server-side enforcement;
+- one synthetic source per administrator qualification action with bounded tuple queries and cleanup;
+- compact per-thinking administrator status;
+- focused 101/101 and canonical 345/345 PASS;
 - exact 79/79 source readback;
-- same private Web App version 59;
-- designated OpenAI Meeting/Pitchbook query and citation PASS;
-- no Gemini, broad sync, FULL_OUTPUT runtime call, or large-fixture mutation.
+- same private Web App version 60;
+- current `gpt-5.6-terra` + provider-default live qualification PASS;
+- designated DOC-000017 and MTG-000005 grounded query/citation PASS;
+- no Gemini, sync, lifecycle, FULL_OUTPUT runtime or large-fixture mutation.
 
-CODEX-01 report:
+Report:
+
+`docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-report.md`
+
+### 0025-CODEX-01 — RETURNED / MODEL POLICY VERTICAL SLICE
+
+Accepted evidence remains preserved: Settings-backed model policy, administrator controls, normal-user selectors, raw-value rejection, current default migration, historical model registration, OpenAI citation regression and version-59 baseline.
+
+CODEX-02 supersedes only CODEX-01's model-only qualification scope.
+
+Report:
 
 `docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`
 
-## Current classification
+## Final classification
 
 ```text
 MODEL_POLICY_REGISTRY: PASS
-ADMIN_MODEL_CONTROL: PASS
-USER_MODEL_SELECTOR: PASS
+ADMIN_MODEL/THINKING_CONTROL: PASS
+USER_MODEL/THINKING_SELECTOR: PASS
 RAW_MODEL/THINKING_BYPASS: BLOCKED
 CURRENT_DEFAULT_OPENAI_PATH: PASS
-THINKING_PROFILE_QUALIFICATION: INCOMPLETE
-PR_32: Draft / Open / unmerged / mergeable before handoff commits
+THINKING_PROFILE_QUALIFICATION: PASS
+TARGET_RUNTIME: same private Web App version 60
+PR_32: Draft / Open / unmerged
 GITHUB_CI_ACTUALLY_RAN: NO
-READY_FOR_FINAL_MERGE: NO
-BLOCKER: THINKING_PROFILE_QUALIFICATION_NOT_EXACT
+READY_FOR_CHATGPT_FINAL_MERGE: YES
+BLOCKER: NONE
 ```
 
-## Scope discipline
-
-CODEX-02 fixes only the exact qualification mismatch. Do not call Gemini, broad-sync sources, retry large fixtures, implement Work 0021/0023, add discovery, benchmark the model catalog, or redesign the UI.
-
 WORK_ID: `0025`
-ACTIVE_DISPATCH_ID: `0025-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `NONE`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

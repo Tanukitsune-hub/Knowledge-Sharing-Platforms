@@ -1,70 +1,50 @@
 # Work 0025 report
 
 WORK_ID: `0025`
-ACTIVE_DISPATCH_ID: `0025-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `NONE`
+BALL: `CHATGPT`
+STATUS: `COMPLETE`
 
 ## Executive conclusion
 
-CODEX-01 completed and target-runtime-qualified the major model/thinking policy vertical slice, but final review found one primary-contract gap that must be closed before PR #32 merges.
+Work 0025 is complete. The application now has a Settings-backed administrator-governed model/thinking registry, safe normal-user selectors, raw-value rejection and an exact per-thinking qualification gate.
 
-The current administrator qualification action tests the model/File Search path using `modelId` only. It does not pass the configured thinking raw value/provider-default omission or output ceiling, yet a successful model-only test marks the whole model profile qualified and exposes all enabled thinking choices.
+A combination is selectable only after the provider, exact model ID, thinking profile ID, provider-default omission or exact raw value, output ceiling and File Search route pass qualification together. Changed and failed tuples fail closed.
 
-Because model-specific thinking compatibility is intentionally unknown until tested, an unsupported configured thinking value can become user-selectable after an apparently successful qualification. CODEX-02 is limited to making qualification exact per user-selectable thinking tuple.
-
-## Accepted CODEX-01 evidence
+## Final evidence
 
 ```text
 MODEL_POLICY_REGISTRY: PASS
 ADMIN_MODEL_CONTROL: PASS
+ADMIN_THINKING_CONTROL: PASS
 USER_MODEL_SELECTOR: PASS
-SERVER_SIDE_RAW_MODEL/THINKING_REJECTION: PASS
+USER_THINKING_SELECTOR: PASS
+SERVER_SIDE_POLICY_ENFORCEMENT: PASS
 CURRENT_DEFAULT_MIGRATION: PASS
 HISTORICAL_MODEL_REGISTRATION: PASS
 NO_AUTO_LATEST_SWITCH: PASS
 NO_COST_ESCALATION/CROSS_PROVIDER_FALLBACK: PASS
+THINKING_PROFILE_QUALIFICATION_STATE: PASS
+EXACT_MODEL_THINKING_OUTPUT_QUALIFICATION: PASS
+UNQUALIFIED_THINKING_HIDDEN: PASS
 OPENAI DOC-000017 / MTG-000005 REGRESSION: PASS
-LOGIC_VALIDATION: focused 74/74; canonical 341/341
-TARGET_RUNTIME: same private Web App version 59
+LOGIC_VALIDATION: focused 101/101; canonical 345/345
+TARGET_RUNTIME: same private Web App version 60
 GITHUB_CI_ACTUALLY_RAN: NO
+READY_FOR_CHATGPT_FINAL_MERGE: YES
+BLOCKER: NONE
 ```
 
-Detailed CODEX-01 report:
+Detailed reports:
 
-`docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`
+- `docs/handoffs/0025-CODEX-01-model-policy-foundation-and-user-selection-report.md`;
+- `docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-report.md`.
 
-## Active blocker
+## Backlog boundary
 
-```text
-THINKING_PROFILE_QUALIFICATION_STATE: NOT IMPLEMENTED
-QUALIFICATION_REQUEST_USES_EXACT_THINKING_VALUE: NO
-QUALIFICATION_REQUEST_USES_OUTPUT_CEILING: NO
-USER_CHOICES_REQUIRE_INDIVIDUAL_THINKING_QUALIFICATION: NO
-READY_FOR_FINAL_MERGE: NO
-BLOCKER: THINKING_PROFILE_QUALIFICATION_NOT_EXACT
-```
-
-Active instruction:
-
-`docs/handoffs/0025-CODEX-02-thinking-profile-qualification-gate-instruction.md`
-
-## Classification
-
-### BLOCKER
-
-- User-selectable thinking values are not individually qualified against the actual provider request shape.
-
-### FIX SOON / BACKLOG
-
-- provider model discovery;
-- persistent per-user preference;
-- exhaustive model/latency benchmarking;
-- cosmetic administrator UI refinement.
-
-These do not extend Work 0025 after CODEX-02.
+Provider discovery, persistent per-user preference, exhaustive model/latency benchmarking and cosmetic administrator UI refinements do not extend Work 0025. Work 0021 and Work 0023 remain separately governed. Gemini recovery and representative large-file handling remain deferred separate outcomes.
 
 WORK_ID: `0025`
-ACTIVE_DISPATCH_ID: `0025-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `NONE`
+BALL: `CHATGPT`
+STATUS: `COMPLETE`
