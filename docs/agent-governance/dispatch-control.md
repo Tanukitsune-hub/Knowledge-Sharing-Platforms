@@ -12,6 +12,8 @@ Use this protocol to preserve the outcome-level Work ID while making every ChatG
 - Route A / ChatGPT-only work uses `DISPATCH_ID: N/A`.
 - Existing historical handoffs do not need renaming. When adopting this protocol mid-Work, begin a prospective sequence and state that earlier dispatches were not backfilled.
 
+`WORK_ID` is an immutable reference, not a priority number or a guarantee of numeric execution order. Never renumber an issued Work merely because dependencies or priorities change. Track current priority and dependency order in `docs/planning/work-registry.md`.
+
 Default to one active Codex Dispatch per Work. Parallel Dispatches are exceptional; if outcomes are independently separable, prefer separate Work IDs.
 
 ## 2. Human-readable filenames
@@ -113,6 +115,7 @@ Use `DISPATCH_ID: N/A` for ChatGPT-only work. This display is a concise mirror, 
 ## 8. Guardrails
 
 - Never change the Work ID merely because a new Dispatch is created.
+- Never renumber an issued Work to match a revised roadmap order.
 - Never reuse or renumber a Dispatch ID.
 - Never let instruction and report use different Dispatch IDs.
 - Do not backfill or rename historical files solely for this protocol.
