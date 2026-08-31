@@ -27,14 +27,14 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `62`
+- DEPLOYMENT_VERSION: `63`
 - ENVIRONMENT: personal DEV / qualification
 
 Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
 
 Version 63 is the current private-Web-App deployment. It preserves the accepted Work 0020/0025 source and policy baseline plus the Work 0021 version-62 core, and adds explicit 2–5 Entity comparison, per-Entity authoritative citation attribution, exact Related GP / Meeting Type filters, and matching FULL_OUTPUT semantics. Exact source readback passed `80/80`; bounded OpenAI comparison, advanced-filter and FULL_OUTPUT runtime gates passed.
 
-No later Work 0021 dispatch may create another immutable version without a fresh committed instruction and deterministic validation. The next planned dispatch is CODEX-04 bounded six-format/provider-capability qualification; do not reopen the accepted version-63 comparison/filter qualification absent contradictory evidence.
+No later Work 0021 dispatch may create another immutable version without a fresh committed instruction and deterministic validation. Active final planned dispatch is CODEX-04 bounded six-format/provider-capability qualification; do not reopen the accepted version-63 comparison/filter qualification absent contradictory evidence.
 
 ## Data and control artifacts
 
@@ -99,62 +99,64 @@ No later Work 0021 dispatch may create another immutable version without a fresh
 - PITCHBOOK_QUERY_STATE: one bounded query returned expected synthetic facts and an authoritative normalized `Pitchbook / DOC-000017` source; older synthetic citations were read only
 - MEETING_QUERY_STATE: one bounded query returned expected synthetic facts and an authoritative normalized `Meeting / MTG-000005` source
 - FULL_OUTPUT_STATE: accepted Work 0020 runtime evidence preserved; Work 0025 verified AI controls hidden and did not run FULL_OUTPUT
-- FINAL_ROW_STATE: one Active `DOC-000017`, one Active `DOC-000018`, one Active `MTG-000005`
-- SIDE_EFFECT_BOUNDARY: no Gemini call, source sync/lifecycle, large-fixture retry/mutation, confidential data, new Store/Web App/Library or provider fallback
+- SIDE_EFFECT_BOUNDARY: no Gemini call, broad source sync, large-fixture retry/mutation, confidential data, new Store/Web App/Library or provider fallback
 - GITHUB_DELIVERY_STATE: Draft PR #32 closed as transport workaround; exact replacement PR #33 merged to `main`
 
 ## Work 0021 starting baseline
 
 - ACTIVE_WORK_ID: `0021`
-- ACTIVE_DISPATCH_ID: `0021-CODEX-01` when handed off
 - STARTING_WEB_APP_VERSION: `60`
-- REQUIRED_BASE: latest `main` containing Work 0020 and Work 0025
 - PRIMARY_RUNTIME_ROUTE: OpenAI + FULL_OUTPUT
 - GEMINI_STATE: disabled/deferred; safe no-failover behavior must remain
-- DESIGNATED_EXISTING_SOURCES: `DOC-000017`, `MTG-000005`; inspect bounded synthetic coverage before creating any additional test source
+- DESIGNATED_EXISTING_SOURCES: `DOC-000017`, `MTG-000005`
 - PROHIBITED_TEST_TARGETS: `DOC-000018` and old 5–25 MiB fixtures unless an explicit later Work authorizes them
 
 ## Work 0021 CODEX-01 runtime state
 
-- DEPLOYED_SOURCE_COMMIT: `07e4761` implementation commit; exact `80/80` pull-back parity PASS
-- WEB_APP_VERSION: `61`; one immutable version and one update of the same private `/exec` deployment
-- LOGIC_VALIDATION: PASS (`355/355` canonical tests)
-- OPENAI_RUNTIME_GATE: BLOCKED — first exact compound-filter query on designated synthetic Pitchbook scope returned insufficient evidence and zero citations
-- STOP_STATE: no second OpenAI query, FULL_OUTPUT runtime, Gemini attempt, source sync/lifecycle, export artifact, or second deployment
-- BLOCKER: `OPENAI_COMPOUND_FILTER_EXISTING_INDEX_METADATA_MISMATCH_OR_EMPTY_RETRIEVAL`
-- PRESERVED_STATE: accepted Work 0020/0025 evidence remains valid; no application source row, `DOC-000018`, large fixture, provider Store, Library, trigger, or confidential data was mutated
+- WEB_APP_VERSION: `61`
+- LOGIC_VALIDATION: PASS (`355/355`)
+- initial compound-filter runtime blocker returned and was subsequently closed by CODEX-02
 
 ## Work 0021 CODEX-02 runtime state
 
-- DEPLOYED_SOURCE_COMMIT: `a16d835`; exact `80/80` pull-back parity PASS
-- WEB_APP_VERSION: `62`; one immutable version and one update of the same private `/exec` deployment
-- LOGIC_VALIDATION: PASS (`360/360` canonical tests)
-- ROOT_CAUSE: current-content `DOC-000017` provider attributes omitted `fund_strategy` and `counterparty_id`; Pitchbook sync source omitted Fund Strategy
-- EXACT_ATTRIBUTE_SYNC: selected 1 / indexed 0 / metadata refreshed 1 / unchanged 1 / failed 0; no upload or duplicate
-- OPENAI_RUNTIME_GATE: PASS — exact compound filter returned grounded facts and exactly one authoritative normalized `DOC-000017` source
-- FIVE_MODE_RUNTIME_CORE: PASS — free question, summary, timeline, core comparison, and meeting preparation
-- FULL_OUTPUT_RUNTIME_PARITY: PASS — one bounded preview; Meeting bodies authoritative and Pitchbooks reference-only; no artifact or AI call
-- GEMINI_NO_FAILOVER: PASS — zero effective choices, safe server selection error before transport, no Gemini API call
-- FINAL_PROVIDER_STATE: 16/16 completed documents; one exact current provider document each for `DOC-000017` and `MTG-000005`; `DOC-000018` absent from OpenAI as before
-- BLOCKER: NONE; ready for CODEX-03
-- PRESERVED_STATE: no broad sync, large-fixture retry/mutation, confidential data, new Store/Web App/Library/endpoint, or provider fallback
+- DEPLOYED_SOURCE_COMMIT: `a16d835`
+- WEB_APP_VERSION: `62`
+- LOGIC_VALIDATION: PASS (`360/360`)
+- ROOT_CAUSE: current-content provider attributes omitted `fund_strategy` and `counterparty_id`; Pitchbook sync source omitted Fund Strategy
+- EXACT_ATTRIBUTE_SYNC: in-place metadata reconciliation; no upload or duplicate
+- OPENAI_RUNTIME_GATE: PASS
+- FIVE_MODE_RUNTIME_CORE: PASS
+- FULL_OUTPUT_RUNTIME_PARITY: PASS
+- GEMINI_NO_FAILOVER: PASS — no Gemini API call
+- FINAL_PROVIDER_STATE: 16/16 completed documents; one current provider document each for `DOC-000017` and `MTG-000005`
 
 ## Work 0021 CODEX-03 runtime state
 
-- DEPLOYED_SOURCE_COMMIT: `d5af191ad83b990f6023e3e41b53f194db629e4b`; exact `80/80` pull-back parity PASS
-- WEB_APP_VERSION: `63`; one immutable version and one update of the same private `/exec` deployment; `USER_DEPLOYING` / `MYSELF` preserved
-- LOGIC_VALIDATION: PASS (`368/368` canonical tests; 57 gs / 22 html; temporal and public-surface validation PASS)
-- OPENAI_MULTI_ENTITY_COMPARISON: PASS — `GP:GP-000031` and `LP_ASSET_OWNER:OPT-CPLP-001`; authoritative citations 10/1; zero unselected-Entity citations; expected `DOC-000017`, `MTG-000005`, `MTG-000004` evidence present
-- OPENAI_ADVANCED_EXACT_FILTER: PASS — exact `LP_ASSET_OWNER:OPT-CPLP-001` + `GP-000031` + `ANNUAL_REVIEW` returned only authoritative `MTG-000004` and its known Meeting body token
-- FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS — both Entities grouped; five Meeting bodies authoritative; twelve Pitchbooks reference-only; no artifact or AI submission for preview
-- FINAL_PROVIDER_STATE: accepted 16-completed-document baseline structurally unchanged; CODEX-03 invoked no sync/upload/index/update/delete/lifecycle path and created no duplicate
+- DEPLOYED_SOURCE_COMMIT: `d5af191ad83b990f6023e3e41b53f194db629e4b`
+- WEB_APP_VERSION: `63`
+- LOGIC_VALIDATION: PASS (`368/368`; temporal/public-surface validation PASS)
+- APPS_SCRIPT_READBACK: PASS (`80/80`)
+- OPENAI_MULTI_ENTITY_COMPARISON: PASS — `GP:GP-000031` and `LP_ASSET_OWNER:OPT-CPLP-001`; zero unselected-Entity citations
+- OPENAI_ADVANCED_EXACT_FILTER: PASS — exact Related GP + Meeting Type scope returned only authoritative `MTG-000004`
+- FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS
+- FINAL_PROVIDER_STATE: accepted 16-completed-document baseline structurally unchanged; no sync/upload/index/update/delete/lifecycle operation
 - BLOCKER: NONE; ready for CODEX-04
 - PRESERVED_STATE: no Gemini call, broad sync/reindex, `DOC-000018` or large-fixture mutation, confidential data, new Store/Web App/Library/endpoint, provider fallback, or FULL_OUTPUT artifact
 
+## Work 0021 CODEX-04 starting boundary
+
+- ACTIVE_DISPATCH_ID: `0021-CODEX-04`
+- STARTING_WEB_APP_VERSION: `63`
+- PRIMARY_OUTCOME: bounded `pdf / pptx / xlsx / docx / txt / eml` OpenAI capability/citation matrix and final Work 0021 qualification
+- EXISTING_FORMAT_INVENTORY: current authoritative Pitchbooks are effectively TXT only for this matrix; no small complete six-format set exists
+- AUTHORIZED_NEW_FIXTURES: at most six tiny non-confidential synthetic Pitchbooks through the normal product registration flow
+- PROHIBITED: `DOC-000018`, old Matrix-C 5–25 MiB timeout fixtures, broad sync, Gemini live call, new provider/runtime infrastructure
+- DEPLOYMENT_RULE: if source changes, at most one new immutable version and one update of the same private Web App; if source does not change, keep version 63 rather than making a no-op deployment
+
 ## Follow-up routing
 
-- Current large product slice: Work 0021 structured Knowledge Search / filters / five modes / comparison, consuming the accepted Work 0025 effective-policy resolver.
-- Distribution/install: Work 0023 after intended feature surface stabilization.
+- Work 0021 CODEX-04 is the final planned search-product dispatch. On PASS, return PR #34 for ChatGPT final merge.
+- Distribution/install: Work 0023 after Work 0021 merge.
 - Gemini: re-evaluate near product completion against current APIs/runtime rather than continuing the historical troubleshooting loop now.
 - Large OpenAI files: create a separate bounded Work only if representative operating files require asynchronous indexing/progress handling.
 
