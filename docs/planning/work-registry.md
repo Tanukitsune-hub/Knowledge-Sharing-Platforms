@@ -41,8 +41,8 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 |---:|---|---|---|---|---|
 | 0 | 0020 | AI provider core, OpenAI File Search, citations, lifecycle, full output | ACCEPTED | — | Preserve version-58/runtime evidence; do not reopen absent contradictory evidence |
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve version-60 exact tuple qualification/runtime evidence; route non-blocking refinements separately |
-| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | ACTIVE | 0025 accepted | Execute final planned dispatch `0021-CODEX-04`: bounded six-format OpenAI capability/citation matrix; if PASS, return PR #34 for ChatGPT final merge |
-| 3 | 0023 | Generated single-file bundle and idempotent installer | READY | 0021 feature surface stable | After Work 0021 merge, build and fresh-install-qualify the distribution path |
+| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | ACTIVE | 0025 accepted | CODEX-04 local logic is PASS 371/371; diagnose browser/local-file upload bridge without mutation, then resume the same final six-format dispatch |
+| 3 | 0023 | Generated single-file bundle and idempotent installer | READY | 0021 feature surface stable | Build and fresh-install-qualify the distribution path |
 | 4 | Unassigned future Work | Gemini provider recovery against the completed OpenAI reference path | DEFERRED | 0021/0023 substantially complete; current Gemini APIs rechecked | Allocate the next unused Work ID when the recovery campaign starts |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with general provider recovery unless the outcome is genuinely the same |
 | 6 | Unassigned future Work | Historical-material migration | PLANNED | Product and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
@@ -80,13 +80,15 @@ Keep one Work ID because the primary outcome is one intended Knowledge Search pr
   PASS at private Web App version 63
 
 0021-CODEX-04
-  bounded six-format OpenAI capability/citation matrix + final Work qualification;
-  ACTIVE / FINAL PLANNED DISPATCH
+  bounded six-format matrix + explicit provider-capability/parity evidence;
+  local deterministic PASS 371/371;
+  target-runtime work paused before mutation because the local browser upload bridge is unavailable even though the user reports Chrome file-URL access already enabled;
+  diagnose browser/profile/session/local workspace path first, then resume the SAME dispatch
 ```
 
-Gemini live recovery remains a separately deferred near-completion Work. CODEX-04 records only the capabilities of providers intentionally enabled now; it must not reopen historical Gemini troubleshooting as a hidden blocker.
+Gemini live recovery remains a separately deferred near-completion Work. CODEX-04 records only the capabilities of providers then intentionally enabled; it must not reopen historical Gemini troubleshooting as a hidden blocker.
 
-Create another dispatch only when required to complete the same outcome. After CODEX-04 PASS, do not create CODEX-05 for non-blocking hardening; return Work 0021 for final ChatGPT merge.
+Create another dispatch only when required to complete the same outcome. Create a new Work only if the deliverable materially changes.
 
 ## Scope and review discipline
 
