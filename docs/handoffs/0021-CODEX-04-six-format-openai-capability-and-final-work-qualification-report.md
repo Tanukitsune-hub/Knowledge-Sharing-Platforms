@@ -9,7 +9,7 @@ STATUS: `ACTION_REQUIRED`
 
 CODEX-04 remains the active final Work 0021 dispatch. Deterministic six-format logic passed, but the target-runtime matrix did not start because the attached Chrome extension could not open or expose a native file chooser for the normal Pitchbook registration flow.
 
-This run replaced the earlier unproven permission-toggle label with a narrower evidence-backed classification:
+Current evidence-backed classification:
 
 ```text
 BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
@@ -20,77 +20,28 @@ PROVIDER_MUTATION: NONE
 NEW_FORMAT_FIXTURES_REGISTERED: 0
 ```
 
-The user reported that Chrome `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. This run did not ask for the toggle again and did not independently claim that the toggle is OFF.
-
-## Work Contract and evidence hierarchy
-
-Mode: `QUALIFICATION` with a read-only browser-path diagnostic before any runtime mutation.
-
-Evidence order:
-
-1. current attached browser surface/profile and bundled extension/native-host diagnostics;
-2. direct workspace file readability;
-3. visible Web App file-input/drop-zone state;
-4. file-chooser/native-window observation after bounded activation paths;
-5. local deterministic tests;
-6. user-reported extension toggle state.
-
-Mutation budget remained zero until the local upload bridge became positively available. It never became available, so no Drive, Backend, Audit, OpenAI, provider, Apps Script source, version or deployment operation was authorized or executed.
+The user confirmed Chrome `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is ON and subsequently reinstalled the Chrome extension. The failure still reproduced. Do not ask for another extension reinstall or toggle cycle without contradictory evidence.
 
 ## Browser/local-file diagnosis
-
-### Actual browser surface and profile
 
 ```text
 BROWSER_SURFACE: Chrome extension
 BROWSER_FAMILY: Chrome
 ATTACHED_PROFILE: Profile 2
-PROFILE_LAST_USED: YES
 EXTENSION_CONNECTED: YES
 EXTENSION_INSTALLED_AND_ENABLED: YES
 NATIVE_HOST_MANIFEST: PASS
-PRIVATE_WEB_APP_TARGET: version 63 / WEB_APP / USER_DEPLOYING / MYSELF
-```
-
-This was not the ChatGPT desktop built-in browser and not another Chrome profile.
-
-### Fixture readability
-
-The six generated valid synthetic files were copied temporarily into a workspace-local diagnostic directory and read byte-for-byte by the Codex process:
-
-```text
-PDF: 954 bytes
-PPTX: 45,493 bytes
-XLSX: 1,974 bytes
-DOCX: 8,550 bytes
-TXT: 73 bytes
-EML: 678 bytes
-WORKSPACE_FIXTURE_READABILITY: PASS
-```
-
-The temporary workspace copies were removed after diagnosis. No fixture was uploaded or registered. The reproducible originals remain outside Git in the existing temporary generation directory.
-
-### Failure layer
-
-The rendered private Web App exposed one connected, enabled, multiple-file `input[type=file]`. The input is intentionally hidden and the visible `#pitchbook-drop-zone` is the user activation surface.
-
-Bounded activation evidence:
-
-```text
-VISIBLE_DROP_ZONE_PLAYWRIGHT_CLICK: chooser not opened / 3-second bridge timeout
-VISIBLE_DROP_ZONE_KEYBOARD_ENTER: chooser not opened / 3-second bridge timeout
-VISIBLE_DROP_ZONE_DOM_CUA_CLICK: no native chooser window observed
-FRESH_PROFILE_2_WINDOW: same result
+WORKSPACE_FIXTURE_READABILITY: PASS — 6/6
+WEB_APP_FILE_INPUT: present / connected / enabled / multiple
+FILECHOOSER_EVENT: not fired
+FILE_ASSIGNMENT: not reached
+SELECTED_FILE_COUNT: 0
+REGISTER_BUTTON: disabled
 BROWSER_CONSOLE_ERRORS: 0
+FAILURE_LAYER: before path assignment and local-file read
 ```
 
-Because all failures occurred before a file path was supplied, this is not a local-file read failure and not a provider/application upload error. The supported `filechooser.setFiles(...)` assignment stage was never reached.
-
-The attached browser security policy did not permit programmatic inspection of `chrome://extensions` or direct `file://` navigation. Therefore this run does not independently assert the current toggle value; it records the user's ON confirmation and the fresh same-profile bridge failure separately.
-
-### Alternative existing route check
-
-The existing Apps Script public facade was probed read-only through the Apps Script Execution API. The existing project did not permit that execution route (`PERMISSION_DENIED`). No API executable deployment, new endpoint, direct row insertion or qualification-only bypass was created.
+The six generated valid synthetic files are readable by Codex. No fixture has been uploaded or registered.
 
 ## Deterministic six-format evidence
 
@@ -102,7 +53,16 @@ The scoped tests cover:
 - deduplication/redaction boundaries;
 - FULL_OUTPUT six-format reference-only behavior without Pitchbook byte reads.
 
-Required validation is recorded after the final rerun in this same report commit.
+```text
+SIX_FORMAT_REGISTRY: PASS — deterministic
+EML_NORMALIZATION: PASS — deterministic
+EML_ATTACHMENT_BOUNDARY: PASS — deterministic
+AUTHORITATIVE_SOURCE_IDENTITY: PASS — deterministic
+NORMALIZED_CITATION_MATRIX: PASS — deterministic
+FULL_OUTPUT_FORMAT_REFERENCE_PARITY: PASS — deterministic
+LOGIC_VALIDATION: PASS — 371/371
+GITHUB_CI_ACTUALLY_RAN: NO
+```
 
 ## Target-runtime matrix
 
@@ -138,9 +98,21 @@ CONFIDENTIAL_DATA: NONE
 NEW_GOOGLE_OR_PROVIDER_RESOURCE: NONE
 ```
 
-## Resume action
+## Correct recovery target
 
-Do not repeat the already-enabled file-URL toggle. Fully exit all Chrome processes and reopen Chrome Profile 2 so the extension and native file-chooser permission state are reloaded, then resume this same `0021-CODEX-04` dispatch. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI before the next resume.
+The next recovery target is the ChatGPT desktop **Chrome plugin** in the `Plugins` UI, not the built-in `@Browser` capability.
+
+OpenAI's Chrome-extension troubleshooting sequence calls for removing and re-adding the Chrome plugin in the ChatGPT desktop app when extension/native-host troubleshooting has not restored the connection. The sequence should be:
+
+1. restart/update the ChatGPT desktop app if needed;
+2. open ChatGPT desktop `Plugins`;
+3. remove the **Chrome** plugin;
+4. add/install the **Chrome** plugin again and finish its setup;
+5. confirm the side chat loads in Chrome Profile 2;
+6. confirm `Allow access to file URLs` remains ON on the newly installed extension;
+7. resume the same `0021-CODEX-04`.
+
+If the chooser still fails, try a fresh Work/Codex chat as a connection-state test without changing this GitHub Dispatch identity. If it remains reproducible, submit `/feedback` from the ChatGPT desktop app and include the affected chat/task ID when contacting OpenAI Support.
 
 Do not create CODEX-05. Do not create a new Web App/API executable endpoint or bypass normal Pitchbook registration.
 
@@ -170,7 +142,7 @@ RUNTIME_DEPLOYMENT_VERSION: 63 / unchanged
 GITHUB_CI_ACTUALLY_RAN: NO
 READY_FOR_CHATGPT_FINAL_MERGE: NO
 BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
-FINAL_COMMIT: reported from the pushed PR head
+FINAL_COMMIT: report/tracking commit after recovery wording correction
 ```
 
 WORK_ID: `0021`
