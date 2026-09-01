@@ -7,7 +7,7 @@ STATUS: `ACTION_REQUIRED`
 
 ## Active dispatch
 
-### 0021-CODEX-04 — ACTION REQUIRED / CHROME FILE-CHOOSER BRIDGE RELOAD
+### 0021-CODEX-04 — ACTION REQUIRED / CHROME PLUGIN + FILE-CHOOSER BRIDGE RECOVERY
 
 Primary outcome remains unchanged:
 
@@ -25,15 +25,9 @@ Browser diagnostic note:
 
 `docs/handoffs/0021-CODEX-04-browser-upload-diagnostic-note.md`
 
-## Resume state
+## Current blocker
 
-Codex previously stopped before runtime registration/provider mutation because its browser-assisted local-file upload path reported that Chrome extension file-URL access was unavailable.
-
-The user subsequently confirmed that **Allow access to file URLs / ファイルのURLへのアクセスを許可する is already ON** in the ChatGPT/Codex Chrome extension settings.
-
-Read-only diagnosis completed against the attached Chrome extension and Profile 2. The extension is installed/enabled, the native host is valid, and all six workspace-local fixture copies are readable. The Web App input is connected/enabled, but the native chooser does not open through visible click, keyboard activation or DOM/CUA click. The same failure occurs in a fresh Profile 2 window before any file path assignment.
-
-The earlier blocker label `CHROME_EXTENSION_FILE_UPLOAD_PERMISSION` is not proven. Current diagnostic state:
+Read-only diagnosis completed against the attached ChatGPT/Codex Chrome extension and Chrome Profile 2.
 
 ```text
 LOCAL_LOGIC_VALIDATION: PASS — 371/371
@@ -47,9 +41,27 @@ DIAGNOSTIC: COMPLETE
 BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
 ```
 
-Resume the SAME `0021-CODEX-04` dispatch. Do not create CODEX-05.
+The extension is installed/enabled, native host is valid, six workspace fixture files are readable, and the Web App file input is present/enabled. The failure occurs before file-path assignment: the native chooser does not open through the browser automation bridge.
 
-Do not ask the user to repeat the already-enabled toggle. Fully exit Chrome and reopen Profile 2 so the extension/permission process is reloaded, then resume this same dispatch. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI before resuming.
+The user has already reinstalled the Chrome extension and confirmed `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is ON. Do not ask for either action again without contradictory evidence.
+
+## Correct next recovery target
+
+OpenAI's current Chrome-extension troubleshooting refers to the ChatGPT desktop app **Chrome plugin** in `Plugins`; this is distinct from the built-in `@Browser` browser.
+
+The next user action is:
+
+1. update/restart the ChatGPT desktop app if needed;
+2. in ChatGPT desktop, open `Plugins`;
+3. remove the **Chrome** plugin;
+4. add/install the **Chrome** plugin again and complete its setup;
+5. confirm the Chrome side chat loads in the intended Chrome Profile 2;
+6. confirm file-URL access remains ON on the newly installed Chrome extension;
+7. resume the same CODEX-04 task.
+
+If the chooser still fails after the Chrome plugin has been removed/re-added and the desktop app restarted, create a fresh Work/Codex chat only as a browser-connection-state test while preserving this GitHub dispatch identity. If the failure still reproduces, use `/feedback` in the ChatGPT desktop app and include the affected chat/task ID when contacting OpenAI Support.
+
+Do not create CODEX-05. Do not substitute the built-in Browser plugin/name for the Chrome plugin recovery step.
 
 Once the local upload bridge is positively available, continue the same bounded CODEX-04 matrix under the committed instruction.
 
