@@ -2,54 +2,65 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `CODEX`
+STATUS: `READY`
 
 ## Active dispatch
 
-### 0021-CODEX-04 — RETURNED / BOUNDED DEPLOYMENT FOLLOW-UP REQUIRED
+### 0021-CODEX-04 — READY / FINAL BOUNDED DEPLOYMENT AND SIX-FORMAT COMPLETION
 
 Human-assisted normal registration succeeded for all six tiny synthetic fixtures. Chrome chooser automation is `FIX SOON / external tooling`, not a product blocker.
 
-Authoritative result:
-
-`docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-report.md`
+Current evidence:
 
 ```text
 LOGIC_VALIDATION: PASS — 373/373
 PRIVATE_WEB_APP_VERSION: 64
 NORMAL_REGISTRATION: PASS — 6/6
-FORMAT_PDF: exact sync PASS / retrieval NOT RUN
-FORMAT_PPTX: exact sync PASS / retrieval NOT RUN
-FORMAT_XLSX: FAIL — final ZIP-Blob correction committed but not deployed
-FORMAT_DOCX: NOT RUN after STOP
-FORMAT_TXT: NOT RUN after STOP
-FORMAT_EML: NOT RUN after STOP
+FORMAT_PDF: exact sync PASS / retrieval pending
+FORMAT_PPTX: exact sync PASS / retrieval pending
+FORMAT_XLSX: final ZIP-Blob correction committed but not deployed
+FORMAT_DOCX: exact sync pending
+FORMAT_TXT: exact sync pending
+FORMAT_EML: exact sync pending
 TARGET_RUNTIME_QUALIFICATION: BLOCKED / PARTIAL
 PR_34: Draft / Open / unmerged
-BLOCKER: VERSION_64_RUNTIME_FINDING_REQUIRES_ONE_ADDITIONAL_BOUNDED_DEPLOYMENT
 ```
 
-## Safe continuation
+Authorization:
 
-Do not create CODEX-05. Resume the same CODEX-04 only after explicit authorization for one additional immutable Apps Script version and one update of the same existing private Web App.
+`docs/handoffs/0021-CODEX-04-additional-bounded-deployment-authorization.md`
 
-Continue from the committed final XLSX ZIP-Blob fix at or after `55190ae`:
+Exactly one additional immutable Apps Script version and one update of the same existing private Web App are authorized, expected version 65. This remains the same Dispatch; do not create CODEX-05.
 
-1. deploy once;
-2. exact-sync XLSX `DOC-000024` once;
-3. exact-sync only DOCX `DOC-000019`, TXT `DOC-000023`, EML `DOC-000020`;
-4. run one grounded query/citation per format;
-5. prove EML attachment exclusion and FULL_OUTPUT reference-only parity;
-6. finish provider/source integrity and final report.
+Continue from the current branch head containing:
 
-Do not repeat registration, PDF/PPTX sync, Gemini, broad sync, old large fixtures, chooser repair or Work 0023.
+`55190ae567bca37aaa5dabff3a2ac881bf43c427`
 
-## Accepted baseline
+Required bounded sequence:
 
-Work 0021 CODEX-01 through CODEX-03 remain accepted at version 63. Work 0020 and Work 0025 evidence remains closed and preserved. No current CODEX-04 finding contradicts those accepted gates.
+1. rerun focused/canonical validation and exact source readback;
+2. deploy once to the same private Web App;
+3. exact-sync XLSX `DOC-000024` first;
+4. on XLSX PASS, exact-sync only DOCX `DOC-000019`, TXT `DOC-000023`, EML `DOC-000020`;
+5. do not repeat PDF/PPTX sync;
+6. run one grounded authoritative-citation query per all six formats;
+7. prove EML attachment exclusion and one FULL_OUTPUT reference-only preview;
+8. finish final provider/source integrity and report.
+
+If XLSX or another material runtime gate still fails after this single deployment, stop and return the exact blocker. Do not authorize or create another deployment automatically.
+
+## Accepted prior dispatches
+
+- CODEX-01: core structured filters and five modes implemented.
+- CODEX-02: metadata reconciliation, all five modes, FULL_OUTPUT parity, Gemini-disabled no-failover qualified.
+- CODEX-03: 2–5 Entity comparison, per-Entity citation attribution, Related GP / Meeting Type exact filters and FULL_OUTPUT parity qualified.
+
+## Prohibited actions
+
+No repeat registration, broad sync/reindex, Gemini call, provider fallback, `DOC-000018`, old large fixtures, chooser repair, Work 0023, new Web App/Vector Store/endpoint, rebase, force-push, or PR merge.
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `CODEX`
+STATUS: `READY`
