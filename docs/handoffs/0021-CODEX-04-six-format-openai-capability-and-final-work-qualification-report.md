@@ -2,150 +2,170 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Outcome
 
-CODEX-04 remains the active final Work 0021 dispatch. Deterministic six-format logic passed, but the target-runtime matrix did not start because the attached Chrome extension could not open or expose a native file chooser for the normal Pitchbook registration flow.
+Human-assisted selection through the ordinary private Web App succeeded. One valid tiny synthetic file per accepted format was registered through the normal Pitchbook flow, producing six Active authoritative rows:
 
-Current evidence-backed classification:
+| Format | Authoritative source |
+|---|---|
+| DOCX | `DOC-000019` |
+| EML | `DOC-000020` |
+| PDF | `DOC-000021` |
+| PPTX | `DOC-000022` |
+| TXT | `DOC-000023` |
+| XLSX | `DOC-000024` |
+
+The Chrome automation chooser defect is now `FIX SOON / external tooling`: the same normal chooser and registration flow worked when the user selected the files manually.
+
+PDF and PPTX exact OpenAI-only sync passed. Native XLSX then failed with the safe item-level code `OPENAI_HTTP_400`. Current OpenAI File Search documentation lists PDF, PPTX, DOCX and TXT but not XLSX, so the application implemented the instruction-authorized smallest deterministic XLSX cell-text representation while retaining the original Drive XLSX, source ID, extension, metadata and citation identity.
+
+The first normalized implementation passed deterministic checks, was delivered with exact `80/80` readback, and became private Web App version 64. Its one exact XLSX runtime retry failed before OpenAI with `AI_XLSX_MALFORMED`. The isolated cause was the Apps Script `Utilities.unzip` input contract: version 64 supplied an Excel-MIME unnamed Blob rather than a named ZIP Blob. The source fix now supplies signed bytes as `application/zip` with a `.zip` name, matching the Apps Script ZIP contract, and deterministic validation passes `373/373`.
+
+That final fix is committed and pushed but is not deployed. CODEX-04 already consumed its hard limit of one immutable version and one update. A second version/update was not created. Per the first-defect STOP rule, DOCX/TXT/EML sync, six retrieval queries, FULL_OUTPUT runtime preview and final provider integrity were not continued.
 
 ```text
-BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
-TARGET_RUNTIME_QUALIFICATION: BLOCKED / NOT RUN
-PRIVATE_WEB_APP_VERSION: 63 / UNCHANGED
-RUNTIME_MUTATION: NONE
-PROVIDER_MUTATION: NONE
-NEW_FORMAT_FIXTURES_REGISTERED: 0
+TARGET_RUNTIME_QUALIFICATION: BLOCKED / PARTIAL
+PRIVATE_WEB_APP_VERSION: 64
+DEPLOYED_SOURCE_STATE: first XLSX normalizer; final ZIP-Blob correction not deployed
+READY_FOR_CHATGPT_FINAL_MERGE: NO
+BLOCKER: VERSION_64_RUNTIME_FINDING_REQUIRES_ONE_ADDITIONAL_BOUNDED_DEPLOYMENT
 ```
 
-The user confirmed Chrome `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is ON and subsequently reinstalled the Chrome extension. The failure still reproduced. Do not ask for another extension reinstall or toggle cycle without contradictory evidence.
+## Authoritative capability evidence
 
-## Browser/local-file diagnosis
+- OpenAI File Search supported-file list: <https://developers.openai.com/api/docs/guides/tools-file-search>
+- Apps Script `Utilities.unzip` contract and named component paths: <https://developers.google.com/apps-script/reference/utilities/utilities#unzipblob>
+- Apps Script ZIP MIME type: <https://developers.google.com/apps-script/reference/base/mime-type>
+
+No provider limitation was used to hide an application defect. XLSX remains `FAIL` until the committed normalized representation passes the target runtime.
+
+## Human-assisted registration evidence
 
 ```text
-BROWSER_SURFACE: Chrome extension
-BROWSER_FAMILY: Chrome
-ATTACHED_PROFILE: Profile 2
-EXTENSION_CONNECTED: YES
-EXTENSION_INSTALLED_AND_ENABLED: YES
-NATIVE_HOST_MANIFEST: PASS
-WORKSPACE_FIXTURE_READABILITY: PASS — 6/6
-WEB_APP_FILE_INPUT: present / connected / enabled / multiple
-FILECHOOSER_EVENT: not fired
-FILE_ASSIGNMENT: not reached
-SELECTED_FILE_COUNT: 0
-REGISTER_BUTTON: disabled
-BROWSER_CONSOLE_ERRORS: 0
-FAILURE_LAYER: before path assignment and local-file read
+STAGED_FIXTURES: 6
+LOCAL_COPY_INTEGRITY: PASS
+NORMAL_NATIVE_CHOOSER: PASS — human selection
+NORMAL_WEB_APP_REGISTRATION: PASS — 6/6
+REGISTRATION_DATE: 2026-09-01
+GP: KSP DEV GP 0010 Renamed
+ASSET_CLASS: Infrastructure
+CAPITAL_TYPE: Equity
+FUND_STRATEGY: CODEX-04 Six Format Matrix
+AUTHORITATIVE_ROWS_ACTIVE: 6/6
+CHROME_AUTOMATION_CHOOSER: FIX SOON / external tooling
 ```
 
-The six generated valid synthetic files are readable by Codex. No fixture has been uploaded or registered.
+The fixtures remain small, synthetic and non-confidential. `DOC-000018` and the old 5–25 MiB fixtures were not selected or mutated.
 
-## Deterministic six-format evidence
+## Deterministic repair
 
-The scoped tests cover:
+The bounded XLSX normalizer:
 
-- exact provider-payload hashing and canonical metadata for PDF/PPTX/XLSX/DOCX/TXT/EML;
-- EML allowed headers/body and attachment exclusion;
-- retrieved-source normalization through provider file identity plus authoritative `source_type`, `source_id` and `content_hash`;
-- deduplication/redaction boundaries;
-- FULL_OUTPUT six-format reference-only behavior without Pitchbook byte reads.
+- keeps the original XLSX as the authoritative Drive source;
+- unzips only the workbook, workbook relationships, shared strings and worksheet XML parts;
+- extracts sheet names plus non-empty cell references and values;
+- handles inline strings, shared strings, numbers and booleans;
+- hashes the exact normalized provider payload;
+- preserves canonical Pitchbook metadata and authoritative Drive citation identity;
+- bounds package parts and normalized output;
+- fails closed on malformed archives, duplicate/unsafe package paths, missing workbook/worksheet relationships, invalid shared-string references and empty content;
+- does not submit the full workbook in a prompt and does not expose provider identities.
 
 ```text
-SIX_FORMAT_REGISTRY: PASS — deterministic
-EML_NORMALIZATION: PASS — deterministic
-EML_ATTACHMENT_BOUNDARY: PASS — deterministic
-AUTHORITATIVE_SOURCE_IDENTITY: PASS — deterministic
-NORMALIZED_CITATION_MATRIX: PASS — deterministic
-FULL_OUTPUT_FORMAT_REFERENCE_PARITY: PASS — deterministic
-LOGIC_VALIDATION: PASS — 371/371
-GITHUB_CI_ACTUALLY_RAN: NO
+FOCUSED_XLSX_TESTS: PASS — 27/27 feature-freeze tests
+LOGIC_VALIDATION: PASS — 373/373
+AGENT_FOUNDATION: PASS
+TEMPORAL_VALIDATION: PASS
+PUBLIC_SURFACE_VALIDATION: PASS
+GIT_DIFF_CHECK: PASS
+APPS_SCRIPT_PUSH_COUNT: 1
+APPS_SCRIPT_READBACK: PASS — 80/80
+IMMUTABLE_VERSION_CREATED: 64 only
+EXISTING_PRIVATE_WEB_APP_UPDATE_COUNT: 1
 ```
 
-## Target-runtime matrix
+## Bounded runtime campaign
+
+| Step | Result |
+|---|---|
+| PDF `DOC-000021` exact OpenAI sync | PASS — selected 1, indexed 1, failed 0 |
+| PPTX `DOC-000022` exact OpenAI sync | PASS — selected 1, indexed 1, failed 0 |
+| XLSX `DOC-000024` native exact sync | safe item failure — `OPENAI_HTTP_400` |
+| XLSX `DOC-000024` v64 normalized exact sync | safe pre-provider failure — `AI_XLSX_MALFORMED` |
+| DOCX `DOC-000019` exact sync | NOT RUN after STOP |
+| TXT `DOC-000023` exact sync | NOT RUN after STOP |
+| EML `DOC-000020` exact sync | NOT RUN after STOP |
+| Per-format grounded query/citation | NOT RUN |
+| EML runtime attachment boundary | NOT RUN |
+| FULL_OUTPUT runtime preview | NOT RUN |
+| Final provider/source integrity | NOT RUN |
+
+The v64 XLSX failure occurred during local source normalization before an OpenAI upload. The OpenAI connection remained enabled. No broad sync/reindex was run.
+
+## Side-effect state
 
 ```text
-FORMAT_PDF: NOT RUN
-FORMAT_PPTX: NOT RUN
-FORMAT_XLSX: NOT RUN
-FORMAT_DOCX: NOT RUN
-FORMAT_TXT: NOT RUN
-FORMAT_EML: NOT RUN
-OPENAI_EXACT_SYNC: NOT RUN
-OPENAI_FILE_SEARCH_QUERIES: 0
-FULL_OUTPUT_RUNTIME_PREVIEW: NOT RUN
-```
-
-No format is labeled unsupported or failed because no provider operation was reached.
-
-## Side-effect and integrity state
-
-```text
-DRIVE_REGISTRATION: NONE
-BACKEND_MUTATION: NONE
-AUDIT_MUTATION: NONE
-OPENAI_MUTATION: NONE
+NEW_AUTHORITATIVE_SYNTHETIC_PITCHBOOKS: 6 / remain as explicit DEV regression fixtures
+OPENAI_SUCCESSFUL_NEW_SOURCES: PDF and PPTX only
+OPENAI_XLSX_PROVIDER_MUTATION_ON_V64_RETRY: NONE — failed before provider upload
 GEMINI_API_CALLED: NO
 CROSS_PROVIDER_FALLBACK: NO
 BROAD_SYNC_OR_REINDEX: NO
 DOC_000018_MUTATION: NO
 OLD_LARGE_FIXTURE_MUTATION: NO
-PRIVATE_WEB_APP_DEPLOYMENT: UNCHANGED / VERSION 63
-OPENAI_PROVIDER_BASELINE: accepted 16 completed documents / untouched
+NEW_VECTOR_STORE_OR_WEB_APP: NO
 CONFIDENTIAL_DATA: NONE
-NEW_GOOGLE_OR_PROVIDER_RESOURCE: NONE
+PRIVATE_PROVIDER_ID_EXPOSURE: NONE in UI/report
 ```
 
-## Correct recovery target
+## Safe continuation boundary
 
-The next recovery target is the ChatGPT desktop **Chrome plugin** in the `Plugins` UI, not the built-in `@Browser` capability.
+Do not create CODEX-05. Resume the same CODEX-04 only if ChatGPT explicitly authorizes one additional immutable Apps Script version and one update of the same existing private Web App. The committed source to qualify is the final ZIP-Blob correction at or after `55190ae`.
 
-OpenAI's Chrome-extension troubleshooting sequence calls for removing and re-adding the Chrome plugin in the ChatGPT desktop app when extension/native-host troubleshooting has not restored the connection. The sequence should be:
+After that bounded deployment, continue in this order:
 
-1. restart/update the ChatGPT desktop app if needed;
-2. open ChatGPT desktop `Plugins`;
-3. remove the **Chrome** plugin;
-4. add/install the **Chrome** plugin again and finish its setup;
-5. confirm the side chat loads in Chrome Profile 2;
-6. confirm `Allow access to file URLs` remains ON on the newly installed extension;
-7. resume the same `0021-CODEX-04`.
+1. exact-sync XLSX `DOC-000024` once and require Indexed without duplicate;
+2. exact-sync DOCX `DOC-000019`, TXT `DOC-000023` and EML `DOC-000020` once each;
+3. run exactly one grounded query with authoritative citation per format;
+4. prove the EML attachment marker is absent;
+5. run one API-independent FULL_OUTPUT preview with all Pitchbooks reference-only;
+6. complete safe provider/source integrity and final Work reporting.
 
-If the chooser still fails, try a fresh Work/Codex chat as a connection-state test without changing this GitHub Dispatch identity. If it remains reproducible, submit `/feedback` from the ChatGPT desktop app and include the affected chat/task ID when contacting OpenAI Support.
-
-Do not create CODEX-05. Do not create a new Web App/API executable endpoint or bypass normal Pitchbook registration.
+Do not repeat PDF/PPTX sync, human registration, broad sync, Gemini, large fixtures or chooser repair.
 
 ## Completion latch
 
 ```text
 SIX_FORMAT_REGISTRY: PASS — deterministic
-FORMAT_PDF: NOT RUN
-FORMAT_PPTX: NOT RUN
-FORMAT_XLSX: NOT RUN
+FORMAT_PDF: SYNC PASS / retrieval NOT RUN
+FORMAT_PPTX: SYNC PASS / retrieval NOT RUN
+FORMAT_XLSX: FAIL — final deterministic fix not deployed
 FORMAT_DOCX: NOT RUN
 FORMAT_TXT: NOT RUN
 FORMAT_EML: NOT RUN
 EML_NORMALIZATION: PASS — deterministic
-EML_ATTACHMENT_BOUNDARY: PASS — deterministic / runtime NOT RUN
-AUTHORITATIVE_SOURCE_IDENTITY: PASS — deterministic / runtime NOT RUN
-NORMALIZED_CITATION_MATRIX: PASS — deterministic / runtime NOT RUN
-FULL_OUTPUT_FORMAT_REFERENCE_PARITY: PASS — deterministic / runtime NOT RUN
-OPENAI_SEARCH_MATRIX: NOT RUN
+EML_ATTACHMENT_BOUNDARY: PASS deterministic / runtime NOT RUN
+AUTHORITATIVE_SOURCE_IDENTITY: PASS — registration and deterministic mapping
+NORMALIZED_CITATION_MATRIX: PASS deterministic / runtime NOT RUN
+FULL_OUTPUT_FORMAT_REFERENCE_PARITY: PASS deterministic / runtime NOT RUN
+OPENAI_SEARCH_MATRIX: FAIL / INCOMPLETE
 GEMINI_SEARCH_MATRIX: DISABLED_BY_CONFIG / DEFERRED
 GEMINI_API_CALLED: NO
 CROSS_PROVIDER_FALLBACK: NO
-LOGIC_VALIDATION: PASS — 371/371
-TARGET_RUNTIME_QUALIFICATION: BLOCKED / NOT RUN
-FINAL_PROVIDER_INTEGRITY: PASS — no provider mutation; accepted baseline preserved
-RUNTIME_DEPLOYMENT_VERSION: 63 / unchanged
+LOGIC_VALIDATION: PASS — 373/373
+TARGET_RUNTIME_QUALIFICATION: BLOCKED / PARTIAL
+FINAL_PROVIDER_INTEGRITY: NOT RUN
+RUNTIME_DEPLOYMENT_VERSION: 64
 GITHUB_CI_ACTUALLY_RAN: NO
 READY_FOR_CHATGPT_FINAL_MERGE: NO
-BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
-FINAL_COMMIT: report/tracking commit after recovery wording correction
+BLOCKER: VERSION_64_RUNTIME_FINDING_REQUIRES_ONE_ADDITIONAL_BOUNDED_DEPLOYMENT
+FINAL_COMMIT: final report/tracking commit recorded as PR #34 head
 ```
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

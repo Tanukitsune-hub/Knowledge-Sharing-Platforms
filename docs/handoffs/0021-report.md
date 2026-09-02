@@ -2,102 +2,53 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Executive conclusion
 
-Work 0021 is accepted through CODEX-03. The canonical filters, five modes, explicit 2–5 Entity comparison, per-Entity citation attribution, exact Related GP / Meeting Type filters, and FULL_OUTPUT parity remain qualified on private Web App version 63.
+Work 0021 remains accepted through CODEX-03: canonical structured filters, five modes, explicit 2–5 Entity comparison, per-Entity citation attribution, exact Related GP / Meeting Type filters, and FULL_OUTPUT parity remain qualified.
 
-CODEX-04 local deterministic validation reached `371/371` PASS. Target-runtime six-format qualification has not started because the attached Chrome extension in Profile 2 cannot open/expose the native chooser for the normal registration flow. All six workspace-local fixture copies were readable; the failure occurs before file assignment.
+CODEX-04 successfully used the normal product flow to register one tiny synthetic PDF/PPTX/XLSX/DOCX/TXT/EML Pitchbook. The authoritative rows are Active and bounded to `DOC-000019` through `DOC-000024`. The Chrome automation chooser issue is now only `FIX SOON / external tooling` because human native selection worked.
 
-The user confirmed the Chrome extension setting `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. The earlier label `CHROME_EXTENSION_FILE_UPLOAD_PERMISSION` is therefore not considered a proven root cause.
-
-Current blocker classification:
+PDF and PPTX exact OpenAI sync passed. Native XLSX exposed a real provider-format incompatibility, and the permitted smallest cell-text normalization was implemented. The first normalized implementation was delivered as private Web App version 64, but its exact XLSX retry failed before provider upload due to the Apps Script ZIP Blob representation. The final correction is committed and deterministic PASS `373/373`, but is not deployed because the one-version/one-update dispatch budget is exhausted.
 
 ```text
-BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
-TARGET_RUNTIME_QUALIFICATION: BLOCKED / NOT RUN
-PRIVATE_WEB_APP_VERSION: 63 / UNCHANGED
-RUNTIME_MUTATION: NONE
-PROVIDER_MUTATION: NONE
-NEW_FORMAT_FIXTURES_REGISTERED: 0
+FORMAT_PDF: SYNC PASS / retrieval NOT RUN
+FORMAT_PPTX: SYNC PASS / retrieval NOT RUN
+FORMAT_XLSX: FAIL — final correction not deployed
+FORMAT_DOCX: NOT RUN after STOP
+FORMAT_TXT: NOT RUN after STOP
+FORMAT_EML: NOT RUN after STOP
+LOGIC_VALIDATION: PASS — 373/373
+TARGET_RUNTIME_QUALIFICATION: BLOCKED / PARTIAL
+PRIVATE_WEB_APP_VERSION: 64
+GEMINI_API_CALLED: NO
+CROSS_PROVIDER_FALLBACK: NO
+READY_FOR_CHATGPT_FINAL_MERGE: NO
+BLOCKER: VERSION_64_RUNTIME_FINDING_REQUIRES_ONE_ADDITIONAL_BOUNDED_DEPLOYMENT
 ```
 
-Fully exit Chrome and reopen Profile 2 to reload the extension/permission process, then resume the same `0021-CODEX-04`. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI. Do not create CODEX-05.
-
-## Accepted CODEX-02 evidence
-
-```text
-ROOT_CAUSE: METADATA_ONLY_PROVIDER_ATTRIBUTE_DRIFT_AND_PITCHBOOK_FUND_STRATEGY_SOURCE_OMISSION
-EXACT_PROVIDER_ATTRIBUTE_READBACK: PASS
-METADATA_ONLY_RECONCILIATION: PASS
-NUMERIC_DATE_RANGE_FILTER: NOT_APPLICABLE
-OPENAI_COMPOUND_FILTER_QUERY: PASS
-FIVE_MODE_RUNTIME_CORE: PASS
-FULL_OUTPUT_RUNTIME_PARITY: PASS
-GEMINI_DISABLED_NO_FAILOVER: PASS
-LOGIC_VALIDATION: PASS — 360/360
-TARGET_RUNTIME_QUALIFICATION: PASS
-PRIVATE_WEB_APP_VERSION: 62
-APPS_SCRIPT_READBACK: PASS — 80/80
-BLOCKER: NONE
-```
-
-CODEX-02 report:
-
-`docs/handoffs/0021-CODEX-02-openai-filter-metadata-reconciliation-and-core-runtime-qualification-report.md`
-
-## Accepted CODEX-03 evidence
-
-```text
-MULTI_ENTITY_REQUEST_VALIDATION: PASS
-MULTI_ENTITY_COMPARISON: PASS
-PER_ENTITY_CITATION_ATTRIBUTION: PASS
-EVIDENCE_GAP_HANDLING: PASS
-RELATED_GP_EXACT_FILTER: PASS
-MEETING_TYPE_EXACT_FILTER: PASS
-FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS
-OPENAI_RUNTIME_MULTI_ENTITY: PASS
-OPENAI_RUNTIME_ADVANCED_FILTER: PASS
-LOGIC_VALIDATION: PASS — 368/368
-TARGET_RUNTIME_QUALIFICATION: PASS
-PRIVATE_WEB_APP_VERSION: 63
-APPS_SCRIPT_READBACK: PASS — 80/80
-BLOCKER: NONE
-```
-
-CODEX-03 report:
-
-`docs/handoffs/0021-CODEX-03-multi-entity-comparison-and-advanced-exact-filters-report.md`
-
-## Active CODEX-04
-
-Detailed instruction:
-
-`docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-instruction.md`
-
-Operational pause/resume diagnostic:
-
-`docs/handoffs/0021-dispatches.md`
-
-Current CODEX-04 report:
+Detailed evidence and safe continuation:
 
 `docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-report.md`
 
-After local upload access is positively established, CODEX-04 continues the bounded six-format matrix only:
+## Preserved accepted evidence
 
 ```text
-pdf / pptx / xlsx / docx / txt / eml
+CODEX_02_TARGET_RUNTIME_QUALIFICATION: PASS / version 62
+CODEX_03_TARGET_RUNTIME_QUALIFICATION: PASS / version 63
+WORK_0020_OPENAI_AND_CITATION_EVIDENCE: PRESERVED
+WORK_0025_MODEL_THINKING_POLICY_EVIDENCE: PRESERVED
+DOC_000018_MUTATION: NO
+OLD_LARGE_FIXTURE_MUTATION: NO
+BROAD_SYNC: NO
+CONFIDENTIAL_DATA: NONE
 ```
 
-Gemini live recovery, large-file behavior, Work 0023, historical migration, company rollout and general hardening remain outside Work 0021.
-
-## Scope discipline
-
-Do not reopen accepted CODEX-02/CODEX-03 evidence. Do not mutate runtime/provider state during browser-path diagnosis. Do not ask the user to repeat the already-enabled file-URL toggle unless fresh evidence proves that exact Chrome profile lacks it.
+Do not create CODEX-05. Resume the same CODEX-04 only with explicit authorization for one additional bounded Apps Script version and same-Web-App update. Do not repeat registration or successful PDF/PPTX sync.
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `USER`
-STATUS: `ACTION_REQUIRED`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

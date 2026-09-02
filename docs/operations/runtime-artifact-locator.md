@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
-LAST_VERIFIED_AT: 2026-09-01 JST
-LAST_VERIFIED_BY: Work 0021 CODEX-04 Chrome Profile 2 file-chooser diagnosis
+LAST_VERIFIED_AT: 2026-09-03 JST
+LAST_VERIFIED_BY: Work 0021 CODEX-04 human-assisted six-format runtime campaign
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -10,8 +10,8 @@ STATUS: ACTIVE / VERIFIED
 - DEFAULT_BRANCH: `main`
 - WORK_0020_MERGE_COMMIT: `185fd197cd531bf74e77af33b32e82706bebe0b5`
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
-- DEPLOYED_SOURCE_COMMIT: `d5af191ad83b990f6023e3e41b53f194db629e4b` — Work 0021 CODEX-03 implementation
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-03 explicit multi-Entity comparison, per-Entity attribution, advanced exact filters and FULL_OUTPUT parity source
+- DEPLOYED_SOURCE_COMMIT: `5139268` — Work 0021 CODEX-04 first XLSX normalized-index implementation
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-03 accepted surface plus first XLSX normalized OpenAI indexing path; final ZIP-Blob correction at `55190ae` is not deployed
 - CURRENT_ACTIVE_WORK: `0021 — structured Knowledge Search`
 - CURRENT_ACTIVE_DISPATCH: `0021-CODEX-04`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
@@ -24,27 +24,27 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `63`
+- DEPLOYMENT_VERSION: `64`
 - ENVIRONMENT: personal DEV / qualification
 
-Version 63 remains the current private-Web-App deployment. CODEX-04 has not created version 64 or modified the deployment.
+Version 64 is the current private-Web-App deployment. CODEX-04 created exactly one immutable version and updated the same existing private Web App exactly once.
 
 ## Current CODEX-04 pause
 
-CODEX-04 deterministic/local validation reached `371/371` PASS, then stopped before fixture registration or provider/runtime mutation because the browser-assisted local-file upload bridge was unavailable.
+The user manually selected all six validated fixtures through the normal native chooser, and the ordinary Web App registration path created six Active authoritative Pitchbooks, `DOC-000019` through `DOC-000024`. The Chrome automation chooser defect is now `FIX SOON / external tooling` rather than a product blocker.
 
-The user reports that Chrome extension `Allow access to file URLs / ファイルのURLへのアクセスを許可する` is already ON. Read-only diagnosis proved the selected surface is that enabled Chrome extension in Profile 2, all six workspace-local fixtures are readable, and the failure occurs before path assignment because the native chooser does not open. The permission page itself was not agent-readable under browser security policy, so the toggle is not independently relabeled OFF.
+PDF `DOC-000021` and PPTX `DOC-000022` exact OpenAI-only sync passed. Native XLSX `DOC-000024` returned safe `OPENAI_HTTP_400`. Version 64 introduced deterministic XLSX cell-text normalization, but its one exact runtime retry stopped before provider upload with `AI_XLSX_MALFORMED`. The final source correction presents signed bytes as a named ZIP Blob and passes `373/373`; it is committed at `55190ae` but not deployed because the dispatch's one-version/one-update budget is exhausted.
 
 ```text
-TARGET_RUNTIME_QUALIFICATION: BLOCKED / NOT RUN
-WEB_APP_VERSION: 63 / UNCHANGED
-RUNTIME_MUTATION: NONE
-PROVIDER_MUTATION: NONE
-NEW_FORMAT_FIXTURES_REGISTERED: 0
-BLOCKER: BROWSER_EXTENSION_FILE_CHOOSER_BRIDGE_UNAVAILABLE_PROFILE_2
+TARGET_RUNTIME_QUALIFICATION: BLOCKED / PARTIAL
+WEB_APP_VERSION: 64
+NEW_FORMAT_FIXTURES_REGISTERED: 6
+OPENAI_EXACT_SYNC_PASS: PDF / PPTX
+OPENAI_XLSX: BLOCKED before provider upload on version 64
+BLOCKER: VERSION_64_RUNTIME_FINDING_REQUIRES_ONE_ADDITIONAL_BOUNDED_DEPLOYMENT
 ```
 
-Fully exit Chrome and reopen Profile 2 to reload the extension/permission process, then resume the same `0021-CODEX-04`. If the same fresh-process failure persists, reinstall the Browser plugin from the ChatGPT plugin UI. No Drive/Backend/OpenAI/deployment mutation occurred; do not create CODEX-05.
+Do not create CODEX-05. Resume the same `0021-CODEX-04` only with explicit authorization for one additional immutable version and one update of the same existing private Web App. Do not repeat registration or the successful PDF/PPTX exact sync.
 
 ## Data and control artifacts
 
@@ -122,14 +122,16 @@ Fully exit Chrome and reopen Profile 2 to reload the extension/permission proces
 - FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS
 - FINAL_PROVIDER_STATE: accepted 16-completed-document baseline structurally unchanged
 
-## CODEX-04 intended final matrix after resume
+## CODEX-04 remaining final matrix
 
 - FORMAT_SCOPE: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`
 - FIXTURE_BUDGET: at most six tiny non-confidential synthetic Pitchbooks through normal registration
 - PROHIBITED_TARGETS: `DOC-000018`, old 5–25 MiB timeout fixtures
 - PROVIDER_SCOPE: OpenAI only; Gemini disabled/deferred/no-call
 - FULL_OUTPUT: Pitchbooks remain reference-only/API-independent
-- EXPECTED_VERSION: stay 63 if source unchanged; at most one version 64 if tested Apps Script source changes are required
+- CURRENT_VERSION: 64
+- FINAL_SOURCE_PENDING_DEPLOYMENT: `55190ae` named ZIP-Blob correction
+- REQUIRED_EXCEPTION: one additional bounded immutable version and same-Web-App update
 
 ## Follow-up routing
 

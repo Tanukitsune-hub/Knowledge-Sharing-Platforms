@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-01
+Current as of: 2026-09-03
 
 Status: Active planning source of truth
 
@@ -41,7 +41,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 |---:|---|---|---|---|---|
 | 0 | 0020 | AI provider core, OpenAI File Search, citations, lifecycle, full output | ACCEPTED | — | Preserve version-58/runtime evidence; do not reopen absent contradictory evidence |
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve version-60 exact tuple qualification/runtime evidence; route non-blocking refinements separately |
-| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | BLOCKED | 0025 accepted | Fully exit/reopen Chrome Profile 2 to reload the extension file-chooser bridge, then resume the same CODEX-04; reinstall the Browser plugin only if the fresh-process failure persists |
+| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | BLOCKED | 0025 accepted | Resume the same CODEX-04 only with explicit approval for one additional bounded Apps Script version/update; deploy the committed XLSX ZIP-Blob correction, then finish the remaining exact matrix gates |
 | 3 | 0023 | Generated single-file bundle and idempotent installer | READY | 0021 feature surface stable | Build and fresh-install-qualify the distribution path |
 | 4 | Unassigned future Work | Gemini provider recovery against the completed OpenAI reference path | DEFERRED | 0021/0023 substantially complete; current Gemini APIs rechecked | Allocate the next unused Work ID when the recovery campaign starts |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with general provider recovery unless the outcome is genuinely the same |
@@ -81,9 +81,10 @@ Keep one Work ID because the primary outcome is one intended Knowledge Search pr
 
 0021-CODEX-04
   bounded six-format matrix + explicit provider-capability/parity evidence;
-  local deterministic PASS 371/371;
-  target-runtime work paused before mutation because the attached enabled Chrome extension in Profile 2 cannot open/expose the native chooser even though workspace fixtures are readable;
-  fully restart Chrome Profile 2, then resume the SAME dispatch; do not repeat the already-enabled toggle
+  human-assisted normal registration PASS for six tiny synthetic Pitchbooks;
+  PDF/PPTX exact OpenAI sync PASS; XLSX exposed native provider incompatibility and an Apps Script ZIP-Blob defect;
+  final source correction deterministic PASS 373/373 but not deployed after the one-version/one-update budget was consumed by version 64;
+  resume the SAME dispatch only with explicit authorization for one additional bounded deployment; do not repeat registration or PDF/PPTX sync
 ```
 
 Gemini live recovery remains a separately deferred near-completion Work. CODEX-04 records only the capabilities of providers then intentionally enabled; it must not reopen historical Gemini troubleshooting as a hidden blocker.
