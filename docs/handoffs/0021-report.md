@@ -2,53 +2,57 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `CODEX`
+STATUS: `READY`
 
 ## Executive conclusion
 
 Work 0021 remains accepted through CODEX-03: canonical structured filters, five modes, explicit 2–5 Entity comparison, per-Entity citation attribution, exact Related GP / Meeting Type filters, and FULL_OUTPUT parity remain qualified.
 
-CODEX-04 successfully used the normal product flow to register one tiny synthetic PDF/PPTX/XLSX/DOCX/TXT/EML Pitchbook. The authoritative rows are Active and bounded to `DOC-000019` through `DOC-000024`. The Chrome automation chooser issue is now only `FIX SOON / external tooling` because human native selection worked.
+CODEX-04 successfully used the normal product flow to register six tiny synthetic PDF/PPTX/XLSX/DOCX/TXT/EML Pitchbooks, `DOC-000019` through `DOC-000024`. Human file selection proved the Chrome automation chooser defect is external tooling only.
 
-PDF and PPTX exact OpenAI sync passed. Native XLSX exposed a real provider-format incompatibility, and the permitted smallest cell-text normalization was implemented. The first normalized implementation was delivered as private Web App version 64, but its exact XLSX retry failed before provider upload due to the Apps Script ZIP Blob representation. The final correction is committed and deterministic PASS `373/373`, but is not deployed because the one-version/one-update dispatch budget is exhausted.
+PDF and PPTX exact OpenAI sync passed. Native XLSX returned `OPENAI_HTTP_400`; the permitted bounded cell-text normalization was implemented. Version 64 then exposed an Apps Script ZIP-Blob representation defect before provider upload. The final named ZIP-Blob correction is committed at `55190ae567bca37aaa5dabff3a2ac881bf43c427` and deterministic validation passes `373/373`.
+
+ChatGPT has authorized exactly one additional immutable Apps Script version and one update of the same existing private Web App, expected version 65, to deploy that correction and finish the matrix.
+
+Authorization:
+
+`docs/handoffs/0021-CODEX-04-additional-bounded-deployment-authorization.md`
+
+## Current completion state
 
 ```text
-FORMAT_PDF: SYNC PASS / retrieval NOT RUN
-FORMAT_PPTX: SYNC PASS / retrieval NOT RUN
-FORMAT_XLSX: FAIL — final correction not deployed
-FORMAT_DOCX: NOT RUN after STOP
-FORMAT_TXT: NOT RUN after STOP
-FORMAT_EML: NOT RUN after STOP
+NORMAL_REGISTRATION: PASS — 6/6
+FORMAT_PDF: exact sync PASS / retrieval pending
+FORMAT_PPTX: exact sync PASS / retrieval pending
+FORMAT_XLSX: final correction committed / runtime pending
+FORMAT_DOCX: runtime pending
+FORMAT_TXT: runtime pending
+FORMAT_EML: runtime pending
 LOGIC_VALIDATION: PASS — 373/373
-TARGET_RUNTIME_QUALIFICATION: BLOCKED / PARTIAL
-PRIVATE_WEB_APP_VERSION: 64
-GEMINI_API_CALLED: NO
-CROSS_PROVIDER_FALLBACK: NO
+CURRENT_PRIVATE_WEB_APP_VERSION: 64
+AUTHORIZED_NEXT_VERSION: 65 — one attempt only
+TARGET_RUNTIME_QUALIFICATION: BLOCKED / PARTIAL pending authorized attempt
+GITHUB_CI_ACTUALLY_RAN: NO
 READY_FOR_CHATGPT_FINAL_MERGE: NO
-BLOCKER: VERSION_64_RUNTIME_FINDING_REQUIRES_ONE_ADDITIONAL_BOUNDED_DEPLOYMENT
 ```
 
-Detailed evidence and safe continuation:
+## Bounded remaining work
 
-`docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-report.md`
+- deploy the exact corrected source once to the same Web App;
+- exact-sync XLSX `DOC-000024`, then DOCX `DOC-000019`, TXT `DOC-000023`, EML `DOC-000020` only if XLSX passes;
+- do not repeat PDF/PPTX sync;
+- run one grounded authoritative-citation query per all six formats;
+- prove EML attachment exclusion and FULL_OUTPUT reference-only parity;
+- complete final provider/source integrity and Work reporting.
 
-## Preserved accepted evidence
+If the additional attempt fails, return the exact blocker without another automatic deployment.
 
-```text
-CODEX_02_TARGET_RUNTIME_QUALIFICATION: PASS / version 62
-CODEX_03_TARGET_RUNTIME_QUALIFICATION: PASS / version 63
-WORK_0020_OPENAI_AND_CITATION_EVIDENCE: PRESERVED
-WORK_0025_MODEL_THINKING_POLICY_EVIDENCE: PRESERVED
-DOC_000018_MUTATION: NO
-OLD_LARGE_FIXTURE_MUTATION: NO
-BROAD_SYNC: NO
-CONFIDENTIAL_DATA: NONE
-```
+## Preserved boundaries
 
-Do not create CODEX-05. Resume the same CODEX-04 only with explicit authorization for one additional bounded Apps Script version and same-Web-App update. Do not repeat registration or successful PDF/PPTX sync.
+No repeat registration, broad sync, Gemini, provider fallback, `DOC-000018`, old large fixtures, confidential data, new provider/Google infrastructure, chooser repair, Work 0023, rebase, force-push, or PR merge.
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `CODEX`
+STATUS: `READY`
