@@ -2,8 +2,8 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `BUILD / QUALIFICATION -> FINAL WORK READINESS`
 
 Primary instruction:
@@ -26,30 +26,29 @@ Runtime locator:
 
 Work 0021 remains accepted through CODEX-03. CODEX-04 has additionally completed normal registration for six tiny PDF/PPTX/XLSX/DOCX/TXT/EML Pitchbooks. PDF and PPTX exact OpenAI sync passed.
 
-Native XLSX was rejected by the current OpenAI path. A bounded deterministic cell-text representation was implemented. Version 64 exposed an Apps Script ZIP-Blob representation defect before provider upload. The final named ZIP-Blob correction is committed at `55190ae567bca37aaa5dabff3a2ac881bf43c427` and passes `373/373`, but is not yet deployed.
+Native XLSX was rejected by the current OpenAI path. A bounded deterministic cell-text representation was implemented. Version 64 exposed an Apps Script ZIP-Blob representation defect before provider upload. The final named ZIP-Blob correction at `55190ae567bca37aaa5dabff3a2ac881bf43c427` passes `373/373`, was read back `80/80`, and is deployed to the same private Web App as version 65.
 
-## Authorized continuation
+## Returned result
 
-Exactly one additional immutable Apps Script version and one update of the same existing private Web App are authorized, expected version 65.
+The additional deployment authorization was used exactly once. XLSX passed first; DOCX, TXT and EML then passed one exact sync each. PDF/PPTX were not resynced. One bounded grounded query per all six formats returned the expected token and normalized authoritative source ID. The EML attachment-only marker was absent.
 
-Do not create CODEX-05. Do not repeat registration or the successful PDF/PPTX sync.
+The one API-independent FULL_OUTPUT preview failed closed because the authoritative Drive link for `DOC-000022` could not be confirmed. No package or artifact was created.
 
-Remaining work only:
+```text
+RUNTIME_DEPLOYMENT_VERSION: 65
+OPENAI_SEARCH_MATRIX: PASS — 6/6
+EML_ATTACHMENT_BOUNDARY: PASS
+FULL_OUTPUT_FORMAT_REFERENCE_PARITY: FAIL
+TARGET_RUNTIME_QUALIFICATION: FAIL / PARTIAL
+READY_FOR_CHATGPT_FINAL_MERGE: NO
+BLOCKER: FULL_OUTPUT_AUTHORITATIVE_DRIVE_LINK_UNAVAILABLE_DOC_000022
+```
 
-- rerun focused/canonical checks and exact source readback;
-- deploy the final ZIP-Blob fix once;
-- exact-sync XLSX `DOC-000024` first;
-- if XLSX passes, exact-sync DOCX `DOC-000019`, TXT `DOC-000023`, EML `DOC-000020` only;
-- run one grounded authoritative-citation check per all six formats;
-- prove EML attachment exclusion;
-- run one API-independent FULL_OUTPUT reference-only preview;
-- complete final provider/source integrity and Work reporting.
-
-If the bounded version-65 attempt still fails, stop and return the exact blocker. Do not create another deployment automatically.
+The deployment budget is exhausted. Do not create version 66, automatically create CODEX-05, or repeat registration/sync/query. ChatGPT owns the next bounded decision.
 
 Gemini, broad sync/reindex, `DOC-000018`, old large fixtures, Work 0023, chooser automation repair, new infrastructure, and general hardening remain out of scope.
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

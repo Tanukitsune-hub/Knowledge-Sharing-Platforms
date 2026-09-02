@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-03 JST
-LAST_VERIFIED_BY: Work 0021 CODEX-04 human-assisted six-format runtime campaign
+LAST_VERIFIED_BY: Work 0021 CODEX-04 version-65 six-format runtime campaign
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -10,8 +10,8 @@ STATUS: ACTIVE / VERIFIED
 - DEFAULT_BRANCH: `main`
 - WORK_0020_MERGE_COMMIT: `185fd197cd531bf74e77af33b32e82706bebe0b5`
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
-- DEPLOYED_SOURCE_COMMIT: `5139268` — Work 0021 CODEX-04 first XLSX normalized-index implementation
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-03 accepted surface plus first XLSX normalized OpenAI indexing path; final ZIP-Blob correction at `55190ae` is not deployed
+- DEPLOYED_SOURCE_COMMIT: `55190ae567bca37aaa5dabff3a2ac881bf43c427` — final XLSX named ZIP-Blob correction
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-03 accepted surface plus six-format OpenAI indexing and the final XLSX normalized named ZIP-Blob path
 - CURRENT_ACTIVE_WORK: `0021 — structured Knowledge Search`
 - CURRENT_ACTIVE_DISPATCH: `0021-CODEX-04`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
@@ -24,27 +24,31 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `64`
+- DEPLOYMENT_VERSION: `65`
 - ENVIRONMENT: personal DEV / qualification
 
-Version 64 is the current private-Web-App deployment. CODEX-04 created exactly one immutable version and updated the same existing private Web App exactly once.
+Version 65 is the current private-Web-App deployment. The additional CODEX-04 authorization created exactly one immutable version and updated the same existing private Web App exactly once.
 
-## Current CODEX-04 pause
+## Current CODEX-04 returned blocker
 
 The user manually selected all six validated fixtures through the normal native chooser, and the ordinary Web App registration path created six Active authoritative Pitchbooks, `DOC-000019` through `DOC-000024`. The Chrome automation chooser defect is now `FIX SOON / external tooling` rather than a product blocker.
 
-PDF `DOC-000021` and PPTX `DOC-000022` exact OpenAI-only sync passed. Native XLSX `DOC-000024` returned safe `OPENAI_HTTP_400`. Version 64 introduced deterministic XLSX cell-text normalization, but its one exact runtime retry stopped before provider upload with `AI_XLSX_MALFORMED`. The final source correction presents signed bytes as a named ZIP Blob and passes `373/373`; it is committed at `55190ae` but not deployed because the dispatch's one-version/one-update budget is exhausted.
+PDF `DOC-000021` and PPTX `DOC-000022` exact OpenAI-only sync had passed. Native XLSX `DOC-000024` returned safe `OPENAI_HTTP_400`; version 64's first normalized path then stopped before provider upload with `AI_XLSX_MALFORMED`. The final named ZIP-Blob correction was read back `80/80`, deployed as version 65 and passed exact XLSX sync. DOCX, TXT and EML then each passed one exact sync.
+
+Exactly one grounded query per `DOC-000019` through `DOC-000024` returned the expected format token and normalized stable source ID. EML body retrieval passed and its attachment-only marker was absent. The final API-independent FULL_OUTPUT preview failed closed because the authoritative Drive link for `DOC-000022` could not be confirmed; no package or artifact was created.
 
 ```text
-TARGET_RUNTIME_QUALIFICATION: BLOCKED / PARTIAL
-WEB_APP_VERSION: 64
+TARGET_RUNTIME_QUALIFICATION: FAIL / PARTIAL
+WEB_APP_VERSION: 65
 NEW_FORMAT_FIXTURES_REGISTERED: 6
-OPENAI_EXACT_SYNC_PASS: PDF / PPTX
-OPENAI_XLSX: BLOCKED before provider upload on version 64
-BLOCKER: VERSION_64_RUNTIME_FINDING_REQUIRES_ONE_ADDITIONAL_BOUNDED_DEPLOYMENT
+OPENAI_EXACT_SYNC_PASS: PDF / PPTX / XLSX / DOCX / TXT / EML
+OPENAI_GROUNDED_QUERY_AND_SOURCE_ID: PASS — 6/6
+EML_ATTACHMENT_BOUNDARY: PASS
+FULL_OUTPUT_FORMAT_REFERENCE_PARITY: FAIL
+BLOCKER: FULL_OUTPUT_AUTHORITATIVE_DRIVE_LINK_UNAVAILABLE_DOC_000022
 ```
 
-Do not create CODEX-05. Resume the same `0021-CODEX-04` only with explicit authorization for one additional immutable version and one update of the same existing private Web App. Do not repeat registration or the successful PDF/PPTX exact sync.
+The deployment budget is exhausted. Do not create version 66, automatically create CODEX-05, or repeat registration/sync/query. ChatGPT owns review of the isolated `DOC-000022` authoritative Drive-link defect and the next bounded action.
 
 ## Data and control artifacts
 
@@ -122,20 +126,22 @@ Do not create CODEX-05. Resume the same `0021-CODEX-04` only with explicit autho
 - FULL_OUTPUT_MULTI_ENTITY_PARITY: PASS
 - FINAL_PROVIDER_STATE: accepted 16-completed-document baseline structurally unchanged
 
-## CODEX-04 remaining final matrix
+## CODEX-04 final matrix state
 
 - FORMAT_SCOPE: `.pdf / .pptx / .xlsx / .docx / .txt / .eml`
 - FIXTURE_BUDGET: at most six tiny non-confidential synthetic Pitchbooks through normal registration
 - PROHIBITED_TARGETS: `DOC-000018`, old 5–25 MiB timeout fixtures
 - PROVIDER_SCOPE: OpenAI only; Gemini disabled/deferred/no-call
 - FULL_OUTPUT: Pitchbooks remain reference-only/API-independent
-- CURRENT_VERSION: 64
-- FINAL_SOURCE_PENDING_DEPLOYMENT: `55190ae` named ZIP-Blob correction
-- REQUIRED_EXCEPTION: one additional bounded immutable version and same-Web-App update
+- CURRENT_VERSION: 65
+- OPENAI_FORMAT_RETRIEVAL: PASS — 6/6
+- EML_ATTACHMENT_BOUNDARY: PASS
+- FULL_OUTPUT_REFERENCE_PARITY: FAIL — `DOC-000022` authoritative Drive link unavailable
+- ADDITIONAL_DEPLOYMENT_BUDGET: USED / EXHAUSTED
 
 ## Follow-up routing
 
-- Finish CODEX-04, then ChatGPT final review/merge of Work 0021.
+- ChatGPT review of the CODEX-04 `DOC-000022` authoritative Drive-link blocker before Work 0021 can be merge-ready.
 - Distribution/install: Work 0023 after Work 0021 acceptance.
 - Gemini: re-evaluate near product completion against then-current APIs/runtime.
 - Large OpenAI files: separate bounded Work only if representative operating files require it.
