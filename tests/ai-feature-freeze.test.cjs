@@ -9,7 +9,6 @@ const fixture=name=>fs.readFileSync(path.join(__dirname,'fixtures','eml',name),'
 const formatCases={
   pdf:{mime:'application/pdf',bytes:[37,80,68,70]},
   pptx:{mime:'application/vnd.openxmlformats-officedocument.presentationml.presentation',bytes:[80,75,3,4,1]},
-  xlsx:{mime:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',bytes:[80,75,3,4,2]},
   docx:{mime:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',bytes:[80,75,3,4,3]},
   txt:{mime:'text/plain',bytes:Array.from(Buffer.from('hello','utf8'))}
 };
@@ -18,6 +17,8 @@ test('format registry contains exactly the six accepted formats and stable MIME 
   assert.deepEqual(Array.from(ksp.kspGetAiFormatExtensions_()),['pdf','pptx','xlsx','docx','txt','eml']);
   assert.equal(ksp.kspGetAiFormatDefinition_('pdf').uploadMimeType,'application/pdf');
   assert.equal(ksp.kspGetAiFormatDefinition_('pptx').readStrategy,'DIRECT_BINARY');
+  assert.equal(ksp.kspGetAiFormatDefinition_('xlsx').readStrategy,'XLSX_NORMALIZED_TEXT');
+  assert.equal(ksp.kspGetAiFormatDefinition_('xlsx').uploadMimeType,'text/plain');
   assert.equal(ksp.kspGetAiFormatDefinition_('eml').uploadMimeType,'text/plain');
 });
 
@@ -41,6 +42,35 @@ for(const [extension,source] of Object.entries(formatCases)){
     assert.equal(built.byteLength,source.bytes.length);
   });
 }
+
+test('XLSX normalization preserves sheet and cell values while using a text provider payload',()=>{
+  const entries=[
+    {name:'xl/workbook.xml',text:'<workbook xmlns:r="urn:r"><sheets><sheet name="Evidence" r:id="rId1"/></sheets></workbook>'},
+    {name:'xl/_rels/workbook.xml.rels',text:'<Relationships><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'},
+    {name:'xl/sharedStrings.xml',text:'<sst><si><t>Shared &amp; grounded</t></si></sst>'},
+    {name:'xl/worksheets/sheet1.xml',text:'<worksheet><sheetData><row><c r="A1" t="inlineStr"><is><t>KSP-CODEX04-XLSX</t></is></c><c r="B1" t="s"><v>0</v></c><c r="C1"><v>42</v></c></row></sheetData></worksheet>'}
+  ];
+  const text=ksp.kspNormalizeXlsxEntries_(entries);
+  assert.equal(text,'Sheet: Evidence\nA1\tKSP-CODEX04-XLSX\nB1\tShared & grounded\nC1\t42');
+
+  const c=baseContext({meetingRows:[]});
+  c.pitchbookRows[0].Original_Filename='source.xlsx';c.pitchbookRows[0].Saved_Filename='saved.xlsx';
+  const env=createSyncEnvironment({context:c,pitchbookSource:{mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',bytes:[80,75,3,4]},xlsxText:text});
+  const built=plain(ksp.kspBuildFeatureFreezeAiSource_(env,{sourceType:'Pitchbook',sourceId:'DOC-000001',row:c.pitchbookRows[0]},ksp.kspBuildAiMasterMaps_(c.gpRows,c.optionRows)));
+  assert.equal(built.payloadKind,'text');
+  assert.equal(built.mimeType,'text/plain');
+  assert.equal(built.displayName,'saved.txt');
+  assert.equal(built.text,text);
+  assert.equal(built.contentHash,ksp.kspAiHashTextFallback_(text));
+});
+
+test('XLSX normalization fails closed on missing or conflicting package identity',()=>{
+  assert.throws(()=>ksp.kspNormalizeXlsxEntries_([{name:'xl/workbook.xml',text:'<workbook/>'}]),/metadata is missing/);
+  assert.throws(()=>ksp.kspNormalizeXlsxEntries_([
+    {name:'xl/workbook.xml',text:'<workbook/>'},{name:'xl/workbook.xml',text:'<workbook/>'},
+    {name:'xl/_rels/workbook.xml.rels',text:'<Relationships/>'}
+  ]),/duplicate package parts/);
+});
 
 test('EML normalizes encoded headers and quoted-printable plain body',()=>{
   const text=ksp.kspNormalizeEmlText_(fixture('plain-quoted-printable.eml'));
@@ -99,6 +129,7 @@ test('all six format sources hash the exact provider payload and preserve canoni
   ].join('\r\n');
   const cases={
     ...formatCases,
+    xlsx:{mime:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',bytes:[80,75,3,4,2]},
     eml:{mime:'message/rfc822',bytes:Array.from(Buffer.from(rawEml,'utf8'))}
   };
   for(const [extension,driveSource] of Object.entries(cases)){

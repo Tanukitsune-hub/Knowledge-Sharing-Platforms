@@ -57,6 +57,7 @@ function createSyncEnvironment(options={}) {
     readTextFile(){if(options.readError)throw options.readError;return options.txtText||'Pitchbook text';},
     readPitchbookSource(){if(options.readError)throw options.readError;return options.pitchbookSource||{mimeType:'text/plain',bytes:Array.from(Buffer.from(options.txtText||'Pitchbook text','utf8'))};},
     decodeSourceText(bytes){return Buffer.from(bytes).toString('utf8');},
+    normalizeXlsxText(){return options.xlsxText||'Sheet: Evidence\nA1\tKSP-CODEX04-XLSX';},
     hashText(text){return ksp.kspAiHashTextFallback_(text);},
     hashBytes(bytes){return ksp.kspAiHashBytesFallback_(bytes);},
     findFileSearchDocumentsBySource(store,sourceId){return documents.filter(d=>d.customMetadata.source_id===sourceId).map(plain);},

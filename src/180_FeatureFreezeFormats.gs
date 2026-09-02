@@ -5,13 +5,16 @@ var KSP_FEATURE_FREEZE_DEFAULTS = Object.freeze({
   MAX_SOURCE_BYTES: 25 * 1024 * 1024,
   MAX_EML_DEPTH: 8,
   MAX_EML_PARTS: 100,
-  MAX_EML_OUTPUT_CHARS: 2 * 1024 * 1024
+  MAX_EML_OUTPUT_CHARS: 2 * 1024 * 1024,
+  MAX_XLSX_PARTS: 1000,
+  MAX_XLSX_OUTPUT_CHARS: 2 * 1024 * 1024
 });
 
 var KSP_AI_READ_STRATEGIES = Object.freeze({
   MEETING_TEXT: 'MEETING_TEXT',
   DIRECT_BINARY: 'DIRECT_BINARY',
   TEXT: 'TEXT',
+  XLSX_NORMALIZED_TEXT: 'XLSX_NORMALIZED_TEXT',
   EML_NORMALIZED_TEXT: 'EML_NORMALIZED_TEXT'
 });
 
@@ -37,8 +40,8 @@ var KSP_AI_FORMAT_REGISTRY = Object.freeze({
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/octet-stream'
     ]),
-    uploadMimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    readStrategy: KSP_AI_READ_STRATEGIES.DIRECT_BINARY
+    uploadMimeType: 'text/plain',
+    readStrategy: KSP_AI_READ_STRATEGIES.XLSX_NORMALIZED_TEXT
   }),
   docx: Object.freeze({
     extension: 'docx',
@@ -138,6 +141,138 @@ function kspAiSourcePayloadBytes_(source) {
     }
   }
   return bytes;
+}
+
+function kspXlsxDecodeXmlEntities_(value) {
+  var named = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+  return String(value || '').replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi, function (_, entity) {
+    var lower = entity.toLowerCase();
+    if (named[lower] !== undefined) return named[lower];
+    if (lower.indexOf('#x') === 0) return String.fromCharCode(parseInt(lower.slice(2), 16));
+    return String.fromCharCode(parseInt(lower.slice(1), 10));
+  });
+}
+
+function kspXlsxXmlAttribute_(attributes, name) {
+  var escaped = String(name || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  var match = new RegExp('(?:^|\\s)' + escaped + '=(?:"([^"]*)"|\'([^\']*)\')', 'i').exec(String(attributes || ''));
+  return match ? kspXlsxDecodeXmlEntities_(match[1] !== undefined ? match[1] : match[2]) : '';
+}
+
+function kspXlsxTextNodes_(xml) {
+  var values = [];
+  String(xml || '').replace(/<t\b[^>]*>([\s\S]*?)<\/t>/gi, function (_, text) {
+    values.push(kspXlsxDecodeXmlEntities_(text));
+    return _;
+  });
+  return values.join('');
+}
+
+function kspXlsxNormalizePartPath_(target) {
+  var value = String(target || '').replace(/\\/g, '/').replace(/^\/+/, '');
+  kspAssert_(value && value.split('/').indexOf('..') === -1,
+    'AI_XLSX_RELATIONSHIP_INVALID', 'XLSX contains an invalid worksheet relationship.');
+  return value.indexOf('xl/') === 0 ? value : 'xl/' + value;
+}
+
+function kspNormalizeXlsxEntries_(entries) {
+  var parts = {};
+  var list = entries || [];
+  kspAssert_(list.length > 0 && list.length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_XLSX_PARTS,
+    'AI_XLSX_PARTS_INVALID', 'XLSX contains an invalid number of package parts.');
+  list.forEach(function (entry) {
+    var name = String(entry && entry.name || '').replace(/\\/g, '/').replace(/^\/+/, '');
+    if (!name || /\/$/.test(name)) return;
+    kspAssert_(name.split('/').indexOf('..') === -1, 'AI_XLSX_PART_INVALID', 'XLSX contains an invalid package path.');
+    kspAssert_(parts[name] === undefined, 'AI_XLSX_PART_CONFLICT', 'XLSX contains duplicate package parts.');
+    parts[name] = String(entry.text === undefined ? '' : entry.text);
+  });
+
+  var workbookXml = parts['xl/workbook.xml'];
+  var relationshipsXml = parts['xl/_rels/workbook.xml.rels'];
+  kspAssert_(workbookXml && relationshipsXml, 'AI_XLSX_WORKBOOK_MISSING', 'XLSX workbook metadata is missing.');
+
+  var worksheetPaths = {};
+  String(relationshipsXml).replace(/<Relationship\b([^>]*)\/?\s*>/gi, function (_, attributes) {
+    var type = kspXlsxXmlAttribute_(attributes, 'Type');
+    if (!/\/worksheet$/i.test(type)) return _;
+    var relationshipId = kspXlsxXmlAttribute_(attributes, 'Id');
+    var target = kspXlsxXmlAttribute_(attributes, 'Target');
+    if (relationshipId && target) worksheetPaths[relationshipId] = kspXlsxNormalizePartPath_(target);
+    return _;
+  });
+
+  var sharedStrings = [];
+  String(parts['xl/sharedStrings.xml'] || '').replace(/<si\b[^>]*>([\s\S]*?)<\/si>/gi, function (_, itemXml) {
+    sharedStrings.push(kspXlsxTextNodes_(itemXml));
+    return _;
+  });
+
+  var output = [];
+  String(workbookXml).replace(/<sheet\b([^>]*)\/?\s*>/gi, function (_, attributes) {
+    var sheetName = kspXlsxXmlAttribute_(attributes, 'name');
+    var relationshipId = kspXlsxXmlAttribute_(attributes, 'r:id');
+    var worksheetPath = worksheetPaths[relationshipId];
+    kspAssert_(worksheetPath && parts[worksheetPath] !== undefined,
+      'AI_XLSX_WORKSHEET_MISSING', 'XLSX worksheet data is missing.');
+    var rows = [];
+    String(parts[worksheetPath]).replace(/<c\b([^>]*)>([\s\S]*?)<\/c>/gi, function (cellXml, cellAttributes, body) {
+      var reference = kspXlsxXmlAttribute_(cellAttributes, 'r');
+      var type = kspXlsxXmlAttribute_(cellAttributes, 't').toLowerCase();
+      var value = '';
+      if (type === 'inlinestr') value = kspXlsxTextNodes_(body);
+      else {
+        var valueMatch = /<v\b[^>]*>([\s\S]*?)<\/v>/i.exec(body);
+        var rawValue = valueMatch ? kspXlsxDecodeXmlEntities_(valueMatch[1]) : '';
+        if (type === 's') {
+          var sharedIndex = Number(rawValue);
+          kspAssert_(Number.isInteger(sharedIndex) && sharedIndex >= 0 && sharedIndex < sharedStrings.length,
+            'AI_XLSX_SHARED_STRING_INVALID', 'XLSX contains an invalid shared string reference.');
+          value = sharedStrings[sharedIndex];
+        } else if (type === 'b') value = rawValue === '1' ? 'TRUE' : 'FALSE';
+        else value = rawValue;
+      }
+      value = String(value || '').replace(/[\t\r\n]+/g, ' ').trim();
+      if (value) rows.push((reference || 'CELL') + '\t' + value);
+      return cellXml;
+    });
+    if (rows.length) output.push(['Sheet: ' + (sheetName || relationshipId), rows.join('\n')].join('\n'));
+    return _;
+  });
+
+  var normalized = output.join('\n\n').trim();
+  kspAssert_(normalized, 'AI_XLSX_CONTENT_EMPTY', 'XLSX contains no indexable cell values.');
+  kspAssert_(normalized.length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_XLSX_OUTPUT_CHARS,
+    'AI_XLSX_OUTPUT_TOO_LARGE', 'Normalized XLSX text is too large.');
+  return normalized;
+}
+
+function kspNormalizeXlsxText_(bytes) {
+  kspAssert_(typeof Utilities !== 'undefined' && Utilities.newBlob && Utilities.unzip,
+    'AI_XLSX_NORMALIZER_UNAVAILABLE', 'XLSX normalization is unavailable.');
+  var entries;
+  try {
+    var signedBytes = kspNormalizeAiByteArray_(bytes).map(function (value) { return value > 127 ? value - 256 : value; });
+    var blobs = Utilities.unzip(Utilities.newBlob(signedBytes,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) || [];
+    kspAssert_(blobs.length > 0 && blobs.length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_XLSX_PARTS,
+      'AI_XLSX_PARTS_INVALID', 'XLSX contains an invalid number of package parts.');
+    entries = blobs.filter(function (blob) {
+      var name = String(blob.getName() || '').replace(/\\/g, '/').replace(/^\/+/, '');
+      return name === 'xl/workbook.xml' || name === 'xl/_rels/workbook.xml.rels' ||
+        name === 'xl/sharedStrings.xml' || /^xl\/worksheets\/[^/]+\.xml$/i.test(name);
+    }).map(function (blob) {
+      return { name: blob.getName(), text: blob.getDataAsString('UTF-8') };
+    });
+  } catch (error) {
+    if (error && /^AI_XLSX_/.test(String(error.code || ''))) throw error;
+    var malformed = new Error('XLSX package could not be read.');
+    malformed.code = 'AI_XLSX_MALFORMED';
+    malformed.retryable = false;
+    malformed.permanent = true;
+    throw malformed;
+  }
+  return kspNormalizeXlsxEntries_(entries);
 }
 
 function kspEmlNormalizeLineEndings_(value) {
