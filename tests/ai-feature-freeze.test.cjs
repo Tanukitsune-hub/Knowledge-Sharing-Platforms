@@ -72,6 +72,26 @@ test('XLSX normalization fails closed on missing or conflicting package identity
   ]),/duplicate package parts/);
 });
 
+test('XLSX live normalizer presents signed source bytes as a named ZIP blob',()=>{
+  const originalNewBlob=ksp.Utilities.newBlob;
+  const originalUnzip=ksp.Utilities.unzip;
+  let observed=null;
+  const entries=[
+    {name:'xl/workbook.xml',text:'<workbook xmlns:r="urn:r"><sheets><sheet name="Evidence" r:id="rId1"/></sheets></workbook>'},
+    {name:'xl/_rels/workbook.xml.rels',text:'<Relationships><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'},
+    {name:'xl/worksheets/sheet1.xml',text:'<worksheet><sheetData><row><c r="A1" t="inlineStr"><is><t>KSP-CODEX04-XLSX</t></is></c></row></sheetData></worksheet>'}
+  ];
+  try{
+    ksp.Utilities.newBlob=(bytes,mimeType,name)=>{observed={bytes:Array.from(bytes),mimeType,name};return{};};
+    ksp.Utilities.unzip=()=>entries.map(entry=>({getName:()=>entry.name,getDataAsString:()=>entry.text}));
+    assert.match(ksp.kspNormalizeXlsxText_([80,200]),/KSP-CODEX04-XLSX/);
+    assert.deepEqual(observed,{bytes:[80,-56],mimeType:'application/zip',name:'source.zip'});
+  }finally{
+    if(originalNewBlob===undefined)delete ksp.Utilities.newBlob;else ksp.Utilities.newBlob=originalNewBlob;
+    if(originalUnzip===undefined)delete ksp.Utilities.unzip;else ksp.Utilities.unzip=originalUnzip;
+  }
+});
+
 test('EML normalizes encoded headers and quoted-printable plain body',()=>{
   const text=ksp.kspNormalizeEmlText_(fixture('plain-quoted-printable.eml'));
   assert.match(text,/Subject: APACインフラ/);

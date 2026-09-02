@@ -253,8 +253,7 @@ function kspNormalizeXlsxText_(bytes) {
   var entries;
   try {
     var signedBytes = kspNormalizeAiByteArray_(bytes).map(function (value) { return value > 127 ? value - 256 : value; });
-    var blobs = Utilities.unzip(Utilities.newBlob(signedBytes,
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) || [];
+    var blobs = Utilities.unzip(Utilities.newBlob(signedBytes, 'application/zip', 'source.zip')) || [];
     kspAssert_(blobs.length > 0 && blobs.length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_XLSX_PARTS,
       'AI_XLSX_PARTS_INVALID', 'XLSX contains an invalid number of package parts.');
     entries = blobs.filter(function (blob) {
