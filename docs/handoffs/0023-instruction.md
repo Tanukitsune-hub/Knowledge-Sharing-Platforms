@@ -1,64 +1,68 @@
 # Work 0023 — generated Apps Script bundle and low-friction installer
 
 WORK_ID: `0023`
-DISPATCH_ID: `0023-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
-MODE: `BUILD / QUALIFICATION`
+DISPATCH_ID: `0023-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
+MODE: `REVIEW_FIX -> FINAL PERSONAL-DEV QUALIFICATION`
 
 ## Primary outcome
 
-Preserve the modular GitHub development architecture while delivering a generated single-file Apps Script distribution and an idempotent installer that a non-specialist can use in a fresh company Google Workspace environment.
+Preserve the modular GitHub development architecture while delivering a deterministic single-file Apps Script distribution and an idempotent installer that a non-specialist can use safely in a fresh company Google Workspace environment.
 
 Active detailed instruction:
 
-`docs/handoffs/0023-CODEX-01-deterministic-bundle-installer-and-first-runtime-qualification-instruction.md`
+`docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-instruction.md`
 
-## Accepted baseline
+CODEX-01 report:
 
-```text
-WORK_0021: ACCEPTED / MERGED
-WORK_0021_MERGE_COMMIT: 533c849bd1229827ec77cd5ad6506312ea286940
-ACCEPTED_PRIVATE_WEB_APP_VERSION: 66
-WORK_0021_RUNTIME_MUTATION: PROHIBITED
-```
+`docs/handoffs/0023-CODEX-01-deterministic-bundle-installer-and-first-runtime-qualification-report.md`
 
-## Fixed product boundaries
+Runtime locator:
 
-- `src/` remains authoritative and modular;
-- `dist/KnowledgeShare.bundle.gs` is generated and never hand-edited;
-- all required HTML resources are embedded in bundle mode;
-- modular and bundle modes share one resource-loader abstraction;
-- installer reuses the existing setup/validation engine;
-- `installKnowledgeShare()` and `checkKnowledgeShareReadiness()` are guarded editor-visible wrappers;
-- AI providers and recurring AI sync are disabled by default;
-- no Gmail labels/scopes are added;
-- normal company install does not require personal Drive templates, Git, Node.js, terminal, `clasp`, raw resource IDs, or many manual Apps Script files;
-- exact one-paste save/parse/select/execute feasibility is a release gate, not an assumption.
+`docs/operations/runtime-artifact-locator.md`
 
-## Current target
-
-CODEX-01 returned the deterministic bundle/build path, HTML embedding/loader parity, release hashes/manifest, guarded installer/readiness core, source/bundle parity tests, and the first bounded fresh-install runtime slice.
-
-Accepted CODEX-01 evidence for review:
+## Accepted CODEX-01 surface
 
 ```text
-LOGIC_VALIDATION: PASS — 390/390
+SOURCE_ARCHITECTURE: MODULAR_PRESERVED
+BUNDLE_BUILD_AND_REPRODUCIBILITY: PASS
+HTML_EMBED_AND_LOADER_PARITY: PASS
+BUNDLE_HASHES_AND_MANIFEST: PASS
+BUNDLE_PARSE_AND_TEST_PARITY: PASS
 ONE_PASTE_SAVE_AND_EXECUTE: PASS
-INSTALLER_IDEMPOTENCY: PASS — duplicates 0
+INSTALLER_IDEMPOTENCY: PASS / duplicates 0
+PERSONAL_DEV_INSTALL_AND_RESTRICTED_WEB_APP: PASS
 WEB_APP_RENDER_FROM_BUNDLE: PASS
-FRESH_INSTALL: PARTIAL_ENVIRONMENT_LIMITATION
-FRESH_INSTALL_LOCATION: PERSONAL_DEV_ONLY
+LOGIC_VALIDATION: PASS — 390/390
 WORK_0021_RUNTIME_MUTATED: NO
-OPENAI_API_CALLED: NO
-GEMINI_API_CALLED: NO
-BLOCKER: NONE
-READY_FOR_CHATGPT_REVIEW: YES
+OPENAI/GEMINI_CALLED: NO
 ```
 
-If the exact bundle cannot be pasted, saved, parsed, selected, or executed as a single Apps Script source file, stop for a Strategy Reset rather than weakening the one-paste product requirement.
+Shared Drive/domain-user qualification remains a later company-environment gate and is not a CODEX-02 blocker.
+
+## Active completion gaps
+
+Final review found three material release-contract gaps:
+
+1. a partial first install can be taken over by another editor because ownership is inferred only from completed `state.config`;
+2. URL existence alone currently produces `READY` and shareable wording without explicit confirmation of restricted access and execute-as settings;
+3. the validator checks duplicate functions but not duplicate mutable globals/function-global collisions.
+
+CODEX-02 must make the smallest fixes:
+
+- atomically latch the first verified installer before setup mutation;
+- require the same owner for interrupted resume and fail closed on identity conflicts;
+- add a guarded explicit administrator deployment-security attestation;
+- keep Web App URL-only state non-ready;
+- add mutable global/function collision validation;
+- regenerate the deterministic release kit and rerun bounded personal-DEV qualification.
+
+Do not add Apps Script API/service/scope merely to inspect deployment configuration. Do not touch Work 0021 runtime or call OpenAI/Gemini.
+
+After these exact gates pass, stop and return PR #35 for final ChatGPT review. Do not extend into company rollout, general hardening, or cosmetic improvements.
 
 WORK_ID: `0023`
-DISPATCH_ID: `0023-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+DISPATCH_ID: `0023-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
