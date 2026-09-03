@@ -1,39 +1,41 @@
 # Work 0023 dispatch control
 
 WORK_ID: `0023`
-DISPATCH_ID: `N/A`
-BALL: `NONE`
-STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
+ACTIVE_DISPATCH_ID: `0023-CODEX-01`
+BALL: `CODEX`
+STATUS: `READY`
 
-## Current state
+## Active dispatch
 
-Route A planning, specification integration, and pre-implementation hardening are complete.
+### 0023-CODEX-01 — READY / deterministic bundle + installer core + first runtime qualification
 
-No Codex dispatch is active. Active Work 0020 and its successors remain separate and are not modified by Work 0023 planning.
+Work 0021 is accepted and merged. Work 0023 is now the active implementation Work.
 
-The Work 0023 plan now explicitly closes:
+Instruction:
 
-- installer browser-call/authorization risk;
-- first-run identity ambiguity;
-- self-referential bundle-hash ambiguity;
-- manifest/OAuth/Advanced Service parity;
-- exact single-file size/paste/save/execute feasibility.
+`docs/handoffs/0023-CODEX-01-deterministic-bundle-installer-and-first-runtime-qualification-instruction.md`
 
-## Reserved first implementation dispatch
+Primary outcome:
 
-### 0023-CODEX-01 — NOT YET ISSUED
+- deterministic generated single-file Apps Script bundle;
+- embedded HTML resource map and modular/bundle loader parity;
+- reproducible payload/file hashes and release manifest;
+- guarded `installKnowledgeShare()` / `checkKnowledgeShareReadiness()` wrappers using the existing setup/validation engine;
+- idempotent fresh install and rerun behavior;
+- exact one-paste save/parse/select/execute qualification;
+- first isolated company-like target-runtime installation slice where safely available.
 
-Purpose when activated:
+Accepted baseline:
 
-- refresh the accepted source/runtime baseline after Work 0021;
-- implement deterministic `.gs` + embedded HTML bundle generation;
-- add modular/bundle resource-loader parity;
-- implement versioned canonical payload hashing plus final-file checksum verification;
-- wrap the existing setup/validation engine with guarded `installKnowledgeShare()` and `checkKnowledgeShareReadiness()`;
-- add hostile-call rejection, identity, idempotency, bundle, manifest/OAuth/service, and one-paste validation;
-- deliver one fresh target-runtime installation slice.
+```text
+WORK_0021: ACCEPTED
+WORK_0021_MERGE: 533c849bd1229827ec77cd5ad6506312ea286940
+WORK_0021_WEB_APP_VERSION: 66
+WORK_0021_RUNTIME_MUTATION_IN_0023: PROHIBITED
+OPENAI/GEMINI_LIVE_CALLS_IN_0023_CODEX_01: PROHIBITED
+```
 
-A new exact instruction/ref and current side-effect boundary must be created at activation time. Do not execute Work 0023 from this placeholder.
+If a native user action is required during the same active execution, retain `0023-CODEX-01` and hand the ball to USER. A new Codex run after RETURNED must use the next Dispatch ID.
 
 ## Governing sources
 
@@ -46,6 +48,6 @@ A new exact instruction/ref and current side-effect boundary must be created at 
 Only one active Codex dispatch may exist for Work 0023.
 
 WORK_ID: `0023`
-DISPATCH_ID: `N/A`
-BALL: `NONE`
-STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
+ACTIVE_DISPATCH_ID: `0023-CODEX-01`
+BALL: `CODEX`
+STATUS: `READY`
