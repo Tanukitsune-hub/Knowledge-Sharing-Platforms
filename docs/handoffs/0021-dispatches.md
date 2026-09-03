@@ -1,69 +1,59 @@
 # Work 0021 dispatch control
 
 WORK_ID: `0021`
-ACTIVE_DISPATCH_ID: `0021-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `0021-CODEX-06`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0021-CODEX-01 — READY / STRUCTURED FILTERS AND FIVE-MODE CORE
+### 0021-CODEX-06 — RETURNED / PASS
 
-Primary outcome:
+CODEX-04 returned twice because an older local/runtime execution was still finishing while GitHub had already moved to the next dispatch. The late CODEX-04 return is preserved as evidence, not as the active instruction.
 
-- implement one canonical core filter contract shared by OpenAI and FULL_OUTPUT;
-- extend the existing single Knowledge Search conditions/mode UI;
-- qualify all five mode contracts on bounded scope;
-- preserve Work 0025 administrator-governed model/thinking resolution;
-- preserve Work 0020 grounded citations and FULL_OUTPUT source boundary;
-- use OpenAI + FULL_OUTPUT only; keep Gemini disabled/deferred with safe no-failover behavior;
-- stop after the major core slice passes and route multi-Entity/advanced filters/formats to later Work 0021 dispatches.
-
-Instruction:
-
-`docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-instruction.md`
-
-Planning source of truth:
-
-`docs/planning/work-registry.md`
-
-Runtime locator:
-
-`docs/operations/runtime-artifact-locator.md`
-
-## Accepted dependencies
+Accepted product evidence remains:
 
 ```text
-WORK_0020: ACCEPTED / MERGED
-WORK_0025: ACCEPTED / MERGED
-CURRENT_PRIVATE_WEB_APP_VERSION: 60
-CURRENT_OPENAI_TUPLE: openai-current-default / gpt-5.6-terra / provider-default
-GEMINI: DISABLED / DEFERRED
+PRIVATE_WEB_APP_DEPLOYED_VERSION: 65
+NORMAL_REGISTRATION: PASS — 6/6
+OPENAI_EXACT_SYNC: PASS — 6/6
+OPENAI_GROUNDED_QUERY_AND_SOURCE_ID: PASS — 6/6
+EML_ATTACHMENT_BOUNDARY: PASS
+STRICT_GOOGLE_EDITOR_URL_PARSER_LOCAL_VALIDATION: PASS — 376/376 canonical
 ```
 
-## Dispatch boundaries
+Late CODEX-04 runtime side effects:
 
-Deferred to `0021-CODEX-02`:
+```text
+APPS_SCRIPT_VERSION_66: CREATED / NOT DEPLOYED
+APPS_SCRIPT_VERSION_67: CREATED ACCIDENTALLY / NOT DEPLOYED
+WEB_APP_UPDATE_AFTER_CREATION: NONE — still version 65
+LOCAL_SCOPED_FIX_COMMIT: 516a323d4ee00b3134e79719303ddf81d52d5b4b
+REMOTE_PUSH: REJECTED because remote had advanced
+```
 
-- explicit 2–5 Entity comparison;
-- per-Entity citation attribution;
-- advanced exact Related GP / Meeting Type filters and any associated metadata strategy.
+`0021-CODEX-05` is `SUPERSEDED / NOT EXECUTED` because its contract assumed version 66 still needed to be created.
 
-Deferred to `0021-CODEX-03`:
+Active instruction:
 
-- six-format matrix;
-- provider-parity evidence beyond currently enabled OpenAI;
-- Gemini recovery/live qualification.
+`docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-instruction.md`
 
-No broad sync, large-fixture retry/mutation, Work 0023 implementation, historical migration, company rollout, new Vector Store/Web App/Library/public endpoint, rebase, force-push, or PR merge is authorized.
+CODEX-06 reconciled only the scoped parser/test diff, passed 376/376 canonical checks, and matched the tested source, Apps Script HEAD, version 66, and version 67 across 80/80 deployable files. The same private Web App was updated once to existing version 66. Version 67 remains unused/not deployed and no new version was created.
 
-## Completion discipline
+The single API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC-000024` exactly once each as authoritative references with no Pitchbook body. Final read-only integrity returned all six rows Active with Drive links. Work 0021 is ready for ChatGPT final merge review.
 
-Extend this dispatch only for a material blocker to the core shared filters/modes, authoritative citations, Work 0025 policy enforcement, FULL_OUTPUT API independence/source boundary, data integrity, or required deterministic/native qualification.
+## Dispatch history
 
-Cosmetic UX, broad benchmarking, exhaustive edge cases and deferred features go to later dispatches or backlog.
+| Dispatch ID | Purpose | Status |
+|---|---|---|
+| `0021-CODEX-01` | Core structured filters + five modes | RETURNED / accepted slice |
+| `0021-CODEX-02` | OpenAI metadata reconciliation + core runtime | RETURNED / accepted slice |
+| `0021-CODEX-03` | Multi-Entity comparison + advanced exact filters | RETURNED / accepted slice |
+| `0021-CODEX-04` | Six-format OpenAI qualification + late parser-fix runtime attempt | RETURNED / closed evidence |
+| `0021-CODEX-05` | Initial parser-fix instruction | SUPERSEDED / not executed |
+| `0021-CODEX-06` | Runtime-version reconciliation + final FULL_OUTPUT gate | RETURNED / PASS |
 
 WORK_ID: `0021`
-ACTIVE_DISPATCH_ID: `0021-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `0021-CODEX-06`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

@@ -7,8 +7,9 @@ Use this protocol to preserve the outcome-level Work ID while making every ChatG
 - `WORK_ID` is the stable zero-padded 4-digit outcome/theme ID. Keep it through implementation, validation, repair, review, and PR stabilization while the primary outcome is unchanged.
 - `DISPATCH_ID` identifies one distinct Codex execution request inside that Work.
 - Format: `<WORK_ID>-CODEX-<NN>`, where `NN` starts at `01`, is zero-padded to at least two digits, and is never reused within the Work.
-- A new committed instruction, changed execution contract/ref, or new Codex rerun after return gets a new Dispatch ID.
-- Questions, user-assisted actions, or continuation inside the same still-active Codex run retain the same Dispatch ID.
+- **Every new committed Codex instruction or new Codex execution request increments the Dispatch ID, even when it repairs or qualifies the same Work and even when it continues on the same branch/PR.**
+- A changed execution contract/ref, a new repair instruction after a returned result, or a new Codex rerun after return always gets the next Dispatch ID.
+- Only questions, user-assisted actions, or continuation inside the same still-active Codex execution retain the same Dispatch ID. Once Codex has returned control to ChatGPT, the next Codex instruction is a new Dispatch.
 - Route A / ChatGPT-only work uses `DISPATCH_ID: N/A`.
 - Existing historical handoffs do not need renaming. When adopting this protocol mid-Work, begin a prospective sequence and state that earlier dispatches were not backfilled.
 
@@ -65,7 +66,7 @@ Allowed `STATUS` values:
 5. Codex report uses `BALL: CHATGPT`, `STATUS: RETURNED`.
 6. ChatGPT review uses `BALL: CHATGPT`, `STATUS: REVIEW`.
 7. Accepted Dispatch uses `BALL: NONE`, `STATUS: ACCEPTED`.
-8. A new Codex request receives the next Dispatch ID rather than silently extending the old one.
+8. A new Codex request after a return receives the next Dispatch ID rather than silently extending the old one.
 
 A report that returns a blocker hands the ball to the party able to act. Do not leave `BALL: CODEX` after Codex has stopped.
 
@@ -120,4 +121,4 @@ Use `DISPATCH_ID: N/A` for ChatGPT-only work. This display is a concise mirror, 
 - Never let instruction and report use different Dispatch IDs.
 - Do not backfill or rename historical files solely for this protocol.
 - Do not let ball tracking create extra hypotheses, reports, or commits.
-- Target-runtime smoke or a user-assisted step remains inside the same Dispatch when it is part of the same execution contract.
+- Target-runtime smoke or a user-assisted step remains inside the same Dispatch only while it is still the same active execution contract; a new instruction after RETURNED gets a new Dispatch ID.

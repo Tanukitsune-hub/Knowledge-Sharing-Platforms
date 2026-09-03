@@ -1,56 +1,42 @@
 # Work 0021 report
 
 WORK_ID: `0021`
-ACTIVE_DISPATCH_ID: `0021-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `0021-CODEX-06`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
-## Current objective
+## Executive conclusion
 
-Implement and qualify the first bounded Structured Knowledge Search slice:
-
-- canonical core structured filters;
-- shared route/mode/filter UI;
-- all five mode contracts;
-- OpenAI grounded citations using the accepted Work 0025 model/thinking resolver;
-- FULL_OUTPUT parity and API independence;
-- bounded target-runtime qualification on the existing private Web App.
-
-Active instruction:
-
-`docs/handoffs/0021-CODEX-01-structured-filters-five-modes-openai-full-output-instruction.md`
-
-## Accepted baseline
+Work 0021 is ready for ChatGPT final merge review. The completed surface includes unified structured filters, five search modes, explicit 2–5 Entity comparison with evidence attribution, advanced exact filters, OpenAI/FULL_OUTPUT parity, and the bounded PDF/PPTX/XLSX/DOCX/TXT/EML matrix.
 
 ```text
-WORK_0020: ACCEPTED / MERGED
-WORK_0025: ACCEPTED / MERGED
-CURRENT_PRIVATE_WEB_APP_VERSION: 60
-OPENAI_DEFAULT_TUPLE: QUALIFIED
-GEMINI: DISABLED / DEFERRED
-BLOCKER: NONE AT DISPATCH
+CORE_FILTERS_AND_FIVE_MODES: PASS
+MULTI_ENTITY_AND_ADVANCED_FILTERS: PASS
+NORMAL_SIX_FORMAT_REGISTRATION: PASS — 6/6
+OPENAI_EXACT_SYNC: PASS — 6/6
+OPENAI_GROUNDED_QUERY_AND_SOURCE_ID: PASS — 6/6
+EML_ATTACHMENT_BOUNDARY: PASS
+FULL_OUTPUT_SIX_FORMAT_REFERENCE_PARITY: PASS
+LOGIC_VALIDATION: PASS — 376/376
+TARGET_RUNTIME_QUALIFICATION: PASS
+PRIVATE_WEB_APP_DEPLOYED_VERSION: 66
+READY_FOR_CHATGPT_FINAL_MERGE: YES
+BLOCKER: NONE
 ```
 
-## Deferred within Work 0021
+CODEX-06 directly verified that Apps Script HEAD, version 66, version 67, and the tested deployable source matched 80/80. The same private Web App was updated once from version 65 to existing version 66. Version 67 remains an unused immutable operational residual and has no product effect.
 
-- CODEX-02: 2–5 Entity comparison, per-Entity citations and advanced exact filters;
-- CODEX-03: bounded six-format matrix and explicit provider-parity evidence.
+Exactly one final API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC-000024` as six authoritative references and excluded Pitchbook bodies. Final read-only integrity returned all six authoritative rows Active with Drive links. OpenAI and Gemini were not called in CODEX-06.
 
-## Current status
+The Chrome automated native-file chooser remains a `FIX SOON / external tooling` residual because the ordinary human chooser and six-format registration path already passed. It does not block Work 0021.
 
-```text
-CANONICAL_FILTER_MODEL: PENDING
-CORE_STRUCTURED_FILTERS: PENDING
-FIVE_MODES: PENDING
-OPENAI_GROUNDED_CITATIONS: PENDING
-FULL_OUTPUT_FILTER_MODE_PARITY: PENDING
-LOGIC_VALIDATION: PENDING
-TARGET_RUNTIME_QUALIFICATION: PENDING
-READY_FOR_CODEX_02: NO
-BLOCKER: NONE AT DISPATCH
-```
+Final dispatch report:
+
+`docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-report.md`
+
+PR #34 remains Draft/Open/unmerged for ChatGPT final merge review.
 
 WORK_ID: `0021`
-ACTIVE_DISPATCH_ID: `0021-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+ACTIVE_DISPATCH_ID: `0021-CODEX-06`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

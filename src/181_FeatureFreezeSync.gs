@@ -17,6 +17,7 @@ function kspBuildFeatureFreezePitchbookSource_(row, maps, payload, contentHash, 
     assetClassName: maps.assetClasses[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
     capitalTypeId: String(row.Capital_Type_ID || ''),
     capitalTypeName: maps.capitalTypes[String(row.Capital_Type_ID || '')] || String(row.Capital_Type_ID || ''),
+    fundStrategy: String(row.Fund_Strategy || ''),
     driveUrl: String(row.File_URL || ''),
     savedFilename: String(row.Saved_Filename || row.Original_Filename || row.Document_ID),
     mimeType: definition.uploadMimeType,
@@ -25,12 +26,13 @@ function kspBuildFeatureFreezePitchbookSource_(row, maps, payload, contentHash, 
     readStrategy: definition.readStrategy
   };
   source.displayName = source.savedFilename;
-  if (definition.readStrategy === KSP_AI_READ_STRATEGIES.EML_NORMALIZED_TEXT) {
+  if (definition.readStrategy === KSP_AI_READ_STRATEGIES.EML_NORMALIZED_TEXT ||
+      definition.readStrategy === KSP_AI_READ_STRATEGIES.XLSX_NORMALIZED_TEXT) {
     source.payloadKind = 'text';
     source.text = String(payload.text || '');
     source.bytes = null;
     source.byteLength = kspAiSourcePayloadBytes_(source).length;
-    source.displayName = source.savedFilename.replace(/\.eml$/i, '') + '.txt';
+    source.displayName = source.savedFilename.replace(/\.(eml|xlsx)$/i, '') + '.txt';
   } else {
     source.payloadKind = 'binary';
     source.text = '';
@@ -109,6 +111,12 @@ function kspBuildFeatureFreezeAiSource_(environment, item, maps) {
     var normalizedEml = kspNormalizeEmlText_(rawEml);
     return kspBuildFeatureFreezePitchbookSource_(
       row, maps, { text: normalizedEml }, environment.hashText(normalizedEml), definition
+    );
+  }
+  if (definition.readStrategy === KSP_AI_READ_STRATEGIES.XLSX_NORMALIZED_TEXT) {
+    var normalizedXlsx = environment.normalizeXlsxText(driveSource.bytes);
+    return kspBuildFeatureFreezePitchbookSource_(
+      row, maps, { text: normalizedXlsx }, environment.hashText(normalizedXlsx), definition
     );
   }
   var bytes = kspNormalizeAiByteArray_(driveSource.bytes);
@@ -280,6 +288,9 @@ function kspCreateFeatureFreezeAiEnvironment_() {
   };
   base.decodeSourceText = function (bytes, charset) {
     return Utilities.newBlob(kspNormalizeAiByteArray_(bytes)).getDataAsString(charset || 'UTF-8');
+  };
+  base.normalizeXlsxText = function (bytes) {
+    return kspNormalizeXlsxText_(bytes);
   };
   base.hashBytes = function (bytes) {
     var signedBytes = kspNormalizeAiByteArray_(bytes).map(function (value) { return value > 127 ? value - 256 : value; });

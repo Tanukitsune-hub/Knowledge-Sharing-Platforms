@@ -310,6 +310,7 @@ function kspAiProviderAdminSafeSyncSummary_(report) {
       status: String(value.status || ''),
       selected: Number(value.selected || 0) || 0,
       indexed: Number(value.indexed || 0) || 0,
+      metadataRefreshed: Number(value.metadataRefreshed || 0) || 0,
       failed: Number(value.failed || 0) || 0,
       errorCodes: providerErrorCodes
     };
@@ -324,6 +325,7 @@ function kspAiProviderAdminSafeSyncSummary_(report) {
     indexed: Number(source.indexed || 0) || 0,
     reused: Number(source.reused || 0) || 0,
     unchanged: Number(source.unchanged || 0) || 0,
+    metadataRefreshed: Number(source.metadataRefreshed || 0) || 0,
     removed: Number(source.removed || 0) || 0,
     failed: Number(source.failed || 0) || 0,
     skippedClaims: Number(source.skippedClaims || 0) || 0,

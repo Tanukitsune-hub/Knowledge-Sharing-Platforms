@@ -2,7 +2,9 @@
 
 WORK_ID: `0021`
 
-Status: READY after completed Work 0025
+Status: COMPARISON / ADVANCED EXACT FILTERS QUALIFIED at CODEX-03; ready for CODEX-04
+
+CODEX-01 implemented the canonical core filters and five-mode OpenAI/FULL_OUTPUT contracts. CODEX-02 repaired exact in-place metadata reconciliation and qualified the core runtime on version 62. CODEX-03 then implemented and qualified explicit 2–5 Entity comparison, per-Entity citation/evidence attribution, exact Related GP and Meeting Type filters, and matching FULL_OUTPUT semantics on version 63. Canonical `368/368` and exact Apps Script `80/80` readback passed. CODEX-04 remains the bounded six-format/provider-capability campaign and must not reopen the accepted comparison/filter behavior absent contradictory evidence.
 
 Mode: `BUILD / QUALIFICATION`
 

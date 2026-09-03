@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-08-31
+Current as of: 2026-09-03
 
 Status: Active planning source of truth
 
@@ -41,7 +41,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 |---:|---|---|---|---|---|
 | 0 | 0020 | AI provider core, OpenAI File Search, citations, lifecycle, full output | ACCEPTED | — | Preserve version-58/runtime evidence; do not reopen absent contradictory evidence |
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve version-60 exact tuple qualification/runtime evidence; route non-blocking refinements separately |
-| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | ACTIVE | 0025 accepted | Execute bounded dispatch `0021-CODEX-01`: unified core filters and five modes on OpenAI/FULL_OUTPUT |
+| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, format matrix | READY FOR FINAL REVIEW | 0025 accepted | Version 66 passed final six-format FULL_OUTPUT reference parity and read-only integrity; ChatGPT owns final PR #34 review/merge |
 | 3 | 0023 | Generated single-file bundle and idempotent installer | READY | 0021 feature surface stable | Build and fresh-install-qualify the distribution path |
 | 4 | Unassigned future Work | Gemini provider recovery against the completed OpenAI reference path | DEFERRED | 0021/0023 substantially complete; current Gemini APIs rechecked | Allocate the next unused Work ID when the recovery campaign starts |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with general provider recovery unless the outcome is genuinely the same |
@@ -68,14 +68,34 @@ Keep one Work ID because the primary outcome is one intended Knowledge Search pr
 
 ```text
 0021-CODEX-01
-  unified core structured filters + five modes on OpenAI/FULL_OUTPUT
+  unified core structured filters + five modes on OpenAI/FULL_OUTPUT;
+  deterministic PASS; target-runtime compound-filter blocker returned
 
 0021-CODEX-02
-  2–5 Entity comparison + advanced exact filters/citation attribution
+  exact provider-attribute reconciliation + completion of core runtime gates;
+  PASS at private Web App version 62
 
 0021-CODEX-03
-  bounded six-format matrix + explicit provider capability/parity evidence
+  2–5 Entity comparison + advanced exact filters/citation attribution;
+  PASS at private Web App version 63
+
+0021-CODEX-04
+  bounded six-format matrix + explicit provider-capability/parity evidence;
+  human-assisted normal registration PASS for six tiny synthetic Pitchbooks;
+  final XLSX ZIP-Blob correction deployed to the same private Web App as version 65 after exact 80/80 readback;
+  exact OpenAI sync and one grounded token/source-ID query PASS for all six formats; EML attachment boundary PASS;
+  final API-independent FULL_OUTPUT preview FAIL SAFE because DOC-000022 had no confirmable authoritative Drive link;
+  deployment budget exhausted; no version 66, repeated registration/sync/query, or automatic CODEX-05
+
+0021-CODEX-06
+  reconciled only the strict Google editor URL parser and deterministic tests onto current GitHub state;
+  25/25 focused and 376/376 canonical PASS; tested source, Apps Script HEAD, version 66 and version 67 matched 80/80;
+  same private Web App updated once to existing version 66; no new version created and version 67 remains unused;
+  one API-independent FULL_OUTPUT preview resolved DOC-000019 through DOC-000024 as six authoritative references with no Pitchbook body;
+  final read-only integrity PASS; ready for ChatGPT final PR #34 review
 ```
+
+Gemini live recovery remains a separately deferred near-completion Work. CODEX-04 records only the capabilities of providers then intentionally enabled; it must not reopen historical Gemini troubleshooting as a hidden blocker.
 
 Create another dispatch only when required to complete the same outcome. Create a new Work only if the deliverable materially changes.
 

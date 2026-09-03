@@ -34,6 +34,8 @@ test('Knowledge Export UI is deterministic, keyboard-native, and Gemini-independ
     'kSafeKnowledgeDriveUrl',
     'characterCountDeferred',
     'sourceIdCount'
+    ,'scopeSummary'
+    ,'kApplyRouteSurface'
   ]) {
     assert.ok((page + '\n' + client).includes(token), token);
   }

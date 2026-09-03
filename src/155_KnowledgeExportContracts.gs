@@ -31,101 +31,45 @@ var KSP_KNOWLEDGE_EXPORT_LIMITS = Object.freeze({
   IDEMPOTENCY_SECONDS: 300
 });
 
-var KSP_KNOWLEDGE_EXPORT_MODE_ORDER = Object.freeze([
-  '自由質問', '要約', '時系列', '比較', '面談準備'
-]);
+var KSP_KNOWLEDGE_EXPORT_MODE_ORDER = KSP_KNOWLEDGE_MODE_ORDER;
 
 function kspGetKnowledgeExportModeDefinition_(mode) {
-  var definitions = {
-    '自由質問': {
-      mode: '自由質問',
-      inputLabel: '質問',
-      placeholder: '例: 最近の資料で確認できる主な変化を整理してください。',
-      inputRequired: true,
-      gpRequired: false,
-      instruction: '質問への直接回答を先に示し、資料で確認できる根拠と出典名を整理してください。'
-    },
-    '要約': {
-      mode: '要約',
-      inputLabel: '追加指示',
-      placeholder: '任意: リスクと投資機会を中心に整理してください。',
-      inputRequired: false,
-      gpRequired: false,
-      instruction: '複数資料を横断して統合し、主要テーマ、重要事実、変化、矛盾、示唆の順に整理してください。'
-    },
-    '時系列': {
-      mode: '時系列',
-      inputLabel: '追加指示',
-      placeholder: '任意: 過去12か月の変化を中心に整理してください。',
-      inputRequired: false,
-      gpRequired: false,
-      instruction: '日付順に整理し、前後の変化、継続事項、証拠が途切れる期間を区別してください。'
-    },
-    '比較': {
-      mode: '比較',
-      inputLabel: '追加指示',
-      placeholder: '任意: 投資機会、リスク、見通しの共通軸で比較してください。',
-      inputRequired: false,
-      gpRequired: false,
-      instruction: '資料で共通して確認できる軸だけで比較し、共通点、相違点、合意、不一致を示してください。'
-    },
-    '面談準備': {
-      mode: '面談準備',
-      inputLabel: '追加指示',
-      placeholder: '任意: 次回面談で確認したいテーマを入力してください。',
-      inputRequired: false,
-      gpRequired: true,
-      instruction: '選択されたGPとの面談に向け、主要アップデート、変化、未解決論点、再確認事項、質問候補を整理してください。'
-    }
-  };
-
-  var normalized = String(mode || '').trim() || '自由質問';
-  kspAssert_(definitions[normalized], 'KNOWLEDGE_EXPORT_MODE_INVALID', 'モードが不正です。');
-  return definitions[normalized];
+  try {
+    var definition = kspGetKnowledgeModeDefinition_(mode);
+    definition.gpRequired = definition.targetRequired;
+    return definition;
+  } catch (error) {
+    error.code = 'KNOWLEDGE_EXPORT_MODE_INVALID';
+    throw error;
+  }
 }
 
 function kspGetKnowledgeExportModeDefinitions_() {
-  return KSP_KNOWLEDGE_EXPORT_MODE_ORDER.map(function (mode) {
-    return kspDeepClone_(kspGetKnowledgeExportModeDefinition_(mode));
+  return kspGetKnowledgeModeDefinitions_().map(function (definition) {
+    definition.gpRequired = definition.targetRequired;
+    return definition;
   });
 }
 
 function kspNormalizeKnowledgeExportInput_(input) {
   var source = input && typeof input === 'object' ? input : {};
-  var instruction = source.questionOrInstruction !== undefined ? source.questionOrInstruction :
-    (source.question !== undefined ? source.question : source.instruction);
-  return {
-    mode: String(source.mode || '').trim() || '自由質問',
-    questionOrInstruction: String(instruction === null || instruction === undefined ? '' : instruction).trim(),
-    dateFrom: String(source.dateFrom || '').trim(),
-    dateTo: String(source.dateTo || '').trim(),
-    gpId: String(source.gpId || '').trim(),
-    assetClassId: String(source.assetClassId || '').trim(),
-    capitalTypeId: String(source.capitalTypeId || '').trim(),
-    sourceType: String(source.sourceType || '').trim(),
-    previewFingerprint: String(source.previewFingerprint || '').trim(),
-    outputType: String(source.outputType || '').trim(),
-    copyConfirmed: source.copyConfirmed === true
-  };
+  var output = kspKnowledgeRequestWithLegacyFilterAliases_(kspNormalizeCanonicalKnowledgeRequest_(source));
+  output.previewFingerprint = String(source.previewFingerprint || '').trim();
+  output.outputType = String(source.outputType || '').trim();
+  output.copyConfirmed = source.copyConfirmed === true;
+  return output;
 }
 
 function kspKnowledgeExportPublicFilters_(input) {
-  var source = input || {};
-  return {
-    dateFrom: String(source.dateFrom || ''),
-    dateTo: String(source.dateTo || ''),
-    gpId: String(source.gpId || ''),
-    assetClassId: String(source.assetClassId || ''),
-    capitalTypeId: String(source.capitalTypeId || ''),
-    sourceType: String(source.sourceType || '')
-  };
+  return kspKnowledgeRequestFilters_(input);
 }
 
 function kspValidateKnowledgeExportFilters_(input, catalog) {
   var value = input || kspNormalizeKnowledgeExportInput_({});
   var definition = kspGetKnowledgeExportModeDefinition_(value.mode);
-  if (definition.gpRequired) {
-    kspAssert_(value.gpId, 'KNOWLEDGE_EXPORT_GP_REQUIRED', '面談準備ではGPを選択してください。');
+  if (definition.targetRequired) {
+    kspAssert_(value.gpId || value.entityKey, 'KNOWLEDGE_EXPORT_GP_REQUIRED',
+      '面談準備ではCounterparty EntityまたはGPを選択してください。');
   }
   if (value.dateFrom) kspAssert_(kspIsValidDateKey_(value.dateFrom), 'KNOWLEDGE_EXPORT_DATE_FROM_INVALID', 'Date Fromが不正です。');
   if (value.dateTo) kspAssert_(kspIsValidDateKey_(value.dateTo), 'KNOWLEDGE_EXPORT_DATE_TO_INVALID', 'Date Toが不正です。');
@@ -137,6 +81,7 @@ function kspValidateKnowledgeExportFilters_(input, catalog) {
       value.sourceType === KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.PITCHBOOK,
       'KNOWLEDGE_EXPORT_SOURCE_TYPE_INVALID', 'Source Typeが不正です。');
   }
+  kspValidateCanonicalKnowledgeRequest_(value);
   kspValidateKnowledgeFilterIds_(value, catalog || kspBuildKnowledgeSearchCatalog_([], []));
   return value;
 }
@@ -181,7 +126,7 @@ function kspIsKnowledgeExportDriveUrl_(value) {
 
 function kspKnowledgeExportUrlFileId_(value) {
   var url = String(value || '').trim();
-  var match = /^https:\/\/docs\.google\.com\/document\/d\/([^/?#&]+)(?:[/?#]|$)/i.exec(url);
+  var match = /^https:\/\/docs\.google\.com\/(?:document|presentation|spreadsheets)\/d\/([^/?#&]+)(?:[/?#]|$)/i.exec(url);
   if (match) return match[1];
   match = /^https:\/\/drive\.google\.com\/file\/d\/([^/?#&]+)(?:[/?#]|$)/i.exec(url);
   if (match) return match[1];
@@ -219,6 +164,19 @@ function kspKnowledgeExportSafeMessage_(code, error) {
     AI_GP_FILTER_UNAVAILABLE: '選択されたGPは利用できません。',
     AI_ASSET_CLASS_FILTER_UNAVAILABLE: '選択されたAsset Classは利用できません。',
     AI_CAPITAL_TYPE_FILTER_UNAVAILABLE: '選択されたEquity / Debtは利用できません。',
+    AI_TEAM_FILTER_UNAVAILABLE: '選択されたTeamは利用できません。',
+    AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE: '選択されたCounterparty Typeは利用できません。',
+    AI_ENTITY_FILTER_UNAVAILABLE: '選択されたCounterparty Entityは利用できません。',
+    AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
+    AI_ENTITY_TYPE_CONFLICT: 'Counterparty TypeとEntityが一致しません。',
+    AI_ENTITY_GP_CONFLICT: 'Counterparty EntityとGPが一致しません。',
+    AI_MULTI_ENTITY_COUNT_INVALID: '比較するEntityは2–5件で選択してください。',
+    AI_MULTI_ENTITY_DUPLICATE: '同じEntityを複数回選択できません。',
+    AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
+    AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
+    AI_RELATED_GP_FILTER_UNAVAILABLE: '選択されたRelated GPは利用できません。',
+    AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMeeting Typeは利用できません。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Team、要フォロー、Related GP、Meeting TypeはMeetingにのみ適用できます。',
     KNOWLEDGE_EXPORT_PROMPT_REQUIRED: '自由質問では質問を入力してください。',
     KNOWLEDGE_EXPORT_PROMPT_TOO_LONG: '質問または追加指示は5,000文字以内で入力してください。',
     KNOWLEDGE_EXPORT_COPY_NOT_CONFIRMED: 'コピー成功の確認がないため、監査記録を作成できません。',
@@ -273,9 +231,26 @@ function kspKnowledgeExportRowMatches_(row, input) {
   var date = kspKnowledgeExportDate_(row.Date);
   if (input.dateFrom && date < input.dateFrom) return false;
   if (input.dateTo && date > input.dateTo) return false;
+  var counterpartyType = kspMeetingCounterpartyType_(row) || (row.Document_ID && row.GP_ID ? 'GP' : '');
+  var counterpartyId = kspMeetingCounterpartyId_(row) || (row.Document_ID ? String(row.GP_ID || '') : '');
+  var entityKey = counterpartyType && counterpartyId ? counterpartyType + ':' + counterpartyId : '';
+  if (input.counterpartyType && counterpartyType !== input.counterpartyType) return false;
+  if (input.entityKey && entityKey !== input.entityKey) return false;
+  if ((input.selectedEntityKeys || []).length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN &&
+      input.selectedEntityKeys.indexOf(entityKey) === -1) return false;
   if (input.gpId && String(row.GP_ID || '') !== input.gpId) return false;
   if (input.assetClassId && String(row.Asset_Class_ID || '') !== input.assetClassId) return false;
   if (input.capitalTypeId && String(row.Capital_Type_ID || '') !== input.capitalTypeId) return false;
+  if (input.teamId && String(row.Team_ID || '') !== input.teamId) return false;
+  if (input.fundStrategy && String(row.Fund_Strategy || '').trim() !== input.fundStrategy) return false;
+  if (input.followUp === KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.REQUIRED &&
+      !kspToBoolean_(row.Follow_Up_Required, false)) return false;
+  if (input.followUp === KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.NOT_REQUIRED &&
+      kspToBoolean_(row.Follow_Up_Required, false)) return false;
+  if (input.relatedGpId &&
+      kspKnowledgeExactTokens_(kspMeetingRelatedGpIds_(row)).indexOf(input.relatedGpId) === -1) return false;
+  if (input.meetingTypeCode &&
+      kspKnowledgeExactTokens_(row.Meeting_Type_Codes).indexOf(input.meetingTypeCode) === -1) return false;
   return true;
 }
 
@@ -314,6 +289,10 @@ function kspBuildKnowledgeExportSource_(sourceType, row) {
     sourceType: sourceType,
     sourceId: id,
     date: date,
+    entityKey: sourceType === KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.MEETING
+      ? (kspMeetingCounterpartyType_(row) && kspMeetingCounterpartyId_(row)
+        ? kspMeetingCounterpartyType_(row) + ':' + kspMeetingCounterpartyId_(row) : '')
+      : (row.GP_ID ? 'GP:' + String(row.GP_ID) : ''),
     revisionToken: revisionToken,
     row: kspDeepClone_(row)
   };
@@ -339,7 +318,14 @@ function kspResolveKnowledgeExportSources_(meetingRows, pitchbookRows, input) {
     });
   }
 
+  var entityOrder = {};
+  (input.selectedEntityKeys || []).forEach(function (entityKey, index) { entityOrder[entityKey] = index; });
   return sources.sort(function (left, right) {
+    if ((input.selectedEntityKeys || []).length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN) {
+      var leftEntityOrder = Object.prototype.hasOwnProperty.call(entityOrder, left.entityKey) ? entityOrder[left.entityKey] : 999;
+      var rightEntityOrder = Object.prototype.hasOwnProperty.call(entityOrder, right.entityKey) ? entityOrder[right.entityKey] : 999;
+      if (leftEntityOrder !== rightEntityOrder) return leftEntityOrder - rightEntityOrder;
+    }
     var dateCompare = left.date.localeCompare(right.date);
     if (dateCompare !== 0) return dateCompare;
     var idCompare = left.sourceId.localeCompare(right.sourceId);
@@ -381,7 +367,8 @@ function kspKnowledgeExportCatalogToken_(catalog) {
     capitalTypes: (value.capitalTypes || []).map(function (item) { return [item.id, item.name, item.status]; }),
     teams: (value.teams || []).map(function (item) { return [item.id, item.name, item.status]; }),
     counterpartyTypes: (value.counterpartyTypes || []).map(function (item) { return [item.code, item.label, item.optionType]; }),
-    counterpartyEntities: (value.counterpartyEntities || []).map(function (item) { return [item.type, item.id, item.name, item.status]; })
+    counterpartyEntities: (value.counterpartyEntities || []).map(function (item) { return [item.type, item.id, item.name, item.status]; }),
+    fundStrategies: (value.fundStrategies || []).map(function (item) { return [item.id, item.name]; })
   }));
 }
 
@@ -390,7 +377,10 @@ function kspBuildKnowledgeExportFingerprint_(sources, filters, catalog) {
   var tokens = (sources || []).map(function (source) {
     return source.revisionToken + '\u001d' + String(source.contentToken || '');
   });
-  return 'ksp2-' + kspKnowledgeExportHash_(JSON.stringify({
+  return 'ksp3-' + kspKnowledgeExportHash_(JSON.stringify({
+    route: KSP_AI_ROUTES.FULL_EXPORT,
+    mode: normalizedFilters.mode || KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION,
+    instructionHash: kspKnowledgeExportHash_(normalizedFilters.questionOrInstruction || ''),
     filters: kspKnowledgeExportPublicFilters_(normalizedFilters),
     catalog: kspKnowledgeExportCatalogToken_(catalog),
     sources: tokens
@@ -438,7 +428,8 @@ function kspKnowledgeExportExtension_(filename) {
 function kspBuildKnowledgeExportFilename_(input, nowIso, outputType) {
   var parts = ['Knowledge_Export'];
   var filters = kspKnowledgeExportPublicFilters_(input);
-  [filters.gpId, filters.assetClassId, filters.capitalTypeId, filters.sourceType,
+  [filters.counterpartyType, filters.entityKey, filters.gpId, filters.assetClassId,
+    filters.capitalTypeId, filters.teamId, filters.fundStrategy, filters.followUp, filters.sourceType,
     filters.dateFrom, filters.dateTo].forEach(function (value) {
     var segment = kspNormalizeGeneratedNameSegment_(value);
     if (segment) parts.push(segment);
@@ -453,7 +444,8 @@ function kspBuildKnowledgeExportPackageTitle_(input) {
   var value = input || {};
   var parts = ['Knowledge Export', String(value.mode || '自由質問')];
   var filters = kspKnowledgeExportPublicFilters_(value);
-  [filters.gpId, filters.assetClassId, filters.capitalTypeId, filters.sourceType,
+  [filters.counterpartyType, filters.entityKey, (input.selectedEntityKeys || []).join('+'), filters.gpId, filters.assetClassId,
+    filters.capitalTypeId, filters.teamId, filters.fundStrategy, filters.followUp, filters.sourceType,
     filters.dateFrom, filters.dateTo].forEach(function (filterValue) {
     var segment = kspNormalizeGeneratedNameSegment_(filterValue);
     if (segment) parts.push(segment);
@@ -492,6 +484,8 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
     if (row.Related_Pitchbook_IDs) lines.push('Related Pitchbook IDs: ' + String(row.Related_Pitchbook_IDs));
     lines.push('Authoritative Google Doc: ' + String(item.source.canonicalUrl || row.Doc_URL || ''));
     return {
+      entityKey: item.source.entityKey || (counterpartyType && counterpartyId ? counterpartyType + ':' + counterpartyId : ''),
+      entityLabel: (safeMaps.counterparty || {})[counterpartyType + ':' + counterpartyId] || counterpartyId,
       heading: 'Meeting ' + item.source.sourceId + ' / ' + item.source.date,
       metadataLines: lines,
       body: item.body
@@ -500,7 +494,9 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
   var pitchbookLines = (pitchbooks || []).map(function (item) {
     var row = item.source.row;
     var filename = String(row.Saved_Filename || row.Original_Filename || '');
+    var entityKey = item.source.entityKey || (row.GP_ID ? 'GP:' + String(row.GP_ID) : '');
     return [
+      entityKey ? 'Entity: ' + ((safeMaps.counterparty || {})[entityKey] || (safeMaps.gp || {})[String(row.GP_ID || '')] || entityKey) + ' (' + entityKey + ')' : '',
       'Document ID: ' + item.source.sourceId,
       'Date: ' + item.source.date,
       'GP: ' + (safeMaps.gp[String(row.GP_ID || '')] || String(row.GP_ID || '')),
@@ -512,8 +508,23 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
       'Authoritative Drive link: ' + String(item.source.canonicalUrl || row.File_URL || '')
     ].filter(function (line) { return line; }).join('\n');
   });
+  var selectedEntityLines = (input.selectedEntityKeys || []).map(function (entityKey) {
+    return 'Selected Entity: ' + ((safeMaps.counterparty || {})[entityKey] || entityKey) + ' (' + entityKey + ')';
+  });
+  var presentEntities = {};
+  (meetings || []).concat(pitchbooks || []).forEach(function (item) {
+    if (item.source && item.source.entityKey) presentEntities[item.source.entityKey] = true;
+  });
+  var gapLines = (input.selectedEntityKeys || []).filter(function (entityKey) { return !presentEntities[entityKey]; })
+    .map(function (entityKey) { return 'Evidence gap: ' + ((safeMaps.counterparty || {})[entityKey] || entityKey) + ' (' + entityKey + ')'; });
   return {
     title: title || kspBuildKnowledgeExportPackageTitle_(input),
+    headerLines: [
+      'Mode: ' + kspGetKnowledgeModeDefinition_(input.mode).mode,
+      'Scope: ' + kspKnowledgeScopeSummary_(input),
+      'Mode instruction: ' + kspGetKnowledgeModeDefinition_(input.mode).instruction
+    ].concat(selectedEntityLines, gapLines,
+      input.questionOrInstruction ? ['Question / additional instruction: ' + input.questionOrInstruction] : []),
     meetingSections: meetingSections,
     pitchbookLines: pitchbookLines,
     pitchbookReferencesOnly: true
@@ -521,9 +532,14 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
 }
 
 function kspBuildKnowledgeExportPlainText_(model) {
-  var lines = [String(model.title || 'Knowledge Export'), ''];
+  var lines = [String(model.title || 'Knowledge Export')].concat(model.headerLines || [], ['']);
+  var currentEntityKey = '';
   (model.meetingSections || []).forEach(function (section, index) {
-    if (index > 0) lines.push('\f');
+    if (section.entityKey && section.entityKey !== currentEntityKey) {
+      if (index > 0) lines.push('\f');
+      lines.push('Entity: ' + (section.entityLabel || section.entityKey) + ' (' + section.entityKey + ')', '');
+      currentEntityKey = section.entityKey;
+    } else if (index > 0) lines.push('\f');
     lines.push(section.heading);
     lines = lines.concat(section.metadataLines || []);
     lines.push('', section.body || '');
@@ -555,9 +571,17 @@ function kspBuildKnowledgeExportPrompt_(input, catalog) {
     'モード: ' + definition.mode,
     'Date From: ' + (filters.dateFrom || '未選択'),
     'Date To: ' + (filters.dateTo || '未選択'),
+    'Counterparty Type: ' + (filters.counterpartyType || '未選択'),
+    'Counterparty Entity: ' + (filters.entityKey || '未選択'),
+    'Selected Entities: ' + ((input.selectedEntityKeys || []).length ? input.selectedEntityKeys.join(', ') : '未選択'),
     'GP: ' + kspKnowledgeExportPromptLabel_(safeCatalog.gps, filters.gpId),
     'Asset Class: ' + kspKnowledgeExportPromptLabel_(safeCatalog.assetClasses, filters.assetClassId),
     'Equity / Debt: ' + kspKnowledgeExportPromptLabel_(safeCatalog.capitalTypes, filters.capitalTypeId),
+    'Team: ' + kspKnowledgeExportPromptLabel_(safeCatalog.teams, filters.teamId),
+    'Fund / Strategy: ' + (filters.fundStrategy || '未選択'),
+    '要フォロー: ' + (filters.followUp || '未選択'),
+    'Related GP: ' + (filters.relatedGpId || '未選択'),
+    'Meeting Type: ' + (filters.meetingTypeCode || '未選択'),
     'Source Type: ' + sourceType,
     '',
     definition.instruction,
@@ -581,6 +605,9 @@ function kspBuildKnowledgeExportAuditRow_(params) {
   metadata.meetingCount = Number(counts.meetingCount || 0);
   metadata.meetingCharacterCount = Number(counts.meetingCharacterCount || 0);
   metadata.pitchbookCount = Number(counts.pitchbookCount || 0);
+  metadata.route = KSP_AI_ROUTES.FULL_EXPORT;
+  metadata.mode = input.mode || KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION;
+  metadata.structuredFilters = kspKnowledgeFilterAuditMetadata_(input);
   return {
     Event_Timestamp: kspCanonicalInstantIso_(options.timestamp),
     Actor: options.actor || 'UNIDENTIFIED',

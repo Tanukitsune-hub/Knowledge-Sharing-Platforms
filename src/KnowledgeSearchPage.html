@@ -35,9 +35,17 @@
       <div class="filter-grid">
         <div class="field"><label for="knowledge-dateFrom">Date From</label><input id="knowledge-dateFrom" type="date"></div>
         <div class="field"><label for="knowledge-dateTo">Date To</label><input id="knowledge-dateTo" type="date"></div>
+        <div class="field"><label for="knowledge-counterpartyType">Counterparty Type</label><select id="knowledge-counterpartyType"><option value="">未選択</option></select></div>
+        <div class="field"><label id="knowledge-entity-label" for="knowledge-entityKey">Counterparty Entity</label><select id="knowledge-entityKey"><option value="">未選択</option></select></div>
+        <div id="knowledge-multi-entity-field" class="field full" hidden><label class="required" for="knowledge-entityKeys">比較Entity（2–5件）</label><select id="knowledge-entityKeys" multiple size="5" aria-describedby="knowledge-multi-entity-help"></select><span id="knowledge-multi-entity-help" class="hint">Ctrl / CommandまたはShiftで複数選択します。表示名と種別で確認し、安定キーを送信します。</span></div>
         <div class="field"><label id="knowledge-gp-label" for="knowledge-gpId">GP</label><select id="knowledge-gpId"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-assetClassId">Asset Class</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-capitalTypeId">Equity / Debt</label><select id="knowledge-capitalTypeId"><option value="">未選択</option></select></div>
+        <div class="field"><label for="knowledge-teamId">Team</label><select id="knowledge-teamId"><option value="">未選択</option></select></div>
+        <div class="field"><label for="knowledge-fundStrategy">Fund / Strategy</label><select id="knowledge-fundStrategy"><option value="">未選択</option></select></div>
+        <div class="field"><label for="knowledge-followUp">要フォロー</label><select id="knowledge-followUp"><option value="">未選択</option><option value="REQUIRED">必要</option><option value="NOT_REQUIRED">不要</option></select></div>
+        <div class="field"><label for="knowledge-relatedGpId">Related GP</label><select id="knowledge-relatedGpId"><option value="">未選択</option></select></div>
+        <div class="field"><label for="knowledge-meetingTypeCode">Meeting Type</label><select id="knowledge-meetingTypeCode"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-sourceType">Source Type</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">未選択</option><option value="Meeting">Meeting</option><option value="Pitchbook">Pitchbook</option></select><span id="knowledge-source-help" class="hint">未選択はMeetingとPitchbookの両方です。</span></div>
       </div>
       <div class="field full" style="margin-top:18px">
@@ -59,7 +67,7 @@
     <div id="knowledge-status" class="status" role="status" aria-live="polite"></div>
   </section>
 
-  <section class="card" id="knowledge-export-section">
+  <section class="card hidden-panel" id="knowledge-export-section">
     <div class="section-heading">
       <div>
         <h2>対象資料の書き出し</h2>
@@ -97,8 +105,9 @@
   </section>
 
   <section id="knowledge-result" class="card maintenance-editor hidden-panel">
-    <div class="section-heading"><div><h2>回答</h2><p id="knowledge-evidence-note" class="hint"></p></div></div>
+    <div class="section-heading"><div><h2>回答</h2><p id="knowledge-result-scope" class="hint"></p><p id="knowledge-evidence-note" class="hint"></p></div></div>
     <div id="knowledge-answer" class="knowledge-answer"></div>
+    <div id="knowledge-entity-evidence" class="summary" hidden></div>
     <h3>参照資料</h3>
     <ul id="knowledge-citations" class="citation-list"></ul>
   </section>

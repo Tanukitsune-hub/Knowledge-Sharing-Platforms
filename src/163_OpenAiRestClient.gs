@@ -198,6 +198,33 @@ function kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId) {
     KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(vectorStoreId) + '/files/' + encodeURIComponent(fileId));
 }
 
+function kspOpenAiProviderDocumentFromVectorStoreFile_(vectorStoreId, entry) {
+  var value = entry || {};
+  var attributes = value.attributes || value.metadata || {};
+  return {
+    name: 'openai:' + String(vectorStoreId) + '/files/' + String(value.id || ''),
+    providerDocumentId: String(value.id || ''),
+    fileId: String(value.id || ''),
+    vectorStoreId: String(vectorStoreId),
+    status: String(value.status || ''),
+    attributes: kspDeepClone_(attributes),
+    customMetadata: kspDeepClone_(attributes)
+  };
+}
+
+function kspOpenAiUpdateVectorStoreFileAttributesLive_(vectorStoreId, documentValue, attributes) {
+  var storeId = kspAiTrim_(vectorStoreId);
+  var fileId = kspAiTrim_(documentValue && (documentValue.providerDocumentId || documentValue.fileId));
+  kspAssert_(storeId && fileId, 'OPENAI_DOCUMENT_INVALID', 'ChatGPT document identity is invalid.');
+  kspOpenAiJsonRequestLive_('POST',
+    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(fileId),
+    { attributes: kspDeepClone_(attributes || {}) });
+  var current = kspOpenAiGetVectorStoreFileLive_(storeId, fileId);
+  kspAssert_(String(current && current.id || '') === fileId,
+    'OPENAI_ATTRIBUTE_REFRESH_IDENTITY_MISMATCH', 'ChatGPT source attribute refresh returned a different document.');
+  return kspOpenAiProviderDocumentFromVectorStoreFile_(storeId, current);
+}
+
 function kspOpenAiWaitVectorStoreFileLive_(vectorStoreId, fileId, initial) {
   var current = initial || {};
   var status = kspAiTrim_(current.status);
@@ -240,18 +267,7 @@ function kspOpenAiFindDocumentsBySourceLive_(vectorStoreId, sourceType, sourceId
     var attributes = entry.attributes || entry.metadata || {};
     return String(attributes.source_type || '') === expectedType &&
       String(attributes.source_id || '') === expectedId;
-  }).map(function (entry) {
-    var attributes = entry.attributes || entry.metadata || {};
-    return {
-      name: 'openai:' + String(vectorStoreId) + '/files/' + String(entry.id || ''),
-      providerDocumentId: String(entry.id || ''),
-      fileId: String(entry.id || ''),
-      vectorStoreId: String(vectorStoreId),
-      status: String(entry.status || ''),
-      attributes: kspDeepClone_(attributes),
-      customMetadata: kspDeepClone_(attributes)
-    };
-  });
+  }).map(function (entry) { return kspOpenAiProviderDocumentFromVectorStoreFile_(vectorStoreId, entry); });
 }
 
 function kspOpenAiDeleteDocumentLive_(vectorStoreId, documentValue) {

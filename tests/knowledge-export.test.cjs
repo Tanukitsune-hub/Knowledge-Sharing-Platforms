@@ -214,7 +214,7 @@ function createFakeEnvironment(options = {}) {
 function baseInput(overrides = {}) {
   return {
     mode: '自由質問',
-    questionOrInstruction: '',
+    questionOrInstruction: '合意事項を整理してください。',
     dateFrom: '2026-08-01',
     dateTo: '2026-08-03',
     ...overrides
@@ -372,6 +372,149 @@ test('Pitchbook reference metadata validates identity and boundary without readi
     assert.deepEqual(env._debug.pitchbookByteReads, []);
     assert.deepEqual(env._debug.artifacts, []);
   });
+});
+
+test('Knowledge Export URL parser accepts exact Google editor and Drive shapes only', () => {
+  const valid = [
+    ['https://docs.google.com/document/d/doc-1/edit?tab=t.0', 'doc-1'],
+    ['https://docs.google.com/presentation/d/presentation-1/edit?slide=id.p', 'presentation-1'],
+    ['https://docs.google.com/spreadsheets/d/spreadsheet-1/edit?gid=0#gid=0', 'spreadsheet-1'],
+    ['https://drive.google.com/file/d/file-1/view?usp=drive_link', 'file-1'],
+    ['https://drive.google.com/open?usp=drive_link&id=open-1', 'open-1'],
+    ['https://drive.google.com/uc?export=download&id=uc-1', 'uc-1']
+  ];
+  valid.forEach(([url, expected]) => {
+    assert.equal(ksp.kspKnowledgeExportUrlFileId_(url), expected, url);
+  });
+
+  const invalid = [
+    'http://docs.google.com/presentation/d/file-1/edit',
+    'https://docs.google.com.example.com/presentation/d/file-1/edit',
+    'https://docs.google.com/forms/d/file-1/edit',
+    'https://docs.google.com/presentation/u/0/d/file-1/edit',
+    'https://docs.google.com/presentation/d//edit',
+    'https://docs.google.com/presentation/d/',
+    'https://drive.google.com.example.com/file/d/file-1/view',
+    'https://drive.google.com/file/d//view',
+    'not-a-url',
+    ''
+  ];
+  invalid.forEach((url) => {
+    assert.equal(ksp.kspKnowledgeExportUrlFileId_(url), '', url);
+  });
+});
+
+test('FULL_OUTPUT accepts matching Presentation and Spreadsheets webView links as reference-only', () => {
+  const cases = [
+    {
+      extension: 'pptx',
+      fileId: 'presentation-file-1',
+      mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      editorUrl: 'https://docs.google.com/presentation/d/presentation-file-1/edit?usp=drive_web'
+    },
+    {
+      extension: 'xlsx',
+      fileId: 'spreadsheet-file-1',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      editorUrl: 'https://docs.google.com/spreadsheets/d/spreadsheet-file-1/edit?gid=0#gid=0'
+    }
+  ];
+  cases.forEach(({ extension, fileId, mimeType, editorUrl }) => {
+    const env = createFakeEnvironment({
+      meetingRows: [meetingRow('MTG-000001', '2026-08-01', { Doc_File_ID: 'doc-1' })],
+      pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', {
+        File_ID: fileId,
+        File_URL: editorUrl,
+        Original_Filename: `KSP-CODEX04-${extension.toUpperCase()}.${extension}`,
+        Saved_Filename: `KSP-CODEX04-${extension.toUpperCase()}.${extension}`
+      })],
+      driveMetadata: { id: fileId, mimeType, trashed: false, webViewLink: editorUrl },
+      documents: { 'doc-1': { text: 'Authoritative Meeting body only.' } }
+    });
+    const result = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: '' }));
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(result.preview.pitchbookCount, 1);
+    assert.deepEqual(env._debug.pitchbookMetadataReads, [fileId]);
+    assert.deepEqual(env._debug.pitchbookByteReads, []);
+    assert.deepEqual(env._debug.artifacts, []);
+    assert.match(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}\\.${extension}`));
+    assert.match(result.preview.packageText, /Authoritative Meeting body only\./);
+  });
+});
+
+test('Presentation and Spreadsheets URL, row, and Drive metadata ID mismatches fail closed', () => {
+  const shapes = [
+    ['presentation', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+    ['spreadsheets', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+  ];
+  shapes.forEach(([editorType, mimeType]) => {
+    const fileId = `${editorType}-file-1`;
+    const matchingUrl = `https://docs.google.com/${editorType}/d/${fileId}/edit?synthetic=1`;
+    const rowMismatch = createFakeEnvironment({
+      meetingRows: [],
+      pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', {
+        File_ID: fileId,
+        File_URL: `https://docs.google.com/${editorType}/d/other-file/edit`
+      })]
+    });
+    const rowResult = ksp.kspRunKnowledgeExportPreview_(rowMismatch, baseInput({ sourceType: 'Pitchbook' }));
+    assert.equal(rowResult.ok, false);
+    assert.equal(rowResult.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH');
+    assert.deepEqual(rowMismatch._debug.pitchbookMetadataReads, []);
+
+    const metadataIdMismatch = createFakeEnvironment({
+      meetingRows: [],
+      pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: fileId, File_URL: matchingUrl })],
+      driveMetadata: { id: 'other-file', mimeType, trashed: false, webViewLink: matchingUrl }
+    });
+    const metadataIdResult = ksp.kspRunKnowledgeExportPreview_(metadataIdMismatch, baseInput({ sourceType: 'Pitchbook' }));
+    assert.equal(metadataIdResult.ok, false);
+    assert.equal(metadataIdResult.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID');
+
+    const metadataUrlMismatch = createFakeEnvironment({
+      meetingRows: [],
+      pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: fileId, File_URL: matchingUrl })],
+      driveMetadata: {
+        id: fileId,
+        mimeType,
+        trashed: false,
+        webViewLink: `https://docs.google.com/${editorType}/d/other-file/edit`
+      }
+    });
+    const metadataUrlResult = ksp.kspRunKnowledgeExportPreview_(metadataUrlMismatch, baseInput({ sourceType: 'Pitchbook' }));
+    assert.equal(metadataUrlResult.ok, false);
+    assert.equal(metadataUrlResult.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID');
+    assert.deepEqual(metadataUrlMismatch._debug.pitchbookByteReads, []);
+    assert.deepEqual(metadataUrlMismatch._debug.artifacts, []);
+  });
+});
+
+test('FULL_OUTPUT keeps all six Pitchbook formats reference-only without reading source bytes', () => {
+  const extensions = ['pdf', 'pptx', 'xlsx', 'docx', 'txt', 'eml'];
+  const pitchbookRows = extensions.map((extension, index) => pitchbookRow(
+    `DOC-${String(index + 1).padStart(6, '0')}`,
+    '2026-08-01',
+    {
+      File_ID: `file-${extension}`,
+      Original_Filename: `KSP-CODEX04-${extension.toUpperCase()}.${extension}`,
+      Saved_Filename: `KSP-CODEX04-${extension.toUpperCase()}.${extension}`
+    }
+  ));
+  const env = createFakeEnvironment({
+    meetingRows: [meetingRow('MTG-000001', '2026-08-01', { Doc_File_ID: 'doc-1' })],
+    pitchbookRows,
+    documents: { 'doc-1': { text: 'Authoritative Meeting body only.' } }
+  });
+  const result = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: '' }));
+  assert.equal(result.ok, true);
+  assert.equal(result.preview.pitchbookCount, 6);
+  assert.deepEqual(env._debug.pitchbookByteReads, []);
+  assert.match(result.preview.packageText, /Pitchbooks \/ reference metadata and authoritative links only/);
+  for (const extension of extensions) {
+    assert.match(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}\\.${extension}`));
+    assert.doesNotMatch(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}-BODY`));
+  }
+  assert.match(result.preview.packageText, /Authoritative Meeting body only\./);
 });
 
 test('Knowledge Export includes structured Meeting and Pitchbook metadata but not follow-up note Audit content', () => {

@@ -38,7 +38,7 @@ test('all new Apps Script and client files parse and contain required live contr
   const client=fs.readFileSync(path.join(root,'src','ClientKnowledgeSearch.html'),'utf8');const match=client.match(/<script>([\s\S]*?)<\/script>/);assert.ok(match);new vm.Script(match[1],{filename:'ClientKnowledgeSearch.js'});
   const page=fs.readFileSync(path.join(root,'src','KnowledgeSearchPage.html'),'utf8');
   const standalone=fs.readFileSync(path.join(root,'src','KnowledgeSearch.html'),'utf8');
-  for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation','queryPhase:\'POLL\'','queryToken','sessionStorage','setTimeout','KSP_QUERY_AUTO_POLL_LIMIT','pendingQueryAutoStopped','knowledge-recheck'])assert.ok((page+'\n'+client).includes(token),token);
+  for(const token of ['id="knowledge-form"','getKnowledgeSearchBootstrapData','Citation','queryPhase:\'POLL\'','queryToken','sessionStorage','setTimeout','KSP_QUERY_AUTO_POLL_LIMIT','pendingQueryAutoStopped','knowledge-recheck','knowledge-counterpartyType','knowledge-entityKey','knowledge-entityKeys','knowledge-relatedGpId','knowledge-meetingTypeCode','knowledge-entity-evidence','selectedEntityKeys','entityEvidence','pendingQueryFingerprint','kApplyRouteSurface'])assert.ok((page+'\n'+client).includes(token),token);
   assert.match(page, /<option value="OPENAI">ChatGPT<\/option>/);
   assert.match(client, /pendingQueryRoute/);
   assert.match(client, /kEl\('knowledge-route'\)\.value='OPENAI'/);
@@ -50,6 +50,13 @@ test('all new Apps Script and client files parse and contain required live contr
   assert.match(client,/Math\.min\(30000/);
   assert.doesNotMatch(client,/sessionStorage\.setItem\([^\n]*question/);
   assert.doesNotMatch(client,/sessionStorage\.setItem\([^\n]*interactionId/);
+  assert.match(client,/const filters=\{dateFrom:/);
+  assert.match(client,/fingerprint:knowledgeState\.pendingQueryFingerprint/);
+  const clientFingerprint=client.match(/function kKnowledgeQueryFingerprint\([^\n]+/)[0];
+  assert.match(clientFingerprint,/modelProfileId/);
+  assert.match(clientFingerprint,/thinkingProfileId/);
+  assert.match(clientFingerprint,/filters/);
+  assert.doesNotMatch(clientFingerprint,/questionOrInstruction/);
   const aiSource=fs.readdirSync(path.join(root,'src')).filter(f=>/^(13|14|15|16|17)\d_.*\.gs$/.test(f)).sort().map(f=>fs.readFileSync(path.join(root,'src',f),'utf8')).join('\n');
   for(const token of ['/interactions','uploadToFileSearchStore','X-Goog-Upload-Protocol','x-goog-api-key','customMetadata','ScriptApp.getOAuthToken'])assert.ok(aiSource.includes(token),token);
   const entry=fs.readFileSync(path.join(root,'src','99_EntryPoints.gs'),'utf8');assert.ok(entry.includes("copy.available = true"));

@@ -9,7 +9,8 @@ function kspGetKnowledgeSearchBootstrap_(environment) {
       configured: Boolean(settings.storeName && settings.modelId),
       implementedModes: [KSP_AI_SEARCH_MODES.FREE_QUESTION],
       targetModes: ['自由質問', '要約', '時系列', '比較', '面談準備'],
-      options: kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows),
+      options: kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+        context.meetingRows, context.pitchbookRows),
       syncIntervalMinutes: settings.syncIntervalMinutes
     };
   } catch (error) {
@@ -56,7 +57,8 @@ function kspRunFreeQuestion_(environment, rawInput) {
     kspAssert_(settings.storeName, 'AI_STORE_NOT_CONFIGURED', 'Gemini File Search Storeが設定されていません。');
     kspAssert_(settings.modelId, 'AI_MODEL_NOT_CONFIGURED', 'Gemini Flash model IDが設定されていません。');
 
-    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows);
+    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+      context.meetingRows, context.pitchbookRows);
     kspValidateKnowledgeFilterIds_(input, catalog);
     var metadataFilter = kspBuildMetadataFilter_(input);
     var request = kspBuildInteractionRequest_({

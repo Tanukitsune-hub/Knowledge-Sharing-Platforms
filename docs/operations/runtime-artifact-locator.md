@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
-LAST_VERIFIED_AT: 2026-08-31 JST
-LAST_VERIFIED_BY: CODEX-02 exact source readback + exact thinking-tuple/OpenAI qualification + ChatGPT GitHub merge verification
+LAST_VERIFIED_AT: 2026-09-03 JST
+LAST_VERIFIED_BY: Work 0021 CODEX-06 final runtime qualification
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -10,14 +10,12 @@ STATUS: ACTIVE / VERIFIED
 - DEFAULT_BRANCH: `main`
 - WORK_0020_MERGE_COMMIT: `185fd197cd531bf74e77af33b32e82706bebe0b5`
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
-- DEPLOYED_SOURCE_COMMIT: `2fee55970aa0542197c3a97d64b67aeaa50df714`
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0025 CODEX-02 exact per-thinking qualification gate, exact tested source
-- SOURCE_BRANCH_USED_FOR_WORK_0020: `agent/0020-ai-provider-core`
-- SOURCE_BRANCH_USED_FOR_WORK_0025: `agent/0025-model-thinking-policy`
-- WORK_0020_STATUS: `ACCEPTED / MERGED`
-- WORK_0025_STATUS: `ACCEPTED / MERGED`
+- DEPLOYED_SOURCE_COMMIT: `9d7319d1ffe126e8fbd65b373385acd97d5d868d`
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 complete surface including six-format OpenAI support and strict Google Document/Presentation/Spreadsheets editor URL parsing
 - CURRENT_ACTIVE_WORK: `0021 — structured Knowledge Search`
-- LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB` — keep machine-specific absolute paths local unless explicitly safe and useful
+- CURRENT_ACTIVE_DISPATCH: `0021-CODEX-06 — RETURNED / PASS`
+- CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-instruction.md`
+- LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
 
 ## Application runtime
 
@@ -27,14 +25,71 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `60`
+- DEPLOYMENT_VERSION: `66`
 - ENVIRONMENT: personal DEV / qualification
 
-Important: this is a standalone Apps Script project. It is not container-bound to `Knowledge Platform Backend` or `Knowledge Platform Audit`.
+Current immutable-version state from the returned stale CODEX-04 runtime session:
 
-Version 60 is the current verified private-Web-App baseline. It preserves the accepted Work 0020 OpenAI path and adds the accepted Work 0025 administrator-governed model/thinking policy with exact per-thinking qualification.
+```text
+VERSION_65: prior deployed Web App
+VERSION_66: current deployed Web App / exact parser-fix source verified 80/80
+VERSION_67: accidental immutable version / source identical to version 66 / unused and not deployed
+VERSION_68_OR_LATER: not authorized
+```
 
-GitHub planning/tracking changes after the Work 0025 merge do not change the deployed Apps Script source. A later Work 0021 dispatch may create a new immutable version only after deterministic validation and bounded target-runtime qualification.
+The extra immutable version 67 has no current product effect because it is not deployed. It remains an operational residual.
+
+## Work 0021 accepted product evidence
+
+Six tiny non-confidential Pitchbooks were registered through the normal Web App flow:
+
+```text
+DOCX: DOC-000019
+EML:  DOC-000020
+PDF:  DOC-000021
+PPTX: DOC-000022
+TXT:  DOC-000023
+XLSX: DOC-000024
+```
+
+Accepted runtime evidence:
+
+```text
+NORMAL_REGISTRATION: PASS — 6/6
+OPENAI_EXACT_SYNC: PASS — 6/6
+OPENAI_GROUNDED_QUERY_AND_SOURCE_ID: PASS — 6/6
+EML_ATTACHMENT_BOUNDARY: PASS
+WEB_APP_DEPLOYED_VERSION: 66
+GEMINI_API_CALLED: NO
+```
+
+The version-65 API-independent FULL_OUTPUT preview failed before artifact creation on `DOC-000022` because its URL parser omitted valid Google Presentation/Spreadsheets editor URL forms. CODEX-06 resolved this defect in version 66: the one final preview returned all six authoritative references without Pitchbook bodies, and the `DOC-000022` link failure did not recur.
+
+Verified root cause:
+
+```text
+ROOT_CAUSE: FULL_OUTPUT_GOOGLE_EDITOR_WEBVIEW_URL_SHAPES_OMITTED
+DATA_REPAIR_REQUIRED: NO
+PROVIDER_REPAIR_REQUIRED: NO
+```
+
+The late CODEX-04 local/runtime run implemented the strict parser repair and passed:
+
+```text
+FOCUSED: 25/25
+CANONICAL: 376/376
+APPS_SCRIPT_SOURCE_READBACK: 80/80
+LOCAL_SCOPED_COMMIT: 516a323d4ee00b3134e79719303ddf81d52d5b4b
+REMOTE_PUSH: rejected after remote advanced
+```
+
+## Completed CODEX-06 boundary
+
+CODEX-05 is superseded/not executed because its runtime assumptions became stale.
+
+CODEX-06 matched the tested source, Apps Script HEAD, version 66, and version 67 across 80/80 deployable files, updated the same private Web App once to existing version 66, created no new version, and left version 67 unused.
+
+One API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC-000024` as six authoritative references with no Pitchbook body. Final Backend readback returned all six rows Active with Drive links; the safe OpenAI state remained configured, ready, and enabled without a provider API call.
 
 ## Data and control artifacts
 
@@ -55,13 +110,11 @@ GitHub planning/tracking changes after the Work 0025 merge do not change the dep
 
 - NAME: `KSP-0010-DEV-Control-20260816`
 - FOLDER_ID: `1-ayhSMJ_pPiliNtHWvTg5Z3kPGKgdyY7`
-- ROLE: isolated DEV control resources
 
 ### DEV knowledge folder
 
 - NAME: `KSP-0010-DEV-Knowledge-20260816`
 - FOLDER_ID: `11u5FSCPi5xrmD1pVQX4MDUrebW1PxIs7`
-- ROLE: isolated DEV knowledge resources
 
 ### Knowledge parent folder
 
@@ -72,57 +125,40 @@ GitHub planning/tracking changes after the Work 0025 merge do not change the dep
 
 - NAME: `Private Assets Knowledge`
 - DRIVE_FOLDER_ID: `1b9r_NdS2P0Qwb0-cz2Ix1cXNGM0gLb_b`
-- ROLE: authoritative knowledge root used by the application; verify environment intent before production-like mutation
 
-## Accepted Work 0020 runtime state
+## Accepted Work 0020 state
 
-- ACTIVE_WORK_ID: `NONE — Work 0020 accepted and merged`
 - PRIMARY_COMPLETION_PROVIDER: OpenAI
 - WEB_APP_VERSION: `58`
 - NATIVE_ACCEPTANCE_STATE: PASS
-- OPENAI_CONNECTION_STATE: key configured, Vector Store ready, readiness ACTIVE
-- SMALL_SYNTHETIC_PITCHBOOK_STATE: `DOC-000017` Active and OpenAI Indexed; exact final sync unchanged with one current provider document and grounded citation PASS
-- SMALL_SYNTHETIC_MEETING_STATE: `MTG-000005` Active and OpenAI Indexed; grounded citation PASS
-- LARGE_FIXTURE_STATE: old 5–25 MiB size-matrix Pitchbooks include `OPENAI_INDEX_TIMEOUT`; separate follow-up only, not a Work 0020 blocker
-- GITHUB_DELIVERY_STATE: PR #26 merged to `main`; zero unresolved review threads at merge
+- SMALL_SYNTHETIC_PITCHBOOK_STATE: `DOC-000017` Active and OpenAI Indexed
+- SMALL_SYNTHETIC_MEETING_STATE: `MTG-000005` Active and OpenAI Indexed
+- LARGE_FIXTURE_STATE: separate follow-up
 
-## Accepted Work 0025 runtime state
+## Accepted Work 0025 state
 
-- ACTIVE_WORK_ID: `NONE — Work 0025 accepted and merged`
 - WEB_APP_VERSION: `60`
-- MODEL_POLICY_STATE: persisted Settings-backed registry with per-thinking qualification; one current qualified default and one hidden/disabled unqualified synthetic profile
+- MODEL_POLICY_STATE: Settings-backed registry with per-thinking qualification
 - CURRENT_OPENAI_PROFILE: `openai-current-default` / `gpt-5.6-terra` / provider-default thinking
-- CURRENT_PROFILE_QUALIFICATION: exact `gpt-5.6-terra` + provider-default omission + File Search tuple qualified
-- USER_SELECTOR_STATE: exactly one effective OpenAI model and one provider-default thinking choice; hidden synthetic profile excluded
-- OPENAI_CONNECTION_STATE: key configured, Vector Store ready, readiness ACTIVE
-- EXACT_SYNC_STATE: accepted CODEX-01 evidence preserved; CODEX-02 performed no source sync
-- PITCHBOOK_QUERY_STATE: one bounded query returned expected synthetic facts and an authoritative normalized `Pitchbook / DOC-000017` source; older synthetic citations were read only
-- MEETING_QUERY_STATE: one bounded query returned expected synthetic facts and an authoritative normalized `Meeting / MTG-000005` source
-- FULL_OUTPUT_STATE: accepted Work 0020 runtime evidence preserved; Work 0025 verified AI controls hidden and did not run FULL_OUTPUT
-- FINAL_ROW_STATE: one Active `DOC-000017`, one Active `DOC-000018`, one Active `MTG-000005`
-- SIDE_EFFECT_BOUNDARY: no Gemini call, source sync/lifecycle, large-fixture retry/mutation, confidential data, new Store/Web App/Library or provider fallback
-- GITHUB_DELIVERY_STATE: Draft PR #32 closed as transport workaround; exact replacement PR #33 merged to `main`
+- CURRENT_PROFILE_QUALIFICATION: PASS
+- GITHUB_DELIVERY_STATE: PR #33 merged
 
-## Work 0021 starting baseline
+## Work 0021 accepted state
 
-- ACTIVE_WORK_ID: `0021`
-- ACTIVE_DISPATCH_ID: `0021-CODEX-01` when handed off
-- STARTING_WEB_APP_VERSION: `60`
-- REQUIRED_BASE: latest `main` containing Work 0020 and Work 0025
-- PRIMARY_RUNTIME_ROUTE: OpenAI + FULL_OUTPUT
-- GEMINI_STATE: disabled/deferred; safe no-failover behavior must remain
-- DESIGNATED_EXISTING_SOURCES: `DOC-000017`, `MTG-000005`; inspect bounded synthetic coverage before creating any additional test source
-- PROHIBITED_TEST_TARGETS: `DOC-000018` and old 5–25 MiB fixtures unless an explicit later Work authorizes them
+- CODEX-01: version 61, logic 355/355
+- CODEX-02: version 62, logic 360/360, five modes/FULL_OUTPUT/no-failover PASS
+- CODEX-03: version 63, logic 368/368, multi-Entity/advanced filters/FULL_OUTPUT PASS
+- CODEX-04: version 65, six-format OpenAI sync/query 6/6 and EML attachment boundary PASS
+- CODEX-06: version 66, logic 376/376, six-format FULL_OUTPUT reference parity and final read-only integrity PASS
 
 ## Follow-up routing
 
-- Current large product slice: Work 0021 structured Knowledge Search / filters / five modes / comparison, consuming the accepted Work 0025 effective-policy resolver.
-- Distribution/install: Work 0023 after intended feature surface stabilization.
-- Gemini: re-evaluate near product completion against current APIs/runtime rather than continuing the historical troubleshooting loop now.
-- Large OpenAI files: create a separate bounded Work only if representative operating files require asynchronous indexing/progress handling.
+- ChatGPT final review/merge of Work 0021 PR #34.
+- Work 0023 bundle/installer follows acceptance.
+- Gemini is re-evaluated near product completion.
+- Large OpenAI files remain a separate bounded Work if representative files require it.
 
 ## Update rule
 
-Update this file whenever any material runtime identity changes, including Apps Script project, deployment/version, Backend/Audit artifact, Drive folder/namespace, delivered source commit or environment transition.
-
-Never store API keys, credentials, signed secret-bearing URLs, confidential source contents or provider secret resource IDs here.
+Update this file whenever a material runtime identity or deployed source changes.
+Never store API keys, credentials, signed secret-bearing URLs, confidential source contents, or provider secret resource IDs here.

@@ -156,6 +156,8 @@ Outcome:
 
 ### Work 0021 — Structured Knowledge Search, five modes, and multi-entity comparison
 
+Current state: CODEX-01 implemented the canonical core filters and five-mode OpenAI/FULL_OUTPUT contracts with deterministic PASS, but the first version-61 OpenAI compound-filter qualification returned no retrievable source/citation. Work 0021 is blocked at target-runtime qualification pending exact provider-attribute reconciliation; later comparison/format dispatches have not started.
+
 Detailed plan:
 
 `docs/planning/work0021-knowledge-search-filters-multi-entity-comparison.md`
