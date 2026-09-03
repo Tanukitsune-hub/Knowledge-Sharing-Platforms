@@ -2,7 +2,7 @@
 
 Current as of: 2026-09-03
 
-Status: ACTIVE / planned for one bounded implementation-and-runtime dispatch
+Status: BLOCKED / CODEX-01 stopped before provider qualification on modular Web App rendering regression
 
 ## Purpose
 
@@ -174,3 +174,17 @@ One initial implementation/runtime dispatch:
 `0026-CODEX-01 — current Gemini Flash / File Search requalification`
 
 A later Codex execution after RETURNED must use the next Dispatch ID. A native user action inside the same still-running dispatch retains `0026-CODEX-01` and hands the ball to USER.
+
+## CODEX-01 returned evidence
+
+The current Gemini implementation, policy integration, generated bundle and deterministic tests pass. Version 68 was created and updated onto the same private Web App within the one-version/one-update budget, but the modular runtime displayed server include directives literally. No Gemini or OpenAI API call occurred.
+
+The branch repair preserves the embedded-resource string template in bundle mode and restores Apps Script file-template evaluation in modular mode. It passes the focused regression and all canonical checks but remains undeployed because CODEX-01 had no remaining version or deployment authorization.
+
+```text
+RUNTIME_DEPLOYMENT_VERSION: 68 / blocked
+REPAIR_COMMIT: 681768824f298eff24439b2ee69c9ce159af1e0e
+LOGIC_VALIDATION: PASS / 410 of 410
+GEMINI_PROVIDER_QUALIFICATION: NOT_RUN
+NEXT_ACTION: ChatGPT-issued next Dispatch with one repaired deployment budget
+```

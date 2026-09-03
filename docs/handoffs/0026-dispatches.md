@@ -2,12 +2,12 @@
 
 WORK_ID: `0026`
 ACTIVE_DISPATCH_ID: `0026-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0026-CODEX-01 — READY / current Gemini Flash and File Search requalification
+### 0026-CODEX-01 — RETURNED / blocked before provider qualification
 
 Primary outcome:
 
@@ -43,7 +43,19 @@ Use exact pinned candidate IDs only. Preferred candidate is `gemini-3.8-flash` w
 
 Do not perform broad sync/reindex, large-file work, company rollout, historical migration, Store sharding, chunking/embedding benchmarks, provider/model sweeps, OpenAI runtime calls, FULL_OUTPUT runtime reruns, CI implementation, or general hardening.
 
-This Work may terminate as:
+The bounded runtime campaign stopped before a provider call because version 68 exposed a modular Web App template-include regression. The source repair and deterministic regression test pass, but the one-version/one-deployment budget was exhausted. Gemini was not called or qualified.
+
+```text
+RUNTIME_DEPLOYMENT_VERSION: 68
+LOGIC_VALIDATION: PASS / 410 of 410
+TARGET_RUNTIME_QUALIFICATION: FAIL / Web App shell regression
+GEMINI_API_CALLED: NO
+OPENAI_API_CALLED: NO
+BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
+NEXT_ACTION: new ChatGPT-issued Dispatch for one repaired deployment, then resume bounded Gemini campaign
+```
+
+The intended Work terminal states remain:
 
 ```text
 QUALIFIED
@@ -56,5 +68,5 @@ A native user action inside the still-running CODEX-01 keeps the same Dispatch I
 
 WORK_ID: `0026`
 ACTIVE_DISPATCH_ID: `0026-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

@@ -2,12 +2,12 @@
 
 WORK_ID: `0026`
 ACTIVE_DISPATCH_ID: `0026-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Current state
 
-Work 0023 is accepted and merged. Work 0026 is the active near-completion Gemini re-evaluation Work.
+Work 0023 is accepted and merged. Work 0026 CODEX-01 returned with a target-runtime blocker before the Gemini provider campaign.
 
 The existing product remains usable through the accepted OpenAI and FULL_OUTPUT paths. Gemini is optional and must remain disabled/hidden until one exact current model/thinking/output/File Search tuple is qualified.
 
@@ -28,22 +28,25 @@ VERSION_67: unused / never deploy
 GITHUB_CI_ACTUALLY_RAN: NO
 ```
 
-## Required terminal outcome
+## CODEX-01 outcome
 
 ```text
-GEMINI_OPTIONAL_PROVIDER_STATUS:
-  QUALIFIED
-  or
-  DISABLED_EXTERNAL_LIMITATION
+CURRENT_GEMINI_API_AND_POLICY_IMPLEMENTATION: PASS_LOGIC
+RUNTIME_VERSION_CREATED_AND_DEPLOYED: 68
+WEB_APP_RENDER: FAIL / modular include directives unexpanded
+GEMINI_PROVIDER_CALLS: 0
+OPENAI_PROVIDER_CALLS: 0
+TARGET_RUNTIME_QUALIFICATION: FAIL
+BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
 ```
 
-`QUALIFIED` requires normal-product Pitchbook and Meeting queries with authoritative normalized citations. `DISABLED_EXTERNAL_LIMITATION` requires current deterministic safety/API-contract work to pass while Gemini stays disabled and the exact current external/provider layer is documented.
+The branch contains a tested repair that restores `createTemplateFromFile(...)` for modular Apps Script while preserving embedded string templates for the generated bundle. A new explicit Dispatch is required to deploy and qualify that repair; CODEX-01 did not exceed its one-version/one-deployment budget.
 
 ## Current classification
 
-### ACTIVE
+### BLOCKER
 
-- current Gemini model/API/model-policy integration and bounded provider requalification.
+- deploy the already-tested modular-template repair under new authority and verify normal Web App rendering before resuming Gemini qualification.
 
 ### FIX SOON
 
@@ -62,5 +65,5 @@ Detailed instruction:
 
 WORK_ID: `0026`
 ACTIVE_DISPATCH_ID: `0026-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

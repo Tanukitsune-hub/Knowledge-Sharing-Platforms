@@ -1,8 +1,8 @@
 # Knowledge Share Runtime / Artifact Locator
 
-LAST_VERIFIED_AT: 2026-09-03 JST
-LAST_VERIFIED_BY: ChatGPT after Work 0023 merge and Work 0026 activation
-STATUS: ACTIVE / VERIFIED
+LAST_VERIFIED_AT: 2026-09-04 JST
+LAST_VERIFIED_BY: Codex during Work 0026 CODEX-01
+STATUS: BLOCKED / version-68 modular Web App rendering regression
 
 ## Source
 
@@ -12,10 +12,10 @@ STATUS: ACTIVE / VERIFIED
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
 - WORK_0021_MERGE_COMMIT: `533c849bd1229827ec77cd5ad6506312ea286940`
 - WORK_0023_MERGE_COMMIT: `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`
-- DEPLOYED_SOURCE_COMMIT: `9d7319d1ffe126e8fbd65b373385acd97d5d868d`
-- DEPLOYED_SOURCE_DESCRIPTION: accepted Work 0021 private runtime surface; Work 0023 was qualified separately as a bundle/install distribution
+- DEPLOYED_SOURCE_COMMIT: `e8885da8b85f286dcfbb3bf8c5b538852cef71a8`
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0026 current Gemini implementation plus merged Work 0023 resource loader; target runtime exposes unexpanded modular HTML include directives
 - CURRENT_ACTIVE_WORK: `0026 — current Gemini Flash / File Search requalification`
-- CURRENT_ACTIVE_DISPATCH: `0026-CODEX-01 — READY`
+- CURRENT_ACTIVE_DISPATCH: `0026-CODEX-01 — RETURNED / BLOCKED`
 - CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0026-CODEX-01-current-gemini-flash-file-search-requalification-instruction.md`
 - ACTIVE_BRANCH: `agent/0026-gemini-current-api-requalification`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
@@ -28,15 +28,16 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `66`
+- DEPLOYMENT_VERSION: `68`
 - ENVIRONMENT: personal DEV / qualification
 
 Immutable-version state:
 
 ```text
-VERSION_66: current deployed Web App / accepted Work 0021 source verified 80/80
+VERSION_66: prior accepted Work 0021 Web App baseline / no longer deployed
 VERSION_67: accidental immutable version / source identical to version 66 at qualification / unused and never deployed
-NEXT AUTHORIZED WORK_0026 VERSION: at most one, expected 68 after deterministic/source readback PASS
+VERSION_68: deployed once in Work 0026 / source readback 82 of 82 / Web App modular include expansion failed
+NEXT VERSION: not authorized by returned CODEX-01
 ```
 
 Version 67 is an operational residual only and must not be deployed.
@@ -163,11 +164,11 @@ PRIOR_GEMINI_BACKGROUND_INTERACTIONS: provider long-running / no citation
 PRIOR_GEMINI_GENERATE_CONTENT: approximately 83 seconds / no citation
 ```
 
-Work 0026 must first inventory the configured key/Store/documents read-only, then perform one bounded current API campaign. Its terminal state is either `QUALIFIED` or `DISABLED_EXTERNAL_LIMITATION`; no broad model/transport/store loop is authorized.
+CODEX-01 safely observed the existing Gemini key as present without reading it, but stopped before Store reconciliation or any provider call because version 68 did not expand modular HTML includes. The branch contains commit `681768824f298eff24439b2ee69c9ce159af1e0e`, which restores file-template evaluation in modular mode while preserving bundle mode. It passed deterministic validation but was not deployed after the runtime blocker because no second version/update was authorized.
 
 ## Follow-up routing
 
-- Active: `0026-CODEX-01` current Gemini Flash / File Search requalification.
+- Blocked: version 68 must not be treated as a usable Web App; a new Dispatch must authorize deployment of the tested modular-template repair before Gemini qualification resumes.
 - Later company gate: Shared Drive/domain-user and company credential qualification.
 - Separate deferred Work: representative large-file indexing qualification.
 - Planned after product/provider decisions: historical-material migration and final company rollout.

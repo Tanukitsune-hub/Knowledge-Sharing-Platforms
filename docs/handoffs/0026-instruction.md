@@ -2,8 +2,8 @@
 
 WORK_ID: `0026`
 DISPATCH_ID: `0026-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `IMPLEMENT -> BOUNDED PROVIDER DIAGNOSIS -> QUALIFICATION`
 
 ## Primary outcome
@@ -49,7 +49,19 @@ BUNDLE_INSTALLER: accepted
 
 After the bounded terminal outcome, stop and return the Draft PR to ChatGPT. Do not merge it.
 
+## CODEX-01 returned state
+
+Version 68 was created and deployed once after deterministic and exact-source-readback PASS. The deployed modular Web App then rendered `include_` directives literally, so the provider campaign stopped before Gemini or OpenAI was called. The branch contains the minimal modular-template repair and regression test, but it was not redeployed because the one-version/one-update budget had been consumed.
+
+```text
+LOGIC_VALIDATION: PASS / 410 of 410
+TARGET_RUNTIME_QUALIFICATION: FAIL
+RUNTIME_DEPLOYMENT_VERSION: 68
+BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
+NEXT_AUTHORITY_REQUIRED: new Dispatch authorizing one repaired immutable version and same-Web-App update
+```
+
 WORK_ID: `0026`
 DISPATCH_ID: `0026-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

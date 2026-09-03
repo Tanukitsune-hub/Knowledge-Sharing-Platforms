@@ -2,17 +2,17 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 6,
-  "source_git_commit": "f8b1487b804eaa0d1cb89184de1a4e169fbd0de7",
+  "source_git_commit": "681768824f298eff24439b2ee69c9ce159af1e0e",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "0923ed61443cbbb3e3e939a4ec1ce55caa0ad1ea6af43f40146e0229927a90b2",
-  "bundle_file_sha256": "9d0b244c1128b4afdcbb25df794a8d2647d2cfb194cd1253f18112d8aa14a6ef",
+  "bundle_payload_sha256": "26b2676ce2feab29a6457c19227b0a4348f6946e4ffa2cabb4166729540eee6a",
+  "bundle_file_sha256": "c234c849ad86571140622ca5a4913dbf04122d9dc81642a4710a3ebabf3f5c75",
   "source_manifest_sha256": "ac17af72f807a89a162f82f3da5d7a2bcf3f14404acd59f9d0316ae9ae413dfa",
   "source_order_sha256": "35bebf16094d45474dfb99f2a5b7db22c191fc51b6536cc0ba20eb0c796eb6b9",
   "bundle_metrics": {
-    "bytes": 970927,
-    "characters": 936501,
-    "lines": 16057,
+    "bytes": 971044,
+    "characters": 936618,
+    "lines": 16060,
     "server_source_count": 59,
     "embedded_html_count": 22
   },
@@ -24,8 +24,8 @@
     },
     {
       "file": "src/01_DistributionResources.gs",
-      "bytes": 1333,
-      "sha256": "d17d3cdf49b22e23a227db081f4dca42f519b15f49572e61947df11dc375fed1"
+      "bytes": 1450,
+      "sha256": "30767cc45b4473103fc1f77474fb65a67d8bb8349269f7880d680469e76909c4"
     },
     {
       "file": "src/05_TemporalContracts.gs",
