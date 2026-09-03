@@ -15,6 +15,13 @@ Instruction:
 
 `docs/handoffs/0023-CODEX-01-deterministic-bundle-installer-and-first-runtime-qualification-instruction.md`
 
+GitHub transport:
+
+```text
+BRANCH: agent/0023-bundle-installer-distribution
+PR: #35 / Draft / Open / unmerged
+```
+
 Primary outcome:
 
 - deterministic generated single-file Apps Script bundle;
