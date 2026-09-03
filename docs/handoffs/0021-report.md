@@ -2,57 +2,65 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `CODEX`
+STATUS: `READY`
 
 ## Executive conclusion
 
-Work 0021 remains accepted through CODEX-03: canonical structured filters, five modes, explicit 2–5 Entity comparison, per-Entity citation attribution, exact Related GP / Meeting Type filters, and FULL_OUTPUT parity remain qualified.
+Work 0021 remains accepted through CODEX-03. CODEX-04 completed six-format normal registration, exact OpenAI sync 6/6, grounded query and stable source-ID checks 6/6, and the EML attachment boundary at private Web App version 65.
 
-CODEX-04 successfully used the normal product flow to register six tiny synthetic PDF/PPTX/XLSX/DOCX/TXT/EML Pitchbooks, `DOC-000019` through `DOC-000024`. Human file selection proved the Chrome automation chooser defect is external tooling only.
+The final API-independent FULL_OUTPUT preview failed closed on `DOC-000022`, but ChatGPT has now isolated the cause without changing runtime data.
 
-PDF and PPTX exact OpenAI sync passed. Native XLSX returned `OPENAI_HTTP_400`; the permitted bounded cell-text normalization was implemented. Version 64 then exposed an Apps Script ZIP-Blob representation defect before provider upload. The final named ZIP-Blob correction at `55190ae567bca37aaa5dabff3a2ac881bf43c427` passes `373/373`.
+## Read-only evidence
 
-The one additionally authorized deployment was used. Exact source readback passed `80/80`, and the same private Web App is now version 65. XLSX, DOCX, TXT and EML each passed one exact sync. All six formats passed one bounded grounded retrieval with their expected token and normalized authoritative source ID; the EML attachment-only marker remained absent.
+`DOC-000022` is an Active authoritative PPTX row with:
 
-The final API-independent FULL_OUTPUT preview then failed closed because the authoritative Drive link for `DOC-000022` could not be confirmed. No package or artifact was created. Version 66 and all further runtime mutation are prohibited by the exhausted authorization budget.
+```text
+File_ID: 1ZcgJwGY4W3FbQTv_oZzKA9-oabTgbQC5
+File_URL: https://docs.google.com/presentation/d/1ZcgJwGY4W3FbQTv_oZzKA9-oabTgbQC5/edit?...
+```
 
-Authorization:
+Drive metadata confirms the same non-trashed File ID, raw PPTX MIME type, size 45,493 bytes, and the same valid Presentation webViewLink.
 
-`docs/handoffs/0021-CODEX-04-additional-bounded-deployment-authorization.md`
+`DOC-000024` is a valid raw XLSX whose row and Drive metadata use `https://docs.google.com/spreadsheets/d/<id>/...`.
+
+The current `kspKnowledgeExportUrlFileId_` parser accepts `docs.google.com/document/d/...` and existing `drive.google.com` forms, but not the valid Presentation or Spreadsheets webViewLink forms.
+
+```text
+ROOT_CAUSE: FULL_OUTPUT_GOOGLE_EDITOR_WEBVIEW_URL_SHAPES_OMITTED
+DATA_REPAIR_REQUIRED: NO
+PROVIDER_REPAIR_REQUIRED: NO
+```
 
 ## Current completion state
 
 ```text
 NORMAL_REGISTRATION: PASS — 6/6
-OPENAI_EXACT_SYNC: PASS — 6/6 matrix sources
+OPENAI_EXACT_SYNC: PASS — 6/6
 OPENAI_GROUNDED_QUERY_AND_SOURCE_ID: PASS — 6/6
 FORMAT_PDF: SUPPORTED_AND_QUALIFIED
-FORMAT_PPTX: FAIL — authoritative Drive link unavailable in FULL_OUTPUT
-FORMAT_XLSX: SUPPORTED_AND_QUALIFIED
+FORMAT_PPTX: OPENAI PASS / FULL_OUTPUT parser repair pending
+FORMAT_XLSX: SUPPORTED_AND_QUALIFIED / FULL_OUTPUT parser latent repair pending
 FORMAT_DOCX: SUPPORTED_AND_QUALIFIED
 FORMAT_TXT: SUPPORTED_AND_QUALIFIED
 FORMAT_EML: SUPPORTED_AND_QUALIFIED
 EML_ATTACHMENT_BOUNDARY: PASS
-FULL_OUTPUT_FORMAT_REFERENCE_PARITY: FAIL
-LOGIC_VALIDATION: PASS — 373/373
+LOGIC_VALIDATION_BEFORE_REPAIR: PASS — 373/373
 CURRENT_PRIVATE_WEB_APP_VERSION: 65
-ADDITIONAL_DEPLOYMENT_USED: YES — authorization exhausted
-TARGET_RUNTIME_QUALIFICATION: FAIL / PARTIAL
 GITHUB_CI_ACTUALLY_RAN: NO
 READY_FOR_CHATGPT_FINAL_MERGE: NO
-BLOCKER: FULL_OUTPUT_AUTHORITATIVE_DRIVE_LINK_UNAVAILABLE_DOC_000022
+BLOCKER: FULL_OUTPUT_GOOGLE_EDITOR_WEBVIEW_URL_SHAPES_OMITTED
 ```
 
-## Stop boundary
+## Authorized final continuation
 
-The remaining blocker is the authoritative Drive-link integrity of `DOC-000022` in FULL_OUTPUT. ChatGPT review must decide the next bounded action. Do not create version 66, create CODEX-05 automatically, or repeat registration/sync/query merely to obtain a pass.
+`docs/handoffs/0021-CODEX-04-google-editor-url-parser-fix-authorization.md`
 
-## Preserved boundaries
+The same CODEX-04 may make the smallest strict URL-parser/test change, create exactly one further immutable version and same-Web-App update (expected version 66), run one FULL_OUTPUT preview covering the six rows, complete read-only final integrity, and return PR #34 for final review.
 
-No repeat registration, broad sync, Gemini, provider fallback, `DOC-000018`, old large fixtures, confidential data, new provider/Google infrastructure, chooser repair, Work 0023, rebase, force-push, or PR merge.
+Do not rewrite Backend rows, repeat registration/OpenAI sync/query, call Gemini, touch large fixtures, create CODEX-05, or extend into general hardening.
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-04`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `CODEX`
+STATUS: `READY`
