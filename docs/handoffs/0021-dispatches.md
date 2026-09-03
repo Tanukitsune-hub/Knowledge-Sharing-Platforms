@@ -2,12 +2,12 @@
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-06`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0021-CODEX-06 — READY / RUNTIME VERSION RECONCILIATION + FINAL FULL_OUTPUT
+### 0021-CODEX-06 — RETURNED / PASS
 
 CODEX-04 returned twice because an older local/runtime execution was still finishing while GitHub had already moved to the next dispatch. The late CODEX-04 return is preserved as evidence, not as the active instruction.
 
@@ -38,9 +38,9 @@ Active instruction:
 
 `docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-instruction.md`
 
-CODEX-06 must start from current remote GitHub state, reconcile only the scoped parser/test diff, create no new Apps Script version, verify existing version 66 is the exact intended source, update the same Web App to version 66 at most once, run one FULL_OUTPUT preview, perform final read-only integrity, and stop.
+CODEX-06 reconciled only the scoped parser/test diff, passed 376/376 canonical checks, and matched the tested source, Apps Script HEAD, version 66, and version 67 across 80/80 deployable files. The same private Web App was updated once to existing version 66. Version 67 remains unused/not deployed and no new version was created.
 
-Version 67 must remain unused/not deployed in this Dispatch. Do not delete it here.
+The single API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC-000024` exactly once each as authoritative references with no Pitchbook body. Final read-only integrity returned all six rows Active with Drive links. Work 0021 is ready for ChatGPT final merge review.
 
 ## Dispatch history
 
@@ -51,9 +51,9 @@ Version 67 must remain unused/not deployed in this Dispatch. Do not delete it he
 | `0021-CODEX-03` | Multi-Entity comparison + advanced exact filters | RETURNED / accepted slice |
 | `0021-CODEX-04` | Six-format OpenAI qualification + late parser-fix runtime attempt | RETURNED / closed evidence |
 | `0021-CODEX-05` | Initial parser-fix instruction | SUPERSEDED / not executed |
-| `0021-CODEX-06` | Runtime-version reconciliation + final FULL_OUTPUT gate | READY |
+| `0021-CODEX-06` | Runtime-version reconciliation + final FULL_OUTPUT gate | RETURNED / PASS |
 
 WORK_ID: `0021`
 ACTIVE_DISPATCH_ID: `0021-CODEX-06`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

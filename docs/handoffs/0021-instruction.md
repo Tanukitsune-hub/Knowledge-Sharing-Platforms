@@ -2,39 +2,34 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-06`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `RECONCILIATION -> FINAL WORK QUALIFICATION`
 
-Active instruction:
-
-`docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-instruction.md`
-
-Current report target:
+Final report:
 
 `docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-report.md`
 
-Prior six-format report:
+## Final state
 
-`docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-report.md`
+Work 0021 has completed its planned implementation and bounded runtime qualification. CODEX-06 reconciled only the strict Google editor URL parser/test change, validated 376/376 tests, directly matched the tested source to Apps Script version 66 across 80/80 deployable files, and confirmed version 67 contains the same source but remains unused.
 
-Runtime locator:
+The same private Web App was updated exactly once from version 65 to existing version 66. No new Apps Script version was created.
 
-`docs/operations/runtime-artifact-locator.md`
+One API-independent FULL_OUTPUT preview resolved the six registered Pitchbooks `DOC-000019` through `DOC-000024` as authoritative references exactly once each without including Pitchbook bodies. The previous `DOC-000022` Google Presentation link failure did not recur. Final read-only Backend integrity returned all six rows Active with Drive links, and the safe OpenAI configuration remained ready and enabled without a provider API call.
 
-## Current state
+```text
+LOGIC_VALIDATION: PASS — 376/376
+TARGET_RUNTIME_QUALIFICATION: PASS
+RUNTIME_DEPLOYMENT_VERSION: 66
+VERSION_67_STATE: UNUSED_NOT_DEPLOYED
+READY_FOR_CHATGPT_FINAL_MERGE: YES
+BLOCKER: NONE
+```
 
-Accepted product evidence remains six-format registration, OpenAI exact sync 6/6, grounded source-ID checks 6/6, EML attachment exclusion, and private Web App version 65.
-
-A late/stale CODEX-04 runtime session completed the strict Google editor URL parser change locally and validated it (`25/25` focused, `376/376` canonical, source readback `80/80`). It created immutable Apps Script version 66, then accidentally created version 67 after a stale immediate list readback. Neither version was deployed; the existing Web App remains on version 65. The local scoped commit `516a323d4ee00b3134e79719303ddf81d52d5b4b` was not pushed because the remote branch had already advanced.
-
-`0021-CODEX-05` is superseded before execution because it assumed version 66 still needed to be created.
-
-CODEX-06 must reconcile only the scoped parser/test change onto current remote GitHub state, create no new Apps Script version, verify existing version 66 is the exact intended parser-fix source, update the same Web App to version 66 at most once, run exactly one API-independent FULL_OUTPUT preview, complete final read-only integrity, and stop.
-
-Version 67 remains unused/not deployed. No repeat OpenAI sync/query, no Gemini, no Backend rewrite, no Work 0023, and no version 68.
+PR #34 remains Draft/Open/unmerged for ChatGPT final review. Do not create another Work 0021 dispatch for non-blocking refinements.
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-06`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

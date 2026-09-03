@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-03 JST
-LAST_VERIFIED_BY: Work 0021 CODEX-04 late-runtime return + ChatGPT GitHub reconciliation
+LAST_VERIFIED_BY: Work 0021 CODEX-06 final runtime qualification
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -10,10 +10,10 @@ STATUS: ACTIVE / VERIFIED
 - DEFAULT_BRANCH: `main`
 - WORK_0020_MERGE_COMMIT: `185fd197cd531bf74e77af33b32e82706bebe0b5`
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
-- DEPLOYED_SOURCE_COMMIT: `55190ae567bca37aaa5dabff3a2ac881bf43c427`
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-03 surface plus six-format OpenAI indexing and final XLSX named ZIP-Blob path; Google editor URL parser fix is not yet reflected in the deployed Web App
+- DEPLOYED_SOURCE_COMMIT: `9d7319d1ffe126e8fbd65b373385acd97d5d868d`
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0021 complete surface including six-format OpenAI support and strict Google Document/Presentation/Spreadsheets editor URL parsing
 - CURRENT_ACTIVE_WORK: `0021 — structured Knowledge Search`
-- CURRENT_ACTIVE_DISPATCH: `0021-CODEX-06`
+- CURRENT_ACTIVE_DISPATCH: `0021-CODEX-06 — RETURNED / PASS`
 - CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-instruction.md`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
 
@@ -25,19 +25,19 @@ STATUS: ACTIVE / VERIFIED
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `65`
+- DEPLOYMENT_VERSION: `66`
 - ENVIRONMENT: personal DEV / qualification
 
 Current immutable-version state from the returned stale CODEX-04 runtime session:
 
 ```text
-VERSION_65: currently deployed Web App
-VERSION_66: created after exact parser-fix source readback / not deployed
-VERSION_67: accidentally created on stale immediate version-list retry / not deployed
+VERSION_65: prior deployed Web App
+VERSION_66: current deployed Web App / exact parser-fix source verified 80/80
+VERSION_67: accidental immutable version / source identical to version 66 / unused and not deployed
 VERSION_68_OR_LATER: not authorized
 ```
 
-The extra immutable version 67 has no current product effect because it is not deployed. Do not deploy or delete it in CODEX-06; record it as an operational residual.
+The extra immutable version 67 has no current product effect because it is not deployed. It remains an operational residual.
 
 ## Work 0021 accepted product evidence
 
@@ -59,11 +59,11 @@ NORMAL_REGISTRATION: PASS — 6/6
 OPENAI_EXACT_SYNC: PASS — 6/6
 OPENAI_GROUNDED_QUERY_AND_SOURCE_ID: PASS — 6/6
 EML_ATTACHMENT_BOUNDARY: PASS
-WEB_APP_DEPLOYED_VERSION: 65
+WEB_APP_DEPLOYED_VERSION: 66
 GEMINI_API_CALLED: NO
 ```
 
-The final API-independent FULL_OUTPUT preview failed before artifact creation on `DOC-000022` because the deployed version 65 URL parser omits valid Google Presentation/Spreadsheets editor URL forms.
+The version-65 API-independent FULL_OUTPUT preview failed before artifact creation on `DOC-000022` because its URL parser omitted valid Google Presentation/Spreadsheets editor URL forms. CODEX-06 resolved this defect in version 66: the one final preview returned all six authoritative references without Pitchbook bodies, and the `DOC-000022` link failure did not recur.
 
 Verified root cause:
 
@@ -83,21 +83,13 @@ LOCAL_SCOPED_COMMIT: 516a323d4ee00b3134e79719303ddf81d52d5b4b
 REMOTE_PUSH: rejected after remote advanced
 ```
 
-## Active CODEX-06 boundary
+## Completed CODEX-06 boundary
 
 CODEX-05 is superseded/not executed because its runtime assumptions became stale.
 
-CODEX-06 must:
+CODEX-06 matched the tested source, Apps Script HEAD, version 66, and version 67 across 80/80 deployable files, updated the same private Web App once to existing version 66, created no new version, and left version 67 unused.
 
-- start from current remote GitHub state;
-- reconcile only the scoped parser/test diff;
-- create zero new Apps Script versions;
-- verify existing version 66 represents the exact intended parser-fix source;
-- update the same private Web App to version 66 at most once;
-- run exactly one API-independent FULL_OUTPUT preview;
-- complete final read-only integrity and stop.
-
-If exact version-66 source identity cannot be established, stop rather than deploying version 67 or creating another version.
+One API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC-000024` as six authoritative references with no Pitchbook body. Final Backend readback returned all six rows Active with Drive links; the safe OpenAI state remained configured, ready, and enabled without a provider API call.
 
 ## Data and control artifacts
 
@@ -151,16 +143,17 @@ If exact version-66 source identity cannot be established, stop rather than depl
 - CURRENT_PROFILE_QUALIFICATION: PASS
 - GITHUB_DELIVERY_STATE: PR #33 merged
 
-## Work 0021 accepted state through CODEX-03
+## Work 0021 accepted state
 
 - CODEX-01: version 61, logic 355/355
 - CODEX-02: version 62, logic 360/360, five modes/FULL_OUTPUT/no-failover PASS
 - CODEX-03: version 63, logic 368/368, multi-Entity/advanced filters/FULL_OUTPUT PASS
+- CODEX-04: version 65, six-format OpenAI sync/query 6/6 and EML attachment boundary PASS
+- CODEX-06: version 66, logic 376/376, six-format FULL_OUTPUT reference parity and final read-only integrity PASS
 
 ## Follow-up routing
 
-- Complete CODEX-06 runtime-version reconciliation and final FULL_OUTPUT gate.
-- Then ChatGPT final review/merge of Work 0021.
+- ChatGPT final review/merge of Work 0021 PR #34.
 - Work 0023 bundle/installer follows acceptance.
 - Gemini is re-evaluated near product completion.
 - Large OpenAI files remain a separate bounded Work if representative files require it.
