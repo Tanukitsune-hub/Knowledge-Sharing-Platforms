@@ -1,0 +1,428 @@
+{
+  "product": "Knowledge Share",
+  "release_version": "0.1.2",
+  "schema_version": 6,
+  "source_git_commit": "b3556585bd4e9240793ee04a6a5f5f9d6e679561",
+  "bundle_profile": "company-single-file-v1",
+  "hash_canonicalization_version": "ksp-bundle-payload-v1",
+  "bundle_payload_sha256": "6ef11efb03eaff657750c74f919d42fe92447139e718cade6179e2a5110c4127",
+  "bundle_file_sha256": "d8c2a98ccd746b3f6575f266ee5291b02238b0bade4694f2a47aa4926d87e989",
+  "source_manifest_sha256": "ac17af72f807a89a162f82f3da5d7a2bcf3f14404acd59f9d0316ae9ae413dfa",
+  "source_order_sha256": "35bebf16094d45474dfb99f2a5b7db22c191fc51b6536cc0ba20eb0c796eb6b9",
+  "bundle_metrics": {
+    "bytes": 946446,
+    "characters": 912702,
+    "lines": 15720,
+    "server_source_count": 59,
+    "embedded_html_count": 22
+  },
+  "server_sources": [
+    {
+      "file": "src/00_Core.gs",
+      "bytes": 28451,
+      "sha256": "895b8bfb91e6c4d0037adaf027fbd9b23d720c271f5677873f317c6266fc31f0"
+    },
+    {
+      "file": "src/01_DistributionResources.gs",
+      "bytes": 1333,
+      "sha256": "d17d3cdf49b22e23a227db081f4dca42f519b15f49572e61947df11dc375fed1"
+    },
+    {
+      "file": "src/05_TemporalContracts.gs",
+      "bytes": 2987,
+      "sha256": "3ece18dcca5b246065bc11a330049d6bfe424292bf0fb3f2c50b7515cb43b92b"
+    },
+    {
+      "file": "src/10_Setup.gs",
+      "bytes": 16903,
+      "sha256": "3bbe22103c3f28e63c7208b2f6b69185c96db7022b7ff779bb5a013effb0c3f5"
+    },
+    {
+      "file": "src/15_Installer.gs",
+      "bytes": 18839,
+      "sha256": "58c45036840786432c5edf40902432ce72fe5a6b918239f3c09f1181b5e7201b"
+    },
+    {
+      "file": "src/20_LiveEnvironment.gs",
+      "bytes": 14188,
+      "sha256": "b7de953302569c208db2ac987dd9646b650e615869425f199ae7ed858fcec98d"
+    },
+    {
+      "file": "src/30_MeetingCore.gs",
+      "bytes": 28649,
+      "sha256": "2ab3acf5aa3cb8886565d7a6d47bac5d9dd3b311f242560ae39d0303851b80aa"
+    },
+    {
+      "file": "src/40_MeetingService.gs",
+      "bytes": 7928,
+      "sha256": "8e59aa36193d6a14354cfe06edb89d649efa22c1a4ca5f15fc93b98f162cb750"
+    },
+    {
+      "file": "src/50_MeetingLiveEnvironment.gs",
+      "bytes": 8209,
+      "sha256": "d256089442f6584010c58c022c2e9310c2cceee346c25dfd8ab32ad56f53f748"
+    },
+    {
+      "file": "src/60_PitchbookConstants.gs",
+      "bytes": 661,
+      "sha256": "b6df301b69bb7a6ac564f405e415c4b6a1f95462aaba8a8a31be18f552d4e193"
+    },
+    {
+      "file": "src/61_PitchbookValidation.gs",
+      "bytes": 7852,
+      "sha256": "65e047b4a259e18265e231e1894b9bcec99eae1dd81acc2f82178b567d71a114"
+    },
+    {
+      "file": "src/62_PitchbookIdentity.gs",
+      "bytes": 5329,
+      "sha256": "637ba18929a550f1c902b69a328c062c693ff42b08a6ec03c72a305959cc8d68"
+    },
+    {
+      "file": "src/63_PitchbookAudit.gs",
+      "bytes": 2293,
+      "sha256": "dda77fce5167f6fd997083300e8b02c84bd19442ecf42c0c9b3c21b29d146bcd"
+    },
+    {
+      "file": "src/70_PitchbookPrepareService.gs",
+      "bytes": 1599,
+      "sha256": "20d9320fa97fafd6b1e23879340105774692d6c67379f2b75a39bd8ea69ea981"
+    },
+    {
+      "file": "src/71_PitchbookUploadService.gs",
+      "bytes": 5177,
+      "sha256": "1c52995d8d2e7c4b8b205020ce78b41856c10f11e34d12dd343f13fd13b3f521"
+    },
+    {
+      "file": "src/72_PitchbookContext.gs",
+      "bytes": 1873,
+      "sha256": "34b89488112037b80f7b2d49ff37b4262c0a49c15fc0fe44fd33895be2781256"
+    },
+    {
+      "file": "src/80_PitchbookLiveEnvironment.gs",
+      "bytes": 562,
+      "sha256": "9e76cbb90baf5c44a2657c092852932d5682d6d12d2a0770bb0a02771e93bf35"
+    },
+    {
+      "file": "src/81_PitchbookReservationAdapters.gs",
+      "bytes": 4705,
+      "sha256": "74b303f98f12a9249d495440f120963fa6056531fd2746617602f16b6170d801"
+    },
+    {
+      "file": "src/82_PitchbookClaimAdapters.gs",
+      "bytes": 4066,
+      "sha256": "8a14b6974330c07e7ac9a636a8fa94eef599032831135b191a039edfb577a0a2"
+    },
+    {
+      "file": "src/83_PitchbookDriveAdapters.gs",
+      "bytes": 1571,
+      "sha256": "6d82a11a8092327774e189bf46a90bc7acac167ebb0889bfa0d1718fce824bce"
+    },
+    {
+      "file": "src/84_PitchbookIndexAdapters.gs",
+      "bytes": 3314,
+      "sha256": "9c61ede6c879fd6430841d8c14a50296173608902b55bb1c937dc8b211b37993"
+    },
+    {
+      "file": "src/90_WebApp.gs",
+      "bytes": 3397,
+      "sha256": "1c064d74408c1c5472a2eb9dec1aa79d73b869dc440924f0be9a9c15e3fcc69e"
+    },
+    {
+      "file": "src/99_EntryPoints.gs",
+      "bytes": 1709,
+      "sha256": "ba6b6b56b62ceaecd604652f10c61e32434323bb1c8dd6d86c431da350d23293"
+    },
+    {
+      "file": "src/100_MaintenanceCore.gs",
+      "bytes": 29727,
+      "sha256": "d54eca0acb779c1076749c6228b99c038526e17c855e39a25821e302eb57005c"
+    },
+    {
+      "file": "src/110_MaintenanceMeetingService.gs",
+      "bytes": 12211,
+      "sha256": "6911c566584ef19dd7f855e431b2ebd2edc164abdec741c2c8ba469498825286"
+    },
+    {
+      "file": "src/111_MaintenancePitchbookMasterService.gs",
+      "bytes": 10290,
+      "sha256": "31454dc62b6e62df6bcc9e81515d7b5b5c54801f30c4f5da3713e1011f384b78"
+    },
+    {
+      "file": "src/112_MaintenanceServiceHelpers.gs",
+      "bytes": 5952,
+      "sha256": "051471f3d043c24e5c17bf14d133cbe1d80522e2634a3213f46f7d4a5f2acb7c"
+    },
+    {
+      "file": "src/120_MaintenanceLiveEnvironment.gs",
+      "bytes": 22086,
+      "sha256": "e01a79d36f2a69cda6de62153600de0bc7a26c402fd4135e8083a8eb87a802b7"
+    },
+    {
+      "file": "src/121_MaintenanceLiveHelpers.gs",
+      "bytes": 3649,
+      "sha256": "090dfff1b45708f8ac0a03fd51849bb3f85e06c4bb42200e646129986d537514"
+    },
+    {
+      "file": "src/125_GpWorkspaceService.gs",
+      "bytes": 4425,
+      "sha256": "b943c041da7c1b01042b78b5165fdd52f3f33c7c7dad933c895b98f8f0d30b1e"
+    },
+    {
+      "file": "src/126_ActivityAnalyticsService.gs",
+      "bytes": 28203,
+      "sha256": "48328984773d4051b58f06946f16b41f70fadb0fab35ff0e9d1d9a3ee681856b"
+    },
+    {
+      "file": "src/127_ActivityAnalyticsLiveEnvironment.gs",
+      "bytes": 2148,
+      "sha256": "06eb6c40bd72aab9bfcf3aee9bd9eec4992e3e4407374522059acd909388a7f8"
+    },
+    {
+      "file": "src/128_RelationshipExplorerService.gs",
+      "bytes": 20350,
+      "sha256": "75b771443bf456ce552165845df73753a6c27588e9e6dbf629ff8b05234ccdac"
+    },
+    {
+      "file": "src/129_EntityWorkspaceService.gs",
+      "bytes": 25119,
+      "sha256": "c6f00484bb53a6da8f761d032289cbb86d829e0f4f2b2ae13e15632429cec319"
+    },
+    {
+      "file": "src/130_AiConstants.gs",
+      "bytes": 8329,
+      "sha256": "833656ca520e9d5939d2d361a0dda26ecb12a3212ef35b2e11bd737167c656c1"
+    },
+    {
+      "file": "src/131_AiFileSearchContracts.gs",
+      "bytes": 4581,
+      "sha256": "f146da7a07210aac5413448503b909dbeb957272407503ef2be19dad655afb2e"
+    },
+    {
+      "file": "src/132_AiKnowledgeContracts.gs",
+      "bytes": 8197,
+      "sha256": "b0f63490327e8d7da7ac9a4a6e1cfb10bd79b02436e8e3cff7a9dc043a33e266"
+    },
+    {
+      "file": "src/133_AiRetryContracts.gs",
+      "bytes": 2192,
+      "sha256": "96cadf627327096172569d71933a4ed8dc6074f09e53f6da49037dd7849fcfba"
+    },
+    {
+      "file": "src/134_AiModelPolicyContracts.gs",
+      "bytes": 22946,
+      "sha256": "3505fe5c10a1306eb897d44fd08994651e21af640be1cecd0be4a1761472607e"
+    },
+    {
+      "file": "src/140_AiSourceModels.gs",
+      "bytes": 8192,
+      "sha256": "7671f56df827cb96c94811b4e5bcac8de14905c8211b74c21af82994181268d5"
+    },
+    {
+      "file": "src/141_AiSyncHelpers.gs",
+      "bytes": 5925,
+      "sha256": "5839c7c8dfee0dccd1d042b2d2c5af854e07aa5f2f6e2d91f1f3995c2d6f422f"
+    },
+    {
+      "file": "src/142_AiSyncWorker.gs",
+      "bytes": 2027,
+      "sha256": "fc90fde0f8cc5ae95a977bd9cc604233d650064f59154c40c21b0db85545e5f6"
+    },
+    {
+      "file": "src/150_KnowledgeSearchModels.gs",
+      "bytes": 17157,
+      "sha256": "afabd18325126dafc6b233a0227f4c710006a8c9b10ff57ae325d68771f22e3b"
+    },
+    {
+      "file": "src/151_KnowledgeSearchService.gs",
+      "bytes": 5054,
+      "sha256": "b8f196a486eb1dd9692d6db46fa311d894a01aefe818ef839c72dd781590f79c"
+    },
+    {
+      "file": "src/152_KnowledgeFilterContracts.gs",
+      "bytes": 19322,
+      "sha256": "def89c671e2964e7f756d74d9370a8e8fc9c4d44d719ff587855cd9133b643a9"
+    },
+    {
+      "file": "src/155_KnowledgeExportContracts.gs",
+      "bytes": 33901,
+      "sha256": "6e40a5965003b285bd1dcb458c71b1f0aa9bd59b3b9114285ef983c135a5d9ae"
+    },
+    {
+      "file": "src/156_KnowledgeExportService.gs",
+      "bytes": 21281,
+      "sha256": "d4f462a27c0ef7ec206ac3ca39bc1efc108568f70af1985d0ad2ec9390c2d457"
+    },
+    {
+      "file": "src/157_KnowledgeExportLiveEnvironment.gs",
+      "bytes": 8051,
+      "sha256": "e648555cae95e64ed81a09c5d2ad04a1648a0c5aad63374aa49498a0053fa758"
+    },
+    {
+      "file": "src/160_AiEnvironment.gs",
+      "bytes": 6829,
+      "sha256": "5467f1bf2cbc33daf5e6c1331966b69019de78735015452af850ac874e8e6334"
+    },
+    {
+      "file": "src/161_GeminiRestClient.gs",
+      "bytes": 24084,
+      "sha256": "3907a4417db6fd3033a6a3f95276a4f6ab7ddc4ac9086991a427f9884eec8f5c"
+    },
+    {
+      "file": "src/162_AiLiveDataAdapters.gs",
+      "bytes": 4444,
+      "sha256": "2a310f085963ffd5c4040fce124ae59bb10e3fa09909c146395056c5b6327831"
+    },
+    {
+      "file": "src/163_OpenAiRestClient.gs",
+      "bytes": 13417,
+      "sha256": "cc92a322bdf09f0347ce800c0c976a29c7876f1a596d6830ac9c70375809404e"
+    },
+    {
+      "file": "src/164_AiProviderCore.gs",
+      "bytes": 90342,
+      "sha256": "05cd307617a1620327dd4d1460bb41931f4f94b19b4cf92610f9b2ef98b09032"
+    },
+    {
+      "file": "src/165_AiProviderAdmin.gs",
+      "bytes": 30937,
+      "sha256": "50c37e3f65c24dc52ffd86e863595339e27de703535d57b7c72e9a033fea921a"
+    },
+    {
+      "file": "src/170_AiEntryPoints.gs",
+      "bytes": 1384,
+      "sha256": "564b36d3e4998d6bb2583377cf3b26296bdf9573c5580a85939d893f203ab711"
+    },
+    {
+      "file": "src/180_FeatureFreezeFormats.gs",
+      "bytes": 23263,
+      "sha256": "9d4af06338e3ca5896b43e7ffd28b2b13e3b8889d1c30580f899e01371f56276"
+    },
+    {
+      "file": "src/181_FeatureFreezeSync.gs",
+      "bytes": 16294,
+      "sha256": "e26e1631cb0b3a7fa4d503b200694e93ac735400255eac4e39967f47951eb15b"
+    },
+    {
+      "file": "src/182_FeatureFreezeKnowledge.gs",
+      "bytes": 7378,
+      "sha256": "e83112f125ae0f08aba8566ff465d04476fe288f247a12ff9b449b65b06e304b"
+    },
+    {
+      "file": "src/190_FeatureFreezeDiagnostics.gs",
+      "bytes": 1527,
+      "sha256": "647533e94d2618bda3d118234ea7d02a835e22b81a5747f8676f9f886884595f"
+    }
+  ],
+  "html_resources": [
+    {
+      "file": "src/ActivityAnalyticsPage.html",
+      "bytes": 5488,
+      "sha256": "35429538b22dd2b593acde31f51f335e35cebdf12266221dd220d1e6c99e8f4e"
+    },
+    {
+      "file": "src/AiProviderSettingsPage.html",
+      "bytes": 5663,
+      "sha256": "aa8210e0c0933b30109872f3272db66a0b95d7db7364f0435a4bd03ea51ce6ad"
+    },
+    {
+      "file": "src/ClientActivityAnalytics.html",
+      "bytes": 9949,
+      "sha256": "b29ec4e186b64f9e84fb882d996eab76243f6b648a57e6d1ea4ee7e2bd5c0c73"
+    },
+    {
+      "file": "src/ClientAiProviderSettings.html",
+      "bytes": 10922,
+      "sha256": "641170cbdd670631842a3f63700e8c73f2612b71dd82635b1502c6489926e441"
+    },
+    {
+      "file": "src/ClientBootstrap.html",
+      "bytes": 1638,
+      "sha256": "664eac4244d175ff06d06655d721ca0225b0370e8e0ff9eabbf0a0065ca2c088"
+    },
+    {
+      "file": "src/ClientCore.html",
+      "bytes": 9747,
+      "sha256": "ba01154a9dfae2c54a2102bf7ffe7f3e4fe3670f26ecb82f7183d4029d2116c2"
+    },
+    {
+      "file": "src/ClientEntityWorkspace.html",
+      "bytes": 18586,
+      "sha256": "28d272da0c1cf1e64de8abb879864b79f997052cde43100569a8a75c19887883"
+    },
+    {
+      "file": "src/ClientGpWorkspace.html",
+      "bytes": 9267,
+      "sha256": "b6ff8fcefbcb354660ce8386be42602d7146d15e53413c0e70164e697ac6a3d9"
+    },
+    {
+      "file": "src/ClientKnowledgeSearch.html",
+      "bytes": 31025,
+      "sha256": "ae75920bfc356a694818f7004f6b15386cf7a938983d38fc112f10bf7ce70a77"
+    },
+    {
+      "file": "src/ClientMaintenance.html",
+      "bytes": 22654,
+      "sha256": "63a1d7759a0aa824d0901ee450104b7bb1d2afad45f14347f0557b6703266bc5"
+    },
+    {
+      "file": "src/ClientMaintenanceEnhancements.html",
+      "bytes": 4982,
+      "sha256": "0a245415571e80c08f6d76b1ed0cadb78b45306db3f16255bfc2483eb4f4e69c"
+    },
+    {
+      "file": "src/ClientPitchbookFiles.html",
+      "bytes": 4959,
+      "sha256": "56d9547a2f5ceab3ca974dacf2fa9b50447002f1af2031cc30ac90e6b03117cb"
+    },
+    {
+      "file": "src/ClientPitchbookFlow.html",
+      "bytes": 3562,
+      "sha256": "910cef56592c09062aca93d08b691f00c8abc06114faee664d181e0bc385febf"
+    },
+    {
+      "file": "src/ClientRelationshipExplorer.html",
+      "bytes": 12727,
+      "sha256": "28a3dc27f9b4754087949ff069b8f279909ed988732e939c34c7af8837109d2d"
+    },
+    {
+      "file": "src/EntityWorkspacePage.html",
+      "bytes": 5138,
+      "sha256": "ac20cb0db10b06db14eac7e541c7ea5749b1988a882f9c74282c3fb1f2dab987"
+    },
+    {
+      "file": "src/GpWorkspacePage.html",
+      "bytes": 2051,
+      "sha256": "a8e853002779a9a5e9989f4786c8cbf55172695e5682c36bd16829359572a9ff"
+    },
+    {
+      "file": "src/Index.html",
+      "bytes": 14424,
+      "sha256": "1355f92261112209a2421fb64bc0f97fc444c38f5daca63172193120e8aab4ee"
+    },
+    {
+      "file": "src/KnowledgeSearch.html",
+      "bytes": 854,
+      "sha256": "6f504123ce0db1b991e5de0b94815bb6d0befd71ebf5215a9971391c3148845a"
+    },
+    {
+      "file": "src/KnowledgeSearchPage.html",
+      "bytes": 8696,
+      "sha256": "f1c24012222afe8c49e887298c1e807a7400d7636e9ed36c89dfa098edd01f80"
+    },
+    {
+      "file": "src/MaintenancePages.html",
+      "bytes": 12427,
+      "sha256": "9b3e8e93f2c3b741ee2c521f3937489772da154f1d949dae9e7322b7893d3fb6"
+    },
+    {
+      "file": "src/RelationshipExplorerPage.html",
+      "bytes": 4335,
+      "sha256": "e256be3eadc49e9737072722ad4c95ebc64616de97b6307dce10b9e83f9885a7"
+    },
+    {
+      "file": "src/Styles.html",
+      "bytes": 13337,
+      "sha256": "cd99cb085e1cd0cbd8cbca1cfa38966afe5f31662901d3a3b952de117356e9e8"
+    }
+  ]
+}

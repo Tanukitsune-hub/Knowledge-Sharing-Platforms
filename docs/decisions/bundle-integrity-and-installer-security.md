@@ -1,6 +1,6 @@
 # Bundle integrity and installer security
 
-Current as of: 2026-08-29
+Current as of: 2026-09-03
 
 Status: Accepted clarification
 
@@ -34,9 +34,10 @@ The intended editor entry points remain:
 ```text
 installKnowledgeShare()
 checkKnowledgeShareReadiness()
+confirmKnowledgeShareDeploymentSecurity()
 ```
 
-They are not linked from normal product pages. However, the absence of a UI button is not a security boundary. Apps Script HTML pages can call top-level server functions by name through `google.script.run`; therefore both functions must be treated as externally invocable.
+They are not linked from normal product pages. However, the absence of a UI button is not a security boundary. Apps Script HTML pages can call top-level server functions by name through `google.script.run`; therefore all three functions must be treated as externally invocable.
 
 ### Required controls
 
@@ -44,8 +45,10 @@ Before any resource, setting, trigger, property, sheet, permission, deployment-r
 
 - require a container-bound Google Spreadsheet;
 - require a non-empty active-user identity;
-- on first installation, require the active and effective users to match and persist that active user as the initial installer/administrator;
+- under a script lock, require the first active/effective identity to match and atomically persist it as the normalized installer-owner latch before setup mutation;
+- permit only that latched owner to resume an incomplete first install, and never overwrite the latch because completed state is absent;
 - after installation state exists, require the active user to be in the authoritative administrator allowlist;
+- require the latched owner to remain in the completed authoritative administrator allowlist;
 - never authorize a normal Web App caller merely because the Web App executes as the deploying user;
 - fail closed before calling `kspRunSetup_()` when identity or authorization is ambiguous;
 - return only a safe action/status message and no private resource identifiers;
@@ -55,13 +58,16 @@ An authorized administrator invoking the wrapper from the browser console is not
 
 ### Required tests
 
-- no normal HTML resource references either installer function;
+- no normal HTML resource references any guarded operator function;
 - a forged normal-user `google.script.run` call is rejected before mutation;
 - blank active-user identity is rejected before mutation;
 - first-install active/effective-user mismatch is rejected before mutation;
 - authorized editor first install succeeds;
 - authorized administrator rerun is idempotent;
+- a different or concurrent second identity cannot replace an interrupted first installer;
 - public-surface validation distinguishes normal-user facades from guarded editor/operator entry points.
+
+`READY` requires a guarded administrator attestation bound to the current versioned Web App URL/deployment identity. The attestation means the administrator manually verified execute-as and approved company/domain access settings; it is not API-level inspection. A URL alone is non-ready, a changed URL invalidates the attestation, and any later manual security-setting change requires re-attestation even if the URL is unchanged.
 
 ## 3. Non-self-referential hash model
 

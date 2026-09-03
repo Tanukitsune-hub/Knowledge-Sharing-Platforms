@@ -2,18 +2,18 @@ function doGet(event) {
   var page = event && event.parameter ? String(event.parameter.page || '') : '';
 
   if (page === 'knowledge') {
-    return HtmlService.createTemplateFromFile('KnowledgeSearch').evaluate()
+    return kspCreateHtmlTemplate_('KnowledgeSearch').evaluate()
       .setTitle('ナレッジ検索 | Knowledge Sharing Platforms')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
 
-  return HtmlService.createTemplateFromFile('Index').evaluate()
+  return kspCreateHtmlTemplate_('Index').evaluate()
     .setTitle('Knowledge Sharing Platforms')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }
 
 function include_(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+  return kspReadHtmlResource_(filename);
 }
 
 function getMeetingBootstrapData() {

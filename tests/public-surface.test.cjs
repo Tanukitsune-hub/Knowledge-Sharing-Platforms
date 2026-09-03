@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   PUBLIC_FACADE_ALLOWLIST,
+  OPERATOR_ENTRYPOINT_ALLOWLIST,
   collectTopLevelFunctionDeclarations,
   validatePublicSurface
 } = require('../scripts/public-surface.cjs');
@@ -29,6 +30,10 @@ test('repository exposes only the canonical normal-user facade', () => {
   assert.deepEqual(
     result.publicDeclarations.map((item) => item.name).sort(),
     [...PUBLIC_FACADE_ALLOWLIST].sort()
+  );
+  assert.deepEqual(
+    result.operatorDeclarations.map((item) => item.name).sort(),
+    [...OPERATOR_ENTRYPOINT_ALLOWLIST].sort()
   );
   assert.ok(result.privateDeclarations.some((item) => item.name === 'kspWriteKnowledgeExportDocument_'));
   assert.ok(result.privateDeclarations.some((item) => item.name === 'kspTrashKnowledgeExportFile_'));

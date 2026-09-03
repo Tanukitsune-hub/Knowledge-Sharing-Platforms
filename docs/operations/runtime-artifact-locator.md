@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-03 JST
-LAST_VERIFIED_BY: ChatGPT post-merge reconciliation after Work 0021 acceptance
+LAST_VERIFIED_BY: Codex Work 0023 CODEX-02 final personal-DEV qualification
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -15,7 +15,8 @@ STATUS: ACTIVE / VERIFIED
 - DEPLOYED_SOURCE_COMMIT: `9d7319d1ffe126e8fbd65b373385acd97d5d868d`
 - DEPLOYED_SOURCE_DESCRIPTION: accepted Work 0021 surface including six-format OpenAI support and strict Google Document/Presentation/Spreadsheets editor URL parsing
 - CURRENT_ACTIVE_WORK: `0023 — generated single-file bundle and idempotent installer`
-- CURRENT_ACTIVE_DISPATCH: `0023-CODEX-01 — READY`
+- CURRENT_ACTIVE_DISPATCH: `0023-CODEX-02 — RETURNED`
+- CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-instruction.md`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
 
 ## Application runtime
@@ -109,28 +110,64 @@ The final API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC
 - CURRENT_PROFILE_QUALIFICATION: PASS
 - GITHUB_DELIVERY_STATE: PR #33 merged
 
-## Work 0023 active boundary
+## Work 0023 CODEX-01 bundle qualification
 
-Work 0023 owns distribution/install only. It must preserve the accepted business behavior and runtime evidence above.
+Work 0023 owns distribution/install only. CODEX-01 preserved the accepted business behavior and runtime evidence above.
 
-Primary next evidence:
+CODEX-01 evidence:
 
 ```text
-DETERMINISTIC_BUNDLE_BUILD
-EMBEDDED_HTML_RESOURCE_LOADER
-GUARDED_INSTALLER_AND_READINESS_WRAPPERS
-REPRODUCIBLE_RELEASE_HASHES
-SOURCE_AND_BUNDLE_PARITY
-EXACT_ONE_PASTE_FEASIBILITY
-FRESH_COMPANY_LIKE_INSTALL
-IDEMPOTENT_RERUN
+PR: #35 / Draft / Open / unmerged
+DETERMINISTIC_BUNDLE_BUILD: PASS
+EMBEDDED_HTML_RESOURCE_LOADER: PASS
+REPRODUCIBLE_RELEASE_HASHES: PASS
+SOURCE_AND_BUNDLE_PARITY: PASS
+EXACT_ONE_PASTE_FEASIBILITY: PASS
+IDEMPOTENT_RERUN: PASS / duplicates 0
+WEB_APP_RENDER_FROM_BUNDLE: PASS
+FRESH_INSTALL: PARTIAL_ENVIRONMENT_LIMITATION
+FRESH_INSTALL_LOCATION: PERSONAL_DEV_ONLY
+ISOLATED_RUNTIME_ID / URL: VERIFIED / NOT RECORDED
+ISOLATED_IMMUTABLE_VERSION: 1
+ISOLATED_VERSIONED_WEB_APP_DEPLOYMENTS: 1
+WORK_0021_RUNTIME_MUTATED: NO
+OPENAI_API_CALLED: NO
+GEMINI_API_CALLED: NO
 ```
 
-The company installation path must not depend on personal Drive, Git, Node.js, or clasp on the operator machine.
+The isolated qualification set is under `マイドライブ/Chat GPT-Codex-Only/KSP Work 0023 Qualification`. This location was used only because no safe test Shared Drive target was available; it is not a product template or company deployment dependency. Runtime IDs and private URLs are intentionally not recorded.
+
+The company installation path remains one code paste plus unavoidable Google platform steps and does not depend on personal Drive, Git, Node.js, terminal, or clasp on the operator machine. Full company qualification still requires an organization-approved Shared Drive/domain-user target.
+
+## Work 0023 CODEX-02 final qualification
+
+The deterministic bundle and one-paste strategy remain accepted. CODEX-02 closed the three final release-contract gaps:
+
+```text
+FIRST_INSTALL_OWNER_LATCH: PASS
+PARTIAL_INSTALL_CROSS_USER_TAKEOVER_REJECTION: PASS / deterministic hostile-call evidence
+WEB_APP_URL_ONLY_READY_REJECTION: PASS
+DEPLOYMENT_SECURITY_ADMIN_ATTESTATION: PASS
+MUTABLE_GLOBAL_COLLISION_GATE: PASS
+BUNDLE_SOURCE_COMMIT: b3556585bd4e9240793ee04a6a5f5f9d6e679561
+ISOLATED_IMMUTABLE_VERSION: 2
+ISOLATED_VERSIONED_WEB_APP_DEPLOYMENTS: 1 / same deployment updated once
+PERSONAL_DEV_RESOURCE_DUPLICATES: 0
+WEB_APP_INDEX_RENDER: PASS
+WEB_APP_KNOWLEDGE_SEARCH_RENDER: PASS
+WORK_0021_RUNTIME_MUTATED: NO
+OPENAI_API_CALLED: NO
+GEMINI_API_CALLED: NO
+```
+
+The isolated qualification retained the existing two folders and three spreadsheets. A URL without attestation returned `ACTION_REQUIRED`; the manually reviewed self-executing/self-only deployment became `READY` only after guarded administrator confirmation. The same Web App was updated to isolated version 2, and representative Index and Knowledge Search pages rendered from the exact bundle.
+
+No Work 0021 runtime mutation or AI provider call occurred during CODEX-02.
 
 ## Follow-up routing
 
-- Active: Work 0023 bundle/installer distribution.
+- Final review: PR #35 after returned `0023-CODEX-02`; no additional Work 0023 dispatch is required for non-blocking refinements.
+- Later company gate: Shared Drive/domain-user qualification.
 - Deferred near completion: Gemini re-evaluation against then-current APIs/runtime.
 - Separate deferred Work: representative large-file indexing qualification if needed by the real corpus.
 

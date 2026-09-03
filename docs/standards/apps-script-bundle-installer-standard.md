@@ -72,6 +72,7 @@ The installer must:
 - be omitted from normal product pages;
 - be treated as externally invocable because a top-level function without a trailing underscore may be called by name from HTML Service;
 - perform strict server-side identity and administrator authorization before any mutation;
+- atomically latch the first verified installer under a script lock before setup mutation and reject cross-user takeover of an incomplete install;
 - never authorize a caller solely because the Web App executes as the deploying user;
 - reuse the product's existing setup/migration engine;
 - keep all underlying setup, validation, migration, trigger, provider, and storage helpers private;
@@ -97,7 +98,7 @@ ACTION_REQUIRED
 FAILED
 ```
 
-Do not report `READY` before required external/manual platform steps are observed.
+Do not report `READY` before required external/manual platform steps are observed. When deployment security cannot be inspected programmatically, require a guarded administrator attestation bound to the current versioned Web App identity; URL existence alone is not readiness. Document that later manual deployment-setting changes require re-attestation even when the URL does not change.
 
 ### 6. Validation
 
@@ -106,7 +107,7 @@ Required checks:
 - modular syntax;
 - bundle syntax;
 - client-script syntax;
-- global/function collision detection;
+- duplicate top-level `var`/`let`/`const` and function/global collision detection;
 - dangerous top-level execution detection;
 - source coverage and deterministic order;
 - source/bundle facade parity;
@@ -117,6 +118,8 @@ Required checks:
 - final-file checksum verification;
 - installer unauthorized-call rejection;
 - installer first-run identity gate;
+- installer-owner latch, interrupted-install takeover rejection, and hostile failure injection;
+- guarded deployment-security attestation and stale-identity rejection;
 - installer idempotency;
 - manifest/OAuth/Advanced Service parity;
 - bundle byte/character/line/resource counts;

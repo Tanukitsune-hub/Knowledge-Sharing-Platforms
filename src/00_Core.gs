@@ -7,7 +7,9 @@ var KSP_SCHEMA_VERSION = 6;
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
   INSTALLATION_STATE_JSON: 'KSP_INSTALLATION_STATE_JSON',
-  LAST_SETUP_REPORT_JSON: 'KSP_LAST_SETUP_REPORT_JSON'
+  LAST_SETUP_REPORT_JSON: 'KSP_LAST_SETUP_REPORT_JSON',
+  INSTALLER_OWNER_JSON: 'KSP_INSTALLER_OWNER_JSON',
+  DEPLOYMENT_SECURITY_ATTESTATION_JSON: 'KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'
 });
 
 var KSP_RESOURCE_NAMES = Object.freeze({
@@ -501,6 +503,7 @@ function kspBuildOptionSeedRows_(nowIso) {
 
 function kspBuildSettingsRows_(config, resources, nowIso) {
   var adminEmails = kspNormalizeEmailList_(config.adminEmails).join(',');
+  var distribution = kspGetDistributionMetadata_();
   return [
     { Key: 'SCHEMA_VERSION', Value: String(KSP_SCHEMA_VERSION), Description: 'Current backend schema version.', Updated_At: nowIso },
     { Key: 'APP_VERSION', Value: KSP_APP_VERSION, Description: 'Current application scaffold version.', Updated_At: nowIso },
@@ -526,6 +529,10 @@ function kspBuildSettingsRows_(config, resources, nowIso) {
     { Key: 'OPENAI_READINESS', Value: 'UNCONFIGURED', Description: 'OpenAI connection readiness; real-source sync is separate from synthetic connection validation.', Updated_At: nowIso },
     { Key: 'GEMINI_ENABLED', Value: 'false', Description: 'Whether the administrator has enabled the Gemini provider.', Updated_At: nowIso },
     { Key: 'GEMINI_DEFAULT_MODEL', Value: '', Description: 'Administrator-selected Gemini model ID.', Updated_At: nowIso },
+    { Key: 'DISTRIBUTION_RELEASE', Value: distribution.releaseVersion, Description: 'Installed distribution release.', Updated_At: nowIso },
+    { Key: 'DISTRIBUTION_SOURCE_COMMIT', Value: distribution.sourceCommit, Description: 'Source commit for the installed distribution.', Updated_At: nowIso },
+    { Key: 'DISTRIBUTION_PROFILE', Value: distribution.bundleProfile, Description: 'Installed distribution build profile.', Updated_At: nowIso },
+    { Key: 'DISTRIBUTION_PAYLOAD_SHA256', Value: distribution.bundlePayloadSha256, Description: 'Canonical payload hash for the installed distribution.', Updated_At: nowIso },
     { Key: 'LAST_SETUP_AT', Value: nowIso, Description: 'Last successful setup/repair execution.', Updated_At: nowIso }
   ];
 }
@@ -617,8 +624,6 @@ function kspNormalizeAndValidateConfig_(input) {
   kspAssert_(knowledgeParentFolderId, 'MISSING_KNOWLEDGE_PARENT',
     'knowledgeParentFolderId is required.');
   kspAssert_(controlFolderId, 'MISSING_CONTROL_FOLDER', 'controlFolderId is required.');
-  kspAssert_(knowledgeParentFolderId !== controlFolderId, 'INVALID_FOLDER_BOUNDARY',
-    'knowledgeParentFolderId and controlFolderId must be different.');
   kspAssert_(timezone, 'MISSING_TIMEZONE', 'timezone is required.');
   kspAssert_(aiSyncIntervalMinutes === 15, 'INVALID_AI_SYNC_INTERVAL',
     'Initial AI sync interval is fixed at 15 minutes.');
@@ -642,6 +647,7 @@ function kspBuildStoredInstallationState_(config, resources, nowIso) {
     appVersion: KSP_APP_VERSION,
     config: kspDeepClone_(config),
     resources: kspDeepClone_(resources),
+    distribution: kspGetDistributionMetadata_(),
     updatedAt: nowIso
   };
 }

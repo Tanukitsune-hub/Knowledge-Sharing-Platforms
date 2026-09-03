@@ -1,51 +1,89 @@
 # Work 0023 dispatch control
 
 WORK_ID: `0023`
-DISPATCH_ID: `N/A`
-BALL: `NONE`
-STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
+ACTIVE_DISPATCH_ID: `0023-CODEX-02`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
-## Current state
+## Active dispatch
 
-Route A planning, specification integration, and pre-implementation hardening are complete.
+### 0023-CODEX-02 — RETURNED / installer ownership and deployment-readiness security
 
-No Codex dispatch is active. Active Work 0020 and its successors remain separate and are not modified by Work 0023 planning.
+CODEX-01 returned a working deterministic one-file bundle, guarded installer, one-paste execution, idempotent personal-DEV install, restricted Web App and bundle-rendered pages.
 
-The Work 0023 plan now explicitly closes:
+Final ChatGPT review accepted the major vertical slice and identified three release-contract gaps. CODEX-02 closed all three:
 
-- installer browser-call/authorization risk;
-- first-run identity ambiguity;
-- self-referential bundle-hash ambiguity;
-- manifest/OAuth/Advanced Service parity;
-- exact single-file size/paste/save/execute feasibility.
+1. interrupted first-install ownership takeover is prevented by the persistent owner latch;
+2. a Web App URL without deployment-security attestation no longer produces `READY` / shareable wording;
+3. bundle validation now enforces mutable-global and function/global collision gates.
 
-## Reserved first implementation dispatch
+Instruction:
 
-### 0023-CODEX-01 — NOT YET ISSUED
+`docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-instruction.md`
 
-Purpose when activated:
+Returned outcome:
 
-- refresh the accepted source/runtime baseline after Work 0021;
-- implement deterministic `.gs` + embedded HTML bundle generation;
-- add modular/bundle resource-loader parity;
-- implement versioned canonical payload hashing plus final-file checksum verification;
-- wrap the existing setup/validation engine with guarded `installKnowledgeShare()` and `checkKnowledgeShareReadiness()`;
-- add hostile-call rejection, identity, idempotency, bundle, manifest/OAuth/service, and one-paste validation;
-- deliver one fresh target-runtime installation slice.
+- atomic persistent first-installer ownership latch: PASS;
+- original-user-only partial resume and different-user fail-closed rejection: PASS;
+- explicit guarded administrator deployment-security attestation: PASS;
+- Web App URL alone never produces READY: PASS;
+- mutable global/function collision validation: PASS;
+- regenerated deterministic release kit: PASS;
+- bounded personal-DEV requalification: PASS, with Work 0021 and AI providers untouched.
 
-A new exact instruction/ref and current side-effect boundary must be created at activation time. Do not execute Work 0023 from this placeholder.
+CODEX-02 report:
 
-## Governing sources
+`docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-report.md`
 
-- `docs/decisions/modular-source-single-bundle-distribution.md`
-- `docs/decisions/bundle-integrity-and-installer-security.md`
-- `docs/planning/work0023-bundle-installer-distribution.md`
-- `docs/operations/company-bundle-installation.md`
-- `docs/standards/apps-script-bundle-installer-standard.md`
+## Returned dispatches
 
-Only one active Codex dispatch may exist for Work 0023.
+### 0023-CODEX-01 — RETURNED / major bundle and installer vertical slice
+
+Accepted evidence:
+
+```text
+SOURCE_ARCHITECTURE: MODULAR_PRESERVED
+BUNDLE_BUILD: PASS
+SOURCE_ORDER_AND_COVERAGE: PASS
+HTML_EMBED_AND_LOADER_PARITY: PASS
+BUNDLE_PAYLOAD_HASH / FILE_CHECKSUM: PASS
+BUNDLE_PARSE_AND_TEST_PARITY: PASS
+ONE_PASTE_SAVE_AND_EXECUTE: PASS
+INSTALLER_AUTHORIZATION: PASS for tested paths
+INSTALLER_IDEMPOTENCY: PASS / duplicates 0
+PERSONAL_DEV_INSTALL: READY
+WEB_APP_RENDER_FROM_BUNDLE: PASS / 11 pages
+LOGIC_VALIDATION: PASS — 390/390
+WORK_0021_RUNTIME_MUTATED: NO
+OPENAI/GEMINI_CALLED: NO
+```
+
+CODEX-01 report:
+
+`docs/handoffs/0023-CODEX-01-deterministic-bundle-installer-and-first-runtime-qualification-report.md`
+
+## Current classification
+
+```text
+DETERMINISTIC_BUNDLE_CORE: PASS
+PERSONAL_DEV_ONE_PASTE_INSTALL: PASS
+FIRST_INSTALL_OWNER_LATCH: PASS
+WEB_APP_DEPLOYMENT_SECURITY_READINESS: PASS
+MUTABLE_GLOBAL_COLLISION_GATE: PASS
+SHARED_DRIVE_DOMAIN_QUALIFICATION: DEFERRED / ENVIRONMENT LIMITATION
+PR_35: Draft / Open / unmerged
+GITHUB_CI_ACTUALLY_RAN: NO
+READY_FOR_FINAL_MERGE: YES
+BLOCKER: NONE
+```
+
+## Scope discipline
+
+CODEX-02 fixes only the three exact gaps above. Do not perform company Shared Drive rollout, Gemini/OpenAI calls, Work 0021 runtime mutation, historical migration, large-file recovery, CI implementation, Chrome chooser repair, or general UX hardening.
+
+A new Codex execution after CODEX-02 returns must use the next Dispatch ID.
 
 WORK_ID: `0023`
-DISPATCH_ID: `N/A`
-BALL: `NONE`
-STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
+ACTIVE_DISPATCH_ID: `0023-CODEX-02`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

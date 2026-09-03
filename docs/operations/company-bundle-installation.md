@@ -64,7 +64,13 @@ Open the default code file, remove its sample content, and paste the complete co
 KnowledgeShare.bundle.gs
 ```
 
-Save once. Confirm that Apps Script accepts the exact file and shows `installKnowledgeShare` in the function list.
+Save once. Confirm that Apps Script accepts the exact file and shows all three guarded operator functions in the function list:
+
+```text
+installKnowledgeShare
+checkKnowledgeShareReadiness
+confirmKnowledgeShareDeploymentSecurity
+```
 
 Do not split the bundle into multiple files, edit generated sections, or replace only part of an older bundle.
 
@@ -123,13 +129,26 @@ Copy the resulting Web App URL.
 
 ### 9. Confirm final readiness
 
-Run:
+Before reporting or sharing the Web App as ready, manually re-open the deployment settings and verify both:
+
+```text
+Execute as: deploying administrator
+Access: approved company/domain users only
+```
+
+Then run the guarded administrator attestation:
+
+```text
+confirmKnowledgeShareDeploymentSecurity
+```
+
+This records only a timestamp and a hash bound to the current Web App URL/deployment identity. It does not store credentials or claim that Apps Script exposed the deployment settings through an API.
+
+Finally run:
 
 ```text
 checkKnowledgeShareReadiness
 ```
-
-or open the Web App URL and follow the approved status path.
 
 Expected state:
 
@@ -137,7 +156,7 @@ Expected state:
 READY
 ```
 
-`READY` is valid only after the deployment and required services/permissions are observed. A source/bundle syntax pass alone is not readiness.
+`READY` is valid only after the deployment, required services/permissions, and the administrator's explicit deployment-security attestation are observed. A Web App URL or source/bundle syntax pass alone is not readiness. A changed Web App URL invalidates the prior attestation. Any later manual change to execute-as or access settings requires running `confirmKnowledgeShareDeploymentSecurity` again even when the URL does not change, because the ordinary runtime cannot independently inspect both settings.
 
 ### 10. Share the Web App URL
 
@@ -169,6 +188,7 @@ The exact host Spreadsheet name may differ. Stored resource IDs remain authorita
 - avoid duplicate resources;
 - create only explicitly enabled mandatory triggers;
 - run readiness checks;
+- require an administrator-confirmed, deployment-identity-bound security attestation before `READY`;
 - support rerun for repair or upgrade;
 - return safe, plain-language actions without exposing private IDs.
 
@@ -209,6 +229,7 @@ Drive APIを追加してください
 権限を確認して再実行してください
 同名ファイルが複数あります。管理者に確認してください
 Web Appを1回デプロイしてください
+デプロイ設定を確認して confirmKnowledgeShareDeploymentSecurity を実行してください
 配布ファイルのrelease/hashが一致しません
 ```
 
@@ -230,6 +251,8 @@ verify the new release manifest/checksum
 -> save and run installKnowledgeShare again as an authorized administrator
 -> review readiness
 -> create/update the Web App version as instructed
+-> manually verify execute-as and company/domain access restrictions
+-> run confirmKnowledgeShareDeploymentSecurity and then checkKnowledgeShareReadiness
 ```
 
 No manual schema, seed, trigger, or resource editing should be required.

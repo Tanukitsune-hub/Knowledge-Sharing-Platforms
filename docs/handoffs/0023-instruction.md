@@ -1,75 +1,68 @@
 # Work 0023 — generated Apps Script bundle and low-friction installer
 
 WORK_ID: `0023`
-DISPATCH_ID: `N/A`
-BALL: `NONE`
-STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
-MODE: `BUILD / QUALIFICATION`
+DISPATCH_ID: `0023-CODEX-02`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
+MODE: `FINAL PERSONAL-DEV QUALIFICATION COMPLETE`
 
 ## Primary outcome
 
-Preserve the modular GitHub development architecture while delivering a generated single-file Apps Script distribution and one idempotent installer that a non-specialist can use in a fresh company Google Workspace environment.
+Preserve the modular GitHub development architecture while delivering a deterministic single-file Apps Script distribution and an idempotent installer that a non-specialist can use safely in a fresh company Google Workspace environment.
 
-## Authoritative sources
+Active detailed instruction:
 
-- `docs/decisions/modular-source-single-bundle-distribution.md`
-- `docs/decisions/bundle-integrity-and-installer-security.md`
-- `docs/planning/work0023-bundle-installer-distribution.md`
-- `docs/operations/company-bundle-installation.md`
-- `docs/standards/apps-script-bundle-installer-standard.md`
+`docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-instruction.md`
 
-The security/integrity clarification governs conflicts involving bundle hashing, installer exposure, OAuth/service parity, or one-file feasibility.
+CODEX-01 report:
 
-## Acceptance evidence
+`docs/handoffs/0023-CODEX-01-deterministic-bundle-installer-and-first-runtime-qualification-report.md`
+
+Runtime locator:
+
+`docs/operations/runtime-artifact-locator.md`
+
+## Accepted CODEX-01 surface
 
 ```text
-SOURCE_ARCHITECTURE: MODULAR / PRESERVED
-BUNDLE_BUILD: PASS / REPRODUCIBLE
-BUNDLE_TEST_PARITY: PASS
-INSTALLER_IDEMPOTENCY: PASS
-INSTALLER_UNAUTHORIZED_CALL_REJECTION: PASS
-INSTALLER_FIRST_RUN_IDENTITY_GATE: PASS
-BUNDLE_HASH_CANONICALIZATION: PASS
-BUNDLE_FILE_CHECKSUM: PASS
-OAUTH_AND_SERVICE_PARITY: PASS
+SOURCE_ARCHITECTURE: MODULAR_PRESERVED
+BUNDLE_BUILD_AND_REPRODUCIBILITY: PASS
+HTML_EMBED_AND_LOADER_PARITY: PASS
+BUNDLE_HASHES_AND_MANIFEST: PASS
+BUNDLE_PARSE_AND_TEST_PARITY: PASS
 ONE_PASTE_SAVE_AND_EXECUTE: PASS
-FRESH_SHARED_DRIVE_INSTALL: PASS
+INSTALLER_IDEMPOTENCY: PASS / duplicates 0
+PERSONAL_DEV_INSTALL_AND_RESTRICTED_WEB_APP: PASS
 WEB_APP_RENDER_FROM_BUNDLE: PASS
-COMPANY_INSTALL_GUIDE: PASS
-NORMAL_OPERATOR_MANUAL_SOURCE_FILES: 1
-BLOCKER: NO
+LOGIC_VALIDATION: PASS — 390/390
+WORK_0021_RUNTIME_MUTATED: NO
+OPENAI/GEMINI_CALLED: NO
 ```
 
-## Fixed product boundaries
+Shared Drive/domain-user qualification remains a later company-environment gate and is not a CODEX-02 blocker.
 
-- `src/` remains authoritative and modular;
-- `dist/KnowledgeShare.bundle.gs` is generated and never hand-edited;
-- all required HTML resources are embedded in the distribution bundle;
-- installer reuses the existing setup/validation engine;
-- the normal company route does not use a personal Drive template;
-- AI providers and recurring AI synchronization remain disabled by default;
-- Gmail labels/scopes are not added because Knowledge Share does not require them;
-- no major application/business-logic rewrite is authorized;
-- unavoidable platform actions are described accurately rather than hidden.
+## CODEX-02 completion
 
-## Security and integrity boundaries
+Final review found three material release-contract gaps, all closed by CODEX-02:
 
-- `installKnowledgeShare()` and `checkKnowledgeShareReadiness()` are editor-visible but must be treated as externally invocable because any top-level function without a trailing underscore may be called by name from HTML Service;
-- no normal page links to them, and strict server-side active-user/administrator authorization must run before any mutation;
-- first installation requires an identified active user and an unambiguous active/effective-user identity boundary;
-- all setup, validation, migration, trigger, provider, and Drive helpers remain private;
-- the bundle header must not contain an undefined ordinary hash of its own final bytes;
-- use a versioned canonical payload hash in the bundle and record the actual final-file SHA-256 in `dist/release-manifest.json`;
-- fresh installation must verify actual OAuth/service behavior against the approved manifest contract;
-- the exact generated bundle must be proven pasteable, saveable, selectable, and executable as one file in the target Apps Script runtime.
+1. partial first-install takeover: closed by an atomic persistent owner latch;
+2. false readiness from URL existence: closed by guarded deployment-security attestation;
+3. missing mutable-global collision validation: closed by top-level global inventory and negative tests.
 
-## Planned timing
+CODEX-02 delivered the smallest coherent fixes:
 
-Work 0023 begins after Work 0021 stabilizes the intended feature surface and before historical-material migration and final company-environment qualification.
+- the first verified installer is latched before setup mutation;
+- interrupted resume requires the same owner and identity conflicts fail closed;
+- deployment security requires explicit guarded administrator attestation;
+- URL-only state remains non-ready;
+- mutable global/function collision validation is enforced;
+- the release kit was regenerated and the existing personal-DEV install upgraded idempotently.
 
-No Codex dispatch is active yet. The natural first execution dispatch is reserved as `0023-CODEX-01` after ChatGPT refreshes the exact GitHub/runtime baseline.
+Do not add Apps Script API/service/scope merely to inspect deployment configuration. Do not touch Work 0021 runtime or call OpenAI/Gemini.
+
+All exact gates passed. PR #35 is returned for final ChatGPT review without company rollout, general hardening, or cosmetic expansion.
 
 WORK_ID: `0023`
-DISPATCH_ID: `N/A`
-BALL: `NONE`
-STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
+DISPATCH_ID: `0023-CODEX-02`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
