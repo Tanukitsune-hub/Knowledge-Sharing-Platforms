@@ -131,8 +131,8 @@ function buildArtifacts(options = {}) {
   const releaseManifestText = `${safeJson(releaseManifest, 2)}\n`;
   const generatedManifest = `${safeJson(JSON.parse(manifestContent), 2)}\n`;
   const installGuide = `# Knowledge Share ${release.releaseVersion} installation\n\n` +
-    `Source commit: \`${sourceCommit}\`  \n` +
-    `Bundle SHA-256: \`${fileHash}\`  \n` +
+    `Source commit: \`${sourceCommit}\`\n` +
+    `Bundle SHA-256: \`${fileHash}\`\n` +
     `Payload SHA-256: \`${payloadHash}\`\n\n` +
     `1. Create a Google Spreadsheet in the intended company Drive folder.\n` +
     `2. Open Extensions -> Apps Script and add the Drive API service.\n` +
