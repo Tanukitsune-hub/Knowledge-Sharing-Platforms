@@ -126,7 +126,7 @@ function kspIsKnowledgeExportDriveUrl_(value) {
 
 function kspKnowledgeExportUrlFileId_(value) {
   var url = String(value || '').trim();
-  var match = /^https:\/\/docs\.google\.com\/document\/d\/([^/?#&]+)(?:[/?#]|$)/i.exec(url);
+  var match = /^https:\/\/docs\.google\.com\/(?:document|presentation|spreadsheets)\/d\/([^/?#&]+)(?:[/?#]|$)/i.exec(url);
   if (match) return match[1];
   match = /^https:\/\/drive\.google\.com\/file\/d\/([^/?#&]+)(?:[/?#]|$)/i.exec(url);
   if (match) return match[1];
