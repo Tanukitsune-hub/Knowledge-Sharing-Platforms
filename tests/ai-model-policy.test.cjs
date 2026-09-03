@@ -63,6 +63,61 @@ test('current OpenAI migration preserves the exact model and provider-default re
   assert.equal(Object.hasOwn(request, 'maxOutputTokens'), false);
 });
 
+test('Gemini 3.8 and 3.7 accept explicit low medium high and reject minimal', () => {
+  for (const modelId of ['gemini-3.8-flash', 'gemini-3.7-flash']) {
+    for (const level of ['low', 'medium', 'high']) {
+      const normalized = plain(ksp.kspAiModelPolicyProfile_(profile({
+        profileId: `gemini-${modelId.slice(7, 10).replace('.', '')}-${level}`,
+        provider: 'GEMINI', modelId, displayName: modelId, family: 'Gemini',
+        thinkingProfiles: [thinking(level, level, level, 'UNQUALIFIED')],
+        defaultThinkingProfileId: level, qualification: 'UNQUALIFIED', fileSearch: false
+      })));
+      assert.equal(normalized.thinkingProfiles[0].rawValue, level);
+    }
+    assert.throws(() => ksp.kspAiModelPolicyProfile_(profile({
+      profileId: `gemini-${modelId.slice(7, 10).replace('.', '')}-minimal`,
+      provider: 'GEMINI', modelId, displayName: modelId, family: 'Gemini',
+      thinkingProfiles: [thinking('minimal', 'Minimal', 'minimal', 'UNQUALIFIED')],
+      defaultThinkingProfileId: 'minimal', qualification: 'UNQUALIFIED', fileSearch: false
+    })), (error) => error.code === 'AI_THINKING_VALUE_INVALID');
+  }
+});
+
+test('Gemini qualification is bound to exact Store request profile and policy-driven request tuple', () => {
+  const geminiProfile = profile({
+    profileId: 'gemini-38-low', provider: 'GEMINI', modelId: 'gemini-3.8-flash',
+    displayName: 'Gemini 3.8 Flash', family: 'Gemini 3.8', isProviderDefault: true,
+    thinkingProfiles: [thinking('low', 'Low', 'low')], defaultThinkingProfileId: 'low',
+    maxOutputTokens: 2048, qualifiedStoreName: 'fileSearchStores/store-current',
+    qualifiedRequestProfileVersion: 'gemini-interactions-file-search-v2'
+  });
+  const registry = policy([geminiProfile]);
+  const settings = ksp.kspNormalizeAiSettings_({
+    GEMINI_ENABLED: 'true', GEMINI_FILE_SEARCH_STORE: 'fileSearchStores/store-current',
+    GEMINI_DEFAULT_MODEL: 'gemini-3.8-flash', AI_MODEL_POLICY_JSON: JSON.stringify(registry)
+  });
+  const config = { provider: 'GEMINI', enabled: true, credentialConfigured: true,
+    storeName: 'fileSearchStores/store-current', modelId: 'gemini-3.8-flash' };
+  const selection = plain(ksp.kspResolveAiModelSelection_(settings, 'GEMINI', {}, config, ''));
+  const request = plain(ksp.kspBuildProviderSearchRequest_('GEMINI',
+    ksp.kspApplyAiModelSelectionToConfig_(config, selection), {
+      mode: '自由質問', questionOrInstruction: 'synthetic', sourceType: 'Pitchbook', sourceId: 'DOC-000017'
+    }));
+  assert.equal(request.modelId, 'gemini-3.8-flash');
+  assert.deepEqual(request.generation_config, { max_output_tokens: 2048, thinking_level: 'low' });
+  assert.match(request.metadataFilter, /source_type = "Pitchbook"/);
+  assert.match(request.metadataFilter, /source_id = "DOC-000017"/);
+  assert.deepEqual(plain(ksp.kspGetEffectiveAiModelChoices_(settings, 'GEMINI', config, '')).profiles
+    .map((item) => item.profileId), ['gemini-38-low']);
+  assert.deepEqual(plain(ksp.kspGetEffectiveAiModelChoices_(settings, 'GEMINI',
+    { ...config, storeName: 'fileSearchStores/store-changed' }, '')).profiles, []);
+  const staleProfile = policy([{ ...geminiProfile,
+    qualifiedRequestProfileVersion: 'gemini-fixed-profile-v1' }]);
+  const staleSettings = { ...settings, modelPolicyJson: JSON.stringify(staleProfile) };
+  assert.throws(() => ksp.kspResolveAiModelSelection_(staleSettings, 'GEMINI', {}, config, ''),
+    (error) => error.code === 'AI_MODEL_PROFILE_UNQUALIFIED');
+});
+
 test('a new explicit thinking tuple starts unqualified and remains absent from effective choices', () => {
   const registry = policy([profile({ isProviderDefault: true, thinkingProfiles: [
     thinking('provider-default', 'Provider default'),

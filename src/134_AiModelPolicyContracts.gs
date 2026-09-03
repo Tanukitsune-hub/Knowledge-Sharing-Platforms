@@ -81,6 +81,15 @@ function kspAiModelPolicyProfile_(raw) {
     thinkingSeen[normalized.thinkingProfileId] = true;
     return normalized;
   });
+  if (provider === KSP_AI_PROVIDERS.GEMINI &&
+      (modelId === 'gemini-3.8-flash' || modelId === 'gemini-3.7-flash')) {
+    thinkingProfiles.forEach(function (thinking) {
+      if (!thinking.providerDefault) {
+        kspAiModelPolicyAssert_(['low', 'medium', 'high'].indexOf(String(thinking.rawValue).toLowerCase()) !== -1,
+          'AI_THINKING_VALUE_INVALID');
+      }
+    });
+  }
   var defaultThinkingProfileId = kspAiModelPolicySafeId_(
     value.defaultThinkingProfileId || thinkingProfiles[0].thinkingProfileId,
     'AI_THINKING_DEFAULT_INVALID');
@@ -126,6 +135,10 @@ function kspAiModelPolicyProfile_(raw) {
     thinkingProfiles: thinkingProfiles,
     defaultThinkingProfileId: defaultThinkingProfileId,
     maxOutputTokens: maximum,
+    qualifiedStoreName: kspAiModelPolicySafeText_(value.qualifiedStoreName, 256,
+      'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
+    qualifiedRequestProfileVersion: kspAiModelPolicySafeText_(value.qualifiedRequestProfileVersion, 80,
+      'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
     createdAt: kspAiModelPolicySafeText_(value.createdAt, 40, 'AI_MODEL_TIMESTAMP_INVALID', false),
     updatedAt: kspAiModelPolicySafeText_(value.updatedAt, 40, 'AI_MODEL_TIMESTAMP_INVALID', false),
     qualifiedAt: qualifiedAt,
@@ -285,6 +298,12 @@ function kspResolveAiModelSelection_(settings, provider, rawInput, config, nowIs
     'AI_MODEL_PROFILE_INACCESSIBLE');
   kspAiModelPolicyAssert_(profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch,
     'AI_MODEL_PROFILE_UNQUALIFIED');
+  if (normalizedProvider === KSP_AI_PROVIDERS.GEMINI) {
+    kspAiModelPolicyAssert_(profile.qualifiedStoreName &&
+      profile.qualifiedStoreName === kspAiTrim_(config && config.storeName) &&
+      profile.qualifiedRequestProfileVersion === KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
+    'AI_MODEL_PROFILE_UNQUALIFIED');
+  }
   var requestedThinkingId = kspAiTrim_(rawInput && rawInput.thinkingProfileId).toLowerCase();
   var thinkingId = requestedThinkingId || profile.defaultThinkingProfileId;
   var thinking = profile.thinkingProfiles.filter(function (item) {
@@ -327,10 +346,13 @@ function kspGetEffectiveAiModelChoices_(settings, provider, config, nowIso) {
       var defaultThinking = profile.thinkingProfiles.filter(function (thinking) {
         return thinking.thinkingProfileId === profile.defaultThinkingProfileId;
       })[0];
+      var currentGeminiIdentity = normalizedProvider !== KSP_AI_PROVIDERS.GEMINI ||
+        (profile.qualifiedStoreName && profile.qualifiedStoreName === kspAiTrim_(config.storeName) &&
+          profile.qualifiedRequestProfileVersion === KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION);
       return profile.provider === normalizedProvider && profile.enabled && profile.userVisible && defaultThinking &&
         defaultThinking.enabled && defaultThinking.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED &&
         profile.apiAccess === KSP_AI_MODEL_ACCESS_STATES.AVAILABLE &&
-        profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch;
+        profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch && currentGeminiIdentity;
     }).map(function (profile) {
       return {
         profileId: profile.profileId,
@@ -354,7 +376,10 @@ function kspAiModelPolicyForAdmin_(policy) {
     schemaVersion: policy.schemaVersion,
     updatedAt: policy.updatedAt,
     profiles: policy.profiles.map(function (profile) {
-      return kspDeepClone_(profile);
+      var safe = kspDeepClone_(profile);
+      delete safe.qualifiedStoreName;
+      delete safe.qualifiedRequestProfileVersion;
+      return safe;
     })
   };
 }
@@ -396,6 +421,8 @@ function kspUpsertAiModelProfile_(policy, rawProfile, nowIso) {
   nextRaw.apiAccess = existing ? existing.apiAccess : KSP_AI_MODEL_ACCESS_STATES.UNKNOWN;
   nextRaw.qualification = existing ? existing.qualification : KSP_AI_MODEL_QUALIFICATION_STATES.UNQUALIFIED;
   nextRaw.qualifiedAt = existing ? existing.qualifiedAt : '';
+  nextRaw.qualifiedStoreName = existing ? existing.qualifiedStoreName : '';
+  nextRaw.qualifiedRequestProfileVersion = existing ? existing.qualifiedRequestProfileVersion : '';
   nextRaw.createdAt = existing ? existing.createdAt : nowIso;
   nextRaw.updatedAt = nowIso;
   if (existing && input.fileSearch === undefined) nextRaw.fileSearch = existing.fileSearch;
@@ -418,6 +445,8 @@ function kspUpsertAiModelProfile_(policy, rawProfile, nowIso) {
     normalizedProfile.qualification = KSP_AI_MODEL_QUALIFICATION_STATES.UNQUALIFIED;
     normalizedProfile.fileSearch = false;
     normalizedProfile.qualifiedAt = '';
+    normalizedProfile.qualifiedStoreName = '';
+    normalizedProfile.qualifiedRequestProfileVersion = '';
     normalizedProfile.thinkingProfiles.forEach(function (thinking) {
       thinking.qualification = KSP_AI_MODEL_QUALIFICATION_STATES.UNQUALIFIED;
       thinking.qualifiedAt = '';
@@ -466,6 +495,10 @@ function kspMarkAiModelProfileQualification_(policy, profileId, result, nowIso) 
       ? KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED : KSP_AI_MODEL_QUALIFICATION_STATES.FAILED;
     profile.fileSearch = defaultQualified;
     profile.qualifiedAt = defaultQualified ? nowIso : '';
+    profile.qualifiedStoreName = defaultQualified && profile.provider === KSP_AI_PROVIDERS.GEMINI
+      ? kspAiTrim_(result && result.storeName) : '';
+    profile.qualifiedRequestProfileVersion = defaultQualified && profile.provider === KSP_AI_PROVIDERS.GEMINI
+      ? kspAiTrim_(result && result.requestProfileVersion) : '';
     profile.updatedAt = nowIso;
   });
   kspAiModelPolicyAssert_(found, 'AI_MODEL_SELECTION_STALE');

@@ -8,7 +8,11 @@ function makeAdminEnvironment(options = {}) {
     OPENAI_ENABLED: options.enabled ? 'true' : 'false',
     OPENAI_VECTOR_STORE_ID: options.storeId || '',
     OPENAI_DEFAULT_MODEL: options.model === undefined ? '' : options.model,
-    OPENAI_READINESS: options.readiness === undefined ? '' : options.readiness
+    OPENAI_READINESS: options.readiness === undefined ? '' : options.readiness,
+    GEMINI_ENABLED: options.geminiEnabled ? 'true' : 'false',
+    GEMINI_FILE_SEARCH_STORE: options.geminiStore || '',
+    GEMINI_DEFAULT_MODEL: options.geminiModel || '',
+    GEMINI_READINESS: options.geminiReadiness || ''
   };
   const writes = [];
   const created = [];
@@ -16,10 +20,12 @@ function makeAdminEnvironment(options = {}) {
   const deleted = [];
   const syncCalls = [];
   const savedKeys = [];
+  const savedGeminiKeys = [];
   const connectionUploads = [];
   const connectionQueries = [];
   const connectionDeletes = [];
   let credentialConfigured = options.key !== false;
+  let geminiCredentialConfigured = options.geminiKey !== false;
   let readErrorRemaining = options.readError ? (options.readErrorOnce ? 1 : Number.MAX_SAFE_INTEGER) : 0;
   let clock = 0;
   return {
@@ -33,6 +39,12 @@ function makeAdminEnvironment(options = {}) {
     isAdministrator() { return options.admin !== false; },
     isOpenAiCredentialConfigured() { return credentialConfigured; },
     saveOpenAiApiKey() { savedKeys.push(true); credentialConfigured = true; },
+    isGeminiCredentialConfigured() { return geminiCredentialConfigured; },
+    saveGeminiApiKey() { savedGeminiKeys.push(true); geminiCredentialConfigured = true; },
+    getGeminiFileSearchStore(name) {
+      if (options.geminiStoreError) throw options.geminiStoreError;
+      return { name };
+    },
     createOpenAiVectorStore(name) {
       if (options.createError) throw options.createError;
       created.push(name);
@@ -88,7 +100,8 @@ function makeAdminEnvironment(options = {}) {
       context.settings[key] = String(value);
     },
     deleteOpenAiVectorStore() { deleted.push(true); },
-    _debug: { context, writes, created, read, deleted, syncCalls, savedKeys, connectionUploads, connectionQueries, connectionDeletes }
+    _debug: { context, writes, created, read, deleted, syncCalls, savedKeys, savedGeminiKeys,
+      connectionUploads, connectionQueries, connectionDeletes }
   };
 }
 
@@ -121,6 +134,77 @@ test('OpenAI key absence fails safely and leaves the provider disabled', () => {
   assert.equal(env._debug.created.length, 0);
   assert.equal(env._debug.writes.length, 0);
   assert.doesNotMatch(JSON.stringify(result), /vs-synthetic|KSP_OPENAI_API_KEY|secret/i);
+});
+
+test('Gemini credential and Store administration is boolean-only and administrator-guarded', () => {
+  const denied = makeAdminEnvironment({ admin: false, geminiKey: false,
+    geminiStore: 'fileSearchStores/private-store' });
+  const deniedResult = plain(ksp.kspMutateAiProviderSettings_(denied, {
+    action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
+  }));
+  assert.equal(deniedResult.ok, false);
+  assert.equal(deniedResult.error.code, 'AI_PROVIDER_ADMIN_UNAUTHORIZED');
+  assert.equal(denied._debug.savedGeminiKeys.length, 0);
+
+  const env = makeAdminEnvironment({ geminiKey: false, geminiStore: 'fileSearchStores/private-store' });
+  const connected = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
+  }));
+  assert.equal(connected.ok, true, JSON.stringify(connected));
+  assert.equal(connected.readyForQualification, true);
+  assert.equal(env._debug.savedGeminiKeys.length, 1);
+  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'READY_FOR_QUALIFICATION');
+  const adminData = plain(ksp.kspGetAiProviderAdminData_(env));
+  assert.equal(adminData.gemini.keyConfigured, true);
+  assert.equal(adminData.gemini.storeReady, true);
+  assert.doesNotMatch(JSON.stringify(adminData), /gemini-secret-synthetic|private-store|KSP_GEMINI_API_KEY/);
+});
+
+test('Gemini qualification sends one exact 3.8 low 2048 Interactions File Search tuple', () => {
+  const context = baseContext();
+  context.pitchbookRows[0] = { ...context.pitchbookRows[0], Document_ID: 'DOC-000017',
+    File_URL: 'https://drive.test/doc-17', Status: 'Active' };
+  const bytes = Array.from(Buffer.from('CODEX18_SYNTH_PITCHBOOK_20260830', 'utf8'));
+  const contentHash = ksp.kspAiHashBytesFallback_(bytes);
+  const calls = [];
+  const env = {
+    readPitchbookSource() { return { mimeType: 'text/plain', bytes }; },
+    hashBytes(value) { return ksp.kspAiHashBytesFallback_(value); },
+    findProviderDocumentsBySource(provider, config, sourceType, sourceId) {
+      assert.equal(provider, 'GEMINI');
+      assert.equal(sourceType, 'Pitchbook');
+      assert.equal(sourceId, 'DOC-000017');
+      return [{ name: 'fileSearchStores/private/documents/current', state: 'ACTIVE', customMetadata: {
+        source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
+      } }];
+    },
+    queryProvider(provider, config, request) {
+      calls.push({ provider, config: plain(config), request: plain(request) });
+      return { status: 'completed', steps: [{ type: 'model_output', content: [{
+        type: 'text', text: 'CODEX18_SYNTH_PITCHBOOK_20260830', annotations: [{
+          type: 'file_citation', source: 'fileSearchStores/private/documents/current', custom_metadata: [
+            { key: 'source_type', string_value: 'Pitchbook' },
+            { key: 'source_id', string_value: 'DOC-000017' },
+            { key: 'content_hash', string_value: contentHash }
+          ]
+        }]
+      }] }] };
+    }
+  };
+  const qualification = plain(ksp.kspRunGeminiExactTupleQualification_(env, context,
+    ksp.kspNormalizeAiSettings_({ GEMINI_FILE_SEARCH_STORE_NAME: 'fileSearchStores/private' }), {
+      profileId: 'gemini-38-low', provider: 'GEMINI', modelId: 'gemini-3.8-flash',
+      maxOutputTokens: 2048, thinkingProfiles: [{ thinkingProfileId: 'low', rawValue: 'low',
+        providerDefault: false, enabled: true }]
+    }, 'low'));
+  assert.equal(qualification.status, 'PASS');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].config.modelId, 'gemini-3.8-flash');
+  assert.equal(calls[0].config.thinkingRawValue, 'low');
+  assert.equal(calls[0].config.maxOutputTokens, 2048);
+  assert.deepEqual(calls[0].request.generation_config, { max_output_tokens: 2048, thinking_level: 'low' });
+  assert.match(calls[0].request.metadataFilter, /source_id = "DOC-000017"/);
 });
 
 test('OpenAI Store creation uses a synthetic official REST POST and returns only the server-side resource', () => {
@@ -477,8 +561,8 @@ test('admin provider surface exposes policy-safe exact model fields without cred
   assert.match(page, /id="ai-model-thinking-qualification-state"/);
   assert.match(client, /getAiProviderAdminData/);
   assert.match(client, /mutateAiProviderSettings/);
-  assert.match(client, /sourceType:action==='SYNC'\?\(sourceType\|\|''\):''/);
-  assert.match(client, /sourceId:action==='SYNC'\?\(sourceId\|\|''\):''/);
+  assert.match(client, /const isSync=action==='SYNC'\|\|action==='SYNC_GEMINI'/);
+  assert.match(client, /sourceId:isSync\?\(sourceId\|\|''\):''/);
   assert.match(client, /OPENAI_INDEX_TIMEOUT/);
   assert.match(client, /sync\.selected/);
   assert.match(client, /sync\.failed/);

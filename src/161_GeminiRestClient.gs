@@ -78,6 +78,42 @@ function kspGeminiStageError_(code, stage, httpStatus, headers, retryableOverrid
   return error;
 }
 
+function kspGeminiGenerationConfig_(input) {
+  var source = input || {};
+  var supplied = source.generation_config && typeof source.generation_config === 'object'
+    ? source.generation_config : null;
+  var thinking = supplied && Object.prototype.hasOwnProperty.call(supplied, 'thinking_level')
+    ? kspAiTrim_(supplied.thinking_level)
+    : (source.thinkingProviderDefault === true ? '' : kspAiTrim_(source.thinkingRawValue));
+  var maximum = supplied && Object.prototype.hasOwnProperty.call(supplied, 'max_output_tokens')
+    ? Number(supplied.max_output_tokens)
+    : (source.maxOutputTokens !== undefined && source.maxOutputTokens !== null
+      ? Number(source.maxOutputTokens) : KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS);
+  if (!supplied && source.thinkingProviderDefault === undefined && !source.thinkingRawValue) {
+    thinking = KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL;
+  }
+  kspAssert_(!thinking || /^[a-z][a-z0-9_-]{0,31}$/.test(thinking),
+    'AI_MODEL_THINKING_INVALID', 'Gemini thinking level is invalid.');
+  kspAssert_(Number.isInteger(maximum) && maximum >= 1 && maximum <= 65536,
+    'AI_MODEL_OUTPUT_LIMIT_INVALID', 'Gemini output ceiling is invalid.');
+  var generation = { max_output_tokens: maximum };
+  if (thinking) generation.thinking_level = thinking;
+  return generation;
+}
+
+function kspGeminiSafeHttpClassification_(defaultCode, httpStatus, responseText) {
+  var status = Number(httpStatus || 0) || 0;
+  var value = String(responseText || '').toLowerCase();
+  var modelSpecific = value.indexOf('model') !== -1 &&
+    (value.indexOf('not found') !== -1 || value.indexOf('not supported') !== -1 ||
+      value.indexOf('unsupported') !== -1 || value.indexOf('does not exist') !== -1);
+  if ((status === 400 || status === 404) && modelSpecific) return 'AI_GEMINI_MODEL_UNSUPPORTED';
+  if (status === 403 && (value.indexOf('model') !== -1 || value.indexOf('permission') !== -1 ||
+      value.indexOf('access') !== -1)) return 'AI_GEMINI_MODEL_ACCESS_DENIED';
+  if (status === 401 || status === 403) return 'AI_GEMINI_CREDENTIAL_REJECTED';
+  return defaultCode;
+}
+
 function kspGeminiAppendApiKey_(url, apiKey) {
   var separator = String(url).indexOf('?') >= 0 ? '&' : '?';
   return String(url) + separator + 'key=' + encodeURIComponent(String(apiKey || ''));
@@ -151,7 +187,10 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
     var code = response.getResponseCode();
     var headers = kspGeminiResponseHeaders_(response);
     if (code < 200 || code >= 300) {
-      throw kspGeminiStageError_(errorCode, stage, code, headers);
+      var safeErrorText = '';
+      try { safeErrorText = response.getContentText('UTF-8'); } catch (ignoredErrorBody) { /* Classification only. */ }
+      throw kspGeminiStageError_(kspGeminiSafeHttpClassification_(errorCode, code, safeErrorText),
+        stage, code, headers);
     }
     try {
       var responseText = response.getContentText('UTF-8');
@@ -203,13 +242,11 @@ function kspGeminiStartInteractionLive_(request) {
     payload[key] = request[key];
   });
   payload.background = true;
-  var interactionHeaders = { 'Api-Revision': KSP_AI_DEFAULTS.INTERACTIONS_API_REVISION };
   var current = kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, payload, {
     retry: false,
     stage: 'QUERY_HTTP',
     errorCode: 'AI_QUERY_HTTP_FAILED',
-    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
-    headers: interactionHeaders
+    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID'
   });
   var interactionId = kspGeminiInteractionId_(current);
   var status = kspGeminiInteractionStatus_(current);
@@ -226,6 +263,23 @@ function kspGeminiStartInteractionLive_(request) {
   return { status: 'in_progress', interactionId: interactionId };
 }
 
+function kspGeminiQueryInteractionLive_(request) {
+  var payload = {};
+  Object.keys(request || {}).forEach(function (key) { payload[key] = request[key]; });
+  delete payload.background;
+  var current = kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, payload, {
+    retry: false,
+    stage: 'QUERY_HTTP',
+    errorCode: 'AI_QUERY_HTTP_FAILED',
+    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
+    includeResponseMetadata: true
+  });
+  var status = kspGeminiInteractionStatus_(current);
+  if (status === 'completed' || (!status && Array.isArray(current && current.steps))) return current;
+  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status);
+  throw kspGeminiStageError_('AI_QUERY_ASYNC_REQUIRED', 'QUERY_PROVIDER', 0, {}, false);
+}
+
 function kspGeminiPollInteractionLive_(interactionId) {
   var value = kspAiTrim_(interactionId);
   kspAssert_(value, 'AI_QUERY_RESPONSE_INVALID', 'Gemini検索結果を確認できませんでした。');
@@ -233,8 +287,7 @@ function kspGeminiPollInteractionLive_(interactionId) {
     retry: false,
     stage: 'QUERY_POLL',
     errorCode: 'AI_QUERY_HTTP_FAILED',
-    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
-    headers: { 'Api-Revision': KSP_AI_DEFAULTS.INTERACTIONS_API_REVISION }
+    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID'
   });
   var status = kspGeminiInteractionStatus_(current);
   if (status === 'completed') return { status: 'completed', interactionId: value, response: current };
@@ -268,13 +321,15 @@ function kspBuildGeminiGenerateContentRequest_(request) {
   };
   var metadataFilter = kspAiTrim_(options.metadataFilter);
   if (metadataFilter) fileSearch.metadata_filter = metadataFilter;
+  var exactGeneration = kspGeminiGenerationConfig_(options);
+  var generationConfig = { maxOutputTokens: exactGeneration.max_output_tokens };
+  if (exactGeneration.thinking_level) {
+    generationConfig.thinkingConfig = { thinkingLevel: exactGeneration.thinking_level };
+  }
   return {
     contents: [{ parts: [{ text: kspBuildFeatureFreezePrompt_(input) }] }],
     tools: [{ file_search: fileSearch }],
-    generationConfig: {
-      thinkingConfig: { thinkingLevel: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL },
-      maxOutputTokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
-    }
+    generationConfig: generationConfig
   };
 }
 

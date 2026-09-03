@@ -2,25 +2,25 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 6,
-  "source_git_commit": "b3556585bd4e9240793ee04a6a5f5f9d6e679561",
+  "source_git_commit": "f8b1487b804eaa0d1cb89184de1a4e169fbd0de7",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "6ef11efb03eaff657750c74f919d42fe92447139e718cade6179e2a5110c4127",
-  "bundle_file_sha256": "d8c2a98ccd746b3f6575f266ee5291b02238b0bade4694f2a47aa4926d87e989",
+  "bundle_payload_sha256": "0923ed61443cbbb3e3e939a4ec1ce55caa0ad1ea6af43f40146e0229927a90b2",
+  "bundle_file_sha256": "9d0b244c1128b4afdcbb25df794a8d2647d2cfb194cd1253f18112d8aa14a6ef",
   "source_manifest_sha256": "ac17af72f807a89a162f82f3da5d7a2bcf3f14404acd59f9d0316ae9ae413dfa",
   "source_order_sha256": "35bebf16094d45474dfb99f2a5b7db22c191fc51b6536cc0ba20eb0c796eb6b9",
   "bundle_metrics": {
-    "bytes": 946446,
-    "characters": 912702,
-    "lines": 15720,
+    "bytes": 970927,
+    "characters": 936501,
+    "lines": 16057,
     "server_source_count": 59,
     "embedded_html_count": 22
   },
   "server_sources": [
     {
       "file": "src/00_Core.gs",
-      "bytes": 28451,
-      "sha256": "895b8bfb91e6c4d0037adaf027fbd9b23d720c271f5677873f317c6266fc31f0"
+      "bytes": 28612,
+      "sha256": "db00616471fe6b525889172b64937624d8565bbf1c1a51321c23a2a9fbec3ea7"
     },
     {
       "file": "src/01_DistributionResources.gs",
@@ -189,8 +189,8 @@
     },
     {
       "file": "src/130_AiConstants.gs",
-      "bytes": 8329,
-      "sha256": "833656ca520e9d5939d2d361a0dda26ecb12a3212ef35b2e11bd737167c656c1"
+      "bytes": 8582,
+      "sha256": "fa14c8b6a890320729053c18d553f5d65d01da7c78a4cf299835935e88981aa2"
     },
     {
       "file": "src/131_AiFileSearchContracts.gs",
@@ -199,8 +199,8 @@
     },
     {
       "file": "src/132_AiKnowledgeContracts.gs",
-      "bytes": 8197,
-      "sha256": "b0f63490327e8d7da7ac9a4a6e1cfb10bd79b02436e8e3cff7a9dc043a33e266"
+      "bytes": 8151,
+      "sha256": "2a1f6e1797f7a5d93e5a88f3202bd5d164fb5707901758689e8f503b5bcf598d"
     },
     {
       "file": "src/133_AiRetryContracts.gs",
@@ -209,8 +209,8 @@
     },
     {
       "file": "src/134_AiModelPolicyContracts.gs",
-      "bytes": 22946,
-      "sha256": "3505fe5c10a1306eb897d44fd08994651e21af640be1cecd0be4a1761472607e"
+      "bytes": 24993,
+      "sha256": "0f1d7ff95d1f38dd2a61eb78df3864afda4b5b1d6927c38398cfcf3e90e14d1f"
     },
     {
       "file": "src/140_AiSourceModels.gs",
@@ -259,13 +259,13 @@
     },
     {
       "file": "src/160_AiEnvironment.gs",
-      "bytes": 6829,
-      "sha256": "5467f1bf2cbc33daf5e6c1331966b69019de78735015452af850ac874e8e6334"
+      "bytes": 6909,
+      "sha256": "4e7d8513e96fec9d90dd5fb622e59b29922a781e2ec8df419292413fa9cb19d0"
     },
     {
       "file": "src/161_GeminiRestClient.gs",
-      "bytes": 24084,
-      "sha256": "3907a4417db6fd3033a6a3f95276a4f6ab7ddc4ac9086991a427f9884eec8f5c"
+      "bytes": 27118,
+      "sha256": "eaf15735d80fbf46f4d0146c743a4db6539c4d905c78e513dda798e18ca520ca"
     },
     {
       "file": "src/162_AiLiveDataAdapters.gs",
@@ -279,13 +279,13 @@
     },
     {
       "file": "src/164_AiProviderCore.gs",
-      "bytes": 90342,
-      "sha256": "05cd307617a1620327dd4d1460bb41931f4f94b19b4cf92610f9b2ef98b09032"
+      "bytes": 90956,
+      "sha256": "4e0f34faf0328db39ea3f4ccb3107c1a8aef24a57730e15424a1d4c5e63845c7"
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
-      "bytes": 30937,
-      "sha256": "50c37e3f65c24dc52ffd86e863595339e27de703535d57b7c72e9a033fea921a"
+      "bytes": 45265,
+      "sha256": "6dfb01a45cf6e0ca97b7679a8017bc259411b02a90d3de962c4e0231c30311a3"
     },
     {
       "file": "src/170_AiEntryPoints.gs",
@@ -304,8 +304,8 @@
     },
     {
       "file": "src/182_FeatureFreezeKnowledge.gs",
-      "bytes": 7378,
-      "sha256": "e83112f125ae0f08aba8566ff465d04476fe288f247a12ff9b449b65b06e304b"
+      "bytes": 7281,
+      "sha256": "862dfa096f0b63acde027a16bccef702275b0c69689af2e778952709e9697517"
     },
     {
       "file": "src/190_FeatureFreezeDiagnostics.gs",
@@ -321,8 +321,8 @@
     },
     {
       "file": "src/AiProviderSettingsPage.html",
-      "bytes": 5663,
-      "sha256": "aa8210e0c0933b30109872f3272db66a0b95d7db7364f0435a4bd03ea51ce6ad"
+      "bytes": 7546,
+      "sha256": "9772550c49c902bea04788169b3bee9621a26a5316095b4864e8d02db2871a0d"
     },
     {
       "file": "src/ClientActivityAnalytics.html",
@@ -331,8 +331,8 @@
     },
     {
       "file": "src/ClientAiProviderSettings.html",
-      "bytes": 10922,
-      "sha256": "641170cbdd670631842a3f63700e8c73f2612b71dd82635b1502c6489926e441"
+      "bytes": 12673,
+      "sha256": "631ad3b0b727e992539ac355af7a8368dec6ce5b7528d0ee216b41569bca78c0"
     },
     {
       "file": "src/ClientBootstrap.html",
@@ -356,8 +356,8 @@
     },
     {
       "file": "src/ClientKnowledgeSearch.html",
-      "bytes": 31025,
-      "sha256": "ae75920bfc356a694818f7004f6b15386cf7a938983d38fc112f10bf7ce70a77"
+      "bytes": 31397,
+      "sha256": "707350886eab80b1dc953ffd047c712cf3d99ebb2e9961a382fdd49197836796"
     },
     {
       "file": "src/ClientMaintenance.html",

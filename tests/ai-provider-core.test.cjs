@@ -17,6 +17,22 @@ function providerQueueRow(sourceType, sourceId, updatedAt, overrides = {}) {
 
 function createResumableQueryEnvironment(options = {}) {
   const env = createSyncEnvironment();
+  env._debug.context.settings.GEMINI_ENABLED = 'true';
+  env._debug.context.settings.GEMINI_DEFAULT_MODEL = 'gemini-3.8-flash';
+  env._debug.context.settings.AI_MODEL_POLICY_JSON = JSON.stringify({
+    schemaVersion: 1, updatedAt: '2026-09-04T00:00:00.000Z', profiles: [{
+      profileId: 'gemini-38-low', provider: 'GEMINI', modelId: 'gemini-3.8-flash',
+      displayName: 'Gemini 3.8 Flash', family: 'Gemini 3.8', enabled: true, userVisible: true,
+      isProviderDefault: true, apiAccess: 'AVAILABLE', qualification: 'QUALIFIED', fileSearch: true,
+      thinkingProfiles: [{ thinkingProfileId: 'low', label: 'Low', rawValue: 'low', providerDefault: false,
+        enabled: true, qualification: 'QUALIFIED', qualifiedAt: '2026-09-04T00:00:00.000Z' }],
+      defaultThinkingProfileId: 'low', maxOutputTokens: 2048,
+      qualifiedStoreName: 'fileSearchStores/store-synthetic',
+      qualifiedRequestProfileVersion: 'gemini-interactions-file-search-v2',
+      createdAt: '2026-09-04T00:00:00.000Z', updatedAt: '2026-09-04T00:00:00.000Z',
+      qualifiedAt: '2026-09-04T00:00:00.000Z'
+    }]
+  });
   const cache = new Map();
   const claims = new Set();
   const pollResponses = [...(options.pollResponses || [])];
@@ -37,7 +53,7 @@ function createResumableQueryEnvironment(options = {}) {
     cache.set(key, plain(value));
   };
   env.getProviderConfig = (provider) => ({
-    provider, enabled: true, modelId: 'gemini-3.7-flash',
+    provider, enabled: true, modelId: 'gemini-3.8-flash',
     storeName: 'fileSearchStores/store-synthetic', credentialConfigured: true
   });
   env.startQueryProvider = (provider, config, request) => {
@@ -428,7 +444,7 @@ test('Gemini START returns one opaque pending token without polling or Audit', (
     assert.equal(env._resumable.calls.starts, 1);
     assert.equal(env._resumable.calls.polls, 0);
     assert.equal(env._debug.audits.length, 0);
-    assert.equal(env._resumable.calls.startRequests[0].modelId, 'gemini-3.7-flash');
+    assert.equal(env._resumable.calls.startRequests[0].modelId, 'gemini-3.8-flash');
     assert.equal(env._resumable.calls.startRequests[0].background, true);
     assert.deepEqual(env._resumable.calls.startRequests[0].generation_config, {
       thinking_level: 'low', max_output_tokens: 2048
@@ -482,7 +498,7 @@ test('POLL uses one provider cycle, keeps pending state, maps completion, and re
     assert.equal(env._debug.audits[0].Result, 'Success');
     assert.doesNotMatch(JSON.stringify(completed), /interaction-private|provider-document-private/);
     const telemetry = JSON.parse(env._debug.audits[0].After_Metadata_JSON);
-    assert.equal(telemetry.request_profile_version, 'gemini-latency-v1');
+    assert.equal(telemetry.request_profile_version, 'gemini-interactions-file-search-v2');
     assert.equal(telemetry.thinking_level, 'low');
     assert.equal(telemetry.max_output_tokens, 2048);
     assert.equal(telemetry.input_tokens, 12);
