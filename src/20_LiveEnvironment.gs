@@ -274,6 +274,67 @@ function kspCreateAppsScriptEnvironment_() {
   };
 }
 
+function kspCreateInstallerEnvironment_() {
+  var environment = kspCreateAppsScriptEnvironment_();
+
+  environment.getBoundSpreadsheetContext = function () {
+    var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    if (!spreadsheet) return null;
+    var file = Drive.Files.get(spreadsheet.getId(), {
+      supportsAllDrives: true,
+      fields: 'id,name,parents,trashed'
+    });
+    if (!file || file.trashed) return null;
+    return {
+      id: String(file.id || spreadsheet.getId()),
+      name: String(file.name || spreadsheet.getName() || ''),
+      parentIds: (file.parents || []).map(String)
+    };
+  };
+
+  environment.getSessionIdentities = function () {
+    var active = '';
+    var effective = '';
+    try { active = Session.getActiveUser().getEmail() || ''; } catch (ignoredActive) {}
+    try { effective = Session.getEffectiveUser().getEmail() || ''; } catch (ignoredEffective) {}
+    return { active: String(active), effective: String(effective) };
+  };
+
+  environment.hasWebAppDeployment = function () {
+    try {
+      return Boolean(ScriptApp.getService().getUrl());
+    } catch (ignored) {
+      return false;
+    }
+  };
+
+  environment.writeInstallationStatus = function (status) {
+    var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    kspAssert_(spreadsheet, 'INSTALLER_BOUND_SPREADSHEET_REQUIRED',
+      'Installation status requires a bound Spreadsheet.');
+    var sheet = spreadsheet.getSheetByName(KSP_INSTALLATION_SHEET_NAME);
+    if (!sheet) sheet = spreadsheet.insertSheet(KSP_INSTALLATION_SHEET_NAME);
+    var rows = [
+      ['項目', '内容'],
+      ['状態', status.state],
+      ['次に行うこと', status.nextAction],
+      ['作成・再利用した主な項目', status.resourceSummary || ''],
+      ['アプリ版', status.releaseVersion],
+      ['スキーマ版', String(status.schemaVersion)],
+      ['配布元commit', status.sourceCommit || 'modular-source'],
+      ['配布profile', status.bundleProfile],
+      ['bundle payload SHA-256', status.bundlePayloadSha256 || 'source-mode'],
+      ['エラーコード', status.error ? status.error.code : '']
+    ];
+    sheet.clearContents();
+    sheet.getRange(1, 1, rows.length, 2).setValues(rows);
+    sheet.setFrozenRows(1);
+    sheet.autoResizeColumns(1, 2);
+  };
+
+  return environment;
+}
+
 function kspReadHeadersFromSheet_(sheet) {
   var lastColumn = sheet.getLastColumn();
   if (lastColumn < 1 || sheet.getLastRow() < 1) {

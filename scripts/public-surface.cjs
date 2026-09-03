@@ -34,6 +34,11 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
   'updateMeetingAdminCheck'
 ]);
 
+const OPERATOR_ENTRYPOINT_ALLOWLIST = Object.freeze([
+  'installKnowledgeShare',
+  'checkKnowledgeShareReadiness'
+]);
+
 const PRIVILEGED_FUNCTION_NAMES = Object.freeze([
   'setupKnowledgePlatform',
   'validateInstallation',
@@ -199,9 +204,12 @@ function validatePublicSurface(rootDir = path.resolve(__dirname, '..')) {
   const declarations = collectRepositoryPublicSurface(rootDir);
   const names = new Set(declarations.map((declaration) => declaration.name));
   const allowlist = new Set(PUBLIC_FACADE_ALLOWLIST);
+  const operatorAllowlist = new Set(OPERATOR_ENTRYPOINT_ALLOWLIST);
   const publicDeclarations = declarations.filter((declaration) => !declaration.name.endsWith('_'));
-  const unexpectedPublic = publicDeclarations.filter((declaration) => !allowlist.has(declaration.name));
+  const unexpectedPublic = publicDeclarations.filter((declaration) =>
+    !allowlist.has(declaration.name) && !operatorAllowlist.has(declaration.name));
   const missingFacade = PUBLIC_FACADE_ALLOWLIST.filter((name) => !names.has(name));
+  const missingOperatorEntrypoints = OPERATOR_ENTRYPOINT_ALLOWLIST.filter((name) => !names.has(name));
   const privilegedPublic = PRIVILEGED_FUNCTION_NAMES.filter((name) => names.has(name));
   const publicCounts = publicDeclarations.reduce((counts, declaration) => {
     counts[declaration.name] = (counts[declaration.name] || 0) + 1;
@@ -211,6 +219,7 @@ function validatePublicSurface(rootDir = path.resolve(__dirname, '..')) {
   const errors = [];
 
   if (missingFacade.length) errors.push(`Missing required public facade: ${missingFacade.join(', ')}`);
+  if (missingOperatorEntrypoints.length) errors.push(`Missing guarded operator entrypoint: ${missingOperatorEntrypoints.join(', ')}`);
   if (unexpectedPublic.length) {
     errors.push(`Unexpected browser-callable top-level functions: ${unexpectedPublic.map((item) => `${item.name} (${item.file}:${item.line})`).join(', ')}`);
   }
@@ -230,13 +239,15 @@ function validatePublicSurface(rootDir = path.resolve(__dirname, '..')) {
 
   return {
     declarations,
-    publicDeclarations,
+    publicDeclarations: publicDeclarations.filter((declaration) => allowlist.has(declaration.name)),
+    operatorDeclarations: publicDeclarations.filter((declaration) => operatorAllowlist.has(declaration.name)),
     privateDeclarations: declarations.filter((declaration) => declaration.name.endsWith('_'))
   };
 }
 
 module.exports = {
   PUBLIC_FACADE_ALLOWLIST,
+  OPERATOR_ENTRYPOINT_ALLOWLIST,
   PRIVILEGED_FUNCTION_NAMES,
   collectTopLevelFunctionDeclarations,
   collectRepositoryPublicSurface,

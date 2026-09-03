@@ -221,12 +221,14 @@ test('normalizes a valid bootstrap config', () => {
   assert.equal(config.aiSyncIntervalMinutes, 15);
 });
 
-test('rejects a shared source/control folder boundary', () => {
-  assert.throws(() => ksp.kspNormalizeAndValidateConfig_({
+test('accepts the host parent as the shared default source/control boundary', () => {
+  const config = ksp.kspNormalizeAndValidateConfig_({
     environment: 'DEV',
     knowledgeParentFolderId: 'same',
     controlFolderId: 'same'
-  }), /must be different/);
+  });
+  assert.equal(config.knowledgeParentFolderId, 'same');
+  assert.equal(config.controlFolderId, 'same');
 });
 
 test('returns a safe bootstrap template without credentials', () => {
