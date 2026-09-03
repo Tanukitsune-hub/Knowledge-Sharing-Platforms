@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-03 JST
-LAST_VERIFIED_BY: Codex Work 0023 CODEX-01 isolated bundle qualification
+LAST_VERIFIED_BY: Codex Work 0023 CODEX-01 qualification + ChatGPT final-review reconciliation
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -15,7 +15,8 @@ STATUS: ACTIVE / VERIFIED
 - DEPLOYED_SOURCE_COMMIT: `9d7319d1ffe126e8fbd65b373385acd97d5d868d`
 - DEPLOYED_SOURCE_DESCRIPTION: accepted Work 0021 surface including six-format OpenAI support and strict Google Document/Presentation/Spreadsheets editor URL parsing
 - CURRENT_ACTIVE_WORK: `0023 — generated single-file bundle and idempotent installer`
-- CURRENT_ACTIVE_DISPATCH: `0023-CODEX-01 — RETURNED`
+- CURRENT_ACTIVE_DISPATCH: `0023-CODEX-02 — READY`
+- CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-instruction.md`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
 
 ## Application runtime
@@ -119,7 +120,6 @@ CODEX-01 evidence:
 PR: #35 / Draft / Open / unmerged
 DETERMINISTIC_BUNDLE_BUILD: PASS
 EMBEDDED_HTML_RESOURCE_LOADER: PASS
-GUARDED_INSTALLER_AND_READINESS_WRAPPERS: PASS
 REPRODUCIBLE_RELEASE_HASHES: PASS
 SOURCE_AND_BUNDLE_PARITY: PASS
 EXACT_ONE_PASTE_FEASIBILITY: PASS
@@ -139,9 +139,26 @@ The isolated qualification set is under `マイドライブ/Chat GPT-Codex-Only/
 
 The company installation path remains one code paste plus unavoidable Google platform steps and does not depend on personal Drive, Git, Node.js, terminal, or clasp on the operator machine. Full company qualification still requires an organization-approved Shared Drive/domain-user target.
 
+## Work 0023 final-review findings / CODEX-02
+
+The deterministic bundle and one-paste strategy remain accepted. Three exact release-contract gaps must close before PR #35 merges:
+
+```text
+FIRST_INSTALL_OWNER_LATCH: INCOMPLETE
+PARTIAL_INSTALL_CROSS_USER_TAKEOVER_REJECTION: INCOMPLETE
+WEB_APP_URL_ONLY_READY_REJECTION: FAIL
+DEPLOYMENT_SECURITY_ADMIN_ATTESTATION: NOT IMPLEMENTED
+MUTABLE_GLOBAL_COLLISION_GATE: INCOMPLETE
+```
+
+CODEX-02 must atomically persist the first verified installer before setup mutation, reject a different-user partial resume, require explicit guarded administrator confirmation of deployment access/execute-as settings before `READY`, and add duplicate mutable-global/function-global collision validation. It must regenerate the exact bundle and requalify only the isolated personal-DEV installation.
+
+No Work 0021 runtime or AI provider call is authorized.
+
 ## Follow-up routing
 
-- Active: Work 0023 bundle/installer distribution.
+- Active: `0023-CODEX-02` installer security completion and bounded personal-DEV requalification.
+- Later company gate: Shared Drive/domain-user qualification.
 - Deferred near completion: Gemini re-evaluation against then-current APIs/runtime.
 - Separate deferred Work: representative large-file indexing qualification if needed by the real corpus.
 
