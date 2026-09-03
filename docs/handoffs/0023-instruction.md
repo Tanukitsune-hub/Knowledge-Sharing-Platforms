@@ -1,75 +1,48 @@
 # Work 0023 — generated Apps Script bundle and low-friction installer
 
 WORK_ID: `0023`
-DISPATCH_ID: `N/A`
-BALL: `NONE`
-STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
+DISPATCH_ID: `0023-CODEX-01`
+BALL: `CODEX`
+STATUS: `READY`
 MODE: `BUILD / QUALIFICATION`
 
 ## Primary outcome
 
-Preserve the modular GitHub development architecture while delivering a generated single-file Apps Script distribution and one idempotent installer that a non-specialist can use in a fresh company Google Workspace environment.
+Preserve the modular GitHub development architecture while delivering a generated single-file Apps Script distribution and an idempotent installer that a non-specialist can use in a fresh company Google Workspace environment.
 
-## Authoritative sources
+Active detailed instruction:
 
-- `docs/decisions/modular-source-single-bundle-distribution.md`
-- `docs/decisions/bundle-integrity-and-installer-security.md`
-- `docs/planning/work0023-bundle-installer-distribution.md`
-- `docs/operations/company-bundle-installation.md`
-- `docs/standards/apps-script-bundle-installer-standard.md`
+`docs/handoffs/0023-CODEX-01-deterministic-bundle-installer-and-first-runtime-qualification-instruction.md`
 
-The security/integrity clarification governs conflicts involving bundle hashing, installer exposure, OAuth/service parity, or one-file feasibility.
-
-## Acceptance evidence
+## Accepted baseline
 
 ```text
-SOURCE_ARCHITECTURE: MODULAR / PRESERVED
-BUNDLE_BUILD: PASS / REPRODUCIBLE
-BUNDLE_TEST_PARITY: PASS
-INSTALLER_IDEMPOTENCY: PASS
-INSTALLER_UNAUTHORIZED_CALL_REJECTION: PASS
-INSTALLER_FIRST_RUN_IDENTITY_GATE: PASS
-BUNDLE_HASH_CANONICALIZATION: PASS
-BUNDLE_FILE_CHECKSUM: PASS
-OAUTH_AND_SERVICE_PARITY: PASS
-ONE_PASTE_SAVE_AND_EXECUTE: PASS
-FRESH_SHARED_DRIVE_INSTALL: PASS
-WEB_APP_RENDER_FROM_BUNDLE: PASS
-COMPANY_INSTALL_GUIDE: PASS
-NORMAL_OPERATOR_MANUAL_SOURCE_FILES: 1
-BLOCKER: NO
+WORK_0021: ACCEPTED / MERGED
+WORK_0021_MERGE_COMMIT: 533c849bd1229827ec77cd5ad6506312ea286940
+ACCEPTED_PRIVATE_WEB_APP_VERSION: 66
+WORK_0021_RUNTIME_MUTATION: PROHIBITED
 ```
 
 ## Fixed product boundaries
 
 - `src/` remains authoritative and modular;
 - `dist/KnowledgeShare.bundle.gs` is generated and never hand-edited;
-- all required HTML resources are embedded in the distribution bundle;
+- all required HTML resources are embedded in bundle mode;
+- modular and bundle modes share one resource-loader abstraction;
 - installer reuses the existing setup/validation engine;
-- the normal company route does not use a personal Drive template;
-- AI providers and recurring AI synchronization remain disabled by default;
-- Gmail labels/scopes are not added because Knowledge Share does not require them;
-- no major application/business-logic rewrite is authorized;
-- unavoidable platform actions are described accurately rather than hidden.
+- `installKnowledgeShare()` and `checkKnowledgeShareReadiness()` are guarded editor-visible wrappers;
+- AI providers and recurring AI sync are disabled by default;
+- no Gmail labels/scopes are added;
+- normal company install does not require personal Drive templates, Git, Node.js, terminal, `clasp`, raw resource IDs, or many manual Apps Script files;
+- exact one-paste save/parse/select/execute feasibility is a release gate, not an assumption.
 
-## Security and integrity boundaries
+## Current target
 
-- `installKnowledgeShare()` and `checkKnowledgeShareReadiness()` are editor-visible but must be treated as externally invocable because any top-level function without a trailing underscore may be called by name from HTML Service;
-- no normal page links to them, and strict server-side active-user/administrator authorization must run before any mutation;
-- first installation requires an identified active user and an unambiguous active/effective-user identity boundary;
-- all setup, validation, migration, trigger, provider, and Drive helpers remain private;
-- the bundle header must not contain an undefined ordinary hash of its own final bytes;
-- use a versioned canonical payload hash in the bundle and record the actual final-file SHA-256 in `dist/release-manifest.json`;
-- fresh installation must verify actual OAuth/service behavior against the approved manifest contract;
-- the exact generated bundle must be proven pasteable, saveable, selectable, and executable as one file in the target Apps Script runtime.
+CODEX-01 should implement the deterministic bundle/build path, HTML embedding/loader parity, release hashes/manifest, guarded installer/readiness core, source/bundle parity tests, and the first bounded fresh-install runtime slice if the environment permits.
 
-## Planned timing
-
-Work 0023 begins after Work 0021 stabilizes the intended feature surface and before historical-material migration and final company-environment qualification.
-
-No Codex dispatch is active yet. The natural first execution dispatch is reserved as `0023-CODEX-01` after ChatGPT refreshes the exact GitHub/runtime baseline.
+If the exact bundle cannot be pasted, saved, parsed, selected, or executed as a single Apps Script source file, stop for a Strategy Reset rather than weakening the one-paste product requirement.
 
 WORK_ID: `0023`
-DISPATCH_ID: `N/A`
-BALL: `NONE`
-STATUS: `PLANNED / READY_FOR_IMPLEMENTATION`
+DISPATCH_ID: `0023-CODEX-01`
+BALL: `CODEX`
+STATUS: `READY`
