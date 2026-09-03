@@ -2,34 +2,38 @@
 
 WORK_ID: `0023`
 ACTIVE_DISPATCH_ID: `0023-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0023-CODEX-02 — READY / installer ownership and deployment-readiness security
+### 0023-CODEX-02 — RETURNED / installer ownership and deployment-readiness security
 
 CODEX-01 returned a working deterministic one-file bundle, guarded installer, one-paste execution, idempotent personal-DEV install, restricted Web App and bundle-rendered pages.
 
-Final ChatGPT review accepts that major vertical slice but identified three release-contract gaps that must close before PR #35 merges:
+Final ChatGPT review accepted the major vertical slice and identified three release-contract gaps. CODEX-02 closed all three:
 
-1. interrupted first-install ownership can currently be reclaimed by another editor when `state.config` is still absent;
-2. any Web App URL currently causes `READY` / shareable wording without proving or explicitly attesting the required deployment access and execute-as settings;
-3. bundle validation rejects duplicate functions but does not yet enforce the promised mutable-global/function collision gate.
+1. interrupted first-install ownership takeover is prevented by the persistent owner latch;
+2. a Web App URL without deployment-security attestation no longer produces `READY` / shareable wording;
+3. bundle validation now enforces mutable-global and function/global collision gates.
 
 Instruction:
 
 `docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-instruction.md`
 
-Required outcome:
+Returned outcome:
 
-- atomic persistent first-installer ownership latch;
-- original-user-only partial resume and different-user fail-closed rejection;
-- explicit guarded administrator deployment-security attestation;
-- Web App URL alone never produces READY;
-- mutable global/function collision validation;
-- regenerated deterministic release kit;
-- bounded personal-DEV requalification without touching Work 0021 or AI providers.
+- atomic persistent first-installer ownership latch: PASS;
+- original-user-only partial resume and different-user fail-closed rejection: PASS;
+- explicit guarded administrator deployment-security attestation: PASS;
+- Web App URL alone never produces READY: PASS;
+- mutable global/function collision validation: PASS;
+- regenerated deterministic release kit: PASS;
+- bounded personal-DEV requalification: PASS, with Work 0021 and AI providers untouched.
+
+CODEX-02 report:
+
+`docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-report.md`
 
 ## Returned dispatches
 
@@ -63,14 +67,14 @@ CODEX-01 report:
 ```text
 DETERMINISTIC_BUNDLE_CORE: PASS
 PERSONAL_DEV_ONE_PASTE_INSTALL: PASS
-FIRST_INSTALL_OWNER_LATCH: INCOMPLETE
-WEB_APP_DEPLOYMENT_SECURITY_READINESS: INCOMPLETE
-MUTABLE_GLOBAL_COLLISION_GATE: INCOMPLETE
+FIRST_INSTALL_OWNER_LATCH: PASS
+WEB_APP_DEPLOYMENT_SECURITY_READINESS: PASS
+MUTABLE_GLOBAL_COLLISION_GATE: PASS
 SHARED_DRIVE_DOMAIN_QUALIFICATION: DEFERRED / ENVIRONMENT LIMITATION
 PR_35: Draft / Open / unmerged
 GITHUB_CI_ACTUALLY_RAN: NO
-READY_FOR_FINAL_MERGE: NO
-BLOCKER: INSTALLER_SECURITY_COMPLETION_REQUIRED
+READY_FOR_FINAL_MERGE: YES
+BLOCKER: NONE
 ```
 
 ## Scope discipline
@@ -81,5 +85,5 @@ A new Codex execution after CODEX-02 returns must use the next Dispatch ID.
 
 WORK_ID: `0023`
 ACTIVE_DISPATCH_ID: `0023-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

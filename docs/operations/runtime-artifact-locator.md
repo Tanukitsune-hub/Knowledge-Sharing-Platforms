@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-03 JST
-LAST_VERIFIED_BY: Codex Work 0023 CODEX-01 qualification + ChatGPT final-review reconciliation
+LAST_VERIFIED_BY: Codex Work 0023 CODEX-02 final personal-DEV qualification
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -15,7 +15,7 @@ STATUS: ACTIVE / VERIFIED
 - DEPLOYED_SOURCE_COMMIT: `9d7319d1ffe126e8fbd65b373385acd97d5d868d`
 - DEPLOYED_SOURCE_DESCRIPTION: accepted Work 0021 surface including six-format OpenAI support and strict Google Document/Presentation/Spreadsheets editor URL parsing
 - CURRENT_ACTIVE_WORK: `0023 — generated single-file bundle and idempotent installer`
-- CURRENT_ACTIVE_DISPATCH: `0023-CODEX-02 — READY`
+- CURRENT_ACTIVE_DISPATCH: `0023-CODEX-02 — RETURNED`
 - CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0023-CODEX-02-installer-owner-latch-and-deployment-readiness-security-instruction.md`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
 
@@ -139,25 +139,34 @@ The isolated qualification set is under `マイドライブ/Chat GPT-Codex-Only/
 
 The company installation path remains one code paste plus unavoidable Google platform steps and does not depend on personal Drive, Git, Node.js, terminal, or clasp on the operator machine. Full company qualification still requires an organization-approved Shared Drive/domain-user target.
 
-## Work 0023 final-review findings / CODEX-02
+## Work 0023 CODEX-02 final qualification
 
-The deterministic bundle and one-paste strategy remain accepted. Three exact release-contract gaps must close before PR #35 merges:
+The deterministic bundle and one-paste strategy remain accepted. CODEX-02 closed the three final release-contract gaps:
 
 ```text
-FIRST_INSTALL_OWNER_LATCH: INCOMPLETE
-PARTIAL_INSTALL_CROSS_USER_TAKEOVER_REJECTION: INCOMPLETE
-WEB_APP_URL_ONLY_READY_REJECTION: FAIL
-DEPLOYMENT_SECURITY_ADMIN_ATTESTATION: NOT IMPLEMENTED
-MUTABLE_GLOBAL_COLLISION_GATE: INCOMPLETE
+FIRST_INSTALL_OWNER_LATCH: PASS
+PARTIAL_INSTALL_CROSS_USER_TAKEOVER_REJECTION: PASS / deterministic hostile-call evidence
+WEB_APP_URL_ONLY_READY_REJECTION: PASS
+DEPLOYMENT_SECURITY_ADMIN_ATTESTATION: PASS
+MUTABLE_GLOBAL_COLLISION_GATE: PASS
+BUNDLE_SOURCE_COMMIT: b3556585bd4e9240793ee04a6a5f5f9d6e679561
+ISOLATED_IMMUTABLE_VERSION: 2
+ISOLATED_VERSIONED_WEB_APP_DEPLOYMENTS: 1 / same deployment updated once
+PERSONAL_DEV_RESOURCE_DUPLICATES: 0
+WEB_APP_INDEX_RENDER: PASS
+WEB_APP_KNOWLEDGE_SEARCH_RENDER: PASS
+WORK_0021_RUNTIME_MUTATED: NO
+OPENAI_API_CALLED: NO
+GEMINI_API_CALLED: NO
 ```
 
-CODEX-02 must atomically persist the first verified installer before setup mutation, reject a different-user partial resume, require explicit guarded administrator confirmation of deployment access/execute-as settings before `READY`, and add duplicate mutable-global/function-global collision validation. It must regenerate the exact bundle and requalify only the isolated personal-DEV installation.
+The isolated qualification retained the existing two folders and three spreadsheets. A URL without attestation returned `ACTION_REQUIRED`; the manually reviewed self-executing/self-only deployment became `READY` only after guarded administrator confirmation. The same Web App was updated to isolated version 2, and representative Index and Knowledge Search pages rendered from the exact bundle.
 
-No Work 0021 runtime or AI provider call is authorized.
+No Work 0021 runtime mutation or AI provider call occurred during CODEX-02.
 
 ## Follow-up routing
 
-- Active: `0023-CODEX-02` installer security completion and bounded personal-DEV requalification.
+- Final review: PR #35 after returned `0023-CODEX-02`; no additional Work 0023 dispatch is required for non-blocking refinements.
 - Later company gate: Shared Drive/domain-user qualification.
 - Deferred near completion: Gemini re-evaluation against then-current APIs/runtime.
 - Separate deferred Work: representative large-file indexing qualification if needed by the real corpus.

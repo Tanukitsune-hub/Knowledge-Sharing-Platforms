@@ -2,9 +2,9 @@
 
 WORK_ID: `0023`
 DISPATCH_ID: `0023-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
-MODE: `REVIEW_FIX -> FINAL PERSONAL-DEV QUALIFICATION`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
+MODE: `FINAL PERSONAL-DEV QUALIFICATION COMPLETE`
 
 ## Primary outcome
 
@@ -41,28 +41,28 @@ OPENAI/GEMINI_CALLED: NO
 
 Shared Drive/domain-user qualification remains a later company-environment gate and is not a CODEX-02 blocker.
 
-## Active completion gaps
+## CODEX-02 completion
 
-Final review found three material release-contract gaps:
+Final review found three material release-contract gaps, all closed by CODEX-02:
 
-1. a partial first install can be taken over by another editor because ownership is inferred only from completed `state.config`;
-2. URL existence alone currently produces `READY` and shareable wording without explicit confirmation of restricted access and execute-as settings;
-3. the validator checks duplicate functions but not duplicate mutable globals/function-global collisions.
+1. partial first-install takeover: closed by an atomic persistent owner latch;
+2. false readiness from URL existence: closed by guarded deployment-security attestation;
+3. missing mutable-global collision validation: closed by top-level global inventory and negative tests.
 
-CODEX-02 must make the smallest fixes:
+CODEX-02 delivered the smallest coherent fixes:
 
-- atomically latch the first verified installer before setup mutation;
-- require the same owner for interrupted resume and fail closed on identity conflicts;
-- add a guarded explicit administrator deployment-security attestation;
-- keep Web App URL-only state non-ready;
-- add mutable global/function collision validation;
-- regenerate the deterministic release kit and rerun bounded personal-DEV qualification.
+- the first verified installer is latched before setup mutation;
+- interrupted resume requires the same owner and identity conflicts fail closed;
+- deployment security requires explicit guarded administrator attestation;
+- URL-only state remains non-ready;
+- mutable global/function collision validation is enforced;
+- the release kit was regenerated and the existing personal-DEV install upgraded idempotently.
 
 Do not add Apps Script API/service/scope merely to inspect deployment configuration. Do not touch Work 0021 runtime or call OpenAI/Gemini.
 
-After these exact gates pass, stop and return PR #35 for final ChatGPT review. Do not extend into company rollout, general hardening, or cosmetic improvements.
+All exact gates passed. PR #35 is returned for final ChatGPT review without company rollout, general hardening, or cosmetic expansion.
 
 WORK_ID: `0023`
 DISPATCH_ID: `0023-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

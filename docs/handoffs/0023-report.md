@@ -2,12 +2,14 @@
 
 WORK_ID: `0023`
 ACTIVE_DISPATCH_ID: `0023-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Executive conclusion
 
 CODEX-01 successfully implemented and personally qualified the major one-file bundle and installer vertical slice. The architecture is valid and does not require a Strategy Reset.
+
+CODEX-02 closed the three final security/integrity findings, regenerated the bundle, and upgraded the same isolated restricted Web App to immutable version 2. The final candidate is ready for ChatGPT merge review.
 
 Accepted CODEX-01 evidence:
 
@@ -34,19 +36,19 @@ Detailed report:
 
 `docs/handoffs/0023-CODEX-01-deterministic-bundle-installer-and-first-runtime-qualification-report.md`
 
-## Final-review blockers
+## CODEX-02 final-review closure
 
-### 1. Partial first-install ownership takeover
+### 1. Partial first-install ownership takeover — closed
 
-The installer currently treats an installation as first-run whenever completed `state.config` is absent. It writes the bootstrap administrator before setup, but after an interrupted setup another editor can enter the same first-run path and replace the bootstrap administrator. The first verified installer identity is not atomically latched across partial failure.
+The first verified installer is atomically latched under the installer lock before setup mutation. Original-owner resume passes; different-user, conflict, concurrent and malformed claims fail before mutation.
 
-### 2. False READY from Web App URL existence
+### 2. False READY from Web App URL existence — closed
 
-Readiness currently treats any non-empty `ScriptApp.getService().getUrl()` as sufficient for `READY` and “shareable” wording. URL existence does not establish the required restricted audience and execute-as settings. A guarded explicit administrator attestation is required unless a low-friction native inspection method is proven without adding a new API/service/scope.
+URL existence alone now returns `ACTION_REQUIRED`. A guarded administrator confirmation bound to the canonical deployment identity is required before `READY`; changed identity invalidates the confirmation.
 
-### 3. Mutable global collision gate missing
+### 3. Mutable global collision gate missing — closed
 
-The bundle validator rejects duplicate top-level functions, but it does not yet enforce the specified duplicate mutable-global and function/global collision gate.
+The bundle validator now inventories top-level `var`/`let`/`const` declarations and rejects duplicate globals and function/global collisions while ignoring non-code and nested scopes.
 
 Active instruction:
 
@@ -57,24 +59,22 @@ Active instruction:
 ```text
 DETERMINISTIC_BUNDLE_CORE: PASS
 PERSONAL_DEV_ONE_PASTE_INSTALL: PASS
-FIRST_INSTALL_OWNER_LATCH: FAIL / NOT IMPLEMENTED
-PARTIAL_INSTALL_CROSS_USER_TAKEOVER_REJECTION: FAIL / NOT TESTED
-WEB_APP_URL_ONLY_READY_REJECTION: FAIL
-DEPLOYMENT_SECURITY_ADMIN_ATTESTATION: NOT IMPLEMENTED
-MUTABLE_GLOBAL_COLLISION_GATE: INCOMPLETE
+FIRST_INSTALL_OWNER_LATCH: PASS
+PARTIAL_INSTALL_CROSS_USER_TAKEOVER_REJECTION: PASS / deterministic hostile-call coverage
+WEB_APP_URL_ONLY_READY_REJECTION: PASS / deterministic and target runtime
+DEPLOYMENT_SECURITY_ADMIN_ATTESTATION: PASS
+MUTABLE_GLOBAL_COLLISION_GATE: PASS
 SHARED_DRIVE_DOMAIN_QUALIFICATION: PARTIAL_ENVIRONMENT_LIMITATION / later company gate
 GITHUB_CI_ACTUALLY_RAN: NO
-READY_FOR_CHATGPT_FINAL_MERGE: NO
-BLOCKER: INSTALLER_SECURITY_COMPLETION_REQUIRED
+READY_FOR_CHATGPT_FINAL_MERGE: YES
+BLOCKER: NONE
 ```
 
 ## Classification
 
 ### BLOCKER
 
-- atomic first-installer ownership across partial failure;
-- deployment security confirmation before READY/shareable status;
-- promised mutable global/function collision validation.
+- None.
 
 ### FIX SOON
 
@@ -89,9 +89,9 @@ BLOCKER: INSTALLER_SECURITY_COMPLETION_REQUIRED
 - representative large-file qualification;
 - historical-material migration.
 
-After CODEX-02 closes the three exact blockers and bounded personal-DEV validation passes, Work 0023 should stop and return PR #35 for final review rather than entering another general hardening loop.
+CODEX-02 closed the three exact blockers and passed bounded personal-DEV validation. Work 0023 stops here and returns PR #35 for final review.
 
 WORK_ID: `0023`
 ACTIVE_DISPATCH_ID: `0023-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
