@@ -1,6 +1,6 @@
 // GENERATED FILE. DO NOT EDIT.
 // Authoritative source: src/ and scripts/bundle-source-order.json
-var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":6,"sourceCommit":"363842e94182284c80001b19a4641e2a622f5ad1","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"21dc25214b1be79bb93b178222ea4fc432bae72756d72cfcb8531eed343a9401"});
+var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":6,"sourceCommit":"b498c78b6c29cc6acd49f2fcb640b57d868e6727","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"f11d0737489125139521f50e7911c945b029c15ee0922a462ca1e712fa31eeeb"});
 var KSP_BUNDLED_HTML_RESOURCES = Object.freeze({
   "ActivityAnalyticsPage": "<section id=\"page-activity-analytics\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>Activity Analytics</h2><p class=\"hint\">Meeting_Indexの構造化メタデータだけを集計します。Meeting本文は読みません。</p></div>\n    </div>\n    <div class=\"filter-grid analytics-controls\">\n      <div class=\"field\"><label for=\"activity-period\">期間</label><select id=\"activity-period\"><option value=\"monthly\">月次</option><option value=\"quarter\">暦年四半期</option><option value=\"calendarYear\">暦年</option><option value=\"fiscalYear\">会計年度（4月-3月）</option><option value=\"custom\">カスタム（日次）</option><option value=\"cumulative\">累積（月次）</option></select></div>\n      <div class=\"field\"><label for=\"activity-date-from\">開始日</label><input id=\"activity-date-from\" type=\"date\"></div>\n      <div class=\"field\"><label for=\"activity-date-to\">終了日</label><input id=\"activity-date-to\" type=\"date\"></div>\n      <div class=\"field\"><label for=\"activity-dimension\">内訳</label><select id=\"activity-dimension\"><option value=\"counterpartyType\">Counterparty Type</option><option value=\"counterpartyEntity\">Counterparty Entity</option><option value=\"relatedGp\">Related GP</option><option value=\"assetClass\">Asset Class</option><option value=\"team\">Team</option><option value=\"meetingType\">Meeting Type</option><option value=\"status\">Status</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-counterpartyType\">Counterparty Type</label><select id=\"activity-filter-counterpartyType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-counterpartyEntity\">Counterparty Entity</label><select id=\"activity-filter-counterpartyEntity\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-relatedGp\">Related GP</label><select id=\"activity-filter-relatedGp\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-assetClass\">Asset Class</label><select id=\"activity-filter-assetClass\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-team\">Team</label><select id=\"activity-filter-team\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-meetingType\">Meeting Type</label><select id=\"activity-filter-meetingType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-status\">Status</label><select id=\"activity-filter-status\"><option value=\"\">未選択</option></select></div>\n    </div>\n    <div class=\"actions\"><span class=\"hint\">件数は全一致行から計算し、表示上限による省略件数を明示します。</span><button id=\"activity-analytics-refresh\" class=\"action primary\" type=\"button\">集計</button></div>\n    <div id=\"activity-analytics-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>集計サマリー</h2><p id=\"activity-period-summary\" class=\"hint\"></p></div></div>\n    <div id=\"activity-headline\" class=\"analytics-headline\" aria-live=\"polite\"></div>\n    <div id=\"activity-series-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"Meeting件数の期間推移\"></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">Meeting件数の期間別集計</caption><thead><tr><th>期間</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id=\"activity-series-results\"></tbody></table></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>選択した内訳</h2><p id=\"activity-breakdown-summary\" class=\"hint\"></p></div></div>\n    <div id=\"activity-breakdown-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"選択した内訳別Meeting件数\"></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">選択した内訳別集計</caption><thead><tr><th>値</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id=\"activity-breakdown-results\"></tbody></table></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>該当Meeting</h2><p id=\"activity-drill-summary\" class=\"hint\"></p></div></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>Counterparty</th><th>Related GP</th><th>Team / Type</th><th>Status</th><th>月次管理</th></tr></thead><tbody id=\"activity-drill-results\"></tbody></table></div>\n  </div>\n\n  <div id=\"activity-admin-check-card\" class=\"card hidden-panel\">\n    <div class=\"section-heading\"><div><h2>月次管理反映済み</h2><p class=\"hint\">選択した1か月のMeetingについて、管理反映済み状態だけを更新します。</p></div></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">月次管理反映状態</caption><thead><tr><th>Meeting</th><th>日付</th><th>Counterparty</th><th>状態</th><th>操作</th></tr></thead><tbody id=\"activity-admin-check-results\"></tbody></table></div>\n    <div id=\"activity-admin-check-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n</section>\n",
   "AiProviderSettingsPage": "<section id=\"page-ai-provider-settings\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>AIプロバイダ設定</h2><p class=\"hint\">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>\n    </div>\n    <div id=\"ai-provider-admin-notice\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-openai-heading\">\n      <h3 id=\"ai-provider-openai-heading\">ChatGPT / OpenAI</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-openai-key\">確認中…</dd>\n        <dt>Vector Store</dt><dd id=\"ai-provider-openai-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-openai-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\">\n        <div class=\"action-group\">\n          <label for=\"ai-provider-openai-key-input\">OpenAI APIキー</label>\n          <input id=\"ai-provider-openai-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n          <label for=\"ai-provider-sync-source\">同期対象</label>\n          <select id=\"ai-provider-sync-source\" disabled>\n            <option value=\"\">All</option>\n            <option value=\"Meeting\">Meeting</option>\n            <option value=\"Pitchbook\">Pitchbook</option>\n          </select>\n          <label for=\"ai-provider-sync-source-id\">Source ID（個別同期・任意）</label>\n          <input id=\"ai-provider-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n          <button id=\"ai-provider-openai-enable\" class=\"action primary\" type=\"button\" disabled>APIキーを保存して接続確認</button>\n          <button id=\"ai-provider-openai-disable\" class=\"action secondary\" type=\"button\" disabled>OpenAIを無効化</button>\n          <button id=\"ai-provider-openai-sync\" class=\"action secondary\" type=\"button\" disabled>資料を同期して利用開始</button>\n        </div>\n      </div>\n      <p id=\"ai-provider-openai-readonly\" class=\"hint ai-provider-readonly\"></p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-model-policy-heading\">\n      <h3 id=\"ai-model-policy-heading\">モデル / Thinking ポリシー</h3>\n      <p class=\"hint\">利用者に表示する組み合わせだけを登録します。プロバイダが返す新しいモデルは自動で有効化されません。</p>\n      <div class=\"field full\">\n        <label for=\"ai-model-profile-select\">登録済みプロファイル</label>\n        <select id=\"ai-model-profile-select\" disabled><option value=\"\">新規作成</option></select>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-profile-id\">Profile ID</label><input id=\"ai-model-profile-id\" type=\"text\" autocomplete=\"off\" placeholder=\"openai-approved-model\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-provider\">Provider</label><select id=\"ai-model-provider\" disabled><option value=\"OPENAI\">OpenAI</option><option value=\"GEMINI\">Gemini</option></select></div>\n        <div class=\"field\"><label for=\"ai-model-id\">Exact Model ID</label><input id=\"ai-model-id\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-display-name\">表示名</label><input id=\"ai-model-display-name\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-family\">Family</label><input id=\"ai-model-family\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-max-output\">Output上限（任意）</label><input id=\"ai-model-max-output\" type=\"number\" min=\"1\" max=\"65536\" disabled></div>\n      </div>\n      <div class=\"field full\">\n        <label for=\"ai-model-thinking-profiles\">Thinking profiles（1行: ID | 表示名 | provider value。value空欄はプロバイダ標準）</label>\n        <textarea id=\"ai-model-thinking-profiles\" placeholder=\"provider-default | プロバイダ標準 |&#10;low | Low | low\" disabled></textarea>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-default-thinking\">既定Thinking Profile ID</label><input id=\"ai-model-default-thinking\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <label class=\"field\"><span>状態</span><span><input id=\"ai-model-enabled\" type=\"checkbox\" disabled> 有効</span></label>\n        <label class=\"field\"><span>利用者表示</span><span><input id=\"ai-model-user-visible\" type=\"checkbox\" disabled> 表示</span></label>\n        <label class=\"field\"><span>Provider既定</span><span><input id=\"ai-model-provider-default\" type=\"checkbox\" disabled> 既定</span></label>\n      </div>\n      <dl class=\"ai-provider-state\">\n        <dt>API access</dt><dd id=\"ai-model-access-state\">未確認</dd>\n        <dt>File Search qualification</dt><dd id=\"ai-model-qualification-state\">未確認</dd>\n        <dt>Thinking qualification</dt><dd id=\"ai-model-thinking-qualification-state\">未確認</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <button id=\"ai-model-policy-migrate\" class=\"action secondary\" type=\"button\" disabled>現行設定から初期化</button>\n        <button id=\"ai-model-profile-save\" class=\"action primary\" type=\"button\" disabled>プロファイルを保存</button>\n        <button id=\"ai-model-profile-qualify\" class=\"action secondary\" type=\"button\" disabled>接続・File Search確認</button>\n      </div></div>\n    </section>\n  </div>\n</section>\n",
@@ -36,7 +36,9 @@ var KSP_SCHEMA_VERSION = 6;
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
   INSTALLATION_STATE_JSON: 'KSP_INSTALLATION_STATE_JSON',
-  LAST_SETUP_REPORT_JSON: 'KSP_LAST_SETUP_REPORT_JSON'
+  LAST_SETUP_REPORT_JSON: 'KSP_LAST_SETUP_REPORT_JSON',
+  INSTALLER_OWNER_JSON: 'KSP_INSTALLER_OWNER_JSON',
+  DEPLOYMENT_SECURITY_ATTESTATION_JSON: 'KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'
 });
 
 var KSP_RESOURCE_NAMES = Object.freeze({
@@ -1244,6 +1246,8 @@ function kspGetStatus_(environment) {
 
 // ===== BEGIN src/15_Installer.gs =====
 var KSP_INSTALLATION_SHEET_NAME = 'KnowledgeShare_Installation';
+var KSP_INSTALLER_OWNER_LATCH_VERSION = 1;
+var KSP_DEPLOYMENT_SECURITY_ATTESTATION_VERSION = 1;
 
 var KSP_INSTALLER_STATES = Object.freeze({
   INSTALLING: 'INSTALLING',
@@ -1257,35 +1261,147 @@ function kspNormalizeInstallerIdentity_(value) {
   return String(value || '').trim().toLowerCase();
 }
 
-function kspGetInstallerAuthorization_(environment, state) {
-  var bound = environment.getBoundSpreadsheetContext();
-  kspAssert_(bound && bound.id, 'INSTALLER_BOUND_SPREADSHEET_REQUIRED',
-    'このインストーラーは導入先スプレッドシートに紐づくApps Scriptから実行してください。');
-  kspAssert_(Array.isArray(bound.parentIds) && bound.parentIds.length === 1,
-    'INSTALLER_PARENT_AMBIGUOUS', '導入先スプレッドシートの親フォルダを1つにしてください。');
+function kspInstallerError_(code, message) {
+  var error = new Error(message);
+  error.code = code;
+  return error;
+}
 
-  var identities = environment.getSessionIdentities();
-  var active = kspNormalizeInstallerIdentity_(identities && identities.active);
-  var effective = kspNormalizeInstallerIdentity_(identities && identities.effective);
-  kspAssert_(active, 'INSTALLER_ACTIVE_USER_REQUIRED',
-    '会社管理者アカウントを識別できません。識別可能なアカウントで再実行してください。');
+function kspWithInstallerLock_(environment, callback) {
+  var lock = null;
+  try {
+    lock = environment.acquireScriptLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS);
+    return callback();
+  } finally {
+    if (lock) environment.releaseScriptLock(lock);
+  }
+}
 
-  var installed = Boolean(state && state.config);
-  if (!installed) {
-    kspAssert_(effective && active === effective, 'INSTALLER_IDENTITY_AMBIGUOUS',
-      '初回導入では実行ユーザーと有効ユーザーが一致する必要があります。');
-  } else {
-    var administrators = kspNormalizeEmailList_(state.config.adminEmails || []);
+function kspReadInstallerOwner_(environment) {
+  var raw = environment.getProperty(KSP_PROPERTY_KEYS.INSTALLER_OWNER_JSON);
+  if (!raw) return null;
+  var value;
+  try {
+    value = JSON.parse(raw);
+  } catch (ignored) {
+    throw kspInstallerError_('INSTALLER_OWNER_LATCH_INVALID', 'Installer owner latch is malformed.');
+  }
+  var ownerEmail = kspNormalizeInstallerIdentity_(value && value.ownerEmail);
+  kspAssert_(kspIsPlainObject_(value) && value.version === KSP_INSTALLER_OWNER_LATCH_VERSION &&
+    ownerEmail && value.ownerEmail === ownerEmail,
+  'INSTALLER_OWNER_LATCH_INVALID', 'Installer owner latch is invalid.');
+  return ownerEmail;
+}
+
+function kspWriteInstallerOwner_(environment, ownerEmail) {
+  environment.setProperty(KSP_PROPERTY_KEYS.INSTALLER_OWNER_JSON, JSON.stringify({
+    version: KSP_INSTALLER_OWNER_LATCH_VERSION,
+    ownerEmail: ownerEmail
+  }));
+}
+
+function kspBuildInstallerBootstrapConfig_(authorization) {
+  return {
+    environment: 'PROD',
+    knowledgeParentFolderId: authorization.parentId,
+    controlFolderId: authorization.parentId,
+    adminEmails: [authorization.activeEmail],
+    timezone: KSP_DEFAULTS.TIMEZONE,
+    aiSyncEnabled: false,
+    aiSyncIntervalMinutes: KSP_DEFAULTS.AI_SYNC_INTERVAL_MINUTES
+  };
+}
+
+function kspAssertInstallerBootstrapMatches_(environment, expected) {
+  var raw = environment.getProperty(KSP_PROPERTY_KEYS.BOOTSTRAP_CONFIG_JSON);
+  if (!raw) return false;
+  var actual;
+  try {
+    actual = kspNormalizeAndValidateConfig_(JSON.parse(raw));
+  } catch (ignored) {
+    throw kspInstallerError_('INSTALLER_BOOTSTRAP_CONFLICT', 'Installer bootstrap config is malformed.');
+  }
+  var actualAdmins = kspNormalizeEmailList_(actual.adminEmails);
+  var expectedAdmins = kspNormalizeEmailList_(expected.adminEmails);
+  kspAssert_(actual.environment === expected.environment &&
+    actual.knowledgeParentFolderId === expected.knowledgeParentFolderId &&
+    actual.controlFolderId === expected.controlFolderId &&
+    actual.timezone === expected.timezone &&
+    actual.aiSyncEnabled === expected.aiSyncEnabled &&
+    actual.aiSyncIntervalMinutes === expected.aiSyncIntervalMinutes &&
+    actualAdmins.length === 1 && expectedAdmins.length === 1 && actualAdmins[0] === expectedAdmins[0],
+  'INSTALLER_BOOTSTRAP_CONFLICT', 'Installer bootstrap config conflicts with the latched owner or host.');
+  return true;
+}
+
+function kspAuthorizeAndLatchInstaller_(environment) {
+  return kspWithInstallerLock_(environment, function () {
+    var bound = environment.getBoundSpreadsheetContext();
+    kspAssert_(bound && bound.id, 'INSTALLER_BOUND_SPREADSHEET_REQUIRED',
+      'このインストーラーは導入先スプレッドシートに紐づくApps Scriptから実行してください。');
+    kspAssert_(Array.isArray(bound.parentIds) && bound.parentIds.length === 1,
+      'INSTALLER_PARENT_AMBIGUOUS', '導入先スプレッドシートの親フォルダを1つにしてください。');
+
+    var identities = environment.getSessionIdentities();
+    var active = kspNormalizeInstallerIdentity_(identities && identities.active);
+    var effective = kspNormalizeInstallerIdentity_(identities && identities.effective);
+    kspAssert_(active, 'INSTALLER_ACTIVE_USER_REQUIRED',
+      '会社管理者アカウントを識別できません。識別可能なアカウントで再実行してください。');
+
+    var state = kspLoadInstallationState_(environment);
+    var owner = kspReadInstallerOwner_(environment);
+    var installed = Boolean(state && state.config);
+    var administrators = installed ? kspNormalizeEmailList_(state.config.adminEmails || []) : [];
+
+    if (!installed) {
+      kspAssert_(effective && active === effective, 'INSTALLER_IDENTITY_AMBIGUOUS',
+        '初回導入では実行ユーザーと有効ユーザーが一致する必要があります。');
+      if (owner) {
+        kspAssert_(active === owner, 'INSTALLER_OWNER_MISMATCH',
+          '中断した導入は最初に確認された会社管理者だけが再開できます。');
+      }
+      var authorization = {
+        activeEmail: active,
+        ownerEmail: owner || active,
+        parentId: String(bound.parentIds[0]),
+        spreadsheetId: String(bound.id),
+        spreadsheetName: String(bound.name || '')
+      };
+      var bootstrap = kspBuildInstallerBootstrapConfig_(authorization);
+      var hasBootstrap = kspAssertInstallerBootstrapMatches_(environment, bootstrap);
+      if (!owner) {
+        owner = active;
+        kspWriteInstallerOwner_(environment, owner);
+      }
+      authorization.ownerEmail = owner;
+      if (!hasBootstrap) {
+        environment.setProperty(KSP_PROPERTY_KEYS.BOOTSTRAP_CONFIG_JSON, JSON.stringify(bootstrap));
+      }
+      authorization.state = state;
+      return authorization;
+    }
+
     kspAssert_(administrators.indexOf(active) !== -1, 'INSTALLER_ADMIN_REQUIRED',
       '登録済みの会社管理者アカウントで再実行してください。');
-  }
+    if (!owner) {
+      kspAssert_(administrators.length === 1 && administrators[0] === active,
+        'INSTALLER_OWNER_MIGRATION_AMBIGUOUS',
+        'Pre-latch owner migration requires the sole authoritative administrator.');
+      owner = active;
+      kspWriteInstallerOwner_(environment, owner);
+    }
+    kspAssert_(administrators.indexOf(owner) !== -1, 'INSTALLER_OWNER_CONFIG_CONFLICT',
+      'Installer owner is not present in the authoritative administrator configuration.');
 
-  return {
-    activeEmail: active,
-    parentId: String(bound.parentIds[0]),
-    spreadsheetId: String(bound.id),
-    spreadsheetName: String(bound.name || '')
-  };
+    return {
+      activeEmail: active,
+      ownerEmail: owner,
+      parentId: String(bound.parentIds[0]),
+      spreadsheetId: String(bound.id),
+      spreadsheetName: String(bound.name || ''),
+      state: state
+    };
+  });
 }
 
 function kspInstallerSafeError_(error) {
@@ -1296,8 +1412,19 @@ function kspInstallerSafeError_(error) {
     INSTALLER_ACTIVE_USER_REQUIRED: '会社管理者アカウントで再実行してください。',
     INSTALLER_IDENTITY_AMBIGUOUS: '初回導入は実行ユーザーと有効ユーザーが一致する会社管理者アカウントで行ってください。',
     INSTALLER_ADMIN_REQUIRED: '登録済みの会社管理者アカウントで再実行してください。',
+    INSTALLER_OWNER_MISMATCH: '最初に導入を開始した会社管理者アカウントで再実行してください。',
+    INSTALLER_OWNER_LATCH_INVALID: '導入所有者の記録が不正です。サポート担当者に確認してください。',
+    INSTALLER_OWNER_CONFIG_CONFLICT: '導入所有者と管理者設定が一致しません。サポート担当者に確認してください。',
+    INSTALLER_OWNER_MIGRATION_AMBIGUOUS: '既存導入の所有者を一意に確認できません。サポート担当者に確認してください。',
+    INSTALLER_BOOTSTRAP_CONFLICT: '中断した導入設定が現在の管理者または保存場所と一致しません。',
+    SETUP_LOCK_TIMEOUT: '別の導入処理が実行中です。完了後に再実行してください。',
     DUPLICATE_RESOURCE_CANDIDATES: '同名ファイルが複数あります。管理者に確認してください。',
-    INSTALLATION_STATE_MISSING: 'installKnowledgeShare を先に実行してください。'
+    INSTALLATION_STATE_MISSING: 'installKnowledgeShare を先に実行してください。',
+    WEB_APP_DEPLOYMENT_REQUIRED: '会社限定のWeb Appをデプロイしてから再実行してください。',
+    WEB_APP_DEPLOYMENT_IDENTITY_INVALID: 'Web AppのデプロイURLを確認してください。',
+    DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED: 'デプロイ設定を管理者が確認し、confirmKnowledgeShareDeploymentSecurity を実行してください。',
+    DEPLOYMENT_SECURITY_ATTESTATION_INVALID: 'デプロイ確認記録が不正です。管理者が設定を再確認してください。',
+    DEPLOYMENT_SECURITY_ATTESTATION_STALE: 'Web Appが変更されています。管理者がデプロイ設定を再確認してください。'
   };
   return { code: code, message: messages[code] || '導入状態を確認して、会社管理者として再実行してください。' };
 }
@@ -1326,11 +1453,73 @@ function kspPersistInstallerStatus_(environment, status) {
   return status;
 }
 
-function kspRunInstaller_(environment) {
-  var state = kspLoadInstallationState_(environment);
-  var authorization;
+function kspGetWebAppDeploymentIdentity_(environment) {
+  var identity = String(environment.getWebAppDeploymentIdentity() || '').trim();
+  if (!identity) return '';
+  kspAssert_(/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(identity),
+    'WEB_APP_DEPLOYMENT_IDENTITY_INVALID', 'A versioned Web App execution URL is required.');
+  return identity;
+}
+
+function kspReadDeploymentSecurityAttestation_(environment) {
+  var raw = environment.getProperty(KSP_PROPERTY_KEYS.DEPLOYMENT_SECURITY_ATTESTATION_JSON);
+  if (!raw) return null;
+  var value;
   try {
-    authorization = kspGetInstallerAuthorization_(environment, state);
+    value = JSON.parse(raw);
+  } catch (ignored) {
+    throw kspInstallerError_('DEPLOYMENT_SECURITY_ATTESTATION_INVALID', 'Deployment attestation is malformed.');
+  }
+  kspAssert_(kspIsPlainObject_(value) &&
+    value.version === KSP_DEPLOYMENT_SECURITY_ATTESTATION_VERSION &&
+    /^[0-9a-f]{64}$/.test(String(value.deploymentIdentitySha256 || '')) &&
+    /^\d{4}-\d{2}-\d{2}T/.test(String(value.confirmedAt || '')),
+  'DEPLOYMENT_SECURITY_ATTESTATION_INVALID', 'Deployment attestation is invalid.');
+  return value;
+}
+
+function kspBuildDeploymentReadinessStatus_(environment, resourceSummary) {
+  var identity = kspGetWebAppDeploymentIdentity_(environment);
+  if (!identity) {
+    return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.READY_FOR_DEPLOYMENT,
+      'Apps Scriptで会社限定のWeb Appを1回デプロイし、デプロイ設定を確認してください。',
+      { resourceSummary: resourceSummary });
+  }
+
+  var attestation;
+  try {
+    attestation = kspReadDeploymentSecurityAttestation_(environment);
+  } catch (error) {
+    var invalid = kspInstallerSafeError_(error);
+    return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.ACTION_REQUIRED, invalid.message,
+      { resourceSummary: resourceSummary, error: invalid });
+  }
+  if (!attestation) {
+    var required = kspInstallerSafeError_({ code: 'DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED' });
+    return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.ACTION_REQUIRED, required.message,
+      { resourceSummary: resourceSummary, error: required });
+  }
+
+  var currentHash = String(environment.hashDeploymentIdentity(identity) || '');
+  if (!/^[0-9a-f]{64}$/.test(currentHash)) {
+    var hashInvalid = kspInstallerSafeError_({ code: 'DEPLOYMENT_SECURITY_ATTESTATION_INVALID' });
+    return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.ACTION_REQUIRED, hashInvalid.message,
+      { resourceSummary: resourceSummary, error: hashInvalid });
+  }
+  if (attestation.deploymentIdentitySha256 !== currentHash) {
+    var stale = kspInstallerSafeError_({ code: 'DEPLOYMENT_SECURITY_ATTESTATION_STALE' });
+    return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.ACTION_REQUIRED, stale.message,
+      { resourceSummary: resourceSummary, error: stale });
+  }
+
+  return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.READY,
+    '管理者が会社限定のデプロイ設定を確認済みです。Web Appを承認済みの社内利用者へ共有できます。',
+    { resourceSummary: resourceSummary });
+}
+
+function kspRunInstaller_(environment) {
+  try {
+    kspAuthorizeAndLatchInstaller_(environment);
   } catch (error) {
     var denied = kspInstallerSafeError_(error);
     return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.ACTION_REQUIRED, denied.message, { error: denied });
@@ -1340,18 +1529,6 @@ function kspRunInstaller_(environment) {
     kspPersistInstallerStatus_(environment, kspBuildInstallerStatus_(
       KSP_INSTALLER_STATES.INSTALLING, '導入処理を実行しています。'));
 
-    if (!state.config) {
-      environment.setProperty(KSP_PROPERTY_KEYS.BOOTSTRAP_CONFIG_JSON, JSON.stringify({
-        environment: 'PROD',
-        knowledgeParentFolderId: authorization.parentId,
-        controlFolderId: authorization.parentId,
-        adminEmails: [authorization.activeEmail],
-        timezone: KSP_DEFAULTS.TIMEZONE,
-        aiSyncEnabled: false,
-        aiSyncIntervalMinutes: KSP_DEFAULTS.AI_SYNC_INTERVAL_MINUTES
-      }));
-    }
-
     var setup = kspRunSetup_(environment);
     if (!setup.ok) {
       var setupError = setup.errors && setup.errors[0] ? setup.errors[0] : { code: 'INSTALLER_FAILED' };
@@ -1360,6 +1537,7 @@ function kspRunInstaller_(environment) {
         KSP_INSTALLER_STATES.FAILED, safeSetupError.message, { error: safeSetupError }));
     }
 
+    kspAuthorizeAndLatchInstaller_(environment);
     var validation = kspRunValidation_(environment);
     if (!validation.ok) {
       var validationError = validation.errors && validation.errors[0] ? validation.errors[0] : { code: 'INSTALLER_FAILED' };
@@ -1368,14 +1546,8 @@ function kspRunInstaller_(environment) {
         KSP_INSTALLER_STATES.FAILED, safeValidationError.message, { error: safeValidationError }));
     }
 
-    var deploymentReady = Boolean(environment.hasWebAppDeployment());
-    return kspPersistInstallerStatus_(environment, kspBuildInstallerStatus_(
-      deploymentReady ? KSP_INSTALLER_STATES.READY : KSP_INSTALLER_STATES.READY_FOR_DEPLOYMENT,
-      deploymentReady
-        ? '導入は完了しています。Web Appを社内利用者へ共有できます。'
-        : 'Apps Scriptで会社限定のWeb Appを1回デプロイし、checkKnowledgeShareReadiness を実行してください。',
-      { resourceSummary: '必要なフォルダ、Backend、Audit、スキーマ、設定を確認しました。' }
-    ));
+    return kspPersistInstallerStatus_(environment, kspBuildDeploymentReadinessStatus_(environment,
+      '必要なフォルダ、Backend、Audit、スキーマ、設定を確認しました。'));
   } catch (error) {
     var safeError = kspInstallerSafeError_(error);
     return kspPersistInstallerStatus_(environment, kspBuildInstallerStatus_(
@@ -1384,10 +1556,9 @@ function kspRunInstaller_(environment) {
 }
 
 function kspCheckInstallerReadiness_(environment) {
-  var state = kspLoadInstallationState_(environment);
   try {
-    kspGetInstallerAuthorization_(environment, state);
-    kspAssert_(state && state.config, 'INSTALLATION_STATE_MISSING',
+    var authorization = kspAuthorizeAndLatchInstaller_(environment);
+    kspAssert_(authorization.state && authorization.state.config, 'INSTALLATION_STATE_MISSING',
       'installKnowledgeShare を先に実行してください。');
     var validation = kspRunValidation_(environment);
     if (!validation.ok) {
@@ -1396,14 +1567,51 @@ function kspCheckInstallerReadiness_(environment) {
       return kspPersistInstallerStatus_(environment, kspBuildInstallerStatus_(
         KSP_INSTALLER_STATES.FAILED, safeValidationError.message, { error: safeValidationError }));
     }
-    var deploymentReady = Boolean(environment.hasWebAppDeployment());
-    return kspPersistInstallerStatus_(environment, kspBuildInstallerStatus_(
-      deploymentReady ? KSP_INSTALLER_STATES.READY : KSP_INSTALLER_STATES.READY_FOR_DEPLOYMENT,
-      deploymentReady
-        ? '導入は完了しています。Web Appを社内利用者へ共有できます。'
-        : 'Apps Scriptで会社限定のWeb Appを1回デプロイしてください。',
-      { resourceSummary: '必要なリソースとスキーマを確認しました。' }
-    ));
+    return kspPersistInstallerStatus_(environment, kspBuildDeploymentReadinessStatus_(environment,
+      '必要なリソースとスキーマを確認しました。'));
+  } catch (error) {
+    var safeError = kspInstallerSafeError_(error);
+    return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.ACTION_REQUIRED, safeError.message, { error: safeError });
+  }
+}
+
+function kspConfirmInstallerDeploymentSecurity_(environment) {
+  try {
+    var result = kspWithInstallerLock_(environment, function () {
+      var bound = environment.getBoundSpreadsheetContext();
+      kspAssert_(bound && bound.id, 'INSTALLER_BOUND_SPREADSHEET_REQUIRED',
+        'この確認は導入先スプレッドシートに紐づくApps Scriptから実行してください。');
+      kspAssert_(Array.isArray(bound.parentIds) && bound.parentIds.length === 1,
+        'INSTALLER_PARENT_AMBIGUOUS', '導入先スプレッドシートの親フォルダを1つにしてください。');
+      var identities = environment.getSessionIdentities();
+      var active = kspNormalizeInstallerIdentity_(identities && identities.active);
+      kspAssert_(active, 'INSTALLER_ACTIVE_USER_REQUIRED', '会社管理者アカウントを識別できません。');
+      var state = kspLoadInstallationState_(environment);
+      kspAssert_(state && state.config, 'INSTALLATION_STATE_MISSING',
+        'installKnowledgeShare を先に実行してください。');
+      var owner = kspReadInstallerOwner_(environment);
+      var administrators = kspNormalizeEmailList_(state.config.adminEmails || []);
+      kspAssert_(administrators.indexOf(active) !== -1, 'INSTALLER_ADMIN_REQUIRED',
+        '登録済みの会社管理者アカウントで再実行してください。');
+      kspAssert_(owner && administrators.indexOf(owner) !== -1, 'INSTALLER_OWNER_CONFIG_CONFLICT',
+        'Installer owner is not present in the authoritative administrator configuration.');
+      var identity = kspGetWebAppDeploymentIdentity_(environment);
+      kspAssert_(identity, 'WEB_APP_DEPLOYMENT_REQUIRED', 'A Web App deployment is required.');
+      var deploymentIdentitySha256 = String(environment.hashDeploymentIdentity(identity) || '');
+      kspAssert_(/^[0-9a-f]{64}$/.test(deploymentIdentitySha256),
+        'DEPLOYMENT_SECURITY_ATTESTATION_INVALID', 'Deployment identity hash is invalid.');
+      var attestation = {
+        version: KSP_DEPLOYMENT_SECURITY_ATTESTATION_VERSION,
+        deploymentIdentitySha256: deploymentIdentitySha256,
+        confirmedAt: environment.nowIso()
+      };
+      environment.setProperty(KSP_PROPERTY_KEYS.DEPLOYMENT_SECURITY_ATTESTATION_JSON,
+        JSON.stringify(attestation));
+      return attestation;
+    });
+    kspAssert_(result, 'DEPLOYMENT_SECURITY_ATTESTATION_INVALID', 'Deployment attestation was not saved.');
+    return kspPersistInstallerStatus_(environment, kspBuildDeploymentReadinessStatus_(environment,
+      '必要なリソースとスキーマ、および管理者による会社限定デプロイ設定の確認を完了しました。'));
   } catch (error) {
     var safeError = kspInstallerSafeError_(error);
     return kspBuildInstallerStatus_(KSP_INSTALLER_STATES.ACTION_REQUIRED, safeError.message, { error: safeError });
@@ -1714,12 +1922,24 @@ function kspCreateInstallerEnvironment_() {
     return { active: String(active), effective: String(effective) };
   };
 
-  environment.hasWebAppDeployment = function () {
+  environment.getWebAppDeploymentIdentity = function () {
     try {
-      return Boolean(ScriptApp.getService().getUrl());
+      return String(ScriptApp.getService().getUrl() || '');
     } catch (ignored) {
-      return false;
+      return '';
     }
+  };
+
+  environment.hashDeploymentIdentity = function (value) {
+    var bytes = Utilities.computeDigest(
+      Utilities.DigestAlgorithm.SHA_256,
+      String(value || ''),
+      Utilities.Charset.UTF_8
+    );
+    return bytes.map(function (byte) {
+      var normalized = byte < 0 ? byte + 256 : byte;
+      return ('0' + normalized.toString(16)).slice(-2);
+    }).join('');
   };
 
   environment.writeInstallationStatus = function (status) {
@@ -3834,6 +4054,10 @@ function installKnowledgeShare() {
 
 function checkKnowledgeShareReadiness() {
   return kspCheckInstallerReadiness_(kspCreateInstallerEnvironment_());
+}
+
+function confirmKnowledgeShareDeploymentSecurity() {
+  return kspConfirmInstallerDeploymentSecurity_(kspCreateInstallerEnvironment_());
 }
 
 function previewKnowledgeExport(input) {

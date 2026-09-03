@@ -2,25 +2,25 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 6,
-  "source_git_commit": "363842e94182284c80001b19a4641e2a622f5ad1",
+  "source_git_commit": "b498c78b6c29cc6acd49f2fcb640b57d868e6727",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "21dc25214b1be79bb93b178222ea4fc432bae72756d72cfcb8531eed343a9401",
-  "bundle_file_sha256": "089538f7c5f15a46c71f8bcb80f5464018ffb8bb68fbea53c4ff7e4537b10d91",
+  "bundle_payload_sha256": "f11d0737489125139521f50e7911c945b029c15ee0922a462ca1e712fa31eeeb",
+  "bundle_file_sha256": "c24ac9d817f7ebe48f3e5c6e744aae94adc3272fcd5bcb2d49cc935ad7060f3d",
   "source_manifest_sha256": "ac17af72f807a89a162f82f3da5d7a2bcf3f14404acd59f9d0316ae9ae413dfa",
   "source_order_sha256": "35bebf16094d45474dfb99f2a5b7db22c191fc51b6536cc0ba20eb0c796eb6b9",
   "bundle_metrics": {
-    "bytes": 935143,
-    "characters": 902369,
-    "lines": 15496,
+    "bytes": 946411,
+    "characters": 912667,
+    "lines": 15720,
     "server_source_count": 59,
     "embedded_html_count": 22
   },
   "server_sources": [
     {
       "file": "src/00_Core.gs",
-      "bytes": 28315,
-      "sha256": "54181df4d67f71745c38e2cb3ce6adc0ee88d174da4ce936ced659dce4cb4504"
+      "bytes": 28451,
+      "sha256": "895b8bfb91e6c4d0037adaf027fbd9b23d720c271f5677873f317c6266fc31f0"
     },
     {
       "file": "src/01_DistributionResources.gs",
@@ -39,13 +39,13 @@
     },
     {
       "file": "src/15_Installer.gs",
-      "bytes": 8196,
-      "sha256": "624a09e81478332ecff435f890090a31a8ae5529003777d315049d1429097b9e"
+      "bytes": 18804,
+      "sha256": "bf7b8e9d16c85e7f0b283fcfa0131c107833775a4cc0b9bad3c2517e6362e252"
     },
     {
       "file": "src/20_LiveEnvironment.gs",
-      "bytes": 13803,
-      "sha256": "11f31fb2e78404a26cd41c154498a2552901055a36086001c496f2849322fd81"
+      "bytes": 14188,
+      "sha256": "b7de953302569c208db2ac987dd9646b650e615869425f199ae7ed858fcec98d"
     },
     {
       "file": "src/30_MeetingCore.gs",
@@ -129,8 +129,8 @@
     },
     {
       "file": "src/99_EntryPoints.gs",
-      "bytes": 1570,
-      "sha256": "fda51f51224092d3a0d070713a7a6f0071002dec4515fd34a52e76fb244346e0"
+      "bytes": 1709,
+      "sha256": "ba6b6b56b62ceaecd604652f10c61e32434323bb1c8dd6d86c431da350d23293"
     },
     {
       "file": "src/100_MaintenanceCore.gs",
