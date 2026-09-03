@@ -92,6 +92,7 @@ function ownerLatch(ownerEmail = 'admin@example.com') {
 
 const DEPLOYMENT_A = 'https://script.google.com/macros/s/qualification-a/exec';
 const DEPLOYMENT_B = 'https://script.google.com/macros/s/qualification-b/exec';
+const DEVELOPMENT_A = 'https://script.google.com/macros/s/qualification-a/dev';
 
 test('blank and ambiguous first-run identities fail before mutation', () => {
   for (const options of [
@@ -290,6 +291,22 @@ test('deployment URL requires matching guarded administrator attestation before 
   assert.equal(context.kspCheckInstallerReadiness_(environment).state, 'READY');
 });
 
+test('development-mode service URL is canonicalized to the matching versioned deployment identity', () => {
+  const context = loadInstaller();
+  const environment = createEnvironment({ deploymentUrl: DEVELOPMENT_A });
+  installSetupStub(context, { setup: 0, resourceCreates: 0 });
+
+  const beforeAttestation = context.kspRunInstaller_(environment);
+  assert.equal(beforeAttestation.state, 'ACTION_REQUIRED');
+  assert.equal(beforeAttestation.error.code, 'DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED');
+
+  assert.equal(context.kspConfirmInstallerDeploymentSecurity_(environment).state, 'READY');
+  const attestation = JSON.parse(environment._debug.properties.get('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'));
+  assert.equal(attestation.deploymentIdentitySha256,
+    crypto.createHash('sha256').update(DEPLOYMENT_A).digest('hex'));
+  assert.equal(context.kspCheckInstallerReadiness_(environment).state, 'READY');
+});
+
 test('changed deployment identity invalidates prior attestation', () => {
   const context = loadInstaller();
   const properties = new Map();
@@ -340,6 +357,21 @@ test('missing deployment remains READY_FOR_DEPLOYMENT and malformed URL cannot b
   assert.equal(context.kspConfirmInstallerDeploymentSecurity_(malformed).error.code,
     'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
   assert.equal(malformed._debug.properties.has('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'), false);
+
+  for (const deploymentUrl of [
+    'http://script.google.com/macros/s/qualification-a/dev',
+    'https://script.google.com.evil.example/macros/s/qualification-a/dev',
+    'https://script.google.com/macros/s/qualification-a/dev/extra',
+    'https://script.google.com/macros/s/qualification-a/dev?unexpected=1'
+  ]) {
+    const invalid = createEnvironment({
+      deploymentUrl,
+      properties: Object.fromEntries(environment._debug.properties)
+    });
+    assert.equal(context.kspConfirmInstallerDeploymentSecurity_(invalid).error.code,
+      'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
+    assert.equal(invalid._debug.properties.has('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'), false);
+  }
 });
 
 test('normal HTML never references guarded installer entrypoints', () => {

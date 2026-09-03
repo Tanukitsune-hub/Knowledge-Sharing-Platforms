@@ -209,9 +209,9 @@ function kspPersistInstallerStatus_(environment, status) {
 function kspGetWebAppDeploymentIdentity_(environment) {
   var identity = String(environment.getWebAppDeploymentIdentity() || '').trim();
   if (!identity) return '';
-  kspAssert_(/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(identity),
+  kspAssert_(/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/(?:exec|dev)$/.test(identity),
     'WEB_APP_DEPLOYMENT_IDENTITY_INVALID', 'A versioned Web App execution URL is required.');
-  return identity;
+  return identity.replace(/\/dev$/, '/exec');
 }
 
 function kspReadDeploymentSecurityAttestation_(environment) {
