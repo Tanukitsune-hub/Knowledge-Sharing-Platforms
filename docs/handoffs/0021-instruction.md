@@ -2,17 +2,17 @@
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
-MODE: `BUILD / QUALIFICATION -> FINAL WORK READINESS`
+BALL: `CODEX`
+STATUS: `READY`
+MODE: `REVIEW_FIX -> FINAL WORK QUALIFICATION`
 
 Primary instruction:
 
 `docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-instruction.md`
 
-Additional bounded deployment authorization:
+Current bounded authorization:
 
-`docs/handoffs/0021-CODEX-04-additional-bounded-deployment-authorization.md`
+`docs/handoffs/0021-CODEX-04-google-editor-url-parser-fix-authorization.md`
 
 Current report:
 
@@ -24,31 +24,28 @@ Runtime locator:
 
 ## Accepted state
 
-Work 0021 remains accepted through CODEX-03. CODEX-04 has additionally completed normal registration for six tiny PDF/PPTX/XLSX/DOCX/TXT/EML Pitchbooks. PDF and PPTX exact OpenAI sync passed.
+Work 0021 is accepted through CODEX-03. CODEX-04 has completed normal six-file registration, exact OpenAI sync 6/6, grounded query/source-ID checks 6/6, and the EML attachment boundary. The same private Web App is version 65.
 
-Native XLSX was rejected by the current OpenAI path. A bounded deterministic cell-text representation was implemented. Version 64 exposed an Apps Script ZIP-Blob representation defect before provider upload. The final named ZIP-Blob correction at `55190ae567bca37aaa5dabff3a2ac881bf43c427` passes `373/373`, was read back `80/80`, and is deployed to the same private Web App as version 65.
+## Verified remaining defect
 
-## Returned result
+The final API-independent FULL_OUTPUT preview failed on `DOC-000022`. ChatGPT read-only checks confirm the row and raw PPTX file are valid and share the same File ID. The authoritative Drive `webViewLink` is a valid `https://docs.google.com/presentation/d/<id>/...` URL.
 
-The additional deployment authorization was used exactly once. XLSX passed first; DOCX, TXT and EML then passed one exact sync each. PDF/PPTX were not resynced. One bounded grounded query per all six formats returned the expected token and normalized authoritative source ID. The EML attachment-only marker was absent.
+The adjacent XLSX uses the equally valid `https://docs.google.com/spreadsheets/d/<id>/...` form.
 
-The one API-independent FULL_OUTPUT preview failed closed because the authoritative Drive link for `DOC-000022` could not be confirmed. No package or artifact was created.
+The current Knowledge Export URL parser recognizes `docs.google.com/document/d/...` but omits Presentation and Spreadsheets editor webViewLink forms. This is the isolated root cause; do not rewrite the Backend rows.
 
 ```text
-RUNTIME_DEPLOYMENT_VERSION: 65
-OPENAI_SEARCH_MATRIX: PASS — 6/6
-EML_ATTACHMENT_BOUNDARY: PASS
-FULL_OUTPUT_FORMAT_REFERENCE_PARITY: FAIL
-TARGET_RUNTIME_QUALIFICATION: FAIL / PARTIAL
-READY_FOR_CHATGPT_FINAL_MERGE: NO
-BLOCKER: FULL_OUTPUT_AUTHORITATIVE_DRIVE_LINK_UNAVAILABLE_DOC_000022
+ROOT_CAUSE: FULL_OUTPUT_GOOGLE_EDITOR_WEBVIEW_URL_SHAPES_OMITTED
+CURRENT_VERSION: 65
+OPENAI_MATRIX: PASS — 6/6
+FULL_OUTPUT_REFERENCE_PARITY: FAIL
 ```
 
-The deployment budget is exhausted. Do not create version 66, automatically create CODEX-05, or repeat registration/sync/query. ChatGPT owns the next bounded decision.
+Resume the same CODEX-04 under the committed authorization. Make the smallest strict parser/test repair, create at most version 66, run exactly one FULL_OUTPUT preview and final read-only integrity check, then stop.
 
-Gemini, broad sync/reindex, `DOC-000018`, old large fixtures, Work 0023, chooser automation repair, new infrastructure, and general hardening remain out of scope.
+No repeat registration or OpenAI sync/query, no Gemini, no large fixtures, no CODEX-05, no Work 0023, and no general hardening.
 
 WORK_ID: `0021`
 DISPATCH_ID: `0021-CODEX-04`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+BALL: `CODEX`
+STATUS: `READY`
