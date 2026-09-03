@@ -2,8 +2,8 @@
 
 WORK_ID: `0023`
 DISPATCH_ID: `0023-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `BUILD / QUALIFICATION`
 
 ## Primary outcome
@@ -38,11 +38,27 @@ WORK_0021_RUNTIME_MUTATION: PROHIBITED
 
 ## Current target
 
-CODEX-01 should implement the deterministic bundle/build path, HTML embedding/loader parity, release hashes/manifest, guarded installer/readiness core, source/bundle parity tests, and the first bounded fresh-install runtime slice if the environment permits.
+CODEX-01 returned the deterministic bundle/build path, HTML embedding/loader parity, release hashes/manifest, guarded installer/readiness core, source/bundle parity tests, and the first bounded fresh-install runtime slice.
+
+Accepted CODEX-01 evidence for review:
+
+```text
+LOGIC_VALIDATION: PASS — 390/390
+ONE_PASTE_SAVE_AND_EXECUTE: PASS
+INSTALLER_IDEMPOTENCY: PASS — duplicates 0
+WEB_APP_RENDER_FROM_BUNDLE: PASS
+FRESH_INSTALL: PARTIAL_ENVIRONMENT_LIMITATION
+FRESH_INSTALL_LOCATION: PERSONAL_DEV_ONLY
+WORK_0021_RUNTIME_MUTATED: NO
+OPENAI_API_CALLED: NO
+GEMINI_API_CALLED: NO
+BLOCKER: NONE
+READY_FOR_CHATGPT_REVIEW: YES
+```
 
 If the exact bundle cannot be pasted, saved, parsed, selected, or executed as a single Apps Script source file, stop for a Strategy Reset rather than weakening the one-paste product requirement.
 
 WORK_ID: `0023`
 DISPATCH_ID: `0023-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

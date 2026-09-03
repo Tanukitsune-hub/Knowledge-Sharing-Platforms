@@ -2,14 +2,16 @@
 
 WORK_ID: `0023`
 ACTIVE_DISPATCH_ID: `0023-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
-### 0023-CODEX-01 — READY / deterministic bundle + installer core + first runtime qualification
+### 0023-CODEX-01 — RETURNED / deterministic bundle + installer core + first runtime qualification
 
 Work 0021 is accepted and merged. Work 0023 is now the active implementation Work.
+
+CODEX-01 implemented the deterministic bundle and guarded installer, passed 390/390 canonical tests, passed the exact one-paste/save/execute gate, and completed a restricted personal-DEV fresh-install slice through `READY` and bundle-rendered Web App pages. Shared Drive/domain-user qualification remains a separately routed environment limitation, not a CODEX-01 blocker.
 
 Instruction:
 
@@ -56,5 +58,5 @@ Only one active Codex dispatch may exist for Work 0023.
 
 WORK_ID: `0023`
 ACTIVE_DISPATCH_ID: `0023-CODEX-01`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

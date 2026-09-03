@@ -1,7 +1,7 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-03 JST
-LAST_VERIFIED_BY: ChatGPT post-merge reconciliation after Work 0021 acceptance
+LAST_VERIFIED_BY: Codex Work 0023 CODEX-01 isolated bundle qualification
 STATUS: ACTIVE / VERIFIED
 
 ## Source
@@ -15,7 +15,7 @@ STATUS: ACTIVE / VERIFIED
 - DEPLOYED_SOURCE_COMMIT: `9d7319d1ffe126e8fbd65b373385acd97d5d868d`
 - DEPLOYED_SOURCE_DESCRIPTION: accepted Work 0021 surface including six-format OpenAI support and strict Google Document/Presentation/Spreadsheets editor URL parsing
 - CURRENT_ACTIVE_WORK: `0023 — generated single-file bundle and idempotent installer`
-- CURRENT_ACTIVE_DISPATCH: `0023-CODEX-01 — READY`
+- CURRENT_ACTIVE_DISPATCH: `0023-CODEX-01 — RETURNED`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
 
 ## Application runtime
@@ -109,24 +109,35 @@ The final API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC
 - CURRENT_PROFILE_QUALIFICATION: PASS
 - GITHUB_DELIVERY_STATE: PR #33 merged
 
-## Work 0023 active boundary
+## Work 0023 CODEX-01 bundle qualification
 
-Work 0023 owns distribution/install only. It must preserve the accepted business behavior and runtime evidence above.
+Work 0023 owns distribution/install only. CODEX-01 preserved the accepted business behavior and runtime evidence above.
 
-Primary next evidence:
+CODEX-01 evidence:
 
 ```text
-DETERMINISTIC_BUNDLE_BUILD
-EMBEDDED_HTML_RESOURCE_LOADER
-GUARDED_INSTALLER_AND_READINESS_WRAPPERS
-REPRODUCIBLE_RELEASE_HASHES
-SOURCE_AND_BUNDLE_PARITY
-EXACT_ONE_PASTE_FEASIBILITY
-FRESH_COMPANY_LIKE_INSTALL
-IDEMPOTENT_RERUN
+PR: #35 / Draft / Open / unmerged
+DETERMINISTIC_BUNDLE_BUILD: PASS
+EMBEDDED_HTML_RESOURCE_LOADER: PASS
+GUARDED_INSTALLER_AND_READINESS_WRAPPERS: PASS
+REPRODUCIBLE_RELEASE_HASHES: PASS
+SOURCE_AND_BUNDLE_PARITY: PASS
+EXACT_ONE_PASTE_FEASIBILITY: PASS
+IDEMPOTENT_RERUN: PASS / duplicates 0
+WEB_APP_RENDER_FROM_BUNDLE: PASS
+FRESH_INSTALL: PARTIAL_ENVIRONMENT_LIMITATION
+FRESH_INSTALL_LOCATION: PERSONAL_DEV_ONLY
+ISOLATED_RUNTIME_ID / URL: VERIFIED / NOT RECORDED
+ISOLATED_IMMUTABLE_VERSION: 1
+ISOLATED_VERSIONED_WEB_APP_DEPLOYMENTS: 1
+WORK_0021_RUNTIME_MUTATED: NO
+OPENAI_API_CALLED: NO
+GEMINI_API_CALLED: NO
 ```
 
-The company installation path must not depend on personal Drive, Git, Node.js, or clasp on the operator machine.
+The isolated qualification set is under `マイドライブ/Chat GPT-Codex-Only/KSP Work 0023 Qualification`. This location was used only because no safe test Shared Drive target was available; it is not a product template or company deployment dependency. Runtime IDs and private URLs are intentionally not recorded.
+
+The company installation path remains one code paste plus unavoidable Google platform steps and does not depend on personal Drive, Git, Node.js, terminal, or clasp on the operator machine. Full company qualification still requires an organization-approved Shared Drive/domain-user target.
 
 ## Follow-up routing
 
