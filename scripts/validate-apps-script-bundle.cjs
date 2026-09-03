@@ -2,7 +2,33 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { buildArtifacts, PAYLOAD_PLACEHOLDER, sha256 } = require('./build-apps-script-bundle.cjs');
-const { collectTopLevelFunctionDeclarations } = require('./public-surface.cjs');
+const {
+  collectTopLevelFunctionDeclarations,
+  collectTopLevelVariableDeclarations
+} = require('./public-surface.cjs');
+
+function validateTopLevelDeclarationCollisions(source, file = '<inline>') {
+  const functions = collectTopLevelFunctionDeclarations(source, file);
+  const globals = collectTopLevelVariableDeclarations(source, file);
+  const globalCounts = globals.reduce((result, item) => {
+    result[item.name] = (result[item.name] || 0) + 1;
+    return result;
+  }, {});
+  const duplicateGlobals = Object.entries(globalCounts)
+    .filter(([, count]) => count > 1)
+    .map(([name]) => name);
+  if (duplicateGlobals.length) {
+    throw new Error(`Duplicate top-level globals in bundle: ${duplicateGlobals.join(', ')}`);
+  }
+  const globalNames = new Set(globals.map((item) => item.name));
+  const functionGlobalCollisions = [...new Set(functions
+    .map((item) => item.name)
+    .filter((name) => globalNames.has(name)))];
+  if (functionGlobalCollisions.length) {
+    throw new Error(`Function/global name collisions in bundle: ${functionGlobalCollisions.join(', ')}`);
+  }
+  return { functions, globals };
+}
 
 function validateBundle(rootDir = path.resolve(__dirname, '..')) {
   const distDir = path.join(rootDir, 'dist');
@@ -24,7 +50,8 @@ function validateBundle(rootDir = path.resolve(__dirname, '..')) {
   if (sha256(canonical) !== releaseManifest.bundle_payload_sha256) throw new Error('Bundle payload hash mismatch.');
   if (sha256(bundle) !== releaseManifest.bundle_file_sha256) throw new Error('Bundle file checksum mismatch.');
 
-  const declarations = collectTopLevelFunctionDeclarations(bundle, 'KnowledgeShare.bundle.gs');
+  const inventory = validateTopLevelDeclarationCollisions(bundle, 'KnowledgeShare.bundle.gs');
+  const declarations = inventory.functions;
   const counts = declarations.reduce((result, item) => {
     result[item.name] = (result[item.name] || 0) + 1;
     return result;
@@ -64,4 +91,4 @@ if (require.main === module) {
   console.log(`Validated Apps Script bundle: ${manifest.bundle_metrics.server_source_count} server sources, ${manifest.bundle_metrics.embedded_html_count} HTML resources.`);
 }
 
-module.exports = { validateBundle };
+module.exports = { validateBundle, validateTopLevelDeclarationCollisions };

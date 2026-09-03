@@ -36,7 +36,8 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
 
 const OPERATOR_ENTRYPOINT_ALLOWLIST = Object.freeze([
   'installKnowledgeShare',
-  'checkKnowledgeShareReadiness'
+  'checkKnowledgeShareReadiness',
+  'confirmKnowledgeShareDeploymentSecurity'
 ]);
 
 const PRIVILEGED_FUNCTION_NAMES = Object.freeze([
@@ -149,7 +150,7 @@ function collectTopLevelFunctionDeclarations(source, file = '<inline>') {
       escaped = false;
       continue;
     }
-    if (character === '/') {
+    if (character === '/' && isLikelyRegexStart(source, index)) {
       state = 'regex';
       escaped = false;
       regexClass = false;
@@ -178,6 +179,177 @@ function collectTopLevelFunctionDeclarations(source, file = '<inline>') {
     let endIndex = nameIndex + 1;
     while (isIdentifierPart(source[endIndex])) endIndex += 1;
     declarations.push({ name: source.slice(nameIndex, endIndex), file, line });
+  }
+
+  return declarations;
+}
+
+function isLikelyRegexStart(source, index) {
+  let cursor = index - 1;
+  while (cursor >= 0 && /\s/.test(source[cursor])) cursor -= 1;
+  if (cursor < 0) return true;
+  if (/[=(:,!&|?{};\[\]+*%~^<>-]/.test(source[cursor])) return true;
+  let end = cursor + 1;
+  while (cursor >= 0 && isIdentifierPart(source[cursor])) cursor -= 1;
+  const previousWord = source.slice(cursor + 1, end);
+  return ['return', 'case', 'throw', 'else', 'do', 'typeof', 'void', 'delete', 'yield', 'await', 'new'].includes(previousWord);
+}
+
+function readTopLevelVariableStatement(source, startIndex, startLine, file) {
+  const declarations = [];
+  let state = 'code';
+  let escaped = false;
+  let regexClass = false;
+  let parenDepth = 0;
+  let bracketDepth = 0;
+  let braceDepth = 0;
+  let expectingName = true;
+  let line = startLine;
+
+  for (let index = startIndex; index < source.length; index += 1) {
+    const character = source[index];
+    const next = source[index + 1];
+    if (character === '\n') line += 1;
+
+    if (state === 'line-comment') {
+      if (character === '\n') state = 'code';
+      continue;
+    }
+    if (state === 'block-comment') {
+      if (character === '*' && next === '/') {
+        state = 'code';
+        index += 1;
+      }
+      continue;
+    }
+    if (state === 'single-quote' || state === 'double-quote' || state === 'template') {
+      if (escaped) escaped = false;
+      else if (character === '\\') escaped = true;
+      else if ((state === 'single-quote' && character === "'") ||
+        (state === 'double-quote' && character === '"') ||
+        (state === 'template' && character === '`')) state = 'code';
+      continue;
+    }
+    if (state === 'regex') {
+      if (character === '\n') state = 'code';
+      else if (escaped) escaped = false;
+      else if (character === '\\') escaped = true;
+      else if (character === '[') regexClass = true;
+      else if (character === ']') regexClass = false;
+      else if (character === '/' && !regexClass) state = 'code';
+      continue;
+    }
+
+    if (character === '/' && next === '/') {
+      state = 'line-comment';
+      index += 1;
+      continue;
+    }
+    if (character === '/' && next === '*') {
+      state = 'block-comment';
+      index += 1;
+      continue;
+    }
+    if (character === "'") { state = 'single-quote'; escaped = false; continue; }
+    if (character === '"') { state = 'double-quote'; escaped = false; continue; }
+    if (character === '`') { state = 'template'; escaped = false; continue; }
+    if (character === '/' && isLikelyRegexStart(source, index)) {
+      state = 'regex';
+      escaped = false;
+      regexClass = false;
+      continue;
+    }
+
+    if (expectingName) {
+      if (/\s/.test(character)) continue;
+      if (!isIdentifierStart(character)) {
+        throw new Error(`Unsupported top-level variable declaration in ${file}:${line}; use a simple identifier.`);
+      }
+      let endIndex = index + 1;
+      while (isIdentifierPart(source[endIndex])) endIndex += 1;
+      declarations.push({ name: source.slice(index, endIndex), file, line });
+      index = endIndex - 1;
+      expectingName = false;
+      continue;
+    }
+
+    if (character === '(') parenDepth += 1;
+    else if (character === ')') parenDepth = Math.max(0, parenDepth - 1);
+    else if (character === '[') bracketDepth += 1;
+    else if (character === ']') bracketDepth = Math.max(0, bracketDepth - 1);
+    else if (character === '{') braceDepth += 1;
+    else if (character === '}') braceDepth = Math.max(0, braceDepth - 1);
+    else if (character === ',' && parenDepth === 0 && bracketDepth === 0 && braceDepth === 0) expectingName = true;
+    else if (character === ';' && parenDepth === 0 && bracketDepth === 0 && braceDepth === 0) {
+      return { declarations, index, line };
+    }
+  }
+
+  return { declarations, index: source.length - 1, line };
+}
+
+function collectTopLevelVariableDeclarations(source, file = '<inline>') {
+  const declarations = [];
+  let state = 'code';
+  let escaped = false;
+  let regexClass = false;
+  let braceDepth = 0;
+  let line = 1;
+
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index];
+    const next = source[index + 1];
+    if (character === '\n') line += 1;
+
+    if (state === 'line-comment') {
+      if (character === '\n') state = 'code';
+      continue;
+    }
+    if (state === 'block-comment') {
+      if (character === '*' && next === '/') { state = 'code'; index += 1; }
+      continue;
+    }
+    if (state === 'single-quote' || state === 'double-quote' || state === 'template') {
+      if (escaped) escaped = false;
+      else if (character === '\\') escaped = true;
+      else if ((state === 'single-quote' && character === "'") ||
+        (state === 'double-quote' && character === '"') ||
+        (state === 'template' && character === '`')) state = 'code';
+      continue;
+    }
+    if (state === 'regex') {
+      if (character === '\n') state = 'code';
+      else if (escaped) escaped = false;
+      else if (character === '\\') escaped = true;
+      else if (character === '[') regexClass = true;
+      else if (character === ']') regexClass = false;
+      else if (character === '/' && !regexClass) state = 'code';
+      continue;
+    }
+
+    if (character === '/' && next === '/') { state = 'line-comment'; index += 1; continue; }
+    if (character === '/' && next === '*') { state = 'block-comment'; index += 1; continue; }
+    if (character === "'") { state = 'single-quote'; escaped = false; continue; }
+    if (character === '"') { state = 'double-quote'; escaped = false; continue; }
+    if (character === '`') { state = 'template'; escaped = false; continue; }
+    if (character === '/' && isLikelyRegexStart(source, index)) {
+      state = 'regex'; escaped = false; regexClass = false; continue;
+    }
+    if (character === '{') { braceDepth += 1; continue; }
+    if (character === '}') { braceDepth = Math.max(0, braceDepth - 1); continue; }
+    if (braceDepth !== 0 || !isIdentifierStart(character) || isIdentifierPart(source[index - 1])) continue;
+
+    let endIndex = index + 1;
+    while (isIdentifierPart(source[endIndex])) endIndex += 1;
+    const word = source.slice(index, endIndex);
+    if (!['var', 'let', 'const'].includes(word)) {
+      index = endIndex - 1;
+      continue;
+    }
+    const statement = readTopLevelVariableStatement(source, endIndex, line, file);
+    declarations.push(...statement.declarations);
+    index = statement.index;
+    line = statement.line;
   }
 
   return declarations;
@@ -250,6 +422,7 @@ module.exports = {
   OPERATOR_ENTRYPOINT_ALLOWLIST,
   PRIVILEGED_FUNCTION_NAMES,
   collectTopLevelFunctionDeclarations,
+  collectTopLevelVariableDeclarations,
   collectRepositoryPublicSurface,
   validatePublicSurface
 };

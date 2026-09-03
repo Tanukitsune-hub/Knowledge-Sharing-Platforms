@@ -300,12 +300,24 @@ function kspCreateInstallerEnvironment_() {
     return { active: String(active), effective: String(effective) };
   };
 
-  environment.hasWebAppDeployment = function () {
+  environment.getWebAppDeploymentIdentity = function () {
     try {
-      return Boolean(ScriptApp.getService().getUrl());
+      return String(ScriptApp.getService().getUrl() || '');
     } catch (ignored) {
-      return false;
+      return '';
     }
+  };
+
+  environment.hashDeploymentIdentity = function (value) {
+    var bytes = Utilities.computeDigest(
+      Utilities.DigestAlgorithm.SHA_256,
+      String(value || ''),
+      Utilities.Charset.UTF_8
+    );
+    return bytes.map(function (byte) {
+      var normalized = byte < 0 ? byte + 256 : byte;
+      return ('0' + normalized.toString(16)).slice(-2);
+    }).join('');
   };
 
   environment.writeInstallationStatus = function (status) {

@@ -259,14 +259,14 @@ No credential, API key, Store ID, deployment ID, or private URL is included in t
 
 `installKnowledgeShare()` should:
 
-1. verify Spreadsheet-bound context and authorization;
+1. acquire the installer lock, verify Spreadsheet-bound context and authorization, and atomically latch the first installer identity;
 2. verify required services and dependency state;
 3. infer the host Spreadsheet and parent folder;
 4. construct the existing bootstrap config in memory;
 5. call the existing setup engine, using its lock and idempotent resource logic rather than duplicating it;
 6. call the existing validation engine;
 7. verify version/schema/resource parentage and duplicate absence;
-8. inspect Web App deployment/readiness state without broadening access;
+8. require a guarded administrator security attestation bound to the current versioned Web App identity without broadening access;
 9. write/update a human-readable `KnowledgeShare_Installation` sheet;
 10. record release/schema/source/profile/payload-hash metadata;
 11. return one bounded readiness object.
@@ -343,13 +343,13 @@ Before deployment:
 READY_FOR_DEPLOYMENT
 ```
 
-After deployment and successful readback/render:
+After manual verification of execute-as/company access settings, guarded administrator attestation, and successful readback/render:
 
 ```text
 READY
 ```
 
-The installer/readiness check never broadens access automatically.
+The installer/readiness check never broadens access automatically. A Web App URL without matching attestation is `ACTION_REQUIRED`, not `READY`. A changed URL invalidates the prior attestation, and later manual deployment-setting changes require re-attestation even when the URL is unchanged.
 
 ## 11. Optional resources
 
@@ -439,8 +439,9 @@ Use a fresh isolated Spreadsheet in a test Shared Drive or equivalent company-li
 6. Google権限を承認する
 7. 「KnowledgeShare_Installation」で READY_FOR_DEPLOYMENT を確認する
 8. デプロイ → 新しいデプロイ → ウェブアプリを1回設定する
-9. checkKnowledgeShareReadiness を実行し、READYを確認する
-10. Web App URLを社内利用者へ共有する
+9. 実行ユーザーと会社限定アクセスを手動確認し、confirmKnowledgeShareDeploymentSecurity を実行する
+10. checkKnowledgeShareReadiness を実行し、READYを確認する
+11. Web App URLを社内利用者へ共有する
 ```
 
 The guide may include screenshots only when they measurably reduce errors. It must identify the exact release and checksum without asking the operator to understand internal source files.

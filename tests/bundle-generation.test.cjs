@@ -4,7 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { buildArtifacts, PAYLOAD_PLACEHOLDER, sha256 } = require('../scripts/build-apps-script-bundle.cjs');
-const { validateBundle } = require('../scripts/validate-apps-script-bundle.cjs');
+const {
+  validateBundle,
+  validateTopLevelDeclarationCollisions
+} = require('../scripts/validate-apps-script-bundle.cjs');
+const { collectTopLevelVariableDeclarations } = require('../scripts/public-surface.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 
@@ -43,4 +47,34 @@ test('exact committed dist artifacts pass freshness, syntax, inventory, and leak
   const manifest = validateBundle(rootDir);
   assert.match(manifest.source_git_commit, /^[0-9a-f]{40}$/);
   assert.doesNotThrow(() => new vm.Script(fs.readFileSync(path.join(rootDir, 'dist', 'KnowledgeShare.bundle.gs'), 'utf8')));
+});
+
+test('top-level global inventory handles var let const and ignores non-code and nested scopes', () => {
+  const source = [
+    "var first = /var ignoredRegex = '[,;]'/;",
+    "let second = 'const ignoredString = 1';",
+    'const third = `let ignoredTemplate = ${1 + 1}`;',
+    '// var ignoredLineComment = 1;',
+    '/* let ignoredBlockComment = 1; */',
+    'function nestedScope() { var ignoredNested = 1; let alsoIgnored = 2; }',
+    'var fourth = 8 / 2, fifth = { values: [1, 2] };'
+  ].join('\n');
+  assert.deepEqual(
+    collectTopLevelVariableDeclarations(source).map((item) => item.name),
+    ['first', 'second', 'third', 'fourth', 'fifth']
+  );
+});
+
+test('bundle collision gate rejects duplicate top-level globals', () => {
+  assert.throws(
+    () => validateTopLevelDeclarationCollisions('var duplicate = 1;\nconst duplicate = 2;'),
+    /Duplicate top-level globals.*duplicate/
+  );
+});
+
+test('bundle collision gate rejects function and global name collisions', () => {
+  assert.throws(
+    () => validateTopLevelDeclarationCollisions('var ratio = 8 / 2; function collide() {}\nlet collide = 1;'),
+    /Function\/global name collisions.*collide/
+  );
 });

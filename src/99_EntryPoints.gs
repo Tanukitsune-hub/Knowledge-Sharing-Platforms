@@ -37,6 +37,10 @@ function checkKnowledgeShareReadiness() {
   return kspCheckInstallerReadiness_(kspCreateInstallerEnvironment_());
 }
 
+function confirmKnowledgeShareDeploymentSecurity() {
+  return kspConfirmInstallerDeploymentSecurity_(kspCreateInstallerEnvironment_());
+}
+
 function previewKnowledgeExport(input) {
   return kspRunKnowledgeExportPreview_(kspCreateKnowledgeExportEnvironment_(), input);
 }
