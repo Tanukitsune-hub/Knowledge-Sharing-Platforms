@@ -13,8 +13,8 @@ STATUS: ACTIVE / VERIFIED
 - DEPLOYED_SOURCE_COMMIT: `55190ae567bca37aaa5dabff3a2ac881bf43c427`
 - DEPLOYED_SOURCE_DESCRIPTION: Work 0021 CODEX-03 surface plus six-format OpenAI indexing and final XLSX named ZIP-Blob path
 - CURRENT_ACTIVE_WORK: `0021 — structured Knowledge Search`
-- CURRENT_ACTIVE_DISPATCH: `0021-CODEX-04`
-- CURRENT_GITHUB_RESUME_AUTHORIZATION: `docs/handoffs/0021-CODEX-04-google-editor-url-parser-fix-authorization.md`
+- CURRENT_ACTIVE_DISPATCH: `0021-CODEX-05`
+- CURRENT_GITHUB_RESUME_AUTHORIZATION: `docs/handoffs/0021-CODEX-05-google-editor-url-parser-fix-instruction.md`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
 
 ## Application runtime
@@ -28,9 +28,9 @@ STATUS: ACTIVE / VERIFIED
 - DEPLOYMENT_VERSION: `65`
 - ENVIRONMENT: personal DEV / qualification
 
-Version 65 is the current deployed runtime. Version 66 is authorized but not yet created.
+Version 65 is the current deployed runtime. Version 66 is authorized for CODEX-05 but not yet created.
 
-## Work 0021 CODEX-04 state
+## Work 0021 CODEX-04 returned state
 
 Six tiny non-confidential Pitchbooks were registered through the normal Web App flow:
 
@@ -54,7 +54,7 @@ WEB_APP_VERSION: 65
 GEMINI_API_CALLED: NO
 ```
 
-The final API-independent FULL_OUTPUT preview failed before artifact creation on `DOC-000022`.
+The final API-independent FULL_OUTPUT preview failed before artifact creation on `DOC-000022` and CODEX-04 returned.
 
 ChatGPT read-only reconciliation established:
 
@@ -67,12 +67,12 @@ ChatGPT read-only reconciliation established:
 ROOT_CAUSE: FULL_OUTPUT_GOOGLE_EDITOR_WEBVIEW_URL_SHAPES_OMITTED
 DATA_REPAIR_REQUIRED: NO
 PROVIDER_REPAIR_REQUIRED: NO
-TARGET_RUNTIME_QUALIFICATION: FAIL / PARTIAL
 FULL_OUTPUT_FORMAT_REFERENCE_PARITY: FAIL
-CURRENT_BLOCKER: FULL_OUTPUT_GOOGLE_EDITOR_WEBVIEW_URL_SHAPES_OMITTED
 ```
 
-Exactly one additional immutable Apps Script version and one update of the same private Web App are authorized, expected version 66. The authorization permits only the strict Presentation/Spreadsheets URL-parser repair, one FULL_OUTPUT preview, and final read-only integrity. It does not permit repeat registration, OpenAI sync/query, Gemini, broad operations, or version 67.
+Because CODEX-04 had already returned, the parser repair is a distinct execution request: `0021-CODEX-05`.
+
+CODEX-05 is authorized for exactly one additional immutable Apps Script version and one update of the same private Web App, expected version 66. It permits only the strict Presentation/Spreadsheets URL-parser repair, one FULL_OUTPUT preview, and final read-only integrity. It does not permit repeat registration, OpenAI sync/query, Gemini, broad operations, or version 67.
 
 ## Data and control artifacts
 
@@ -134,7 +134,7 @@ Exactly one additional immutable Apps Script version and one update of the same 
 
 ## Follow-up routing
 
-- Complete the authorized parser fix and final FULL_OUTPUT gate in the same CODEX-04.
+- Complete CODEX-05 strict Google editor URL parser repair and final FULL_OUTPUT gate.
 - Then ChatGPT final review/merge of Work 0021.
 - Work 0023 bundle/installer follows acceptance.
 - Gemini is re-evaluated near product completion.
