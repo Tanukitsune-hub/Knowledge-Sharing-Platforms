@@ -1,16 +1,20 @@
 # Work 0021 — Structured Knowledge Search
 
 WORK_ID: `0021`
-DISPATCH_ID: `0021-CODEX-05`
+DISPATCH_ID: `0021-CODEX-06`
 BALL: `CODEX`
 STATUS: `READY`
-MODE: `REVIEW_FIX -> FINAL WORK QUALIFICATION`
+MODE: `RECONCILIATION -> FINAL WORK QUALIFICATION`
 
 Active instruction:
 
-`docs/handoffs/0021-CODEX-05-google-editor-url-parser-fix-instruction.md`
+`docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-instruction.md`
 
-CODEX-04 report:
+Current report target:
+
+`docs/handoffs/0021-CODEX-06-runtime-version-reconciliation-and-final-full-output-report.md`
+
+Prior six-format report:
 
 `docs/handoffs/0021-CODEX-04-six-format-openai-capability-and-final-work-qualification-report.md`
 
@@ -18,30 +22,19 @@ Runtime locator:
 
 `docs/operations/runtime-artifact-locator.md`
 
-## Accepted state through CODEX-04
+## Current state
 
-Work 0021 is accepted through CODEX-03. CODEX-04 returned after completing normal six-file registration, exact OpenAI sync 6/6, grounded query/source-ID checks 6/6, and the EML attachment boundary. The same private Web App is version 65.
+Accepted product evidence remains six-format registration, OpenAI exact sync 6/6, grounded source-ID checks 6/6, EML attachment exclusion, and private Web App version 65.
 
-CODEX-04's final API-independent FULL_OUTPUT preview failed on `DOC-000022`.
+A late/stale CODEX-04 runtime session completed the strict Google editor URL parser change locally and validated it (`25/25` focused, `376/376` canonical, source readback `80/80`). It created immutable Apps Script version 66, then accidentally created version 67 after a stale immediate list readback. Neither version was deployed; the existing Web App remains on version 65. The local scoped commit `516a323d4ee00b3134e79719303ddf81d52d5b4b` was not pushed because the remote branch had already advanced.
 
-ChatGPT read-only checks confirm the row and raw PPTX file are valid and share the same File ID. The authoritative Drive `webViewLink` is a valid `https://docs.google.com/presentation/d/<id>/...` URL, while the adjacent XLSX uses `https://docs.google.com/spreadsheets/d/<id>/...`.
+`0021-CODEX-05` is superseded before execution because it assumed version 66 still needed to be created.
 
-The current Knowledge Export URL parser recognizes `docs.google.com/document/d/...` but omits Presentation and Spreadsheets editor forms.
+CODEX-06 must reconcile only the scoped parser/test change onto current remote GitHub state, create no new Apps Script version, verify existing version 66 is the exact intended parser-fix source, update the same Web App to version 66 at most once, run exactly one API-independent FULL_OUTPUT preview, complete final read-only integrity, and stop.
 
-```text
-ROOT_CAUSE: FULL_OUTPUT_GOOGLE_EDITOR_WEBVIEW_URL_SHAPES_OMITTED
-CURRENT_VERSION: 65
-OPENAI_MATRIX: PASS — 6/6
-FULL_OUTPUT_REFERENCE_PARITY: FAIL
-```
-
-Because CODEX-04 had already returned, the parser repair is a new Codex execution request and therefore uses `0021-CODEX-05` under the repository Dispatch governance.
-
-CODEX-05 may make only the smallest strict parser/test repair, create at most version 66, run exactly one FULL_OUTPUT preview and final read-only integrity check, then stop.
-
-No repeat registration or OpenAI sync/query, no Gemini, no large fixtures, no Work 0023, no general hardening, and no version 67.
+Version 67 remains unused/not deployed. No repeat OpenAI sync/query, no Gemini, no Backend rewrite, no Work 0023, and no version 68.
 
 WORK_ID: `0021`
-DISPATCH_ID: `0021-CODEX-05`
+DISPATCH_ID: `0021-CODEX-06`
 BALL: `CODEX`
 STATUS: `READY`
