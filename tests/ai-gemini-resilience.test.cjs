@@ -167,6 +167,7 @@ test('Work 0027 valid Retry-After takes precedence and never crosses the cumulat
     ), (error) => {
       assert.equal(error.attempt, 2);
       assert.equal(error.cumulativeSleepMillis, 15000);
+      assert.equal(error.retryDisposition, 'RETRY_AFTER_EXCEEDS_SLEEP_BUDGET');
       return true;
     });
     assert.equal(calls, 2);
@@ -199,7 +200,8 @@ test('Work 0027 mutating create retries one explicit transient response but neve
     assert.throws(() => ksp.kspGeminiJsonRequestLive_(
       'POST', '/interactions', { input: 'synthetic' },
       { retryPolicy: 'MUTATING_CREATE', stage: 'QUERY_HTTP', errorCode: 'AI_QUERY_HTTP_FAILED' }
-    ), (error) => error.attempt === 1 && error.ambiguousTransport === true);
+    ), (error) => error.attempt === 1 && error.ambiguousTransport === true &&
+      error.retryDisposition === 'AMBIGUOUS_MUTATING_OUTCOME');
     assert.equal(ambiguousCalls, 1);
     assert.deepEqual(sleeps, []);
   });
@@ -212,7 +214,8 @@ test('Work 0027 mutating create retries one explicit transient response but neve
     assert.throws(() => ksp.kspGeminiJsonRequestLive_(
       'POST', '/fileSearchStores', { displayName: 'synthetic' },
       { retryPolicy: 'MUTATING_CREATE', stage: 'STORE_CREATE', errorCode: 'AI_STORE_CREATE_FAILED' }
-    ), (error) => error.providerResourceIdentityPresent === true && error.attempt === 1);
+    ), (error) => error.providerResourceIdentityPresent === true && error.attempt === 1 &&
+      error.retryDisposition === 'PROVIDER_RESOURCE_IDENTITY_PRESENT');
     assert.equal(identifiedCalls, 1);
     assert.deepEqual(sleeps, []);
   });
@@ -370,13 +373,14 @@ test('Work 0027 safe diagnostic is a strict allowlist and never leaks raw provid
   }
 });
 
-function e2eProfile() {
+function e2eProfile(modelId = 'gemini-3.8-flash') {
+  const version = modelId === 'gemini-3.6-flash' ? '36' : modelId === 'gemini-3.7-flash' ? '37' : '38';
   return {
-    profileId: 'gemini-38-low',
+    profileId: `gemini-${version}-low`,
     provider: 'GEMINI',
-    modelId: 'gemini-3.8-flash',
-    displayName: 'Gemini 3.8 Flash',
-    family: 'Gemini 3.8',
+    modelId,
+    displayName: `Gemini 3.${version.slice(1)} Flash`,
+    family: `Gemini 3.${version.slice(1)}`,
     enabled: true,
     userVisible: true,
     isProviderDefault: true,
@@ -411,8 +415,15 @@ function makeE2eEnvironment(options = {}) {
   const calls = [];
   const writes = [];
   const audits = [];
+  const requests = [];
   let source;
   let document;
+  function behaviorFor(collection, modelId, fallback) {
+    const behavior = collection && collection[modelId];
+    if (behavior instanceof Error) throw behavior;
+    if (typeof behavior === 'function') return behavior({ source, document, modelId });
+    return behavior === undefined ? fallback() : behavior;
+  }
   const env = {
     nowIso() { return '2026-09-04T01:02:03.000Z'; },
     hashText(value) {
@@ -430,12 +441,14 @@ function makeE2eEnvironment(options = {}) {
     appendAuditRow(id, row) { audits.push({ id, row: plain(row) }); },
     listGeminiModels() {
       calls.push('MODELS_VISIBILITY');
-      return { models: [{ name: 'models/gemini-3.8-flash' }] };
+      return { models: (options.models || ['gemini-3.7-flash', 'gemini-3.6-flash'])
+        .map((modelId) => ({ name: `models/${modelId}` })) };
     },
     queryGeminiInteraction(request) {
-      calls.push('SHORT_INTERACTIONS');
+      calls.push(`SHORT_INTERACTIONS:${request.model}`);
+      requests.push({ kind: 'SHORT_INTERACTIONS', request: plain(request) });
       const token = request.input.match(/KSP27_SHORT_[A-F0-9]+/)[0];
-      return interaction(token);
+      return behaviorFor(options.shortByModel, request.model, () => interaction(token));
     },
     createFileSearchStore() {
       calls.push('TEMP_STORE_CREATE');
@@ -456,24 +469,27 @@ function makeE2eEnvironment(options = {}) {
       };
       return plain(document);
     },
-    findFileSearchDocumentsBySource() { return document ? [plain(document)] : []; },
+    findFileSearchDocumentsBySource() {
+      if (!document) return [];
+      return Array.from({ length: options.duplicateDocumentCount || 1 }, () => plain(document));
+    },
     queryProvider(provider, config, request) {
-      calls.push('FILE_SEARCH_QUERY');
+      calls.push(`FILE_SEARCH_QUERY:${config.modelId}`);
+      requests.push({ kind: 'FILE_SEARCH_QUERY', config: plain(config), request: plain(request) });
       assert.equal(provider, 'GEMINI');
-      assert.equal(config.modelId, 'gemini-3.8-flash');
+      assert.ok(['gemini-3.7-flash', 'gemini-3.6-flash'].includes(config.modelId));
       assert.equal(config.thinkingRawValue, 'low');
       assert.equal(config.maxOutputTokens, 2048);
       assert.match(request.metadataFilter, new RegExp(`source_id = "${source.sourceId}"`));
-      if (options.queryError) throw options.queryError;
       const token = source.text.match(/KSP27_[A-F0-9]+/)[0];
-      return interaction(token, [{
+      return behaviorFor(options.queryByModel, config.modelId, () => interaction(token, [{
         type: 'file_citation', source: document.name,
         custom_metadata: [
           { key: 'source_type', string_value: source.sourceType },
           { key: 'source_id', string_value: source.sourceId },
           { key: 'content_hash', string_value: source.contentHash }
         ]
-      }]);
+      }]));
     },
     deleteFileSearchStore() {
       calls.push('TEMP_STORE_DELETE');
@@ -484,22 +500,37 @@ function makeE2eEnvironment(options = {}) {
       calls.push('CLEANUP_CONFIRMATION');
       return options.cleanupConfirmed !== false;
     },
-    _debug: { context, calls, writes, audits, profile }
+    _debug: { context, calls, writes, audits, requests, profile }
   };
   return env;
 }
 
-test('Work 0027 administrator qualification runs one isolated E2E and returns only safe evidence', () => {
-  const env = makeE2eEnvironment();
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+function qualifyE2e(env) {
+  return plain(ksp.kspMutateAiProviderSettings_(env, {
     action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
   }));
+}
+
+function transientError() {
+  return Object.assign(new Error('must-not-escape'), {
+    code: 'AI_QUERY_HTTP_FAILED', stage: 'QUERY_HTTP', httpStatus: 503,
+    retryable: true, attempt: 2, retryCount: 1, cumulativeSleepMillis: 500,
+    retryDisposition: 'ATTEMPT_BUDGET_EXHAUSTED', providerErrorCodes: ['unavailable']
+  });
+}
+
+test('Work 0027 CODEX-02 3.7 PASS stops before 3.6 and returns only safe evidence', () => {
+  const env = makeE2eEnvironment();
+  const result = qualifyE2e(env);
   assert.equal(result.ok, true, JSON.stringify({ result, calls: env._debug.calls, writes: env._debug.writes }));
   assert.equal(result.workId, '0027');
   assert.equal(result.terminalOutcome, 'QUALIFIED_DISABLED');
+  assert.equal(result.qualification.evidence.qualifiedModelId, 'gemini-3.7-flash');
+  assert.deepEqual(result.qualification.evidence.candidates.map((candidate) => candidate.modelId),
+    ['gemini-3.7-flash']);
   assert.deepEqual(env._debug.calls, [
-    'MODELS_VISIBILITY', 'SHORT_INTERACTIONS', 'TEMP_STORE_CREATE',
-    'SYNTHETIC_UPLOAD_INDEX_READBACK', 'FILE_SEARCH_QUERY',
+    'MODELS_VISIBILITY', 'TEMP_STORE_CREATE', 'SYNTHETIC_UPLOAD_INDEX_READBACK',
+    'SHORT_INTERACTIONS:gemini-3.7-flash', 'FILE_SEARCH_QUERY:gemini-3.7-flash',
     'TEMP_STORE_DELETE', 'CLEANUP_CONFIRMATION'
   ]);
   assert.equal(result.qualification.evidence.cleanupConfirmed, true);
@@ -507,7 +538,13 @@ test('Work 0027 administrator qualification runs one isolated E2E and returns on
   assert.equal(result.qualification.evidence.duplicateCurrentDocumentCount, 1);
   assert.equal(env._debug.audits.length, 1);
   assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  assert.equal(env._debug.context.settings.GEMINI_DEFAULT_MODEL, 'gemini-3.7-flash');
   assert.equal(env._debug.context.settings.GEMINI_READINESS, 'QUALIFIED_DISABLED');
+  const policy = JSON.parse(env._debug.context.settings.AI_MODEL_POLICY_JSON);
+  const selected = policy.profiles.find((item) => item.modelId === 'gemini-3.7-flash');
+  assert.equal(selected.isProviderDefault, true);
+  assert.equal(selected.userVisible, false);
+  assert.equal(selected.qualification, 'QUALIFIED');
   const serialized = JSON.stringify(result);
   assert.doesNotMatch(serialized, /fileSearchStores\//);
   assert.doesNotMatch(serialized, /documents\//);
@@ -515,36 +552,157 @@ test('Work 0027 administrator qualification runs one isolated E2E and returns on
   assert.doesNotMatch(serialized, /KSP27_[A-F0-9]+/);
 });
 
-test('Work 0027 exhausted transient evidence remains distinct and cleanup-confirmed', () => {
-  const transient = Object.assign(new Error('must-not-escape'), {
-    code: 'AI_QUERY_HTTP_FAILED', stage: 'QUERY_HTTP', httpStatus: 503,
-    retryable: true, attempt: 2, retryCount: 1, cumulativeSleepMillis: 500,
-    providerErrorCodes: ['unavailable']
-  });
-  const env = makeE2eEnvironment({ queryError: transient });
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-  }));
-  assert.equal(result.ok, false);
-  assert.equal(result.workId, '0027');
-  assert.equal(result.terminalOutcome, 'DISABLED_TRANSIENT_PROVIDER_LIMITATION');
-  assert.equal(result.qualificationEvidence.cleanupConfirmed, true);
-  assert.equal(result.qualificationEvidence.stages.FILE_SEARCH_QUERY.diagnostic.classification,
+test('Work 0027 CODEX-02 3.7 transient permits exactly one 3.6 candidate on the shared document', () => {
+  const env = makeE2eEnvironment({ queryByModel: { 'gemini-3.7-flash': transientError() } });
+  const result = qualifyE2e(env);
+  assert.equal(result.ok, true);
+  assert.equal(result.qualification.evidence.qualifiedModelId, 'gemini-3.6-flash');
+  assert.deepEqual(result.qualification.evidence.candidates.map((candidate) => candidate.modelId),
+    ['gemini-3.7-flash', 'gemini-3.6-flash']);
+  assert.equal(result.qualification.evidence.candidates[0].terminalDiagnostic.classification,
     'PROVIDER_OR_TRANSIENT_FAILURE');
-  assert.equal(result.qualificationEvidence.stages.FILE_SEARCH_QUERY.diagnostic.attempt, 2);
-  assert.equal(env._debug.context.settings.GEMINI_READINESS,
-    'DISABLED_TRANSIENT_PROVIDER_LIMITATION');
+  assert.equal(result.qualification.evidence.candidates[0].terminalDiagnostic.retryDisposition,
+    'ATTEMPT_BUDGET_EXHAUSTED');
+  assert.equal(env._debug.calls.filter((value) => value === 'TEMP_STORE_CREATE').length, 1);
+  assert.equal(env._debug.calls.filter((value) => value === 'SYNTHETIC_UPLOAD_INDEX_READBACK').length, 1);
+});
+
+test('Work 0027 CODEX-02 missing 3.7 model visibility permits 3.6 without a 3.7 call', () => {
+  const env = makeE2eEnvironment({ models: ['gemini-3.6-flash'] });
+  const result = qualifyE2e(env);
+  assert.equal(result.ok, true);
+  assert.equal(result.qualification.evidence.qualifiedModelId, 'gemini-3.6-flash');
+  assert.equal(env._debug.calls.some((value) => value.includes('gemini-3.7-flash')), false);
+  assert.equal(env._debug.calls.filter((value) => value.includes('gemini-3.6-flash')).length, 2);
+});
+
+test('Work 0027 CODEX-02 explicit 3.7 model-access failure permits exactly one 3.6 candidate', () => {
+  const unsupported = Object.assign(new Error('private-model-detail'), {
+    code: 'AI_GEMINI_MODEL_UNSUPPORTED', httpStatus: 404, retryable: false,
+    retryDisposition: 'NOT_RETRYABLE'
+  });
+  const env = makeE2eEnvironment({ shortByModel: { 'gemini-3.7-flash': unsupported } });
+  const result = qualifyE2e(env);
+  assert.equal(result.ok, true);
+  assert.equal(result.qualification.evidence.qualifiedModelId, 'gemini-3.6-flash');
+  assert.equal(result.qualification.evidence.candidates[0].terminalDiagnostic.classification,
+    'MODEL_ACCESS_OR_UNSUPPORTED');
+  assert.equal(result.qualification.evidence.candidates[0].progression,
+    'PROCEED_TO_NEXT_CANDIDATE');
+  assert.equal(env._debug.calls.filter((value) => value === 'TEMP_STORE_CREATE').length, 1);
+  assert.equal(env._debug.calls.filter((value) => value === 'SYNTHETIC_UPLOAD_INDEX_READBACK').length, 1);
+  assert.doesNotMatch(JSON.stringify(result), /private-model-detail/);
+});
+
+test('Work 0027 CODEX-02 authentication failure stops before 3.6', () => {
+  const authentication = Object.assign(new Error('private-auth'), {
+    code: 'AI_GEMINI_CREDENTIAL_REJECTED', httpStatus: 401, retryable: false
+  });
+  const env = makeE2eEnvironment({ shortByModel: { 'gemini-3.7-flash': authentication } });
+  const result = qualifyE2e(env);
+  assert.equal(result.ok, false);
+  assert.equal(result.terminalOutcome, 'BLOCKED_PRODUCT_DEFECT');
+  assert.equal(result.qualificationEvidence.cleanupConfirmed, true);
+  assert.equal(result.qualificationEvidence.candidates.length, 1);
+  assert.equal(result.qualificationEvidence.candidates[0].terminalDiagnostic.classification,
+    'AUTHENTICATION_OR_PERMISSION_FAILURE');
+  assert.equal(env._debug.calls.some((value) => value.includes('gemini-3.6-flash')), false);
+  assert.doesNotMatch(JSON.stringify(result), /private-auth|fileSearchStores\//);
+});
+
+test('Work 0027 CODEX-02 citation mismatch and response-shape defects stop before 3.6', () => {
+  const mismatchEnv = makeE2eEnvironment({ queryByModel: {
+    'gemini-3.7-flash': ({ source, document }) => {
+      const token = source.text.match(/KSP27_[A-F0-9]+/)[0];
+      return interaction(token, [{ type: 'file_citation', source: document.name, custom_metadata: [
+        { key: 'source_type', string_value: source.sourceType },
+        { key: 'source_id', string_value: source.sourceId },
+        { key: 'content_hash', string_value: 'stale-private-hash' }
+      ] }]);
+    }
+  } });
+  const mismatch = qualifyE2e(mismatchEnv);
+  assert.equal(mismatch.ok, false);
+  assert.equal(mismatch.qualificationEvidence.candidates[0].terminalDiagnostic.classification,
+    'CITATION_IDENTITY_OR_METADATA_MISMATCH');
+  assert.equal(mismatchEnv._debug.calls.some((value) => value.includes('gemini-3.6-flash')), false);
+
+  const shapeEnv = makeE2eEnvironment({ queryByModel: { 'gemini-3.7-flash': { status: 'completed' } } });
+  const shape = qualifyE2e(shapeEnv);
+  assert.equal(shape.ok, false);
+  assert.equal(shape.qualificationEvidence.candidates[0].terminalDiagnostic.classification,
+    'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
+  assert.equal(shapeEnv._debug.calls.some((value) => value.includes('gemini-3.6-flash')), false);
+});
+
+test('Work 0027 CODEX-02 3.6 PASS persists the exact default while Gemini stays disabled and hidden', () => {
+  const env = makeE2eEnvironment({ queryByModel: { 'gemini-3.7-flash': transientError() } });
+  const result = qualifyE2e(env);
+  const policy = JSON.parse(env._debug.context.settings.AI_MODEL_POLICY_JSON);
+  const selected = policy.profiles.find((item) => item.modelId === 'gemini-3.6-flash');
+  const failed = policy.profiles.find((item) => item.modelId === 'gemini-3.7-flash');
+  assert.equal(result.qualification.evidence.qualifiedModelId, 'gemini-3.6-flash');
+  assert.equal(env._debug.context.settings.GEMINI_DEFAULT_MODEL, 'gemini-3.6-flash');
+  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  assert.equal(selected.isProviderDefault, true);
+  assert.equal(selected.userVisible, false);
+  assert.equal(selected.maxOutputTokens, 2048);
+  assert.equal(selected.thinkingProfiles[0].rawValue, 'low');
+  assert.equal(selected.qualification, 'QUALIFIED');
+  assert.equal(failed.isProviderDefault, false);
+  assert.equal(failed.userVisible, false);
+  assert.equal(failed.qualification, 'FAILED');
+});
+
+test('Work 0027 CODEX-02 both transient candidates stop safely after one shared upload', () => {
+  const env = makeE2eEnvironment({ queryByModel: {
+    'gemini-3.7-flash': transientError(), 'gemini-3.6-flash': transientError()
+  } });
+  const result = qualifyE2e(env);
+  assert.equal(result.ok, false);
+  assert.equal(result.terminalOutcome, 'DISABLED_TRANSIENT_PROVIDER_LIMITATION');
+  assert.deepEqual(result.qualificationEvidence.candidates.map((candidate) => candidate.modelId),
+    ['gemini-3.7-flash', 'gemini-3.6-flash']);
+  assert.equal(result.qualificationEvidence.cleanupConfirmed, true);
+  assert.equal(env._debug.calls.filter((value) => value === 'TEMP_STORE_CREATE').length, 1);
+  assert.equal(env._debug.calls.filter((value) => value === 'SYNTHETIC_UPLOAD_INDEX_READBACK').length, 1);
   assert.doesNotMatch(JSON.stringify(result), /must-not-escape|fileSearchStores\//);
 });
 
-test('Work 0027 cleanup uncertainty overrides an otherwise successful E2E', () => {
+test('Work 0027 CODEX-02 duplicate source integrity stops before either model call', () => {
+  const env = makeE2eEnvironment({ duplicateDocumentCount: 2 });
+  const result = qualifyE2e(env);
+  assert.equal(result.ok, false);
+  assert.equal(result.terminalOutcome, 'BLOCKED_PRODUCT_DEFECT');
+  assert.equal(result.qualificationEvidence.candidates.length, 0);
+  assert.equal(env._debug.calls.some((value) => value.startsWith('SHORT_INTERACTIONS:')), false);
+  assert.equal(env._debug.calls.some((value) => value.startsWith('FILE_SEARCH_QUERY:')), false);
+});
+
+test('Work 0027 CODEX-02 cleanup uncertainty overrides an otherwise successful candidate', () => {
   const env = makeE2eEnvironment({ cleanupConfirmed: false });
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-  }));
+  const result = qualifyE2e(env);
   assert.equal(result.ok, false);
   assert.equal(result.terminalOutcome, 'BLOCKED_RESOURCE_CLEANUP');
   assert.equal(result.qualificationEvidence.cleanupAttempted, true);
   assert.equal(result.qualificationEvidence.cleanupConfirmed, false);
   assert.equal(env._debug.context.settings.GEMINI_READINESS, 'BLOCKED_RESOURCE_CLEANUP');
+});
+
+test('Work 0027 CODEX-02 safe diagnostics allow only candidate models and retry dispositions', () => {
+  for (const modelId of ['gemini-3.7-flash', 'gemini-3.6-flash']) {
+    const safe = plain(ksp.kspGeminiQualificationSafeDiagnostic_({
+      classification: 'PROVIDER_OR_TRANSIENT_FAILURE', modelId,
+      retryDisposition: 'RETRY_AFTER_EXCEEDS_SLEEP_BUDGET', rawResponse: 'private-response',
+      retryAfter: 'private-header', storeName: 'fileSearchStores/private'
+    }));
+    assert.equal(safe.modelId, modelId);
+    assert.equal(safe.retryDisposition, 'RETRY_AFTER_EXCEEDS_SLEEP_BUDGET');
+    assert.doesNotMatch(JSON.stringify(safe), /private-response|private-header|fileSearchStores/);
+  }
+  const rejected = plain(ksp.kspGeminiQualificationSafeDiagnostic_({
+    classification: 'PASS', modelId: 'gemini-3.8-flash', retryDisposition: 'PRIVATE_VALUE'
+  }));
+  assert.equal(rejected.modelId, 'gemini-3.8-flash');
+  assert.equal(rejected.retryDisposition, 'NOT_APPLICABLE');
 });

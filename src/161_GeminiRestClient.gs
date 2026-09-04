@@ -238,6 +238,12 @@ function kspGeminiAttachTransportMetadata_(value, metadata) {
       });
     } catch (ignoredMetadataError) { /* Safe telemetry is best-effort. */ }
   });
+  try {
+    Object.defineProperty(value, '__kspRetryDisposition', {
+      value: String(metadata && metadata.retryDisposition || 'NOT_APPLICABLE'),
+      enumerable: false, configurable: false, writable: false
+    });
+  } catch (ignoredDispositionError) { /* Safe telemetry is best-effort. */ }
   return value;
 }
 
@@ -274,6 +280,7 @@ function kspGeminiRunWithRetry_(operation, options) {
         attempt: attempt,
         retryCount: attempt - 1,
         cumulativeSleepMillis: cumulativeSleepMillis,
+        retryDisposition: attempt > 1 ? 'RETRIED' : 'NOT_APPLICABLE',
         elapsedMs: Math.max(0, new Date().getTime() - startedAt)
       };
       return settings.returnMetadataWrapper === true
@@ -288,10 +295,25 @@ function kspGeminiRunWithRetry_(operation, options) {
       error.retryCount = attempt - 1;
       error.cumulativeSleepMillis = cumulativeSleepMillis;
       error.elapsedMs = Math.max(0, new Date().getTime() - startedAt);
-      if (!kspGeminiRetryEligible_(policy, error) || attempt >= maxAttempts) throw error;
+      if (!kspGeminiRetryEligible_(policy, error)) {
+        error.retryDisposition = policy === KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE &&
+          error.providerResourceIdentityPresent === true
+          ? 'PROVIDER_RESOURCE_IDENTITY_PRESENT'
+          : policy === KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE && error.ambiguousTransport === true
+            ? 'AMBIGUOUS_MUTATING_OUTCOME'
+            : error.retryable === false ? 'NOT_RETRYABLE' : 'NOT_APPLICABLE';
+        throw error;
+      }
+      if (attempt >= maxAttempts) {
+        error.retryDisposition = 'ATTEMPT_BUDGET_EXHAUSTED';
+        throw error;
+      }
       var delay = kspGeminiRetryDelayMillis_(attempt, error.retryAfterMillis);
       var remainingSleep = KSP_AI_DEFAULTS.TRANSPORT_CUMULATIVE_SLEEP_MILLIS - cumulativeSleepMillis;
-      if (delay > remainingSleep) throw error;
+      if (delay > remainingSleep) {
+        error.retryDisposition = 'RETRY_AFTER_EXCEEDS_SLEEP_BUDGET';
+        throw error;
+      }
       if (delay > 0 && typeof Utilities !== 'undefined' && typeof Utilities.sleep === 'function') {
         Utilities.sleep(delay);
       }
@@ -374,6 +396,7 @@ function kspGeminiFetchResponseLive_(url, requestOptions, options) {
     __kspAttempt: wrapped.metadata.attempt,
     __kspRetryCount: wrapped.metadata.retryCount,
     __kspCumulativeSleepMillis: wrapped.metadata.cumulativeSleepMillis,
+    __kspRetryDisposition: wrapped.metadata.retryDisposition,
     __kspElapsedMs: wrapped.metadata.elapsedMs
   };
 }
@@ -424,6 +447,7 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
     attempt: Number(response.__kspAttempt || 1),
     retryCount: Number(response.__kspRetryCount || 0),
     cumulativeSleepMillis: Number(response.__kspCumulativeSleepMillis || 0),
+    retryDisposition: response.__kspRetryDisposition || 'NOT_APPLICABLE',
     elapsedMs: Number(response.__kspElapsedMs || 0)
   });
 }

@@ -456,6 +456,26 @@ test('Gemini START returns one opaque pending token without polling or Audit', (
   });
 });
 
+test('normal Knowledge Search never falls back to another Gemini model after a provider failure', () => {
+  withSyntheticUuid(() => {
+    const env = createResumableQueryEnvironment();
+    const attemptedModels = [];
+    env.startQueryProvider = (provider, config) => {
+      attemptedModels.push(config.modelId);
+      const error = new Error('PRIVATE_PROVIDER_FAILURE');
+      error.code = 'AI_QUERY_HTTP_FAILED';
+      error.httpStatus = 503;
+      throw error;
+    };
+    const result = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', {
+      mode: '自由質問', questionOrInstruction: 'synthetic question'
+    }));
+    assert.equal(result.ok, false);
+    assert.deepEqual(attemptedModels, ['gemini-3.8-flash']);
+    assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_FAILURE/);
+  });
+});
+
 test('identical pending START reuses the same token and creates one Interaction', () => {
   withSyntheticUuid(() => {
     const env = createResumableQueryEnvironment();

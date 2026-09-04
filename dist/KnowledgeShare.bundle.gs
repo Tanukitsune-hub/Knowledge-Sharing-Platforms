@@ -1,6 +1,6 @@
 // GENERATED FILE. DO NOT EDIT.
 // Authoritative source: src/ and scripts/bundle-source-order.json
-var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":6,"sourceCommit":"965dd4ab35b67b17663cfd71ab60936bfe1f6de8","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"7eb9a6c1c28648b3e82dbeb622313de65ce771e8de34c48e6f67e2823c37f63c"});
+var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":6,"sourceCommit":"4de21594918e4e2e7a1f76ca2c7a0ce49fe086d3","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"1317c05672abdf71b0cfb685b3bc9ba04ad1e8cf538a271a15e6fa21d1560f7d"});
 var KSP_BUNDLED_HTML_RESOURCES = Object.freeze({
   "ActivityAnalyticsPage": "<section id=\"page-activity-analytics\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>Activity Analytics</h2><p class=\"hint\">Meeting_Indexの構造化メタデータだけを集計します。Meeting本文は読みません。</p></div>\n    </div>\n    <div class=\"filter-grid analytics-controls\">\n      <div class=\"field\"><label for=\"activity-period\">期間</label><select id=\"activity-period\"><option value=\"monthly\">月次</option><option value=\"quarter\">暦年四半期</option><option value=\"calendarYear\">暦年</option><option value=\"fiscalYear\">会計年度（4月-3月）</option><option value=\"custom\">カスタム（日次）</option><option value=\"cumulative\">累積（月次）</option></select></div>\n      <div class=\"field\"><label for=\"activity-date-from\">開始日</label><input id=\"activity-date-from\" type=\"date\"></div>\n      <div class=\"field\"><label for=\"activity-date-to\">終了日</label><input id=\"activity-date-to\" type=\"date\"></div>\n      <div class=\"field\"><label for=\"activity-dimension\">内訳</label><select id=\"activity-dimension\"><option value=\"counterpartyType\">Counterparty Type</option><option value=\"counterpartyEntity\">Counterparty Entity</option><option value=\"relatedGp\">Related GP</option><option value=\"assetClass\">Asset Class</option><option value=\"team\">Team</option><option value=\"meetingType\">Meeting Type</option><option value=\"status\">Status</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-counterpartyType\">Counterparty Type</label><select id=\"activity-filter-counterpartyType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-counterpartyEntity\">Counterparty Entity</label><select id=\"activity-filter-counterpartyEntity\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-relatedGp\">Related GP</label><select id=\"activity-filter-relatedGp\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-assetClass\">Asset Class</label><select id=\"activity-filter-assetClass\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-team\">Team</label><select id=\"activity-filter-team\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-meetingType\">Meeting Type</label><select id=\"activity-filter-meetingType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-status\">Status</label><select id=\"activity-filter-status\"><option value=\"\">未選択</option></select></div>\n    </div>\n    <div class=\"actions\"><span class=\"hint\">件数は全一致行から計算し、表示上限による省略件数を明示します。</span><button id=\"activity-analytics-refresh\" class=\"action primary\" type=\"button\">集計</button></div>\n    <div id=\"activity-analytics-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>集計サマリー</h2><p id=\"activity-period-summary\" class=\"hint\"></p></div></div>\n    <div id=\"activity-headline\" class=\"analytics-headline\" aria-live=\"polite\"></div>\n    <div id=\"activity-series-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"Meeting件数の期間推移\"></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">Meeting件数の期間別集計</caption><thead><tr><th>期間</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id=\"activity-series-results\"></tbody></table></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>選択した内訳</h2><p id=\"activity-breakdown-summary\" class=\"hint\"></p></div></div>\n    <div id=\"activity-breakdown-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"選択した内訳別Meeting件数\"></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">選択した内訳別集計</caption><thead><tr><th>値</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id=\"activity-breakdown-results\"></tbody></table></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>該当Meeting</h2><p id=\"activity-drill-summary\" class=\"hint\"></p></div></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>Counterparty</th><th>Related GP</th><th>Team / Type</th><th>Status</th><th>月次管理</th></tr></thead><tbody id=\"activity-drill-results\"></tbody></table></div>\n  </div>\n\n  <div id=\"activity-admin-check-card\" class=\"card hidden-panel\">\n    <div class=\"section-heading\"><div><h2>月次管理反映済み</h2><p class=\"hint\">選択した1か月のMeetingについて、管理反映済み状態だけを更新します。</p></div></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">月次管理反映状態</caption><thead><tr><th>Meeting</th><th>日付</th><th>Counterparty</th><th>状態</th><th>操作</th></tr></thead><tbody id=\"activity-admin-check-results\"></tbody></table></div>\n    <div id=\"activity-admin-check-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n</section>\n",
   "AiProviderSettingsPage": "<section id=\"page-ai-provider-settings\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>AIプロバイダ設定</h2><p class=\"hint\">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>\n    </div>\n    <div id=\"ai-provider-admin-notice\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-openai-heading\">\n      <h3 id=\"ai-provider-openai-heading\">ChatGPT / OpenAI</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-openai-key\">確認中…</dd>\n        <dt>Vector Store</dt><dd id=\"ai-provider-openai-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-openai-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\">\n        <div class=\"action-group\">\n          <label for=\"ai-provider-openai-key-input\">OpenAI APIキー</label>\n          <input id=\"ai-provider-openai-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n          <label for=\"ai-provider-sync-source\">同期対象</label>\n          <select id=\"ai-provider-sync-source\" disabled>\n            <option value=\"\">All</option>\n            <option value=\"Meeting\">Meeting</option>\n            <option value=\"Pitchbook\">Pitchbook</option>\n          </select>\n          <label for=\"ai-provider-sync-source-id\">Source ID（個別同期・任意）</label>\n          <input id=\"ai-provider-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n          <button id=\"ai-provider-openai-enable\" class=\"action primary\" type=\"button\" disabled>APIキーを保存して接続確認</button>\n          <button id=\"ai-provider-openai-disable\" class=\"action secondary\" type=\"button\" disabled>OpenAIを無効化</button>\n          <button id=\"ai-provider-openai-sync\" class=\"action secondary\" type=\"button\" disabled>資料を同期して利用開始</button>\n        </div>\n      </div>\n      <p id=\"ai-provider-openai-readonly\" class=\"hint ai-provider-readonly\"></p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-gemini-heading\">\n      <h3 id=\"ai-provider-gemini-heading\">Gemini</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-gemini-key\">確認中…</dd>\n        <dt>File Search Store</dt><dd id=\"ai-provider-gemini-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-gemini-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <label for=\"ai-provider-gemini-key-input\">Gemini APIキー</label>\n        <input id=\"ai-provider-gemini-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n        <label for=\"ai-provider-gemini-sync-source\">個別同期対象</label>\n        <select id=\"ai-provider-gemini-sync-source\" disabled><option value=\"Pitchbook\">Pitchbook</option><option value=\"Meeting\">Meeting</option></select>\n        <label for=\"ai-provider-gemini-sync-source-id\">Source ID（必須）</label>\n        <input id=\"ai-provider-gemini-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n        <button id=\"ai-provider-gemini-connect\" class=\"action primary\" type=\"button\" disabled>APIキーを保存してStore確認</button>\n        <button id=\"ai-provider-gemini-enable\" class=\"action secondary\" type=\"button\" disabled>資格済みGeminiを有効化</button>\n        <button id=\"ai-provider-gemini-disable\" class=\"action secondary\" type=\"button\" disabled>Geminiを無効化</button>\n        <button id=\"ai-provider-gemini-sync\" class=\"action secondary\" type=\"button\" disabled>選択資料を個別同期</button>\n      </div></div>\n      <p class=\"hint\">有効化には、Store確認・個別同期・モデル/ThinkingのFile Search資格確認が必要です。</p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-model-policy-heading\">\n      <h3 id=\"ai-model-policy-heading\">モデル / Thinking ポリシー</h3>\n      <p class=\"hint\">利用者に表示する組み合わせだけを登録します。プロバイダが返す新しいモデルは自動で有効化されません。</p>\n      <div class=\"field full\">\n        <label for=\"ai-model-profile-select\">登録済みプロファイル</label>\n        <select id=\"ai-model-profile-select\" disabled><option value=\"\">新規作成</option></select>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-profile-id\">Profile ID</label><input id=\"ai-model-profile-id\" type=\"text\" autocomplete=\"off\" placeholder=\"openai-approved-model\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-provider\">Provider</label><select id=\"ai-model-provider\" disabled><option value=\"OPENAI\">OpenAI</option><option value=\"GEMINI\">Gemini</option></select></div>\n        <div class=\"field\"><label for=\"ai-model-id\">Exact Model ID</label><input id=\"ai-model-id\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-display-name\">表示名</label><input id=\"ai-model-display-name\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-family\">Family</label><input id=\"ai-model-family\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-max-output\">Output上限（任意）</label><input id=\"ai-model-max-output\" type=\"number\" min=\"1\" max=\"65536\" disabled></div>\n      </div>\n      <div class=\"field full\">\n        <label for=\"ai-model-thinking-profiles\">Thinking profiles（1行: ID | 表示名 | provider value。value空欄はプロバイダ標準）</label>\n        <textarea id=\"ai-model-thinking-profiles\" placeholder=\"provider-default | プロバイダ標準 |&#10;low | Low | low\" disabled></textarea>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-default-thinking\">既定Thinking Profile ID</label><input id=\"ai-model-default-thinking\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <label class=\"field\"><span>状態</span><span><input id=\"ai-model-enabled\" type=\"checkbox\" disabled> 有効</span></label>\n        <label class=\"field\"><span>利用者表示</span><span><input id=\"ai-model-user-visible\" type=\"checkbox\" disabled> 表示</span></label>\n        <label class=\"field\"><span>Provider既定</span><span><input id=\"ai-model-provider-default\" type=\"checkbox\" disabled> 既定</span></label>\n      </div>\n      <dl class=\"ai-provider-state\">\n        <dt>API access</dt><dd id=\"ai-model-access-state\">未確認</dd>\n        <dt>File Search qualification</dt><dd id=\"ai-model-qualification-state\">未確認</dd>\n        <dt>Thinking qualification</dt><dd id=\"ai-model-thinking-qualification-state\">未確認</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <button id=\"ai-model-policy-migrate\" class=\"action secondary\" type=\"button\" disabled>現行設定から初期化</button>\n        <button id=\"ai-model-profile-save\" class=\"action primary\" type=\"button\" disabled>プロファイルを保存</button>\n        <button id=\"ai-model-profile-qualify\" class=\"action secondary\" type=\"button\" disabled>接続・File Search確認</button>\n      </div></div>\n    </section>\n  </div>\n</section>\n",
@@ -8279,7 +8279,8 @@ function kspAiModelPolicyProfile_(raw) {
     return normalized;
   });
   if (provider === KSP_AI_PROVIDERS.GEMINI &&
-      (modelId === 'gemini-3.8-flash' || modelId === 'gemini-3.7-flash')) {
+      (modelId === 'gemini-3.8-flash' || modelId === 'gemini-3.7-flash' ||
+        modelId === 'gemini-3.6-flash')) {
     thinkingProfiles.forEach(function (thinking) {
       if (!thinking.providerDefault) {
         kspAiModelPolicyAssert_(['low', 'medium', 'high'].indexOf(String(thinking.rawValue).toLowerCase()) !== -1,
@@ -11658,6 +11659,12 @@ function kspGeminiAttachTransportMetadata_(value, metadata) {
       });
     } catch (ignoredMetadataError) { /* Safe telemetry is best-effort. */ }
   });
+  try {
+    Object.defineProperty(value, '__kspRetryDisposition', {
+      value: String(metadata && metadata.retryDisposition || 'NOT_APPLICABLE'),
+      enumerable: false, configurable: false, writable: false
+    });
+  } catch (ignoredDispositionError) { /* Safe telemetry is best-effort. */ }
   return value;
 }
 
@@ -11694,6 +11701,7 @@ function kspGeminiRunWithRetry_(operation, options) {
         attempt: attempt,
         retryCount: attempt - 1,
         cumulativeSleepMillis: cumulativeSleepMillis,
+        retryDisposition: attempt > 1 ? 'RETRIED' : 'NOT_APPLICABLE',
         elapsedMs: Math.max(0, new Date().getTime() - startedAt)
       };
       return settings.returnMetadataWrapper === true
@@ -11708,10 +11716,25 @@ function kspGeminiRunWithRetry_(operation, options) {
       error.retryCount = attempt - 1;
       error.cumulativeSleepMillis = cumulativeSleepMillis;
       error.elapsedMs = Math.max(0, new Date().getTime() - startedAt);
-      if (!kspGeminiRetryEligible_(policy, error) || attempt >= maxAttempts) throw error;
+      if (!kspGeminiRetryEligible_(policy, error)) {
+        error.retryDisposition = policy === KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE &&
+          error.providerResourceIdentityPresent === true
+          ? 'PROVIDER_RESOURCE_IDENTITY_PRESENT'
+          : policy === KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE && error.ambiguousTransport === true
+            ? 'AMBIGUOUS_MUTATING_OUTCOME'
+            : error.retryable === false ? 'NOT_RETRYABLE' : 'NOT_APPLICABLE';
+        throw error;
+      }
+      if (attempt >= maxAttempts) {
+        error.retryDisposition = 'ATTEMPT_BUDGET_EXHAUSTED';
+        throw error;
+      }
       var delay = kspGeminiRetryDelayMillis_(attempt, error.retryAfterMillis);
       var remainingSleep = KSP_AI_DEFAULTS.TRANSPORT_CUMULATIVE_SLEEP_MILLIS - cumulativeSleepMillis;
-      if (delay > remainingSleep) throw error;
+      if (delay > remainingSleep) {
+        error.retryDisposition = 'RETRY_AFTER_EXCEEDS_SLEEP_BUDGET';
+        throw error;
+      }
       if (delay > 0 && typeof Utilities !== 'undefined' && typeof Utilities.sleep === 'function') {
         Utilities.sleep(delay);
       }
@@ -11794,6 +11817,7 @@ function kspGeminiFetchResponseLive_(url, requestOptions, options) {
     __kspAttempt: wrapped.metadata.attempt,
     __kspRetryCount: wrapped.metadata.retryCount,
     __kspCumulativeSleepMillis: wrapped.metadata.cumulativeSleepMillis,
+    __kspRetryDisposition: wrapped.metadata.retryDisposition,
     __kspElapsedMs: wrapped.metadata.elapsedMs
   };
 }
@@ -11844,6 +11868,7 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
     attempt: Number(response.__kspAttempt || 1),
     retryCount: Number(response.__kspRetryCount || 0),
     cumulativeSleepMillis: Number(response.__kspCumulativeSleepMillis || 0),
+    retryDisposition: response.__kspRetryDisposition || 'NOT_APPLICABLE',
     elapsedMs: Number(response.__kspElapsedMs || 0)
   });
 }
@@ -14524,6 +14549,7 @@ function kspAiProviderAdminSafeMessage_(code) {
     AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE: 'Geminiモデル資格確認の応答形式を確認できませんでした。',
     AI_GEMINI_EXTERNAL_LIMITATION: 'Geminiは確認された外部制約により現在利用できません。',
     AI_GEMINI_TRANSIENT_PROVIDER_LIMITATION: 'Geminiサービスの一時的な制約により現在利用できません。',
+    AI_GEMINI_MODEL_ACCESS_LIMITATION: '指定したGeminiモデルを現在利用できません。',
     AI_GEMINI_RESOURCE_CLEANUP_BLOCKED: '一時的なGeminiリソースの削除確認が必要です。',
     AI_SYNC_SOURCE_TYPE_INVALID: '同期対象のSource Typeが不正です。',
     AI_SYNC_SOURCE_TYPE_REQUIRED: '個別同期ではSource Typeを選択してください。',
@@ -14876,6 +14902,19 @@ function kspGeminiQualificationSafeStage_(value) {
   return allowed[stage] ? stage : '';
 }
 
+function kspGeminiQualificationSafeModelId_(value) {
+  var modelId = kspAiTrim_(value);
+  return ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash'].indexOf(modelId) !== -1
+    ? modelId : '';
+}
+
+function kspGeminiQualificationSafeRetryDisposition_(value) {
+  var disposition = kspAiTrim_(value).toUpperCase();
+  return ['RETRIED', 'RETRY_AFTER_EXCEEDS_SLEEP_BUDGET', 'PROVIDER_RESOURCE_IDENTITY_PRESENT',
+    'AMBIGUOUS_MUTATING_OUTCOME', 'ATTEMPT_BUDGET_EXHAUSTED', 'NOT_RETRYABLE', 'NOT_APPLICABLE']
+    .indexOf(disposition) !== -1 ? disposition : 'NOT_APPLICABLE';
+}
+
 function kspGeminiQualificationSafeClass_(value) {
   var classification = kspAiTrim_(value).toUpperCase();
   var fixed = {
@@ -14909,8 +14948,7 @@ function kspGeminiQualificationSafeDiagnostic_(input) {
     seenCodes[code] = true;
     providerCodes.push(code);
   });
-  var modelId = kspAiTrim_(source.modelId);
-  if (modelId !== 'gemini-3.8-flash' && modelId !== 'gemini-3.7-flash') modelId = '';
+  var modelId = kspGeminiQualificationSafeModelId_(source.modelId);
   var finishReason = kspAiTrim_(source.finishReason).toUpperCase();
   var safeFinishReasons = {
     STOP: true, MAX_TOKENS: true, SAFETY: true, RECITATION: true,
@@ -14941,6 +14979,7 @@ function kspGeminiQualificationSafeDiagnostic_(input) {
     attempt: Math.max(0, Number(source.attempt || 0) || 0),
     retryCount: Math.max(0, Number(source.retryCount || 0) || 0),
     cumulativeSleepMillis: Math.max(0, Number(source.cumulativeSleepMillis || 0) || 0),
+    retryDisposition: kspGeminiQualificationSafeRetryDisposition_(source.retryDisposition),
     latencyMs: Math.max(0, Number(source.latencyMs || source.elapsedMs || 0) || 0),
     correlationHash: correlationHash
   };
@@ -15048,6 +15087,7 @@ function kspGeminiQualificationDiagnosticFromError_(error, transport, modelId, l
     attempt: error && error.attempt,
     retryCount: error && error.retryCount,
     cumulativeSleepMillis: error && error.cumulativeSleepMillis,
+    retryDisposition: error && error.retryDisposition,
     latencyMs: latencyMs || error && error.elapsedMs
   });
 }
@@ -15100,6 +15140,8 @@ function kspGeminiEvaluateSyntheticQualificationResponse_(raw, options) {
     attempt: Number(raw && raw.__kspAttempt || 0),
     retryCount: Number(raw && raw.__kspRetryCount || 0),
     cumulativeSleepMillis: Number(raw && raw.__kspCumulativeSleepMillis || 0),
+    retryDisposition: raw && raw.__kspRetryDisposition ||
+      (Number(raw && raw.__kspRetryCount || 0) > 0 ? 'RETRIED' : 'NOT_APPLICABLE'),
     latencyMs: Number(raw && raw.__kspElapsedMs || settings.latencyMs || 0),
     correlationHash: settings.correlationHash
   };
@@ -15171,13 +15213,42 @@ function kspGeminiEvaluateSyntheticQualificationResponse_(raw, options) {
 function kspGeminiE2eSafeOutcome_(value) {
   var outcome = kspAiTrim_(value).toUpperCase();
   return ['QUALIFIED_DISABLED', 'DISABLED_TRANSIENT_PROVIDER_LIMITATION',
-    'BLOCKED_PRODUCT_DEFECT', 'BLOCKED_RESOURCE_CLEANUP'].indexOf(outcome) !== -1
+    'DISABLED_MODEL_ACCESS_LIMITATION', 'BLOCKED_PRODUCT_DEFECT',
+    'BLOCKED_RESOURCE_CLEANUP'].indexOf(outcome) !== -1
     ? outcome : 'BLOCKED_PRODUCT_DEFECT';
 }
 
 function kspGeminiE2eSafeStageResult_(value) {
   var result = kspAiTrim_(value).toUpperCase();
   return ['NOT_RUN', 'PASS', 'FAIL'].indexOf(result) !== -1 ? result : 'NOT_RUN';
+}
+
+function kspGeminiE2eSafeProgression_(value) {
+  var progression = kspAiTrim_(value).toUpperCase();
+  return ['STOP_QUALIFIED', 'PROCEED_TO_NEXT_CANDIDATE', 'STOP_DISALLOWED',
+    'STOP_CANDIDATE_BUDGET', 'NOT_APPLICABLE'].indexOf(progression) !== -1
+    ? progression : 'NOT_APPLICABLE';
+}
+
+function kspGeminiE2eSafeCandidateEvidence_(input) {
+  var source = input || {};
+  function stage(value) {
+    var item = value || {};
+    return {
+      result: kspGeminiE2eSafeStageResult_(item.result),
+      diagnostic: item.diagnostic ? kspGeminiQualificationSafeDiagnostic_(item.diagnostic) : null
+    };
+  }
+  return {
+    modelId: kspGeminiQualificationSafeModelId_(source.modelId),
+    attempted: Boolean(source.attempted),
+    modelVisible: Boolean(source.modelVisible),
+    shortInteractions: stage(source.shortInteractions),
+    fileSearchQuery: stage(source.fileSearchQuery),
+    terminalDiagnostic: source.terminalDiagnostic
+      ? kspGeminiQualificationSafeDiagnostic_(source.terminalDiagnostic) : null,
+    progression: kspGeminiE2eSafeProgression_(source.progression)
+  };
 }
 
 function kspGeminiE2eSafeEvidence_(input) {
@@ -15197,7 +15268,8 @@ function kspGeminiE2eSafeEvidence_(input) {
   if (!/^[a-f0-9]{64}$/.test(correlationHash)) correlationHash = '';
   return {
     terminalOutcome: kspGeminiE2eSafeOutcome_(source.terminalOutcome),
-    modelId: source.modelId === 'gemini-3.8-flash' ? source.modelId : '',
+    modelId: kspGeminiQualificationSafeModelId_(source.modelId),
+    qualifiedModelId: kspGeminiQualificationSafeModelId_(source.qualifiedModelId),
     thinkingRawValue: source.thinkingRawValue === 'low' ? 'low' : '',
     maxOutputTokens: Number(source.maxOutputTokens) === 2048 ? 2048 : 0,
     queryTransport: kspGeminiQualificationSafeTransport_(source.queryTransport),
@@ -15209,6 +15281,7 @@ function kspGeminiE2eSafeEvidence_(input) {
     cleanupAttempted: Boolean(source.cleanupAttempted),
     cleanupConfirmed: Boolean(source.cleanupConfirmed),
     auditRecorded: Boolean(source.auditRecorded),
+    candidates: (source.candidates || []).slice(0, 2).map(kspGeminiE2eSafeCandidateEvidence_),
     stages: stages
   };
 }
@@ -15219,7 +15292,7 @@ function kspGeminiE2eStagePassDiagnostic_(stage, raw, extra) {
     classification: 'PASS',
     stage: stage,
     transport: options.transport || KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
-    modelId: 'gemini-3.8-flash',
+    modelId: kspGeminiQualificationSafeModelId_(options.modelId),
     httpStatus: Number(raw && raw.__kspHttpStatus || options.httpStatus || 200),
     responseShapeValid: options.responseShapeValid !== false,
     textExtractionSucceeded: Boolean(options.textExtractionSucceeded),
@@ -15231,6 +15304,8 @@ function kspGeminiE2eStagePassDiagnostic_(stage, raw, extra) {
     attempt: Number(raw && raw.__kspAttempt || 1),
     retryCount: Number(raw && raw.__kspRetryCount || 0),
     cumulativeSleepMillis: Number(raw && raw.__kspCumulativeSleepMillis || 0),
+    retryDisposition: raw && raw.__kspRetryDisposition || options.retryDisposition ||
+      (Number(raw && raw.__kspRetryCount || 0) > 0 ? 'RETRIED' : 'NOT_APPLICABLE'),
     latencyMs: Number(raw && raw.__kspElapsedMs || options.latencyMs || 0),
     correlationHash: options.correlationHash
   });
@@ -15250,9 +15325,9 @@ function kspGeminiE2eRecordStage_(evidence, stage, result, diagnostic) {
   };
 }
 
-function kspGeminiE2eDiagnosticForError_(error, stage, correlationHash) {
+function kspGeminiE2eDiagnosticForError_(error, stage, correlationHash, modelId) {
   var diagnostic = kspGeminiQualificationDiagnosticFromError_(error,
-    KSP_AI_QUERY_TRANSPORTS.INTERACTIONS, 'gemini-3.8-flash', 0);
+    KSP_AI_QUERY_TRANSPORTS.INTERACTIONS, modelId, 0);
   diagnostic.stage = stage;
   diagnostic.correlationHash = correlationHash;
   return kspGeminiQualificationSafeDiagnostic_(diagnostic);
@@ -15282,20 +15357,169 @@ function kspGeminiE2eAppendAudit_(environment, context, evidence) {
   }
 }
 
+function kspGeminiWork0027CandidateProfile_(template, modelId) {
+  var safeModelId = kspGeminiQualificationSafeModelId_(modelId);
+  kspAssert_(safeModelId === 'gemini-3.7-flash' || safeModelId === 'gemini-3.6-flash',
+    'AI_MODEL_ID_INVALID', 'Work 0027 stable qualification candidate is invalid.');
+  var minor = safeModelId === 'gemini-3.7-flash' ? '7' : '6';
+  var profile = kspDeepClone_(template || {});
+  profile.profileId = 'gemini-3' + minor + '-low';
+  profile.provider = KSP_AI_PROVIDERS.GEMINI;
+  profile.modelId = safeModelId;
+  profile.displayName = 'Gemini 3.' + minor + ' Flash';
+  profile.family = 'Gemini 3.' + minor;
+  profile.enabled = true;
+  profile.userVisible = false;
+  profile.isProviderDefault = false;
+  profile.apiAccess = KSP_AI_MODEL_ACCESS_STATES.UNKNOWN;
+  profile.qualification = KSP_AI_MODEL_QUALIFICATION_STATES.UNQUALIFIED;
+  profile.fileSearch = false;
+  profile.maxOutputTokens = 2048;
+  profile.defaultThinkingProfileId = 'low';
+  profile.thinkingProfiles = [{
+    thinkingProfileId: 'low', label: 'Low', rawValue: 'low', providerDefault: false,
+    enabled: true, qualification: KSP_AI_MODEL_QUALIFICATION_STATES.UNQUALIFIED, qualifiedAt: ''
+  }];
+  profile.qualifiedAt = '';
+  profile.qualifiedStoreName = '';
+  profile.qualifiedRequestProfileVersion = '';
+  profile.safeNote = 'Work 0027 stable-model synthetic File Search qualification candidate.';
+  return profile;
+}
+
+function kspGeminiE2eCandidateAllowsProgression_(diagnostic) {
+  var classification = kspGeminiQualificationSafeClass_(diagnostic && diagnostic.classification);
+  return ['MODEL_ACCESS_OR_UNSUPPORTED', 'PROVIDER_OR_TRANSIENT_FAILURE',
+    'COMPLETED_NO_GROUNDED_ANSWER', 'COMPLETED_NO_FILE_CITATION',
+    'COMPLETED_EXPECTED_TOKEN_MISMATCH', 'COMPLETED_FINISH_OR_SAFETY_LIMIT']
+    .indexOf(classification) !== -1;
+}
+
+function kspGeminiE2eCandidateResult_(profile) {
+  return {
+    modelId: profile.modelId,
+    profile: profile,
+    attempted: true,
+    modelVisible: false,
+    shortInteractions: { result: 'NOT_RUN', diagnostic: null },
+    fileSearchQuery: { result: 'NOT_RUN', diagnostic: null },
+    terminalDiagnostic: null,
+    progression: 'NOT_APPLICABLE'
+  };
+}
+
+function kspGeminiE2eSetCandidateFailure_(candidate, diagnostic) {
+  var safe = kspGeminiQualificationSafeDiagnostic_(diagnostic);
+  candidate.terminalDiagnostic = safe;
+  return candidate;
+}
+
+function kspRunGeminiSyntheticCandidate_(environment, profile, visibleModels, storeName, source,
+    documentValue, token, correlationHash) {
+  var candidate = kspGeminiE2eCandidateResult_(profile);
+  candidate.modelVisible = Boolean(visibleModels[profile.modelId]);
+  if (!candidate.modelVisible) {
+    return kspGeminiE2eSetCandidateFailure_(candidate, {
+      classification: 'MODEL_ACCESS_OR_UNSUPPORTED', stage: 'MODELS_VISIBILITY',
+      transport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS, modelId: profile.modelId,
+      responseShapeValid: true, correlationHash: correlationHash
+    });
+  }
+
+  var shortToken = 'KSP27_SHORT_' + correlationHash.slice(0, 12).toUpperCase();
+  var shortResponse;
+  try {
+    shortResponse = environment.queryGeminiInteraction({
+      model: profile.modelId,
+      input: 'Reply with exactly this harmless validation token: ' + shortToken,
+      generation_config: { thinking_level: 'low', max_output_tokens: 128 }
+    });
+  } catch (shortError) {
+    var shortErrorDiagnostic = kspGeminiE2eDiagnosticForError_(shortError,
+      'SHORT_INTERACTIONS', correlationHash, profile.modelId);
+    candidate.shortInteractions = { result: 'FAIL', diagnostic: shortErrorDiagnostic };
+    return kspGeminiE2eSetCandidateFailure_(candidate, shortErrorDiagnostic);
+  }
+  var shortDiagnostic = kspGeminiEvaluateSyntheticQualificationResponse_(shortResponse, {
+    transport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
+    modelId: profile.modelId,
+    expectedToken: shortToken,
+    requireCitation: false,
+    correlationHash: correlationHash
+  });
+  shortDiagnostic.stage = 'SHORT_INTERACTIONS';
+  shortDiagnostic = kspGeminiQualificationSafeDiagnostic_(shortDiagnostic);
+  candidate.shortInteractions = {
+    result: shortDiagnostic.classification === 'PASS' ? 'PASS' : 'FAIL', diagnostic: shortDiagnostic
+  };
+  if (shortDiagnostic.classification !== 'PASS') {
+    return kspGeminiE2eSetCandidateFailure_(candidate, shortDiagnostic);
+  }
+
+  var config = {
+    provider: KSP_AI_PROVIDERS.GEMINI,
+    enabled: false,
+    credentialConfigured: true,
+    storeName: storeName,
+    modelId: profile.modelId,
+    modelProfileId: profile.profileId,
+    thinkingProfileId: 'low',
+    thinkingProviderDefault: false,
+    thinkingRawValue: 'low',
+    maxOutputTokens: 2048,
+    queryTransport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS
+  };
+  var request = kspBuildProviderSearchRequest_(KSP_AI_PROVIDERS.GEMINI, config, {
+    route: KSP_AI_PROVIDERS.GEMINI,
+    mode: KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION,
+    questionOrInstruction: 'Return the unique validation token from the selected synthetic source.',
+    filters: { sourceType: source.sourceType, sourceId: source.sourceId }
+  });
+  var queryResponse;
+  try {
+    queryResponse = environment.queryProvider(KSP_AI_PROVIDERS.GEMINI, config, request);
+  } catch (queryError) {
+    var queryErrorDiagnostic = kspGeminiE2eDiagnosticForError_(queryError,
+      'FILE_SEARCH_QUERY', correlationHash, profile.modelId);
+    candidate.fileSearchQuery = { result: 'FAIL', diagnostic: queryErrorDiagnostic };
+    return kspGeminiE2eSetCandidateFailure_(candidate, queryErrorDiagnostic);
+  }
+  var queryDiagnostic = kspGeminiEvaluateSyntheticQualificationResponse_(queryResponse, {
+    transport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
+    modelId: profile.modelId,
+    expectedToken: token,
+    source: source,
+    document: documentValue,
+    correlationHash: correlationHash
+  });
+  queryDiagnostic.stage = 'FILE_SEARCH_QUERY';
+  queryDiagnostic = kspGeminiQualificationSafeDiagnostic_(queryDiagnostic);
+  candidate.fileSearchQuery = {
+    result: queryDiagnostic.classification === 'PASS' ? 'PASS' : 'FAIL', diagnostic: queryDiagnostic
+  };
+  candidate.terminalDiagnostic = queryDiagnostic;
+  candidate.progression = queryDiagnostic.classification === 'PASS' ? 'STOP_QUALIFIED' : 'NOT_APPLICABLE';
+  return candidate;
+}
+
 function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, thinkingProfileId) {
   var selectedThinkingId = kspAiTrim_(thinkingProfileId).toLowerCase();
-  var thinking = (profile.thinkingProfiles || []).filter(function (item) {
+  var launcherThinking = (profile.thinkingProfiles || []).filter(function (item) {
     return item.thinkingProfileId === selectedThinkingId;
   })[0];
-  kspAssert_(profile.modelId === 'gemini-3.8-flash', 'AI_MODEL_ID_INVALID',
-    'Work 0027 qualification requires Gemini 3.8 Flash.');
-  kspAssert_(thinking && thinking.enabled && !thinking.providerDefault &&
-    kspAiTrim_(thinking.rawValue) === 'low', 'AI_THINKING_VALUE_INVALID',
+  kspAssert_(profile.provider === KSP_AI_PROVIDERS.GEMINI,
+    'AI_MODEL_PROFILE_PROVIDER_MISMATCH', 'Work 0027 requires a Gemini profile.');
+  kspAssert_(launcherThinking && launcherThinking.enabled && !launcherThinking.providerDefault &&
+    kspAiTrim_(launcherThinking.rawValue) === 'low', 'AI_THINKING_VALUE_INVALID',
     'Work 0027 qualification requires explicit low thinking.');
   kspAssert_(Number(profile.maxOutputTokens) === 2048, 'AI_MODEL_OUTPUT_LIMIT_INVALID',
     'Work 0027 qualification requires output ceiling 2048.');
 
-  var entropy = environment.nowIso() + '|' + String(Math.random()) + '|WORK-0027';
+  var candidateProfiles = [
+    kspGeminiWork0027CandidateProfile_(profile, 'gemini-3.7-flash'),
+    kspGeminiWork0027CandidateProfile_(profile, 'gemini-3.6-flash')
+  ];
+  var entropy = environment.nowIso() + '|' + String(Math.random()) + '|WORK-0027-CODEX-02';
   var correlationHash = typeof environment.hashText === 'function'
     ? String(environment.hashText(entropy)) : kspAiHashTextFallback_(entropy);
   correlationHash = correlationHash.toLowerCase();
@@ -15323,7 +15547,8 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
   };
   var evidence = {
     terminalOutcome: 'BLOCKED_PRODUCT_DEFECT',
-    modelId: 'gemini-3.8-flash',
+    modelId: '',
+    qualifiedModelId: '',
     thinkingRawValue: 'low',
     maxOutputTokens: 2048,
     queryTransport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
@@ -15335,6 +15560,7 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
     cleanupAttempted: false,
     cleanupConfirmed: true,
     auditRecorded: false,
+    candidates: [],
     stages: {}
   };
   var stageNames = ['MODELS_VISIBILITY', 'SHORT_INTERACTIONS', 'TEMP_STORE_CREATE',
@@ -15343,46 +15569,25 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
   stageNames.forEach(function (stage) { kspGeminiE2eRecordStage_(evidence, stage, 'NOT_RUN', null); });
   var store = null;
   var documentValue = null;
-  var primaryError = null;
-  var primaryDiagnostic = null;
+  var selectedCandidate = null;
+  var terminalDiagnostic = null;
   var currentStage = 'MODELS_VISIBILITY';
+  var campaignStartedAt = new Date().getTime();
   try {
     kspAssert_(typeof environment.listGeminiModels === 'function',
       'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE', 'Gemini Models check is unavailable.');
     var modelsResponse = environment.listGeminiModels();
-    var models = modelsResponse && Array.isArray(modelsResponse.models) ? modelsResponse.models : [];
-    var visible = models.some(function (item) {
-      return kspAiTrim_(item && item.name).replace(/^models\//, '') === 'gemini-3.8-flash';
+    kspAssert_(modelsResponse && Array.isArray(modelsResponse.models),
+      'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE', 'Gemini Models response is invalid.');
+    var visibleModels = {};
+    modelsResponse.models.forEach(function (item) {
+      var modelId = kspAiTrim_(item && item.name).replace(/^models\//, '');
+      if (modelId === 'gemini-3.7-flash' || modelId === 'gemini-3.6-flash') visibleModels[modelId] = true;
     });
-    if (!visible) {
-      throw kspGeminiE2eError_({ classification: 'MODEL_ACCESS_OR_UNSUPPORTED',
-        stage: currentStage, transport: 'INTERACTIONS', modelId: 'gemini-3.8-flash',
-        responseShapeValid: Boolean(modelsResponse && Array.isArray(modelsResponse.models)),
-        correlationHash: correlationHash });
-    }
     kspGeminiE2eRecordStage_(evidence, currentStage, 'PASS',
-      kspGeminiE2eStagePassDiagnostic_(currentStage, modelsResponse, { correlationHash: correlationHash }));
-
-    currentStage = 'SHORT_INTERACTIONS';
-    kspAssert_(typeof environment.queryGeminiInteraction === 'function',
-      'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE', 'Gemini Interactions check is unavailable.');
-    var shortToken = 'KSP27_SHORT_' + correlationHash.slice(0, 12).toUpperCase();
-    var shortResponse = environment.queryGeminiInteraction({
-      model: 'gemini-3.8-flash',
-      input: 'Reply with exactly this harmless validation token: ' + shortToken,
-      generation_config: { thinking_level: 'low', max_output_tokens: 128 }
-    });
-    var shortDiagnostic = kspGeminiEvaluateSyntheticQualificationResponse_(shortResponse, {
-      transport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
-      modelId: 'gemini-3.8-flash',
-      expectedToken: shortToken,
-      requireCitation: false,
-      correlationHash: correlationHash
-    });
-    shortDiagnostic.stage = currentStage;
-    shortDiagnostic = kspGeminiQualificationSafeDiagnostic_(shortDiagnostic);
-    if (shortDiagnostic.classification !== 'PASS') throw kspGeminiE2eError_(shortDiagnostic);
-    kspGeminiE2eRecordStage_(evidence, currentStage, 'PASS', shortDiagnostic);
+      kspGeminiE2eStagePassDiagnostic_(currentStage, modelsResponse, {
+        modelId: 'gemini-3.7-flash', correlationHash: correlationHash
+      }));
 
     currentStage = 'TEMP_STORE_CREATE';
     kspAssert_(typeof environment.createFileSearchStore === 'function',
@@ -15394,7 +15599,9 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
     evidence.temporaryStoreCreated = true;
     evidence.cleanupRequired = true;
     kspGeminiE2eRecordStage_(evidence, currentStage, 'PASS',
-      kspGeminiE2eStagePassDiagnostic_(currentStage, store, { correlationHash: correlationHash }));
+      kspGeminiE2eStagePassDiagnostic_(currentStage, store, {
+        modelId: 'gemini-3.7-flash', correlationHash: correlationHash
+      }));
 
     currentStage = 'SYNTHETIC_UPLOAD_INDEX_READBACK';
     kspAssert_(typeof environment.uploadSourceToFileSearchStore === 'function' &&
@@ -15410,52 +15617,59 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
     documentValue = exactDocuments[0];
     evidence.temporaryDocumentVerified = true;
     kspGeminiE2eRecordStage_(evidence, currentStage, 'PASS',
-      kspGeminiE2eStagePassDiagnostic_(currentStage, documentValue, { correlationHash: correlationHash }));
+      kspGeminiE2eStagePassDiagnostic_(currentStage, documentValue, {
+        modelId: 'gemini-3.7-flash', correlationHash: correlationHash
+      }));
 
-    currentStage = 'FILE_SEARCH_QUERY';
-    kspAssert_(typeof environment.queryProvider === 'function',
-      'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE', 'Gemini File Search query is unavailable.');
-    var config = {
-      provider: KSP_AI_PROVIDERS.GEMINI,
-      enabled: false,
-      credentialConfigured: true,
-      storeName: store.name,
-      modelId: 'gemini-3.8-flash',
-      modelProfileId: profile.profileId,
-      thinkingProfileId: thinking.thinkingProfileId,
-      thinkingProviderDefault: false,
-      thinkingRawValue: 'low',
-      maxOutputTokens: 2048,
-      queryTransport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS
-    };
-    var request = kspBuildProviderSearchRequest_(KSP_AI_PROVIDERS.GEMINI, config, {
-      route: KSP_AI_PROVIDERS.GEMINI,
-      mode: KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION,
-      questionOrInstruction: 'Return the unique validation token from the selected synthetic source.',
-      filters: { sourceType: source.sourceType, sourceId: source.sourceId }
-    });
-    var queryResponse = environment.queryProvider(KSP_AI_PROVIDERS.GEMINI, config, request);
-    var queryDiagnostic = kspGeminiEvaluateSyntheticQualificationResponse_(queryResponse, {
-      transport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
-      modelId: 'gemini-3.8-flash',
-      expectedToken: token,
-      source: source,
-      document: documentValue,
-      correlationHash: correlationHash
-    });
-    queryDiagnostic.stage = currentStage;
-    queryDiagnostic = kspGeminiQualificationSafeDiagnostic_(queryDiagnostic);
-    if (queryDiagnostic.classification !== 'PASS') throw kspGeminiE2eError_(queryDiagnostic);
-    kspGeminiE2eRecordStage_(evidence, currentStage, 'PASS', queryDiagnostic);
+    for (var candidateIndex = 0; candidateIndex < candidateProfiles.length; candidateIndex += 1) {
+      if (new Date().getTime() - campaignStartedAt >= 300000) {
+        if (evidence.candidates.length) evidence.candidates[evidence.candidates.length - 1].progression = 'STOP_CANDIDATE_BUDGET';
+        if (!evidence.candidates.length) {
+          currentStage = 'SHORT_INTERACTIONS';
+          throw kspGeminiE2eError_({
+            classification: 'PROVIDER_OR_TRANSIENT_FAILURE', stage: currentStage,
+            transport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS, modelId: candidateProfiles[0].modelId,
+            retryDisposition: 'ATTEMPT_BUDGET_EXHAUSTED', correlationHash: correlationHash
+          });
+        }
+        break;
+      }
+      var candidate = kspRunGeminiSyntheticCandidate_(environment, candidateProfiles[candidateIndex],
+        visibleModels, store.name, source, documentValue, token, correlationHash);
+      evidence.candidates.push(candidate);
+      evidence.modelId = candidate.modelId;
+      if (candidate.shortInteractions.result !== 'NOT_RUN') {
+        kspGeminiE2eRecordStage_(evidence, 'SHORT_INTERACTIONS',
+          candidate.shortInteractions.result, candidate.shortInteractions.diagnostic);
+      }
+      if (candidate.fileSearchQuery.result !== 'NOT_RUN') {
+        kspGeminiE2eRecordStage_(evidence, 'FILE_SEARCH_QUERY',
+          candidate.fileSearchQuery.result, candidate.fileSearchQuery.diagnostic);
+      }
+      terminalDiagnostic = candidate.terminalDiagnostic;
+      if (terminalDiagnostic && terminalDiagnostic.classification === 'PASS') {
+        candidate.progression = 'STOP_QUALIFIED';
+        selectedCandidate = candidate;
+        evidence.qualifiedModelId = candidate.modelId;
+        break;
+      }
+      if (candidateIndex === 0 && kspGeminiE2eCandidateAllowsProgression_(terminalDiagnostic)) {
+        candidate.progression = 'PROCEED_TO_NEXT_CANDIDATE';
+        continue;
+      }
+      candidate.progression = candidateIndex === candidateProfiles.length - 1 &&
+        kspGeminiE2eCandidateAllowsProgression_(terminalDiagnostic)
+        ? 'STOP_CANDIDATE_BUDGET' : 'STOP_DISALLOWED';
+      break;
+    }
   } catch (error) {
-    primaryError = error;
-    primaryDiagnostic = error && error.qualificationDiagnostic
+    terminalDiagnostic = error && error.qualificationDiagnostic
       ? kspGeminiQualificationSafeDiagnostic_(error.qualificationDiagnostic)
-      : kspGeminiE2eDiagnosticForError_(error, currentStage, correlationHash);
-    primaryDiagnostic.stage = currentStage;
-    primaryDiagnostic.correlationHash = correlationHash;
-    primaryDiagnostic = kspGeminiQualificationSafeDiagnostic_(primaryDiagnostic);
-    kspGeminiE2eRecordStage_(evidence, currentStage, 'FAIL', primaryDiagnostic);
+      : kspGeminiE2eDiagnosticForError_(error, currentStage, correlationHash, evidence.modelId || 'gemini-3.7-flash');
+    terminalDiagnostic.stage = currentStage;
+    terminalDiagnostic.correlationHash = correlationHash;
+    terminalDiagnostic = kspGeminiQualificationSafeDiagnostic_(terminalDiagnostic);
+    kspGeminiE2eRecordStage_(evidence, currentStage, 'FAIL', terminalDiagnostic);
     if (!store && currentStage === 'TEMP_STORE_CREATE' && error && error.ambiguousTransport === true) {
       evidence.cleanupRequired = true;
       evidence.cleanupConfirmed = false;
@@ -15466,10 +15680,13 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
       try {
         environment.deleteFileSearchStore(store.name);
         kspGeminiE2eRecordStage_(evidence, 'TEMP_STORE_DELETE', 'PASS',
-          kspGeminiE2eStagePassDiagnostic_('TEMP_STORE_DELETE', null, { correlationHash: correlationHash }));
+          kspGeminiE2eStagePassDiagnostic_('TEMP_STORE_DELETE', null, {
+            modelId: evidence.modelId || 'gemini-3.7-flash', correlationHash: correlationHash
+          }));
       } catch (deleteError) {
         kspGeminiE2eRecordStage_(evidence, 'TEMP_STORE_DELETE', 'FAIL',
-          kspGeminiE2eDiagnosticForError_(deleteError, 'TEMP_STORE_DELETE', correlationHash));
+          kspGeminiE2eDiagnosticForError_(deleteError, 'TEMP_STORE_DELETE', correlationHash,
+            evidence.modelId || 'gemini-3.7-flash'));
       }
       try {
         evidence.cleanupConfirmed = Boolean(environment.confirmFileSearchStoreDeleted(store.name));
@@ -15479,53 +15696,80 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
       kspGeminiE2eRecordStage_(evidence, 'CLEANUP_CONFIRMATION',
         evidence.cleanupConfirmed ? 'PASS' : 'FAIL',
         evidence.cleanupConfirmed
-          ? kspGeminiE2eStagePassDiagnostic_('CLEANUP_CONFIRMATION', null, { correlationHash: correlationHash })
+          ? kspGeminiE2eStagePassDiagnostic_('CLEANUP_CONFIRMATION', null, {
+            modelId: evidence.modelId || 'gemini-3.7-flash', correlationHash: correlationHash
+          })
           : { classification: 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE', stage: 'CLEANUP_CONFIRMATION',
-            transport: 'INTERACTIONS', modelId: 'gemini-3.8-flash', correlationHash: correlationHash });
+            transport: 'INTERACTIONS', modelId: evidence.modelId || 'gemini-3.7-flash',
+            correlationHash: correlationHash });
     } else if (!evidence.cleanupRequired) {
       kspGeminiE2eRecordStage_(evidence, 'CLEANUP_CONFIRMATION', 'PASS',
-        kspGeminiE2eStagePassDiagnostic_('CLEANUP_CONFIRMATION', null, { correlationHash: correlationHash }));
+        kspGeminiE2eStagePassDiagnostic_('CLEANUP_CONFIRMATION', null, {
+          modelId: evidence.modelId || 'gemini-3.7-flash', correlationHash: correlationHash
+        }));
     } else {
       kspGeminiE2eRecordStage_(evidence, 'CLEANUP_CONFIRMATION', 'FAIL', {
         classification: 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE', stage: 'CLEANUP_CONFIRMATION',
-        transport: 'INTERACTIONS', modelId: 'gemini-3.8-flash', correlationHash: correlationHash
+        transport: 'INTERACTIONS', modelId: evidence.modelId || 'gemini-3.7-flash',
+        correlationHash: correlationHash
       });
     }
   }
 
   if (evidence.cleanupRequired && !evidence.cleanupConfirmed) {
     evidence.terminalOutcome = 'BLOCKED_RESOURCE_CLEANUP';
-  } else if (!primaryError) {
+  } else if (selectedCandidate) {
     evidence.terminalOutcome = 'QUALIFIED_DISABLED';
-  } else if (primaryDiagnostic &&
-      primaryDiagnostic.classification === 'PROVIDER_OR_TRANSIENT_FAILURE') {
-    evidence.terminalOutcome = 'DISABLED_TRANSIENT_PROVIDER_LIMITATION';
   } else {
-    evidence.terminalOutcome = 'BLOCKED_PRODUCT_DEFECT';
+    var candidateDiagnostics = evidence.candidates.map(function (candidate) {
+      return kspGeminiQualificationSafeDiagnostic_(candidate.terminalDiagnostic);
+    });
+    if (!candidateDiagnostics.length && terminalDiagnostic) {
+      candidateDiagnostics.push(kspGeminiQualificationSafeDiagnostic_(terminalDiagnostic));
+    }
+    var onlyExternalCandidateFailures = candidateDiagnostics.length > 0 && candidateDiagnostics.every(function (item) {
+      return item.classification === 'MODEL_ACCESS_OR_UNSUPPORTED' ||
+        item.classification === 'PROVIDER_OR_TRANSIENT_FAILURE';
+    });
+    var hasTransientFailure = candidateDiagnostics.some(function (item) {
+      return item.classification === 'PROVIDER_OR_TRANSIENT_FAILURE';
+    });
+    if (onlyExternalCandidateFailures) {
+      evidence.terminalOutcome = hasTransientFailure
+        ? 'DISABLED_TRANSIENT_PROVIDER_LIMITATION' : 'DISABLED_MODEL_ACCESS_LIMITATION';
+    } else {
+      evidence.terminalOutcome = 'BLOCKED_PRODUCT_DEFECT';
+    }
   }
   evidence.auditRecorded = kspGeminiE2eAppendAudit_(environment, context, evidence);
   var safeEvidence = kspGeminiE2eSafeEvidence_(evidence);
   if (safeEvidence.terminalOutcome !== 'QUALIFIED_DISABLED') {
-    var terminalError = kspAiModelPolicyError_(safeEvidence.terminalOutcome === 'BLOCKED_RESOURCE_CLEANUP'
+    var terminalCode = safeEvidence.terminalOutcome === 'BLOCKED_RESOURCE_CLEANUP'
       ? 'AI_GEMINI_RESOURCE_CLEANUP_BLOCKED'
       : safeEvidence.terminalOutcome === 'DISABLED_TRANSIENT_PROVIDER_LIMITATION'
-        ? 'AI_GEMINI_TRANSIENT_PROVIDER_LIMITATION' : 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
+        ? 'AI_GEMINI_TRANSIENT_PROVIDER_LIMITATION'
+        : safeEvidence.terminalOutcome === 'DISABLED_MODEL_ACCESS_LIMITATION'
+          ? 'AI_GEMINI_MODEL_ACCESS_LIMITATION' : 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE';
+    var terminalError = kspAiModelPolicyError_(terminalCode);
     terminalError.geminiE2e = true;
     terminalError.terminalOutcome = safeEvidence.terminalOutcome;
     terminalError.qualificationEvidence = safeEvidence;
     throw terminalError;
   }
+  selectedCandidate.profile.isProviderDefault = true;
+  selectedCandidate.profile.userVisible = false;
   return {
     status: 'PASS',
     qualification: {
-      status: 'PASS', qualified: 1, failed: 0, accessible: true,
+      status: 'PASS', qualified: 1, failed: evidence.candidates.length - 1, accessible: true,
       latencyMs: safeEvidence.stages.FILE_SEARCH_QUERY.diagnostic
         ? safeEvidence.stages.FILE_SEARCH_QUERY.diagnostic.latencyMs : 0,
-      thinkingResults: [{ thinkingProfileId: thinking.thinkingProfileId, passed: true }],
+      thinkingResults: [{ thinkingProfileId: 'low', passed: true }],
       storeName: '',
       requestProfileVersion: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION
     },
-    selectedProfile: profile,
+    selectedProfile: selectedCandidate.profile,
+    attemptedProfiles: evidence.candidates.map(function (candidate) { return candidate.profile; }),
     evidence: safeEvidence,
     terminalOutcome: 'QUALIFIED_DISABLED'
   };
@@ -16041,14 +16285,27 @@ function kspMutateAiProviderSettings_(environment, input) {
         var qualification = isGeminiQualification
           ? geminiCampaign.qualification
           : kspRunOpenAiSyntheticConnectionTest_(environment, policySettings.openaiVectorStoreId, qualifyingProfile);
-        if (isGeminiQualification && geminiCampaign.selectedProfile.modelId !== qualifyingProfile.modelId) {
-          policy = kspMarkAiModelProfileQualification_(policy, profileId,
-            { passed: false, accessible: false,
-              thinkingResults: [{ thinkingProfileId: kspAiTrim_(input.thinkingProfileId).toLowerCase(), passed: false }] },
-          environment.nowIso());
+        if (isGeminiQualification) {
+          (geminiCampaign.attemptedProfiles || []).forEach(function (attemptedProfile) {
+            if (attemptedProfile.modelId === geminiCampaign.selectedProfile.modelId) return;
+            attemptedProfile.isProviderDefault = false;
+            attemptedProfile.userVisible = false;
+            policy = kspUpsertAiModelProfile_(policy, attemptedProfile, environment.nowIso());
+            policy = kspMarkAiModelProfileQualification_(policy, attemptedProfile.profileId,
+              { passed: false, accessible: null,
+                thinkingResults: [{ thinkingProfileId: 'low', passed: false }] }, environment.nowIso());
+          });
+          geminiCampaign.selectedProfile.isProviderDefault = true;
+          geminiCampaign.selectedProfile.userVisible = false;
           policy = kspUpsertAiModelProfile_(policy, geminiCampaign.selectedProfile, environment.nowIso());
           profileId = geminiCampaign.selectedProfile.profileId;
           qualifyingProfile = geminiCampaign.selectedProfile;
+          policy.profiles.forEach(function (item) {
+            if (item.provider !== KSP_AI_PROVIDERS.GEMINI) return;
+            item.isProviderDefault = item.profileId === profileId;
+            item.userVisible = false;
+          });
+          policy = kspNormalizeAiModelPolicy_(policy);
         }
         policy = kspMarkAiModelProfileQualification_(policy, profileId,
           { passed: qualification.qualified > 0, accessible: qualification.accessible,
@@ -16061,10 +16318,9 @@ function kspMutateAiProviderSettings_(environment, input) {
           qualifiedDefault.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED,
           'AI_MODEL_QUALIFICATION_FAILED', 'Default thinking profile qualification failed.');
         if (isGeminiQualification) {
-          if (qualifyingProfile.isProviderDefault) {
-            kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.GEMINI_MODEL_ID,
-              qualifyingProfile.modelId);
-          }
+          kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.GEMINI_MODEL_ID,
+            qualifyingProfile.modelId);
+          kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.GEMINI_ENABLED, 'false');
           kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.GEMINI_READINESS, 'QUALIFIED_DISABLED');
         }
         return { ok: true, workId: isGeminiQualification ? '0027' : '0025', action: action,
