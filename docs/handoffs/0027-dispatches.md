@@ -16,7 +16,7 @@ repair precise transient/auth classification
 -> enable bounded safe retry behavior
 -> preserve correct resumable-upload headers
 -> execute one synthetic File Search E2E
--> terminate as QUALIFIED_DISABLED, DISABLED_TRANSIENT_PROVIDER_LIMITATION, or BLOCKED_PRODUCT_DEFECT
+-> terminate as QUALIFIED_DISABLED, DISABLED_TRANSIENT_PROVIDER_LIMITATION, BLOCKED_PRODUCT_DEFECT, or BLOCKED_RESOURCE_CLEANUP
 ```
 
 Detailed instruction:

@@ -31,6 +31,7 @@ Detailed instruction:
 ```text
 PRODUCT_AVAILABILITY_BLOCKER: NONE / Gemini remains hidden and OpenAI/FULL_OUTPUT are preserved
 WORK_ACCEPTANCE_BLOCKER: FILE_SEARCH_E2E_NOT_YET_QUALIFIED
+TEMP_RESOURCE_CLEANUP_REQUIREMENT: deletion must be confirmed before any accepted terminal result
 ```
 
 WORK_ID: `0027`  

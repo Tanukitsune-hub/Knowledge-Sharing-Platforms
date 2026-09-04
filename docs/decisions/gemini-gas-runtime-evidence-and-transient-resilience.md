@@ -141,7 +141,7 @@ Models visibility
 -> cleanup in finally
 ```
 
-The temporary Store and any temporary resource must be deleted on both success and failure where the provider permits.
+The temporary Store and any temporary resource must be deleted on both success and failure. A terminal acceptance result is prohibited until cleanup is confirmed. If cleanup cannot be confirmed, stop as `BLOCKED_RESOURCE_CLEANUP`.
 
 Terminal outcomes:
 
@@ -149,6 +149,7 @@ Terminal outcomes:
 QUALIFIED_DISABLED
 DISABLED_TRANSIENT_PROVIDER_LIMITATION
 BLOCKED_PRODUCT_DEFECT
+BLOCKED_RESOURCE_CLEANUP
 ```
 
 A successful qualification does not automatically expose Gemini to normal users; activation is a separate administrator decision after final review.

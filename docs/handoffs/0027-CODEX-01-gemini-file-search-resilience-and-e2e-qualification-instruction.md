@@ -28,6 +28,7 @@ Terminal outcome must be exactly one of:
 QUALIFIED_DISABLED
 DISABLED_TRANSIENT_PROVIDER_LIMITATION
 BLOCKED_PRODUCT_DEFECT
+BLOCKED_RESOURCE_CLEANUP
 ```
 
 ## 2. Starting ref and GitHub authority
@@ -264,13 +265,17 @@ Use only if full synthetic upload/index/query/citation/cleanup passes. Keep Gemi
 
 ### DISABLED_TRANSIENT_PROVIDER_LIMITATION
 
-Use only if exact 429/408/5xx provider evidence exhausts the bounded policy, no product defect is observed, and cleanup succeeds or the cleanup limitation is precisely recorded.
+Use only if exact 429/408/5xx provider evidence exhausts the bounded policy, no product defect is observed, and temporary-resource deletion is confirmed.
 
 ### BLOCKED_PRODUCT_DEFECT
 
-Use for an application upload/header/parser/citation/source-integrity/idempotency/security defect or failed required cleanup caused by product code.
+Use for an application upload/header/parser/citation/source-integrity/idempotency/security defect.
 
-Do not relabel a product defect as transient provider behavior.
+### BLOCKED_RESOURCE_CLEANUP
+
+Use whenever deletion of the temporary Store or temporary provider resource cannot be confirmed, regardless of whether the deletion failure appears product-side or provider-side. Do not accept or merge the Work while a temporary resource may remain.
+
+Do not relabel a product defect or cleanup blocker as transient provider behavior.
 
 ## 12. GitHub delivery
 

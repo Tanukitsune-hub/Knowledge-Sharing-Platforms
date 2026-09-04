@@ -16,6 +16,7 @@ The usable terminal result is one of:
 QUALIFIED_DISABLED
 DISABLED_TRANSIENT_PROVIDER_LIMITATION
 BLOCKED_PRODUCT_DEFECT
+BLOCKED_RESOURCE_CLEANUP
 ```
 
 ## Accepted starting point
@@ -151,6 +152,6 @@ Work 0027 is ready for final review when:
 
 - required deterministic checks pass;
 - the target-runtime campaign reaches one allowed terminal result;
-- temporary resources are cleaned up or an exact cleanup blocker is recorded;
+- temporary-resource deletion is confirmed; otherwise the Work remains `BLOCKED_RESOURCE_CLEANUP`;
 - no existing provider/source data or accepted OpenAI/FULL_OUTPUT path is changed;
 - no credential or confidential value appears in GitHub, logs, reports, PR, or browser responses.
