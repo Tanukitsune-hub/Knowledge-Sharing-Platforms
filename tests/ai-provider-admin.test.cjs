@@ -352,24 +352,17 @@ test('Gemini qualification keeps no-answer, no-citation, and citation-identity f
   });
 });
 
-test('Gemini response-shape failure is a product defect and never writes external limitation', () => {
+test('accepted Work 0026 exact-tuple response-shape failure remains a product defect', () => {
   const env = makeGeminiQualificationEnvironment([{ status: 'completed' }]);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-  }));
-  assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
-  assert.equal(result.qualificationEvidence.queryCalls, 1);
-  assert.equal(result.qualificationEvidence.primary.classification, 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
-  assert.equal(result.qualificationEvidence.exactExternalLimitation, 'NONE');
-  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'ERROR');
-  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
-  const settings = ksp.kspNormalizeAiSettings_(env._debug.context.settings);
-  const choices = plain(ksp.kspGetEffectiveAiModelChoices_(settings, 'GEMINI', {
-    provider: 'GEMINI', enabled: true, credentialConfigured: true,
-    storeName: settings.geminiStoreName, modelId: settings.geminiModelId
-  }, ''));
-  assert.equal(choices.profiles.length, 0);
+  assert.throws(() => ksp.kspRunGeminiBoundedQualificationCampaign_(env, env._debug.context,
+    ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low'), (error) => {
+    assert.equal(error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
+    assert.equal(error.qualificationEvidence.queryCalls, 1);
+    assert.equal(error.qualificationEvidence.primary.classification,
+      'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
+    assert.equal(error.qualificationEvidence.exactExternalLimitation, 'NONE');
+    return true;
+  });
 });
 
 test('model unsupported evidence opens only the one 3.7 Interactions fallback', () => {
@@ -395,32 +388,26 @@ test('model unsupported evidence opens only the one 3.7 Interactions fallback', 
   assert.doesNotMatch(JSON.stringify(campaign), /PRIVATE_PROVIDER_MESSAGE/);
 });
 
-test('successful 3.8 administrator qualification persists the exact tuple without exposing provider identity', () => {
+test('accepted Work 0026 bounded campaign still parses a successful 3.8 exact tuple', () => {
   const env = makeGeminiQualificationEnvironment([
     ({ contentHash }) => geminiQualificationResponse(contentHash)
   ]);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-  }));
-  assert.equal(result.ok, true, JSON.stringify(result));
+  const result = plain(ksp.kspRunGeminiBoundedQualificationCampaign_(env, env._debug.context,
+    ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low'));
+  assert.equal(result.status, 'PASS');
   assert.equal(result.qualification.status, 'PASS');
-  assert.equal(result.qualification.evidence.queryCalls, 1);
-  assert.equal(result.qualification.evidence.primary.classification, 'PASS');
-  assert.equal(result.qualification.evidence.secondControl, 'NOT_USED');
-  assert.equal(result.qualification.evidence.exactExternalLimitation, 'NONE');
-  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'QUALIFIED_DISABLED');
-  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  assert.equal(result.evidence.queryCalls, 1);
+  assert.equal(result.evidence.primary.classification, 'PASS');
+  assert.equal(result.evidence.secondControl, 'NOT_USED');
+  assert.equal(result.evidence.exactExternalLimitation, 'NONE');
   assert.equal(env._debug.calls.length, 1);
   assert.equal(env._debug.calls[0].config.modelId, 'gemini-3.8-flash');
   assert.equal(env._debug.calls[0].config.thinkingRawValue, 'low');
   assert.equal(env._debug.calls[0].config.maxOutputTokens, 2048);
-  const qualified = result.modelPolicy.profiles.find((item) => item.profileId === 'gemini-38-low');
-  assert.equal(qualified.qualification, 'QUALIFIED');
-  assert.equal(qualified.thinkingProfiles[0].qualification, 'QUALIFIED');
-  assert.doesNotMatch(JSON.stringify(result), /fileSearchStores\/synthetic|documents\/current/);
+  assert.equal(result.qualification.storeName, 'fileSearchStores/synthetic');
 });
 
-test('successful 3.7 fallback persists only the evidence-supported fallback as the Gemini default', () => {
+test('accepted Work 0026 bounded helper retains its historical one-candidate fallback evidence', () => {
   const unsupported = Object.assign(new Error('PRIVATE_PROVIDER_MESSAGE'), {
     code: 'AI_GEMINI_MODEL_UNSUPPORTED', httpStatus: 404,
     providerErrorCodes: ['model_not_found']
@@ -429,48 +416,40 @@ test('successful 3.7 fallback persists only the evidence-supported fallback as t
     unsupported,
     ({ contentHash }) => geminiQualificationResponse(contentHash)
   ]);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-  }));
-  assert.equal(result.ok, true, JSON.stringify(result));
-  assert.equal(result.qualification.evidence.queryCalls, 2);
-  assert.equal(result.qualification.evidence.primary.classification, 'MODEL_ACCESS_OR_UNSUPPORTED');
-  assert.equal(result.qualification.evidence.secondControl, '3_7_INTERACTIONS');
-  assert.equal(result.qualification.evidence.second.classification, 'PASS');
-  assert.equal(env._debug.context.settings.GEMINI_DEFAULT_MODEL, 'gemini-3.7-flash');
-  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'QUALIFIED_DISABLED');
-  const primary = result.modelPolicy.profiles.find((item) => item.profileId === 'gemini-38-low');
-  const fallback = result.modelPolicy.profiles.find((item) => item.profileId === 'gemini-37-low');
-  assert.equal(primary.qualification, 'FAILED');
-  assert.equal(primary.isProviderDefault, false);
-  assert.equal(fallback.qualification, 'QUALIFIED');
-  assert.equal(fallback.isProviderDefault, true);
+  const result = plain(ksp.kspRunGeminiBoundedQualificationCampaign_(env, env._debug.context,
+    ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low'));
+  assert.equal(result.status, 'PASS');
+  assert.equal(result.evidence.queryCalls, 2);
+  assert.equal(result.evidence.primary.classification, 'MODEL_ACCESS_OR_UNSUPPORTED');
+  assert.equal(result.evidence.secondControl, '3_7_INTERACTIONS');
+  assert.equal(result.evidence.second.classification, 'PASS');
+  assert.equal(result.selectedProfile.modelId, 'gemini-3.7-flash');
   assert.deepEqual(env._debug.calls.map((call) => call.config.modelId),
     ['gemini-3.8-flash', 'gemini-3.7-flash']);
-  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE|fileSearchStores\/synthetic|documents\/current/);
+  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE/);
 });
 
-test('application failure in the authorized 3.7 fallback remains a product defect', () => {
+test('accepted Work 0026 bounded helper keeps fallback application failure distinct', () => {
   const unsupported = Object.assign(new Error('PRIVATE_PROVIDER_MESSAGE'), {
     code: 'AI_GEMINI_MODEL_UNSUPPORTED', httpStatus: 404,
     providerErrorCodes: ['model_not_found']
   });
   const env = makeGeminiQualificationEnvironment([unsupported, { status: 'completed' }]);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-  }));
-  assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
-  assert.equal(result.qualificationEvidence.queryCalls, 2);
-  assert.equal(result.qualificationEvidence.primary.classification, 'MODEL_ACCESS_OR_UNSUPPORTED');
-  assert.equal(result.qualificationEvidence.second.classification, 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
-  assert.equal(result.qualificationEvidence.exactExternalLimitation, 'NONE');
-  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'ERROR');
+  assert.throws(() => ksp.kspRunGeminiBoundedQualificationCampaign_(env, env._debug.context,
+    ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low'), (error) => {
+    assert.equal(error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
+    assert.equal(error.qualificationEvidence.queryCalls, 2);
+    assert.equal(error.qualificationEvidence.primary.classification, 'MODEL_ACCESS_OR_UNSUPPORTED');
+    assert.equal(error.qualificationEvidence.second.classification, 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
+    assert.equal(error.qualificationEvidence.exactExternalLimitation, 'NONE');
+    assert.doesNotMatch(JSON.stringify(error.qualificationEvidence),
+      /PRIVATE_PROVIDER_MESSAGE|fileSearchStores\/synthetic|documents\/current/);
+    return true;
+  });
   assert.equal(env._debug.calls.length, 2);
-  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE|fileSearchStores\/synthetic|documents\/current/);
 });
 
-test('provider terminal evidence runs only the 3.8 GenerateContent control and remains safely external', () => {
+test('accepted Work 0026 bounded helper retains safe provider-terminal control evidence', () => {
   const terminalError = new Error('PRIVATE_PROVIDER_MESSAGE');
   terminalError.code = 'AI_QUERY_PROVIDER_TERMINAL';
   terminalError.providerStatus = 'failed';
@@ -479,26 +458,26 @@ test('provider terminal evidence runs only the 3.8 GenerateContent control and r
     terminalError,
     ({ contentHash }) => geminiGenerateContentQualificationResponse(contentHash)
   ]);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-  }));
-  assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'AI_GEMINI_EXTERNAL_LIMITATION');
-  assert.equal(result.qualificationEvidence.queryCalls, 2);
-  assert.equal(result.qualificationEvidence.primary.classification, 'PROVIDER_TERMINAL_FAILED');
-  assert.deepEqual(result.qualificationEvidence.primary.providerErrorCodes, ['service_unavailable']);
-  assert.equal(result.qualificationEvidence.secondControl, '3_8_GENERATE_CONTENT');
-  assert.equal(result.qualificationEvidence.second.classification, 'PASS');
-  assert.equal(result.qualificationEvidence.exactExternalLimitation, 'INTERACTIONS_SPECIFIC_LIMITATION');
-  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'DISABLED_EXTERNAL_LIMITATION');
-  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  let retained;
+  assert.throws(() => ksp.kspRunGeminiBoundedQualificationCampaign_(env, env._debug.context,
+    ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low'), (error) => {
+    assert.equal(error.code, 'AI_GEMINI_EXTERNAL_LIMITATION');
+    retained = plain(error.qualificationEvidence);
+    return true;
+  });
+  assert.equal(retained.queryCalls, 2);
+  assert.equal(retained.primary.classification, 'PROVIDER_TERMINAL_FAILED');
+  assert.deepEqual(retained.primary.providerErrorCodes, ['service_unavailable']);
+  assert.equal(retained.secondControl, '3_8_GENERATE_CONTENT');
+  assert.equal(retained.second.classification, 'PASS');
+  assert.equal(retained.exactExternalLimitation, 'INTERACTIONS_SPECIFIC_LIMITATION');
   assert.deepEqual(env._debug.calls.map((call) => call.config.queryTransport),
     ['INTERACTIONS', 'GENERATE_CONTENT']);
   assert.ok(env._debug.calls.every((call) => call.provider === 'GEMINI'));
-  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE|private_provider_identifier/);
+  assert.doesNotMatch(JSON.stringify(retained), /PRIVATE_PROVIDER_MESSAGE|private_provider_identifier/);
 });
 
-test('invalid-request and unknown failures remain product defects without a second provider call', () => {
+test('accepted Work 0026 bounded helper keeps invalid and unknown failures product-side', () => {
   for (const failure of [
     Object.assign(new Error('PRIVATE_INVALID_REQUEST'), {
       code: 'AI_QUERY_HTTP_FAILED', httpStatus: 400, providerErrorCodes: ['invalid_request']
@@ -506,42 +485,43 @@ test('invalid-request and unknown failures remain product defects without a seco
     new Error('PRIVATE_UNKNOWN_APPLICATION_FAILURE')
   ]) {
     const env = makeGeminiQualificationEnvironment([failure]);
-    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-      action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-    }));
-    assert.equal(result.ok, false);
-    assert.equal(result.error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
-    assert.equal(result.qualificationEvidence.queryCalls, 1);
-    assert.equal(result.qualificationEvidence.primary.classification,
-      'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
-    assert.equal(result.qualificationEvidence.secondControl, 'NOT_USED');
-    assert.equal(result.qualificationEvidence.exactExternalLimitation, 'NONE');
-    assert.equal(env._debug.context.settings.GEMINI_READINESS, 'ERROR');
+    let retained;
+    assert.throws(() => ksp.kspRunGeminiBoundedQualificationCampaign_(env, env._debug.context,
+      ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low'), (error) => {
+      assert.equal(error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
+      retained = plain(error.qualificationEvidence);
+      return true;
+    });
+    assert.equal(retained.queryCalls, 1);
+    assert.equal(retained.primary.classification, 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
+    assert.equal(retained.secondControl, 'NOT_USED');
+    assert.equal(retained.exactExternalLimitation, 'NONE');
     assert.equal(env._debug.calls.length, 1);
-    assert.doesNotMatch(JSON.stringify(result), /PRIVATE_INVALID_REQUEST|PRIVATE_UNKNOWN_APPLICATION_FAILURE/);
+    assert.doesNotMatch(JSON.stringify(retained), /PRIVATE_INVALID_REQUEST|PRIVATE_UNKNOWN_APPLICATION_FAILURE/);
   }
 });
 
-test('explicit external HTTP evidence is retained safely without a transport fallback', () => {
+test('new classification retains explicit transient HTTP evidence without transport fallback', () => {
   const providerError = Object.assign(new Error('PRIVATE_PROVIDER_MESSAGE'), {
     code: 'AI_QUERY_HTTP_FAILED', httpStatus: 503,
     providerErrorCodes: ['service_unavailable', 'private_provider_identifier']
   });
   const env = makeGeminiQualificationEnvironment([providerError]);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
-  }));
-  assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'AI_GEMINI_EXTERNAL_LIMITATION');
-  assert.equal(result.qualificationEvidence.queryCalls, 1);
-  assert.equal(result.qualificationEvidence.primary.classification, 'HTTP_OR_CREDENTIAL_FAILURE');
-  assert.equal(result.qualificationEvidence.primary.httpStatus, 503);
-  assert.deepEqual(result.qualificationEvidence.primary.providerErrorCodes, ['service_unavailable']);
-  assert.equal(result.qualificationEvidence.secondControl, 'NOT_USED');
-  assert.equal(result.qualificationEvidence.exactExternalLimitation, 'HTTP_OR_CREDENTIAL_FAILURE');
-  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'DISABLED_EXTERNAL_LIMITATION');
+  let retained;
+  assert.throws(() => ksp.kspRunGeminiBoundedQualificationCampaign_(env, env._debug.context,
+    ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low'), (error) => {
+    assert.equal(error.code, 'AI_GEMINI_EXTERNAL_LIMITATION');
+    retained = plain(error.qualificationEvidence);
+    return true;
+  });
+  assert.equal(retained.queryCalls, 1);
+  assert.equal(retained.primary.classification, 'PROVIDER_OR_TRANSIENT_FAILURE');
+  assert.equal(retained.primary.httpStatus, 503);
+  assert.deepEqual(retained.primary.providerErrorCodes, ['service_unavailable']);
+  assert.equal(retained.secondControl, 'NOT_USED');
+  assert.equal(retained.exactExternalLimitation, 'PROVIDER_OR_TRANSIENT_FAILURE');
   assert.equal(env._debug.calls.length, 1);
-  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE|private_provider_identifier/);
+  assert.doesNotMatch(JSON.stringify(retained), /PRIVATE_PROVIDER_MESSAGE|private_provider_identifier/);
 });
 
 test('OpenAI Store creation uses a synthetic official REST POST and returns only the server-side resource', () => {

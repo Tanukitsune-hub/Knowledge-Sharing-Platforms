@@ -312,12 +312,13 @@ test('finalize fetch without a provider response remains a non-retryable client 
     }
     return null;
   });
-  assert.equal(fetchCalls, 2);
+  assert.equal(fetchCalls, 5);
   assert.equal(error.code, 'AI_UPLOAD_FINALIZE_CLIENT_FAILED');
   assert.equal(error.stage, 'UPLOAD_FINALIZE_CLIENT');
   assert.equal(error.httpStatus, 0);
   assert.equal(error.retryable, false);
   assert.equal(error.permanent, true);
+  assert.equal(error.reconciliationCode, 'AI_UPLOAD_SESSION_QUERY_FAILED');
   assert.doesNotMatch(error.message, /PRIVATE_APPS_SCRIPT_TRANSPORT_ERROR/);
 });
 
@@ -349,7 +350,7 @@ test('known Gemini upload stages preserve safe codes without raw provider text',
         !error.message.includes('PRIVATE_PROVIDER_RESPONSE')
     );
   });
-  assert.equal(calls, 2);
+  assert.equal(calls, 5);
 });
 
 test('provider lastError keeps stage code, attempt, retryability, and next attempt only', () => {
@@ -365,7 +366,7 @@ test('provider lastError keeps stage code, attempt, retryability, and next attem
   assert.equal(Object.hasOwn(encoded, 'message'), false);
 });
 
-test('transient Gemini query failures retry at most four times and honor Retry-After', () => {
+test('transient Gemini query failures retry at most three times and honor Retry-After', () => {
   const calls = [];
   const result = withLiveFakes((url, options) => {
     calls.push({ url, options });
@@ -400,8 +401,8 @@ test('all accepted transient Gemini HTTP statuses remain bounded-retryable', () 
       } catch (value) {
         caught = value;
       }
-      assert.equal(calls, 4);
-      assert.equal(sleeps.length, 3);
+      assert.equal(calls, 3);
+      assert.equal(sleeps.length, 2);
       assert.equal(caught.code, 'AI_STORE_READ_FAILED');
       assert.equal(caught.httpStatus, status);
       assert.equal(caught.retryable, true);
@@ -411,7 +412,7 @@ test('all accepted transient Gemini HTTP statuses remain bounded-retryable', () 
   }
 });
 
-test('repeated transient Gemini query failure stops at the four-attempt cap', () => {
+test('repeated transient Gemini query failure stops at the three-attempt cap', () => {
   let calls = 0;
   const error = withLiveFakes(() => {
     calls += 1;
@@ -425,14 +426,14 @@ test('repeated transient Gemini query failure stops at the four-attempt cap', ()
     } catch (value) {
       caught = value;
     }
-    assert.equal(calls, 4);
-    assert.equal(sleeps.length, 3);
+    assert.equal(calls, 3);
+    assert.equal(sleeps.length, 2);
     assert.equal(caught.code, 'AI_QUERY_HTTP_FAILED');
-    assert.equal(caught.attempt, 4);
+    assert.equal(caught.attempt, 3);
     assert.doesNotMatch(caught.message, /PRIVATE_PROVIDER_RESPONSE/);
     return caught;
   });
-  assert.equal(error.attempt, 4);
+  assert.equal(error.attempt, 3);
 });
 
 test('authentication and invalid-request 4xx responses are not retried', () => {
@@ -781,7 +782,7 @@ test('Generate Content result maps authoritative citations and records safe tran
   assert.equal(JSON.stringify(env._debug.audits[0]).includes('provider.invalid'), false);
 });
 
-test('Generate Content HTTP and malformed responses remain safe and non-retryable', () => {
+test('Generate Content HTTP retries stay bounded and malformed responses remain safe', () => {
   let calls = 0;
   withLiveFakes(() => {
     calls += 1;
@@ -794,7 +795,7 @@ test('Generate Content HTTP and malformed responses remain safe and non-retryabl
         error.retryable === true && !error.message.includes('PRIVATE_PROVIDER_RESPONSE')
     );
   });
-  assert.equal(calls, 1);
+  assert.equal(calls, 2);
 
   withLiveFakes(() => response(200, '{PRIVATE_PROVIDER_RESPONSE'), () => {
     assert.throws(

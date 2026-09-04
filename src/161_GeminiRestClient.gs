@@ -8,7 +8,12 @@ function kspGeminiStageMessage_(code) {
   var messages = {
     AI_STORE_CREATE_FAILED: 'Gemini File Search Storeを作成できませんでした。',
     AI_STORE_READ_FAILED: 'Gemini File Search Storeを確認できませんでした。',
+    AI_STORE_DELETE_FAILED: 'Gemini File Search Storeを削除できませんでした。',
+    AI_STORE_DELETE_CONFIRM_FAILED: 'Gemini File Search Storeの削除を確認できませんでした。',
+    AI_GEMINI_MODELS_LIST_FAILED: 'Gemini model一覧を確認できませんでした。',
     AI_UPLOAD_SESSION_FAILED: 'Gemini File Search upload sessionを開始できませんでした。',
+    AI_UPLOAD_SESSION_QUERY_FAILED: 'Gemini File Search upload sessionを確認できませんでした。',
+    AI_UPLOAD_SESSION_STATE_AMBIGUOUS: 'Gemini File Search upload sessionの状態を確定できませんでした。',
     AI_UPLOAD_FINALIZE_REQUEST_INVALID: 'Gemini File Search upload requestを構成できませんでした。',
     AI_UPLOAD_FINALIZE_CLIENT_FAILED: 'Gemini File Search upload通信を開始できませんでした。',
     AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED: 'Gemini File Search upload形式を利用できませんでした。',
@@ -52,14 +57,11 @@ function kspGeminiRetryAfterMillis_(headers) {
   var value = kspGeminiHeaderValue_(headers, 'Retry-After');
   if (!value) return null;
   if (/^\d+(?:\.\d+)?$/.test(value)) {
-    return Math.min(KSP_AI_DEFAULTS.TRANSPORT_RETRY_MAX_MILLIS, Number(value) * 1000);
+    return Math.max(0, Number(value) * 1000);
   }
   var timestamp = Date.parse(value);
   if (!Number.isFinite(timestamp)) return null;
-  return Math.min(
-    KSP_AI_DEFAULTS.TRANSPORT_RETRY_MAX_MILLIS,
-    Math.max(0, timestamp - new Date().getTime())
-  );
+  return Math.max(0, timestamp - new Date().getTime());
 }
 
 function kspGeminiStageError_(code, stage, httpStatus, headers, retryableOverride) {
@@ -201,7 +203,7 @@ function kspGeminiAppendApiKey_(url, apiKey) {
 
 function kspGeminiRetryDelayMillis_(attempt, retryAfterMillis) {
   if (retryAfterMillis !== undefined && retryAfterMillis !== null) {
-    return Math.min(KSP_AI_DEFAULTS.TRANSPORT_RETRY_MAX_MILLIS, Math.max(0, Number(retryAfterMillis) || 0));
+    return Math.max(0, Number(retryAfterMillis) || 0);
   }
   var exponent = Math.max(0, Number(attempt || 1) - 1);
   var base = Math.min(
@@ -212,57 +214,127 @@ function kspGeminiRetryDelayMillis_(attempt, retryAfterMillis) {
   return Math.min(KSP_AI_DEFAULTS.TRANSPORT_RETRY_MAX_MILLIS, base + jitter);
 }
 
+function kspGeminiRetryPolicy_(options) {
+  var settings = options || {};
+  var policy = kspAiTrim_(settings.retryPolicy).toUpperCase();
+  if (policy === KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT ||
+      policy === KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE) return policy;
+  return settings.retry === true
+    ? KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT : KSP_GEMINI_RETRY_POLICIES.NONE;
+}
+
+function kspGeminiAttachTransportMetadata_(value, metadata) {
+  if (!value || typeof value !== 'object') return value;
+  var fields = {
+    __kspAttempt: Math.max(1, Number(metadata && metadata.attempt || 1) || 1),
+    __kspRetryCount: Math.max(0, Number(metadata && metadata.retryCount || 0) || 0),
+    __kspCumulativeSleepMillis: Math.max(0, Number(metadata && metadata.cumulativeSleepMillis || 0) || 0),
+    __kspElapsedMs: Math.max(0, Number(metadata && metadata.elapsedMs || 0) || 0)
+  };
+  Object.keys(fields).forEach(function (key) {
+    try {
+      Object.defineProperty(value, key, {
+        value: fields[key], enumerable: false, configurable: false, writable: false
+      });
+    } catch (ignoredMetadataError) { /* Safe telemetry is best-effort. */ }
+  });
+  return value;
+}
+
+function kspGeminiRetryEligible_(policy, error) {
+  if (!error || !error.retryable) return false;
+  var status = Number(error.httpStatus || 0) || 0;
+  if (policy === KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT) {
+    return Boolean(KSP_AI_RETRYABLE_HTTP_CODES[status]) ||
+      (status === 0 && error.ambiguousTransport === true);
+  }
+  if (policy === KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE) {
+    return error.explicitHttpResponse === true &&
+      Boolean(KSP_AI_RETRYABLE_HTTP_CODES[status]) &&
+      error.providerResourceIdentityPresent !== true;
+  }
+  return false;
+}
+
 function kspGeminiRunWithRetry_(operation, options) {
   var settings = options || {};
-  var maxAttempts = settings.retry
-    ? KSP_AI_DEFAULTS.MAX_TRANSPORT_ATTEMPTS
-    : 1;
+  var policy = kspGeminiRetryPolicy_(settings);
+  var maxAttempts = policy === KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT
+    ? KSP_AI_DEFAULTS.IDEMPOTENT_TRANSPORT_ATTEMPTS
+    : (policy === KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE
+      ? KSP_AI_DEFAULTS.MUTATING_TRANSPORT_ATTEMPTS : 1);
+  var cumulativeSleepMillis = 0;
+  var startedAt = new Date().getTime();
   var attempt = 0;
   while (attempt < maxAttempts) {
     attempt += 1;
     try {
-      return operation(attempt);
+      var operationValue = operation(attempt);
+      var successMetadata = {
+        attempt: attempt,
+        retryCount: attempt - 1,
+        cumulativeSleepMillis: cumulativeSleepMillis,
+        elapsedMs: Math.max(0, new Date().getTime() - startedAt)
+      };
+      return settings.returnMetadataWrapper === true
+        ? { value: operationValue, metadata: successMetadata }
+        : kspGeminiAttachTransportMetadata_(operationValue, successMetadata);
     } catch (rawError) {
       var error = rawError && rawError.code
         ? rawError
         : kspGeminiStageError_(settings.errorCode, settings.stage, 0, {}, true);
+      if (!(rawError && rawError.code)) error.ambiguousTransport = true;
       error.attempt = attempt;
-      if (!settings.retry || !error.retryable || attempt >= maxAttempts) throw error;
+      error.retryCount = attempt - 1;
+      error.cumulativeSleepMillis = cumulativeSleepMillis;
+      error.elapsedMs = Math.max(0, new Date().getTime() - startedAt);
+      if (!kspGeminiRetryEligible_(policy, error) || attempt >= maxAttempts) throw error;
       var delay = kspGeminiRetryDelayMillis_(attempt, error.retryAfterMillis);
+      var remainingSleep = KSP_AI_DEFAULTS.TRANSPORT_CUMULATIVE_SLEEP_MILLIS - cumulativeSleepMillis;
+      if (delay > remainingSleep) throw error;
       if (delay > 0 && typeof Utilities !== 'undefined' && typeof Utilities.sleep === 'function') {
         Utilities.sleep(delay);
       }
+      cumulativeSleepMillis += delay;
     }
   }
   throw kspGeminiStageError_(settings.errorCode, settings.stage, 0, {}, false);
 }
 
-function kspGeminiJsonRequestLive_(method, path, payload, options) {
+function kspGeminiAssertNoOrdinaryContentLength_(headers, code, stage) {
+  var hasOrdinaryContentLength = Object.keys(headers || {}).some(function (name) {
+    return String(name).toLowerCase() === 'content-length';
+  });
+  if (hasOrdinaryContentLength) {
+    throw kspGeminiStageError_(code, stage, 0, {}, false);
+  }
+}
+
+function kspGeminiProviderIdentityPresent_(responseText) {
+  try {
+    var parsed = JSON.parse(String(responseText || ''));
+    if (!parsed || typeof parsed !== 'object') return false;
+    return Boolean(kspAiTrim_(parsed.name || parsed.id ||
+      (parsed.resource && (parsed.resource.name || parsed.resource.id))));
+  } catch (ignored) {
+    return false;
+  }
+}
+
+function kspGeminiFetchResponseLive_(url, requestOptions, options) {
   var settings = options || {};
-  var url = /^https?:\/\//.test(String(path || '')) ? String(path) : KSP_AI_API.BASE_URL + String(path || '');
   var stage = settings.stage || 'GEMINI_HTTP';
   var errorCode = settings.errorCode || 'AI_HTTP_REQUEST_FAILED';
-  return kspGeminiRunWithRetry_(function () {
-    var requestOptions = {
-      method: String(method || 'GET').toLowerCase(),
-      headers: (function () {
-        var headers = { 'x-goog-api-key': kspGeminiApiKeyLive_() };
-        Object.keys(settings.headers || {}).forEach(function (key) {
-          headers[key] = settings.headers[key];
-        });
-        return headers;
-      }()),
-      muteHttpExceptions: true
-    };
-    if (payload !== null && payload !== undefined) {
-      requestOptions.contentType = 'application/json';
-      requestOptions.payload = JSON.stringify(payload);
-    }
+  var safeOptions = requestOptions || {};
+  kspGeminiAssertNoOrdinaryContentLength_(safeOptions.headers, errorCode, stage);
+  var wrapped = kspGeminiRunWithRetry_(function () {
     var response;
     try {
-      response = UrlFetchApp.fetch(url, requestOptions);
+      response = UrlFetchApp.fetch(String(url || ''), safeOptions);
     } catch (ignoredFetchError) {
-      throw kspGeminiStageError_(errorCode, stage, 0, {}, true);
+      var ambiguousError = kspGeminiStageError_(errorCode, stage, 0, {}, true);
+      ambiguousError.ambiguousTransport = true;
+      throw ambiguousError;
     }
     var code = response.getResponseCode();
     var headers = kspGeminiResponseHeaders_(response);
@@ -275,23 +347,85 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
         stage, code, headers
       );
       safeHttpError.providerErrorCodes = safeProviderErrorCodes;
+      safeHttpError.explicitHttpResponse = true;
+      safeHttpError.providerResourceIdentityPresent = kspGeminiProviderIdentityPresent_(safeErrorText) ||
+        Boolean(kspGeminiHeaderValue_(headers, 'Location') ||
+          kspGeminiHeaderValue_(headers, 'X-Goog-Upload-URL'));
       throw safeHttpError;
     }
-    try {
-      var responseText = response.getContentText('UTF-8');
-      var parsedResponse = responseText ? kspSafeParseJson_(responseText, 'Gemini response') : {};
-      if (settings.includeResponseMetadata && parsedResponse && typeof parsedResponse === 'object') {
-        try {
-          Object.defineProperty(parsedResponse, '__kspHttpStatus', {
-            value: code, enumerable: false, configurable: false, writable: false
-          });
-        } catch (ignoredMetadataError) { /* Safe telemetry is best-effort. */ }
-      }
-      return parsedResponse;
-    } catch (ignoredParseError) {
-      throw kspGeminiStageError_(settings.parseErrorCode || errorCode, stage, code, headers, false);
+    return response;
+  }, {
+    retryPolicy: settings.retryPolicy,
+    retry: settings.retry,
+    stage: stage,
+    errorCode: errorCode,
+    returnMetadataWrapper: true
+  });
+  var rawResponse = wrapped.value;
+  return {
+    getResponseCode: function () { return rawResponse.getResponseCode(); },
+    getAllHeaders: function () {
+      return typeof rawResponse.getAllHeaders === 'function' ? rawResponse.getAllHeaders() : {};
+    },
+    getContentText: function (encoding) {
+      return encoding === undefined
+        ? rawResponse.getContentText() : rawResponse.getContentText(encoding);
+    },
+    __kspAttempt: wrapped.metadata.attempt,
+    __kspRetryCount: wrapped.metadata.retryCount,
+    __kspCumulativeSleepMillis: wrapped.metadata.cumulativeSleepMillis,
+    __kspElapsedMs: wrapped.metadata.elapsedMs
+  };
+}
+
+function kspGeminiJsonRequestLive_(method, path, payload, options) {
+  var settings = options || {};
+  var url = /^https?:\/\//.test(String(path || '')) ? String(path) : KSP_AI_API.BASE_URL + String(path || '');
+  var stage = settings.stage || 'GEMINI_HTTP';
+  var errorCode = settings.errorCode || 'AI_HTTP_REQUEST_FAILED';
+  var requestOptions = {
+    method: String(method || 'GET').toLowerCase(),
+    headers: (function () {
+      var headers = { 'x-goog-api-key': kspGeminiApiKeyLive_() };
+      Object.keys(settings.headers || {}).forEach(function (key) {
+        headers[key] = settings.headers[key];
+      });
+      return headers;
+    }()),
+    muteHttpExceptions: true
+  };
+  if (payload !== null && payload !== undefined) {
+    requestOptions.contentType = 'application/json';
+    requestOptions.payload = JSON.stringify(payload);
+  }
+  var response = kspGeminiFetchResponseLive_(url, requestOptions, {
+    retryPolicy: settings.retryPolicy,
+    retry: settings.retry,
+    stage: stage,
+    errorCode: errorCode
+  });
+  var code = response.getResponseCode();
+  var headers = kspGeminiResponseHeaders_(response);
+  var parsedResponse;
+  try {
+    var responseText = response.getContentText('UTF-8');
+    parsedResponse = responseText ? kspSafeParseJson_(responseText, 'Gemini response') : {};
+    if (settings.includeResponseMetadata && parsedResponse && typeof parsedResponse === 'object') {
+      try {
+        Object.defineProperty(parsedResponse, '__kspHttpStatus', {
+          value: code, enumerable: false, configurable: false, writable: false
+        });
+      } catch (ignoredMetadataError) { /* Safe telemetry is best-effort. */ }
     }
-  }, { retry: Boolean(settings.retry), stage: stage, errorCode: errorCode });
+  } catch (ignoredParseError) {
+    throw kspGeminiStageError_(settings.parseErrorCode || errorCode, stage, code, headers, false);
+  }
+  return kspGeminiAttachTransportMetadata_(parsedResponse, {
+    attempt: Number(response.__kspAttempt || 1),
+    retryCount: Number(response.__kspRetryCount || 0),
+    cumulativeSleepMillis: Number(response.__kspCumulativeSleepMillis || 0),
+    elapsedMs: Number(response.__kspElapsedMs || 0)
+  });
 }
 
 function kspGeminiInteractionId_(response) {
@@ -330,7 +464,7 @@ function kspGeminiStartInteractionLive_(request) {
   });
   payload.background = true;
   var current = kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, payload, {
-    retry: false,
+    retryPolicy: KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE,
     stage: 'QUERY_HTTP',
     errorCode: 'AI_QUERY_HTTP_FAILED',
     parseErrorCode: 'AI_QUERY_RESPONSE_INVALID'
@@ -355,7 +489,7 @@ function kspGeminiQueryInteractionLive_(request) {
   Object.keys(request || {}).forEach(function (key) { payload[key] = request[key]; });
   delete payload.background;
   var current = kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, payload, {
-    retry: false,
+    retryPolicy: KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE,
     stage: 'QUERY_HTTP',
     errorCode: 'AI_QUERY_HTTP_FAILED',
     parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
@@ -371,7 +505,7 @@ function kspGeminiPollInteractionLive_(interactionId) {
   var value = kspAiTrim_(interactionId);
   kspAssert_(value, 'AI_QUERY_RESPONSE_INVALID', 'Gemini検索結果を確認できませんでした。');
   var current = kspGeminiJsonRequestLive_('GET', kspGeminiInteractionPath_(value), null, {
-    retry: false,
+    retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
     stage: 'QUERY_POLL',
     errorCode: 'AI_QUERY_HTTP_FAILED',
     parseErrorCode: 'AI_QUERY_RESPONSE_INVALID'
@@ -425,7 +559,7 @@ function kspGeminiGenerateContentLive_(request) {
   var model = kspGeminiGenerateContentModelPath_(options.modelId || options.model);
   var payload = kspBuildGeminiGenerateContentRequest_(options);
   return kspGeminiJsonRequestLive_('POST', '/models/' + model + ':generateContent', payload, {
-    retry: false,
+    retryPolicy: KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE,
     stage: 'QUERY_GENERATE_CONTENT',
     errorCode: 'AI_QUERY_HTTP_FAILED',
     parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
@@ -433,12 +567,12 @@ function kspGeminiGenerateContentLive_(request) {
   });
 }
 
-function kspGeminiBuildFinalizeRequestOptions_(metadata, payload) {
+function kspGeminiBuildFinalizeRequestOptions_(metadata, payload, offset) {
   return {
     method: 'post',
     contentType: metadata.mimeType,
     headers: {
-      'X-Goog-Upload-Offset': '0',
+      'X-Goog-Upload-Offset': String(Math.max(0, Number(offset || 0) || 0)),
       'X-Goog-Upload-Command': 'upload, finalize'
     },
     payload: payload,
@@ -469,15 +603,71 @@ function kspGeminiBuildUploadBlob_(payloadBytes, metadata) {
   }
 }
 
-function kspGeminiBuildBlobFinalizeRequest_(metadata, payloadBytes) {
+function kspGeminiBuildBlobFinalizeRequest_(metadata, payloadBytes, offset) {
   try {
     var displayName = String(metadata && metadata.displayName || '').trim();
     kspAssert_(displayName && displayName.length <= 255,
       'AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'Upload display name is invalid.');
     var blob = kspGeminiBuildUploadBlob_(payloadBytes, metadata);
-    return kspGeminiBuildFinalizeRequestOptions_(metadata, blob);
+    return kspGeminiBuildFinalizeRequestOptions_(metadata, blob, offset);
   } catch (error) {
     throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_CLIENT_UNSUPPORTED', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
+  }
+}
+
+function kspGeminiBuildUploadQueryRequest_() {
+  return {
+    method: 'post',
+    headers: { 'X-Goog-Upload-Command': 'query' },
+    muteHttpExceptions: true
+  };
+}
+
+function kspGeminiUploadSessionStatus_(response) {
+  var headers = kspGeminiResponseHeaders_(response);
+  var status = kspGeminiHeaderValue_(headers, 'X-Goog-Upload-Status').toLowerCase();
+  var offsetText = kspGeminiHeaderValue_(headers, 'X-Goog-Upload-Size-Received');
+  return {
+    status: status,
+    offset: /^\d+$/.test(offsetText) ? Number(offsetText) : null
+  };
+}
+
+function kspGeminiRecoverUploadFinalize_(uploadUrl, metadata, payloadBytes, primaryError, normalizedStore, source) {
+  var queryResponse;
+  try {
+    queryResponse = kspGeminiFetchResponseLive_(String(uploadUrl), kspGeminiBuildUploadQueryRequest_(), {
+      retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+      stage: 'UPLOAD_SESSION_QUERY',
+      errorCode: 'AI_UPLOAD_SESSION_QUERY_FAILED'
+    });
+  } catch (queryError) {
+    primaryError.reconciliationCode = kspGetErrorCode_(queryError, 'AI_UPLOAD_SESSION_QUERY_FAILED');
+    throw primaryError;
+  }
+  var session = kspGeminiUploadSessionStatus_(queryResponse);
+  if (session.status === 'final' || session.status === 'finalized' || session.status === 'complete') {
+    return { document: kspReconcileGeminiDocumentLive_(normalizedStore, source), response: null };
+  }
+  if (session.status !== 'active' || !Number.isInteger(session.offset) ||
+      session.offset < 0 || session.offset > payloadBytes.length) {
+    primaryError.reconciliationCode = 'AI_UPLOAD_SESSION_STATE_AMBIGUOUS';
+    throw primaryError;
+  }
+  var remaining = payloadBytes.slice(session.offset);
+  var resumeOptions = kspGeminiBuildBlobFinalizeRequest_(metadata, remaining, session.offset);
+  try {
+    return {
+      document: null,
+      response: kspGeminiFetchResponseLive_(String(uploadUrl), resumeOptions, {
+        retryPolicy: KSP_GEMINI_RETRY_POLICIES.NONE,
+        stage: 'UPLOAD_FINALIZE_RESUME',
+        errorCode: 'AI_UPLOAD_FINALIZE_FAILED'
+      })
+    };
+  } catch (resumeError) {
+    primaryError.reconciliationCode = kspGetErrorCode_(resumeError, 'AI_UPLOAD_FINALIZE_FAILED');
+    throw primaryError;
   }
 }
 
@@ -501,28 +691,24 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
   var startUrl = kspGeminiAppendApiKey_(
     KSP_AI_API.UPLOAD_BASE_URL + '/' + normalizedStore + ':uploadToFileSearchStore', apiKey
   );
-  var startResponse;
-  try {
-    startResponse = UrlFetchApp.fetch(startUrl, {
-      method: 'post',
-      contentType: 'application/json',
-      headers: {
-        'X-Goog-Upload-Protocol': 'resumable',
-        'X-Goog-Upload-Command': 'start',
-        'X-Goog-Upload-Header-Content-Length': String(payloadBytes.length),
-        'X-Goog-Upload-Header-Content-Type': metadata.mimeType
-      },
-      payload: JSON.stringify(metadata),
-      muteHttpExceptions: true
-    });
-  } catch (ignoredStartError) {
-    throw kspGeminiStageError_('AI_UPLOAD_SESSION_FAILED', 'UPLOAD_SESSION_START', 0, {}, true);
-  }
+  var startResponse = kspGeminiFetchResponseLive_(startUrl, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: {
+      'X-Goog-Upload-Protocol': 'resumable',
+      'X-Goog-Upload-Command': 'start',
+      'X-Goog-Upload-Header-Content-Length': String(payloadBytes.length),
+      'X-Goog-Upload-Header-Content-Type': metadata.mimeType
+    },
+    payload: JSON.stringify(metadata),
+    muteHttpExceptions: true
+  }, {
+    retryPolicy: KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE,
+    stage: 'UPLOAD_SESSION_START',
+    errorCode: 'AI_UPLOAD_SESSION_FAILED'
+  });
   var startCode = startResponse.getResponseCode();
   var startHeaders = kspGeminiResponseHeaders_(startResponse);
-  if (startCode < 200 || startCode >= 300) {
-    throw kspGeminiStageError_('AI_UPLOAD_SESSION_FAILED', 'UPLOAD_SESSION_START', startCode, startHeaders);
-  }
   var uploadUrl = kspGeminiHeaderValue_(startHeaders, 'X-Goog-Upload-URL') ||
     kspGeminiHeaderValue_(startHeaders, 'Location');
   if (!uploadUrl) {
@@ -533,9 +719,23 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
 
   var uploadResponse;
   try {
-    uploadResponse = UrlFetchApp.fetch(String(uploadUrl), finalizeOptions);
-  } catch (ignoredFinalizeError) {
-    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_CLIENT_FAILED', 'UPLOAD_FINALIZE_CLIENT', 0, {}, false);
+    uploadResponse = kspGeminiFetchResponseLive_(String(uploadUrl), finalizeOptions, {
+      retryPolicy: KSP_GEMINI_RETRY_POLICIES.NONE,
+      stage: 'UPLOAD_FINALIZE_HTTP',
+      errorCode: 'AI_UPLOAD_FINALIZE_FAILED'
+    });
+  } catch (initialFinalizeError) {
+    var primaryError = initialFinalizeError;
+    if (Number(primaryError.httpStatus || 0) === 0) {
+      primaryError.code = 'AI_UPLOAD_FINALIZE_CLIENT_FAILED';
+      primaryError.stage = 'UPLOAD_FINALIZE_CLIENT';
+      primaryError.retryable = false;
+      primaryError.permanent = true;
+    }
+    var recovery = kspGeminiRecoverUploadFinalize_(String(uploadUrl), metadata, payloadBytes,
+      primaryError, normalizedStore, source);
+    if (recovery.document) return recovery.document;
+    uploadResponse = recovery.response;
   }
   var code = uploadResponse.getResponseCode();
   var headers = kspGeminiResponseHeaders_(uploadResponse);
@@ -546,10 +746,6 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
   } catch (ignoredResponseError) {
     throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_FAILED', 'UPLOAD_FINALIZE_HTTP', code, headers, false);
   }
-  if (code < 200 || code >= 300) {
-    throw kspGeminiStageError_('AI_UPLOAD_FINALIZE_FAILED', 'UPLOAD_FINALIZE_HTTP', code, headers);
-  }
-
   var operation;
   try {
     operation = kspNormalizeFileSearchOperation_(parsed);
@@ -588,7 +784,8 @@ function kspPollFileSearchOperationLive_(operation) {
     Utilities.sleep(KSP_AI_DEFAULTS.OPERATION_POLL_MILLIS);
     current = kspNormalizeFileSearchOperation_(kspGeminiJsonRequestLive_(
       'GET', '/' + current.name, null,
-      { retry: true, stage: 'OPERATION_POLL', errorCode: 'AI_OPERATION_POLL_FAILED' }
+      { retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+        stage: 'OPERATION_POLL', errorCode: 'AI_OPERATION_POLL_FAILED' }
     ));
   }
   if (!current.done) {
@@ -640,7 +837,8 @@ function kspReadAndVerifyFileSearchDocumentLive_(documentName, source) {
   var response;
   try {
     response = kspGeminiJsonRequestLive_('GET', '/' + name, null, {
-      retry: true, stage: 'DOCUMENT_READBACK', errorCode: 'AI_DOCUMENT_READBACK_FAILED'
+      retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+      stage: 'DOCUMENT_READBACK', errorCode: 'AI_DOCUMENT_READBACK_FAILED'
     });
     response = kspNormalizeFileSearchDocument_(response);
   } catch (error) {
@@ -671,7 +869,8 @@ function kspListAllFileSearchDocumentsLive_(storeName) {
     var normalized;
     try {
       normalized = kspNormalizeFileSearchDocumentList_(kspGeminiJsonRequestLive_('GET', path, null, {
-        retry: true, stage: 'DOCUMENT_READBACK', errorCode: 'AI_DOCUMENT_READBACK_FAILED'
+        retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+        stage: 'DOCUMENT_READBACK', errorCode: 'AI_DOCUMENT_READBACK_FAILED'
       }));
     } catch (error) {
       if (error && error.code === 'AI_DOCUMENT_READBACK_FAILED') throw error;
