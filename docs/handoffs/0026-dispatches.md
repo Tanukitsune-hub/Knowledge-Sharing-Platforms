@@ -1,129 +1,79 @@
 # Work 0026 dispatch control
 
 WORK_ID: `0026`
-ACTIVE_DISPATCH_ID: `0026-CODEX-03`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `N/A`
+BALL: `NONE`
+STATUS: `ACCEPTED`
+
+## Final outcome
+
+Work 0026 is accepted and closed.
+
+PR `#36` was independently reviewed by ChatGPT and merged to `main`.
+
+```text
+PR_36: MERGED
+MERGE_COMMIT: 40bb7d40506c0839c35742ee0000d89650ff7ad6
+PRIVATE_WEB_APP_VERSION: 70 / shell PASS
+GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
+EXACT_EXTERNAL_LIMITATION: HTTP_OR_CREDENTIAL_FAILURE
+NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
+OPENAI_ACCEPTED_PATH: PRESERVED
+FULL_OUTPUT_API_INDEPENDENCE: PRESERVED
+BLOCKER: NONE
+```
+
+Gemini remains intentionally disabled and hidden. This is an accepted fail-closed outcome, not a claim that Gemini File Search is qualified.
 
 ## Dispatch history
 
-### 0026-CODEX-01 — RETURNED / product blocker before provider qualification
+### 0026-CODEX-01 — RETURNED
 
-CODEX-01 implemented and deterministically validated the current Gemini request/model-policy path. Its one authorized deployment created version 68, where the modular Web App rendered server include directives literally. Gemini and OpenAI were not called.
+Implemented and deterministically validated the current Gemini request/model-policy path. Its single authorized deployment created version 68, which exposed the modular HTML template include regression before any provider call.
 
-The repair commit was:
+Repair commit:
 
-`681768824f298eff24439b2ee69c9ce159af1e0e — fix: preserve modular HTML template evaluation`
+`681768824f298eff24439b2ee69c9ce159af1e0e`
 
-### 0026-CODEX-02 — RETURNED / shell repaired; Gemini exact tuple failed
+### 0026-CODEX-02 — RETURNED
 
-CODEX-02 delivered/read back the repaired source once, created version 69 and updated the same private Web App once. Root and Knowledge Search passed normal and cache-bypassed smoke with zero literal includes and zero blocking console errors.
+Delivered/read back the repaired source, created version 69 and updated the same private Web App. Root and Knowledge Search shell smoke passed. Exact reconciliation of `DOC-000017` and `MTG-000005` established one current Gemini document per source and zero duplicates. The first bounded Gemini 3.8 qualification failed, but the then-current application did not preserve enough safe evidence to prove the external-limitation classification.
 
-Closed evidence:
+### 0026-CODEX-03 — RETURNED
 
-```text
-VERSION_69_SHELL: PASS
-SOURCE_READBACK: PASS / 82 of 82
-DOC-000017_EXACT_SYNC: PASS / one current document
-MTG-000005_EXACT_SYNC: PASS / one current document
-DUPLICATES: 0
-GEMINI_KEY_AND_STORE: accessible
-PRIMARY_TUPLE: gemini-3.8-flash / low / 2048
-DIRECT_INTERACTIONS_QUALIFICATION: FAIL / approximately 79 seconds
-GEMINI_3_7_FALLBACK: NOT_USED
-GEMINI_ROUTE: disabled / hidden
-OPENAI_API_CALLED: NO
-FULL_OUTPUT_LIVE_CALLED: NO
-LOGIC_VALIDATION: PASS / 410 of 410
-```
+Repaired the failure-classification gap so application/response-shape/citation failures cannot be relabelled as external limitations. Deterministic validation passed and the exact tested source was deployed as version 70.
 
-CODEX-02 report:
-
-`docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-report.md`
-
-## ChatGPT independent review
-
-GitHub PR head `36d748828e9fd16368266e09d095426126586d06`, the final report, relevant source, tests, PR state, review threads and CI state were independently checked.
-
-The product remains usable because OpenAI and FULL_OUTPUT are preserved and Gemini failed closed. However, Work 0026 cannot yet be accepted or PR #36 merged as `DISABLED_EXTERNAL_LIMITATION`.
-
-The qualification path can fail at multiple materially different layers, but the administrator catch currently writes `DISABLED_EXTERNAL_LIMITATION` for every non-access Gemini qualification exception and then exposes only generic `AI_MODEL_QUALIFICATION_FAILED`. The transport also drops the safe Interaction error-code evidence before review. Therefore CODEX-02 did not establish whether the 79-second result was provider terminal, completed without grounding, completed without citation, citation mapping mismatch, or an application response-shape defect.
-
-```text
-PRODUCT_AVAILABILITY_BLOCKER: NONE
-WORK_ACCEPTANCE_BLOCKER: GEMINI_EXTERNAL_LIMITATION_CLASSIFICATION_NOT_EVIDENCED
-PR_36_MERGE: BLOCKED
-```
-
-## Completed dispatch
-
-### 0026-CODEX-03 — RETURNED / safe classification repaired; exact external limitation
-
-Detailed instruction:
-
-`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
-
-CODEX-03 preserved distinct safe failure classes, prevented generic/application errors from being written as external limitations, and passed the focused failure-injection matrix plus all canonical checks. Exact tested source readback passed for 82 of 82 deployable files. Exactly version 70 was created and the same private Web App was updated once from version 69 to 70; version 67 remains unused and version 71+ was not created.
-
-The version-70 root and Knowledge Search shell passed before provider access. The one required `gemini-3.8-flash / explicit low / 2048` Interactions + File Search qualification returned the safe external class `HTTP_OR_CREDENTIAL_FAILURE`. This class does not authorize a second provider call, so neither the 3.7 fallback nor the 3.8 GenerateContent control was run. Gemini remains disabled and hidden. OpenAI and FULL_OUTPUT were preserved and not called.
-
-Closed evidence:
+The single required `gemini-3.8-flash / explicit low / 2048` Interactions + File Search call returned the evidence-supported safe class `HTTP_OR_CREDENTIAL_FAILURE`. The bounded decision tree therefore stopped without a second Gemini call.
 
 ```text
 FAILURE_CLASSIFICATION_REPAIR: PASS
 UNKNOWN_FAILURE_RELABELLED_EXTERNAL: NO
 LOGIC_VALIDATION: PASS / 420 of 420
 SOURCE_DELIVERY_READBACK: PASS / 82 of 82
-PRIVATE_WEB_APP_VERSION: 70 / shell PASS
+ROOT_AND_KNOWLEDGE_SHELL: PASS
+LITERAL_INCLUDE_DIRECTIVES: 0
+BLOCKING_BROWSER_CONSOLE_ERRORS: 0
 GEMINI_QUERY_CALLS: 1
-PRIMARY_3_8_INTERACTIONS_CLASS: HTTP_OR_CREDENTIAL_FAILURE
 SECOND_CONTROL: NOT_USED
-GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
-NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
+GEMINI_SOURCE_SYNC_OR_UPLOAD: 0
+GEMINI_STORE_CREATE: 0
 OPENAI_API_CALLED: NO
 FULL_OUTPUT_RUNTIME_CALLED: NO
-PRODUCT_AVAILABILITY_BLOCKER: NONE
-WORK_ACCEPTANCE_BLOCKER: NONE
-READY_FOR_CHATGPT_FINAL_REVIEW: YES
+VERSION_67_DEPLOYED: NO
+VERSION_71_OR_HIGHER_CREATED: NO
 ```
 
-Report:
+Detailed final report:
 
 `docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-report.md`
 
-Completed runtime/provider budget:
+## Completion latch
 
-```text
-APPS_SCRIPT_SOURCE_DELIVERY: 1
-NEW_IMMUTABLE_VERSION: 1 / version 70
-SAME_PRIVATE_WEB_APP_UPDATE: 1 / 69 -> 70
-VERSION_67_DEPLOYMENT: NO
-VERSION_71_OR_HIGHER_CREATED: NO
-GEMINI_STORE_CREATE: 0
-GEMINI_SOURCE_SYNC_OR_UPLOAD: 0
-GEMINI_QUERY_CALLS_TOTAL: 1
-OPENAI_API_CALLS: 0
-FULL_OUTPUT_RUNTIME_CALLS: 0
-```
+Accepted conclusions are closed unless materially contradictory target-runtime evidence appears.
 
-## Accepted baseline
-
-```text
-WORK_0020: ACCEPTED
-WORK_0025: ACCEPTED
-WORK_0021: ACCEPTED
-WORK_0023: ACCEPTED
-CURRENT_PRIVATE_WEB_APP_VERSION: 70 / shell PASS
-VERSION_67: unused / never deploy
-OPENAI/FULL_OUTPUT: accepted production-capable routes
-GEMINI: DISABLED_EXTERNAL_LIMITATION / HTTP_OR_CREDENTIAL_FAILURE / hidden
-PR_36: Draft / Open / unmerged
-GITHUB_CI: absent / non-blocking by itself
-```
-
-The completion latch is closed. Do not broaden this Dispatch into large-file work, historical migration, company rollout, Store redesign, chunk/embedding experiments, model sweeps, OpenAI requalification, FULL_OUTPUT live reruns, CI implementation or general hardening.
+Future Gemini requalification requires a new Work or explicitly authorized follow-up with materially new provider/account/API evidence. Do not resume CODEX-01, CODEX-02 or CODEX-03.
 
 WORK_ID: `0026`
-ACTIVE_DISPATCH_ID: `0026-CODEX-03`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `N/A`
+BALL: `NONE`
+STATUS: `ACCEPTED`
