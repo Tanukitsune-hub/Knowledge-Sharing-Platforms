@@ -2,17 +2,17 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 6,
-  "source_git_commit": "681768824f298eff24439b2ee69c9ce159af1e0e",
+  "source_git_commit": "5a858934f6b919751720225f0fdbd55f1a1d9983",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "26b2676ce2feab29a6457c19227b0a4348f6946e4ffa2cabb4166729540eee6a",
-  "bundle_file_sha256": "c234c849ad86571140622ca5a4913dbf04122d9dc81642a4710a3ebabf3f5c75",
+  "bundle_payload_sha256": "97e8640e91a3d8e6b211ee8a4c94f8a0a2944042d93b4b2e677dfb58354c56cc",
+  "bundle_file_sha256": "5c53b811fb84be249cf0d5e557a3728e5f92e1ef1393ef20e45103796a4089b2",
   "source_manifest_sha256": "ac17af72f807a89a162f82f3da5d7a2bcf3f14404acd59f9d0316ae9ae413dfa",
   "source_order_sha256": "35bebf16094d45474dfb99f2a5b7db22c191fc51b6536cc0ba20eb0c796eb6b9",
   "bundle_metrics": {
-    "bytes": 971044,
-    "characters": 936618,
-    "lines": 16060,
+    "bytes": 993499,
+    "characters": 958735,
+    "lines": 16539,
     "server_source_count": 59,
     "embedded_html_count": 22
   },
@@ -264,8 +264,8 @@
     },
     {
       "file": "src/161_GeminiRestClient.gs",
-      "bytes": 27118,
-      "sha256": "eaf15735d80fbf46f4d0146c743a4db6539c4d905c78e513dda798e18ca520ca"
+      "bytes": 30048,
+      "sha256": "5c5c87271a40e1a54e438466106f4eb53f347d05ba50a402d3ff648d671bf8d8"
     },
     {
       "file": "src/162_AiLiveDataAdapters.gs",
@@ -284,8 +284,8 @@
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
-      "bytes": 45265,
-      "sha256": "6dfb01a45cf6e0ca97b7679a8017bc259411b02a90d3de962c4e0231c30311a3"
+      "bytes": 64790,
+      "sha256": "441d17e96b0574de86e802206f4fe944c098c90c87f064adfc3c9ee7d2beaf0c"
     },
     {
       "file": "src/170_AiEntryPoints.gs",

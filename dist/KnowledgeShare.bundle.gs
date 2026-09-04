@@ -1,6 +1,6 @@
 // GENERATED FILE. DO NOT EDIT.
 // Authoritative source: src/ and scripts/bundle-source-order.json
-var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":6,"sourceCommit":"681768824f298eff24439b2ee69c9ce159af1e0e","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"26b2676ce2feab29a6457c19227b0a4348f6946e4ffa2cabb4166729540eee6a"});
+var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":6,"sourceCommit":"5a858934f6b919751720225f0fdbd55f1a1d9983","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"97e8640e91a3d8e6b211ee8a4c94f8a0a2944042d93b4b2e677dfb58354c56cc"});
 var KSP_BUNDLED_HTML_RESOURCES = Object.freeze({
   "ActivityAnalyticsPage": "<section id=\"page-activity-analytics\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>Activity Analytics</h2><p class=\"hint\">Meeting_Indexの構造化メタデータだけを集計します。Meeting本文は読みません。</p></div>\n    </div>\n    <div class=\"filter-grid analytics-controls\">\n      <div class=\"field\"><label for=\"activity-period\">期間</label><select id=\"activity-period\"><option value=\"monthly\">月次</option><option value=\"quarter\">暦年四半期</option><option value=\"calendarYear\">暦年</option><option value=\"fiscalYear\">会計年度（4月-3月）</option><option value=\"custom\">カスタム（日次）</option><option value=\"cumulative\">累積（月次）</option></select></div>\n      <div class=\"field\"><label for=\"activity-date-from\">開始日</label><input id=\"activity-date-from\" type=\"date\"></div>\n      <div class=\"field\"><label for=\"activity-date-to\">終了日</label><input id=\"activity-date-to\" type=\"date\"></div>\n      <div class=\"field\"><label for=\"activity-dimension\">内訳</label><select id=\"activity-dimension\"><option value=\"counterpartyType\">Counterparty Type</option><option value=\"counterpartyEntity\">Counterparty Entity</option><option value=\"relatedGp\">Related GP</option><option value=\"assetClass\">Asset Class</option><option value=\"team\">Team</option><option value=\"meetingType\">Meeting Type</option><option value=\"status\">Status</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-counterpartyType\">Counterparty Type</label><select id=\"activity-filter-counterpartyType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-counterpartyEntity\">Counterparty Entity</label><select id=\"activity-filter-counterpartyEntity\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-relatedGp\">Related GP</label><select id=\"activity-filter-relatedGp\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-assetClass\">Asset Class</label><select id=\"activity-filter-assetClass\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-team\">Team</label><select id=\"activity-filter-team\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-meetingType\">Meeting Type</label><select id=\"activity-filter-meetingType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field\"><label for=\"activity-filter-status\">Status</label><select id=\"activity-filter-status\"><option value=\"\">未選択</option></select></div>\n    </div>\n    <div class=\"actions\"><span class=\"hint\">件数は全一致行から計算し、表示上限による省略件数を明示します。</span><button id=\"activity-analytics-refresh\" class=\"action primary\" type=\"button\">集計</button></div>\n    <div id=\"activity-analytics-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>集計サマリー</h2><p id=\"activity-period-summary\" class=\"hint\"></p></div></div>\n    <div id=\"activity-headline\" class=\"analytics-headline\" aria-live=\"polite\"></div>\n    <div id=\"activity-series-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"Meeting件数の期間推移\"></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">Meeting件数の期間別集計</caption><thead><tr><th>期間</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id=\"activity-series-results\"></tbody></table></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>選択した内訳</h2><p id=\"activity-breakdown-summary\" class=\"hint\"></p></div></div>\n    <div id=\"activity-breakdown-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"選択した内訳別Meeting件数\"></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">選択した内訳別集計</caption><thead><tr><th>値</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id=\"activity-breakdown-results\"></tbody></table></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>該当Meeting</h2><p id=\"activity-drill-summary\" class=\"hint\"></p></div></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>Counterparty</th><th>Related GP</th><th>Team / Type</th><th>Status</th><th>月次管理</th></tr></thead><tbody id=\"activity-drill-results\"></tbody></table></div>\n  </div>\n\n  <div id=\"activity-admin-check-card\" class=\"card hidden-panel\">\n    <div class=\"section-heading\"><div><h2>月次管理反映済み</h2><p class=\"hint\">選択した1か月のMeetingについて、管理反映済み状態だけを更新します。</p></div></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">月次管理反映状態</caption><thead><tr><th>Meeting</th><th>日付</th><th>Counterparty</th><th>状態</th><th>操作</th></tr></thead><tbody id=\"activity-admin-check-results\"></tbody></table></div>\n    <div id=\"activity-admin-check-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n</section>\n",
   "AiProviderSettingsPage": "<section id=\"page-ai-provider-settings\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>AIプロバイダ設定</h2><p class=\"hint\">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>\n    </div>\n    <div id=\"ai-provider-admin-notice\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-openai-heading\">\n      <h3 id=\"ai-provider-openai-heading\">ChatGPT / OpenAI</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-openai-key\">確認中…</dd>\n        <dt>Vector Store</dt><dd id=\"ai-provider-openai-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-openai-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\">\n        <div class=\"action-group\">\n          <label for=\"ai-provider-openai-key-input\">OpenAI APIキー</label>\n          <input id=\"ai-provider-openai-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n          <label for=\"ai-provider-sync-source\">同期対象</label>\n          <select id=\"ai-provider-sync-source\" disabled>\n            <option value=\"\">All</option>\n            <option value=\"Meeting\">Meeting</option>\n            <option value=\"Pitchbook\">Pitchbook</option>\n          </select>\n          <label for=\"ai-provider-sync-source-id\">Source ID（個別同期・任意）</label>\n          <input id=\"ai-provider-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n          <button id=\"ai-provider-openai-enable\" class=\"action primary\" type=\"button\" disabled>APIキーを保存して接続確認</button>\n          <button id=\"ai-provider-openai-disable\" class=\"action secondary\" type=\"button\" disabled>OpenAIを無効化</button>\n          <button id=\"ai-provider-openai-sync\" class=\"action secondary\" type=\"button\" disabled>資料を同期して利用開始</button>\n        </div>\n      </div>\n      <p id=\"ai-provider-openai-readonly\" class=\"hint ai-provider-readonly\"></p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-gemini-heading\">\n      <h3 id=\"ai-provider-gemini-heading\">Gemini</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-gemini-key\">確認中…</dd>\n        <dt>File Search Store</dt><dd id=\"ai-provider-gemini-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-gemini-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <label for=\"ai-provider-gemini-key-input\">Gemini APIキー</label>\n        <input id=\"ai-provider-gemini-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n        <label for=\"ai-provider-gemini-sync-source\">個別同期対象</label>\n        <select id=\"ai-provider-gemini-sync-source\" disabled><option value=\"Pitchbook\">Pitchbook</option><option value=\"Meeting\">Meeting</option></select>\n        <label for=\"ai-provider-gemini-sync-source-id\">Source ID（必須）</label>\n        <input id=\"ai-provider-gemini-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n        <button id=\"ai-provider-gemini-connect\" class=\"action primary\" type=\"button\" disabled>APIキーを保存してStore確認</button>\n        <button id=\"ai-provider-gemini-enable\" class=\"action secondary\" type=\"button\" disabled>資格済みGeminiを有効化</button>\n        <button id=\"ai-provider-gemini-disable\" class=\"action secondary\" type=\"button\" disabled>Geminiを無効化</button>\n        <button id=\"ai-provider-gemini-sync\" class=\"action secondary\" type=\"button\" disabled>選択資料を個別同期</button>\n      </div></div>\n      <p class=\"hint\">有効化には、Store確認・個別同期・モデル/ThinkingのFile Search資格確認が必要です。</p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-model-policy-heading\">\n      <h3 id=\"ai-model-policy-heading\">モデル / Thinking ポリシー</h3>\n      <p class=\"hint\">利用者に表示する組み合わせだけを登録します。プロバイダが返す新しいモデルは自動で有効化されません。</p>\n      <div class=\"field full\">\n        <label for=\"ai-model-profile-select\">登録済みプロファイル</label>\n        <select id=\"ai-model-profile-select\" disabled><option value=\"\">新規作成</option></select>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-profile-id\">Profile ID</label><input id=\"ai-model-profile-id\" type=\"text\" autocomplete=\"off\" placeholder=\"openai-approved-model\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-provider\">Provider</label><select id=\"ai-model-provider\" disabled><option value=\"OPENAI\">OpenAI</option><option value=\"GEMINI\">Gemini</option></select></div>\n        <div class=\"field\"><label for=\"ai-model-id\">Exact Model ID</label><input id=\"ai-model-id\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-display-name\">表示名</label><input id=\"ai-model-display-name\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-family\">Family</label><input id=\"ai-model-family\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-max-output\">Output上限（任意）</label><input id=\"ai-model-max-output\" type=\"number\" min=\"1\" max=\"65536\" disabled></div>\n      </div>\n      <div class=\"field full\">\n        <label for=\"ai-model-thinking-profiles\">Thinking profiles（1行: ID | 表示名 | provider value。value空欄はプロバイダ標準）</label>\n        <textarea id=\"ai-model-thinking-profiles\" placeholder=\"provider-default | プロバイダ標準 |&#10;low | Low | low\" disabled></textarea>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-default-thinking\">既定Thinking Profile ID</label><input id=\"ai-model-default-thinking\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <label class=\"field\"><span>状態</span><span><input id=\"ai-model-enabled\" type=\"checkbox\" disabled> 有効</span></label>\n        <label class=\"field\"><span>利用者表示</span><span><input id=\"ai-model-user-visible\" type=\"checkbox\" disabled> 表示</span></label>\n        <label class=\"field\"><span>Provider既定</span><span><input id=\"ai-model-provider-default\" type=\"checkbox\" disabled> 既定</span></label>\n      </div>\n      <dl class=\"ai-provider-state\">\n        <dt>API access</dt><dd id=\"ai-model-access-state\">未確認</dd>\n        <dt>File Search qualification</dt><dd id=\"ai-model-qualification-state\">未確認</dd>\n        <dt>Thinking qualification</dt><dd id=\"ai-model-thinking-qualification-state\">未確認</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <button id=\"ai-model-policy-migrate\" class=\"action secondary\" type=\"button\" disabled>現行設定から初期化</button>\n        <button id=\"ai-model-profile-save\" class=\"action primary\" type=\"button\" disabled>プロファイルを保存</button>\n        <button id=\"ai-model-profile-qualify\" class=\"action secondary\" type=\"button\" disabled>接続・File Search確認</button>\n      </div></div>\n    </section>\n  </div>\n</section>\n",
@@ -11476,15 +11476,95 @@ function kspGeminiGenerationConfig_(input) {
   return generation;
 }
 
-function kspGeminiSafeHttpClassification_(defaultCode, httpStatus, responseText) {
+function kspGeminiSafeProviderErrorCode_(value) {
+  var normalized = kspAiTrim_(value).toLowerCase();
+  var match = normalized.match(/([a-z][a-z0-9_]{1,63})$/);
+  var candidate = match ? match[1] : '';
+  var allowlist = {
+    invalid_request: true,
+    invalid_argument: true,
+    failed_precondition: true,
+    out_of_range: true,
+    parameter_unknown: true,
+    authentication: true,
+    unauthenticated: true,
+    permission_denied: true,
+    not_found: true,
+    model_not_found: true,
+    already_exists: true,
+    aborted: true,
+    rate_limit_exceeded: true,
+    quota_exceeded: true,
+    resource_exhausted: true,
+    too_many_requests: true,
+    cancelled: true,
+    api_error: true,
+    internal: true,
+    unimplemented: true,
+    unavailable: true,
+    service_unavailable: true,
+    deadline_exceeded: true,
+    safety: true,
+    recitation: true,
+    language: true,
+    prohibited_content: true,
+    spii: true,
+    blocklist: true,
+    image_safety: true,
+    image_prohibited_content: true,
+    image_recitation: true,
+    image_other: true,
+    content_blocked: true,
+    malformed_function_call: true,
+    malformed_tool_call: true,
+    unexpected_tool_call: true,
+    no_image: true,
+    too_many_tool_calls: true,
+    missing_thought_signature: true
+  };
+  return allowlist[candidate] ? candidate : '';
+}
+
+function kspGeminiSafeProviderErrorCodes_(payload) {
+  var value = payload && typeof payload === 'object' ? payload : {};
+  var errors = [];
+  if (Array.isArray(value.errors)) errors = errors.concat(value.errors);
+  if (value.error && typeof value.error === 'object') errors.push(value.error);
+  var seen = {};
+  var output = [];
+  errors.forEach(function (item) {
+    [item && item.code, item && item.status].forEach(function (value) {
+      var code = kspGeminiSafeProviderErrorCode_(value);
+      if (!code || seen[code] || output.length >= 8) return;
+      seen[code] = true;
+      output.push(code);
+    });
+  });
+  return output;
+}
+
+function kspGeminiSafeProviderErrorCodesFromText_(responseText) {
+  try {
+    return kspGeminiSafeProviderErrorCodes_(JSON.parse(String(responseText || '')));
+  } catch (ignored) {
+    return [];
+  }
+}
+
+function kspGeminiSafeHttpClassification_(defaultCode, httpStatus, responseText, providerErrorCodes) {
   var status = Number(httpStatus || 0) || 0;
   var value = String(responseText || '').toLowerCase();
+  var safeCodes = Array.isArray(providerErrorCodes) ? providerErrorCodes : [];
   var modelSpecific = value.indexOf('model') !== -1 &&
     (value.indexOf('not found') !== -1 || value.indexOf('not supported') !== -1 ||
       value.indexOf('unsupported') !== -1 || value.indexOf('does not exist') !== -1);
+  if (safeCodes.indexOf('model_not_found') !== -1) return 'AI_GEMINI_MODEL_UNSUPPORTED';
   if ((status === 400 || status === 404) && modelSpecific) return 'AI_GEMINI_MODEL_UNSUPPORTED';
   if (status === 403 && (value.indexOf('model') !== -1 || value.indexOf('permission') !== -1 ||
       value.indexOf('access') !== -1)) return 'AI_GEMINI_MODEL_ACCESS_DENIED';
+  if (safeCodes.indexOf('authentication') !== -1 || safeCodes.indexOf('unauthenticated') !== -1) {
+    return 'AI_GEMINI_CREDENTIAL_REJECTED';
+  }
   if (status === 401 || status === 403) return 'AI_GEMINI_CREDENTIAL_REJECTED';
   return defaultCode;
 }
@@ -11564,8 +11644,13 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
     if (code < 200 || code >= 300) {
       var safeErrorText = '';
       try { safeErrorText = response.getContentText('UTF-8'); } catch (ignoredErrorBody) { /* Classification only. */ }
-      throw kspGeminiStageError_(kspGeminiSafeHttpClassification_(errorCode, code, safeErrorText),
-        stage, code, headers);
+      var safeProviderErrorCodes = kspGeminiSafeProviderErrorCodesFromText_(safeErrorText);
+      var safeHttpError = kspGeminiStageError_(
+        kspGeminiSafeHttpClassification_(errorCode, code, safeErrorText, safeProviderErrorCodes),
+        stage, code, headers
+      );
+      safeHttpError.providerErrorCodes = safeProviderErrorCodes;
+      throw safeHttpError;
     }
     try {
       var responseText = response.getContentText('UTF-8');
@@ -11605,9 +11690,11 @@ function kspGeminiInteractionIsTerminal_(status) {
     .indexOf(String(status || '').toLowerCase()) !== -1;
 }
 
-function kspGeminiInteractionTerminalError_(status) {
+function kspGeminiInteractionTerminalError_(status, response) {
   var error = kspGeminiStageError_('AI_QUERY_PROVIDER_TERMINAL', 'QUERY_PROVIDER', 0, {}, false);
   error.providerStatus = kspAiTrim_(status);
+  error.providerErrorCodes = kspGeminiSafeProviderErrorCodes_(response);
+  error.httpStatus = Number(response && response.__kspHttpStatus || 0) || 0;
   return error;
 }
 
@@ -11629,7 +11716,7 @@ function kspGeminiStartInteractionLive_(request) {
     return { status: 'completed', interactionId: interactionId, response: current };
   }
   kspAssert_(interactionId, 'AI_QUERY_RESPONSE_INVALID', 'Gemini検索結果を確認できませんでした。');
-  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status);
+  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status, current);
   if (status !== 'queued' && status !== 'in_progress') {
     var invalidStartStatus = kspGeminiStageError_('AI_QUERY_RESPONSE_INVALID', 'QUERY_PROVIDER', 0, {}, false);
     invalidStartStatus.queryTerminal = true;
@@ -11651,7 +11738,7 @@ function kspGeminiQueryInteractionLive_(request) {
   });
   var status = kspGeminiInteractionStatus_(current);
   if (status === 'completed' || (!status && Array.isArray(current && current.steps))) return current;
-  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status);
+  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status, current);
   throw kspGeminiStageError_('AI_QUERY_ASYNC_REQUIRED', 'QUERY_PROVIDER', 0, {}, false);
 }
 
@@ -11666,7 +11753,7 @@ function kspGeminiPollInteractionLive_(interactionId) {
   });
   var status = kspGeminiInteractionStatus_(current);
   if (status === 'completed') return { status: 'completed', interactionId: value, response: current };
-  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status);
+  if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status, current);
   if (status !== 'queued' && status !== 'in_progress') {
     var invalidPollStatus = kspGeminiStageError_('AI_QUERY_RESPONSE_INVALID', 'QUERY_PROVIDER', 0, {}, false);
     invalidPollStatus.queryTerminal = true;
@@ -14179,6 +14266,13 @@ function kspAiProviderAdminSafeMessage_(code) {
     AI_GEMINI_MODEL_UNSUPPORTED: '選択したGeminiモデルはこのAPIまたはプロジェクトで利用できません。',
     AI_GEMINI_MODEL_ACCESS_DENIED: '選択したGeminiモデルへのアクセスが許可されていません。',
     AI_GEMINI_CREDENTIAL_REJECTED: 'Gemini APIキーまたはプロジェクト権限を確認してください。',
+    AI_GEMINI_QUALIFICATION_HTTP_FAILURE: 'Geminiモデル資格確認のHTTPまたは認証状態を確認できませんでした。',
+    AI_GEMINI_QUALIFICATION_PROVIDER_TERMINAL: 'Geminiモデル資格確認がプロバイダ終端状態になりました。',
+    AI_GEMINI_QUALIFICATION_NO_GROUNDED_ANSWER: 'Geminiモデル資格確認で根拠付き回答を確認できませんでした。',
+    AI_GEMINI_QUALIFICATION_NO_FILE_CITATION: 'Geminiモデル資格確認でFile Search引用を確認できませんでした。',
+    AI_GEMINI_QUALIFICATION_CITATION_MISMATCH: 'Geminiモデル資格確認の引用を正規化できませんでした。',
+    AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE: 'Geminiモデル資格確認の応答形式を確認できませんでした。',
+    AI_GEMINI_EXTERNAL_LIMITATION: 'Geminiは確認された外部制約により現在利用できません。',
     AI_SYNC_SOURCE_TYPE_INVALID: '同期対象のSource Typeが不正です。',
     AI_SYNC_SOURCE_TYPE_REQUIRED: '個別同期ではSource Typeを選択してください。',
     AI_SYNC_SOURCE_TYPE_MISMATCH: 'Source TypeとSource IDが一致しません。',
@@ -14202,12 +14296,17 @@ function kspAiProviderAdminSafeMessage_(code) {
   return messages[String(code || '')] || 'AIプロバイダ操作を完了できませんでした。';
 }
 
-function kspAiProviderAdminFailure_(code) {
-  return {
+function kspAiProviderAdminFailure_(code, qualificationEvidence) {
+  var output = {
     ok: false,
     workId: '0020',
     error: { code: String(code || 'OPENAI_ACTIVATION_FAILED'), message: kspAiProviderAdminSafeMessage_(code) }
   };
+  if (qualificationEvidence) {
+    output.workId = '0026';
+    output.qualificationEvidence = kspGeminiQualificationSafeCampaignEvidence_(qualificationEvidence);
+  }
+  return output;
 }
 
 function kspAiProviderAdminNormalizeSourceType_(input) {
@@ -14492,7 +14591,241 @@ function kspRunOpenAiSyntheticConnectionTest_(environment, vectorStoreId, profil
   return result;
 }
 
-function kspRunGeminiExactTupleQualification_(environment, context, settings, profile, thinkingProfileId) {
+function kspGeminiQualificationSafeTransport_(value) {
+  var transport = kspAiTrim_(value).toUpperCase();
+  return transport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT
+    ? KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT : KSP_AI_QUERY_TRANSPORTS.INTERACTIONS;
+}
+
+function kspGeminiQualificationSafeProviderStatus_(value) {
+  var status = kspAiTrim_(value).toLowerCase();
+  return ['failed', 'cancelled', 'requires_action', 'incomplete', 'budget_exceeded']
+    .indexOf(status) !== -1 ? status : '';
+}
+
+function kspGeminiQualificationSafeClass_(value) {
+  var classification = kspAiTrim_(value).toUpperCase();
+  var fixed = {
+    PASS: true,
+    HTTP_OR_CREDENTIAL_FAILURE: true,
+    MODEL_ACCESS_OR_UNSUPPORTED: true,
+    COMPLETED_NO_GROUNDED_ANSWER: true,
+    COMPLETED_NO_FILE_CITATION: true,
+    CITATION_IDENTITY_OR_METADATA_MISMATCH: true,
+    RESPONSE_SHAPE_OR_APPLICATION_FAILURE: true
+  };
+  if (fixed[classification]) return classification;
+  return /^PROVIDER_TERMINAL_(FAILED|CANCELLED|REQUIRES_ACTION|INCOMPLETE|BUDGET_EXCEEDED)$/.test(classification)
+    ? classification : 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE';
+}
+
+function kspGeminiQualificationSafeDiagnostic_(input) {
+  var source = input || {};
+  var providerStatus = kspGeminiQualificationSafeProviderStatus_(source.providerStatus);
+  var providerCodes = [];
+  var seenCodes = {};
+  (source.providerErrorCodes || []).forEach(function (value) {
+    var code = kspGeminiSafeProviderErrorCode_(value);
+    if (!code || seenCodes[code] || providerCodes.length >= 8) return;
+    seenCodes[code] = true;
+    providerCodes.push(code);
+  });
+  var modelId = kspAiTrim_(source.modelId);
+  if (modelId !== 'gemini-3.8-flash' && modelId !== 'gemini-3.7-flash') modelId = '';
+  return {
+    classification: kspGeminiQualificationSafeClass_(source.classification),
+    transport: kspGeminiQualificationSafeTransport_(source.transport),
+    modelId: modelId,
+    httpStatus: Math.max(0, Math.min(599, Number(source.httpStatus || 0) || 0)),
+    providerStatus: providerStatus,
+    providerErrorCodes: providerCodes,
+    answerPresent: Boolean(source.answerPresent),
+    expectedTokenPresent: Boolean(source.expectedTokenPresent),
+    modelOutputBlockCount: Math.max(0, Number(source.modelOutputBlockCount || 0) || 0),
+    fileCitationCount: Math.max(0, Number(source.fileCitationCount || 0) || 0),
+    authoritativeCitationMatched: Boolean(source.authoritativeCitationMatched),
+    latencyMs: Math.max(0, Number(source.latencyMs || 0) || 0)
+  };
+}
+
+function kspGeminiQualificationSafeExternalClass_(value) {
+  var external = kspAiTrim_(value).toUpperCase();
+  return ['NONE', 'MODEL_ACCESS_OR_UNSUPPORTED', 'HTTP_OR_CREDENTIAL_FAILURE',
+    'INTERACTIONS_SPECIFIC_LIMITATION', 'GENERAL_FILE_SEARCH_OR_GROUNDING_LIMITATION']
+    .indexOf(external) !== -1 ? external : 'NONE';
+}
+
+function kspGeminiQualificationSafeCampaignEvidence_(input) {
+  var source = input || {};
+  var secondControl = kspAiTrim_(source.secondControl).toUpperCase();
+  if (secondControl !== '3_7_INTERACTIONS' && secondControl !== '3_8_GENERATE_CONTENT') {
+    secondControl = 'NOT_USED';
+  }
+  return {
+    queryCalls: Math.max(0, Math.min(2, Number(source.queryCalls || 0) || 0)),
+    primary: source.primary ? kspGeminiQualificationSafeDiagnostic_(source.primary) : null,
+    secondControl: secondControl,
+    second: source.second ? kspGeminiQualificationSafeDiagnostic_(source.second) : null,
+    exactExternalLimitation: kspGeminiQualificationSafeExternalClass_(source.exactExternalLimitation)
+  };
+}
+
+function kspGeminiQualificationFailureCode_(classification) {
+  var codes = {
+    HTTP_OR_CREDENTIAL_FAILURE: 'AI_GEMINI_QUALIFICATION_HTTP_FAILURE',
+    MODEL_ACCESS_OR_UNSUPPORTED: 'AI_GEMINI_MODEL_UNSUPPORTED',
+    COMPLETED_NO_GROUNDED_ANSWER: 'AI_GEMINI_QUALIFICATION_NO_GROUNDED_ANSWER',
+    COMPLETED_NO_FILE_CITATION: 'AI_GEMINI_QUALIFICATION_NO_FILE_CITATION',
+    CITATION_IDENTITY_OR_METADATA_MISMATCH: 'AI_GEMINI_QUALIFICATION_CITATION_MISMATCH',
+    RESPONSE_SHAPE_OR_APPLICATION_FAILURE: 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE'
+  };
+  var safeClass = kspGeminiQualificationSafeClass_(classification);
+  return safeClass.indexOf('PROVIDER_TERMINAL_') === 0
+    ? 'AI_GEMINI_QUALIFICATION_PROVIDER_TERMINAL'
+    : (codes[safeClass] || 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
+}
+
+function kspGeminiQualificationError_(diagnostic) {
+  var safe = kspGeminiQualificationSafeDiagnostic_(diagnostic);
+  var error = kspAiModelPolicyError_(kspGeminiQualificationFailureCode_(safe.classification));
+  error.qualificationDiagnostic = safe;
+  return error;
+}
+
+function kspGeminiQualificationDiagnosticFromError_(error, transport, modelId, latencyMs) {
+  if (error && error.qualificationDiagnostic) {
+    var retained = kspGeminiQualificationSafeDiagnostic_(error.qualificationDiagnostic);
+    retained.latencyMs = Math.max(retained.latencyMs, Number(latencyMs || 0) || 0);
+    return retained;
+  }
+  var code = kspGetErrorCode_(error, 'UNEXPECTED_ERROR');
+  var httpStatus = Math.max(0, Number(error && error.httpStatus || 0) || 0);
+  var providerCodes = error && Array.isArray(error.providerErrorCodes) ? error.providerErrorCodes : [];
+  var providerStatus = kspGeminiQualificationSafeProviderStatus_(error && error.providerStatus);
+  var classification = 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE';
+  if (code === 'AI_GEMINI_MODEL_UNSUPPORTED' || code === 'AI_GEMINI_MODEL_ACCESS_DENIED') {
+    classification = 'MODEL_ACCESS_OR_UNSUPPORTED';
+  } else if (code === 'AI_GEMINI_CREDENTIAL_REJECTED') {
+    classification = 'HTTP_OR_CREDENTIAL_FAILURE';
+  } else if (code === 'AI_QUERY_PROVIDER_TERMINAL' && providerStatus) {
+    classification = 'PROVIDER_TERMINAL_' + providerStatus.toUpperCase();
+  } else if (code === 'AI_QUERY_HTTP_FAILED') {
+    var explicitExternalHttp = [401, 403, 429, 500, 501, 503, 504].indexOf(httpStatus) !== -1;
+    var externalCodes = {
+      failed_precondition: true,
+      authentication: true,
+      unauthenticated: true,
+      permission_denied: true,
+      rate_limit_exceeded: true,
+      quota_exceeded: true,
+      resource_exhausted: true,
+      too_many_requests: true,
+      api_error: true,
+      internal: true,
+      unimplemented: true,
+      service_unavailable: true,
+      unavailable: true,
+      deadline_exceeded: true
+    };
+    var explicitExternalCode = providerCodes.some(function (value) {
+      return Boolean(externalCodes[kspGeminiSafeProviderErrorCode_(value)]);
+    });
+    if (explicitExternalHttp || explicitExternalCode) classification = 'HTTP_OR_CREDENTIAL_FAILURE';
+  }
+  return kspGeminiQualificationSafeDiagnostic_({
+    classification: classification,
+    transport: transport,
+    modelId: modelId,
+    httpStatus: httpStatus,
+    providerStatus: providerStatus,
+    providerErrorCodes: providerCodes,
+    latencyMs: latencyMs
+  });
+}
+
+function kspGeminiQualificationModelOutputBlockCount_(raw, transport) {
+  var count = 0;
+  if (transport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT) {
+    var candidate = raw && Array.isArray(raw.candidates) ? raw.candidates[0] : null;
+    var parts = candidate && candidate.content && Array.isArray(candidate.content.parts)
+      ? candidate.content.parts : [];
+    parts.forEach(function (part) {
+      if (part && part.thought !== true && part.text !== undefined && part.text !== null) count += 1;
+    });
+    return count;
+  }
+  (raw && Array.isArray(raw.steps) ? raw.steps : []).forEach(function (step) {
+    if (!step || String(step.type) !== 'model_output') return;
+    (Array.isArray(step.content) ? step.content : []).forEach(function (block) {
+      if (block && String(block.type) === 'text') count += 1;
+    });
+  });
+  return count;
+}
+
+function kspGeminiQualificationCitationMatches_(citation, documentValue, source) {
+  var metadata = kspMetadataArrayToMap_(citation && citation.metadata || {});
+  return Boolean(citation && kspAiTrim_(citation.source) && documentValue &&
+    kspAiTrim_(citation.source) === kspAiTrim_(documentValue.name) &&
+    kspAiTrim_(metadata.source_type) === source.sourceType &&
+    kspAiTrim_(metadata.source_id) === source.sourceId &&
+    kspAiTrim_(metadata.content_hash) === source.contentHash);
+}
+
+function kspGeminiQualificationCampaignError_(external, evidence) {
+  var safeEvidence = kspGeminiQualificationSafeCampaignEvidence_(evidence);
+  var code = external ? 'AI_GEMINI_EXTERNAL_LIMITATION' : 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE';
+  var error = kspAiModelPolicyError_(code);
+  error.geminiExternal = Boolean(external);
+  error.qualificationEvidence = safeEvidence;
+  return error;
+}
+
+function kspGeminiQualificationNeedsGenerateContentControl_(diagnostic) {
+  var classification = kspGeminiQualificationSafeClass_(diagnostic && diagnostic.classification);
+  return classification.indexOf('PROVIDER_TERMINAL_') === 0 ||
+    classification === 'COMPLETED_NO_GROUNDED_ANSWER' ||
+    classification === 'COMPLETED_NO_FILE_CITATION';
+}
+
+function kspGeminiQualificationSupportsExternal_(diagnostic, allowGroundingFailure) {
+  var safe = kspGeminiQualificationSafeDiagnostic_(diagnostic);
+  return safe.classification === 'MODEL_ACCESS_OR_UNSUPPORTED' ||
+    safe.classification === 'HTTP_OR_CREDENTIAL_FAILURE' ||
+    safe.classification.indexOf('PROVIDER_TERMINAL_') === 0 ||
+    (Boolean(allowGroundingFailure) && (safe.classification === 'COMPLETED_NO_GROUNDED_ANSWER' ||
+      safe.classification === 'COMPLETED_NO_FILE_CITATION'));
+}
+
+function kspGeminiQualificationAccessibleFromEvidence_(evidence) {
+  var primary = evidence && evidence.primary ? kspGeminiQualificationSafeDiagnostic_(evidence.primary) : null;
+  if (!primary) return null;
+  if (primary.classification === 'MODEL_ACCESS_OR_UNSUPPORTED') return false;
+  if (primary.classification === 'HTTP_OR_CREDENTIAL_FAILURE') {
+    if (primary.httpStatus === 401 || primary.httpStatus === 403 ||
+        primary.providerErrorCodes.indexOf('authentication') !== -1 ||
+        primary.providerErrorCodes.indexOf('unauthenticated') !== -1 ||
+        primary.providerErrorCodes.indexOf('permission_denied') !== -1) return false;
+    return null;
+  }
+  if (primary.classification.indexOf('PROVIDER_TERMINAL_') === 0 ||
+      primary.classification === 'COMPLETED_NO_GROUNDED_ANSWER' ||
+      primary.classification === 'COMPLETED_NO_FILE_CITATION' ||
+      primary.classification === 'CITATION_IDENTITY_OR_METADATA_MISMATCH') return true;
+  return null;
+}
+
+function kspGeminiFallbackProfile_(profile) {
+  var fallback = kspDeepClone_(profile);
+  fallback.profileId = 'gemini-37-low';
+  fallback.modelId = 'gemini-3.7-flash';
+  fallback.displayName = 'Gemini 3.7 Flash';
+  fallback.family = 'Gemini 3.7';
+  return fallback;
+}
+
+function kspRunGeminiExactTupleQualification_(environment, context, settings, profile, thinkingProfileId,
+    queryTransport) {
   var selectedThinkingId = kspAiTrim_(thinkingProfileId).toLowerCase();
   var thinking = (profile.thinkingProfiles || []).filter(function (item) {
     return item.thinkingProfileId === selectedThinkingId;
@@ -14514,6 +14847,7 @@ function kspRunGeminiExactTupleQualification_(environment, context, settings, pr
   var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.PITCHBOOK, rows[0]);
   var source = kspBuildFeatureFreezeAiSource_(environment, item,
     kspBuildAiMasterMaps_(context.gpRows, context.optionRows));
+  var transport = kspGeminiQualificationSafeTransport_(queryTransport);
   var config = {
     provider: KSP_AI_PROVIDERS.GEMINI,
     enabled: false,
@@ -14525,7 +14859,7 @@ function kspRunGeminiExactTupleQualification_(environment, context, settings, pr
     thinkingProviderDefault: false,
     thinkingRawValue: thinking.rawValue,
     maxOutputTokens: profile.maxOutputTokens,
-    queryTransport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS
+    queryTransport: transport
   };
   var documents = environment.findProviderDocumentsBySource(
     KSP_AI_PROVIDERS.GEMINI, config, source.sourceType, source.sourceId
@@ -14539,23 +14873,147 @@ function kspRunGeminiExactTupleQualification_(environment, context, settings, pr
     filters: { sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK, sourceId: 'DOC-000017' }
   });
   var started = new Date().getTime();
-  var raw = environment.queryProvider(KSP_AI_PROVIDERS.GEMINI, config, request);
+  var raw;
+  try {
+    raw = environment.queryProvider(KSP_AI_PROVIDERS.GEMINI, config, request);
+  } catch (queryError) {
+    throw kspGeminiQualificationError_(kspGeminiQualificationDiagnosticFromError_(queryError,
+      transport, profile.modelId, Math.max(0, new Date().getTime() - started)));
+  }
   var latencyMs = Math.max(0, new Date().getTime() - started);
-  var parsed = kspParseInteractionResponse_(raw);
+  var validShape = raw && typeof raw === 'object' && (transport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT
+    ? Array.isArray(raw.candidates) && raw.candidates.length > 0
+    : Array.isArray(raw.steps));
+  if (!validShape) {
+    throw kspGeminiQualificationError_({
+      classification: 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE', transport: transport,
+      modelId: profile.modelId, httpStatus: Number(raw && raw.__kspHttpStatus || 0), latencyMs: latencyMs
+    });
+  }
+  var parsed;
+  try {
+    parsed = transport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT
+      ? kspNormalizeGeminiGenerateContentResponse_(raw) : kspParseInteractionResponse_(raw);
+  } catch (parseError) {
+    throw kspGeminiQualificationError_({
+      classification: 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE', transport: transport,
+      modelId: profile.modelId, httpStatus: Number(raw && raw.__kspHttpStatus || 0), latencyMs: latencyMs
+    });
+  }
   var mapped = kspMapKnowledgeCitations_(parsed.citations,
     kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
-  kspAssert_(parsed.answer && parsed.answer.indexOf('CODEX18_SYNTH_PITCHBOOK_20260830') !== -1,
-    'AI_MODEL_QUALIFICATION_FAILED', 'Gemini qualification answer was not grounded.');
-  kspAssert_(mapped.citations.length === 1 && mapped.warnings.length === 0 &&
+  var answerPresent = Boolean(parsed.answer);
+  var expectedTokenPresent = answerPresent &&
+    parsed.answer.indexOf('CODEX18_SYNTH_PITCHBOOK_20260830') !== -1;
+  var modelOutputBlockCount = kspGeminiQualificationModelOutputBlockCount_(raw, transport);
+  var fileCitationCount = Array.isArray(parsed.citations) ? parsed.citations.length : 0;
+  var exactCitationCount = (parsed.citations || []).filter(function (citation) {
+    return kspGeminiQualificationCitationMatches_(citation, documents[0], source);
+  }).length;
+  var authoritativeCitationMatched = exactCitationCount === 1 && mapped.citations.length === 1 &&
+    mapped.warnings.length === 0 &&
     mapped.citations[0].sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK &&
-    mapped.citations[0].sourceId === 'DOC-000017',
-  'AI_MODEL_QUALIFICATION_FAILED', 'Gemini qualification citation was not authoritative.');
+    mapped.citations[0].sourceId === 'DOC-000017';
+  var diagnostic = {
+    classification: 'PASS', transport: transport, modelId: profile.modelId,
+    httpStatus: Number(raw && raw.__kspHttpStatus || 0), providerStatus: parsed.rawStatus,
+    answerPresent: answerPresent, expectedTokenPresent: expectedTokenPresent,
+    modelOutputBlockCount: modelOutputBlockCount, fileCitationCount: fileCitationCount,
+    authoritativeCitationMatched: authoritativeCitationMatched, latencyMs: latencyMs
+  };
+  if (!answerPresent || !expectedTokenPresent) {
+    diagnostic.classification = 'COMPLETED_NO_GROUNDED_ANSWER';
+    throw kspGeminiQualificationError_(diagnostic);
+  }
+  if (!fileCitationCount) {
+    diagnostic.classification = 'COMPLETED_NO_FILE_CITATION';
+    throw kspGeminiQualificationError_(diagnostic);
+  }
+  if (!authoritativeCitationMatched) {
+    diagnostic.classification = 'CITATION_IDENTITY_OR_METADATA_MISMATCH';
+    throw kspGeminiQualificationError_(diagnostic);
+  }
   return {
     status: 'PASS', qualified: 1, failed: 0, accessible: true, latencyMs: latencyMs,
     thinkingResults: [{ thinkingProfileId: thinking.thinkingProfileId, passed: true }],
     storeName: settings.geminiStoreName,
-    requestProfileVersion: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION
+    requestProfileVersion: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION,
+    diagnostic: kspGeminiQualificationSafeDiagnostic_(diagnostic)
   };
+}
+
+function kspRunGeminiBoundedQualificationCampaign_(environment, context, settings, profile, thinkingProfileId) {
+  var primaryResult;
+  var primaryDiagnostic;
+  try {
+    primaryResult = kspRunGeminiExactTupleQualification_(environment, context, settings, profile,
+      thinkingProfileId, KSP_AI_QUERY_TRANSPORTS.INTERACTIONS);
+    primaryDiagnostic = primaryResult.diagnostic;
+    return {
+      status: 'PASS', qualification: primaryResult, selectedProfile: profile,
+      evidence: kspGeminiQualificationSafeCampaignEvidence_({
+        queryCalls: 1, primary: primaryDiagnostic, secondControl: 'NOT_USED', exactExternalLimitation: 'NONE'
+      })
+    };
+  } catch (primaryError) {
+    primaryDiagnostic = kspGeminiQualificationDiagnosticFromError_(primaryError,
+      KSP_AI_QUERY_TRANSPORTS.INTERACTIONS, profile.modelId, 0);
+  }
+
+  if (primaryDiagnostic.classification === 'MODEL_ACCESS_OR_UNSUPPORTED') {
+    var fallbackProfile = kspGeminiFallbackProfile_(profile);
+    try {
+      var fallbackResult = kspRunGeminiExactTupleQualification_(environment, context, settings,
+        fallbackProfile, thinkingProfileId, KSP_AI_QUERY_TRANSPORTS.INTERACTIONS);
+      return {
+        status: 'PASS', qualification: fallbackResult, selectedProfile: fallbackProfile,
+        evidence: kspGeminiQualificationSafeCampaignEvidence_({
+          queryCalls: 2, primary: primaryDiagnostic, secondControl: '3_7_INTERACTIONS',
+          second: fallbackResult.diagnostic, exactExternalLimitation: 'NONE'
+        })
+      };
+    } catch (fallbackError) {
+      var fallbackDiagnostic = kspGeminiQualificationDiagnosticFromError_(fallbackError,
+        KSP_AI_QUERY_TRANSPORTS.INTERACTIONS, fallbackProfile.modelId, 0);
+      var fallbackExternal = kspGeminiQualificationSupportsExternal_(fallbackDiagnostic, true);
+      throw kspGeminiQualificationCampaignError_(fallbackExternal, {
+          queryCalls: 2, primary: primaryDiagnostic, secondControl: '3_7_INTERACTIONS',
+          second: fallbackDiagnostic,
+          exactExternalLimitation: fallbackExternal ? 'MODEL_ACCESS_OR_UNSUPPORTED' : 'NONE'
+        });
+    }
+  }
+
+  if (kspGeminiQualificationNeedsGenerateContentControl_(primaryDiagnostic)) {
+    var controlResult = null;
+    var controlDiagnostic = null;
+    try {
+      controlResult = kspRunGeminiExactTupleQualification_(environment, context, settings, profile,
+        thinkingProfileId, KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT);
+      controlDiagnostic = controlResult.diagnostic;
+    } catch (controlError) {
+      controlDiagnostic = kspGeminiQualificationDiagnosticFromError_(controlError,
+        KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT, profile.modelId, 0);
+    }
+    if (controlResult) {
+      throw kspGeminiQualificationCampaignError_(true, {
+        queryCalls: 2, primary: primaryDiagnostic, secondControl: '3_8_GENERATE_CONTENT',
+        second: controlDiagnostic, exactExternalLimitation: 'INTERACTIONS_SPECIFIC_LIMITATION'
+      });
+    }
+    var controlExternal = kspGeminiQualificationSupportsExternal_(controlDiagnostic, true);
+    throw kspGeminiQualificationCampaignError_(controlExternal, {
+      queryCalls: 2, primary: primaryDiagnostic, secondControl: '3_8_GENERATE_CONTENT',
+      second: controlDiagnostic,
+      exactExternalLimitation: controlExternal ? 'GENERAL_FILE_SEARCH_OR_GROUNDING_LIMITATION' : 'NONE'
+    });
+  }
+
+  var primaryExternal = kspGeminiQualificationSupportsExternal_(primaryDiagnostic, false);
+  throw kspGeminiQualificationCampaignError_(primaryExternal, {
+    queryCalls: 1, primary: primaryDiagnostic, secondControl: 'NOT_USED',
+    exactExternalLimitation: primaryExternal ? primaryDiagnostic.classification : 'NONE'
+  });
 }
 
 function kspAiProviderAdminSafeSyncSummary_(report) {
@@ -14815,10 +15273,21 @@ function kspMutateAiProviderSettings_(environment, input) {
           'OPENAI_API_KEY_NOT_CONFIGURED', 'OpenAI is not configured.');
       }
       try {
+        var geminiCampaign = isGeminiQualification
+          ? kspRunGeminiBoundedQualificationCampaign_(environment, context, policySettings,
+            qualifyingProfile, input.thinkingProfileId) : null;
         var qualification = isGeminiQualification
-          ? kspRunGeminiExactTupleQualification_(environment, context, policySettings,
-            qualifyingProfile, input.thinkingProfileId)
+          ? geminiCampaign.qualification
           : kspRunOpenAiSyntheticConnectionTest_(environment, policySettings.openaiVectorStoreId, qualifyingProfile);
+        if (isGeminiQualification && geminiCampaign.selectedProfile.modelId !== qualifyingProfile.modelId) {
+          policy = kspMarkAiModelProfileQualification_(policy, profileId,
+            { passed: false, accessible: false,
+              thinkingResults: [{ thinkingProfileId: kspAiTrim_(input.thinkingProfileId).toLowerCase(), passed: false }] },
+          environment.nowIso());
+          policy = kspUpsertAiModelProfile_(policy, geminiCampaign.selectedProfile, environment.nowIso());
+          profileId = geminiCampaign.selectedProfile.profileId;
+          qualifyingProfile = geminiCampaign.selectedProfile;
+        }
         policy = kspMarkAiModelProfileQualification_(policy, profileId,
           { passed: qualification.qualified > 0, accessible: qualification.accessible,
             thinkingResults: qualification.thinkingResults,
@@ -14830,30 +15299,40 @@ function kspMutateAiProviderSettings_(environment, input) {
           qualifiedDefault.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED,
           'AI_MODEL_QUALIFICATION_FAILED', 'Default thinking profile qualification failed.');
         if (isGeminiQualification) {
+          if (qualifyingProfile.isProviderDefault) {
+            kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.GEMINI_MODEL_ID,
+              qualifyingProfile.modelId);
+          }
           kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.GEMINI_READINESS, 'QUALIFIED_DISABLED');
         }
         return { ok: true, workId: isGeminiQualification ? '0026' : '0025', action: action,
           qualification: { status: qualification.status, qualified: qualification.qualified,
             failed: qualification.failed, accessible: qualification.accessible,
-            latencyMs: qualification.latencyMs || 0, thinkingResults: qualification.thinkingResults },
+            latencyMs: qualification.latencyMs || 0, thinkingResults: qualification.thinkingResults,
+            evidence: isGeminiQualification ? geminiCampaign.evidence : undefined },
           modelPolicy: kspAiModelPolicyForAdmin_(policy) };
       } catch (qualificationError) {
         var qualificationCode = kspGetErrorCode_(qualificationError);
         var inaccessible = qualificationCode === 'OPENAI_HTTP_401' || qualificationCode === 'OPENAI_HTTP_403' ||
           qualificationCode === 'OPENAI_HTTP_404' || qualificationCode === 'AI_GEMINI_MODEL_UNSUPPORTED' ||
           qualificationCode === 'AI_GEMINI_MODEL_ACCESS_DENIED' || qualificationCode === 'AI_GEMINI_CREDENTIAL_REJECTED';
+        var geminiEvidence = isGeminiQualification && qualificationError.qualificationEvidence
+          ? kspGeminiQualificationSafeCampaignEvidence_(qualificationError.qualificationEvidence) : null;
+        var geminiAccessible = geminiEvidence
+          ? kspGeminiQualificationAccessibleFromEvidence_(geminiEvidence) : null;
         try {
           policy = kspMarkAiModelProfileQualification_(policy, profileId,
-            { passed: false, accessible: inaccessible ? false : null,
+            { passed: false, accessible: isGeminiQualification ? geminiAccessible : (inaccessible ? false : null),
               thinkingResults: [{ thinkingProfileId: kspAiTrim_(input.thinkingProfileId).toLowerCase(), passed: false }] },
           environment.nowIso());
           kspPersistAiModelPolicy_(environment, context, policy);
           if (isGeminiQualification) {
             kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.GEMINI_ENABLED, 'false');
             kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.GEMINI_READINESS,
-              'DISABLED_EXTERNAL_LIMITATION');
+              qualificationError.geminiExternal === true ? 'DISABLED_EXTERNAL_LIMITATION' : 'ERROR');
           }
         } catch (ignoredQualificationState) {}
+        if (isGeminiQualification && geminiEvidence) throw qualificationError;
         if (isGeminiQualification && (qualificationCode === 'AI_GEMINI_MODEL_UNSUPPORTED' ||
             qualificationCode === 'AI_GEMINI_MODEL_ACCESS_DENIED' ||
             qualificationCode === 'AI_GEMINI_CREDENTIAL_REJECTED')) throw qualificationError;
@@ -14969,7 +15448,7 @@ function kspMutateAiProviderSettings_(environment, input) {
             : action === 'CONNECT_GEMINI' ? 'GEMINI_CONNECTION_TEST_FAILED'
               : action === 'SYNC_GEMINI' ? 'GEMINI_SYNC_FAILED' : 'OPENAI_ACTIVATION_FAILED';
     }
-    return kspAiProviderAdminFailure_(code);
+    return kspAiProviderAdminFailure_(code, error && error.qualificationEvidence);
   }
 }
 // ===== END src/165_AiProviderAdmin.gs =====

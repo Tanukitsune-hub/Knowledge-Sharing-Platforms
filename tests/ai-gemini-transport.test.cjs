@@ -591,6 +591,45 @@ test('documented Gemini terminal statuses are safe and bounded', () => {
   }
 });
 
+test('Gemini terminal and HTTP failures retain only allowlisted provider error codes', () => {
+  withLiveFakes(() => response(200, {
+    id: 'interaction-synthetic',
+    status: 'failed',
+    errors: [
+      { code: 'service_unavailable', message: 'PRIVATE_PROVIDER_RESPONSE' },
+      { code: 'https://provider.invalid/errors/quota_exceeded', message: 'PRIVATE_QUOTA_DETAIL' },
+      { code: 'private_provider_identifier', message: 'PRIVATE_IDENTIFIER_DETAIL' }
+    ]
+  }), () => {
+    assert.throws(
+      () => ksp.kspGeminiQueryInteractionLive_(interactionRequest()),
+      (error) => {
+        assert.equal(error.code, 'AI_QUERY_PROVIDER_TERMINAL');
+        assert.equal(error.providerStatus, 'failed');
+        assert.deepEqual(plain(error.providerErrorCodes), ['service_unavailable', 'quota_exceeded']);
+        assert.doesNotMatch(JSON.stringify(error),
+          /PRIVATE_PROVIDER_RESPONSE|PRIVATE_QUOTA_DETAIL|PRIVATE_IDENTIFIER_DETAIL|private_provider_identifier/);
+        return true;
+      }
+    );
+  });
+
+  withLiveFakes(() => response(503, {
+    error: { code: 503, status: 'UNAVAILABLE', message: 'PRIVATE_HTTP_RESPONSE' }
+  }), () => {
+    assert.throws(
+      () => ksp.kspGeminiQueryInteractionLive_(interactionRequest()),
+      (error) => {
+        assert.equal(error.code, 'AI_QUERY_HTTP_FAILED');
+        assert.equal(error.httpStatus, 503);
+        assert.deepEqual(plain(error.providerErrorCodes), ['unavailable']);
+        assert.doesNotMatch(JSON.stringify(error), /PRIVATE_HTTP_RESPONSE/);
+        return true;
+      }
+    );
+  });
+});
+
 test('unknown Gemini Interaction status fails closed without exposing provider payload', () => {
   withLiveFakes(() => response(200, { id: 'interaction-synthetic', status: 'private_future_state', error: { message: 'SECRET' } }), () => {
     assert.throws(
