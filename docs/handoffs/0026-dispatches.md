@@ -2,8 +2,8 @@
 
 WORK_ID: `0026`
 ACTIVE_DISPATCH_ID: `0026-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Dispatch history
 
@@ -28,22 +28,28 @@ CODEX-01 report:
 
 `docs/handoffs/0026-CODEX-01-current-gemini-flash-file-search-requalification-report.md`
 
-## Active dispatch
+## Final dispatch
 
-### 0026-CODEX-02 — READY / repaired runtime deployment then bounded Gemini qualification
+### 0026-CODEX-02 — RETURNED / repaired runtime; Gemini disabled on external limitation
 
-Primary sequence:
+CODEX-02 independently revalidated the modular-template repair, delivered and read back all `82` deployable files once, created immutable version `69`, and updated the same private Web App once. Normal and cache-bypassed root/Knowledge Search loads expanded every include, completed bootstrap, and had zero blocking console errors.
 
-1. independently verify the tested modular-template repair and all deterministic gates;
-2. deliver/read back repaired source once;
-3. create exactly one new immutable version, expected `69`;
-4. update the same private Web App exactly once;
-5. prove root and Knowledge Search pages expand all server-side includes and complete normal bootstrap;
-6. only after shell PASS, inventory the existing Gemini key/Store/source state safely;
-7. reconcile only `DOC-000017` and `MTG-000005` if needed;
-8. qualify `gemini-3.8-flash / low / 2048`, with `gemini-3.7-flash / low / 2048` allowed only after explicit model-access/model-unsupported evidence;
-9. prove normal-product Pitchbook and Meeting grounded citations, exact metadata filtering and responsive START/POLL lifecycle;
-10. terminate as `QUALIFIED`, `DISABLED_EXTERNAL_LIMITATION`, or a new product blocker.
+The bounded Gemini campaign then completed as follows:
+
+```text
+GEMINI_KEY_AND_STORE: accessible / secret-safe
+DOC-000017_EXACT_SYNC: PASS / selected 1 / indexed 1 / failed 0
+MTG-000005_EXACT_SYNC: PASS / selected 1 / indexed 1 / failed 0
+PRIMARY_TUPLE: gemini-3.8-flash / low / 2048
+DIRECT_INTERACTIONS_CONTROL: FAIL / safe final response after approximately 79 seconds
+EXPLICIT_MODEL_ACCESS_OR_UNSUPPORTED: NO
+GEMINI_3_7_FALLBACK: NOT_USED
+NORMAL_PRODUCT_QUERY_CAMPAIGN: NOT_RUN / exact tuple stop gate
+GEMINI_FINAL_STATE: DISABLED_EXTERNAL_LIMITATION / hidden from normal users
+OPENAI_API_CALLED: NO
+```
+
+The synchronous qualification did not produce the required grounded answer and authoritative citation. With no explicit access/unsupported evidence, the only authorized fallback condition was not met. No broad sync, alternate Store, extra deployment, provider fallback, live FULL_OUTPUT call or OpenAI call occurred.
 
 Detailed instruction:
 
@@ -60,7 +66,7 @@ WORK_0020: ACCEPTED
 WORK_0025: ACCEPTED
 WORK_0021: ACCEPTED / prior accepted private Web App version 66
 WORK_0023: ACCEPTED / merge 8b0a2ccd
-CURRENT_PRIVATE_WEB_APP_VERSION: 68 / blocked shell
+CURRENT_PRIVATE_WEB_APP_VERSION: 69 / shell PASS
 VERSION_67: unused / never deploy
 OPENAI/FULL_OUTPUT: accepted production reference
 BUNDLE/INSTALLER: accepted
@@ -83,20 +89,17 @@ VERSION_70_OR_HIGHER: prohibited
 OPENAI_API_CALLED: NO
 ```
 
-If shell rendering is still broken after the single repaired update, stop before Gemini and return the new exact product blocker.
-
-The Work terminal provider states remain:
+The Work terminal provider state is:
 
 ```text
-QUALIFIED
 DISABLED_EXTERNAL_LIMITATION
 ```
 
-`DISABLED_EXTERNAL_LIMITATION` is valid only after the Web App shell works, deterministic current-code contracts pass, no application/source-integrity defect explains the failure, and bounded provider evidence identifies the external limitation while Gemini remains disabled/hidden.
+The Web App shell and exact source reconciliation passed before the current Interactions/File Search qualification failed. Gemini remains disabled/hidden, so this is the accepted fail-closed terminal state rather than a claim that Gemini works.
 
-A native user credential/action inside the still-running CODEX-02 keeps the same Dispatch ID and hands the ball to USER. Any new Codex execution after RETURNED must use the next Dispatch ID.
+CODEX-02 is returned. Any later provider requalification requires a new instruction and Dispatch ID; do not resume this bounded campaign implicitly.
 
 WORK_ID: `0026`
 ACTIVE_DISPATCH_ID: `0026-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

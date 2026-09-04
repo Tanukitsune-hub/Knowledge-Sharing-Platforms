@@ -2,9 +2,9 @@
 
 WORK_ID: `0026`
 DISPATCH_ID: `0026-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
-MODE: `REPAIRED RUNTIME DEPLOYMENT -> BOUNDED PROVIDER QUALIFICATION`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
+MODE: `TERMINAL / DISABLED_EXTERNAL_LIMITATION`
 
 ## Primary outcome
 
@@ -27,7 +27,7 @@ Runtime locator:
 ```text
 WORK_0020 / 0025 / 0021 / 0023: ACCEPTED
 PR_36: Draft / Open / unmerged
-CURRENT_PRIVATE_WEB_APP_VERSION: 68 / blocked modular shell
+CURRENT_PRIVATE_WEB_APP_VERSION: 69 / modular shell PASS
 VERSION_67: unused / prohibited from deployment
 OPENAI: accepted
 FULL_OUTPUT: accepted
@@ -81,7 +81,26 @@ CODEX-02 may:
 
 After the bounded terminal outcome, stop and return PR #36 to ChatGPT. Do not merge it.
 
+## CODEX-02 returned outcome
+
+```text
+MODULAR_TEMPLATE_REPAIR: PASS / version 69
+ROOT_AND_KNOWLEDGE_SHELL: PASS / literal includes 0 / blocking console errors 0
+GEMINI_KEY_AND_STORE: accessible
+DOC-000017_AND_MTG-000005_EXACT_SYNC: PASS
+PRIMARY_TUPLE: gemini-3.8-flash / low / 2048
+DIRECT_INTERACTIONS_CONTROL: FAIL / safe final result after approximately 79 seconds
+GEMINI_3_7_FALLBACK: NOT_USED / no explicit access-or-unsupported evidence
+GEMINI_STATUS: DISABLED_EXTERNAL_LIMITATION / normal-user route hidden
+OPENAI_API_CALLED: NO
+FULL_OUTPUT_LIVE_CALLED: NO
+FINAL_INTEGRITY: PASS
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+```
+
+This bounded Work is complete at its allowed external-limitation terminal state. Do not resume the provider campaign without a new instruction and materially new evidence.
+
 WORK_ID: `0026`
 DISPATCH_ID: `0026-CODEX-02`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

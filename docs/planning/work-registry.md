@@ -43,7 +43,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve exact tuple qualification and admin/user policy |
 | 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 runtime evidence |
 | 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve PR #35 merge `8b0a2ccd`, one-paste and installer-security evidence |
-| 4 | 0026 | Current Gemini Flash / File Search requalification | ACTIVE | 0023 accepted; tested modular-template repair available | Execute `0026-CODEX-02`: deploy repaired version once, prove shell, then resume bounded Gemini qualification |
+| 4 | 0026 | Current Gemini Flash / File Search requalification | ACTIVE | 0023 accepted; CODEX-02 terminal evidence complete | ChatGPT final review of PR #36; Gemini remains disabled on `DISABLED_EXTERNAL_LIMITATION` |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with provider recovery |
 | 6 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
 | 7 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
@@ -89,7 +89,7 @@ BLOCKER: NONE
 
 Shared Drive/domain-user company qualification remains a later environment gate. It was not claimed by the personal-DEV Work 0023 qualification.
 
-## Work 0026 active boundary
+## Work 0026 terminal boundary
 
 Primary outcome: update and requalify the optional Gemini provider against the current official model, File Search, thinking, citation and lifecycle contracts without disturbing accepted OpenAI/FULL_OUTPUT behavior.
 
@@ -131,7 +131,20 @@ Active instruction:
 
 `docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-instruction.md`
 
-CODEX-02 authorizes one repaired source delivery, one immutable version expected `69`, and one update of the same private Web App. It must prove root/Knowledge Search include expansion before any Gemini provider call. Version 67 and version 70+ are prohibited in this Dispatch.
+CODEX-02 was authorized for one repaired source delivery, one immutable version `69`, and one update of the same private Web App, with shell proof required before any Gemini provider call. Version 67 and version 70+ remained prohibited.
+
+CODEX-02 completed within that budget. Version `69` is deployed on the same private Web App and passed normal/cache-bypassed root and Knowledge Search smoke with zero literal include directives and zero blocking console errors. The configured Gemini key and Store were accessible; exact sync of `DOC-000017` and `MTG-000005` passed with one current document per source.
+
+The one primary `gemini-3.8-flash / low / 2048` synchronous Interactions + File Search qualification returned a safe failure after approximately 79 seconds without explicit model-access/model-unsupported evidence. Therefore the 3.7 fallback was not attempted, Gemini remains disabled/hidden, and the Work terminal status is:
+
+```text
+GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
+OPENAI_API_CALLED: NO
+FULL_OUTPUT_LIVE_CALLED: NO
+LOGIC_VALIDATION: PASS / 410 of 410
+FINAL_INTEGRITY: PASS
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+```
 
 ## Scope and review discipline
 

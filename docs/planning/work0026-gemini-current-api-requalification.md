@@ -1,8 +1,8 @@
 # Work 0026 — current Gemini Flash / File Search requalification
 
-Current as of: 2026-09-03
+Current as of: 2026-09-04
 
-Status: BLOCKED / CODEX-01 stopped before provider qualification on modular Web App rendering regression
+Status: TERMINAL / `DISABLED_EXTERNAL_LIMITATION` / ready for ChatGPT final review
 
 ## Purpose
 
@@ -51,13 +51,13 @@ OPENAI/FULL_OUTPUT: remained operational
 
 The new Work must not assume the old outcome is still current, but it must not repeat the old 15-dispatch loop either.
 
-## Current repository gaps to close
+## Repository gaps addressed by Work 0026
 
-1. `KSP_AI_DEFAULTS.QUERY_TRANSPORT` is fixed to `GENERATE_CONTENT` and Gemini query settings remain fixed to `low` / 2048 rather than the exact model-policy selection.
-2. The Settings-backed model/thinking registry can represent Gemini profiles, but administrator `QUALIFY_MODEL_PROFILE` is currently live-enabled only for OpenAI.
-3. Gemini credential/store onboarding is not presented and qualified as a peer optional provider in the administrator flow.
-4. The normal Gemini route must be proven against the current official request/response/citation shapes and responsive START/POLL lifecycle.
-5. The prior provider-long-running and no-citation outcomes need one current, evidence-based root-layer classification.
+1. The normal Gemini path now uses current Interactions + File Search and the server-resolved model/thinking/output tuple.
+2. The Settings-backed administrator flow can save and qualify a Gemini profile through the same policy gate used by normal-user selection.
+3. Gemini credential and Store readiness are presented through the redacted private-admin surface.
+4. Gemini remains hidden unless provider readiness and an exact tuple both qualify.
+5. CODEX-02 obtained a current bounded provider result: the 3.8 exact tuple did not produce the required grounded answer and authoritative citation, so the provider remains disabled.
 
 ## Product outcome
 
@@ -169,11 +169,11 @@ Any source change must regenerate and validate the deterministic bundle so Work 
 
 ## Delivery
 
-One initial implementation/runtime dispatch:
+Implementation/runtime dispatches:
 
 `0026-CODEX-01 — current Gemini Flash / File Search requalification`
 
-A later Codex execution after RETURNED must use the next Dispatch ID. A native user action inside the same still-running dispatch retains `0026-CODEX-01` and hands the ball to USER.
+`0026-CODEX-02 — repaired runtime deployment and bounded Gemini qualification`
 
 ## CODEX-01 returned evidence
 
@@ -186,5 +186,26 @@ RUNTIME_DEPLOYMENT_VERSION: 68 / blocked
 REPAIR_COMMIT: 681768824f298eff24439b2ee69c9ce159af1e0e
 LOGIC_VALIDATION: PASS / 410 of 410
 GEMINI_PROVIDER_QUALIFICATION: NOT_RUN
-NEXT_ACTION: ChatGPT-issued next Dispatch with one repaired deployment budget
+NEXT_ACTION_AT_CODEX_01_RETURN: completed by CODEX-02
 ```
+
+## CODEX-02 terminal evidence
+
+CODEX-02 delivered and read back the exact repaired source once, created version `69`, and updated the same private Web App once. Both normal and cache-bypassed root/Knowledge Search loads passed with zero literal include directives and zero blocking console errors.
+
+The configured Gemini key and Store were accessible. Exact synchronization of only `DOC-000017` and `MTG-000005` returned `selected 1 / indexed 1 / failed 0` for each and established one active exact-metadata document per source. The administrator then registered the exact primary profile and ran the synchronous Interactions + File Search qualification once.
+
+```text
+PRIMARY_TUPLE: gemini-3.8-flash / explicit low / max output 2048
+DIRECT_INTERACTIONS_CONTROL: FAIL / safe final result after approximately 79 seconds
+EXPLICIT_MODEL_ACCESS_OR_UNSUPPORTED: NO
+GEMINI_3_7_FALLBACK: NOT_USED
+PRODUCT_START_POLL_AND_MEETING_QUERY: NOT_RUN / exact tuple stop gate
+GEMINI_FINAL_STATE: DISABLED_EXTERNAL_LIMITATION / hidden from normal users
+OPENAI_API_CALLED: NO
+FULL_OUTPUT_LIVE_CALLED: NO
+FINAL_INTEGRITY: PASS
+NEXT_ACTION: ChatGPT final review of PR #36; do not restart the provider loop without materially new evidence
+```
+
+This is an acceptable Work 0026 terminal outcome, not a claim that Gemini File Search is qualified.
