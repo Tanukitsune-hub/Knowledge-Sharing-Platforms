@@ -1,78 +1,68 @@
 # Work 0027 report
 
-WORK_ID: `0027`  
-ACTIVE_DISPATCH_ID: `0027-CODEX-02`  
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+WORK_ID: 0027
+ACTIVE_DISPATCH_ID: 0027-CODEX-03
+BALL: CODEX
+STATUS: READY
 
-## Current state
+## Current outcome
 
-CODEX-01’s implementation remains accepted. CODEX-02 added the bounded stable-model qualification path and passed all deterministic gates, but target-runtime qualification stopped on an authoritative citation identity/metadata mismatch.
-
-```text
-IMPLEMENTATION_COMMIT: acd3aa0
-LOGIC_VALIDATION: PASS / 440 of 440
-SOURCE_READBACK: PASS / 82 of 82
-PRIVATE_WEB_APP_VERSION: 72 / shell PASS
-GEMINI_3_8_RERUN: NO
-GEMINI_3_7_VISIBILITY: PASS
-SHORT_GEMINI_3_7_INTERACTIONS: PASS / HTTP 200
-TEMP_STORE_CREATE: PASS
-SYNTHETIC_UPLOAD_INDEX_READBACK: PASS / exactly one document
-FILE_SEARCH_QUERY_3_7: HTTP 200 / expected token PASS / file_citation 1
-AUTHORITATIVE_METADATA_MATCH: FAIL
-GEMINI_3_6: NOT_RUN / STOP_DISALLOWED
-TEMP_RESOURCE_CLEANUP: PASS
-GEMINI_NORMAL_USER_ROUTE: disabled and hidden
-TERMINAL_OUTCOME: BLOCKED_PRODUCT_DEFECT
-```
-
-The result proves the 3.7 model, answer, and citation-return path are operational. It does not establish an authoritative normalized source because the returned citation did not match the exact provider document and metadata identity.
-
-## ChatGPT review of CODEX-01
-
-GitHub PR #37, exact head `2c6cd20bfe6a4ef3b6262160b4126266307222dd`, implementation commit, final report, changed source/tests, review threads and CI state were independently checked.
+CODEX-02 finished its authorized campaign but did not meet Work acceptance. CODEX-03 is prepared, not executed, to diagnose and repair the exact citation binding defect. PR #37 remains Draft/Open/unmerged; main remains `8c9be2392a1247ff81efc6a153fc0be449b1318b` at this review.
 
 ```text
-CODEX_01_SCOPE_IMPLEMENTED: PASS
-SOURCE_AND_RUNTIME_EVIDENCE: CONSISTENT
-TEMP_RESOURCE_CLEANUP: PASS
-REVIEW_THREADS: 0
-GITHUB_CI: absent / non-blocking by itself
-PRODUCT_AVAILABILITY_BLOCKER: NONE / Gemini remains hidden
-```
-
-The CODEX-01 `DISABLED_TRANSIENT_PROVIDER_LIMITATION` result is valid for the exact 3.8 campaign. PR #37 is not merged because the user’s stated completion target is now a successful personal-DEV File Search path on any suitable stable model.
-
-## CODEX-02 bounded result
-
-```text
-PRIMARY_CANDIDATE: gemini-3.7-flash / low / 2048
-QUALIFICATION_ONLY_FALLBACK: gemini-3.6-flash / low / 2048
-GEMINI_3_8_RERUN: NO
-NORMAL_USER_AUTOMATIC_MODEL_FALLBACK: NO
-ONE_SHARED_TEMP_STORE_AND_DOCUMENT: PASS
-ANSWER_EXPECTED_TOKEN: PASS
+REVIEWED_CODEX_02_HEAD: 0032a9cdb69cc1431566dee82f7e2c2196ddee50
+IMPLEMENTATION_COMMIT: acd3aa08a3ecc01a7b0852afef8f58202934af82
+REPORTED_LOGIC_VALIDATION: PASS / 440 of 440
+REPORTED_BUNDLE_GATES: PASS / 27 of 27
+REPORTED_SOURCE_READBACK: PASS / 82 of 82
+REPORTED_PRIVATE_WEB_APP_VERSION: 72 / shell PASS
+GEMINI_3_7_FILE_SEARCH_HTTP: 200
+EXPECTED_TOKEN: PASS
 FILE_CITATION: PASS / 1
-AUTHORITATIVE_METADATA_MATCH: FAIL
-QUALIFIED_MODEL_ID: NONE
-TEMP_RESOURCE_DELETION_CONFIRMATION: PASS
+AUTHORITATIVE_IDENTITY_AND_METADATA: FAIL
+QUERY_ATTEMPTS_RETRIES: 2 / 1
+QUERY_CUMULATIVE_SLEEP_MS: 501
+QUERY_TOTAL_LATENCY_MS: 34992
+GEMINI_3_6: NOT_RUN
+TEMP_RESOURCE_CLEANUP: PASS
+GEMINI: disabled / hidden
+OPENAI_FULL_OUTPUT_LIVE_CALLS: 0
+WORK_ACCEPTANCE: NOT_MET
 ```
 
-Detailed instruction:
+Detailed immutable evidence remains in `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-report.md`. No historic report has been rewritten as a success.
 
-`docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-instruction.md`
+## ChatGPT review
 
-## Current blockers
+Independently read current main/PR/head, exact CODEX-02 report and ledger, compared the CODEX-02 refs, reviewed relevant current citation/metadata/mapping source and synthetic tests, and checked GitHub Actions and PR discussion. No workflow runs or comments were returned for the reviewed evidence. No live Apps Script/API test or local test suite was rerun by ChatGPT.
+
+Confirmed source findings:
+
+- the qualifier requires citation.source equal to the provider Document resource name plus three metadata equalities;
+- the citation normalizer does not retain document_uri;
+- synthetic fixtures assume source equals Document.name;
+- normal Gemini mapping and qualification use different identity rules.
+
+Official FileCitation documentation lists source and document_uri separately and does not guarantee source equals Document.name. Actual per-field runtime mismatch remains unknown: the existing report exposes only aggregate failure. The next repair must be evidence-led, not a blind assertion removal.
+
+## Classification
 
 ```text
-PRODUCT_AVAILABILITY_BLOCKER: NONE
+PRODUCT_AVAILABILITY_REGRESSION_OBSERVED: NONE / accepted personal-DEV reference paths preserved
 WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+FIX_SOON: GitHub CI remains absent
+BACKLOG: additional model qualification, representative large files, historical migration, company rollout
 ```
 
-Gemini remains disabled and absent from the normal-user route, so the optional provider defect does not reduce accepted OpenAI/FULL_OUTPUT availability. Any continuation must use a new CODEX-03 dispatch and must not replay this campaign by default.
+The citation blocker prevents Gemini activation and PR acceptance. It does not establish that company rollout is ready, or that all Gemini models fail.
 
-WORK_ID: `0027`  
-ACTIVE_DISPATCH_ID: `0027-CODEX-02`  
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+## Next action
+
+Execute `0027-CODEX-03` under `docs/handoffs/0027-CODEX-03-citation-identity-repair-instruction.md`. Fix the observed identity representation/resolution gap using the same resolver in qualification and normal Gemini mapping. Stay on 3.7. Keep source authority, exact current hashes, ambiguity rejection and cleanup intact.
+
+CODEX-03 source repair, logic tests, runtime and deployment evidence: NOT_RUN.
+
+WORK_ID: 0027
+ACTIVE_DISPATCH_ID: 0027-CODEX-03
+BALL: CODEX
+STATUS: READY
