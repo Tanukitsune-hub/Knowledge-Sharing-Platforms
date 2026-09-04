@@ -2,13 +2,13 @@
 
 WORK_ID: `0026`
 DISPATCH_ID: `0026-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `QUALIFICATION / DIAGNOSTIC REPAIR`
 
 ## Primary outcome
 
-Complete an evidence-correct bounded Gemini requalification without disturbing the accepted OpenAI/FULL_OUTPUT product.
+Completed an evidence-correct bounded Gemini requalification without disturbing the accepted OpenAI/FULL_OUTPUT product. The terminal provider result is `DISABLED_EXTERNAL_LIMITATION / HTTP_OR_CREDENTIAL_FAILURE`.
 
 Active detailed instruction:
 
@@ -27,12 +27,12 @@ Runtime locator:
 ```text
 WORK_0020 / 0025 / 0021 / 0023: ACCEPTED
 PR_36: Draft / Open / unmerged
-CURRENT_PRIVATE_WEB_APP_VERSION: 69 / modular shell PASS
+CURRENT_PRIVATE_WEB_APP_VERSION: 70 / modular shell PASS
 VERSION_67: unused / never deploy
 OPENAI: accepted
 FULL_OUTPUT: accepted
 BUNDLE_INSTALLER: accepted
-GEMINI: disabled and hidden
+GEMINI: DISABLED_EXTERNAL_LIMITATION / HTTP_OR_CREDENTIAL_FAILURE / hidden
 ```
 
 ## Closed CODEX-02 evidence
@@ -53,20 +53,22 @@ LOGIC_VALIDATION: PASS / 410 of 410
 
 Do not re-open the shell repair, exact source reconciliation or accepted OpenAI/FULL_OUTPUT evidence without material contradictory runtime evidence.
 
-## ChatGPT review blocker
+## ChatGPT review finding resolved by CODEX-03
 
-CODEX-02 did not preserve enough safe diagnostic evidence to distinguish provider-terminal, no-grounded-answer, no-citation, citation-mapping and response-shape failures. The current catch path writes `DISABLED_EXTERNAL_LIMITATION` for any non-access Gemini qualification exception and replaces it with generic `AI_MODEL_QUALIFICATION_FAILED`.
+CODEX-02 did not preserve enough safe diagnostic evidence to distinguish provider-terminal, no-grounded-answer, no-citation, citation-mapping and response-shape failures. CODEX-03 repaired that exact gap and added deterministic failure-injection coverage for every required class.
 
 ```text
 PRODUCT_AVAILABILITY_BLOCKER: NONE
-WORK_ACCEPTANCE_BLOCKER: GEMINI_EXTERNAL_LIMITATION_CLASSIFICATION_NOT_EVIDENCED
+WORK_ACCEPTANCE_BLOCKER: NONE
+EXACT_EXTERNAL_LIMITATION: HTTP_OR_CREDENTIAL_FAILURE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
 ```
 
-The exact external limitation has not yet been proven. PR #36 must remain unmerged.
+PR #36 remains Draft/Open/unmerged for ChatGPT final review.
 
-## CODEX-03 authority
+## CODEX-03 completed authority
 
-CODEX-03 may:
+CODEX-03 completed the authorized sequence:
 
 1. implement distinct safe Gemini qualification failure classes;
 2. prevent generic/application failures from being relabeled external;
@@ -77,7 +79,28 @@ CODEX-03 may:
 7. read back the existing two exact Gemini documents without sync/upload;
 8. run one required 3.8 Interactions qualification;
 9. run at most one mutually exclusive 3.7 fallback or 3.8 GenerateContent control under the detailed decision tree;
-10. return an exact evidence-supported terminal outcome.
+10. returned the exact evidence-supported terminal outcome `DISABLED_EXTERNAL_LIMITATION / HTTP_OR_CREDENTIAL_FAILURE`.
+
+Completion evidence:
+
+```text
+FAILURE_CLASSIFICATION_REPAIR: PASS
+UNKNOWN_FAILURE_RELABELLED_EXTERNAL: NO
+SAFE_DIAGNOSTIC_TEST_MATRIX: PASS
+LOGIC_VALIDATION: PASS / 420 of 420
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82
+RUNTIME_DEPLOYMENT_VERSION: 70
+WEB_APP_SHELL: PASS
+GEMINI_QUERY_CALLS: 1
+PRIMARY_3_8_INTERACTIONS_CLASS: HTTP_OR_CREDENTIAL_FAILURE
+SECOND_CONTROL: NOT_USED
+NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
+OPENAI_API_CALLED: NO
+FULL_OUTPUT_RUNTIME_CALLED: NO
+VERSION_67_DEPLOYED: NO
+VERSION_71_OR_HIGHER_CREATED: NO
+BLOCKER: NONE
+```
 
 ## Fixed boundaries
 
@@ -99,5 +122,5 @@ Keep PR #36 Draft/Open/unmerged. Do not merge it.
 
 WORK_ID: `0026`
 DISPATCH_ID: `0026-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`

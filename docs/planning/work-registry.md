@@ -43,7 +43,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve exact tuple qualification and admin/user policy |
 | 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 runtime evidence |
 | 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve PR #35 merge `8b0a2ccd`, one-paste and installer-security evidence |
-| 4 | 0026 | Current Gemini Flash / File Search requalification | ACTIVE | CODEX-02 shell/source evidence accepted; exact external-cause classification not evidenced | Execute `0026-CODEX-03`: repair safe failure classification and run one bounded requalification |
+| 4 | 0026 | Current Gemini Flash / File Search requalification | ACTIVE | CODEX-03 terminal result complete; PR #36 final review pending | Review PR #36; merge only after ChatGPT acceptance |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with provider recovery |
 | 6 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
 | 7 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
@@ -89,7 +89,7 @@ BLOCKER: NONE
 
 Shared Drive/domain-user company qualification remains a later environment gate. It was not claimed by the personal-DEV Work 0023 qualification.
 
-## Work 0026 active boundary
+## Work 0026 terminal review boundary
 
 Primary outcome: update and requalify the optional Gemini provider against the current official model, File Search, thinking, citation and lifecycle contracts without disturbing accepted OpenAI/FULL_OUTPUT behavior.
 
@@ -145,27 +145,47 @@ FULL_OUTPUT_LIVE_CALLED: NO
 LOGIC_VALIDATION: PASS / 410 of 410
 ```
 
-### ChatGPT review and active CODEX-03
+### ChatGPT review finding and CODEX-03 resolution
 
 ChatGPT independently reviewed PR head `36d748828e9fd16368266e09d095426126586d06`, the CODEX-02 report, relevant source, tests, review threads and CI state.
 
-The qualification path can fail at materially different layers, but the administrator catch writes `DISABLED_EXTERNAL_LIMITATION` for every non-access Gemini qualification exception and then replaces the underlying cause with generic `AI_MODEL_QUALIFICATION_FAILED`. The transport also does not retain the safe Interaction error-code evidence needed to distinguish provider-terminal, no-answer, no-citation, citation-mapping and response-shape failures.
+The reviewed qualification path previously collapsed materially different failures. CODEX-03 repaired it so HTTP/credential, model/access, provider-terminal, no-answer, no-citation, citation identity/metadata mismatch, and response-shape/application failures remain distinct. Unknown and application failures cannot write `DISABLED_EXTERNAL_LIMITATION`.
 
 ```text
 PRODUCT_AVAILABILITY_BLOCKER: NONE
-WORK_ACCEPTANCE_BLOCKER: GEMINI_EXTERNAL_LIMITATION_CLASSIFICATION_NOT_EVIDENCED
-PR_36_MERGE: BLOCKED
+WORK_ACCEPTANCE_BLOCKER: NONE
+EXACT_EXTERNAL_LIMITATION: HTTP_OR_CREDENTIAL_FAILURE
+PR_36: Draft / Open / unmerged / ready for ChatGPT final review
 ```
 
-Active Dispatch:
+CODEX-03 terminal evidence:
 
-`0026-CODEX-03`
+```text
+FAILURE_CLASSIFICATION_REPAIR: PASS
+UNKNOWN_FAILURE_RELABELLED_EXTERNAL: NO
+LOGIC_VALIDATION: PASS / 420 of 420
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82
+CURRENT_RUNTIME_VERSION: 70 / shell PASS
+GEMINI_QUERY_CALLS: 1
+PRIMARY_3_8_INTERACTIONS_CLASS: HTTP_OR_CREDENTIAL_FAILURE
+SECOND_CONTROL: NOT_USED
+GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
+NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
+GEMINI_SOURCE_SYNC_OR_UPLOAD: 0
+OPENAI_API_CALLED: NO
+FULL_OUTPUT_RUNTIME_CALLED: NO
+VERSION_67_DEPLOYED: NO
+VERSION_71_OR_HIGHER_CREATED: NO
+BLOCKER: NONE
+```
 
-Active instruction:
+Final Dispatch:
 
-`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
+`0026-CODEX-03 — RETURNED`
 
-CODEX-03 authorizes the minimal safe classification repair, one source delivery/readback, one immutable version expected `70`, and one update of the same private Web App. It then permits one required 3.8 Interactions query and at most one mutually exclusive 3.7 fallback or 3.8 GenerateContent control. Version 67 and version 71+ are prohibited. Store creation, source sync/upload, OpenAI calls, FULL_OUTPUT live calls and general experiment loops are prohibited.
+Detailed report:
+
+`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-report.md`
 
 ## Scope and review discipline
 

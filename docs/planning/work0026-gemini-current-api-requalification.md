@@ -2,7 +2,7 @@
 
 Current as of: 2026-09-04
 
-Status: ACTIVE / `0026-CODEX-03` ready
+Status: TERMINAL / `0026-CODEX-03` returned / ready for ChatGPT final review
 
 ## Purpose
 
@@ -18,7 +18,7 @@ WORK_0025: ACCEPTED — administrator model/thinking policy
 WORK_0021: ACCEPTED — structured search, five modes, multi-Entity and six formats
 WORK_0023: ACCEPTED — deterministic bundle and installer
 MAIN_BASE: 8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f
-CURRENT_PRIVATE_WEB_APP_VERSION: 69 / shell PASS
+CURRENT_PRIVATE_WEB_APP_VERSION: 70 / shell PASS
 VERSION_67: unused / never deploy
 GITHUB_CI: absent
 ```
@@ -43,24 +43,25 @@ LOGIC_VALIDATION: PASS / 410 of 410
 
 These runtime and integrity facts are closed unless contradicted by stronger evidence.
 
-## ChatGPT review finding
+## ChatGPT review finding and resolution
 
-The CODEX-02 report called the outcome `DISABLED_EXTERNAL_LIMITATION`, but the application did not preserve enough safe evidence to support that classification.
+The CODEX-02 report called the outcome `DISABLED_EXTERNAL_LIMITATION`, but the application did not preserve enough safe evidence to support that classification. CODEX-03 repaired that exact classification gap.
 
-The qualification may fail because of provider/model/access/quota behavior, provider terminal status, missing grounded answer, missing citation, citation identity mismatch, or response-shape/application parsing. The current administrator catch writes `DISABLED_EXTERNAL_LIMITATION` for every non-access Gemini qualification exception and then replaces the underlying cause with generic `AI_MODEL_QUALIFICATION_FAILED`.
+The repaired path distinguishes provider/model/access/quota behavior, provider terminal status with allowlisted codes, missing grounded answer, missing citation, citation identity mismatch, and response-shape/application parsing. Unknown and application failures cannot write `DISABLED_EXTERNAL_LIMITATION`.
 
 ```text
 PRODUCT_AVAILABILITY_BLOCKER: NONE
-WORK_ACCEPTANCE_BLOCKER: GEMINI_EXTERNAL_LIMITATION_CLASSIFICATION_NOT_EVIDENCED
+WORK_ACCEPTANCE_BLOCKER: NONE
+EXACT_EXTERNAL_LIMITATION: HTTP_OR_CREDENTIAL_FAILURE
 ```
 
-Gemini remains safely hidden, but Work 0026 and PR #36 cannot be accepted until this evidence gap is resolved.
+The one bounded runtime qualification returned the exact class `HTTP_OR_CREDENTIAL_FAILURE`. Gemini remains safely hidden, and Work 0026 is ready for ChatGPT final review of PR #36.
 
 ## Current official-documentation signal
 
 At ChatGPT review on 2026-09-04, Google's Gemini 3.8 model page and File Search page described Gemini 3.8 Flash as stable and File Search capable. The current Interactions API reference model enumeration did not yet list Gemini 3.8 Flash while listing earlier Flash models.
 
-This may indicate rollout/schema lag, but it is not runtime proof. CODEX-03 must preserve the exact safe provider status/error class rather than infer the cause from documentation alone.
+This may indicate rollout/schema lag, but it is not runtime proof. CODEX-03's terminal classification comes from the bounded runtime result, not this documentation signal.
 
 ## Candidate and control policy
 
@@ -79,28 +80,28 @@ No other candidate, alias, transport, Store, prompt, filter, chunking, embedding
 
 ## CODEX-03 outcome
 
-CODEX-03 must:
+CODEX-03 completed:
 
 1. preserve distinct safe failure causes;
 2. prevent generic/application failures from being relabeled external;
 3. add deterministic tests for each material failure class;
-4. deploy the minimal repair once as version 70;
-5. preserve the version-69 shell result;
-6. read back the existing two exact documents without source sync/upload;
-7. execute the bounded one-or-two-call decision tree;
-8. return an exact evidence-supported terminal state.
+4. deployed the minimal repair once as version 70;
+5. requalified the version-70 shell;
+6. preserved the existing two exact documents without source sync/upload;
+7. executed one required Interactions call and correctly omitted the unauthorized second call;
+8. returned `DISABLED_EXTERNAL_LIMITATION / HTTP_OR_CREDENTIAL_FAILURE`.
 
 Runtime bounds:
 
 ```text
-SOURCE_DELIVERY: max 1
-NEW_VERSION: max 1 / expected 70
-SAME_WEB_APP_UPDATE: max 1
-VERSION_67: never deploy
-VERSION_71_OR_HIGHER: prohibited
-GEMINI_QUERY_CALLS: max 2
+SOURCE_DELIVERY: 1 / readback PASS 82 of 82
+NEW_VERSION: 1 / version 70
+SAME_WEB_APP_UPDATE: 1 / 69 -> 70
+VERSION_67_DEPLOYED: NO
+VERSION_71_OR_HIGHER_CREATED: NO
+GEMINI_QUERY_CALLS: 1
 STORE_CREATE: 0
-SOURCE_SYNC_OR_UPLOAD: 0 unless closed evidence is contradicted; then stop
+SOURCE_SYNC_OR_UPLOAD: 0
 OPENAI_API_CALLS: 0
 FULL_OUTPUT_RUNTIME_CALLS: 0
 ```
@@ -128,9 +129,13 @@ Do not broaden into company rollout, Shared Drive/domain qualification, represen
 ```text
 0026-CODEX-01 — current API implementation; version 68 shell regression
 0026-CODEX-02 — version 69 shell repaired; exact tuple failed but cause classification was insufficient
-0026-CODEX-03 — active safe classification repair and bounded requalification
+0026-CODEX-03 — safe classification repaired; version 70 qualified; terminal external class evidenced
 ```
 
-Active instruction:
+Final Dispatch instruction:
 
 `docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
+
+Final report:
+
+`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-report.md`

@@ -1,8 +1,8 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-04 JST
-LAST_VERIFIED_BY: Codex during 0026-CODEX-02 target-runtime qualification
-STATUS: ACTIVE / Web App version 69 shell qualified; Gemini disabled on external limitation
+LAST_VERIFIED_BY: Codex during 0026-CODEX-03 target-runtime qualification
+STATUS: TERMINAL REVIEW / Web App version 70 shell qualified; Gemini disabled on exact HTTP-or-credential external limitation
 
 ## Source
 
@@ -12,12 +12,12 @@ STATUS: ACTIVE / Web App version 69 shell qualified; Gemini disabled on external
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
 - WORK_0021_MERGE_COMMIT: `533c849bd1229827ec77cd5ad6506312ea286940`
 - WORK_0023_MERGE_COMMIT: `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`
-- DEPLOYED_SOURCE_COMMIT: `a467dae183707af8e925aba12bfa96912bdb790f`
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0026 current Gemini implementation plus modular-template repair; exact source readback passed before version 69 creation
+- DEPLOYED_SOURCE_COMMIT: `90bcaab90051a7975e5b9da99917b7d1fe0e6402`
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0026 safe Gemini failure classifier plus modular-template repair; exact source readback passed before version 70 creation
 - MODULAR_TEMPLATE_REPAIR_COMMIT: `681768824f298eff24439b2ee69c9ce159af1e0e`
 - CURRENT_ACTIVE_WORK: `0026 — terminal / ready for ChatGPT final review`
-- CURRENT_ACTIVE_DISPATCH: `0026-CODEX-02 — RETURNED`
-- CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-instruction.md`
+- CURRENT_ACTIVE_DISPATCH: `0026-CODEX-03 — RETURNED`
+- CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
 - ACTIVE_BRANCH: `agent/0026-gemini-current-api-requalification`
 - PR: `#36 / Draft / Open / unmerged`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
@@ -30,7 +30,7 @@ STATUS: ACTIVE / Web App version 69 shell qualified; Gemini disabled on external
 - TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
 - WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
 - DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `69`
+- DEPLOYMENT_VERSION: `70`
 - ENVIRONMENT: personal DEV / qualification
 
 Immutable-version state:
@@ -39,8 +39,9 @@ Immutable-version state:
 VERSION_66: prior accepted Work 0021 Web App baseline / no longer deployed
 VERSION_67: accidental immutable version / source identical to version 66 at qualification / unused and never deploy
 VERSION_68: prior Work 0026 source / modular include expansion failed / no longer deployed
-VERSION_69: current deployed Work 0026 source / exact readback 82 of 82 / root and Knowledge Search shell PASS
-VERSION_70_OR_HIGHER: not created / not authorized in CODEX-02
+VERSION_69: prior Work 0026 shell-repair source / no longer deployed
+VERSION_70: current deployed Work 0026 safe-classification source / exact readback 82 of 82 / root and Knowledge Search shell PASS
+VERSION_71_OR_HIGHER: not created
 ```
 
 ## Work 0021 accepted product evidence
@@ -148,26 +149,44 @@ FILE_SEARCH_FILTER: metadata_filter
 CITATION: file_citation
 ```
 
-Current branch and runtime after CODEX-02:
+Current branch and runtime after CODEX-03:
 
 ```text
 QUERY_TRANSPORT_DEFAULT: INTERACTIONS
 QUERY_REQUEST_PROFILE_VERSION: gemini-interactions-file-search-v2
 NORMAL_GEMINI_REQUEST: server-resolved model/thinking/output/store identity
-GEMINI_ADMIN_FLOW: implemented / deterministic and runtime PASS through exact tuple attempt
-GEMINI_EXACT_TUPLE_QUALIFICATION: FAIL / 3.8 low 2048 returned safe final failure after approximately 79 seconds
-GEMINI_ROUTE_VISIBILITY: hidden because exact tuple did not qualify
+GEMINI_ADMIN_FLOW: safe failure classes implemented and deterministically validated
+GEMINI_EXACT_TUPLE_QUALIFICATION: HTTP_OR_CREDENTIAL_FAILURE / one 3.8 low 2048 Interactions call / approximately 40.2 seconds
+GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
+GEMINI_ROUTE_VISIBILITY: hidden
 MODULAR_TEMPLATE_REPAIR: implemented / deployed / root and Knowledge Search PASS
-LOGIC_VALIDATION: PASS / 410 of 410
-BUNDLE_BYTES: 971044
-BUNDLE_SHA256: c234c849ad86571140622ca5a4913dbf04122d9dc81642a4710a3ebabf3f5c75
+UNKNOWN_FAILURE_RELABELLED_EXTERNAL: NO
+LOGIC_VALIDATION: PASS / 420 of 420
+BUNDLE_BYTES: 993499
+BUNDLE_SHA256: 5c53b811fb84be249cf0d5e557a3728e5f92e1ef1393ef20e45103796a4089b2
 ```
 
-CODEX-02 safely confirmed the existing Gemini key and Store, exact-synchronized only `DOC-000017` and `MTG-000005`, and established one active metadata-matching Gemini document per source with no duplicate. The 3.8 exact-tuple qualification did not produce the required grounded answer and authoritative citation. No explicit model-access/model-unsupported response opened the 3.7 fallback, so Gemini remains `DISABLED_EXTERNAL_LIMITATION` and absent from normal-user choices. OpenAI remains active and was not called.
+CODEX-03 preserved the accepted one-current-document evidence for `DOC-000017` and `MTG-000005` with zero duplicates and made no provider/source mutation. The first call's exact `HTTP_OR_CREDENTIAL_FAILURE` class permits no second call under the bounded decision tree, so neither the 3.7 fallback nor the GenerateContent control was run. Gemini remains `DISABLED_EXTERNAL_LIMITATION` and absent from normal-user choices. OpenAI remains active and was not called.
 
-## CODEX-02 completed budget
+## CODEX-03 completed budget
 
-CODEX-02 may perform at most:
+```text
+APPS_SCRIPT_SOURCE_DELIVERY: 1 / readback PASS 82 of 82
+NEW_IMMUTABLE_VERSION: 1 / version 70
+SAME_PRIVATE_WEB_APP_UPDATE: 1 / 69 -> 70
+VERSION_67_DEPLOYMENT: NO
+VERSION_71_OR_HIGHER_CREATED: NO
+GEMINI_QUERY_CALLS: 1
+SECOND_CONTROL: NOT_USED
+GEMINI_STORE_CREATE: 0
+GEMINI_SOURCE_SYNC_OR_UPLOAD: 0
+OPENAI_API_CALLS: 0
+FULL_OUTPUT_RUNTIME_CALLS: 0
+```
+
+Root and Knowledge Search showed zero literal include directives and completed normal bootstrap before the Gemini call. No provider document, Store or authoritative source was mutated.
+
+## Prior CODEX-02 deployment budget
 
 ```text
 APPS_SCRIPT_SOURCE_DELIVERY: 1 / complete
@@ -183,7 +202,7 @@ Root and Knowledge Search showed zero literal include directives and completed n
 
 ## Follow-up routing
 
-- Final review: PR #36 with Work 0026 terminal status `DISABLED_EXTERNAL_LIMITATION`.
+- Final review: PR #36 with Work 0026 terminal status `DISABLED_EXTERNAL_LIMITATION / HTTP_OR_CREDENTIAL_FAILURE`.
 - Later company gate: Shared Drive/domain-user and company credential qualification.
 - Separate deferred Work: representative large-file indexing qualification.
 - Planned after product/provider decisions: historical-material migration and final company rollout.

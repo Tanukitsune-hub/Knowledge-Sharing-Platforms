@@ -2,8 +2,8 @@
 
 WORK_ID: `0026`
 ACTIVE_DISPATCH_ID: `0026-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Dispatch history
 
@@ -55,33 +55,53 @@ WORK_ACCEPTANCE_BLOCKER: GEMINI_EXTERNAL_LIMITATION_CLASSIFICATION_NOT_EVIDENCED
 PR_36_MERGE: BLOCKED
 ```
 
-## Active dispatch
+## Completed dispatch
 
-### 0026-CODEX-03 — READY / safe classification repair and bounded requalification
+### 0026-CODEX-03 — RETURNED / safe classification repaired; exact external limitation
 
 Detailed instruction:
 
 `docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
 
-Primary outcome:
+CODEX-03 preserved distinct safe failure classes, prevented generic/application errors from being written as external limitations, and passed the focused failure-injection matrix plus all canonical checks. Exact tested source readback passed for 82 of 82 deployable files. Exactly version 70 was created and the same private Web App was updated once from version 69 to 70; version 67 remains unused and version 71+ was not created.
 
-1. preserve distinct safe failure causes instead of collapsing them;
-2. write `DISABLED_EXTERNAL_LIMITATION` only when exact evidence supports it;
-3. deploy the minimal repair as version 70 on the same private Web App once;
-4. run one required 3.8 Interactions qualification and at most one mutually exclusive fallback/control call;
-5. end as `QUALIFIED`, exact `DISABLED_EXTERNAL_LIMITATION`, or `BLOCKED_PRODUCT_DEFECT`.
+The version-70 root and Knowledge Search shell passed before provider access. The one required `gemini-3.8-flash / explicit low / 2048` Interactions + File Search qualification returned the safe external class `HTTP_OR_CREDENTIAL_FAILURE`. This class does not authorize a second provider call, so neither the 3.7 fallback nor the 3.8 GenerateContent control was run. Gemini remains disabled and hidden. OpenAI and FULL_OUTPUT were preserved and not called.
 
-Runtime/provider budget:
+Closed evidence:
 
 ```text
-APPS_SCRIPT_SOURCE_DELIVERY: max 1
-NEW_IMMUTABLE_VERSION: max 1 / expected 70
-SAME_PRIVATE_WEB_APP_UPDATE: max 1 / expected 69 -> 70
-VERSION_67_DEPLOYMENT: prohibited
-VERSION_71_OR_HIGHER: prohibited
+FAILURE_CLASSIFICATION_REPAIR: PASS
+UNKNOWN_FAILURE_RELABELLED_EXTERNAL: NO
+LOGIC_VALIDATION: PASS / 420 of 420
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82
+PRIVATE_WEB_APP_VERSION: 70 / shell PASS
+GEMINI_QUERY_CALLS: 1
+PRIMARY_3_8_INTERACTIONS_CLASS: HTTP_OR_CREDENTIAL_FAILURE
+SECOND_CONTROL: NOT_USED
+GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
+NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
+OPENAI_API_CALLED: NO
+FULL_OUTPUT_RUNTIME_CALLED: NO
+PRODUCT_AVAILABILITY_BLOCKER: NONE
+WORK_ACCEPTANCE_BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+```
+
+Report:
+
+`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-report.md`
+
+Completed runtime/provider budget:
+
+```text
+APPS_SCRIPT_SOURCE_DELIVERY: 1
+NEW_IMMUTABLE_VERSION: 1 / version 70
+SAME_PRIVATE_WEB_APP_UPDATE: 1 / 69 -> 70
+VERSION_67_DEPLOYMENT: NO
+VERSION_71_OR_HIGHER_CREATED: NO
 GEMINI_STORE_CREATE: 0
-GEMINI_SOURCE_SYNC_OR_UPLOAD: 0 unless closed readback is contradicted; then stop
-GEMINI_QUERY_CALLS_TOTAL: max 2
+GEMINI_SOURCE_SYNC_OR_UPLOAD: 0
+GEMINI_QUERY_CALLS_TOTAL: 1
 OPENAI_API_CALLS: 0
 FULL_OUTPUT_RUNTIME_CALLS: 0
 ```
@@ -93,17 +113,17 @@ WORK_0020: ACCEPTED
 WORK_0025: ACCEPTED
 WORK_0021: ACCEPTED
 WORK_0023: ACCEPTED
-CURRENT_PRIVATE_WEB_APP_VERSION: 69 / shell PASS
+CURRENT_PRIVATE_WEB_APP_VERSION: 70 / shell PASS
 VERSION_67: unused / never deploy
 OPENAI/FULL_OUTPUT: accepted production-capable routes
-GEMINI: disabled / hidden pending exact qualification
+GEMINI: DISABLED_EXTERNAL_LIMITATION / HTTP_OR_CREDENTIAL_FAILURE / hidden
 PR_36: Draft / Open / unmerged
 GITHUB_CI: absent / non-blocking by itself
 ```
 
-Do not broaden into large-file work, historical migration, company rollout, Store redesign, chunk/embedding experiments, model sweeps, OpenAI requalification, FULL_OUTPUT live reruns, CI implementation or general hardening.
+The completion latch is closed. Do not broaden this Dispatch into large-file work, historical migration, company rollout, Store redesign, chunk/embedding experiments, model sweeps, OpenAI requalification, FULL_OUTPUT live reruns, CI implementation or general hardening.
 
 WORK_ID: `0026`
 ACTIVE_DISPATCH_ID: `0026-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
