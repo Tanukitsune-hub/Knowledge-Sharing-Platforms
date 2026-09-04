@@ -1,8 +1,8 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-04 JST
-LAST_VERIFIED_BY: Codex during Work 0026 CODEX-01
-STATUS: BLOCKED / version-68 modular Web App rendering regression
+LAST_VERIFIED_BY: ChatGPT after independent CODEX-01 GitHub review
+STATUS: ACTIVE REPAIR / current deployed version 68 remains blocked until CODEX-02
 
 ## Source
 
@@ -13,11 +13,13 @@ STATUS: BLOCKED / version-68 modular Web App rendering regression
 - WORK_0021_MERGE_COMMIT: `533c849bd1229827ec77cd5ad6506312ea286940`
 - WORK_0023_MERGE_COMMIT: `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`
 - DEPLOYED_SOURCE_COMMIT: `e8885da8b85f286dcfbb3bf8c5b538852cef71a8`
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0026 current Gemini implementation plus merged Work 0023 resource loader; target runtime exposes unexpanded modular HTML include directives
+- DEPLOYED_SOURCE_DESCRIPTION: Work 0026 current Gemini implementation before the modular-template repair; version 68 renders modular include directives literally
+- TESTED_UNDEPLOYED_REPAIR_COMMIT: `681768824f298eff24439b2ee69c9ce159af1e0e`
 - CURRENT_ACTIVE_WORK: `0026 — current Gemini Flash / File Search requalification`
-- CURRENT_ACTIVE_DISPATCH: `0026-CODEX-01 — RETURNED / BLOCKED`
-- CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0026-CODEX-01-current-gemini-flash-file-search-requalification-instruction.md`
+- CURRENT_ACTIVE_DISPATCH: `0026-CODEX-02 — READY`
+- CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-instruction.md`
 - ACTIVE_BRANCH: `agent/0026-gemini-current-api-requalification`
+- PR: `#36 / Draft / Open / unmerged`
 - LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
 
 ## Accepted application runtime
@@ -35,12 +37,11 @@ Immutable-version state:
 
 ```text
 VERSION_66: prior accepted Work 0021 Web App baseline / no longer deployed
-VERSION_67: accidental immutable version / source identical to version 66 at qualification / unused and never deployed
-VERSION_68: deployed once in Work 0026 / source readback 82 of 82 / Web App modular include expansion failed
-NEXT VERSION: not authorized by returned CODEX-01
+VERSION_67: accidental immutable version / source identical to version 66 at qualification / unused and never deploy
+VERSION_68: current deployed Work 0026 source / exact readback 82 of 82 / modular include expansion failed
+VERSION_69: authorized only for 0026-CODEX-02 after deterministic + source-readback PASS
+VERSION_70_OR_HIGHER: not authorized in CODEX-02
 ```
-
-Version 67 is an operational residual only and must not be deployed.
 
 ## Work 0021 accepted product evidence
 
@@ -53,7 +54,7 @@ OPENAI_GROUNDED_QUERY_AND_SOURCE_ID: PASS — 6/6
 EML_ATTACHMENT_BOUNDARY: PASS
 FULL_OUTPUT_SIX_FORMAT_REFERENCE_PARITY: PASS
 LOGIC_VALIDATION: PASS — 376/376
-WEB_APP_DEPLOYED_VERSION: 66
+ACCEPTED_WEB_APP_VERSION: 66
 UNRESOLVED_REVIEW_THREADS: 0
 GITHUB_CI_ACTUALLY_RAN: NO
 BLOCKER: NONE
@@ -96,20 +97,16 @@ The final API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC
 - NAME: `Private Assets Knowledge`
 - DRIVE_FOLDER_ID: `1b9r_NdS2P0Qwb0-cz2Ix1cXNGM0gLb_b`
 
-## Accepted Work 0020 state
+## Accepted Work 0020 / 0025 reference
 
-- PRIMARY_COMPLETION_PROVIDER: OpenAI
-- NATIVE_ACCEPTANCE_STATE: PASS
-- SMALL_SYNTHETIC_PITCHBOOK_STATE: `DOC-000017` Active and OpenAI Indexed
-- SMALL_SYNTHETIC_MEETING_STATE: `MTG-000005` Active and OpenAI Indexed
-- LARGE_FIXTURE_STATE: separate follow-up
-
-## Accepted Work 0025 state
-
-- MODEL_POLICY_STATE: Settings-backed registry with per-thinking qualification
-- CURRENT_OPENAI_PROFILE: `openai-current-default` / `gpt-5.6-terra` / provider-default thinking
-- CURRENT_PROFILE_QUALIFICATION: PASS
-- GITHUB_DELIVERY_STATE: PR #33 merged
+```text
+PRIMARY_COMPLETION_PROVIDER: OpenAI
+SMALL_SYNTHETIC_PITCHBOOK: DOC-000017 / Active / OpenAI Indexed
+SMALL_SYNTHETIC_MEETING: MTG-000005 / Active / OpenAI Indexed
+OPENAI_MODEL_PROFILE: openai-current-default / gpt-5.6-terra / provider-default
+OPENAI_PROFILE_QUALIFICATION: PASS
+LARGE_FIXTURE_STATE: separate follow-up
+```
 
 ## Accepted Work 0023 bundle/installer distribution
 
@@ -117,7 +114,7 @@ The final API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC
 PR_35: MERGED
 MERGE_COMMIT: 8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f
 DETERMINISTIC_BUNDLE_BUILD: PASS
-EMBEDDED_HTML_RESOURCE_LOADER: PASS
+EMBEDDED_HTML_RESOURCE_LOADER: PASS in bundle-mode qualification
 REPRODUCIBLE_RELEASE_HASHES: PASS
 SOURCE_AND_BUNDLE_PARITY: PASS
 EXACT_ONE_PASTE_FEASIBILITY: PASS
@@ -128,47 +125,65 @@ DEPLOYMENT_SECURITY_ADMIN_ATTESTATION: PASS
 MUTABLE_GLOBAL_COLLISION_GATE: PASS
 PERSONAL_DEV_INSTALL/UPGRADE: PASS
 IDEMPOTENT_RERUN: PASS / duplicates 0
-WEB_APP_RENDER_FROM_BUNDLE: PASS
-FINAL_BUNDLE_SOURCE_COMMIT: b3556585bd4e9240793ee04a6a5f5f9d6e679561
-ISOLATED_IMMUTABLE_VERSION: 2
-WORK_0021_RUNTIME_MUTATED: NO
-OPENAI_API_CALLED: NO
-GEMINI_API_CALLED: NO
 LOGIC_VALIDATION: PASS — 402/402
-BLOCKER: NONE
+BLOCKER: NONE at Work 0023 acceptance
 ```
 
-The isolated qualification set remains under `マイドライブ/Chat GPT-Codex-Only/KSP Work 0023 Qualification`. It proves the personal-DEV one-paste/install/security path and is not a personal-template dependency. Shared Drive/domain-user company qualification remains a later company-environment gate.
+The Work 0026 modular-runtime regression does not invalidate the accepted one-file bundle result; it exposed that the shared resource loader must preserve `createTemplateFromFile(...)` specifically in modular Apps Script mode. The branch repair does so while keeping bundle mode string-template evaluation.
 
-## Work 0026 current Gemini baseline
+## Work 0026 current code/provider baseline
 
-Current preferred official candidate at activation:
+Current official candidate baseline rechecked by ChatGPT on 2026-09-04:
 
 ```text
 MODEL: gemini-3.8-flash
-STAGE: stable / GA
+STAGE: stable
 FILE_SEARCH: supported
 THINKING_LEVELS: low, medium, high
 MINIMAL: unsupported
-LIVE_TARGET: low / max output 2048
+LIVE_TARGET: explicit low / max output 2048
 ONLY_ACCESS-ERROR_FALLBACK: gemini-3.7-flash / low / 2048
+INTERACTIONS_ENDPOINT: /v1beta/interactions
+FILE_SEARCH_FILTER: metadata_filter
+CITATION: file_citation
 ```
 
-Existing repository/runtime residuals to reconcile:
+Current branch code after CODEX-01:
 
 ```text
-CURRENT_QUERY_TRANSPORT_DEFAULT: GENERATE_CONTENT
-CURRENT_QUERY_THINKING/OUTPUT: fixed low / 2048 rather than selected model-policy tuple
-CURRENT_LIVE_MODEL_QUALIFICATION: OpenAI-only
-PRIOR_GEMINI_BACKGROUND_INTERACTIONS: provider long-running / no citation
-PRIOR_GEMINI_GENERATE_CONTENT: approximately 83 seconds / no citation
+QUERY_TRANSPORT_DEFAULT: INTERACTIONS
+QUERY_REQUEST_PROFILE_VERSION: gemini-interactions-file-search-v2
+NORMAL_GEMINI_REQUEST: server-resolved model/thinking/output/store identity
+GEMINI_ADMIN_FLOW: implemented / deterministic PASS / runtime not reached
+GEMINI_EXACT_TUPLE_QUALIFICATION: implemented / runtime not reached
+GEMINI_ROUTE_VISIBILITY: qualification-gated
+MODULAR_TEMPLATE_REPAIR: implemented / deterministic PASS / not deployed
+LOGIC_VALIDATION: PASS / 410 of 410
+BUNDLE_BYTES: 971044
+BUNDLE_SHA256: c234c849ad86571140622ca5a4913dbf04122d9dc81642a4710a3ebabf3f5c75
 ```
 
-CODEX-01 safely observed the existing Gemini key as present without reading it, but stopped before Store reconciliation or any provider call because version 68 did not expand modular HTML includes. The branch contains commit `681768824f298eff24439b2ee69c9ce159af1e0e`, which restores file-template evaluation in modular mode while preserving bundle mode. It passed deterministic validation but was not deployed after the runtime blocker because no second version/update was authorized.
+CODEX-01 safely observed the existing Gemini key as present without reading its value, but stopped before Store reconciliation or provider calls.
+
+## CODEX-02 authority
+
+CODEX-02 may perform at most:
+
+```text
+APPS_SCRIPT_SOURCE_DELIVERY: 1
+NEW_IMMUTABLE_VERSION: 1 / expected 69
+SAME_PRIVATE_WEB_APP_UPDATE: 1
+VERSION_67_DEPLOYMENT: NO
+VERSION_70_OR_HIGHER: NO
+OPENAI_API_CALLS: 0
+FULL_OUTPUT_RUNTIME_CALLS: 0
+```
+
+After the repaired update, root and Knowledge Search pages must show zero literal include directives and complete normal bootstrap before any Gemini call. If shell PASS, the bounded provider campaign may use only `DOC-000017` and `MTG-000005` and must reuse the existing Store where valid.
 
 ## Follow-up routing
 
-- Blocked: version 68 must not be treated as a usable Web App; a new Dispatch must authorize deployment of the tested modular-template repair before Gemini qualification resumes.
+- Active: `0026-CODEX-02` repaired runtime deployment and bounded Gemini qualification.
 - Later company gate: Shared Drive/domain-user and company credential qualification.
 - Separate deferred Work: representative large-file indexing qualification.
 - Planned after product/provider decisions: historical-material migration and final company rollout.
