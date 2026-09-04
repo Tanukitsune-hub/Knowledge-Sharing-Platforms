@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-03
+Current as of: 2026-09-04
 
 Status: Active planning source of truth
 
@@ -43,7 +43,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve exact tuple qualification and admin/user policy |
 | 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 runtime evidence |
 | 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve PR #35 merge `8b0a2ccd`, one-paste and installer-security evidence |
-| 4 | 0026 | Current Gemini Flash / File Search requalification | BLOCKED | 0023 accepted; version-68 modular Web App include regression | Issue a new Dispatch to deploy the tested modular-template repair, verify rendering, then resume bounded Gemini qualification |
+| 4 | 0026 | Current Gemini Flash / File Search requalification | ACTIVE | 0023 accepted; tested modular-template repair available | Execute `0026-CODEX-02`: deploy repaired version once, prove shell, then resume bounded Gemini qualification |
 | 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with provider recovery |
 | 6 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
 | 7 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
@@ -89,7 +89,7 @@ BLOCKER: NONE
 
 Shared Drive/domain-user company qualification remains a later environment gate. It was not claimed by the personal-DEV Work 0023 qualification.
 
-## Work 0026 blocked boundary
+## Work 0026 active boundary
 
 Primary outcome: update and requalify the optional Gemini provider against the current official model, File Search, thinking, citation and lifecycle contracts without disturbing accepted OpenAI/FULL_OUTPUT behavior.
 
@@ -103,7 +103,7 @@ MINIMAL FOR 3.8/3.7: prohibited
 BROAD MODEL/TRANSPORT BENCHMARK: prohibited
 ```
 
-Required terminal status:
+Required terminal provider status:
 
 ```text
 QUALIFIED
@@ -113,18 +113,25 @@ DISABLED_EXTERNAL_LIMITATION
 
 `DISABLED_EXTERNAL_LIMITATION` is acceptable only when current deterministic product/API contracts pass, Gemini remains disabled/hidden, and the exact current provider/account/transport/citation limitation is recorded. It prevents another indefinite repair loop while preserving the working OpenAI/FULL_OUTPUT product.
 
-Active instruction:
-
-`docs/handoffs/0026-CODEX-01-current-gemini-flash-file-search-requalification-instruction.md`
-
-CODEX-01 implemented and locally validated the current Gemini API/model-policy contract, then created and deployed version 68 once. Direct target-runtime evidence showed the modular Web App returning literal server include directives, so no Gemini or OpenAI call was made. The tested source repair is commit `681768824f298eff24439b2ee69c9ce159af1e0e`; it remains undeployed because the Dispatch budget was exhausted.
+CODEX-01 implemented and locally validated the current Gemini API/model-policy contract, then created and deployed version 68 once. Direct target-runtime evidence showed the modular Web App returning literal server include directives, so no Gemini or OpenAI call was made. The tested source repair is commit `681768824f298eff24439b2ee69c9ce159af1e0e`.
 
 ```text
-LOGIC_VALIDATION: PASS / 410 of 410
-TARGET_RUNTIME_QUALIFICATION: FAIL
-GEMINI_OPTIONAL_PROVIDER_STATUS: BLOCKED_BEFORE_PROVIDER_QUALIFICATION
-BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
+CODEX_01_LOGIC_VALIDATION: PASS / 410 of 410
+CURRENT_RUNTIME_VERSION: 68 / blocked shell
+GEMINI_API_CALLED_IN_CODEX_01: NO
+OPENAI_API_CALLED_IN_CODEX_01: NO
+CODEX_01_BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
 ```
+
+Active Dispatch:
+
+`0026-CODEX-02`
+
+Active instruction:
+
+`docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-instruction.md`
+
+CODEX-02 authorizes one repaired source delivery, one immutable version expected `69`, and one update of the same private Web App. It must prove root/Knowledge Search include expansion before any Gemini provider call. Version 67 and version 70+ are prohibited in this Dispatch.
 
 ## Scope and review discipline
 
