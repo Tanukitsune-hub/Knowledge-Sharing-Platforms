@@ -1,10 +1,10 @@
 # Work 0026 — current Gemini Flash / File Search requalification
 
 WORK_ID: `0026`
-DISPATCH_ID: `0026-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
-MODE: `IMPLEMENT -> BOUNDED PROVIDER DIAGNOSIS -> QUALIFICATION`
+DISPATCH_ID: `0026-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
+MODE: `REPAIRED RUNTIME DEPLOYMENT -> BOUNDED PROVIDER QUALIFICATION`
 
 ## Primary outcome
 
@@ -12,7 +12,7 @@ Bring the optional Gemini route up to the current official Gemini Flash/File Sea
 
 Active detailed instruction:
 
-`docs/handoffs/0026-CODEX-01-current-gemini-flash-file-search-requalification-instruction.md`
+`docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-instruction.md`
 
 Planning:
 
@@ -26,42 +26,62 @@ Runtime locator:
 
 ```text
 WORK_0020 / 0025 / 0021 / 0023: ACCEPTED
-PRIVATE_WEB_APP_VERSION: 66
+PR_36: Draft / Open / unmerged
+CURRENT_PRIVATE_WEB_APP_VERSION: 68 / blocked modular shell
 VERSION_67: unused / prohibited from deployment
 OPENAI: accepted
 FULL_OUTPUT: accepted
 BUNDLE_INSTALLER: accepted
 ```
 
+## CODEX-01 returned state
+
+CODEX-01 implemented the current Gemini provider/model-policy path and passed deterministic validation. After its one authorized version/update, version 68 exposed a modular HTML template regression: server-side include directives were rendered literally, so the Web App could not load the included application resources and the Gemini campaign stopped before any provider call.
+
+The smallest repair is committed and tested:
+
+`681768824f298eff24439b2ee69c9ce159af1e0e`
+
+```text
+LOGIC_VALIDATION: PASS / 410 of 410
+RUNTIME_DEPLOYMENT_VERSION: 68
+GEMINI_API_CALLED: NO
+OPENAI_API_CALLED: NO
+BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
+```
+
+## CODEX-02 authority
+
+CODEX-02 may:
+
+1. revalidate the existing repair and deterministic suite;
+2. deliver/read back repaired source once;
+3. create exactly one immutable version, expected `69`;
+4. update the same private Web App exactly once;
+5. prove root/Knowledge Search include expansion and normal bootstrap;
+6. only then resume the bounded Gemini campaign using `DOC-000017` and `MTG-000005`;
+7. qualify `gemini-3.8-flash / low / 2048`, using `gemini-3.7-flash / low / 2048` only after explicit model-access/model-unsupported evidence;
+8. stop as `QUALIFIED`, `DISABLED_EXTERNAL_LIMITATION`, or a new exact product blocker.
+
 ## Fixed boundaries
 
-- preferred live candidate: exact `gemini-3.8-flash`, explicit `low`, output ceiling 2048;
-- only explicit model-access failure permits one candidate fallback to `gemini-3.7-flash`;
 - no moving `latest` alias and no `minimal` for 3.8/3.7;
 - Gemini credential, Store, model/thinking qualification and user visibility remain administrator-controlled;
 - no automatic model fallback and no cross-provider fallback;
 - authoritative normalized citations remain mandatory;
-- normal query execution must use the exact Work 0025 server-resolved tuple rather than fixed Gemini constants;
-- current Interactions/File Search behavior is tested first under bounded responsive START/POLL rules;
-- if the provider still cannot qualify, leave Gemini disabled and record the exact external limitation rather than starting another open-ended loop;
+- normal query execution must use the exact Work 0025 server-resolved tuple;
+- no broad source sync/reindex;
+- no `DOC-000018`, six-format fixtures, or large-file fixtures;
+- no OpenAI runtime call;
+- no FULL_OUTPUT live rerun;
+- no version 67 deployment;
+- no version 70 or higher in this Dispatch;
 - all source changes regenerate and validate the deterministic Work 0023 bundle;
-- company rollout, large files, historical migration, broad sync, CI and general hardening are out of scope.
+- company rollout, historical migration, CI and general hardening are out of scope.
 
-After the bounded terminal outcome, stop and return the Draft PR to ChatGPT. Do not merge it.
-
-## CODEX-01 returned state
-
-Version 68 was created and deployed once after deterministic and exact-source-readback PASS. The deployed modular Web App then rendered `include_` directives literally, so the provider campaign stopped before Gemini or OpenAI was called. The branch contains the minimal modular-template repair and regression test, but it was not redeployed because the one-version/one-update budget had been consumed.
-
-```text
-LOGIC_VALIDATION: PASS / 410 of 410
-TARGET_RUNTIME_QUALIFICATION: FAIL
-RUNTIME_DEPLOYMENT_VERSION: 68
-BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
-NEXT_AUTHORITY_REQUIRED: new Dispatch authorizing one repaired immutable version and same-Web-App update
-```
+After the bounded terminal outcome, stop and return PR #36 to ChatGPT. Do not merge it.
 
 WORK_ID: `0026`
-DISPATCH_ID: `0026-CODEX-01`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+DISPATCH_ID: `0026-CODEX-02`
+BALL: `CODEX`
+STATUS: `READY`
