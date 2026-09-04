@@ -41,7 +41,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 | 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 evidence |
 | 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve PR #35 merge `8b0a2ccd` and installer-security evidence |
 | 4 | 0026 | Current Gemini Flash / File Search requalification | ACCEPTED | 0023 | Preserve PR #36 merge `40bb7d40`; its one-call failure remains historical evidence |
-| 5 | 0027 | Gemini GAS transient resilience and synthetic File Search E2E qualification | ACTIVE | 0026 accepted; CODEX-01 cleanup confirmed | Review PR #37; terminal `DISABLED_TRANSIENT_PROVIDER_LIMITATION` |
+| 5 | 0027 | Gemini GAS transient resilience and synthetic File Search E2E qualification | ACTIVE | CODEX-01 upload/index PASS; 3.8 query transient | Execute `0027-CODEX-02` against 3.7 then conditional 3.6 |
 | 6 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Small synthetic provider path qualified | Allocate a separate Work ID; do not mix with 0027 |
 | 7 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
 | 8 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
@@ -108,52 +108,58 @@ LOGIC_VALIDATION: PASS / 420 of 420
 BLOCKER: NONE
 ```
 
-Post-acceptance company-GAS diagnostics now prove general Gemini connectivity, valid basic authentication, target-model visibility and two successful `gemini-3.8-flash` Interactions calls. Therefore `HTTP_OR_CREDENTIAL_FAILURE` is retained only as the historical coarse class for the single Work 0026 call; it is not the current general root-cause conclusion.
+Post-acceptance company-GAS diagnostics proved general Gemini connectivity, valid basic authentication, target-model visibility and two successful `gemini-3.8-flash` Interactions calls. The historical Work 0026 class is not the current general root-cause conclusion.
 
-Work 0026 remains accepted because its fail-closed safety, source integrity, shell repair and application-vs-external classification remain valid.
-
-## Work 0027 review boundary
+## Work 0027 active boundary
 
 Primary outcome:
 
 ```text
 split authentication from provider-transient failures
 -> add bounded safe retry behavior
--> preserve correct GAS resumable-upload headers
--> prove one temporary synthetic File Search upload/index/query/citation/cleanup flow
+-> preserve correct GAS resumable-upload behavior
+-> qualify one stable Gemini model through upload/index/query/citation/cleanup in personal DEV
 ```
 
-CODEX-01 result:
+### CODEX-01 accepted branch evidence
 
 ```text
-MAIN_BASE: 8c9be2392a1247ff81efc6a153fc0be449b1318b
+IMPLEMENTATION_COMMIT: d0456516cae5e65e68d5789e3e8e5338cffd6823
+FINAL_COMMIT: 2c6cd20bfe6a4ef3b6262160b4126266307222dd
 LOGIC_VALIDATION: PASS / 431 of 431
 PRIVATE_WEB_APP_VERSION: 71 / shell PASS
-MODELS_VISIBILITY: PASS / HTTP 200
-SHORT_GEMINI_3_8_INTERACTIONS: PASS / HTTP 200
-TEMP_STORE_AND_SYNTHETIC_UPLOAD_INDEX_READBACK: PASS
-FILE_SEARCH_QUERY: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE
+MODELS_VISIBILITY: PASS
+SHORT_GEMINI_3_8_INTERACTIONS: PASS
+TEMP_STORE_CREATE: PASS
+SYNTHETIC_UPLOAD_INDEX_READBACK: PASS / exactly one current document
+FILE_SEARCH_QUERY_3_8: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE
 TEMP_STORE_DELETE_AND_CONFIRMATION: PASS
-TERMINAL_OUTCOME: DISABLED_TRANSIENT_PROVIDER_LIMITATION
-NORMAL_USER_GEMINI_ROUTE: disabled and hidden
+GEMINI_NORMAL_USER_ROUTE: disabled and hidden
 ```
 
-Terminal outcomes:
+CODEX-01 proves the product upload/index/readback path works. It did not meet the user’s personal-DEV grounded answer and citation objective.
+
+### Strategy reset
 
 ```text
-QUALIFIED_DISABLED
-DISABLED_TRANSIENT_PROVIDER_LIMITATION
-BLOCKED_PRODUCT_DEFECT
-BLOCKED_RESOURCE_CLEANUP
+ACTIVE_DISPATCH: 0027-CODEX-02
+PRIMARY_CANDIDATE: gemini-3.7-flash / explicit low / 2048
+QUALIFICATION_ONLY_FALLBACK: gemini-3.6-flash / explicit low / 2048
+GEMINI_3_8_RERUN: prohibited
+NORMAL_USER_AUTOMATIC_MODEL_FALLBACK: prohibited
+TEMP_STORE_AND_DOCUMENT: one shared set
+EXPECTED_PRIVATE_WEB_APP_VERSION: 72
 ```
 
-Returned dispatch:
+Work acceptance requires `QUALIFIED_DISABLED` on 3.7 or 3.6 with expected token, exact `file_citation`, authoritative metadata match and cleanup confirmation. Any other safe terminal result retains an exact Work blocker.
 
-`0027-CODEX-01 / BALL: CHATGPT / STATUS: RETURNED`
+Current dispatch:
 
-Detailed plan:
+`0027-CODEX-02 / BALL: CODEX / STATUS: READY`
 
-`docs/planning/work0027-gemini-file-search-resilience-and-qualification.md`
+Detailed instruction:
+
+`docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-instruction.md`
 
 ## Scope and review discipline
 

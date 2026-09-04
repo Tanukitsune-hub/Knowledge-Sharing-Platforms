@@ -1,180 +1,164 @@
 # Work 0027 — Gemini GAS File Search resilience and end-to-end qualification
 
 Current as of: 2026-09-04  
-Status: CODEX-01 RETURNED / `DISABLED_TRANSIENT_PROVIDER_LIMITATION`
+Status: CODEX-02 READY / stable-model baseline qualification
 
 WORK_ID: `0027`  
 MODE: `BUILD`
 
 ## Primary outcome
 
-Apply the smallest coherent Gemini transport repair supported by the independent company-GAS evidence, then execute one bounded synthetic File Search end-to-end qualification.
+Make one Gemini Interactions + File Search route work end to end in the isolated personal DEV Apps Script runtime, with exact source identity and authoritative citation, before attempting company-environment qualification.
 
-The usable terminal result is one of:
+The model does not need to be the newest available model. The exact bounded order is:
 
 ```text
-QUALIFIED_DISABLED
-DISABLED_TRANSIENT_PROVIDER_LIMITATION
-BLOCKED_PRODUCT_DEFECT
-BLOCKED_RESOURCE_CLEANUP
+PRIMARY: gemini-3.7-flash / explicit low / max output 2048
+QUALIFICATION-ONLY FALLBACK: gemini-3.6-flash / explicit low / max output 2048
 ```
+
+No automatic model or provider fallback is permitted in normal Knowledge Search.
 
 ## Accepted starting point
 
 ```text
-MAIN_BASE: 8c9be2392a1247ff81efc6a153fc0be449b1318b
+MAIN_BASE_AT_WORK_START: 8c9be2392a1247ff81efc6a153fc0be449b1318b
 WORK_0026: ACCEPTED / PR #36 merge 40bb7d40506c0839c35742ee0000d89650ff7ad6
-PRIVATE_WEB_APP_VERSION: 70 / shell PASS
+PR_37: Draft / Open / unmerged
+CODEX_01_IMPLEMENTATION_COMMIT: d0456516cae5e65e68d5789e3e8e5338cffd6823
+CODEX_01_FINAL_COMMIT: 2c6cd20bfe6a4ef3b6262160b4126266307222dd
+PRIVATE_WEB_APP_VERSION: 71 / shell PASS
 OPENAI_AND_FULL_OUTPUT: accepted and unchanged
 GEMINI_NORMAL_USER_ROUTE: hidden
-GITHUB_ACTIONS: absent
 ```
 
-## New external runtime evidence
+## External and CODEX-01 runtime evidence
 
-The user supplied an independent company-GAS diagnostic proving:
+Independent company-GAS evidence established:
 
-- Gemini Models API is reachable and both `gemini-3.6-flash` and `gemini-3.8-flash` are visible;
-- GenerateContent can return HTTP 200;
-- `gemini-3.8-flash` Interactions returned HTTP 200 and the expected token twice;
+- Gemini Models API is reachable;
+- `gemini-3.6-flash` and `gemini-3.8-flash` were visible;
+- GenerateContent returned HTTP 200 in one run and provider HTTP 503 high-demand responses in another;
+- `gemini-3.8-flash` short Interactions returned HTTP 200 twice;
 - File Search Store create/delete returned HTTP 200;
-- both GenerateContent models returned HTTP 503 `UNAVAILABLE` during a later high-demand period;
-- the synthetic upload attempt failed locally because the diagnostic manually set ordinary `Content-Length`.
+- the independent upload failure was caused by ordinary `Content-Length` in the diagnostic code.
 
-This evidence is recorded in:
-
-- `docs/handoffs/0027-company-gas-gemini-smoke-evidence.md`
-- `docs/decisions/gemini-gas-runtime-evidence-and-transient-resilience.md`
-
-## Closed code gaps
-
-1. Gemini idempotent and mutating call sites now use explicit bounded retry policies.
-2. New observations distinguish authentication/permission from provider/transient failures; the Work 0026 coarse class is historical only.
-3. Safe telemetry records stage, class, safe HTTP/provider code, attempt, retry, elapsed time and cleanup without provider-private data.
-4. Ordinary `Content-Length` is rejected while required resumable-upload metadata is preserved and tested.
-5. The one bounded File Search campaign reached query after exact upload/index/readback, then ended on an explicit provider HTTP 500 with cleanup confirmed.
-
-## Required implementation scope
-
-### Failure classes
-
-At minimum keep these distinct:
+CODEX-01 then established in the product runtime:
 
 ```text
-AUTHENTICATION_OR_PERMISSION_FAILURE
-MODEL_ACCESS_OR_UNSUPPORTED
-PROVIDER_OR_TRANSIENT_FAILURE
-PROVIDER_TERMINAL_<safe status>
-COMPLETED_NO_GROUNDED_ANSWER
-COMPLETED_NO_FILE_CITATION
-CITATION_IDENTITY_OR_METADATA_MISMATCH
-RESPONSE_SHAPE_OR_APPLICATION_FAILURE
+AUTH_VS_TRANSIENT_CLASSIFICATION: PASS
+BOUNDED_RETRY_POLICY: PASS
+RESUMABLE_UPLOAD_RECOVERY: PASS
+SOURCE_READBACK: PASS / 82 of 82
+PRIVATE_WEB_APP_VERSION_71: shell PASS
+MODELS_VISIBILITY: PASS
+SHORT_GEMINI_3_8_INTERACTIONS: PASS
+TEMP_STORE_CREATE: PASS
+SYNTHETIC_TXT_UPLOAD_INDEX_READBACK: PASS / exactly one current document
+FILE_SEARCH_QUERY_3_8: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE / 68,442ms
+TEMP_STORE_DELETE_AND_CONFIRMATION: PASS
 ```
 
-### Bounded retries
+This closes upload/indexing as the active hypothesis. The remaining decisive question is whether a stable older supported model completes the File Search query and citation path.
 
-- transient: `408 / 429 / 500 / 502 / 503 / 504`;
-- permanent by default: `400 / 401 / 403 / 404`;
-- `Retry-After` first, otherwise exponential backoff plus jitter;
-- idempotent GET/POLL/DELETE: maximum 3 total attempts and cumulative sleep at most 20 seconds;
-- mutating create POST: maximum 2 total attempts only after explicit transient HTTP response with no returned resource identity;
-- no blind replay after an ambiguous network failure;
-- upload finalization recovery must query resumable state or reconcile identity before one safe resume.
+## Closed implementation scope
 
-### GenerateContent diagnostics
+Preserve the CODEX-01 implementation:
 
-Separate HTTP success, response shape, text extraction, normalized token match, finish/safety reason, and empty/unexpected response.
+1. authentication/permission and provider/transient classifications are distinct;
+2. retry only `408 / 429 / 500 / 502 / 503 / 504`;
+3. `400 / 401 / 403 / 404` are non-retry by default;
+4. `Retry-After` precedes exponential backoff plus jitter;
+5. mutating ambiguous outcomes are not blindly replayed;
+6. ordinary `Content-Length` is forbidden;
+7. required `X-Goog-Upload-Header-Content-Length` is preserved;
+8. resumable session state is queried before one safe finalize resume;
+9. HTTP connectivity and content/citation validation are separate;
+10. safe telemetry excludes credentials, provider-private identities and content.
 
-### Safe telemetry
+## CODEX-02 required scope
 
-Reuse existing Audit metadata where practical. Record only:
+### Model parameterization
+
+Generalize Work-0027 qualification-only hardcoding so that safe diagnostics, E2E evidence, model visibility, short Interactions and File Search requests correctly support:
 
 ```text
-safe run correlation hash
-timestamp
-stage
-model profile/model
-transport
-HTTP status
-safe provider status/code
-classification
-attempt/retry count
-elapsed time
-final result
+gemini-3.7-flash
+gemini-3.6-flash
 ```
 
-No raw prompts, responses, credentials, authorization headers, source bodies, private URLs, or provider-private resource IDs.
+Do not call 3.8 in CODEX-02.
 
-## Target-runtime qualification
+### Candidate progression
 
-Use the existing isolated private Apps Script target runtime and synthetic data only.
+Use one shared temporary Store and one synthetic document.
 
-Sequence:
+1. Attempt 3.7.
+2. Stop immediately if 3.7 passes.
+3. Attempt 3.6 only after an allowed model-specific/transient/content-limitation outcome from 3.7.
+4. Do not attempt 3.6 after authentication failure, citation identity mismatch, response-shape/application defect, source-integrity failure or cleanup uncertainty.
 
-1. verify target model visibility;
-2. run one short `gemini-3.8-flash` Interactions request;
-3. create one temporary File Search Store;
-4. upload one tiny synthetic TXT with a unique token;
-5. poll indexing with existing bounded operation semantics;
-6. query the unique token through Interactions + File Search;
-7. require answer token, at least one `file_citation`, and exact synthetic metadata identity;
-8. delete the temporary Store/resources in finally;
-9. verify the normal-user Gemini route remains hidden until a qualified administrator state is explicitly approved.
+### Acceptance result
 
-## Runtime and provider budget
+Success requires:
+
+```text
+TERMINAL_OUTCOME: QUALIFIED_DISABLED
+QUALIFIED_MODEL_ID: gemini-3.7-flash or gemini-3.6-flash
+SHORT_INTERACTIONS: PASS for the selected candidate
+FILE_SEARCH_ANSWER_TOKEN: PASS
+FILE_CITATION: PASS
+AUTHORITATIVE_METADATA_MATCH: PASS
+TEMP_RESOURCE_CLEANUP: PASS
+GEMINI_ENABLED: false
+NORMAL_USER_GEMINI_ROUTE: hidden
+```
+
+Persist only the exact passing model/thinking/output tuple as the qualified default candidate. Do not leave 3.8 as the effective qualified model.
+
+## Target-runtime and mutation bounds
 
 ```text
 SOURCE_DELIVERY: max 1
-NEW_IMMUTABLE_VERSION: max 1 / expected 71
-SAME_PRIVATE_WEB_APP_UPDATE: max 1 / expected 70 -> 71
-VERSION_72_OR_HIGHER: prohibited
+NEW_IMMUTABLE_VERSION: exactly 1 / expected 72
+SAME_PRIVATE_WEB_APP_UPDATE: max 1 / expected 71 -> 72
+VERSION_73_OR_HIGHER: prohibited
 TEMP_FILE_SEARCH_STORE: max 1
 TEMP_SYNTHETIC_DOCUMENT: max 1
-MODELS_LIST: max 1
-SHORT_INTERACTIONS_CONTROL: max 1 plus bounded transient retry
-FILE_SEARCH_QUERY: max 1 plus bounded transient retry
-EXISTING_GEMINI_STORE_OR_SOURCES_MUTATED: NO
+CANDIDATE_MODELS: max 2
+MODELS_LIST: max 1 logical request
+SHORT_INTERACTIONS_PER_ATTEMPTED_MODEL: max 1 logical request plus bounded retry
+FILE_SEARCH_QUERY_PER_ATTEMPTED_MODEL: max 1 logical request plus bounded retry
+TOTAL_PROVIDER_WALL_CLOCK_BEFORE_CLEANUP: max 300 seconds
+EXISTING_GEMINI_STORE_OR_SOURCE_MUTATION: 0
 OPENAI_API_CALLS: 0
 FULL_OUTPUT_RUNTIME_CALLS: 0
 ```
 
-## Acceptance evidence hierarchy
+## Evidence hierarchy
 
-1. target-runtime synthetic File Search answer plus authoritative `file_citation`;
-2. exact source delivery/readback and version-71 shell smoke;
-3. cleanup readback proving the temporary Store/resource is gone;
-4. focused failure/retry/upload regression tests;
-5. canonical `npm run check`, bundle reproducibility, agent foundation, and diff hygiene.
+1. target-runtime token answer plus exact `file_citation` on 3.7 or 3.6;
+2. cleanup readback proving no temporary resource remains;
+3. exact source delivery/readback and version-72 shell smoke;
+4. focused candidate-progression and no-fallback regression tests;
+5. canonical checks, bundle reproducibility, secret scan and diff hygiene.
 
-## Completion latch
-
-Work 0027 is ready for final review when:
-
-- required deterministic checks pass;
-- the target-runtime campaign reaches one allowed terminal result;
-- temporary-resource deletion is confirmed; otherwise the Work remains `BLOCKED_RESOURCE_CLEANUP`;
-- no existing provider/source data or accepted OpenAI/FULL_OUTPUT path is changed;
-- no credential or confidential value appears in GitHub, logs, reports, PR, or browser responses.
-
-## CODEX-01 target-runtime result
+## Terminal outcomes
 
 ```text
-LOGIC_VALIDATION: PASS / 431 of 431
-BUNDLE_MODE_VALIDATION: PASS / 27 of 27
-SOURCE_DELIVERY_READBACK: PASS / 82 of 82
-PRIVATE_WEB_APP_VERSION: 71
-ROOT_AND_KNOWLEDGE_SEARCH_SHELL: PASS
-MODELS_VISIBILITY: PASS / HTTP 200
-SHORT_INTERACTIONS: PASS / HTTP 200 / expected token
-TEMP_STORE_CREATE: PASS
-SYNTHETIC_TXT_UPLOAD_INDEX_READBACK: PASS / exactly one current document
-FILE_SEARCH_QUERY: FAIL / HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE / 68,442ms
-TEMP_STORE_DELETE: PASS
-CLEANUP_CONFIRMATION: PASS
-TERMINAL_OUTCOME: DISABLED_TRANSIENT_PROVIDER_LIMITATION
-NORMAL_USER_GEMINI_ROUTE: disabled and hidden
-WORK_ACCEPTANCE_BLOCKER: NONE
-READY_FOR_CHATGPT_FINAL_REVIEW: YES
+QUALIFIED_DISABLED
+DISABLED_TRANSIENT_PROVIDER_LIMITATION
+DISABLED_MODEL_ACCESS_LIMITATION
+BLOCKED_PRODUCT_DEFECT
+BLOCKED_RESOURCE_CLEANUP
 ```
 
-The query did not produce a grounded answer or `file_citation`; those gates remain explicitly not achieved. This is an allowed terminal provider-limitation outcome, not a qualification pass. No additional provider attempt or fallback is authorized under CODEX-01.
+Only `QUALIFIED_DISABLED` satisfies Work acceptance. Other outcomes stop safely with the exact blocker retained.
+
+## Active dispatch
+
+`0027-CODEX-02`
+
+Detailed instruction:
+
+`docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-instruction.md`

@@ -1,8 +1,8 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-04 JST  
-LAST_VERIFIED_BY: CODEX-01 after version-71 deployment and bounded Gemini E2E
-STATUS: ACTIVE / Web App version 71; Work 0027 returned for review
+LAST_VERIFIED_BY: ChatGPT after independent CODEX-01 review and stable-model strategy reset  
+STATUS: ACTIVE / Web App version 71; CODEX-02 ready
 
 ## Source
 
@@ -15,8 +15,9 @@ STATUS: ACTIVE / Web App version 71; Work 0027 returned for review
 - WORK_0023_MERGE_COMMIT: `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`
 - WORK_0026_MERGE_COMMIT: `40bb7d40506c0839c35742ee0000d89650ff7ad6`
 - CURRENT_ACTIVE_WORK: `0027`
-- CURRENT_ACTIVE_DISPATCH: `0027-CODEX-01`
+- CURRENT_ACTIVE_DISPATCH: `0027-CODEX-02`
 - ACTIVE_BRANCH: `agent/0027-gemini-file-search-resilience`
+- PR: `#37 / Draft / Open / unmerged`
 
 Do not record local workspace paths, private editor/deployment URLs, Script IDs, deployment IDs, Google Drive/Spreadsheet IDs, provider Store/document resource names, credentials or signed URLs in this file.
 
@@ -30,13 +31,14 @@ ROOT_PAGE_RENDER_AND_BOOTSTRAP: PASS
 KNOWLEDGE_PAGE_RENDER_AND_BOOTSTRAP: PASS
 LITERAL_INCLUDE_DIRECTIVES: 0
 BLOCKING_BROWSER_CONSOLE_ERRORS: 0
-SOURCE_DELIVERY_READBACK: PASS / 82 of 82 at Work 0027
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82 at CODEX-01
 VERSION_67: unused / never deploy
 VERSION_68: superseded / modular shell failed
 VERSION_69: superseded / shell repaired
 VERSION_70: superseded / Work 0026 shell PASS
-VERSION_71: current / Work 0027 shell PASS
-VERSION_72_OR_HIGHER: not created and prohibited in 0027-CODEX-01
+VERSION_71: current / Work 0027 CODEX-01 shell PASS
+VERSION_72: authorized only for CODEX-02 after deterministic PASS
+VERSION_73_OR_HIGHER: prohibited in CODEX-02
 ```
 
 ## Accepted provider baseline
@@ -55,21 +57,19 @@ WORK_0027_FULL_OUTPUT_LIVE_CALLS_AUTHORIZED: 0
 ### Gemini — accepted Work 0026 state
 
 ```text
-PRIMARY_CANDIDATE: gemini-3.8-flash / explicit low / 2048
+PRIMARY_0026_CANDIDATE: gemini-3.8-flash / explicit low / 2048
 TRANSPORT: Interactions + File Search
 DOC-000017_CURRENT_DOCUMENTS: 1
 MTG-000005_CURRENT_DOCUMENTS: 1
 DOCUMENT_DUPLICATES: 0
 WORK_0026_HISTORICAL_CALL_CLASS: HTTP_OR_CREDENTIAL_FAILURE
-GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
+GEMINI_OPTIONAL_PROVIDER_STATUS: disabled
 NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
 ```
 
-The Work 0026 call classification is historical and coarse. It is not the current general causal conclusion.
+The Work 0026 class is historical and not the current general causal conclusion.
 
-### Gemini — new independent company-GAS evidence
-
-The user supplied a separate non-confidential diagnostic result:
+## Independent company-GAS evidence
 
 ```text
 COMPANY_GAS_TO_GEMINI_MODELS: HTTP 200
@@ -80,25 +80,25 @@ GENERATE_CONTENT_HIGH_DEMAND: HTTP 503 UNAVAILABLE observed
 FILE_SEARCH_STORE_CREATE_DELETE: HTTP 200
 API_KEY_AND_BASIC_AUTH: operational
 COMPANY_GAS_NETWORK_PATH: operational
-FILE_SEARCH_UPLOAD_INDEX_QUERY_CITATION: pending
 ```
 
-The diagnostic upload failed locally because it manually set ordinary `Content-Length` in `UrlFetchApp`. Current product source does not set ordinary `Content-Length`; it retains the required `X-Goog-Upload-Header-Content-Length`.
+The independent diagnostic upload failed locally because it manually set ordinary `Content-Length`. Current product source does not set ordinary `Content-Length` and preserves required resumable-upload headers.
 
-## Work 0027 runtime result
+## CODEX-01 runtime result
 
 ```text
+IMPLEMENTATION_COMMIT: d0456516cae5e65e68d5789e3e8e5338cffd6823
+FINAL_COMMIT: 2c6cd20bfe6a4ef3b6262160b4126266307222dd
 AUTH_VS_TRANSIENT_CLASSIFICATION: PASS
 TRANSIENT_RETRY: bounded / Retry-After then exponential backoff plus jitter
-INTERACTIONS: primary
-MODEL_FALLBACK: none
+RESUMABLE_UPLOAD_RECOVERY: PASS
 MODELS_VISIBILITY: PASS / HTTP 200
-SHORT_GEMINI_3_8_INTERACTIONS: PASS / HTTP 200 / expected token
+SHORT_GEMINI_3_8_INTERACTIONS: PASS / HTTP 200
 TEMP_STORE: created exactly 1 / deleted and deletion confirmed
-TEMP_SYNTHETIC_DOCUMENT: indexed and exact readback / exactly 1 current document before cleanup
-FILE_SEARCH_QUERY: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE / 68,442ms
+TEMP_SYNTHETIC_DOCUMENT: indexed and exact readback / exactly 1 current document
+FILE_SEARCH_QUERY_3_8: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE / 68,442ms
 FILE_SEARCH_EXPECTED_TOKEN_AND_CITATION: NOT ACHIEVED
-TERMINAL_OUTCOME: DISABLED_TRANSIENT_PROVIDER_LIMITATION
+PRIVATE_WEB_APP_VERSION: 71
 GEMINI_ENABLED: false
 NORMAL_USER_GEMINI_ROUTE: hidden
 EXISTING_GEMINI_STORE_OR_SOURCE_MUTATION: none
@@ -106,13 +106,28 @@ OPENAI_API_CALLS: 0
 FULL_OUTPUT_RUNTIME_CALLS: 0
 ```
 
-Decision:
+CODEX-01 proves the upload/index/readback path and cleanup. It does not prove that 3.7 or 3.6 File Search fails.
 
-`docs/decisions/gemini-gas-runtime-evidence-and-transient-resilience.md`
+## CODEX-02 qualification boundary
+
+```text
+PRIMARY_CANDIDATE: gemini-3.7-flash / explicit low / 2048
+QUALIFICATION_ONLY_FALLBACK: gemini-3.6-flash / explicit low / 2048
+GEMINI_3_8_RERUN: prohibited
+NORMAL_USER_AUTOMATIC_MODEL_FALLBACK: prohibited
+TEMP_STORE: max 1
+TEMP_DOCUMENT: max 1
+EXPECTED_DEPLOYMENT_VERSION: 72
+SOURCE_DELIVERY: max 1
+SAME_WEB_APP_UPDATE: max 1 / 71 -> 72
+VERSION_73_OR_HIGHER: prohibited
+```
+
+Success requires expected token, `file_citation`, authoritative metadata match and cleanup confirmation on 3.7 or 3.6. Gemini remains disabled/hidden pending final review.
 
 Detailed instruction:
 
-`docs/handoffs/0027-CODEX-01-gemini-file-search-resilience-and-e2e-qualification-instruction.md`
+`docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-instruction.md`
 
 ## Work 0023 bundle/installer baseline
 
@@ -130,8 +145,8 @@ IDEMPOTENT_RERUN_DUPLICATES: 0
 
 ## Follow-up routing
 
-- Work 0027: CODEX-01 returned for review with cleanup-confirmed `DISABLED_TRANSIENT_PROVIDER_LIMITATION`.
-- Separate future Work: representative large-file indexing.
+- Active: Work 0027 CODEX-02 stable-model personal-DEV File Search qualification.
+- After small synthetic qualification: representative large-file indexing.
 - Planned: historical-material migration.
 - Planned: final company Shared Drive/domain-user/provider qualification and rollout.
 
