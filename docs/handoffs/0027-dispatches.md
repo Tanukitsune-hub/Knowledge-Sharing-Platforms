@@ -2,22 +2,38 @@
 
 WORK_ID: `0027`  
 ACTIVE_DISPATCH_ID: `0027-CODEX-02`  
-BALL: `CODEX`  
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Active dispatch
 
 ### 0027-CODEX-02 — stable-model File Search baseline qualification
 
-Primary outcome:
+Terminal result:
 
 ```text
 preserve CODEX-01 resilience/upload repair
 -> parameterize the qualification model
 -> test gemini-3.7-flash first
--> conditionally test gemini-3.6-flash
--> achieve one personal-DEV grounded answer + exact file_citation
--> cleanup and keep Gemini hidden pending review
+-> expected token and one file_citation returned
+-> authoritative citation identity/metadata mismatch
+-> stop before gemini-3.6-flash as required
+-> cleanup confirmed and Gemini remains hidden
+```
+
+```text
+IMPLEMENTATION_COMMIT: acd3aa0
+LOGIC_VALIDATION: PASS / 440 of 440
+PRIVATE_WEB_APP_VERSION: 72 / shell PASS
+SOURCE_READBACK: PASS / 82 of 82
+MODEL_VISIBILITY_3_7: PASS
+SHORT_INTERACTIONS_3_7: PASS / HTTP 200
+FILE_SEARCH_QUERY_3_7: HTTP 200 / expected token PASS / file_citation 1
+AUTHORITATIVE_METADATA_MATCH: FAIL
+CANDIDATE_3_6: NOT_RUN / STOP_DISALLOWED
+TEMP_RESOURCE_CLEANUP: PASS
+TERMINAL_OUTCOME: BLOCKED_PRODUCT_DEFECT
+BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 ```
 
 Detailed instruction:
@@ -83,4 +99,4 @@ FULL_OUTPUT_LIVE: 0
 CAMPAIGN_WALL_CLOCK_BEFORE_CLEANUP: max 300 seconds
 ```
 
-Any new Codex execution after CODEX-02 returns must use `0027-CODEX-03`. A user-assisted continuation inside the same active run retains `0027-CODEX-02`.
+CODEX-02 is returned. Any new Codex execution must use `0027-CODEX-03` and must start from the exact citation identity/metadata mismatch without replaying the completed CODEX-02 campaign.

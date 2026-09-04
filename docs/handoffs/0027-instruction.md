@@ -2,8 +2,8 @@
 
 WORK_ID: `0027`  
 DISPATCH_ID: `0027-CODEX-02`  
-BALL: `CODEX`  
-STATUS: `READY`  
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `BUILD`
 
 ## Primary outcome
@@ -56,6 +56,23 @@ The 3.8 result is not sufficient to close the user’s objective because the use
 
 CODEX-02 must test 3.7 and conditionally 3.6 under the exact detailed instruction. It must not rerun 3.8 or add normal-user automatic fallback.
 
+## CODEX-02 observed result
+
+```text
+LOGIC_VALIDATION: PASS / 440 of 440
+PRIVATE_WEB_APP_VERSION: 72 / shell PASS
+SOURCE_READBACK: PASS / 82 of 82
+GEMINI_3_7_SHORT_INTERACTIONS: PASS / HTTP 200
+GEMINI_3_7_FILE_SEARCH_ANSWER_TOKEN: PASS
+GEMINI_3_7_FILE_CITATION: PASS / 1
+GEMINI_3_7_AUTHORITATIVE_METADATA_MATCH: FAIL
+GEMINI_3_6: NOT_RUN / citation mismatch is a progression stop
+TEMP_RESOURCE_CLEANUP: PASS
+TERMINAL_OUTCOME: BLOCKED_PRODUCT_DEFECT
+```
+
+CODEX-02 is complete as a bounded dispatch but did not meet Work acceptance. A continuation requires a new `0027-CODEX-03` instruction scoped to `GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH`; no CODEX-02 call or deployment budget remains.
+
 ## Completion condition
 
 The desired completion condition is:
@@ -70,10 +87,10 @@ TEMP_RESOURCE_CLEANUP: PASS
 GEMINI_NORMAL_USER_ROUTE: disabled and hidden
 ```
 
-A safe provider/model limitation after both candidates is a valid stop but leaves:
+A non-qualification terminal result leaves:
 
 ```text
-WORK_ACCEPTANCE_BLOCKER: PERSONAL_DEV_FILE_SEARCH_E2E_NOT_QUALIFIED
+WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 ```
 
 Follow the detailed CODEX-02 budgets and return contract. Keep PR #37 Draft/Open/unmerged.

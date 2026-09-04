@@ -41,7 +41,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 | 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 evidence |
 | 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve PR #35 merge `8b0a2ccd` and installer-security evidence |
 | 4 | 0026 | Current Gemini Flash / File Search requalification | ACCEPTED | 0023 | Preserve PR #36 merge `40bb7d40`; its one-call failure remains historical evidence |
-| 5 | 0027 | Gemini GAS transient resilience and synthetic File Search E2E qualification | ACTIVE | CODEX-01 upload/index PASS; 3.8 query transient | Execute `0027-CODEX-02` against 3.7 then conditional 3.6 |
+| 5 | 0027 | Gemini GAS transient resilience and synthetic File Search E2E qualification | BLOCKED | CODEX-02 3.7 answer/citation returned but exact citation identity failed | Allocate `0027-CODEX-03` only for the verified citation identity/metadata mismatch |
 | 6 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Small synthetic provider path qualified | Allocate a separate Work ID; do not mix with 0027 |
 | 7 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
 | 8 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
@@ -153,9 +153,29 @@ EXPECTED_PRIVATE_WEB_APP_VERSION: 72
 
 Work acceptance requires `QUALIFIED_DISABLED` on 3.7 or 3.6 with expected token, exact `file_citation`, authoritative metadata match and cleanup confirmation. Any other safe terminal result retains an exact Work blocker.
 
+### CODEX-02 returned evidence
+
+```text
+IMPLEMENTATION_COMMIT: acd3aa0
+LOGIC_VALIDATION: PASS / 440 of 440
+PRIVATE_WEB_APP_VERSION: 72 / shell PASS
+SOURCE_READBACK: PASS / 82 of 82
+GEMINI_3_7_SHORT_INTERACTIONS: PASS / HTTP 200
+GEMINI_3_7_FILE_SEARCH_TOKEN: PASS
+GEMINI_3_7_FILE_CITATION: PASS / 1
+GEMINI_3_7_AUTHORITATIVE_METADATA_MATCH: FAIL
+GEMINI_3_6: NOT_RUN / STOP_DISALLOWED
+TEMP_RESOURCE_CLEANUP: PASS
+GEMINI_NORMAL_USER_ROUTE: disabled and hidden
+TERMINAL_OUTCOME: BLOCKED_PRODUCT_DEFECT
+WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+```
+
+The 3.6 fallback was correctly not called because citation identity/metadata mismatch is a non-progression condition. Accepted OpenAI/FULL_OUTPUT behavior remains available.
+
 Current dispatch:
 
-`0027-CODEX-02 / BALL: CODEX / STATUS: READY`
+`0027-CODEX-02 / BALL: CHATGPT / STATUS: RETURNED`
 
 Detailed instruction:
 

@@ -1,7 +1,7 @@
 # Work 0027 — Gemini GAS File Search resilience and end-to-end qualification
 
 Current as of: 2026-09-04  
-Status: CODEX-02 READY / stable-model baseline qualification
+Status: CODEX-02 RETURNED / BLOCKED_PRODUCT_DEFECT
 
 WORK_ID: `0027`  
 MODE: `BUILD`
@@ -155,10 +155,34 @@ BLOCKED_RESOURCE_CLEANUP
 
 Only `QUALIFIED_DISABLED` satisfies Work acceptance. Other outcomes stop safely with the exact blocker retained.
 
+## CODEX-02 observed result
+
+```text
+IMPLEMENTATION_COMMIT: acd3aa0
+LOGIC_VALIDATION: PASS / 440 of 440
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82
+PRIVATE_WEB_APP_VERSION: 72 / shell PASS
+MODELS_LIST: 1
+TEMP_STORE: 1 / deleted and deletion confirmed
+TEMP_DOCUMENT: 1 / exact upload-index-readback PASS
+GEMINI_3_7_SHORT_INTERACTIONS: PASS / HTTP 200
+GEMINI_3_7_FILE_SEARCH: HTTP 200 / expected token PASS / file_citation 1
+GEMINI_3_7_AUTHORITATIVE_METADATA_MATCH: FAIL
+GEMINI_3_7_PROGRESSION: STOP_DISALLOWED
+GEMINI_3_6: NOT_RUN
+QUALIFIED_MODEL_ID: NONE
+TERMINAL_OUTCOME: BLOCKED_PRODUCT_DEFECT
+WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+```
+
+The 3.6 candidate was correctly not called because citation identity/metadata mismatch is an explicit non-progression condition. Gemini remains disabled and hidden; accepted OpenAI and FULL_OUTPUT availability is unchanged.
+
 ## Active dispatch
 
-`0027-CODEX-02`
+`0027-CODEX-02 / RETURNED`
 
 Detailed instruction:
 
 `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-instruction.md`
+
+Any further work requires a new `0027-CODEX-03` dispatch scoped to the exact citation identity/metadata mismatch. CODEX-02 has no remaining provider, Store, source-delivery, version, or deployment budget.

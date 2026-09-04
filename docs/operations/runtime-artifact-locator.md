@@ -1,8 +1,8 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-04 JST  
-LAST_VERIFIED_BY: ChatGPT after independent CODEX-01 review and stable-model strategy reset  
-STATUS: ACTIVE / Web App version 71; CODEX-02 ready
+LAST_VERIFIED_BY: Codex after bounded CODEX-02 target-runtime qualification
+STATUS: ACTIVE / Web App version 72; Gemini citation identity product blocker
 
 ## Source
 
@@ -26,19 +26,19 @@ Do not record local workspace paths, private editor/deployment URLs, Script IDs,
 ```text
 TARGET_RUNTIME_TYPE: Google Apps Script V8 / private Web App
 ENVIRONMENT: isolated personal DEV / qualification
-DEPLOYMENT_VERSION: 71
+DEPLOYMENT_VERSION: 72
 ROOT_PAGE_RENDER_AND_BOOTSTRAP: PASS
 KNOWLEDGE_PAGE_RENDER_AND_BOOTSTRAP: PASS
 LITERAL_INCLUDE_DIRECTIVES: 0
 BLOCKING_BROWSER_CONSOLE_ERRORS: 0
-SOURCE_DELIVERY_READBACK: PASS / 82 of 82 at CODEX-01
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82 at CODEX-02
 VERSION_67: unused / never deploy
 VERSION_68: superseded / modular shell failed
 VERSION_69: superseded / shell repaired
 VERSION_70: superseded / Work 0026 shell PASS
-VERSION_71: current / Work 0027 CODEX-01 shell PASS
-VERSION_72: authorized only for CODEX-02 after deterministic PASS
-VERSION_73_OR_HIGHER: prohibited in CODEX-02
+VERSION_71: superseded / Work 0027 CODEX-01 shell PASS
+VERSION_72: current / Work 0027 CODEX-02 shell PASS
+VERSION_73_OR_HIGHER: not created / prohibited in CODEX-02
 ```
 
 ## Accepted provider baseline
@@ -129,6 +129,36 @@ Detailed instruction:
 
 `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-instruction.md`
 
+## CODEX-02 runtime result
+
+```text
+IMPLEMENTATION_COMMIT: acd3aa0
+LOGIC_VALIDATION: PASS / 440 of 440
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82
+PRIVATE_WEB_APP_VERSION: 72
+ROOT_AND_KNOWLEDGE_SHELL: PASS
+MODELS_LIST: 1
+GEMINI_3_7_VISIBLE: YES
+GEMINI_3_7_SHORT_INTERACTIONS: PASS / HTTP 200
+TEMP_STORE_CREATE: PASS / exactly 1
+TEMP_DOCUMENT_UPLOAD_INDEX_READBACK: PASS / exactly 1 current document
+GEMINI_3_7_FILE_SEARCH: HTTP 200 / expected token PASS / file_citation 1
+AUTHORITATIVE_CITATION_METADATA_MATCH: FAIL
+GEMINI_3_7_PROGRESSION: STOP_DISALLOWED
+GEMINI_3_6_CALLS: 0
+GEMINI_3_8_CALLS: 0
+TEMP_STORE_DELETE_AND_CONFIRMATION: PASS
+GEMINI_ENABLED: false
+NORMAL_USER_GEMINI_ROUTE: hidden
+EXISTING_GEMINI_STORE_OR_SOURCE_MUTATION: none
+OPENAI_API_CALLS: 0
+FULL_OUTPUT_RUNTIME_CALLS: 0
+TERMINAL_OUTCOME: BLOCKED_PRODUCT_DEFECT
+BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+```
+
+The 3.7 response contained the expected token and one citation, but the citation did not match the exact provider document identity plus `source_type`, `source_id`, and `content_hash`. The instruction prohibited a 3.6 call after this class, so the campaign stopped and cleaned up.
+
 ## Work 0023 bundle/installer baseline
 
 ```text
@@ -145,7 +175,8 @@ IDEMPOTENT_RERUN_DUPLICATES: 0
 
 ## Follow-up routing
 
-- Active: Work 0027 CODEX-02 stable-model personal-DEV File Search qualification.
+- Blocked: Work 0027 CODEX-02 returned with exact Gemini citation identity/metadata mismatch.
+- Next only by new authorization: `0027-CODEX-03` scoped to that verified mismatch; do not replay CODEX-02 by default.
 - After small synthetic qualification: representative large-file indexing.
 - Planned: historical-material migration.
 - Planned: final company Shared Drive/domain-user/provider qualification and rollout.
