@@ -1,8 +1,8 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-04 JST
-LAST_VERIFIED_BY: Codex during 0026-CODEX-03 target-runtime qualification
-STATUS: TERMINAL REVIEW / Web App version 70 shell qualified; Gemini disabled on exact HTTP-or-credential external limitation
+LAST_VERIFIED_BY: ChatGPT after Work 0026 final review and PR merge
+STATUS: ACTIVE / Web App version 70 shell qualified; Gemini disabled on accepted external limitation
 
 ## Source
 
@@ -12,202 +12,88 @@ STATUS: TERMINAL REVIEW / Web App version 70 shell qualified; Gemini disabled on
 - WORK_0025_MERGE_COMMIT: `121f2a1c4655ece46c7e07163b0d12866600923e`
 - WORK_0021_MERGE_COMMIT: `533c849bd1229827ec77cd5ad6506312ea286940`
 - WORK_0023_MERGE_COMMIT: `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`
-- DEPLOYED_SOURCE_COMMIT: `90bcaab90051a7975e5b9da99917b7d1fe0e6402`
-- DEPLOYED_SOURCE_DESCRIPTION: Work 0026 safe Gemini failure classifier plus modular-template repair; exact source readback passed before version 70 creation
-- MODULAR_TEMPLATE_REPAIR_COMMIT: `681768824f298eff24439b2ee69c9ce159af1e0e`
-- CURRENT_ACTIVE_WORK: `0026 — terminal / ready for ChatGPT final review`
-- CURRENT_ACTIVE_DISPATCH: `0026-CODEX-03 — RETURNED`
-- CURRENT_GITHUB_INSTRUCTION: `docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
-- ACTIVE_BRANCH: `agent/0026-gemini-current-api-requalification`
-- PR: `#36 / Draft / Open / unmerged`
-- LOCAL_WORKSPACE_PATH: `NOT RECORDED IN GITHUB`
+- WORK_0026_MERGE_COMMIT: `40bb7d40506c0839c35742ee0000d89650ff7ad6`
+- CURRENT_WORK_STATE: `0026 ACCEPTED`
+- CURRENT_DISPATCH: `N/A`
+- PR_36: `MERGED`
 
-## Accepted application runtime
+Do not record local workspace paths, private editor URLs, deployment URLs, Script IDs, deployment IDs, Google Drive/Spreadsheet IDs, provider Store/document resource names, credentials or signed URLs in this file.
 
-- TARGET_RUNTIME_TYPE: Google Apps Script V8, standalone project, private Web App
-- TARGET_RUNTIME_NAME: `KSP Work 0010 DEV Qualification`
-- TARGET_RUNTIME_ID / SCRIPT_ID: `VERIFIED / NOT RECORDED`
-- TARGET_RUNTIME_EDITOR_URL: `VERIFIED / NOT RECORDED`
-- WEB_APP_DEPLOYMENT_URL: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_ID: `VERIFIED / NOT RECORDED`
-- DEPLOYMENT_VERSION: `70`
-- ENVIRONMENT: personal DEV / qualification
-
-Immutable-version state:
+## Current application runtime
 
 ```text
-VERSION_66: prior accepted Work 0021 Web App baseline / no longer deployed
-VERSION_67: accidental immutable version / source identical to version 66 at qualification / unused and never deploy
-VERSION_68: prior Work 0026 source / modular include expansion failed / no longer deployed
-VERSION_69: prior Work 0026 shell-repair source / no longer deployed
-VERSION_70: current deployed Work 0026 safe-classification source / exact readback 82 of 82 / root and Knowledge Search shell PASS
-VERSION_71_OR_HIGHER: not created
+TARGET_RUNTIME_TYPE: Google Apps Script V8 / private Web App
+ENVIRONMENT: personal DEV / qualification
+DEPLOYMENT_VERSION: 70
+ROOT_PAGE_RENDER_AND_BOOTSTRAP: PASS
+KNOWLEDGE_PAGE_RENDER_AND_BOOTSTRAP: PASS
+LITERAL_INCLUDE_DIRECTIVES: 0
+BLOCKING_BROWSER_CONSOLE_ERRORS: 0
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82
+VERSION_67: unused / never deploy
+VERSION_68: superseded / modular shell failed
+VERSION_69: superseded / shell repaired
+VERSION_70: current / shell PASS
+VERSION_71_OR_HIGHER: not created during Work 0026
 ```
 
-## Work 0021 accepted product evidence
+## Accepted provider baseline
+
+### OpenAI / FULL_OUTPUT
 
 ```text
-PR_34: MERGED
-MERGE_COMMIT: 533c849bd1229827ec77cd5ad6506312ea286940
-NORMAL_REGISTRATION: PASS — 6/6
-OPENAI_EXACT_SYNC: PASS — 6/6
-OPENAI_GROUNDED_QUERY_AND_SOURCE_ID: PASS — 6/6
-EML_ATTACHMENT_BOUNDARY: PASS
-FULL_OUTPUT_SIX_FORMAT_REFERENCE_PARITY: PASS
-LOGIC_VALIDATION: PASS — 376/376
-ACCEPTED_WEB_APP_VERSION: 66
-UNRESOLVED_REVIEW_THREADS: 0
-GITHUB_CI_ACTUALLY_RAN: NO
-BLOCKER: NONE
+WORK_0020: ACCEPTED
+OPENAI: production-capable reference path
+FULL_OUTPUT: API-independent production-capable path
+OPENAI_ACCEPTED_PATH_PRESERVED_IN_WORK_0026: PASS
+OPENAI_API_CALLED_IN_FINAL_GEMINI_CAMPAIGN: NO
+FULL_OUTPUT_RUNTIME_CALLED_IN_FINAL_GEMINI_CAMPAIGN: NO
 ```
 
-The final API-independent FULL_OUTPUT preview resolved `DOC-000019` through `DOC-000024` as six authoritative references with no Pitchbook body. Final Backend readback returned all six rows Active with Drive links.
-
-## Data and control artifacts
-
-### Backend Spreadsheet
-
-- NAME: `Knowledge Platform Backend`
-- FILE_ID: `1ZExmf_5fDfWIq-EUt5Jleo8w1IAkKEgwsWng8OJFPwI`
-- ROLE: application Backend data store
-- EXPECTED_SHEETS: `GP_Master`, `Settings`, `Pitchbook_Index`, `Meeting_Index`, `Option_Master`
-
-### Audit Spreadsheet
-
-- NAME: `Knowledge Platform Audit`
-- FILE_ID: `1xPssW3oAxsLPPUTDyGfM8r-4oKhSOaVor3FjsHuz74U`
-- ROLE: restricted Audit store
-
-### DEV control folder
-
-- NAME: `KSP-0010-DEV-Control-20260816`
-- FOLDER_ID: `1-ayhSMJ_pPiliNtHWvTg5Z3kPGKgdyY7`
-
-### DEV knowledge folder
-
-- NAME: `KSP-0010-DEV-Knowledge-20260816`
-- FOLDER_ID: `11u5FSCPi5xrmD1pVQX4MDUrebW1PxIs7`
-
-### Knowledge parent folder
-
-- NAME: `KSP DEV Knowledge Parent`
-- FOLDER_ID: `1ZKQCvJbs7o0wYzQJN79bzBn0MTkimB7A`
-
-### Product knowledge root observed in source
-
-- NAME: `Private Assets Knowledge`
-- DRIVE_FOLDER_ID: `1b9r_NdS2P0Qwb0-cz2Ix1cXNGM0gLb_b`
-
-## Accepted Work 0020 / 0025 reference
+### Gemini
 
 ```text
-PRIMARY_COMPLETION_PROVIDER: OpenAI
-SMALL_SYNTHETIC_PITCHBOOK: DOC-000017 / Active / OpenAI Indexed
-SMALL_SYNTHETIC_MEETING: MTG-000005 / Active / OpenAI Indexed
-OPENAI_MODEL_PROFILE: openai-current-default / gpt-5.6-terra / provider-default
-OPENAI_PROFILE_QUALIFICATION: PASS
-LARGE_FIXTURE_STATE: separate follow-up
-```
-
-## Accepted Work 0023 bundle/installer distribution
-
-```text
-PR_35: MERGED
-MERGE_COMMIT: 8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f
-DETERMINISTIC_BUNDLE_BUILD: PASS
-EMBEDDED_HTML_RESOURCE_LOADER: PASS in bundle-mode qualification
-REPRODUCIBLE_RELEASE_HASHES: PASS
-SOURCE_AND_BUNDLE_PARITY: PASS
-EXACT_ONE_PASTE_FEASIBILITY: PASS
-FIRST_INSTALL_OWNER_LATCH: PASS
-CROSS_USER_PARTIAL_RESUME_REJECTION: PASS
-WEB_APP_URL_ONLY_READY_REJECTION: PASS
-DEPLOYMENT_SECURITY_ADMIN_ATTESTATION: PASS
-MUTABLE_GLOBAL_COLLISION_GATE: PASS
-PERSONAL_DEV_INSTALL/UPGRADE: PASS
-IDEMPOTENT_RERUN: PASS / duplicates 0
-LOGIC_VALIDATION: PASS — 402/402
-BLOCKER: NONE at Work 0023 acceptance
-```
-
-The Work 0026 modular-runtime regression does not invalidate the accepted one-file bundle result; it exposed that the shared resource loader must preserve `createTemplateFromFile(...)` specifically in modular Apps Script mode. The branch repair does so while keeping bundle mode string-template evaluation.
-
-## Work 0026 final code/provider baseline
-
-Current official candidate baseline rechecked by ChatGPT on 2026-09-04:
-
-```text
-MODEL: gemini-3.8-flash
-STAGE: stable
-FILE_SEARCH: supported
-THINKING_LEVELS: low, medium, high
-MINIMAL: unsupported
-LIVE_TARGET: explicit low / max output 2048
-ONLY_ACCESS-ERROR_FALLBACK: gemini-3.7-flash / low / 2048
-INTERACTIONS_ENDPOINT: /v1beta/interactions
-FILE_SEARCH_FILTER: metadata_filter
-CITATION: file_citation
-```
-
-Current branch and runtime after CODEX-03:
-
-```text
-QUERY_TRANSPORT_DEFAULT: INTERACTIONS
-QUERY_REQUEST_PROFILE_VERSION: gemini-interactions-file-search-v2
-NORMAL_GEMINI_REQUEST: server-resolved model/thinking/output/store identity
-GEMINI_ADMIN_FLOW: safe failure classes implemented and deterministically validated
-GEMINI_EXACT_TUPLE_QUALIFICATION: HTTP_OR_CREDENTIAL_FAILURE / one 3.8 low 2048 Interactions call / approximately 40.2 seconds
-GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
-GEMINI_ROUTE_VISIBILITY: hidden
-MODULAR_TEMPLATE_REPAIR: implemented / deployed / root and Knowledge Search PASS
+PRIMARY_CANDIDATE: gemini-3.8-flash / explicit low / max output 2048
+TRANSPORT: Interactions + File Search
+REQUEST_PROFILE: current server-resolved model/thinking/output/store policy
+DOC-000017_CURRENT_DOCUMENTS: 1
+MTG-000005_CURRENT_DOCUMENTS: 1
+DOCUMENT_DUPLICATES: 0
+FAILURE_CLASSIFICATION_REPAIR: PASS
 UNKNOWN_FAILURE_RELABELLED_EXTERNAL: NO
-LOGIC_VALIDATION: PASS / 420 of 420
-BUNDLE_BYTES: 993499
-BUNDLE_SHA256: 5c53b811fb84be249cf0d5e557a3728e5f92e1ef1393ef20e45103796a4089b2
-```
-
-CODEX-03 preserved the accepted one-current-document evidence for `DOC-000017` and `MTG-000005` with zero duplicates and made no provider/source mutation. The first call's exact `HTTP_OR_CREDENTIAL_FAILURE` class permits no second call under the bounded decision tree, so neither the 3.7 fallback nor the GenerateContent control was run. Gemini remains `DISABLED_EXTERNAL_LIMITATION` and absent from normal-user choices. OpenAI remains active and was not called.
-
-## CODEX-03 completed budget
-
-```text
-APPS_SCRIPT_SOURCE_DELIVERY: 1 / readback PASS 82 of 82
-NEW_IMMUTABLE_VERSION: 1 / version 70
-SAME_PRIVATE_WEB_APP_UPDATE: 1 / 69 -> 70
-VERSION_67_DEPLOYMENT: NO
-VERSION_71_OR_HIGHER_CREATED: NO
-GEMINI_QUERY_CALLS: 1
+FINAL_GEMINI_QUERY_CALLS: 1
+PRIMARY_3_8_INTERACTIONS_CLASS: HTTP_OR_CREDENTIAL_FAILURE
 SECOND_CONTROL: NOT_USED
-GEMINI_STORE_CREATE: 0
-GEMINI_SOURCE_SYNC_OR_UPLOAD: 0
-OPENAI_API_CALLS: 0
-FULL_OUTPUT_RUNTIME_CALLS: 0
+GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
+NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
 ```
 
-Root and Knowledge Search showed zero literal include directives and completed normal bootstrap before the Gemini call. No provider document, Store or authoritative source was mutated.
+This is an accepted fail-closed state and not a claim that Gemini File Search is operational.
 
-## Prior CODEX-02 deployment budget
+## Work 0023 bundle/installer baseline
 
 ```text
-APPS_SCRIPT_SOURCE_DELIVERY: 1 / complete
-NEW_IMMUTABLE_VERSION: 1 / version 69
-SAME_PRIVATE_WEB_APP_UPDATE: 1 / 68 -> 69
-VERSION_67_DEPLOYMENT: NO
-VERSION_70_OR_HIGHER: NO
-OPENAI_API_CALLS: 0
-FULL_OUTPUT_RUNTIME_CALLS: 0
+DETERMINISTIC_SINGLE_FILE_BUNDLE: PASS
+SOURCE_AND_BUNDLE_PARITY: PASS
+INSTALLER_OWNER_LATCH: PASS
+CROSS_USER_PARTIAL_TAKEOVER_REJECTION: PASS
+DEPLOYMENT_SECURITY_ATTESTATION: PASS
+WEB_APP_URL_ONLY_READY_REJECTION: PASS
+MUTABLE_GLOBAL_COLLISION_GATE: PASS
+PERSONAL_DEV_INSTALL_UPGRADE: PASS
+IDEMPOTENT_RERUN_DUPLICATES: 0
 ```
 
-Root and Knowledge Search showed zero literal include directives and completed normal bootstrap before the first Gemini call. The bounded provider campaign reused the existing Store and touched only the two authorized small synthetic sources.
+Work 0026 preserved the bundle architecture while restoring `createTemplateFromFile(...)` specifically for modular Apps Script mode.
 
 ## Follow-up routing
 
-- Final review: PR #36 with Work 0026 terminal status `DISABLED_EXTERNAL_LIMITATION / HTTP_OR_CREDENTIAL_FAILURE`.
-- Later company gate: Shared Drive/domain-user and company credential qualification.
-- Separate deferred Work: representative large-file indexing qualification.
-- Planned after product/provider decisions: historical-material migration and final company rollout.
+- Separate future Work: representative large-file indexing qualification.
+- Planned: historical-material migration.
+- Planned: final company Shared Drive/domain-user/provider credential qualification and rollout.
+- Future Gemini requalification requires materially new provider/account/API evidence and should not reopen Work 0026 by default.
 
 ## Update rule
 
-Update this file whenever a material runtime identity, deployed source, accepted merge, selected Gemini model/transport outcome, or active installation artifact changes.
-Never store API keys, credentials, signed secret-bearing URLs, confidential source contents, raw provider payloads, or provider private resource IDs here.
+Update this file whenever a material runtime version, accepted merge, provider qualification state or installation artifact changes.
+Never store credentials, confidential source contents, private URLs/IDs or provider-private resource identifiers here.
