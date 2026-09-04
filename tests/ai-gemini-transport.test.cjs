@@ -446,7 +446,8 @@ test('authentication and invalid-request 4xx responses are not retried', () => {
         () => ksp.kspGeminiJsonRequestLive_('GET', '/fileSearchStores/store-synthetic', null, {
           retry: true, stage: 'STORE_READ', errorCode: 'AI_STORE_READ_FAILED'
         }),
-        (error) => error.code === 'AI_STORE_READ_FAILED' && error.attempt === 1 && error.retryable === false
+        (error) => error.code === (status === 400 ? 'AI_STORE_READ_FAILED' : 'AI_GEMINI_CREDENTIAL_REJECTED') &&
+          error.attempt === 1 && error.retryable === false
       );
       assert.equal(calls, 1);
       assert.deepEqual(sleeps, []);
@@ -456,7 +457,7 @@ test('authentication and invalid-request 4xx responses are not retried', () => {
 
 function interactionRequest() {
   return {
-    model: 'gemini-3.7-flash',
+    model: 'gemini-3.8-flash',
     input: 'synthetic question',
     tools: [{ type: 'file_search', file_search_store_names: ['fileSearchStores/store-synthetic'] }],
     background: true,
@@ -487,9 +488,9 @@ test('Gemini START uses the pinned low-latency profile and returns a completed r
     assert.equal(calls.length, 1);
     assert.equal(calls[0].options.method, 'post');
     assert.equal(body.background, true);
-    assert.equal(body.model, 'gemini-3.7-flash');
+    assert.equal(body.model, 'gemini-3.8-flash');
     assert.deepEqual(body.generation_config, { thinking_level: 'low', max_output_tokens: 2048 });
-    assert.equal(calls[0].options.headers['Api-Revision'], '2026-05-20');
+    assert.equal(calls[0].options.headers['Api-Revision'], undefined);
     assert.deepEqual(sleeps, []);
   });
 });
@@ -511,6 +512,36 @@ test('Gemini START accepts queued/in_progress and never sleeps or performs a GET
   }
 });
 
+test('direct synchronous Interactions control omits background and preserves the exact tuple', () => {
+  const calls = [];
+  withLiveFakes((url, options) => {
+    calls.push({ url, options });
+    return response(200, completedInteraction());
+  }, () => {
+    const value = plain(ksp.kspGeminiQueryInteractionLive_(interactionRequest()));
+    const body = JSON.parse(calls[0].options.payload);
+    assert.equal(value.status, 'completed');
+    assert.equal(Object.hasOwn(body, 'background'), false);
+    assert.equal(body.model, 'gemini-3.8-flash');
+    assert.deepEqual(body.generation_config, { thinking_level: 'low', max_output_tokens: 2048 });
+    assert.equal(calls[0].options.headers['Api-Revision'], undefined);
+  });
+});
+
+test('explicit model unsupported and access errors are safely classified without provider payload leakage', () => {
+  const cases = [
+    [404, { error: { message: 'Requested model is not found' } }, 'AI_GEMINI_MODEL_UNSUPPORTED'],
+    [403, { error: { message: 'Permission denied for model access' } }, 'AI_GEMINI_MODEL_ACCESS_DENIED']
+  ];
+  for (const [status, body, expected] of cases) {
+    withLiveFakes(() => response(status, body), () => {
+      assert.throws(() => ksp.kspGeminiQueryInteractionLive_(interactionRequest()),
+        (error) => error.code === expected && !String(error.message).includes('Requested model') &&
+          !String(error.message).includes('Permission denied'));
+    });
+  }
+});
+
 test('Gemini POLL performs exactly one GET without retry or sleep', () => {
   const calls = [];
   withLiveFakes((url, options) => {
@@ -523,7 +554,7 @@ test('Gemini POLL performs exactly one GET without retry or sleep', () => {
     assert.equal(calls.length, 1);
     assert.match(calls[0].url, /\/interactions\/interaction-synthetic$/);
     assert.equal(calls[0].options.method, 'get');
-    assert.equal(calls[0].options.headers['Api-Revision'], '2026-05-20');
+    assert.equal(calls[0].options.headers['Api-Revision'], undefined);
     assert.deepEqual(sleeps, []);
   });
 });
@@ -558,6 +589,45 @@ test('documented Gemini terminal statuses are safe and bounded', () => {
       assert.deepEqual(sleeps, []);
     });
   }
+});
+
+test('Gemini terminal and HTTP failures retain only allowlisted provider error codes', () => {
+  withLiveFakes(() => response(200, {
+    id: 'interaction-synthetic',
+    status: 'failed',
+    errors: [
+      { code: 'service_unavailable', message: 'PRIVATE_PROVIDER_RESPONSE' },
+      { code: 'https://provider.invalid/errors/quota_exceeded', message: 'PRIVATE_QUOTA_DETAIL' },
+      { code: 'private_provider_identifier', message: 'PRIVATE_IDENTIFIER_DETAIL' }
+    ]
+  }), () => {
+    assert.throws(
+      () => ksp.kspGeminiQueryInteractionLive_(interactionRequest()),
+      (error) => {
+        assert.equal(error.code, 'AI_QUERY_PROVIDER_TERMINAL');
+        assert.equal(error.providerStatus, 'failed');
+        assert.deepEqual(plain(error.providerErrorCodes), ['service_unavailable', 'quota_exceeded']);
+        assert.doesNotMatch(JSON.stringify(error),
+          /PRIVATE_PROVIDER_RESPONSE|PRIVATE_QUOTA_DETAIL|PRIVATE_IDENTIFIER_DETAIL|private_provider_identifier/);
+        return true;
+      }
+    );
+  });
+
+  withLiveFakes(() => response(503, {
+    error: { code: 503, status: 'UNAVAILABLE', message: 'PRIVATE_HTTP_RESPONSE' }
+  }), () => {
+    assert.throws(
+      () => ksp.kspGeminiQueryInteractionLive_(interactionRequest()),
+      (error) => {
+        assert.equal(error.code, 'AI_QUERY_HTTP_FAILED');
+        assert.equal(error.httpStatus, 503);
+        assert.deepEqual(plain(error.providerErrorCodes), ['unavailable']);
+        assert.doesNotMatch(JSON.stringify(error), /PRIVATE_HTTP_RESPONSE/);
+        return true;
+      }
+    );
+  });
 });
 
 test('unknown Gemini Interaction status fails closed without exposing provider payload', () => {
@@ -703,7 +773,7 @@ test('Generate Content result maps authoritative citations and records safe tran
   assert.equal(env._debug.audits.length, 1);
   const auditMetadata = JSON.parse(env._debug.audits[0].After_Metadata_JSON);
   assert.equal(auditMetadata.query_transport, 'GENERATE_CONTENT');
-  assert.equal(auditMetadata.query_transport_version, 'gemini-generate-content-file-search-v1');
+  assert.equal(auditMetadata.query_transport_version, 'gemini-current-file-search-v2');
   assert.equal(auditMetadata.input_tokens, 11);
   assert.equal(auditMetadata.output_tokens, 9);
   assert.equal(auditMetadata.thought_tokens, 2);

@@ -19,6 +19,15 @@ function loadBundle() {
   return context;
 }
 
+function loadModularDistributionResources() {
+  const context = vm.createContext({ console });
+  for (const file of ['00_Core.gs', '01_DistributionResources.gs']) {
+    new vm.Script(fs.readFileSync(path.join(rootDir, 'src', file), 'utf8'), { filename: file })
+      .runInContext(context);
+  }
+  return context;
+}
+
 test('bundle and modular source expose the same normal and guarded public surfaces', () => {
   const sourceNames = collectRepositoryPublicSurface(rootDir)
     .filter((item) => !item.name.endsWith('_')).map((item) => item.name).sort();
@@ -48,6 +57,23 @@ test('bundle resource loader renders both top-level pages and every include from
   for (const name of Object.keys(context.KSP_BUNDLED_HTML_RESOURCES)) {
     assert.equal(context.kspReadHtmlResource_(name), context.KSP_BUNDLED_HTML_RESOURCES[name]);
   }
+});
+
+test('modular resource loader preserves Apps Script file-template evaluation', () => {
+  const context = loadModularDistributionResources();
+  const calls = [];
+  context.HtmlService = {
+    createTemplate() {
+      calls.push('string');
+      throw new Error('modular mode must not use a string template');
+    },
+    createTemplateFromFile(name) {
+      calls.push(`file:${name}`);
+      return { mode: 'file', name };
+    }
+  };
+  assert.deepEqual(context.kspCreateHtmlTemplate_('Index'), { mode: 'file', name: 'Index' });
+  assert.deepEqual(calls, ['file:Index']);
 });
 
 test('representative accepted facades delegate identically in bundle mode without provider calls', () => {

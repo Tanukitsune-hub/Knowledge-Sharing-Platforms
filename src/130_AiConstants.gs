@@ -42,7 +42,8 @@ var KSP_AI_SETTINGS = Object.freeze({
   OPENAI_READINESS: 'OPENAI_READINESS',
   MODEL_POLICY_JSON: 'AI_MODEL_POLICY_JSON',
   GEMINI_ENABLED: 'GEMINI_ENABLED',
-  GEMINI_MODEL_ID: 'GEMINI_DEFAULT_MODEL'
+  GEMINI_MODEL_ID: 'GEMINI_DEFAULT_MODEL',
+  GEMINI_READINESS: 'GEMINI_READINESS'
 });
 
 var KSP_AI_DEFAULTS = Object.freeze({
@@ -66,12 +67,11 @@ var KSP_AI_DEFAULTS = Object.freeze({
   CLAIM_TTL_MILLIS: 10 * 60 * 1000,
   INTERACTION_POLL_MILLIS: 5000,
   MAX_INTERACTION_POLLS: 24,
-  INTERACTIONS_API_REVISION: '2026-05-20',
   QUERY_PENDING_TTL_SECONDS: 60 * 60,
   QUERY_TERMINAL_TTL_SECONDS: 15 * 60,
-  QUERY_REQUEST_PROFILE_VERSION: 'gemini-latency-v1',
-  QUERY_TRANSPORT: 'GENERATE_CONTENT',
-  QUERY_TRANSPORT_VERSION: 'gemini-generate-content-file-search-v1',
+  QUERY_REQUEST_PROFILE_VERSION: 'gemini-interactions-file-search-v2',
+  QUERY_TRANSPORT: 'INTERACTIONS',
+  QUERY_TRANSPORT_VERSION: 'gemini-current-file-search-v2',
   QUERY_THINKING_LEVEL: 'low',
   QUERY_MAX_OUTPUT_TOKENS: 2048,
   QUERY_AUTO_POLL_LIMIT: 12
@@ -123,6 +123,7 @@ function kspNormalizeAiSettings_(settings) {
     modelId: legacyModelId,
     geminiStoreName: geminiStoreName,
     geminiModelId: geminiModelId,
+    geminiReadiness: kspAiTrim_(source[KSP_AI_SETTINGS.GEMINI_READINESS] || source.geminiReadiness),
     geminiEnabled: explicitGeminiEnabled
       ? kspToBoolean_(source[KSP_AI_SETTINGS.GEMINI_ENABLED] !== undefined
         ? source[KSP_AI_SETTINGS.GEMINI_ENABLED] : source.geminiEnabled, false)
@@ -197,6 +198,7 @@ function kspGetAiSettingSeedRows_(nowIso) {
     { Key: KSP_AI_SETTINGS.OPENAI_READINESS, Value: 'UNCONFIGURED', Description: 'OpenAI connection readiness; real-source sync is separate from synthetic connection validation.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.MODEL_POLICY_JSON, Value: '', Description: 'Administrator-governed AI model and thinking policy registry.', Updated_At: nowIso },
     { Key: KSP_AI_SETTINGS.GEMINI_ENABLED, Value: 'false', Description: 'Whether the administrator has enabled the Gemini provider.', Updated_At: nowIso },
-    { Key: KSP_AI_SETTINGS.GEMINI_MODEL_ID, Value: '', Description: 'Configured Gemini model identifier.', Updated_At: nowIso }
+    { Key: KSP_AI_SETTINGS.GEMINI_MODEL_ID, Value: '', Description: 'Configured Gemini model identifier.', Updated_At: nowIso },
+    { Key: KSP_AI_SETTINGS.GEMINI_READINESS, Value: 'UNCONFIGURED', Description: 'Gemini connection and exact tuple readiness.', Updated_At: nowIso }
   ];
 }

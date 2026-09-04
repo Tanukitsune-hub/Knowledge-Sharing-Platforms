@@ -529,6 +529,7 @@ function kspBuildSettingsRows_(config, resources, nowIso) {
     { Key: 'OPENAI_READINESS', Value: 'UNCONFIGURED', Description: 'OpenAI connection readiness; real-source sync is separate from synthetic connection validation.', Updated_At: nowIso },
     { Key: 'GEMINI_ENABLED', Value: 'false', Description: 'Whether the administrator has enabled the Gemini provider.', Updated_At: nowIso },
     { Key: 'GEMINI_DEFAULT_MODEL', Value: '', Description: 'Administrator-selected Gemini model ID.', Updated_At: nowIso },
+    { Key: 'GEMINI_READINESS', Value: 'UNCONFIGURED', Description: 'Gemini connection and exact tuple readiness.', Updated_At: nowIso },
     { Key: 'DISTRIBUTION_RELEASE', Value: distribution.releaseVersion, Description: 'Installed distribution release.', Updated_At: nowIso },
     { Key: 'DISTRIBUTION_SOURCE_COMMIT', Value: distribution.sourceCommit, Description: 'Source commit for the installed distribution.', Updated_At: nowIso },
     { Key: 'DISTRIBUTION_PROFILE', Value: distribution.bundleProfile, Description: 'Installed distribution build profile.', Updated_At: nowIso },
@@ -549,7 +550,8 @@ function kspGetSettingsPreserveExistingKeys_() {
     'OPENAI_DEFAULT_MODEL',
     'OPENAI_READINESS',
     'GEMINI_ENABLED',
-    'GEMINI_DEFAULT_MODEL'
+    'GEMINI_DEFAULT_MODEL',
+    'GEMINI_READINESS'
   ];
 }
 

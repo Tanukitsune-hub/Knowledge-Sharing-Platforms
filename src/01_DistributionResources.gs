@@ -33,5 +33,8 @@ function kspReadHtmlResource_(name) {
 }
 
 function kspCreateHtmlTemplate_(name) {
-  return HtmlService.createTemplate(kspReadHtmlResource_(name));
+  if (kspHasBundledHtmlResources_()) {
+    return HtmlService.createTemplate(kspReadHtmlResource_(name));
+  }
+  return HtmlService.createTemplateFromFile(String(name || '').trim());
 }

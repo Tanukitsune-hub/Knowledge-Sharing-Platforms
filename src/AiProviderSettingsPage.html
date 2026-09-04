@@ -30,6 +30,27 @@
       </div>
       <p id="ai-provider-openai-readonly" class="hint ai-provider-readonly"></p>
     </section>
+    <section class="card ai-provider-card" aria-labelledby="ai-provider-gemini-heading">
+      <h3 id="ai-provider-gemini-heading">Gemini</h3>
+      <dl class="ai-provider-state">
+        <dt>APIキー</dt><dd id="ai-provider-gemini-key">確認中…</dd>
+        <dt>File Search Store</dt><dd id="ai-provider-gemini-store">確認中…</dd>
+        <dt>状態</dt><dd id="ai-provider-gemini-status">確認中…</dd>
+      </dl>
+      <div class="actions"><div class="action-group">
+        <label for="ai-provider-gemini-key-input">Gemini APIキー</label>
+        <input id="ai-provider-gemini-key-input" type="password" autocomplete="new-password" spellcheck="false" placeholder="Script Propertiesへ安全に保存">
+        <label for="ai-provider-gemini-sync-source">個別同期対象</label>
+        <select id="ai-provider-gemini-sync-source" disabled><option value="Pitchbook">Pitchbook</option><option value="Meeting">Meeting</option></select>
+        <label for="ai-provider-gemini-sync-source-id">Source ID（必須）</label>
+        <input id="ai-provider-gemini-sync-source-id" type="text" autocomplete="off" spellcheck="false" placeholder="例: DOC-000017" disabled>
+        <button id="ai-provider-gemini-connect" class="action primary" type="button" disabled>APIキーを保存してStore確認</button>
+        <button id="ai-provider-gemini-enable" class="action secondary" type="button" disabled>資格済みGeminiを有効化</button>
+        <button id="ai-provider-gemini-disable" class="action secondary" type="button" disabled>Geminiを無効化</button>
+        <button id="ai-provider-gemini-sync" class="action secondary" type="button" disabled>選択資料を個別同期</button>
+      </div></div>
+      <p class="hint">有効化には、Store確認・個別同期・モデル/ThinkingのFile Search資格確認が必要です。</p>
+    </section>
     <section class="card ai-provider-card" aria-labelledby="ai-model-policy-heading">
       <h3 id="ai-model-policy-heading">モデル / Thinking ポリシー</h3>
       <p class="hint">利用者に表示する組み合わせだけを登録します。プロバイダが返す新しいモデルは自動で有効化されません。</p>

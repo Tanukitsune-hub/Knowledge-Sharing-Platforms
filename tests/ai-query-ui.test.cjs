@@ -27,6 +27,28 @@ test('bootstrap reports configured state and active search options',()=>{
   const env=createSyncEnvironment();const r=plain(ksp.kspGetKnowledgeSearchBootstrap_(env));assert.equal(r.ok,true);assert.equal(r.configured,true);assert.deepEqual(r.implementedModes,['自由質問']);assert.equal(r.options.gps.length,1);
 });
 
+test('normal-user Gemini route is absent until one current exact tuple is qualified',()=>{
+  const env=createSyncEnvironment();
+  env._debug.context.settings.GEMINI_ENABLED='true';
+  env._debug.context.settings.GEMINI_FILE_SEARCH_STORE='fileSearchStores/store-current';
+  env._debug.context.settings.GEMINI_DEFAULT_MODEL='gemini-3.8-flash';
+  env.getProviderConfig=(provider)=>provider==='GEMINI'
+    ?{provider,enabled:true,credentialConfigured:true,storeName:'fileSearchStores/store-current',modelId:'gemini-3.8-flash'}
+    :{provider,enabled:false,credentialConfigured:false,vectorStoreId:'',modelId:''};
+  const hidden=plain(ksp.kspGetProviderNeutralKnowledgeBootstrap_(env));
+  assert.equal(hidden.routes.some(route=>route.id==='GEMINI'),false);
+  env._debug.context.settings.AI_MODEL_POLICY_JSON=JSON.stringify({schemaVersion:1,updatedAt:'2026-09-04T00:00:00.000Z',profiles:[{
+    profileId:'gemini-38-low',provider:'GEMINI',modelId:'gemini-3.8-flash',displayName:'Gemini 3.8 Flash',family:'Gemini 3.8',
+    enabled:true,userVisible:true,isProviderDefault:true,apiAccess:'AVAILABLE',qualification:'QUALIFIED',fileSearch:true,
+    thinkingProfiles:[{thinkingProfileId:'low',label:'Low',rawValue:'low',providerDefault:false,enabled:true,qualification:'QUALIFIED',qualifiedAt:'2026-09-04T00:00:00.000Z'}],
+    defaultThinkingProfileId:'low',maxOutputTokens:2048,qualifiedStoreName:'fileSearchStores/store-current',
+    qualifiedRequestProfileVersion:'gemini-interactions-file-search-v2',createdAt:'2026-09-04T00:00:00.000Z',updatedAt:'2026-09-04T00:00:00.000Z',qualifiedAt:'2026-09-04T00:00:00.000Z'
+  }]});
+  const visible=plain(ksp.kspGetProviderNeutralKnowledgeBootstrap_(env));
+  assert.equal(visible.routes.some(route=>route.id==='GEMINI'),true);
+  assert.deepEqual(visible.modelPolicies.GEMINI.profiles[0].thinkingProfiles.map(item=>item.thinkingProfileId),['low']);
+});
+
 test('settings normalization and retry backoff are bounded',()=>{
   const s=plain(ksp.kspNormalizeAiSettings_({AI_SYNC_BATCH_SIZE:'500',AI_RETRY_BASE_MINUTES:'15',AI_RETRY_MAX_MINUTES:'60'}));assert.equal(s.syncBatchSize,10);assert.equal(ksp.kspCalculateAiRetryAt_('2026-08-16T00:00:00.000Z',5,s),'2026-08-16T01:00:00.000Z');
 });

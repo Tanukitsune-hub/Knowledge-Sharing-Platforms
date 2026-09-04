@@ -188,3 +188,25 @@ For the isolated target-runtime qualification, record actual START latency, indi
 Work 0020 completes when the provider-neutral core works end to end, the optimized request/lifecycle/UX contract is proven with isolated data, the required Pitchbook citation and lifecycle gates pass, and final integrity passes.
 
 A broader latency benchmark over representative Meeting/Pitchbook sizes and query modes should be a separate follow-up Work after Work 0020 closes. It must not reopen the completed core unless it finds material contradictory evidence.
+
+## Work 0026 current requalification result
+
+Work 0026 supersedes the historical model candidate and current provider-readiness result without changing the fail-closed architecture:
+
+```text
+CURRENT_PRIMARY_CANDIDATE: gemini-3.8-flash / explicit low / max output 2048
+CURRENT_TRANSPORT: Interactions + File Search
+CURRENT_PRIVATE_WEB_APP_VERSION: 69
+MODULAR_WEB_APP_SHELL: PASS
+EXACT_SMALL_SOURCE_RECONCILIATION: PASS / DOC-000017 and MTG-000005 only
+DIRECT_INTERACTIONS_QUALIFICATION: FAIL / safe final result after approximately 79 seconds
+EXPLICIT_MODEL_ACCESS_OR_UNSUPPORTED: NO
+GEMINI_3_7_FALLBACK: NOT_USED
+GEMINI_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
+NORMAL_USER_ROUTE: HIDDEN
+OPENAI_API_CALLED: NO
+```
+
+The exact Store/source readback and deterministic request/citation contracts passed, but the current synchronous 3.8 Interactions/File Search qualification did not return the required grounded answer plus authoritative citation. No qualifying evidence permits enabling Gemini. Do not continue with model, transport, Store, embedding or chunking experiments under Work 0026; a future requalification requires materially new provider evidence and a separately bounded Work.
+
+OpenAI and API-independent FULL_OUTPUT remain the production-capable routes. This outcome does not invalidate the responsive START/POLL architecture; it records that the provider gate was not reached because the prerequisite exact tuple did not qualify.

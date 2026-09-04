@@ -34,6 +34,13 @@ function kspCreateAiEnvironment_() {
     return true;
   };
 
+  base.saveGeminiApiKey = function (value) {
+    var key = kspAiTrim_(value);
+    kspAssert_(key && key.length <= 512, 'GEMINI_API_KEY_INVALID', 'Gemini API key is invalid.');
+    scriptProperties.setProperty(KSP_AI_PROPERTY_KEYS.API_KEY, key);
+    return true;
+  };
+
   base.ensureFileSearchStore = function (settings, displayName) {
     if (settings.storeName) return base.getFileSearchStore(settings.storeName);
     var created = base.createFileSearchStore(
@@ -100,10 +107,7 @@ function kspCreateAiEnvironment_() {
   };
 
   base.queryFileSearch = function (request) {
-    var lifecycle = kspGeminiStartInteractionLive_(request);
-    kspAssert_(lifecycle && lifecycle.status === 'completed', 'AI_QUERY_ASYNC_REQUIRED',
-      'Gemini検索は後続の確認が必要です。');
-    return lifecycle.response;
+    return kspGeminiQueryInteractionLive_(request);
   };
 
   base.readMeetingText = function (fileId) {

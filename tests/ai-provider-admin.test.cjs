@@ -8,7 +8,11 @@ function makeAdminEnvironment(options = {}) {
     OPENAI_ENABLED: options.enabled ? 'true' : 'false',
     OPENAI_VECTOR_STORE_ID: options.storeId || '',
     OPENAI_DEFAULT_MODEL: options.model === undefined ? '' : options.model,
-    OPENAI_READINESS: options.readiness === undefined ? '' : options.readiness
+    OPENAI_READINESS: options.readiness === undefined ? '' : options.readiness,
+    GEMINI_ENABLED: options.geminiEnabled ? 'true' : 'false',
+    GEMINI_FILE_SEARCH_STORE: options.geminiStore || '',
+    GEMINI_DEFAULT_MODEL: options.geminiModel || '',
+    GEMINI_READINESS: options.geminiReadiness || ''
   };
   const writes = [];
   const created = [];
@@ -16,10 +20,12 @@ function makeAdminEnvironment(options = {}) {
   const deleted = [];
   const syncCalls = [];
   const savedKeys = [];
+  const savedGeminiKeys = [];
   const connectionUploads = [];
   const connectionQueries = [];
   const connectionDeletes = [];
   let credentialConfigured = options.key !== false;
+  let geminiCredentialConfigured = options.geminiKey !== false;
   let readErrorRemaining = options.readError ? (options.readErrorOnce ? 1 : Number.MAX_SAFE_INTEGER) : 0;
   let clock = 0;
   return {
@@ -33,6 +39,12 @@ function makeAdminEnvironment(options = {}) {
     isAdministrator() { return options.admin !== false; },
     isOpenAiCredentialConfigured() { return credentialConfigured; },
     saveOpenAiApiKey() { savedKeys.push(true); credentialConfigured = true; },
+    isGeminiCredentialConfigured() { return geminiCredentialConfigured; },
+    saveGeminiApiKey() { savedGeminiKeys.push(true); geminiCredentialConfigured = true; },
+    getGeminiFileSearchStore(name) {
+      if (options.geminiStoreError) throw options.geminiStoreError;
+      return { name };
+    },
     createOpenAiVectorStore(name) {
       if (options.createError) throw options.createError;
       created.push(name);
@@ -88,7 +100,8 @@ function makeAdminEnvironment(options = {}) {
       context.settings[key] = String(value);
     },
     deleteOpenAiVectorStore() { deleted.push(true); },
-    _debug: { context, writes, created, read, deleted, syncCalls, savedKeys, connectionUploads, connectionQueries, connectionDeletes }
+    _debug: { context, writes, created, read, deleted, syncCalls, savedKeys, savedGeminiKeys,
+      connectionUploads, connectionQueries, connectionDeletes }
   };
 }
 
@@ -112,6 +125,115 @@ function withSyncStub(callback) {
   }
 }
 
+function geminiQualificationResponse(contentHash, options = {}) {
+  const citationMetadata = options.citationMetadata || {
+    source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
+  };
+  const annotations = options.withCitation === false ? [] : [{
+    type: 'file_citation',
+    source: options.citationSource || 'fileSearchStores/synthetic/documents/current',
+    custom_metadata: Object.entries(citationMetadata).map(([key, string_value]) => ({ key, string_value }))
+  }];
+  return {
+    status: 'completed',
+    steps: [{ type: 'model_output', content: [{
+      type: 'text', text: options.answer === undefined ? 'CODEX18_SYNTH_PITCHBOOK_20260830' : options.answer,
+      annotations
+    }] }]
+  };
+}
+
+function geminiGenerateContentQualificationResponse(contentHash, options = {}) {
+  const metadata = options.citationMetadata || {
+    source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
+  };
+  const groundingChunks = options.withCitation === false ? [] : [{
+    retrievedContext: {
+      title: 'synthetic.txt',
+      uri: options.citationSource || 'fileSearchStores/synthetic/documents/current',
+      customMetadata: Object.entries(metadata).map(([key, stringValue]) => ({ key, stringValue }))
+    }
+  }];
+  return {
+    candidates: [{
+      finishReason: 'STOP',
+      content: { parts: [{ text: options.answer === undefined
+        ? 'CODEX18_SYNTH_PITCHBOOK_20260830' : options.answer }] },
+      groundingMetadata: { groundingChunks }
+    }]
+  };
+}
+
+function makeGeminiQualificationEnvironment(sequence = []) {
+  const context = baseContext();
+  context.state = { config: { adminEmails: ['admin@example.com'] }, resources: {} };
+  context.pitchbookRows[0] = { ...context.pitchbookRows[0], Document_ID: 'DOC-000017',
+    File_URL: 'https://drive.test/doc-17', Status: 'Active' };
+  const bytes = Array.from(Buffer.from('CODEX18_SYNTH_PITCHBOOK_20260830', 'utf8'));
+  const contentHash = ksp.kspAiHashBytesFallback_(bytes);
+  const profile = {
+    profileId: 'gemini-38-low', provider: 'GEMINI', modelId: 'gemini-3.8-flash',
+    displayName: 'Gemini 3.8 Flash', family: 'Gemini 3.8', enabled: true, userVisible: true,
+    isProviderDefault: true, maxOutputTokens: 2048,
+    thinkingProfiles: [{ thinkingProfileId: 'low', label: 'Low', rawValue: 'low',
+      providerDefault: false, enabled: true }],
+    defaultThinkingProfileId: 'low'
+  };
+  const policy = plain(ksp.kspNormalizeAiModelPolicy_({ schemaVersion: 1,
+    updatedAt: '2026-09-04T00:00:00.000Z', profiles: [profile] }));
+  context.settings = {
+    ...context.settings,
+    GEMINI_ENABLED: 'false',
+    GEMINI_FILE_SEARCH_STORE_NAME: 'fileSearchStores/synthetic',
+    GEMINI_DEFAULT_MODEL: 'gemini-3.8-flash',
+    GEMINI_READINESS: 'READY_FOR_QUALIFICATION',
+    AI_MODEL_POLICY_JSON: JSON.stringify(policy)
+  };
+  const calls = [];
+  const writes = [];
+  let clock = 0;
+  let queryIndex = 0;
+  const env = {
+    nowIso() { clock += 1; return `2026-09-04T00:00:${String(clock).padStart(2, '0')}.000Z`; },
+    loadAiContext() { return context; },
+    ensureAiSettings(rows) {
+      (rows || []).forEach((row) => {
+        if (!(row.Key in context.settings)) context.settings[row.Key] = row.Value;
+      });
+    },
+    isAdministrator() { return true; },
+    isGeminiCredentialConfigured() { return true; },
+    readPitchbookSource() { return { mimeType: 'text/plain', bytes }; },
+    hashBytes(value) { return ksp.kspAiHashBytesFallback_(value); },
+    findProviderDocumentsBySource(provider, config, sourceType, sourceId) {
+      assert.equal(provider, 'GEMINI');
+      assert.equal(sourceType, 'Pitchbook');
+      assert.equal(sourceId, 'DOC-000017');
+      return [{ name: 'fileSearchStores/synthetic/documents/current', state: 'ACTIVE', customMetadata: {
+        source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
+      } }];
+    },
+    queryProvider(provider, config, request) {
+      calls.push({ provider, config: plain(config), request: plain(request) });
+      const behavior = sequence[queryIndex++];
+      if (typeof behavior === 'function') return behavior({ provider, config, request, contentHash });
+      if (behavior instanceof Error) throw behavior;
+      return behavior === undefined ? geminiQualificationResponse(contentHash) : behavior;
+    },
+    writeAiSetting(key, value) {
+      writes.push({ key, value: String(value) });
+      context.settings[key] = String(value);
+    },
+    _debug: { context, calls, writes, contentHash, profile }
+  };
+  return env;
+}
+
+function runGeminiQualification(env, transport = 'INTERACTIONS') {
+  return ksp.kspRunGeminiExactTupleQualification_(env, env._debug.context,
+    ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low', transport);
+}
+
 test('OpenAI key absence fails safely and leaves the provider disabled', () => {
   const env = makeAdminEnvironment({ key: false });
   const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
@@ -121,6 +243,305 @@ test('OpenAI key absence fails safely and leaves the provider disabled', () => {
   assert.equal(env._debug.created.length, 0);
   assert.equal(env._debug.writes.length, 0);
   assert.doesNotMatch(JSON.stringify(result), /vs-synthetic|KSP_OPENAI_API_KEY|secret/i);
+});
+
+test('Gemini credential and Store administration is boolean-only and administrator-guarded', () => {
+  const denied = makeAdminEnvironment({ admin: false, geminiKey: false,
+    geminiStore: 'fileSearchStores/private-store' });
+  const deniedResult = plain(ksp.kspMutateAiProviderSettings_(denied, {
+    action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
+  }));
+  assert.equal(deniedResult.ok, false);
+  assert.equal(deniedResult.error.code, 'AI_PROVIDER_ADMIN_UNAUTHORIZED');
+  assert.equal(denied._debug.savedGeminiKeys.length, 0);
+
+  const env = makeAdminEnvironment({ geminiKey: false, geminiStore: 'fileSearchStores/private-store' });
+  const connected = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
+  }));
+  assert.equal(connected.ok, true, JSON.stringify(connected));
+  assert.equal(connected.readyForQualification, true);
+  assert.equal(env._debug.savedGeminiKeys.length, 1);
+  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'READY_FOR_QUALIFICATION');
+  const adminData = plain(ksp.kspGetAiProviderAdminData_(env));
+  assert.equal(adminData.gemini.keyConfigured, true);
+  assert.equal(adminData.gemini.storeReady, true);
+  assert.doesNotMatch(JSON.stringify(adminData), /gemini-secret-synthetic|private-store|KSP_GEMINI_API_KEY/);
+});
+
+test('Gemini qualification sends one exact 3.8 low 2048 Interactions File Search tuple', () => {
+  const context = baseContext();
+  context.pitchbookRows[0] = { ...context.pitchbookRows[0], Document_ID: 'DOC-000017',
+    File_URL: 'https://drive.test/doc-17', Status: 'Active' };
+  const bytes = Array.from(Buffer.from('CODEX18_SYNTH_PITCHBOOK_20260830', 'utf8'));
+  const contentHash = ksp.kspAiHashBytesFallback_(bytes);
+  const calls = [];
+  const env = {
+    readPitchbookSource() { return { mimeType: 'text/plain', bytes }; },
+    hashBytes(value) { return ksp.kspAiHashBytesFallback_(value); },
+    findProviderDocumentsBySource(provider, config, sourceType, sourceId) {
+      assert.equal(provider, 'GEMINI');
+      assert.equal(sourceType, 'Pitchbook');
+      assert.equal(sourceId, 'DOC-000017');
+      return [{ name: 'fileSearchStores/private/documents/current', state: 'ACTIVE', customMetadata: {
+        source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
+      } }];
+    },
+    queryProvider(provider, config, request) {
+      calls.push({ provider, config: plain(config), request: plain(request) });
+      return { status: 'completed', steps: [{ type: 'model_output', content: [{
+        type: 'text', text: 'CODEX18_SYNTH_PITCHBOOK_20260830', annotations: [{
+          type: 'file_citation', source: 'fileSearchStores/private/documents/current', custom_metadata: [
+            { key: 'source_type', string_value: 'Pitchbook' },
+            { key: 'source_id', string_value: 'DOC-000017' },
+            { key: 'content_hash', string_value: contentHash }
+          ]
+        }]
+      }] }] };
+    }
+  };
+  const qualification = plain(ksp.kspRunGeminiExactTupleQualification_(env, context,
+    ksp.kspNormalizeAiSettings_({ GEMINI_FILE_SEARCH_STORE_NAME: 'fileSearchStores/private' }), {
+      profileId: 'gemini-38-low', provider: 'GEMINI', modelId: 'gemini-3.8-flash',
+      maxOutputTokens: 2048, thinkingProfiles: [{ thinkingProfileId: 'low', rawValue: 'low',
+        providerDefault: false, enabled: true }]
+    }, 'low'));
+  assert.equal(qualification.status, 'PASS');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].config.modelId, 'gemini-3.8-flash');
+  assert.equal(calls[0].config.thinkingRawValue, 'low');
+  assert.equal(calls[0].config.maxOutputTokens, 2048);
+  assert.deepEqual(calls[0].request.generation_config, { max_output_tokens: 2048, thinking_level: 'low' });
+  assert.match(calls[0].request.metadataFilter, /source_id = "DOC-000017"/);
+});
+
+test('Gemini qualification keeps no-answer, no-citation, and citation-identity failures distinct', () => {
+  const noAnswerEnv = makeGeminiQualificationEnvironment([
+    ({ contentHash }) => geminiQualificationResponse(contentHash, { answer: 'unrelated answer' })
+  ]);
+  assert.throws(() => runGeminiQualification(noAnswerEnv), (error) => {
+    assert.equal(error.code, 'AI_GEMINI_QUALIFICATION_NO_GROUNDED_ANSWER');
+    assert.equal(error.qualificationDiagnostic.classification, 'COMPLETED_NO_GROUNDED_ANSWER');
+    assert.equal(error.qualificationDiagnostic.answerPresent, true);
+    assert.equal(error.qualificationDiagnostic.expectedTokenPresent, false);
+    return true;
+  });
+
+  const noCitationEnv = makeGeminiQualificationEnvironment([
+    ({ contentHash }) => geminiQualificationResponse(contentHash, { withCitation: false })
+  ]);
+  assert.throws(() => runGeminiQualification(noCitationEnv), (error) => {
+    assert.equal(error.code, 'AI_GEMINI_QUALIFICATION_NO_FILE_CITATION');
+    assert.equal(error.qualificationDiagnostic.classification, 'COMPLETED_NO_FILE_CITATION');
+    assert.equal(error.qualificationDiagnostic.fileCitationCount, 0);
+    return true;
+  });
+
+  const mismatchEnv = makeGeminiQualificationEnvironment([
+    ({ contentHash }) => geminiQualificationResponse(contentHash, {
+      citationMetadata: { source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: 'stale-hash' }
+    })
+  ]);
+  assert.throws(() => runGeminiQualification(mismatchEnv), (error) => {
+    assert.equal(error.code, 'AI_GEMINI_QUALIFICATION_CITATION_MISMATCH');
+    assert.equal(error.qualificationDiagnostic.classification, 'CITATION_IDENTITY_OR_METADATA_MISMATCH');
+    assert.equal(error.qualificationDiagnostic.fileCitationCount, 1);
+    assert.equal(error.qualificationDiagnostic.authoritativeCitationMatched, false);
+    return true;
+  });
+});
+
+test('Gemini response-shape failure is a product defect and never writes external limitation', () => {
+  const env = makeGeminiQualificationEnvironment([{ status: 'completed' }]);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
+  assert.equal(result.qualificationEvidence.queryCalls, 1);
+  assert.equal(result.qualificationEvidence.primary.classification, 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
+  assert.equal(result.qualificationEvidence.exactExternalLimitation, 'NONE');
+  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'ERROR');
+  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  const settings = ksp.kspNormalizeAiSettings_(env._debug.context.settings);
+  const choices = plain(ksp.kspGetEffectiveAiModelChoices_(settings, 'GEMINI', {
+    provider: 'GEMINI', enabled: true, credentialConfigured: true,
+    storeName: settings.geminiStoreName, modelId: settings.geminiModelId
+  }, ''));
+  assert.equal(choices.profiles.length, 0);
+});
+
+test('model unsupported evidence opens only the one 3.7 Interactions fallback', () => {
+  const modelError = new Error('PRIVATE_PROVIDER_MESSAGE');
+  modelError.code = 'AI_GEMINI_MODEL_UNSUPPORTED';
+  modelError.httpStatus = 404;
+  modelError.providerErrorCodes = ['model_not_found'];
+  const env = makeGeminiQualificationEnvironment([
+    modelError,
+    ({ contentHash }) => geminiQualificationResponse(contentHash)
+  ]);
+  const campaign = plain(ksp.kspRunGeminiBoundedQualificationCampaign_(env, env._debug.context,
+    ksp.kspNormalizeAiSettings_(env._debug.context.settings), env._debug.profile, 'low'));
+  assert.equal(campaign.status, 'PASS');
+  assert.equal(campaign.selectedProfile.modelId, 'gemini-3.7-flash');
+  assert.equal(campaign.evidence.queryCalls, 2);
+  assert.equal(campaign.evidence.primary.classification, 'MODEL_ACCESS_OR_UNSUPPORTED');
+  assert.equal(campaign.evidence.secondControl, '3_7_INTERACTIONS');
+  assert.equal(campaign.evidence.second.classification, 'PASS');
+  assert.deepEqual(env._debug.calls.map((call) => call.config.modelId),
+    ['gemini-3.8-flash', 'gemini-3.7-flash']);
+  assert.ok(env._debug.calls.every((call) => call.config.queryTransport === 'INTERACTIONS'));
+  assert.doesNotMatch(JSON.stringify(campaign), /PRIVATE_PROVIDER_MESSAGE/);
+});
+
+test('successful 3.8 administrator qualification persists the exact tuple without exposing provider identity', () => {
+  const env = makeGeminiQualificationEnvironment([
+    ({ contentHash }) => geminiQualificationResponse(contentHash)
+  ]);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
+  }));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.qualification.status, 'PASS');
+  assert.equal(result.qualification.evidence.queryCalls, 1);
+  assert.equal(result.qualification.evidence.primary.classification, 'PASS');
+  assert.equal(result.qualification.evidence.secondControl, 'NOT_USED');
+  assert.equal(result.qualification.evidence.exactExternalLimitation, 'NONE');
+  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'QUALIFIED_DISABLED');
+  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  assert.equal(env._debug.calls.length, 1);
+  assert.equal(env._debug.calls[0].config.modelId, 'gemini-3.8-flash');
+  assert.equal(env._debug.calls[0].config.thinkingRawValue, 'low');
+  assert.equal(env._debug.calls[0].config.maxOutputTokens, 2048);
+  const qualified = result.modelPolicy.profiles.find((item) => item.profileId === 'gemini-38-low');
+  assert.equal(qualified.qualification, 'QUALIFIED');
+  assert.equal(qualified.thinkingProfiles[0].qualification, 'QUALIFIED');
+  assert.doesNotMatch(JSON.stringify(result), /fileSearchStores\/synthetic|documents\/current/);
+});
+
+test('successful 3.7 fallback persists only the evidence-supported fallback as the Gemini default', () => {
+  const unsupported = Object.assign(new Error('PRIVATE_PROVIDER_MESSAGE'), {
+    code: 'AI_GEMINI_MODEL_UNSUPPORTED', httpStatus: 404,
+    providerErrorCodes: ['model_not_found']
+  });
+  const env = makeGeminiQualificationEnvironment([
+    unsupported,
+    ({ contentHash }) => geminiQualificationResponse(contentHash)
+  ]);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
+  }));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.qualification.evidence.queryCalls, 2);
+  assert.equal(result.qualification.evidence.primary.classification, 'MODEL_ACCESS_OR_UNSUPPORTED');
+  assert.equal(result.qualification.evidence.secondControl, '3_7_INTERACTIONS');
+  assert.equal(result.qualification.evidence.second.classification, 'PASS');
+  assert.equal(env._debug.context.settings.GEMINI_DEFAULT_MODEL, 'gemini-3.7-flash');
+  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'QUALIFIED_DISABLED');
+  const primary = result.modelPolicy.profiles.find((item) => item.profileId === 'gemini-38-low');
+  const fallback = result.modelPolicy.profiles.find((item) => item.profileId === 'gemini-37-low');
+  assert.equal(primary.qualification, 'FAILED');
+  assert.equal(primary.isProviderDefault, false);
+  assert.equal(fallback.qualification, 'QUALIFIED');
+  assert.equal(fallback.isProviderDefault, true);
+  assert.deepEqual(env._debug.calls.map((call) => call.config.modelId),
+    ['gemini-3.8-flash', 'gemini-3.7-flash']);
+  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE|fileSearchStores\/synthetic|documents\/current/);
+});
+
+test('application failure in the authorized 3.7 fallback remains a product defect', () => {
+  const unsupported = Object.assign(new Error('PRIVATE_PROVIDER_MESSAGE'), {
+    code: 'AI_GEMINI_MODEL_UNSUPPORTED', httpStatus: 404,
+    providerErrorCodes: ['model_not_found']
+  });
+  const env = makeGeminiQualificationEnvironment([unsupported, { status: 'completed' }]);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
+  assert.equal(result.qualificationEvidence.queryCalls, 2);
+  assert.equal(result.qualificationEvidence.primary.classification, 'MODEL_ACCESS_OR_UNSUPPORTED');
+  assert.equal(result.qualificationEvidence.second.classification, 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
+  assert.equal(result.qualificationEvidence.exactExternalLimitation, 'NONE');
+  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'ERROR');
+  assert.equal(env._debug.calls.length, 2);
+  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE|fileSearchStores\/synthetic|documents\/current/);
+});
+
+test('provider terminal evidence runs only the 3.8 GenerateContent control and remains safely external', () => {
+  const terminalError = new Error('PRIVATE_PROVIDER_MESSAGE');
+  terminalError.code = 'AI_QUERY_PROVIDER_TERMINAL';
+  terminalError.providerStatus = 'failed';
+  terminalError.providerErrorCodes = ['service_unavailable', 'private_provider_identifier'];
+  const env = makeGeminiQualificationEnvironment([
+    terminalError,
+    ({ contentHash }) => geminiGenerateContentQualificationResponse(contentHash)
+  ]);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'AI_GEMINI_EXTERNAL_LIMITATION');
+  assert.equal(result.qualificationEvidence.queryCalls, 2);
+  assert.equal(result.qualificationEvidence.primary.classification, 'PROVIDER_TERMINAL_FAILED');
+  assert.deepEqual(result.qualificationEvidence.primary.providerErrorCodes, ['service_unavailable']);
+  assert.equal(result.qualificationEvidence.secondControl, '3_8_GENERATE_CONTENT');
+  assert.equal(result.qualificationEvidence.second.classification, 'PASS');
+  assert.equal(result.qualificationEvidence.exactExternalLimitation, 'INTERACTIONS_SPECIFIC_LIMITATION');
+  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'DISABLED_EXTERNAL_LIMITATION');
+  assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
+  assert.deepEqual(env._debug.calls.map((call) => call.config.queryTransport),
+    ['INTERACTIONS', 'GENERATE_CONTENT']);
+  assert.ok(env._debug.calls.every((call) => call.provider === 'GEMINI'));
+  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE|private_provider_identifier/);
+});
+
+test('invalid-request and unknown failures remain product defects without a second provider call', () => {
+  for (const failure of [
+    Object.assign(new Error('PRIVATE_INVALID_REQUEST'), {
+      code: 'AI_QUERY_HTTP_FAILED', httpStatus: 400, providerErrorCodes: ['invalid_request']
+    }),
+    new Error('PRIVATE_UNKNOWN_APPLICATION_FAILURE')
+  ]) {
+    const env = makeGeminiQualificationEnvironment([failure]);
+    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+      action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
+    }));
+    assert.equal(result.ok, false);
+    assert.equal(result.error.code, 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE');
+    assert.equal(result.qualificationEvidence.queryCalls, 1);
+    assert.equal(result.qualificationEvidence.primary.classification,
+      'RESPONSE_SHAPE_OR_APPLICATION_FAILURE');
+    assert.equal(result.qualificationEvidence.secondControl, 'NOT_USED');
+    assert.equal(result.qualificationEvidence.exactExternalLimitation, 'NONE');
+    assert.equal(env._debug.context.settings.GEMINI_READINESS, 'ERROR');
+    assert.equal(env._debug.calls.length, 1);
+    assert.doesNotMatch(JSON.stringify(result), /PRIVATE_INVALID_REQUEST|PRIVATE_UNKNOWN_APPLICATION_FAILURE/);
+  }
+});
+
+test('explicit external HTTP evidence is retained safely without a transport fallback', () => {
+  const providerError = Object.assign(new Error('PRIVATE_PROVIDER_MESSAGE'), {
+    code: 'AI_QUERY_HTTP_FAILED', httpStatus: 503,
+    providerErrorCodes: ['service_unavailable', 'private_provider_identifier']
+  });
+  const env = makeGeminiQualificationEnvironment([providerError]);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'AI_GEMINI_EXTERNAL_LIMITATION');
+  assert.equal(result.qualificationEvidence.queryCalls, 1);
+  assert.equal(result.qualificationEvidence.primary.classification, 'HTTP_OR_CREDENTIAL_FAILURE');
+  assert.equal(result.qualificationEvidence.primary.httpStatus, 503);
+  assert.deepEqual(result.qualificationEvidence.primary.providerErrorCodes, ['service_unavailable']);
+  assert.equal(result.qualificationEvidence.secondControl, 'NOT_USED');
+  assert.equal(result.qualificationEvidence.exactExternalLimitation, 'HTTP_OR_CREDENTIAL_FAILURE');
+  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'DISABLED_EXTERNAL_LIMITATION');
+  assert.equal(env._debug.calls.length, 1);
+  assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_MESSAGE|private_provider_identifier/);
 });
 
 test('OpenAI Store creation uses a synthetic official REST POST and returns only the server-side resource', () => {
@@ -477,8 +898,8 @@ test('admin provider surface exposes policy-safe exact model fields without cred
   assert.match(page, /id="ai-model-thinking-qualification-state"/);
   assert.match(client, /getAiProviderAdminData/);
   assert.match(client, /mutateAiProviderSettings/);
-  assert.match(client, /sourceType:action==='SYNC'\?\(sourceType\|\|''\):''/);
-  assert.match(client, /sourceId:action==='SYNC'\?\(sourceId\|\|''\):''/);
+  assert.match(client, /const isSync=action==='SYNC'\|\|action==='SYNC_GEMINI'/);
+  assert.match(client, /sourceId:isSync\?\(sourceId\|\|''\):''/);
   assert.match(client, /OPENAI_INDEX_TIMEOUT/);
   assert.match(client, /sync\.selected/);
   assert.match(client, /sync\.failed/);

@@ -22,6 +22,7 @@ function kspBuildMetadataFilter_(filters) {
   addComparison('follow_up_required', '=', input.followUp === 'REQUIRED' ? 'true' :
     (input.followUp === 'NOT_REQUIRED' ? 'false' : ''));
   addComparison('source_type', '=', input.sourceType);
+  addComparison('source_id', '=', input.sourceId);
   return clauses.join(' AND ');
 }
 
@@ -85,10 +86,7 @@ function kspBuildInteractionRequest_(params) {
     input: kspBuildFreeQuestionPrompt_(question),
     tools: [tool],
     background: true,
-    generation_config: {
-      thinking_level: KSP_AI_DEFAULTS.QUERY_THINKING_LEVEL,
-      max_output_tokens: KSP_AI_DEFAULTS.QUERY_MAX_OUTPUT_TOKENS
-    }
+    generation_config: kspGeminiGenerationConfig_(options)
   };
 }
 

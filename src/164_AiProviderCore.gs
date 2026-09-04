@@ -273,6 +273,7 @@ function kspBuildAiProviderConfig_(settings, provider) {
     enabled: Boolean(source.geminiEnabled),
     storeName: kspAiTrim_(source.geminiStoreName || source.storeName),
     modelId: kspAiTrim_(source.geminiModelId || source.modelId),
+    readiness: kspAiTrim_(source.geminiReadiness || 'UNCONFIGURED').toUpperCase(),
     embeddingModel: kspAiTrim_(source.embeddingModel || KSP_AI_DEFAULTS.EMBEDDING_MODEL),
     queryTransport: KSP_AI_DEFAULTS.QUERY_TRANSPORT,
     credentialConfigured: false
@@ -601,7 +602,7 @@ function kspCreateProviderNeutralAiEnvironment_() {
         config.credentialConfigured = false;
       }
     }
-    if (config.provider === KSP_AI_PROVIDERS.GEMINI && config.enabled) {
+    if (config.provider === KSP_AI_PROVIDERS.GEMINI) {
       try {
         kspGeminiApiKeyLive_();
         config.credentialConfigured = true;
@@ -661,6 +662,17 @@ function kspCreateProviderNeutralAiEnvironment_() {
       ? kspOpenAiDeleteDocumentLive_(config.vectorStoreId, documentValue)
       : base.deleteFileSearchDocument(config.storeName, documentValue.name);
   };
+  base.isGeminiCredentialConfigured = function () {
+    try {
+      kspGeminiApiKeyLive_();
+      return true;
+    } catch (ignored) {
+      return false;
+    }
+  };
+  base.getGeminiFileSearchStore = function (storeName) {
+    return base.getFileSearchStore(storeName);
+  };
   base.updateProviderDocumentAttributes = function (provider, config, documentValue, attributes) {
     kspAssert_(provider === KSP_AI_PROVIDERS.OPENAI, 'AI_PROVIDER_UNSUPPORTED',
       'Provider document attributes cannot be updated for this provider.');
@@ -671,10 +683,7 @@ function kspCreateProviderNeutralAiEnvironment_() {
     if (config && config.queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT) {
       return kspGeminiGenerateContentLive_(request);
     }
-    var lifecycle = base.startQueryFileSearch(kspBuildFeatureFreezeInteractionRequest_(request));
-    kspAssert_(lifecycle && lifecycle.status === 'completed', 'AI_QUERY_ASYNC_REQUIRED',
-      'Gemini検索は後続の確認が必要です。');
-    return lifecycle.response;
+    return base.queryFileSearch(kspBuildFeatureFreezeInteractionRequest_(request));
   };
   base.startQueryProvider = function (provider, config, request) {
     return provider === KSP_AI_PROVIDERS.OPENAI
@@ -1011,9 +1020,7 @@ function kspBuildSafeKnowledgeQueryTelemetry_(state, providerStatus, response, e
   if (queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT ||
       queryTransport === KSP_AI_QUERY_TRANSPORTS.INTERACTIONS) {
     output.query_transport = queryTransport;
-    output.query_transport_version = queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT
-      ? KSP_AI_DEFAULTS.QUERY_TRANSPORT_VERSION
-      : KSP_AI_DEFAULTS.INTERACTIONS_API_REVISION;
+    output.query_transport_version = KSP_AI_DEFAULTS.QUERY_TRANSPORT_VERSION;
   }
   var safeStatuses = ['queued', 'in_progress', 'completed', 'failed', 'cancelled',
     'requires_action', 'incomplete', 'budget_exceeded'];
@@ -1399,6 +1406,14 @@ function kspGetProviderNeutralKnowledgeBootstrap_(environment) {
       modelPolicies[provider] = kspGetEffectiveAiModelChoices_(settings, provider, config,
         typeof environment.nowIso === 'function' ? environment.nowIso() : '');
     });
+    var routes = [
+      { id: KSP_AI_ROUTES.CHATGPT, label: 'ChatGPT' },
+      { id: KSP_AI_ROUTES.FULL_EXPORT, label: '全文出力' }
+    ];
+    if (providers[KSP_AI_PROVIDERS.GEMINI].configured &&
+        modelPolicies[KSP_AI_PROVIDERS.GEMINI].profiles.length > 0) {
+      routes.splice(1, 0, { id: KSP_AI_ROUTES.GEMINI, label: 'Gemini' });
+    }
     return {
       ok: true,
       workId: '0021',
@@ -1406,11 +1421,7 @@ function kspGetProviderNeutralKnowledgeBootstrap_(environment) {
       configured: true,
       providers: providers,
       modelPolicies: modelPolicies,
-      routes: [
-        { id: KSP_AI_ROUTES.CHATGPT, label: 'ChatGPT' },
-        { id: KSP_AI_ROUTES.GEMINI, label: 'Gemini' },
-        { id: KSP_AI_ROUTES.FULL_EXPORT, label: '全文出力' }
-      ],
+      routes: routes,
       implementedModes: KSP_FEATURE_FREEZE_MODE_ORDER.slice(),
       targetModes: KSP_FEATURE_FREEZE_MODE_ORDER.slice(),
       modeDefinitions: kspGetKnowledgeModeDefinitions_(),
@@ -1548,6 +1559,9 @@ function kspRunProviderNeutralAiSync_(environment, options) {
       report.errors.push({ provider: provider, code: kspGetErrorCode_(configError) });
       return;
     }
+    var exactDisabledProvider = !config.enabled && force && Boolean(selection.sourceId) &&
+      syncOptions.allowDisabledExactProvider === true;
+    if (exactDisabledProvider) config.enabled = true;
     report.providers[provider] = {
       enabled: Boolean(config.enabled), usable: Boolean(config.enabled), indexed: 0, metadataRefreshed: 0, failed: 0,
       status: config.enabled ? 'READY' : 'DISABLED_BY_CONFIG'
@@ -1572,24 +1586,26 @@ function kspRunProviderNeutralAiSync_(environment, options) {
           var docs = typeof environment.findProviderDocumentsBySource === 'function'
             ? environment.findProviderDocumentsBySource(provider, effectiveConfig, item.sourceType, item.sourceId) : [];
           var providerState = kspGetAiProviderStateEntry_(item.row, provider);
-          if (provider === KSP_AI_PROVIDERS.OPENAI && selection.sourceId) {
+          if (selection.sourceId) {
             var priorIdentityMatches = (docs || []).filter(function (doc) {
               var priorMetadata = doc.attributes || doc.customMetadata || {};
               var priorDocumentId = String(doc.providerDocumentId || doc.fileId || '');
               return String(priorMetadata.source_type || '') === item.sourceType &&
                 String(priorMetadata.source_id || '') === item.sourceId &&
                 String(priorMetadata.content_hash || '') === providerState.contentHash &&
-                (!providerState.providerDocumentId || providerState.providerDocumentId === priorDocumentId);
+                (!providerState.providerDocumentId || providerState.providerDocumentId === priorDocumentId) &&
+                (provider === KSP_AI_PROVIDERS.OPENAI || !providerState.documentName ||
+                  providerState.documentName === String(doc.name || ''));
             });
             var hasPriorIdentity = providerState.status === KSP_AI_INDEX_STATUS.INDEXED &&
               providerState.documentName && providerState.contentHash;
             if (hasPriorIdentity) {
               kspAssert_((docs || []).length === 1 && priorIdentityMatches.length === 1,
                 'AI_EXACT_SOURCE_RECONCILIATION_NOT_UNIQUE',
-                'Exact OpenAI source reconciliation did not return one prior document.');
+                'Exact provider source reconciliation did not return one prior document.');
             } else {
               kspAssert_((docs || []).length === 0, 'AI_EXACT_SOURCE_RECONCILIATION_NOT_UNIQUE',
-                'Exact OpenAI source reconciliation found an unowned document.');
+                'Exact provider source reconciliation found an unowned document.');
             }
           }
           if (String(item.row.Status) === KSP_STATUS.INACTIVE) {
@@ -1629,19 +1645,21 @@ function kspRunProviderNeutralAiSync_(environment, options) {
             var exactIdentity = String(metadata.source_type || '') === item.sourceType &&
               String(metadata.source_id || '') === item.sourceId &&
               String(metadata.content_hash || '') === source.contentHash;
-            return (provider === KSP_AI_PROVIDERS.OPENAI ? exactIdentity : String(metadata.source_id || '') === item.sourceId) &&
+            return exactIdentity &&
               providerState.contentHash === source.contentHash &&
-              (!providerState.providerDocumentId || providerState.providerDocumentId === documentId);
+              (!providerState.providerDocumentId || providerState.providerDocumentId === documentId) &&
+              (provider === KSP_AI_PROVIDERS.OPENAI || !providerState.documentName ||
+                providerState.documentName === String(doc.name || ''));
           });
-          var exactCurrentOpenAi = provider === KSP_AI_PROVIDERS.OPENAI && selection.sourceId &&
+          var exactCurrentProvider = Boolean(selection.sourceId) &&
             providerState.status === KSP_AI_INDEX_STATUS.INDEXED &&
             providerState.contentHash === source.contentHash;
-          if (exactCurrentOpenAi) {
+          if (exactCurrentProvider) {
             kspAssert_(matching.length === 1, 'AI_EXACT_SOURCE_RECONCILIATION_NOT_UNIQUE',
-              'Exact OpenAI source reconciliation did not return one current document.');
+              'Exact provider source reconciliation did not return one current document.');
           }
           if (matching.length) {
-            if (provider === KSP_AI_PROVIDERS.OPENAI) {
+            if (provider === KSP_AI_PROVIDERS.OPENAI || selection.sourceId) {
               kspAssert_(matching.length === 1, 'AI_CURRENT_SOURCE_RECONCILIATION_NOT_UNIQUE',
                 'OpenAI source reconciliation did not return one current document.');
             }
@@ -1671,7 +1689,7 @@ function kspRunProviderNeutralAiSync_(environment, options) {
             var staleDocuments = (docs || []).filter(function (doc) {
               return kspProviderDocumentIdentity_(doc) !== selectedIdentity;
             });
-            if (provider !== KSP_AI_PROVIDERS.OPENAI) staleDocuments = matching.slice(1);
+            if (provider !== KSP_AI_PROVIDERS.OPENAI && !selection.sourceId) staleDocuments = matching.slice(1);
             var currentPatch = kspProviderIndexedStatePatch_(provider, effectiveConfig, selected,
               source.contentHash, providerState.indexedAt || environment.nowIso());
             var staleDiagnostics = kspDeleteProviderDocumentsBestEffort_(environment, provider,
