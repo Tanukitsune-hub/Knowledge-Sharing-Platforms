@@ -2,12 +2,24 @@
 
 WORK_ID: `0027`  
 ACTIVE_DISPATCH_ID: `0027-CODEX-01`  
-BALL: `CODEX`  
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 ## Current dispatch
 
 ### 0027-CODEX-01 — Gemini transient resilience and File Search end-to-end qualification
+
+Dispatch result:
+
+```text
+LOGIC_VALIDATION: PASS / 431 of 431
+PRIVATE_WEB_APP_VERSION: 71
+MODELS_SHORT_INTERACTIONS_UPLOAD_INDEX_READBACK: PASS
+FILE_SEARCH_QUERY: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE
+TEMPORARY_RESOURCE_CLEANUP: PASS
+TERMINAL_OUTCOME: DISABLED_TRANSIENT_PROVIDER_LIMITATION
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+```
 
 Primary outcome:
 
@@ -55,4 +67,4 @@ OPENAI_API: 0
 FULL_OUTPUT_LIVE: 0
 ```
 
-A return from Codex requires a new Dispatch ID for any later execution. User-assisted editor/browser continuation within the same run retains `0027-CODEX-01`.
+CODEX-01 has returned to ChatGPT. Any later execution requires a new Dispatch ID; do not replay this bounded provider campaign under CODEX-01.

@@ -1,8 +1,8 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_VERIFIED_AT: 2026-09-04 JST  
-LAST_VERIFIED_BY: ChatGPT after independent company-GAS evidence review  
-STATUS: ACTIVE / Web App version 70 accepted; Work 0027 ready
+LAST_VERIFIED_BY: CODEX-01 after version-71 deployment and bounded Gemini E2E
+STATUS: ACTIVE / Web App version 71; Work 0027 returned for review
 
 ## Source
 
@@ -25,18 +25,18 @@ Do not record local workspace paths, private editor/deployment URLs, Script IDs,
 ```text
 TARGET_RUNTIME_TYPE: Google Apps Script V8 / private Web App
 ENVIRONMENT: isolated personal DEV / qualification
-DEPLOYMENT_VERSION: 70
+DEPLOYMENT_VERSION: 71
 ROOT_PAGE_RENDER_AND_BOOTSTRAP: PASS
 KNOWLEDGE_PAGE_RENDER_AND_BOOTSTRAP: PASS
 LITERAL_INCLUDE_DIRECTIVES: 0
 BLOCKING_BROWSER_CONSOLE_ERRORS: 0
-SOURCE_DELIVERY_READBACK: PASS / 82 of 82 at Work 0026
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82 at Work 0027
 VERSION_67: unused / never deploy
 VERSION_68: superseded / modular shell failed
 VERSION_69: superseded / shell repaired
-VERSION_70: current / shell PASS
-EXPECTED_WORK_0027_VERSION: 71 / maximum one new version
-VERSION_72_OR_HIGHER: prohibited in 0027-CODEX-01
+VERSION_70: superseded / Work 0026 shell PASS
+VERSION_71: current / Work 0027 shell PASS
+VERSION_72_OR_HIGHER: not created and prohibited in 0027-CODEX-01
 ```
 
 ## Accepted provider baseline
@@ -85,17 +85,25 @@ FILE_SEARCH_UPLOAD_INDEX_QUERY_CITATION: pending
 
 The diagnostic upload failed locally because it manually set ordinary `Content-Length` in `UrlFetchApp`. Current product source does not set ordinary `Content-Length`; it retains the required `X-Goog-Upload-Header-Content-Length`.
 
-## Work 0027 target
+## Work 0027 runtime result
 
 ```text
-AUTH_VS_TRANSIENT_CLASSIFICATION: repair
+AUTH_VS_TRANSIENT_CLASSIFICATION: PASS
 TRANSIENT_RETRY: bounded / Retry-After then exponential backoff plus jitter
 INTERACTIONS: primary
 MODEL_FALLBACK: none
-TEMP_STORE: max 1
-TEMP_SYNTHETIC_DOCUMENT: max 1
-FILE_SEARCH_E2E: required
-NORMAL_USER_GEMINI_ROUTE: remain hidden until final review
+MODELS_VISIBILITY: PASS / HTTP 200
+SHORT_GEMINI_3_8_INTERACTIONS: PASS / HTTP 200 / expected token
+TEMP_STORE: created exactly 1 / deleted and deletion confirmed
+TEMP_SYNTHETIC_DOCUMENT: indexed and exact readback / exactly 1 current document before cleanup
+FILE_SEARCH_QUERY: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE / 68,442ms
+FILE_SEARCH_EXPECTED_TOKEN_AND_CITATION: NOT ACHIEVED
+TERMINAL_OUTCOME: DISABLED_TRANSIENT_PROVIDER_LIMITATION
+GEMINI_ENABLED: false
+NORMAL_USER_GEMINI_ROUTE: hidden
+EXISTING_GEMINI_STORE_OR_SOURCE_MUTATION: none
+OPENAI_API_CALLS: 0
+FULL_OUTPUT_RUNTIME_CALLS: 0
 ```
 
 Decision:
@@ -122,7 +130,7 @@ IDEMPOTENT_RERUN_DUPLICATES: 0
 
 ## Follow-up routing
 
-- Work 0027: small synthetic Gemini File Search E2E and transient resilience.
+- Work 0027: CODEX-01 returned for review with cleanup-confirmed `DISABLED_TRANSIENT_PROVIDER_LIMITATION`.
 - Separate future Work: representative large-file indexing.
 - Planned: historical-material migration.
 - Planned: final company Shared Drive/domain-user/provider qualification and rollout.

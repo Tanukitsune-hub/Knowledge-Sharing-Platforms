@@ -41,7 +41,7 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 | 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 evidence |
 | 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve PR #35 merge `8b0a2ccd` and installer-security evidence |
 | 4 | 0026 | Current Gemini Flash / File Search requalification | ACCEPTED | 0023 | Preserve PR #36 merge `40bb7d40`; its one-call failure remains historical evidence |
-| 5 | 0027 | Gemini GAS transient resilience and synthetic File Search E2E qualification | ACTIVE | 0026 accepted; new company-GAS evidence available | Execute `0027-CODEX-01` |
+| 5 | 0027 | Gemini GAS transient resilience and synthetic File Search E2E qualification | ACTIVE | 0026 accepted; CODEX-01 cleanup confirmed | Review PR #37; terminal `DISABLED_TRANSIENT_PROVIDER_LIMITATION` |
 | 6 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Small synthetic provider path qualified | Allocate a separate Work ID; do not mix with 0027 |
 | 7 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
 | 8 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
@@ -112,7 +112,7 @@ Post-acceptance company-GAS diagnostics now prove general Gemini connectivity, v
 
 Work 0026 remains accepted because its fail-closed safety, source integrity, shell repair and application-vs-external classification remain valid.
 
-## Work 0027 active boundary
+## Work 0027 review boundary
 
 Primary outcome:
 
@@ -123,17 +123,19 @@ split authentication from provider-transient failures
 -> prove one temporary synthetic File Search upload/index/query/citation/cleanup flow
 ```
 
-Starting evidence:
+CODEX-01 result:
 
 ```text
 MAIN_BASE: 8c9be2392a1247ff81efc6a153fc0be449b1318b
-COMPANY_GAS_MODELS_API: HTTP 200
-COMPANY_GAS_GEMINI_3_8_INTERACTIONS: HTTP 200 PASS twice
-COMPANY_GAS_GENERATE_CONTENT: HTTP 200 observed
-COMPANY_GAS_GENERATE_CONTENT_HIGH_DEMAND: HTTP 503 UNAVAILABLE observed
-FILE_SEARCH_STORE_CREATE_DELETE: HTTP 200
-DIAGNOSTIC_UPLOAD_FAILURE: local ordinary Content-Length header defect
-FILE_SEARCH_E2E: not yet qualified
+LOGIC_VALIDATION: PASS / 431 of 431
+PRIVATE_WEB_APP_VERSION: 71 / shell PASS
+MODELS_VISIBILITY: PASS / HTTP 200
+SHORT_GEMINI_3_8_INTERACTIONS: PASS / HTTP 200
+TEMP_STORE_AND_SYNTHETIC_UPLOAD_INDEX_READBACK: PASS
+FILE_SEARCH_QUERY: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE
+TEMP_STORE_DELETE_AND_CONFIRMATION: PASS
+TERMINAL_OUTCOME: DISABLED_TRANSIENT_PROVIDER_LIMITATION
+NORMAL_USER_GEMINI_ROUTE: disabled and hidden
 ```
 
 Terminal outcomes:
@@ -145,9 +147,9 @@ BLOCKED_PRODUCT_DEFECT
 BLOCKED_RESOURCE_CLEANUP
 ```
 
-Current dispatch:
+Returned dispatch:
 
-`0027-CODEX-01`
+`0027-CODEX-01 / BALL: CHATGPT / STATUS: RETURNED`
 
 Detailed plan:
 

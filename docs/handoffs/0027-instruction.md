@@ -2,8 +2,8 @@
 
 WORK_ID: `0027`  
 DISPATCH_ID: `0027-CODEX-01`  
-BALL: `CODEX`  
-STATUS: `READY`  
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 MODE: `BUILD`
 
 ## Primary outcome
@@ -37,3 +37,21 @@ Repair Gemini's production-relevant transient handling and complete one syntheti
 Return only after the detailed instruction's deterministic gates, exact deployment boundary, bounded synthetic runtime campaign, cleanup, report, dispatch ledger, Work report, planning, runtime locator, PR, and final commit are complete.
 
 Do not enable Gemini for normal users merely because the isolated qualification passes. Return `QUALIFIED_DISABLED` for ChatGPT review.
+
+## CODEX-01 return
+
+```text
+DETERMINISTIC_GATES: PASS
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82
+PRIVATE_WEB_APP: version 71 / shell PASS
+MODELS_VISIBILITY: PASS
+SHORT_INTERACTIONS: PASS
+TEMP_STORE_CREATE: PASS
+SYNTHETIC_UPLOAD_INDEX_READBACK: PASS
+FILE_SEARCH_QUERY: HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE
+TEMP_STORE_DELETE_AND_CONFIRMATION: PASS
+TERMINAL_OUTCOME: DISABLED_TRANSIENT_PROVIDER_LIMITATION
+GEMINI_NORMAL_USER_ROUTE: disabled and hidden
+```
+
+This is an allowed terminal result under the detailed instruction. Work 0027 has returned for ChatGPT final review; no provider rerun is authorized under CODEX-01.

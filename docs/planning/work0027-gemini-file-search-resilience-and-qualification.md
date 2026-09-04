@@ -1,7 +1,7 @@
 # Work 0027 — Gemini GAS File Search resilience and end-to-end qualification
 
 Current as of: 2026-09-04  
-Status: ACTIVE / CODEX-01 READY
+Status: CODEX-01 RETURNED / `DISABLED_TRANSIENT_PROVIDER_LIMITATION`
 
 WORK_ID: `0027`  
 MODE: `BUILD`
@@ -46,13 +46,13 @@ This evidence is recorded in:
 - `docs/handoffs/0027-company-gas-gemini-smoke-evidence.md`
 - `docs/decisions/gemini-gas-runtime-evidence-and-transient-resilience.md`
 
-## Current code gaps that matter
+## Closed code gaps
 
-1. Gemini live query/create call sites currently disable the existing retry helper.
-2. The accepted classifier combines authentication and transient provider failures under `HTTP_OR_CREDENTIAL_FAILURE`.
-3. Safe failure telemetry does not yet expose a precise transient retry count/class across all affected paths.
-4. The main upload path already avoids ordinary `Content-Length`; this needs a regression test rather than an unjustified protocol change.
-5. File Search upload/index/query/citation has not been requalified end to end after the new evidence.
+1. Gemini idempotent and mutating call sites now use explicit bounded retry policies.
+2. New observations distinguish authentication/permission from provider/transient failures; the Work 0026 coarse class is historical only.
+3. Safe telemetry records stage, class, safe HTTP/provider code, attempt, retry, elapsed time and cleanup without provider-private data.
+4. Ordinary `Content-Length` is rejected while required resumable-upload metadata is preserved and tested.
+5. The one bounded File Search campaign reached query after exact upload/index/readback, then ended on an explicit provider HTTP 500 with cleanup confirmed.
 
 ## Required implementation scope
 
@@ -155,3 +155,26 @@ Work 0027 is ready for final review when:
 - temporary-resource deletion is confirmed; otherwise the Work remains `BLOCKED_RESOURCE_CLEANUP`;
 - no existing provider/source data or accepted OpenAI/FULL_OUTPUT path is changed;
 - no credential or confidential value appears in GitHub, logs, reports, PR, or browser responses.
+
+## CODEX-01 target-runtime result
+
+```text
+LOGIC_VALIDATION: PASS / 431 of 431
+BUNDLE_MODE_VALIDATION: PASS / 27 of 27
+SOURCE_DELIVERY_READBACK: PASS / 82 of 82
+PRIVATE_WEB_APP_VERSION: 71
+ROOT_AND_KNOWLEDGE_SEARCH_SHELL: PASS
+MODELS_VISIBILITY: PASS / HTTP 200
+SHORT_INTERACTIONS: PASS / HTTP 200 / expected token
+TEMP_STORE_CREATE: PASS
+SYNTHETIC_TXT_UPLOAD_INDEX_READBACK: PASS / exactly one current document
+FILE_SEARCH_QUERY: FAIL / HTTP 500 / api_error / PROVIDER_OR_TRANSIENT_FAILURE / 68,442ms
+TEMP_STORE_DELETE: PASS
+CLEANUP_CONFIRMATION: PASS
+TERMINAL_OUTCOME: DISABLED_TRANSIENT_PROVIDER_LIMITATION
+NORMAL_USER_GEMINI_ROUTE: disabled and hidden
+WORK_ACCEPTANCE_BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+```
+
+The query did not produce a grounded answer or `file_citation`; those gates remain explicitly not achieved. This is an allowed terminal provider-limitation outcome, not a qualification pass. No additional provider attempt or fallback is authorized under CODEX-01.
