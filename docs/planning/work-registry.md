@@ -40,10 +40,11 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve exact tuple qualification and admin/user policy |
 | 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 evidence |
 | 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve PR #35 merge `8b0a2ccd` and installer-security evidence |
-| 4 | 0026 | Current Gemini Flash / File Search requalification | ACCEPTED | 0023 | Preserve PR #36 merge `40bb7d40`; Gemini remains disabled on exact external limitation |
-| 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with Gemini requalification |
-| 6 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
-| 7 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
+| 4 | 0026 | Current Gemini Flash / File Search requalification | ACCEPTED | 0023 | Preserve PR #36 merge `40bb7d40`; its one-call failure remains historical evidence |
+| 5 | 0027 | Gemini GAS transient resilience and synthetic File Search E2E qualification | ACTIVE | 0026 accepted; new company-GAS evidence available | Execute `0027-CODEX-01` |
+| 6 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Small synthetic provider path qualified | Allocate a separate Work ID; do not mix with 0027 |
+| 7 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
+| 8 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
 
 ## Work 0021 accepted boundary
 
@@ -86,9 +87,7 @@ Shared Drive/domain-user company qualification remains a later environment gate.
 
 ## Work 0026 accepted boundary
 
-Work 0026 updated the optional Gemini provider path to the current bounded model/File Search/model-policy contract, repaired the modular Apps Script template regression and added fail-closed failure classification that keeps application defects distinct from external/provider failures.
-
-Final accepted state:
+Work 0026 updated the optional Gemini provider path, repaired the modular Apps Script template regression and added fail-closed failure classification that keeps application defects distinct from external/provider failures.
 
 ```text
 PR: #36 / MERGED
@@ -99,25 +98,59 @@ SOURCE_DELIVERY_READBACK: PASS / 82 of 82
 DOC-000017_EXACT_GEMINI_DOCUMENTS: 1
 MTG-000005_EXACT_GEMINI_DOCUMENTS: 1
 GEMINI_DOCUMENT_DUPLICATES: 0
-FAILURE_CLASSIFICATION_REPAIR: PASS
 UNKNOWN_FAILURE_RELABELLED_EXTERNAL: NO
 PRIMARY_GEMINI_TUPLE: gemini-3.8-flash / explicit low / 2048
-GEMINI_QUERY_CALLS_IN_FINAL_CAMPAIGN: 1
 PRIMARY_3_8_INTERACTIONS_CLASS: HTTP_OR_CREDENTIAL_FAILURE
-SECOND_CONTROL: NOT_USED
 GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
 NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
 OPENAI_ACCEPTED_PATH: PRESERVED
-OPENAI_API_CALLED_IN_FINAL_CAMPAIGN: NO
-FULL_OUTPUT_RUNTIME_CALLED_IN_FINAL_CAMPAIGN: NO
 LOGIC_VALIDATION: PASS / 420 of 420
-BUNDLE_PARITY: PASS
-UNRESOLVED_REVIEW_THREADS: 0
-GITHUB_CI_ACTUALLY_RAN: NO / non-blocking
 BLOCKER: NONE
 ```
 
-`DISABLED_EXTERNAL_LIMITATION` is an accepted fail-closed terminal state. It is not a claim that Gemini File Search works. Future Gemini requalification requires materially new provider/account/API evidence and should not reopen Work 0026 by default.
+Post-acceptance company-GAS diagnostics now prove general Gemini connectivity, valid basic authentication, target-model visibility and two successful `gemini-3.8-flash` Interactions calls. Therefore `HTTP_OR_CREDENTIAL_FAILURE` is retained only as the historical coarse class for the single Work 0026 call; it is not the current general root-cause conclusion.
+
+Work 0026 remains accepted because its fail-closed safety, source integrity, shell repair and application-vs-external classification remain valid.
+
+## Work 0027 active boundary
+
+Primary outcome:
+
+```text
+split authentication from provider-transient failures
+-> add bounded safe retry behavior
+-> preserve correct GAS resumable-upload headers
+-> prove one temporary synthetic File Search upload/index/query/citation/cleanup flow
+```
+
+Starting evidence:
+
+```text
+MAIN_BASE: 8c9be2392a1247ff81efc6a153fc0be449b1318b
+COMPANY_GAS_MODELS_API: HTTP 200
+COMPANY_GAS_GEMINI_3_8_INTERACTIONS: HTTP 200 PASS twice
+COMPANY_GAS_GENERATE_CONTENT: HTTP 200 observed
+COMPANY_GAS_GENERATE_CONTENT_HIGH_DEMAND: HTTP 503 UNAVAILABLE observed
+FILE_SEARCH_STORE_CREATE_DELETE: HTTP 200
+DIAGNOSTIC_UPLOAD_FAILURE: local ordinary Content-Length header defect
+FILE_SEARCH_E2E: not yet qualified
+```
+
+Terminal outcomes:
+
+```text
+QUALIFIED_DISABLED
+DISABLED_TRANSIENT_PROVIDER_LIMITATION
+BLOCKED_PRODUCT_DEFECT
+```
+
+Current dispatch:
+
+`0027-CODEX-01`
+
+Detailed plan:
+
+`docs/planning/work0027-gemini-file-search-resilience-and-qualification.md`
 
 ## Scope and review discipline
 
