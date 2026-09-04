@@ -1,105 +1,109 @@
 # Work 0026 dispatch control
 
 WORK_ID: `0026`
-ACTIVE_DISPATCH_ID: `0026-CODEX-02`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0026-CODEX-03`
+BALL: `CODEX`
+STATUS: `READY`
 
 ## Dispatch history
 
 ### 0026-CODEX-01 — RETURNED / product blocker before provider qualification
 
-CODEX-01 implemented the current Gemini API/model-policy path and passed deterministic validation, then consumed its one-version/one-Web-App-update budget deploying version 68. The target runtime rendered modular HTML include directives literally, so the Web App shell could not load its included styles/client/admin resources. Gemini and OpenAI were not called.
+CODEX-01 implemented and deterministically validated the current Gemini request/model-policy path. Its one authorized deployment created version 68, where the modular Web App rendered server include directives literally. Gemini and OpenAI were not called.
 
-The smallest repair is already committed and tested:
+The repair commit was:
 
 `681768824f298eff24439b2ee69c9ce159af1e0e — fix: preserve modular HTML template evaluation`
 
-```text
-VERSION_68: deployed / blocked
-VERSION_67: unused / never deploy
-LOGIC_VALIDATION: PASS / 410 of 410
-GEMINI_API_CALLED: NO
-OPENAI_API_CALLED: NO
-BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
-```
+### 0026-CODEX-02 — RETURNED / shell repaired; Gemini exact tuple failed
 
-CODEX-01 report:
+CODEX-02 delivered/read back the repaired source once, created version 69 and updated the same private Web App once. Root and Knowledge Search passed normal and cache-bypassed smoke with zero literal includes and zero blocking console errors.
 
-`docs/handoffs/0026-CODEX-01-current-gemini-flash-file-search-requalification-report.md`
-
-## Final dispatch
-
-### 0026-CODEX-02 — RETURNED / repaired runtime; Gemini disabled on external limitation
-
-CODEX-02 independently revalidated the modular-template repair, delivered and read back all `82` deployable files once, created immutable version `69`, and updated the same private Web App once. Normal and cache-bypassed root/Knowledge Search loads expanded every include, completed bootstrap, and had zero blocking console errors.
-
-The bounded Gemini campaign then completed as follows:
+Closed evidence:
 
 ```text
-GEMINI_KEY_AND_STORE: accessible / secret-safe
-DOC-000017_EXACT_SYNC: PASS / selected 1 / indexed 1 / failed 0
-MTG-000005_EXACT_SYNC: PASS / selected 1 / indexed 1 / failed 0
+VERSION_69_SHELL: PASS
+SOURCE_READBACK: PASS / 82 of 82
+DOC-000017_EXACT_SYNC: PASS / one current document
+MTG-000005_EXACT_SYNC: PASS / one current document
+DUPLICATES: 0
+GEMINI_KEY_AND_STORE: accessible
 PRIMARY_TUPLE: gemini-3.8-flash / low / 2048
-DIRECT_INTERACTIONS_CONTROL: FAIL / safe final response after approximately 79 seconds
-EXPLICIT_MODEL_ACCESS_OR_UNSUPPORTED: NO
+DIRECT_INTERACTIONS_QUALIFICATION: FAIL / approximately 79 seconds
 GEMINI_3_7_FALLBACK: NOT_USED
-NORMAL_PRODUCT_QUERY_CAMPAIGN: NOT_RUN / exact tuple stop gate
-GEMINI_FINAL_STATE: DISABLED_EXTERNAL_LIMITATION / hidden from normal users
+GEMINI_ROUTE: disabled / hidden
 OPENAI_API_CALLED: NO
+FULL_OUTPUT_LIVE_CALLED: NO
+LOGIC_VALIDATION: PASS / 410 of 410
 ```
 
-The synchronous qualification did not produce the required grounded answer and authoritative citation. With no explicit access/unsupported evidence, the only authorized fallback condition was not met. No broad sync, alternate Store, extra deployment, provider fallback, live FULL_OUTPUT call or OpenAI call occurred.
+CODEX-02 report:
+
+`docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-report.md`
+
+## ChatGPT independent review
+
+GitHub PR head `36d748828e9fd16368266e09d095426126586d06`, the final report, relevant source, tests, PR state, review threads and CI state were independently checked.
+
+The product remains usable because OpenAI and FULL_OUTPUT are preserved and Gemini failed closed. However, Work 0026 cannot yet be accepted or PR #36 merged as `DISABLED_EXTERNAL_LIMITATION`.
+
+The qualification path can fail at multiple materially different layers, but the administrator catch currently writes `DISABLED_EXTERNAL_LIMITATION` for every non-access Gemini qualification exception and then exposes only generic `AI_MODEL_QUALIFICATION_FAILED`. The transport also drops the safe Interaction error-code evidence before review. Therefore CODEX-02 did not establish whether the 79-second result was provider terminal, completed without grounding, completed without citation, citation mapping mismatch, or an application response-shape defect.
+
+```text
+PRODUCT_AVAILABILITY_BLOCKER: NONE
+WORK_ACCEPTANCE_BLOCKER: GEMINI_EXTERNAL_LIMITATION_CLASSIFICATION_NOT_EVIDENCED
+PR_36_MERGE: BLOCKED
+```
+
+## Active dispatch
+
+### 0026-CODEX-03 — READY / safe classification repair and bounded requalification
 
 Detailed instruction:
 
-`docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-instruction.md`
+`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
 
-Planning source:
+Primary outcome:
 
-`docs/planning/work0026-gemini-current-api-requalification.md`
+1. preserve distinct safe failure causes instead of collapsing them;
+2. write `DISABLED_EXTERNAL_LIMITATION` only when exact evidence supports it;
+3. deploy the minimal repair as version 70 on the same private Web App once;
+4. run one required 3.8 Interactions qualification and at most one mutually exclusive fallback/control call;
+5. end as `QUALIFIED`, exact `DISABLED_EXTERNAL_LIMITATION`, or `BLOCKED_PRODUCT_DEFECT`.
+
+Runtime/provider budget:
+
+```text
+APPS_SCRIPT_SOURCE_DELIVERY: max 1
+NEW_IMMUTABLE_VERSION: max 1 / expected 70
+SAME_PRIVATE_WEB_APP_UPDATE: max 1 / expected 69 -> 70
+VERSION_67_DEPLOYMENT: prohibited
+VERSION_71_OR_HIGHER: prohibited
+GEMINI_STORE_CREATE: 0
+GEMINI_SOURCE_SYNC_OR_UPLOAD: 0 unless closed readback is contradicted; then stop
+GEMINI_QUERY_CALLS_TOTAL: max 2
+OPENAI_API_CALLS: 0
+FULL_OUTPUT_RUNTIME_CALLS: 0
+```
 
 ## Accepted baseline
 
 ```text
 WORK_0020: ACCEPTED
 WORK_0025: ACCEPTED
-WORK_0021: ACCEPTED / prior accepted private Web App version 66
-WORK_0023: ACCEPTED / merge 8b0a2ccd
+WORK_0021: ACCEPTED
+WORK_0023: ACCEPTED
 CURRENT_PRIVATE_WEB_APP_VERSION: 69 / shell PASS
 VERSION_67: unused / never deploy
-OPENAI/FULL_OUTPUT: accepted production reference
-BUNDLE/INSTALLER: accepted
+OPENAI/FULL_OUTPUT: accepted production-capable routes
+GEMINI: disabled / hidden pending exact qualification
+PR_36: Draft / Open / unmerged
+GITHUB_CI: absent / non-blocking by itself
 ```
 
-## Scope discipline
-
-Use exact pinned candidate IDs only. Preferred candidate is `gemini-3.8-flash` with explicit `low` thinking and output ceiling 2048. `gemini-3.7-flash` is the only allowed access-error fallback candidate.
-
-Do not perform broad sync/reindex, large-file work, company rollout, historical migration, Store sharding, chunking/embedding benchmarks, provider/model sweeps, OpenAI runtime calls, FULL_OUTPUT runtime reruns, CI implementation, or general hardening.
-
-Runtime mutation budget for CODEX-02:
-
-```text
-APPS_SCRIPT_SOURCE_DELIVERY: max 1
-NEW_IMMUTABLE_VERSION: max 1 / expected 69
-SAME_PRIVATE_WEB_APP_UPDATE: max 1
-VERSION_67_DEPLOYMENT: prohibited
-VERSION_70_OR_HIGHER: prohibited
-OPENAI_API_CALLED: NO
-```
-
-The Work terminal provider state is:
-
-```text
-DISABLED_EXTERNAL_LIMITATION
-```
-
-The Web App shell and exact source reconciliation passed before the current Interactions/File Search qualification failed. Gemini remains disabled/hidden, so this is the accepted fail-closed terminal state rather than a claim that Gemini works.
-
-CODEX-02 is returned. Any later provider requalification requires a new instruction and Dispatch ID; do not resume this bounded campaign implicitly.
+Do not broaden into large-file work, historical migration, company rollout, Store redesign, chunk/embedding experiments, model sweeps, OpenAI requalification, FULL_OUTPUT live reruns, CI implementation or general hardening.
 
 WORK_ID: `0026`
-ACTIVE_DISPATCH_ID: `0026-CODEX-02`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+ACTIVE_DISPATCH_ID: `0026-CODEX-03`
+BALL: `CODEX`
+STATUS: `READY`

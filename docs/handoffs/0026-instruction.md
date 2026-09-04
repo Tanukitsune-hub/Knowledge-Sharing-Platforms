@@ -1,18 +1,18 @@
 # Work 0026 — current Gemini Flash / File Search requalification
 
 WORK_ID: `0026`
-DISPATCH_ID: `0026-CODEX-02`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
-MODE: `TERMINAL / DISABLED_EXTERNAL_LIMITATION`
+DISPATCH_ID: `0026-CODEX-03`
+BALL: `CODEX`
+STATUS: `READY`
+MODE: `QUALIFICATION / DIAGNOSTIC REPAIR`
 
 ## Primary outcome
 
-Bring the optional Gemini route up to the current official Gemini Flash/File Search/model-policy contract and complete one bounded requalification against the accepted OpenAI/FULL_OUTPUT reference system.
+Complete an evidence-correct bounded Gemini requalification without disturbing the accepted OpenAI/FULL_OUTPUT product.
 
 Active detailed instruction:
 
-`docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-instruction.md`
+`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
 
 Planning:
 
@@ -28,79 +28,76 @@ Runtime locator:
 WORK_0020 / 0025 / 0021 / 0023: ACCEPTED
 PR_36: Draft / Open / unmerged
 CURRENT_PRIVATE_WEB_APP_VERSION: 69 / modular shell PASS
-VERSION_67: unused / prohibited from deployment
+VERSION_67: unused / never deploy
 OPENAI: accepted
 FULL_OUTPUT: accepted
 BUNDLE_INSTALLER: accepted
+GEMINI: disabled and hidden
 ```
 
-## CODEX-01 returned state
-
-CODEX-01 implemented the current Gemini provider/model-policy path and passed deterministic validation. After its one authorized version/update, version 68 exposed a modular HTML template regression: server-side include directives were rendered literally, so the Web App could not load the included application resources and the Gemini campaign stopped before any provider call.
-
-The smallest repair is committed and tested:
-
-`681768824f298eff24439b2ee69c9ce159af1e0e`
+## Closed CODEX-02 evidence
 
 ```text
-LOGIC_VALIDATION: PASS / 410 of 410
-RUNTIME_DEPLOYMENT_VERSION: 68
-GEMINI_API_CALLED: NO
+ROOT_AND_KNOWLEDGE_SHELL: PASS
+LITERAL_INCLUDE_DIRECTIVES: 0
+BLOCKING_BROWSER_CONSOLE_ERRORS: 0
+SOURCE_READBACK: PASS / 82 of 82
+DOC-000017_AND_MTG-000005: exactly one active Gemini document each
+GEMINI_DOCUMENT_DUPLICATES: 0
+PRIMARY_TUPLE: gemini-3.8-flash / low / 2048
+DIRECT_INTERACTIONS_CONTROL: FAIL / approximately 79 seconds
 OPENAI_API_CALLED: NO
-BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
+FULL_OUTPUT_LIVE_CALLED: NO
+LOGIC_VALIDATION: PASS / 410 of 410
 ```
 
-## CODEX-02 authority
+Do not re-open the shell repair, exact source reconciliation or accepted OpenAI/FULL_OUTPUT evidence without material contradictory runtime evidence.
 
-CODEX-02 may:
+## ChatGPT review blocker
 
-1. revalidate the existing repair and deterministic suite;
-2. deliver/read back repaired source once;
-3. create exactly one immutable version, expected `69`;
-4. update the same private Web App exactly once;
-5. prove root/Knowledge Search include expansion and normal bootstrap;
-6. only then resume the bounded Gemini campaign using `DOC-000017` and `MTG-000005`;
-7. qualify `gemini-3.8-flash / low / 2048`, using `gemini-3.7-flash / low / 2048` only after explicit model-access/model-unsupported evidence;
-8. stop as `QUALIFIED`, `DISABLED_EXTERNAL_LIMITATION`, or a new exact product blocker.
+CODEX-02 did not preserve enough safe diagnostic evidence to distinguish provider-terminal, no-grounded-answer, no-citation, citation-mapping and response-shape failures. The current catch path writes `DISABLED_EXTERNAL_LIMITATION` for any non-access Gemini qualification exception and replaces it with generic `AI_MODEL_QUALIFICATION_FAILED`.
+
+```text
+PRODUCT_AVAILABILITY_BLOCKER: NONE
+WORK_ACCEPTANCE_BLOCKER: GEMINI_EXTERNAL_LIMITATION_CLASSIFICATION_NOT_EVIDENCED
+```
+
+The exact external limitation has not yet been proven. PR #36 must remain unmerged.
+
+## CODEX-03 authority
+
+CODEX-03 may:
+
+1. implement distinct safe Gemini qualification failure classes;
+2. prevent generic/application failures from being relabeled external;
+3. add the focused deterministic failure-classification test matrix;
+4. deliver/read back source once;
+5. create version 70 and update the same private Web App once;
+6. re-smoke the shell;
+7. read back the existing two exact Gemini documents without sync/upload;
+8. run one required 3.8 Interactions qualification;
+9. run at most one mutually exclusive 3.7 fallback or 3.8 GenerateContent control under the detailed decision tree;
+10. return an exact evidence-supported terminal outcome.
 
 ## Fixed boundaries
 
-- no moving `latest` alias and no `minimal` for 3.8/3.7;
-- Gemini credential, Store, model/thinking qualification and user visibility remain administrator-controlled;
-- no automatic model fallback and no cross-provider fallback;
-- authoritative normalized citations remain mandatory;
-- normal query execution must use the exact Work 0025 server-resolved tuple;
-- no broad source sync/reindex;
-- no `DOC-000018`, six-format fixtures, or large-file fixtures;
-- no OpenAI runtime call;
-- no FULL_OUTPUT live rerun;
+- no moving `latest` alias;
+- no `minimal` for 3.8/3.7;
+- no automatic model or cross-provider fallback;
+- no broad sync/reindex;
+- no source upload unless closed evidence is contradicted, in which case stop;
+- no `DOC-000018`, six-format or large fixtures;
+- no Store creation/replacement;
+- no OpenAI API call;
+- no FULL_OUTPUT live call;
 - no version 67 deployment;
-- no version 70 or higher in this Dispatch;
-- all source changes regenerate and validate the deterministic Work 0023 bundle;
-- company rollout, historical migration, CI and general hardening are out of scope.
+- no version 71 or higher;
+- no model/transport/store/chunk/embedding experiment loop;
+- no company rollout, historical migration, CI implementation or general hardening.
 
-After the bounded terminal outcome, stop and return PR #36 to ChatGPT. Do not merge it.
-
-## CODEX-02 returned outcome
-
-```text
-MODULAR_TEMPLATE_REPAIR: PASS / version 69
-ROOT_AND_KNOWLEDGE_SHELL: PASS / literal includes 0 / blocking console errors 0
-GEMINI_KEY_AND_STORE: accessible
-DOC-000017_AND_MTG-000005_EXACT_SYNC: PASS
-PRIMARY_TUPLE: gemini-3.8-flash / low / 2048
-DIRECT_INTERACTIONS_CONTROL: FAIL / safe final result after approximately 79 seconds
-GEMINI_3_7_FALLBACK: NOT_USED / no explicit access-or-unsupported evidence
-GEMINI_STATUS: DISABLED_EXTERNAL_LIMITATION / normal-user route hidden
-OPENAI_API_CALLED: NO
-FULL_OUTPUT_LIVE_CALLED: NO
-FINAL_INTEGRITY: PASS
-READY_FOR_CHATGPT_FINAL_REVIEW: YES
-```
-
-This bounded Work is complete at its allowed external-limitation terminal state. Do not resume the provider campaign without a new instruction and materially new evidence.
+Keep PR #36 Draft/Open/unmerged. Do not merge it.
 
 WORK_ID: `0026`
-DISPATCH_ID: `0026-CODEX-02`
-BALL: `CHATGPT`
-STATUS: `RETURNED`
+DISPATCH_ID: `0026-CODEX-03`
+BALL: `CODEX`
+STATUS: `READY`

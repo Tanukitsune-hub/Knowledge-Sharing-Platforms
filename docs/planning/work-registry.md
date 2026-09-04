@@ -6,33 +6,26 @@ Status: Active planning source of truth
 
 ## Purpose
 
-This registry separates stable Work identity from execution priority.
-
-A `WORK_ID` is an immutable reference to one outcome/theme. It is not a promise that Works will execute in numeric order. Priority and dependency changes are represented through `DELIVERY_ORDER`, `STATUS`, and `NEXT_ACTION`, not by renumbering historical or planned Works.
-
-This file is the canonical portfolio-level view. Work-specific dispatch state remains authoritative in `docs/handoffs/<WORK_ID>-dispatches.md`.
+This registry separates stable Work identity from execution priority. Work-specific dispatch state remains authoritative in `docs/handoffs/<WORK_ID>-dispatches.md`.
 
 ## Identity rules
 
-1. Never renumber, reuse, or recycle an issued Work ID.
-2. Never rename historical handoff/report files solely to make numbering look sequential.
-3. Keep the same Work ID through implementation, qualification, repair, review, and PR stabilization while the primary outcome remains unchanged.
-4. Use a new Dispatch ID for another Codex execution within the same outcome.
-5. Create a new Work ID only when the primary outcome/deliverable materially changes.
-6. New Work IDs use the next number after the highest already issued ID. Do not fill old numeric gaps retroactively.
-7. Numeric Work order does not override the delivery sequence below.
-8. Only one Work should normally be `ACTIVE` for implementation. Planning work may be `READY` without competing for the active execution slot.
+1. Never renumber, reuse or recycle an issued Work ID.
+2. Keep the same Work ID through implementation, qualification, repair, review and PR stabilization while the primary outcome remains unchanged.
+3. Use a new Dispatch ID for each new Codex execution after RETURNED.
+4. Create a new Work ID only when the primary outcome materially changes.
+5. Only one Work should normally be ACTIVE for implementation.
 
 ## Status vocabulary
 
 ```text
-ACCEPTED   — merged/closed outcome; retained as evidence
+ACCEPTED   — merged/closed outcome retained as evidence
 ACTIVE     — current implementation Work
 READY      — fully planned and next in queue
-PLANNED    — accepted future outcome, not yet ready to execute
-DEFERRED   — intentionally postponed until a stated dependency/phase
-BLOCKED    — cannot proceed because of a material external or technical blocker
-SUPERSEDED — outcome replaced by another explicit decision/Work
+PLANNED    — accepted future outcome, not yet ready
+DEFERRED   — intentionally postponed
+BLOCKED    — cannot proceed because of a material blocker
+SUPERSEDED — outcome replaced by an explicit later decision
 ```
 
 ## Current delivery sequence
@@ -41,11 +34,11 @@ SUPERSEDED — outcome replaced by another explicit decision/Work
 |---:|---|---|---|---|---|
 | 0 | 0020 | AI provider core, OpenAI File Search, citations, lifecycle, full output | ACCEPTED | — | Preserve accepted OpenAI/FULL_OUTPUT evidence |
 | 1 | 0025 | Administrator-governed model and thinking/reasoning selection | ACCEPTED | 0020 | Preserve exact tuple qualification and admin/user policy |
-| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 runtime evidence |
-| 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve PR #35 merge `8b0a2ccd`, one-paste and installer-security evidence |
-| 4 | 0026 | Current Gemini Flash / File Search requalification | ACTIVE | 0023 accepted; CODEX-02 terminal evidence complete | ChatGPT final review of PR #36; Gemini remains disabled on `DISABLED_EXTERNAL_LIMITATION` |
-| 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with provider recovery |
-| 6 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from the actual corpus |
+| 2 | 0021 | Structured Knowledge Search, five modes, multi-Entity comparison, six-format matrix | ACCEPTED | 0025 | Preserve merge `533c849b` and version-66 evidence |
+| 3 | 0023 | Deterministic single-file bundle and idempotent installer | ACCEPTED | 0021 | Preserve merge `8b0a2ccd` and installer-security evidence |
+| 4 | 0026 | Current Gemini Flash / File Search requalification | ACTIVE | CODEX-02 shell/data evidence accepted; external-cause classification not evidenced | Execute `0026-CODEX-03`: repair safe classification and run one bounded requalification |
+| 5 | Unassigned future Work | Representative large-file indexing qualification/recovery | DEFERRED | Representative production-size corpus selected | Allocate a separate Work ID; do not mix with provider qualification |
+| 6 | Unassigned future Work | Historical-material migration | PLANNED | Product/provider choice and installer stable | Choose manual/hybrid/selective automation from actual corpus |
 | 7 | Unassigned future Work | Final company-environment qualification and rollout | PLANNED | Company Shared Drive, credentials, permissions and migration approach ready | Qualify actual company Workspace and enabled providers |
 
 ## Work 0021 accepted boundary
@@ -56,116 +49,77 @@ MERGE_COMMIT: 533c849bd1229827ec77cd5ad6506312ea286940
 PRIVATE_WEB_APP_VERSION: 66
 CORE_FILTERS_AND_FIVE_MODES: PASS
 MULTI_ENTITY_AND_ADVANCED_FILTERS: PASS
-OPENAI_SIX_FORMAT_MATRIX: PASS — 6/6
+OPENAI_SIX_FORMAT_MATRIX: PASS / 6 of 6
 EML_ATTACHMENT_BOUNDARY: PASS
 FULL_OUTPUT_SIX_FORMAT_REFERENCE_PARITY: PASS
-LOGIC_VALIDATION: PASS — 376/376
+LOGIC_VALIDATION: PASS / 376 of 376
 BLOCKER: NONE
 ```
 
-Version 67 is an unused/not-deployed immutable Apps Script version whose source matched version 66 at final qualification. It is an operational residual only and must not be deployed.
+Version 67 is unused/not deployed and must never be deployed.
 
 ## Work 0023 accepted boundary
 
-Work 0023 is complete and merged through PR #35.
-
 ```text
 MERGE_COMMIT: 8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f
-SOURCE_ARCHITECTURE: MODULAR_PRESERVED
+SOURCE_ARCHITECTURE: modular preserved
 DETERMINISTIC_SINGLE_FILE_BUNDLE: PASS
 ONE_PASTE_SAVE_AND_EXECUTE: PASS
-BUNDLE_HASHES_AND_MANIFEST: PASS
 INSTALLER_OWNER_LATCH: PASS
 CROSS_USER_PARTIAL_TAKEOVER_REJECTION: PASS
 DEPLOYMENT_SECURITY_ATTESTATION: PASS
-WEB_APP_URL_ONLY_READY_REJECTION: PASS
 MUTABLE_GLOBAL_COLLISION_GATE: PASS
 PERSONAL_DEV_INSTALL/UPGRADE: PASS
 RERUN_DUPLICATES: 0
-LOGIC_VALIDATION: PASS — 402/402
-WORK_0021_RUNTIME_MUTATED: NO
+LOGIC_VALIDATION: PASS / 402 of 402
 BLOCKER: NONE
 ```
 
-Shared Drive/domain-user company qualification remains a later environment gate. It was not claimed by the personal-DEV Work 0023 qualification.
+Shared Drive/domain-user company qualification remains a later environment gate.
 
-## Work 0026 terminal boundary
+## Work 0026 active boundary
 
-Primary outcome: update and requalify the optional Gemini provider against the current official model, File Search, thinking, citation and lifecycle contracts without disturbing accepted OpenAI/FULL_OUTPUT behavior.
+Primary outcome: qualify one exact current Gemini File Search tuple or leave Gemini disabled with the exact external limitation evidenced, without disturbing accepted OpenAI/FULL_OUTPUT behavior.
 
-Current bounded candidate policy:
+Closed CODEX-02 evidence:
 
 ```text
-PRIMARY: gemini-3.8-flash / low / max output 2048
-ACCESS-ERROR FALLBACK ONLY: gemini-3.7-flash / low / max output 2048
-MOVING LATEST ALIASES: prohibited
-MINIMAL FOR 3.8/3.7: prohibited
-BROAD MODEL/TRANSPORT BENCHMARK: prohibited
+PRIVATE_WEB_APP_VERSION: 69
+ROOT_AND_KNOWLEDGE_SHELL: PASS
+LITERAL_INCLUDE_DIRECTIVES: 0
+BLOCKING_BROWSER_CONSOLE_ERRORS: 0
+DOC-000017_EXACT_GEMINI_DOCUMENTS: 1
+MTG-000005_EXACT_GEMINI_DOCUMENTS: 1
+GEMINI_DOCUMENT_DUPLICATES: 0
+PRIMARY_3_8_LOW_2048_INTERACTIONS: FAIL / approximately 79 seconds
+GEMINI_ROUTE: disabled / hidden
+OPENAI_API_CALLED: NO
+FULL_OUTPUT_LIVE_CALLED: NO
+LOGIC_VALIDATION: PASS / 410 of 410
 ```
 
-Required terminal provider status:
+ChatGPT's independent review found that the application collapses materially different Gemini qualification failures into generic `AI_MODEL_QUALIFICATION_FAILED` and writes `DISABLED_EXTERNAL_LIMITATION` before the exact cause is established.
 
 ```text
-QUALIFIED
-or
-DISABLED_EXTERNAL_LIMITATION
-```
-
-`DISABLED_EXTERNAL_LIMITATION` is acceptable only when current deterministic product/API contracts pass, Gemini remains disabled/hidden, and the exact current provider/account/transport/citation limitation is recorded. It prevents another indefinite repair loop while preserving the working OpenAI/FULL_OUTPUT product.
-
-CODEX-01 implemented and locally validated the current Gemini API/model-policy contract, then created and deployed version 68 once. Direct target-runtime evidence showed the modular Web App returning literal server include directives, so no Gemini or OpenAI call was made. The tested source repair is commit `681768824f298eff24439b2ee69c9ce159af1e0e`.
-
-```text
-CODEX_01_LOGIC_VALIDATION: PASS / 410 of 410
-CURRENT_RUNTIME_VERSION: 68 / blocked shell
-GEMINI_API_CALLED_IN_CODEX_01: NO
-OPENAI_API_CALLED_IN_CODEX_01: NO
-CODEX_01_BLOCKER: FULL_WEB_APP_MODULAR_TEMPLATE_INCLUDE_RUNTIME_REGRESSION
+PRODUCT_AVAILABILITY_BLOCKER: NONE
+WORK_ACCEPTANCE_BLOCKER: GEMINI_EXTERNAL_LIMITATION_CLASSIFICATION_NOT_EVIDENCED
+PR_36_MERGE: BLOCKED
 ```
 
 Active Dispatch:
 
-`0026-CODEX-02`
+`0026-CODEX-03`
 
 Active instruction:
 
-`docs/handoffs/0026-CODEX-02-runtime-template-repair-and-gemini-qualification-instruction.md`
+`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-instruction.md`
 
-CODEX-02 was authorized for one repaired source delivery, one immutable version `69`, and one update of the same private Web App, with shell proof required before any Gemini provider call. Version 67 and version 70+ remained prohibited.
-
-CODEX-02 completed within that budget. Version `69` is deployed on the same private Web App and passed normal/cache-bypassed root and Knowledge Search smoke with zero literal include directives and zero blocking console errors. The configured Gemini key and Store were accessible; exact sync of `DOC-000017` and `MTG-000005` passed with one current document per source.
-
-The one primary `gemini-3.8-flash / low / 2048` synchronous Interactions + File Search qualification returned a safe failure after approximately 79 seconds without explicit model-access/model-unsupported evidence. Therefore the 3.7 fallback was not attempted, Gemini remains disabled/hidden, and the Work terminal status is:
-
-```text
-GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
-OPENAI_API_CALLED: NO
-FULL_OUTPUT_LIVE_CALLED: NO
-LOGIC_VALIDATION: PASS / 410 of 410
-FINAL_INTEGRITY: PASS
-READY_FOR_CHATGPT_FINAL_REVIEW: YES
-```
+CODEX-03 authorizes one minimal classification repair deployment as version 70, one same-Web-App update, one required 3.8 Interactions query and at most one mutually exclusive fallback/control query. Version 67 and version 71+ are prohibited. Store creation, source sync/upload, OpenAI calls, FULL_OUTPUT live calls and general experiment loops are prohibited.
 
 ## Scope and review discipline
 
-A current Work is extended only for a blocker that materially affects:
-
-- normal primary-path completion;
-- data/source identity or integrity;
-- authorization, credentials, or confidential-data safety;
-- authoritative citation correctness;
-- irreversible or material provider/runtime side effects;
-- deterministic or required target-runtime qualification.
-
-Cosmetic UX, exhaustive edge-case hardening, broad benchmarking, and non-blocking operational improvements move to `FIX SOON` or `BACKLOG` rather than extending the active Work indefinitely.
+Extend the active Work only for issues that materially affect primary-path completion, data/source integrity, authorization or credential safety, authoritative citation correctness, irreversible effects, or required target-runtime evidence. Route cosmetics, broad benchmarking and non-blocking hardening to follow-up.
 
 ## Update rule
 
-Update this registry when:
-
-- a Work becomes active, accepted, blocked, deferred, or superseded;
-- the delivery order changes materially;
-- a new Work ID is allocated;
-- an outcome is split because its deliverables become materially independent.
-
-Do not update it for routine progress ticks inside one active Dispatch.
+Update this registry when a Work becomes active, accepted, blocked, deferred or superseded; when delivery order changes; when a new Work ID is allocated; or when the outcome is split. Do not update it for routine progress ticks inside one Dispatch.
