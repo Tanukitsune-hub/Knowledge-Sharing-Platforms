@@ -2,66 +2,81 @@
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 ## Current outcome
 
-ChatGPT reviewed CODEX-04 at `18226013d6f98a5cb2bffdf72ced52e766a8b698`. Evidence recovery is accepted for diagnosis, not Work qualification. The old source-as-Document-ID assumption rejects the observed content-valued citation. CODEX-05 now has a fixed shared resolver design and one bounded personal-DEV confirmation. No CODEX-05 source change, runtime mutation or new test PASS is claimed by this controller update.
-
-Main at review: `8c9be2392a1247ff81efc6a153fc0be449b1318b`.
-Branch: `agent/0027-gemini-file-search-resilience`.
-PR #37 remains Draft/Open/unmerged. Runtime remains version 72.
-
-## CODEX-04 independent review
-
-Checked latest PR/head and main, exact report, sanitized fixture, applicable AGENTS and deployment policy, current normalizer/qualifier/normal mapper, comparison from `9dad26cec30580050f371284a5ad8d2f2cc8b3d2`, Actions and PR discussion. The returned delta contains only documents and the sanitized JSON fixture, no src/tests/dist changes. No Actions runs or discussion entries were returned. ChatGPT did not run local tests or inspect the user's authenticated runtime; quota and runtime observations below are Codex's recorded evidence.
-
-Google's current FileCitation schema lists source, document_uri and custom_metadata separately. File Search documentation supports metadata and provider Document read/list. These constrain the repair; the recovered response, not a schema guess, establishes this instance's field shape.
-
-## Preserved runtime evidence
-
-### CODEX-02
-
-Final `0032a9cdb69cc1431566dee82f7e2c2196ddee50`; implementation `acd3aa08a3ecc01a7b0852afef8f58202934af82`. Reported logic 440/440, bundle 27/27, source 82/82 and version-72 shell PASS. 3.7 File Search returned HTTP 200, expected token and one normalized citation, attempts 2/retry 1, sleep 501ms, total 34992ms. Strict identity failed; 3.6 was not called; temporary resources cleaned up.
-
-### CODEX-03
-
-Final `745e34d8a04df4aaea8a9373775106b4b08b4523`. Diagnostic HTTP 429/too_many_requests, attempts 2/retry 1, sleep 514ms, 21825ms; no annotation/repair/version/deployment. Cleanup/source restoration 82/82 reported. The disclosed temporary invocation-path modification violated its boundary, was removed and is not qualification evidence. It must not be repeated.
-
-### CODEX-04
-
-Final `18226013d6f98a5cb2bffdf72ced52e766a8b698`. Exact prior response recovered in place without generation or provider mutation. Three equivalent raw annotations, one unique citation. source CONTENT_TEXT, document_uri STORE equal to requested Store, object custom_metadata with source_type/source_id/content_hash. No provider Document identity appeared in the response; the original upload/readback Document name remains UNAVAILABLE.
-
-The fixture's excerpt/hash newline relationship is diagnostic only. It is not proof of the original full-document binding or a rule for hashing retrieved chunks. Requalification must bind a new independent document readback; CODEX-02 is not retrospectively changed to PASS.
-
-Same-project quota observation at 2026-09-05 11:05 JST: Free tier, last-hour RPM 3/5, TPM 394/250000, RPD 3/20. The 28-day RPM peak 6/5 does not establish the exact previous 429 dimension/reset, which remains UNKNOWN. The ordinary administrator Web App qualification action was available, not executed.
-
-Exact reports and recovered fixture remain unchanged under `docs/handoffs/0027-CODEX-02-*`, `0027-CODEX-03-*` and `0027-CODEX-04-*`.
-
-## Current classification
+Work 0027 reached its personal-DEV baseline: `gemini-3.7-flash / explicit low / 2048 / Interactions + File Search` returned a grounded answer and an authoritative current citation through the shared strict resolver. CODEX-05 deployed the exact tested source as version 73, confirmed temporary-resource deletion, and persisted the tuple as qualified but disabled. Gemini remains hidden from normal users pending ChatGPT review.
 
 ```text
-CODEX_04_DIAGNOSTIC_REVIEW: ACCEPTED / EVIDENCE_RECOVERED
-OBSERVED_MISMATCH: SOURCE_CONTENT_IS_NOT_PROVIDER_DOCUMENT_IDENTITY
-CODEX_05_IMPLEMENTATION: NOT_RUN
-CODEX_05_RUNTIME_QUALIFICATION: NOT_RUN
-WORK_ACCEPTANCE: NOT_MET
-BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-PRODUCT_AVAILABILITY_REGRESSION_OBSERVED: NONE / personal-DEV reference paths preserved
-GEMINI: disabled / hidden
-FIX_SOON: GitHub CI absent
-FOLLOW_UP: company quota/billing/governance and permissions, larger files, migration, other models
+IMPLEMENTATION_COMMIT: 40905f23d8c6bab5b76e7fb2f34f96b912aeb2f7
+FINAL_COMMIT: resolve from PR #37 head and final return
+LOGIC_VALIDATION: PASS / 448 of 448
+TARGET_RUNTIME_QUALIFICATION: PASS
+TERMINAL_OUTCOME: QUALIFIED_DISABLED
+TEMP_RESOURCE_CLEANUP: PASS
+WORK_ACCEPTANCE: MET
+READY: YES / ChatGPT final review
+BLOCKER: NONE
 ```
 
-## Next decisive action
+Main at execution: `8c9be2392a1247ff81efc6a153fc0be449b1318b`. Branch: `agent/0027-gemini-file-search-resilience`. PR #37 remains Draft/Open/unmerged.
 
-Execute `docs/handoffs/0027-CODEX-05-strict-citation-resolver-instruction.md`: shared strict Store/metadata/current-document/authoritative-source resolution, recovered-shape regression plus rejection tests, then one guarded 3.7 confirmation and cleanup. No renewed diagnostic campaign. Passing only the qualifier or deleting the old equality without replacing its identity guarantee is insufficient.
+## CODEX-05 result
 
-CODEX-05 may retain a completed tested implementation if live quota prevents confirmation, but cannot claim Work acceptance. Final merge/activation remains ChatGPT's decision.
+The recovered CODEX-04 response deterministically reproduced the old invalid assumption that content-valued `source` was provider Document identity. The repaired implementation keeps `document_uri` as trusted Store scope and resolves exact `source_type`, `source_id`, and `content_hash` through one Active authoritative source/current Gemini hash and one independently read-back current provider document. It rejects missing, conflicting, stale, inactive, ambiguous, foreign-Store, filename-only, token-only, singleton-Store, excerpt-hash, and OpenAI-only identity evidence. Validation precedes equivalent-annotation deduplication. Qualification and normal immediate/POLL completion use the same resolver; OpenAI remains unchanged.
+
+Deterministic validation passed: dedicated resolver 8/8, focused 111/111, canonical 448/448, bundle 27/27, agent foundation, temporal/public surface/security, byte-identical bundle generation, diff hygiene, and secret scan. Exact Apps Script source readback passed 82/82.
+
+The same verified private Web App was updated once from version 72 to 73. Root and Knowledge Search bootstrapped with zero literal include directives and zero application-blocking console errors. One extension-origin console error was external tooling only.
+
+Fresh same-project Free-tier preflight showed viable 3.7 capacity. The post-run view showed 1/5 RPM, 200/250K TPM, and 1/20 RPD. The ordinary guarded administrator action created one temporary Store and one tiny synthetic TXT, indexed and independently read back exactly one current document, made one logical File Search query, matched the expected token, resolved exactly one authoritative citation with normal-mapper parity, and confirmed deletion. The Apps Script action duration was 25.554 seconds.
+
+The administrator client did not durably retain the returned safe per-request diagnostic, so exact response-embedded attempt/retry/query-latency, source-category, and raw-citation-count fields remain `NOT_RETAINED`; no values were invented. The persisted `QUALIFIED_DISABLED` branch and successful action require the strict per-field gates and cleanup to pass. The optional sanitized Audit append was not observed; route this evidence-retention gap to FIX SOON rather than weakening or repeating qualification.
+
+## Preserved evidence
+
+- CODEX-01 final `2c6cd20bfe6a4ef3b6262160b4126266307222dd`: bounded retry/upload recovery; 3.8 transient query failure; cleanup PASS.
+- CODEX-02 final `0032a9cdb69cc1431566dee82f7e2c2196ddee50`: 3.7 answer/token/citation but strict identity mismatch; cleanup PASS.
+- CODEX-03 final `745e34d8a04df4aaea8a9373775106b4b08b4523`: bounded 429 diagnostic; no repair/deployment; noncompliant temporary invocation excluded.
+- CODEX-04 final `18226013d6f98a5cb2bffdf72ced52e766a8b698`: exact sanitized response shape recovered without generation or mutation.
+
+Prior reports and the recovered fixture remain unchanged. Work 0026 and accepted OpenAI, FULL_OUTPUT, structured-search, bundle, and installer evidence remain preserved.
+
+## Final integrity
+
+```text
+DEPLOYED_VERSION: 73
+VERSION_67_DEPLOYED: NO
+VERSION_74_OR_HIGHER_CREATED: NO
+GEMINI_MODEL_DEFAULT_CANDIDATE: gemini-3.7-flash
+GEMINI_THINKING: low
+GEMINI_ENABLED: false
+NORMAL_USER_GEMINI_VISIBILITY: false
+AUTOMATIC_MODEL_OR_PROVIDER_FALLBACK: NO
+EXISTING_GEMINI_STORE_OR_BUSINESS_SOURCE_MUTATION: 0
+TEMPORARY_PROVIDER_RESOURCES_REMAINING: 0
+OPENAI_CALLS: 0
+FULL_OUTPUT_LIVE_CALLS: 0
+GITHUB_CI_ACTUALLY_RAN: NO at report preparation time
+PRODUCT_BLOCKER: NONE
+FIX_SOON: persist allowlisted qualification evidence when Audit is configured
+FOLLOW_UP: company credentials/quota/permissions, representative large files, migration and rollout
+```
+
+No second diagnostic/model campaign is authorized. Any new execution requires `0027-CODEX-06`; final activation, company qualification, PR readiness, and merge remain ChatGPT decisions.
+
+## Shared Knowledge
+
+```text
+KNOWLEDGE_RETRIEVAL: RULE-0001, RULE-0002, PAT-0002, PAT-0004
+KNOWLEDGE_APPLIED: RULE-0001, RULE-0002, PAT-0004
+NEW_KNOWLEDGE_CANDIDATE: YES
+```
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

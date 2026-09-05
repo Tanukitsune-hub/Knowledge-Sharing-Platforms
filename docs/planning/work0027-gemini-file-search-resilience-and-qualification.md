@@ -3,8 +3,8 @@
 WORK_ID: 0027
 MODE: BUILD
 ACTIVE_DISPATCH_ID: 0027-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 ## Primary outcome and current contract
 
@@ -26,9 +26,9 @@ CODEX-03 final `745e34d8a04df4aaea8a9373775106b4b08b4523`: diagnostic HTTP 429, 
 
 CODEX-04 final `18226013d6f98a5cb2bffdf72ced52e766a8b698`: exact stored CODEX-02 response recovered without generation. source is content text, document_uri is requested Store, exact object custom_metadata present, three equivalent raw annotations. Original upload/readback Document name UNAVAILABLE. Existing guarded administrator Web App route available, not invoked. Historical Free-tier snapshot and prior 429's unknown category are preserved in its report. No src/tests/dist/provider/runtime mutation.
 
-## Strategy reset: investigation completed, BUILD resumes
+## CODEX-05 completed result
 
-No more blind diagnostics or model switches. Implement the observed field contract now. The new identity chain is:
+CODEX-05 implemented the observed field contract. The shared identity chain is:
 
 ```text
 real file_citation annotation
@@ -39,27 +39,27 @@ real file_citation annotation
 -> authoritative user-facing source/link
 ```
 
-source text and file_name are not identity. Do not hash an excerpt or remove a newline to create an identity proof. Never fill missing returned identity from expected request fields. Reject missing/conflicting/stale/ambiguous/foreign-Store bindings. Preserve distinct annotations until verified, then deduplicate equivalent results. Use one shared resolver in qualification and normal immediate/POLL completion; keep OpenAI logic unchanged.
+source text and file_name are not identity. The resolver does not hash excerpts, fill missing returned identity from expected fields, or infer identity from one document in a Store. It rejects missing/conflicting/stale/inactive/ambiguous/foreign-Store bindings, validates annotations before deduplication, and is shared by qualification and normal immediate/POLL completion. OpenAI logic remains unchanged.
 
-## Scope and evidence
+## Acceptance evidence
 
-Fix normalization, citation resolution, trusted readback context and direct callers/tests only. Preserve the CODEX-04 fixture as historical sanitized evidence. Unit-test companion source/document data is fictitious, not reconstruction of unavailable old values.
+Implementation commit: `40905f23d8c6bab5b76e7fb2f34f96b912aeb2f7`. The CODEX-04 fixture remains unchanged historical sanitized evidence; companion source/document test data is fictitious.
 
-Strongest evidence: one repaired 3.7 live answer and citation bound to fresh independently read-back synthetic document, through qualification and normal mapper; cleanup confirmation; exact source/version/shell; recovered-shape and rejection tests; canonical/bundle/security checks. A stored old response is not a fresh runtime PASS.
+One repaired 3.7 live answer/citation was bound to a fresh independently read-back synthetic document through qualification and the normal mapper. Cleanup, exact 82/82 source readback, version-73 shell, recovered-shape/negative tests, 448/448 canonical checks, bundle 27/27, and security/foundation checks passed. The Store/TXT were deleted and absence confirmed.
 
-## CODEX-05 bounds
+Fresh same-project quota evidence showed 1/5 RPM, 200/250K TPM and 1/20 RPD after the single campaign. The exact response-embedded transport counters were not durably retained by the administrator client and are not invented. The optional safe Audit append was not observed and is a FIX SOON evidence-retention gap, not acceptance evidence.
 
-One logical File Search query, <=2 generation HTTP attempts under existing safeguards; no additional diagnosis, Models, short generation, other model/transport, OpenAI or FULL_OUTPUT calls. One temporary Store/TXT, cleanup confirmed. No existing source or Store mutation. One final source delivery/readback, at most immutable version 73, one update of the same verified private WEB_APP from 72 to 73. Never deploy 67 or create 74+. No scratch invocation or administrator bypass.
+## Consumed CODEX-05 bounds
 
-Check fresh same-project quota without a probe; the old snapshot is not capacity assurance. If confirmation is blocked, preserve the tested implementation and report the exact unverified runtime gate. Do not use a new key/project or billing change as a workaround. Exact retry/time/cleanup boundaries are in the detailed instruction.
+One logical File Search query, one temporary Store/TXT, one source delivery/readback, one immutable version 73, and one update of the same private Web App from 72 to 73 were consumed. Models, short generation, other models/transports, OpenAI, FULL_OUTPUT, existing Store/source mutation, scratch invocation, and administrator bypass were not used. Version 67 remains undeployed and no version 74+ was created. The same-project quota check used no probe, key/project change, or billing change.
 
 ## Completion latch
 
-Only correctly evidenced QUALIFIED_DISABLED satisfies Work acceptance. Keep Gemini disabled/hidden pending final review, and do not transfer temporary-Store qualification to the configured real Store. PR #37 remains Draft/Open/unmerged until ChatGPT reviews final diff, tests and live evidence. One final consistency check after acceptance; no additional benchmark/hardening gate.
+`QUALIFIED_DISABLED` satisfies the personal-DEV Work acceptance gate. Gemini remains disabled/hidden pending final review, and the temporary-Store result was not transferred to an existing configured Store. PR #37 remains Draft/Open/unmerged until ChatGPT reviews the final diff, tests, and live evidence.
 
 Large files, company credentials/permissions/quota policy, migration, other models and rollout are follow-ups. No confidential indexing is authorized.
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

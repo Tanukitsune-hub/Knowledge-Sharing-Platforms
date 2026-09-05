@@ -2,36 +2,46 @@
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
-## Current dispatch — evidence-led repair
+## Current dispatch — returned / qualified disabled
 
-`0027-CODEX-05` — shared strict Store/metadata citation resolver and one guarded 3.7 confirmation.
+`0027-CODEX-05` implemented the shared strict Store/metadata/current-document resolver and completed one guarded 3.7 confirmation.
 
 Instruction: `docs/handoffs/0027-CODEX-05-strict-citation-resolver-instruction.md`
 Report: `docs/handoffs/0027-CODEX-05-strict-citation-resolver-report.md`
 
-Strategy reset from INVESTIGATION to BUILD: CODEX-04 recovered the required citation representation. No new diagnosis or model selection campaign is needed. source is content, document_uri is the Store, and exact custom metadata must resolve through trusted current source/document context. Shared qualification/normal mapping must reject conflicting, stale, inactive, wrong-Store or ambiguous identities.
+CODEX-04's recovered representation drove the repair: source is content, document_uri is the Store, and exact custom metadata resolves through trusted current source/document context. Qualification and normal immediate/POLL mapping now share the strict fail-closed resolver.
 
 ```text
 REVIEWED_CODEX_04_FINAL: 18226013d6f98a5cb2bffdf72ced52e766a8b698
 MODEL: gemini-3.7-flash / low / 2048 / Interactions + File Search
-CURRENT_RUNTIME: version 72
-CODEX_05_IMPLEMENTATION_AND_RUNTIME: NOT_RUN
-WORK_ACCEPTANCE: NOT_MET
-BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+IMPLEMENTATION_COMMIT: 40905f23d8c6bab5b76e7fb2f34f96b912aeb2f7
+CURRENT_RUNTIME: version 73
+CODEX_05_IMPLEMENTATION_AND_RUNTIME: PASS
+TERMINAL_OUTCOME: QUALIFIED_DISABLED
+WORK_ACCEPTANCE: MET
+BLOCKER: NONE
 GEMINI: disabled / hidden
 ```
 
-## CODEX-05 authorization
+## Consumed CODEX-05 authorization
 
 The detailed instruction is authoritative. One shared resolver repair, one logical File Search confirmation (<=2 generation HTTP attempts under existing replay/wait safeguards), one temporary Store/TXT, exact cleanup confirmation. No short generation, Models, other model, GenerateContent, OpenAI or FULL_OUTPUT live calls. No existing Store/business-source mutation. Fresh quota inspection is not a probe or permission to change billing/key. One final source delivery/readback, at most version 73 and one update of the same private Web App (72 -> 73); never deploy 67 or create 74+. No temporary diagnostic staging, handler interception or administrator-latch bypass.
 
-Only a live, independently bound QUALIFIED_DISABLED result meets Work acceptance. Tested code may be delivered with runtime confirmation pending if quota/authorization prevents the one confirmation; do not claim acceptance or discard useful tested repairs.
+The bounded authorization was consumed by one source delivery/readback, one version-73 creation, one same-Web-App update, one temporary Store/TXT, one logical File Search query, and confirmed cleanup. No old budget remains. Any new execution requires `0027-CODEX-06`.
 
 ## Returned dispatch history
+
+### 0027-CODEX-05 — RETURNED / QUALIFIED_DISABLED
+
+Implementation: `40905f23d8c6bab5b76e7fb2f34f96b912aeb2f7`. Final: resolve from PR #37 head/final return.
+
+Strict Gemini citation resolution, focused 111/111, full logic 448/448, bundle 27/27, source readback 82/82 and version-73 shell PASS. One guarded 3.7/low/2048 File Search campaign returned the expected token and an authoritative normalized citation with shared normal-mapper parity. One temporary Store/TXT was deleted and absence confirmed. Gemini remains qualified-but-disabled and hidden; existing provider/business sources were not mutated. The safe Audit append was not observed and is a non-blocking evidence-retention follow-up.
+
+Report: `docs/handoffs/0027-CODEX-05-strict-citation-resolver-report.md`.
 
 ### 0027-CODEX-04 — RETURNED / EVIDENCE_RECOVERED
 
@@ -64,9 +74,9 @@ Logic 431/431, version-71 shell, upload/index/readback and cleanup PASS. 3.8 Fil
 
 Report: `docs/handoffs/0027-CODEX-01-gemini-file-search-resilience-and-e2e-qualification-report.md`.
 
-Work 0026 remains ACCEPTED. All old dispatch budgets expired. Only CODEX-05 is active. A native-user action within that run retains CODEX-05; a new execution after return must use CODEX-06.
+Work 0026 remains ACCEPTED. All CODEX-01 through CODEX-05 budgets are consumed. Work 0027 is ready for ChatGPT final review; any new execution after return must use CODEX-06.
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

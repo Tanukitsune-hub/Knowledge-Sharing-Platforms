@@ -2,8 +2,8 @@
 
 WORK_ID: 0027
 DISPATCH_ID: 0027-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 ## Primary outcome
@@ -16,6 +16,8 @@ Make personal-DEV Gemini File Search return an answer with an authoritative curr
 
 Current ball: `docs/handoffs/0027-dispatches.md`.
 Current result: `docs/handoffs/0027-report.md`.
+
+CODEX-05 returned `QUALIFIED_DISABLED`: implementation and target-runtime qualification passed at version 73, cleanup was confirmed, and Gemini remains disabled/hidden. The consumed execution details are recorded in `docs/handoffs/0027-CODEX-05-strict-citation-resolver-report.md`; no authorization in this instruction remains reusable.
 
 Read applicable AGENTS and deployment policy. CODEX-05 replaces expired CODEX-04 authority; no old unused budget carries over.
 
@@ -37,7 +39,19 @@ Implement and test first. Then, with a fresh same-project quota check and the ex
 
 Only correctly bound live QUALIFIED_DISABLED with shared mapping parity, source/runtime evidence, cleanup and required tests satisfies acceptance. An implementation blocked by runtime quota remains delivered but not qualified; report the precise pending gate. Keep PR #37 Draft/Open/unmerged. Do not activate Gemini or merge.
 
+```text
+CODEX_05_IMPLEMENTATION: PASS
+CODEX_05_LOGIC_VALIDATION: PASS / 448 of 448
+CODEX_05_TARGET_RUNTIME_QUALIFICATION: PASS
+CODEX_05_TERMINAL_OUTCOME: QUALIFIED_DISABLED
+CODEX_05_CLEANUP: PASS
+WORK_ACCEPTANCE: MET
+GEMINI: disabled / hidden
+READY: YES / ChatGPT final review
+BLOCKER: NONE
+```
+
 WORK_ID: 0027
 DISPATCH_ID: 0027-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

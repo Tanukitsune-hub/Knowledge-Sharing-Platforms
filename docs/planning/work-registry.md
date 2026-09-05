@@ -18,7 +18,7 @@ Statuses: ACCEPTED (closed/merged evidence), ACTIVE (current implementation), RE
 | 2 | 0021 | Structured search, five modes, multi-Entity, six formats | ACCEPTED | 0025 | Preserve PR #34 and version-66 evidence |
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36; coarse failure is historical only |
-| 5 | 0027 | Personal-DEV Gemini File Search baseline | ACTIVE | CODEX-04 evidence recovered; citation blocker retained | Execute CODEX-05 shared strict resolver repair and one guarded confirmation |
+| 5 | 0027 | Personal-DEV Gemini File Search baseline | ACTIVE | CODEX-05 personal-DEV qualification PASS | ChatGPT final review; keep Gemini disabled/hidden |
 | 6 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic provider path qualified | Allocate separate Work |
 | 7 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 8 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -51,23 +51,25 @@ CODEX-03 final ref `745e34d8a04df4aaea8a9373775106b4b08b4523`: diagnostic HTTP 4
 
 CODEX-04 final ref `18226013d6f98a5cb2bffdf72ced52e766a8b698`: exact stored response recovered; source CONTENT_TEXT, document_uri STORE, exact custom_metadata present. Original upload/readback Document name remains unavailable. Quota snapshot showed headroom at observation, not a guarantee; exact previous 429 category/reset UNKNOWN. Guarded administrator route available, not invoked. No src/tests/dist/provider/runtime mutation. Evidence accepted for diagnosis only.
 
+CODEX-05 implementation `40905f23d8c6bab5b76e7fb2f34f96b912aeb2f7`: shared strict Store/metadata/current-document/authoritative-source resolver, recovered-shape and fail-closed tests, 448/448 canonical checks, 27/27 bundle checks and 82/82 source readback PASS. Same private Web App updated once to version 73. One guarded 3.7/low/2048 campaign returned the expected token and exactly one authoritative normalized citation with normal immediate/POLL parity; one temporary Store/TXT was deleted and absence confirmed. Gemini remains qualified-but-disabled and hidden. No existing provider/business source changed.
+
 ```text
 CURRENT_DISPATCH: 0027-CODEX-05
 MODE: BUILD
-BALL: CODEX
-STATUS: READY
-WORK_ACCEPTANCE: NOT_MET
-BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+BALL: CHATGPT
+STATUS: RETURNED
+WORK_ACCEPTANCE: MET
+BLOCKER: NONE
 RECOVERED_MISMATCH: SOURCE_CONTENT_IS_NOT_PROVIDER_DOCUMENT_IDENTITY
 MODEL: gemini-3.7-flash / low / 2048
-CURRENT_RUNTIME: version 72
-CODEX_05_IMPLEMENTATION_AND_CONFIRMATION: NOT_RUN
+CURRENT_RUNTIME: version 73
+CODEX_05_IMPLEMENTATION_AND_CONFIRMATION: PASS / QUALIFIED_DISABLED
 PR_37: Draft / Open / unmerged
 ```
 
-Strategy reset: evidence recovery is complete; no further blind diagnostic/model campaign. CODEX-05 will implement one strict shared Store/metadata/current-document/authoritative-source resolver and perform one guarded confirmation, subject to fresh quota and exact runtime identity. Full bounds: `docs/handoffs/0027-CODEX-05-strict-citation-resolver-instruction.md`.
+CODEX-05 consumed its one-campaign and deployment budgets. No further blind diagnostic/model campaign or reused authority is available. The exact result is in `docs/handoffs/0027-CODEX-05-strict-citation-resolver-report.md`; a new execution requires CODEX-06.
 
-Only a correctly grounded QUALIFIED_DISABLED result with cleanup meets Work acceptance. A read-only investigation or test-only repair does not qualify Gemini. CI absence is FIX SOON, not a blocker by itself. Personal-DEV reference behavior is not company readiness.
+The correctly grounded `QUALIFIED_DISABLED` result with cleanup meets personal-DEV Work acceptance. Safe qualification Audit persistence is FIX SOON and GitHub CI status remains separate; neither weakens the runtime result. Personal-DEV evidence is not company readiness or authorization to enable Gemini.
 
 ## Scope discipline
 
