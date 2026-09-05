@@ -2,7 +2,7 @@
 
 WORK_ID: 0028
 MODE: BUILD
-ACTIVE_DISPATCH_ID: 0028-CODEX-01
+ACTIVE_DISPATCH_ID: 0028-CODEX-02
 BALL: CODEX
 STATUS: READY
 
@@ -34,8 +34,18 @@ Add one reusable shared administrator-auth primitive, integrate it with the exis
 - after bootstrap, legacy account identity alone must not authorize AI Provider Settings mutations;
 - password rotation invalidates prior tokens;
 - safe management page remains viewable without unlock;
-- shared auth primitive must be reusable by future management pages without changing their authorization in this Work;
+- shared auth primitive reusable by future management pages without changing their authorization in this Work;
 - deterministic tests for wrong password/token, different Google identities, tamper, rotation, logout state and secret redaction.
+
+## Current personal-DEV bootstrap
+
+The user authorized ChatGPT to disclose a temporary bootstrap password directly to Codex for this DEV campaign, eliminating a USER password-entry handoff.
+
+- The exact temporary value is supplied in the CODEX-02 dispatch prompt.
+- Codex may type it into the normal Web App setup/unlock UI.
+- It is not a product default and must not be hard-coded or persisted in plaintext.
+- Product code must accept arbitrary future passwords entered through the UI.
+- The user will change the temporary password after introduction using the management-page password-change function.
 
 ## Non-goals
 
@@ -62,9 +72,9 @@ Add one reusable shared administrator-auth primitive, integrate it with the exis
 - source delivery/readback: max 1.
 - immutable Apps Script versions: max 1, expected version 74.
 - same verified private Web App update: max 1, 73 -> 74.
-- version 75 or higher: prohibited in CODEX-01.
+- version 75 or higher: prohibited in CODEX-02.
 - version 67 remains prohibited.
-- no password, verifier, salt, signing secret, admin token, private URL/ID, or account identifier may be committed or reported.
+- real future secret passwords, verifier, salt, signing secret, admin token, private URL/ID, or account identifier may not be committed or reported.
 
 ## Closed conclusions
 
@@ -74,6 +84,8 @@ Add one reusable shared administrator-auth primitive, integrate it with the exis
 - The user explicitly chose no 30-minute or other time-based admin timeout.
 - Browser-session persistence via `sessionStorage` plus explicit logout is accepted.
 - Routine administrator authorization after migration must not depend on Google account/email.
+- Password change must be available in the management UI.
+- CODEX-01 is superseded before execution; CODEX-02 carries the temporary DEV bootstrap decision.
 
 ## Runtime qualification
 
@@ -82,12 +94,13 @@ After deterministic PASS and exact deployment identity proof:
 1. update the same private Web App once to version 74;
 2. verify Root and AI Provider Settings bootstrap with no application-blocking console errors;
 3. verify the page is readable while locked;
-4. if the shared password is not configured, ask the USER to type/confirm the initial password directly in the Web App. Never ask for the value in chat/Codex/terminal/logs;
-5. after bootstrap, clear/remove the browser admin token and confirm the still-allowlisted Google account alone reports locked / `canMutate=false`;
-6. have the USER enter the same password directly in the Web App to unlock; confirm server-validated `canMutate=true`;
-7. reload the page and confirm unlock persists through `sessionStorage`;
-8. explicitly end administrator mode and confirm the page returns to `canMutate=false`;
-9. do not invoke OpenAI/Gemini/provider mutations in the runtime campaign.
+4. Codex uses the temporary bootstrap password supplied in the dispatch prompt to initialize shared auth through the normal UI;
+5. clear/remove the browser admin token and confirm the still-allowlisted Google account alone reports locked / `canMutate=false`;
+6. Codex unlocks again using the same temporary password; confirm server-validated `canMutate=true`;
+7. reload the page and confirm unlock persists through `sessionStorage` and is server-revalidated;
+8. verify password-change behavior deterministically; leave the runtime on the temporary bootstrap value unless a reversible synthetic rotation is required for runtime proof;
+9. explicitly end administrator mode and confirm the page returns to `canMutate=false`;
+10. do not invoke OpenAI/Gemini/provider mutations in the runtime campaign.
 
 Deterministic tests, not a destructive provider mutation, prove that the token authorizes the existing mutation path independent of Google identity and that password rotation invalidates old tokens.
 
@@ -106,4 +119,4 @@ Stop and return if any of these occurs:
 
 ## Completion latch
 
-Done only when the shared-password mode works end to end in personal DEV, account-only mutation authorization is removed after bootstrap, required tests and source/runtime checks pass, no secret leakage or blocker remains, and GitHub/PR/handoff state is updated. Preserve Work 0027 provider state unchanged.
+Done only when the shared-password mode works end to end in personal DEV, account-only mutation authorization is removed after bootstrap, password change is implemented, required tests and source/runtime checks pass, no secret leakage or blocker remains, and GitHub/PR/handoff state is updated. Preserve Work 0027 provider state unchanged.
