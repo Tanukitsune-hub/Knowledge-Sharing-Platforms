@@ -2,8 +2,8 @@
 
 WORK_ID: 0027
 DISPATCH_ID: 0027-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 
 ## Primary outcome
@@ -27,21 +27,21 @@ Read root/nearest AGENTS, CODEX-02/03 reports, Work plan and runtime locator. CO
 - CODEX-03: HTTP 429/too_many_requests, attempts 2/retry 1, cumulative sleep 514ms, latency 21825ms; no citation shape, implementation or deployment; source restoration reported 82/82.
 - CODEX-03's temporary invocation modification violated its instruction and is not acceptance evidence. Do not repeat it.
 
-## Strategy reset
+## Returned investigation result
 
-The citation blocker and the immediate 429 diagnostic impediment are distinct. The latter does not explain the former. We lack the quota dimension and the successful response's per-field shape. Do not perform another blind generation to rediscover this gap.
+The exact CODEX-02 response was recovered from the same-project AI Studio Interaction log. `source` is content text, `document_uri` is the requested Store, and exact `source_type`, `source_id` and `content_hash` are in `custom_metadata`. This establishes that the qualification matcher's `citation.source === documentValue.name` condition is the mismatch. The original upload/readback Document name itself was not retained and was not reconstructed.
 
-CODEX-04 may only recover narrowly scoped retained evidence, retrieve one exact known stored Interaction if available, inspect same-project usage/quota read-only, and identify a compliant future execution route. Availability of stored response/ID is conditional and must not be assumed.
+Same-project AI Studio quota showed Free tier and current last-hour headroom, while its 28-day view contained a historical RPM peak above the limit. The exact quota category behind CODEX-03's 429 remains UNKNOWN because no Retry-After, quota metric or reset value was retained.
 
-No new generations, Models probes, Stores, uploads, settings, source deliveries, immutable versions, deployments, billing changes or product source repairs. Keep 3.7 as the investigation context; do not call other models.
+The compliant future route is the existing version-72 private Web App's enabled administrator `接続・File Search確認` action through the guarded facade. It was observed but not invoked. No monkey-patch or latch bypass is needed.
 
 ## Completion
 
-CODEX-04 completes its investigation with the recovered field matrix or explicit unavailability, quota evidence or UNKNOWN, execution-route prerequisite and one cheapest next action. This is not Work acceptance. The exact blocker remains GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH.
+CODEX-04 completed with `EVIDENCE_RECOVERED`, zero generation/runtime mutation, and the sanitized fixture/report. This is not Work acceptance. The exact blocker remains `GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH` until an authorized CODEX-05 repair and bounded qualification pass.
 
 Only a later authorized evidence-led repair plus end-to-end qualification can establish QUALIFIED_DISABLED. Keep Gemini disabled/hidden and PR #37 Draft/Open/unmerged. Version 72 remains deployed.
 
 WORK_ID: 0027
 DISPATCH_ID: 0027-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

@@ -2,34 +2,36 @@
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 
-## Current dispatch — strategy reset
+## Current dispatch — returned investigation
 
 `0027-CODEX-04` — read-only retained-response recovery, same-project quota preflight and compliant invocation-path review.
 
 Instruction: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`
 Report: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-report.md`
 
-Do not repeat the CODEX-03 generation. Recover the prior successful synthetic Interaction if an exact ID/response and access remain available; otherwise identify the missing evidence. Inspect the tested project's quota without a probe request. Do not assume stored-response recovery is possible.
+CODEX-04 recovered the exact CODEX-02 stored Interaction through its retained correlation, identified the content-valued citation `source`, inspected same-project quota without a probe, and proved the existing guarded Web App administrator route. It made no product/runtime/provider mutation.
 
 ```text
 MODEL_CONTEXT: gemini-3.7-flash / low / 2048
 CURRENT_RUNTIME: version 72 / unchanged by CODEX-03
 WORK_ACCEPTANCE: NOT_MET
 WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-CURRENT_DIAGNOSTIC_IMPEDIMENT: HTTP_429_QUOTA_DIMENSION_UNKNOWN
-CODEX_04_EXECUTION: NOT_RUN
-NEW_GENERATION_OR_MODELS_CALLS: 0 authorized
-STORE_DOCUMENT_MUTATIONS: 0 authorized
-APPS_SCRIPT_SOURCE_VERSION_DEPLOYMENT_MUTATIONS: 0 authorized
-BILLING_KEY_OR_SECURITY_CHANGES: 0 authorized
+RECOVERED_CITATION_SHAPE: source=CONTENT_TEXT / document_uri=STORE / exact custom_metadata present
+CODEX_03_429_QUOTA_CATEGORY: UNKNOWN
+CURRENT_VISIBLE_QUOTA: Free / 3.7 last-hour RPM 3 of 5 / TPM 394 of 250000 / RPD 3 of 20
+CODEX_04_EXECUTION: EVIDENCE_RECOVERED
+NEW_GENERATION_OR_MODELS_CALLS: 0
+STORE_DOCUMENT_MUTATIONS: 0
+APPS_SCRIPT_SOURCE_VERSION_DEPLOYMENT_MUTATIONS: 0
+BILLING_KEY_OR_SECURITY_CHANGES: 0
 GEMINI: disabled / hidden
 ```
 
-Read-only retrieval is limited to one known Interaction, <=2 HTTP attempts total. Local artifact search <=10 minutes; quota UI one inspection plus at most one refresh. No account history enumeration, credential disclosure, raw response export, installer/readiness interception, monkey-patching or authorization bypass. The detailed instruction controls all bounds.
+The stored response was inspected in place and represented only by a sanitized shape fixture. Its ID, private project identity, prompt, token and raw content were not persisted. `interactions.get` was not called. The original upload/readback Document name was unavailable and was not reconstructed.
 
 ## Returned dispatch history
 
@@ -92,9 +94,9 @@ TEMP_RESOURCE_CLEANUP: PASS
 
 Report: `docs/handoffs/0027-CODEX-01-gemini-file-search-resilience-and-e2e-qualification-report.md`.
 
-Work 0026 remains ACCEPTED. Only CODEX-04 is active. A native-user action inside the running CODEX-04 retains CODEX-04; after return, a new execution must use CODEX-05. All historical source/version/generation budgets remain expired.
+Work 0026 remains ACCEPTED. CODEX-04 is returned. Any subsequent repair or runtime execution must use CODEX-05 with fresh authorization; all historical source/version/generation budgets remain expired.
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

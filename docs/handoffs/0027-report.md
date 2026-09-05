@@ -2,13 +2,13 @@
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 
 ## Current outcome
 
-CODEX-03 produced no citation repair. The current controller action is a strategy reset to retained-response recovery and quota preflight with zero new generation or runtime mutation. CODEX-04 has not executed. PR #37 remains Draft/Open/unmerged; main remains 8c9be2392a1247ff81efc6a153fc0be449b1318b at this review.
+CODEX-04 recovered the exact CODEX-02 stored Interaction from the same AI Studio project and established the observed citation mismatch without another generation. The returned `source` was content text, `document_uri` was the requested Store, and the exact source metadata was present. No product repair or target-runtime qualification ran. PR #37 remains Draft/Open/unmerged; main remains 8c9be2392a1247ff81efc6a153fc0be449b1318b at this review.
 
 ## Preserved CODEX-02 evidence
 
@@ -63,20 +63,29 @@ ChatGPT independently checked main/PR/head, full report, dispatch/control docume
 
 Detailed evidence: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`.
 
-## Source findings retained, not declared causes
+## CODEX-04 recovered evidence
 
-- Qualification requires citation.source equal to Document.name plus three metadata equalities.
-- Citation normalization drops document_uri; synthetic fixtures assume source equals Document.name.
-- Normal Gemini mapping differs from qualification mapping.
+- The stored response contained three equivalent raw `file_citation` annotations, deduplicated by the existing parser to one normalized citation.
+- `source` was source-content text, not a provider Document resource identity.
+- `document_uri` exactly equaled the requested Store and was not a Document identity.
+- `custom_metadata.source_type`, `source_id` and `content_hash` were present and matched the request/source relationship.
+- The original upload/readback Document name was not retained; no value was reconstructed.
 
-The official schema documents separate citation fields but does not prove which field failed in CODEX-02. No blind assertion removal or expected-value substitution is authorized.
+The sole remaining matcher condition was `citation.source === documentValue.name`, establishing the mismatch as an invalid identity assumption. The shape-faithful sanitized fixture is `docs/handoffs/0027-CODEX-04-sanitized-citation-shape.json`.
+
+Same-project AI Studio quota preflight observed Free tier. For Gemini 3.7 Flash, the last-hour view showed RPM 3/5, TPM 394/250000 and RPD 3/20. The 28-day view showed a historical RPM peak of 6/5, but the exact category and reset/wait for CODEX-03's earlier 429 remain UNKNOWN.
+
+The existing private Web App administrator page returned `canMutate` and enabled the guarded `接続・File Search確認` route. No action was invoked.
 
 ## Classification
 
 ```text
 PRODUCT_AVAILABILITY_REGRESSION_OBSERVED: NONE / accepted personal-DEV references preserved
 WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-DIAGNOSTIC_IMPEDIMENT: HTTP_429_QUOTA_DIMENSION_UNKNOWN
+CODEX_04_OUTCOME: EVIDENCE_RECOVERED
+OBSERVED_MISMATCH: SOURCE_CONTENT_IS_NOT_PROVIDER_DOCUMENT_IDENTITY
+CODEX_03_429_QUOTA_CATEGORY: UNKNOWN
+COMPLIANT_INVOCATION_ROUTE: AVAILABLE / guarded Web App admin facade
 EXECUTION_PROCEDURE_FINDING: NONCOMPLIANT_TEMPORARY_INVOCATION_REMOVED
 FIX_SOON: GitHub CI absent
 BACKLOG: other models, large files, migration, company rollout
@@ -84,17 +93,13 @@ BACKLOG: other models, large files, migration, company rollout
 
 429 is compatible with project/model quota throttling, but this report does not identify RPM, TPM, RPD or another limit. The 514ms additional sleep is not evidence that a minute/day quota recovered or that all retry options were exhausted. A new API key or paid tier is not an established fix.
 
-## Next action — CODEX-04
+## Next action — CODEX-05
 
-Current instruction: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`.
-
-First check whether the exact previous synthetic response/Interaction ID and original upload reference remain recoverable. Google documents stored-Interaction retrieval and conditional retention; this is an opportunity, not an assertion of availability. Then inspect the tested personal project's actual usage/rate-limit evidence and establish a compliant invocation route without calling a model or modifying Apps Script.
-
-Return recovered per-field evidence or explicit missing prerequisites. Do not create another temporary Store, change models, bypass an administrator latch, regenerate a bundle, or create version 73 in CODEX-04.
+Issue a new bounded CODEX-05 to repair the shared Gemini resolver using the recovered shape: preserve content-valued `source`, use `document_uri` only for exact Store binding, and resolve the exact metadata tuple against one current Active document. Deduplicate equivalent annotations and fail closed on ambiguity/conflict/staleness; never use filename alone. After deterministic PASS and fresh quota headroom, use only the existing guarded Web App route for one bounded confirmation.
 
 Work acceptance stays NOT_MET. No historical report has been rewritten as successful qualification.
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

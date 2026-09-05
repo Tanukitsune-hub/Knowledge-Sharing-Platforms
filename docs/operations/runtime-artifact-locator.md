@@ -1,9 +1,9 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_RUNTIME_EVIDENCE_AT: 2026-09-05 JST
-LAST_RUNTIME_EVIDENCE_BY: Codex, CODEX-03
-LATEST_CONTROLLER_ACTION: CODEX-04 read-only evidence recovery and quota preflight issued
-STATUS: version 72 remains deployed; citation blocker retained; no runtime mutation authorized
+LAST_RUNTIME_EVIDENCE_BY: Codex, CODEX-04 read-only recovery
+LATEST_CONTROLLER_ACTION: CODEX-04 returned EVIDENCE_RECOVERED
+STATUS: version 72 remains deployed; citation shape recovered; blocker retained; no runtime mutation occurred
 
 ## Source and current ball
 
@@ -14,11 +14,12 @@ ACTIVE_BRANCH: `agent/0027-gemini-file-search-resilience`
 REVIEWED_IMPLEMENTATION: `acd3aa08a3ecc01a7b0852afef8f58202934af82`
 REVIEWED_CODEX_02_FINAL_REF: `0032a9cdb69cc1431566dee82f7e2c2196ddee50`
 REVIEWED_CODEX_03_FINAL_REF: `745e34d8a04df4aaea8a9373775106b4b08b4523`
+REVIEWED_CODEX_04_START_REF: `9dad26cec30580050f371284a5ad8d2f2cc8b3d2`
 PR: `#37 / Draft / Open / unmerged`
 CURRENT_ACTIVE_WORK: `0027`
 CURRENT_ACTIVE_DISPATCH: `0027-CODEX-04`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 Current ball is authoritative in `docs/handoffs/0027-dispatches.md`. Local workspace paths, private URLs/IDs, provider resource names, credentials and signed URLs must not appear here.
 
@@ -66,6 +67,16 @@ CODEX_02_3_7_FILE_SEARCH: HTTP 200 / expected token / 1 file_citation
 CODEX_02_QUERY_ATTEMPTS_RETRIES: 2 / 1
 CODEX_02_QUERY_LATENCY_MS: 34992
 AUTHORITATIVE_CITATION_IDENTITY_MATCH: FAIL
+CODEX_04_STORED_INTERACTION: RECOVERED / ID and raw values not retained
+CODEX_04_CITATION_SOURCE_CATEGORY: CONTENT_TEXT
+CODEX_04_DOCUMENT_URI_CATEGORY: STORE
+CODEX_04_EXACT_CUSTOM_METADATA: PRESENT
+CODEX_04_RAW_UNIQUE_CITATIONS: 3 / 1
+CODEX_04_ORIGINAL_DOCUMENT_NAME: UNAVAILABLE
+CODEX_04_SAME_PROJECT_TIER: Free
+CODEX_04_LAST_HOUR_3_7_RPM_TPM_RPD: 3/5 / 394/250000 / 3/20
+CODEX_04_CODEX_03_429_QUOTA_CATEGORY: UNKNOWN
+CODEX_04_COMPLIANT_ADMIN_ROUTE: AVAILABLE / not invoked
 GEMINI_3_6_CALLED_IN_CODEX_02: NO
 CODEX_03_DIAGNOSTIC_HTTP: 429 / too_many_requests
 CODEX_03_DIAGNOSTIC_ATTEMPTS_RETRIES: 2 / 1
@@ -84,9 +95,9 @@ BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 
 CODEX-03's temporary invocation-path modification is disclosed in its detailed report and is excluded from qualification evidence. It was removed. Do not bypass the administrator latch or repeat temporary handler interception.
 
-## Current read-only phase
+## Returned read-only phase
 
-CODEX-04 may recover one exact known stored synthetic Interaction if its ID, retention and same-project authorization permit, inspect quota/usage and describe a compliant next invocation route. No model call, Models probe, Store creation, upload, source staging or billing change is authorized. Read-only recovery is not a new runtime qualification. See the current detailed instruction.
+CODEX-04 recovered the exact known stored synthetic Interaction and documented only a sanitized shape. It made zero model/Models calls, Store or document mutations, source staging, version/deployment, billing, key or security changes. Read-only recovery is not a new runtime qualification. Any repair/confirmation requires CODEX-05 with fresh authorization.
 
 ## Next phases
 

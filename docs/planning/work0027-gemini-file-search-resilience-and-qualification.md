@@ -3,8 +3,8 @@
 WORK_ID: 0027
 MODE: INVESTIGATION
 ACTIVE_DISPATCH_ID: 0027-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 ## Primary outcome
 
@@ -26,20 +26,21 @@ CODEX-02: stable candidate parameterization; 440/440 checks; version 72, 82/82 r
 
 CODEX-03: final ref `745e34d8a04df4aaea8a9373775106b4b08b4523`. One diagnostic returned HTTP 429/too_many_requests, attempts 2/retry 1, sleep 514ms, latency 21825ms, no citation. No repair/version/deployment. Cleanup and 82/82 source restoration reported. Its temporary invocation-path modification violated the instruction and is not qualification evidence; do not repeat it.
 
-## Strategy reset — BUILD paused for bounded INVESTIGATION
+## CODEX-04 investigation result
 
-Two problems remain distinct: the existing citation-binding failure, and the 429 that prevented observing its shape. The report does not identify the quota dimension. Repeated generation/Store/deploy cycles without either fact are not the next action.
+CODEX-04 recovered the exact successful CODEX-02 Interaction without generation. It observed content text in `source`, the requested Store in `document_uri`, and exact source metadata in `custom_metadata`. This identifies the invalid `source === Document.name` assumption while preserving the original upload/readback Document name as unavailable evidence.
 
-CODEX-04 checks whether the known successful synthetic Interaction can be recovered within its retention/access boundary, inspects same-project quota evidence, and specifies a compliant next execution route. This phase has zero new generation, Store, source-delivery, version, deployment or billing authority.
+Same-project AI Studio showed Free tier and last-hour Gemini 3.7 values of RPM 3/5, TPM 394/250000 and RPD 3/20. A 28-day RPM peak of 6/5 is historical evidence only; the exact dimension and reset/wait behind CODEX-03's 429 remain UNKNOWN. The guarded version-72 Web App administrator qualification route is available and was not invoked.
 
 ```text
 MODEL_CONTEXT: gemini-3.7-flash / low / 2048
 WORK_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-DIAGNOSTIC_IMPEDIMENT: HTTP_429_QUOTA_DIMENSION_UNKNOWN
+RECOVERED_MISMATCH: SOURCE_CONTENT_IS_NOT_PROVIDER_DOCUMENT_IDENTITY
+CODEX_03_429_QUOTA_CATEGORY: UNKNOWN
 CURRENT_RUNTIME: version 72
 ```
 
-Stored-response recovery is conditional; do not assume an Interaction ID, free-tier log viewer or original upload snapshot exists. Bound the search, then report unavailable rather than invent a fixture or widen scope.
+The sanitized relationship-preserving fixture is `docs/handoffs/0027-CODEX-04-sanitized-citation-shape.json`. No original IDs, URLs, prompt, token, source text or project identity is retained there.
 
 ## Subsequent repair boundary — not authorized by CODEX-04
 
@@ -51,10 +52,10 @@ A future fresh capture, if necessary, must have same-project quota headroom/wait
 
 ## Evidence and completion
 
-For CODEX-04: actual retained synthetic response/reference and actual quota metadata outrank schema or inference. UNKNOWN/UNAVAILABLE is permitted as an investigation result with one explicit next prerequisite; no Work PASS may be claimed.
+CODEX-04 returned `EVIDENCE_RECOVERED` with zero generation, Store, source, version, deployment, billing or credential mutation. No Work PASS is claimed.
 
 Work completion still requires post-fix personal-DEV token/citation/source/hash correctness through production mapping, cleanup, exact source/runtime evidence and deterministic regressions. Only QUALIFIED_DISABLED with required evidence satisfies Work acceptance. Keep Gemini hidden/disabled pending final review.
 
-All prior source/version/call budgets expired on return. CODEX-04 allows one exact known Interaction read, <=2 HTTP attempts total, <=10 minutes local evidence search, one quota UI inspection plus one refresh, and no external mutations. Its instruction is authoritative.
+All prior source/version/call budgets remain expired. Any repair or runtime confirmation requires a new CODEX-05 instruction with fresh bounded authority. The cheapest next action is the evidence-led shared resolver repair, followed by one guarded confirmation only after deterministic PASS and current quota headroom.
 
 Large files, other models, migration, company credentials/permissions and rollout remain later work. No confidential indexing or billing change is authorized.
