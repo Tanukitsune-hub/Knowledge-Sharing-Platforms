@@ -1089,8 +1089,16 @@ function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, c
     : config && config.queryTransport === KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT
       ? kspNormalizeGeminiGenerateContentResponse_(rawResponse)
       : kspParseInteractionResponse_(rawResponse);
-  var mapped = kspMapKnowledgeCitations_(parsed.citations,
-    kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
+  var sourceMaps = kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows);
+  var strictGemini = provider === KSP_AI_PROVIDERS.GEMINI &&
+    (!config || config.queryTransport !== KSP_AI_QUERY_TRANSPORTS.GENERATE_CONTENT);
+  var mapped = strictGemini
+    ? kspResolveGeminiKnowledgeCitations_(parsed.citations, sourceMaps, {
+      environment: environment,
+      config: config,
+      storeName: config && config.storeName
+    })
+    : kspMapKnowledgeCitations_(parsed.citations, sourceMaps);
   var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
     context.meetingRows, context.pitchbookRows);
   var guarded = kspGuardKnowledgeComparisonCitations_(input, catalog, mapped.citations);

@@ -442,6 +442,10 @@ function kspGeminiQualificationSafeDiagnostic_(input) {
   if (!safeFinishReasons[finishReason]) finishReason = '';
   var correlationHash = kspAiTrim_(source.correlationHash).toLowerCase();
   if (!/^[a-f0-9]{64}$/.test(correlationHash)) correlationHash = '';
+  var returnedSourceCategory = kspAiTrim_(source.returnedSourceCategory).toUpperCase();
+  if (['EMPTY', 'CONTENT_TEXT', 'DOCUMENT_RESOURCE', 'MIXED'].indexOf(returnedSourceCategory) === -1) {
+    returnedSourceCategory = 'EMPTY';
+  }
   return {
     classification: kspGeminiQualificationSafeClass_(source.classification),
     stage: kspGeminiQualificationSafeStage_(source.stage),
@@ -458,6 +462,18 @@ function kspGeminiQualificationSafeDiagnostic_(input) {
     expectedTokenPresent: Boolean(source.expectedTokenPresent),
     modelOutputBlockCount: Math.max(0, Number(source.modelOutputBlockCount || 0) || 0),
     fileCitationCount: Math.max(0, Number(source.fileCitationCount || 0) || 0),
+    resolvedCitationCount: Math.max(0, Number(source.resolvedCitationCount || 0) || 0),
+    returnedSourceCategory: returnedSourceCategory,
+    documentUriStoreMatched: Boolean(source.documentUriStoreMatched),
+    metadataSourceTypeMatched: Boolean(source.metadataSourceTypeMatched),
+    metadataSourceIdMatched: Boolean(source.metadataSourceIdMatched),
+    metadataContentHashMatched: Boolean(source.metadataContentHashMatched),
+    authoritativeSourceActiveMatched: Boolean(source.authoritativeSourceActiveMatched),
+    currentGeminiHashMatched: Boolean(source.currentGeminiHashMatched),
+    providerDocumentUniqueMatched: Boolean(source.providerDocumentUniqueMatched),
+    providerDocumentReadbackMatched: Boolean(source.providerDocumentReadbackMatched),
+    storedDocumentReferenceMatched: Boolean(source.storedDocumentReferenceMatched),
+    normalMappingParity: Boolean(source.normalMappingParity),
     authoritativeCitationMatched: Boolean(source.authoritativeCitationMatched),
     attempt: Math.max(0, Number(source.attempt || 0) || 0),
     retryCount: Math.max(0, Number(source.retryCount || 0) || 0),
@@ -595,13 +611,35 @@ function kspGeminiQualificationModelOutputBlockCount_(raw, transport) {
   return count;
 }
 
-function kspGeminiQualificationCitationMatches_(citation, documentValue, source) {
-  var metadata = kspMetadataArrayToMap_(citation && citation.metadata || {});
-  return Boolean(citation && kspAiTrim_(citation.source) && documentValue &&
-    kspAiTrim_(citation.source) === kspAiTrim_(documentValue.name) &&
-    kspAiTrim_(metadata.source_type) === source.sourceType &&
-    kspAiTrim_(metadata.source_id) === source.sourceId &&
-    kspAiTrim_(metadata.content_hash) === source.contentHash);
+function kspBuildGeminiSyntheticAuthoritativeSourceMaps_(source, documentValue, storeName) {
+  var value = source || {};
+  var documentName = kspAiTrim_(documentValue && documentValue.name);
+  var authoritative = {
+    sourceType: kspAiTrim_(value.sourceType),
+    sourceId: kspAiTrim_(value.sourceId),
+    date: kspAiTrim_(value.dateKey),
+    driveUrl: 'https://example.invalid/synthetic-authoritative-source',
+    savedFilename: kspAiTrim_(value.savedFilename || value.displayName || value.sourceId),
+    entityKey: kspAiTrim_(value.entityKey),
+    counterpartyType: kspAiTrim_(value.counterpartyType),
+    status: KSP_STATUS.ACTIVE,
+    providerContentHashes: { OPENAI: '', GEMINI: kspAiTrim_(value.contentHash) },
+    contentHash: kspAiTrim_(value.contentHash),
+    providerDocumentIds: documentName ? [documentName] : [],
+    geminiProviderIdentity: {
+      valid: true,
+      status: KSP_AI_INDEX_STATUS.INDEXED,
+      storeName: kspAiTrim_(storeName),
+      contentHash: kspAiTrim_(value.contentHash),
+      documentNames: documentName ? [documentName] : []
+    }
+  };
+  var maps = { bySourceId: {}, bySourceKey: {}, byAiDocumentName: {}, byProviderDocumentId: {} };
+  if (authoritative.sourceType && authoritative.sourceId) {
+    maps.bySourceId[authoritative.sourceId] = authoritative;
+    maps.bySourceKey[kspAiSourceKey_(authoritative.sourceType, authoritative.sourceId)] = authoritative;
+  }
+  return maps;
 }
 
 function kspGeminiQualificationNormalizedToken_(value) {
@@ -683,10 +721,23 @@ function kspGeminiEvaluateSyntheticQualificationResponse_(raw, options) {
     diagnostic.classification = 'COMPLETED_NO_FILE_CITATION';
     return kspGeminiQualificationSafeDiagnostic_(diagnostic);
   }
-  var matching = citations.filter(function (citation) {
-    return kspGeminiQualificationCitationMatches_(citation, documentValue, source);
-  });
-  diagnostic.authoritativeCitationMatched = matching.length >= 1;
+  var storeName = kspAiTrim_(settings.storeName) || (function () {
+    var name = kspAiTrim_(documentValue && documentValue.name);
+    var match = /^(fileSearchStores\/[^/]+)\/documents\/[^/]+$/.exec(name);
+    return match ? match[1] : '';
+  })();
+  var resolved = kspResolveGeminiKnowledgeCitations_(citations,
+    settings.sourceMaps || kspBuildGeminiSyntheticAuthoritativeSourceMaps_(source, documentValue, storeName), {
+      environment: settings.environment,
+      config: settings.config || { storeName: storeName },
+      storeName: storeName
+    });
+  var resolutionEvidence = resolved.evidence || {};
+  Object.keys(resolutionEvidence).forEach(function (key) { diagnostic[key] = resolutionEvidence[key]; });
+  diagnostic.normalMappingParity = resolved.citations.length === 1 && resolved.warnings.length === 0 &&
+    resolved.citations[0].sourceType === kspAiTrim_(source.sourceType) &&
+    resolved.citations[0].sourceId === kspAiTrim_(source.sourceId);
+  diagnostic.authoritativeCitationMatched = diagnostic.normalMappingParity;
   if (!diagnostic.authoritativeCitationMatched) {
     diagnostic.classification = 'CITATION_IDENTITY_OR_METADATA_MISMATCH';
   }
@@ -1258,6 +1309,273 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
   };
 }
 
+function kspRunGeminiStrictCitationE2eQualification_(environment, context, profile, thinkingProfileId) {
+  var selectedThinkingId = kspAiTrim_(thinkingProfileId).toLowerCase();
+  var launcherThinking = (profile.thinkingProfiles || []).filter(function (item) {
+    return item.thinkingProfileId === selectedThinkingId;
+  })[0];
+  kspAssert_(profile.provider === KSP_AI_PROVIDERS.GEMINI,
+    'AI_MODEL_PROFILE_PROVIDER_MISMATCH', 'Work 0027 requires a Gemini profile.');
+  kspAssert_(launcherThinking && launcherThinking.enabled && !launcherThinking.providerDefault &&
+    kspAiTrim_(launcherThinking.rawValue) === 'low', 'AI_THINKING_VALUE_INVALID',
+  'Work 0027 qualification requires explicit low thinking.');
+  var candidateProfile = kspGeminiWork0027CandidateProfile_(profile, 'gemini-3.7-flash');
+  kspAssert_(Number(candidateProfile.maxOutputTokens) === 2048, 'AI_MODEL_OUTPUT_LIMIT_INVALID',
+    'Work 0027 qualification requires output ceiling 2048.');
+
+  var entropy = environment.nowIso() + '|' + String(Math.random()) + '|WORK-0027-CODEX-05';
+  var correlationHash = typeof environment.hashText === 'function'
+    ? String(environment.hashText(entropy)) : kspAiHashTextFallback_(entropy);
+  correlationHash = correlationHash.toLowerCase();
+  kspAssert_(/^[a-f0-9]{64}$/.test(correlationHash), 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE',
+    'Synthetic correlation identity is invalid.');
+  var token = 'KSP27_' + correlationHash.slice(0, 24).toUpperCase();
+  var sourceText = 'Synthetic Gemini File Search qualification token: ' + token;
+  var source = {
+    sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
+    sourceId: 'KSP-WORK0027-' + correlationHash.slice(0, 16).toUpperCase(),
+    dateKey: '2026-09-05',
+    gpId: 'KSP-SYNTHETIC-GP',
+    entityKey: 'GP:KSP-SYNTHETIC-GP',
+    counterpartyType: 'GP',
+    counterpartyId: 'KSP-SYNTHETIC-GP',
+    relatedGpIds: 'KSP-SYNTHETIC-GP',
+    assetClassId: 'KSP-SYNTHETIC-ASSET',
+    capitalTypeId: 'KSP-SYNTHETIC-CAPITAL',
+    displayName: 'ksp-work0027-' + correlationHash.slice(0, 12) + '.txt',
+    savedFilename: 'ksp-work0027-' + correlationHash.slice(0, 12) + '.txt',
+    mimeType: 'text/plain',
+    text: sourceText,
+    contentHash: typeof environment.hashText === 'function'
+      ? String(environment.hashText(sourceText)) : kspAiHashTextFallback_(sourceText)
+  };
+  var config = {
+    provider: KSP_AI_PROVIDERS.GEMINI,
+    enabled: false,
+    credentialConfigured: true,
+    storeName: '',
+    modelId: candidateProfile.modelId,
+    modelProfileId: candidateProfile.profileId,
+    thinkingProfileId: 'low',
+    thinkingProviderDefault: false,
+    thinkingRawValue: 'low',
+    maxOutputTokens: 2048,
+    queryTransport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS
+  };
+  var evidence = {
+    terminalOutcome: 'BLOCKED_PRODUCT_DEFECT',
+    modelId: candidateProfile.modelId,
+    qualifiedModelId: '',
+    thinkingRawValue: 'low',
+    maxOutputTokens: 2048,
+    queryTransport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
+    correlationHash: correlationHash,
+    temporaryStoreCreated: false,
+    temporaryDocumentVerified: false,
+    duplicateCurrentDocumentCount: 0,
+    cleanupRequired: false,
+    cleanupAttempted: false,
+    cleanupConfirmed: true,
+    auditRecorded: false,
+    candidates: [],
+    stages: {}
+  };
+  var stageNames = ['MODELS_VISIBILITY', 'SHORT_INTERACTIONS', 'TEMP_STORE_CREATE',
+    'SYNTHETIC_UPLOAD_INDEX_READBACK', 'FILE_SEARCH_QUERY', 'TEMP_STORE_DELETE',
+    'CLEANUP_CONFIRMATION'];
+  stageNames.forEach(function (stage) { kspGeminiE2eRecordStage_(evidence, stage, 'NOT_RUN', null); });
+  var candidate = kspGeminiE2eCandidateResult_(candidateProfile);
+  var store = null;
+  var documentValue = null;
+  var terminalDiagnostic = null;
+  var currentStage = 'TEMP_STORE_CREATE';
+  var campaignStartedAt = new Date().getTime();
+  try {
+    kspAssert_(typeof environment.createFileSearchStore === 'function',
+      'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE', 'Temporary Store creation is unavailable.');
+    store = environment.createFileSearchStore(kspBuildFileSearchStoreCreateRequest_(
+      'KSP Work 0027 temporary ' + correlationHash.slice(0, 12), KSP_AI_DEFAULTS.EMBEDDING_MODEL
+    ));
+    kspAssert_(store && store.name, 'AI_STORE_RESPONSE_INVALID', 'Temporary Store identity is invalid.');
+    config.storeName = store.name;
+    evidence.temporaryStoreCreated = true;
+    evidence.cleanupRequired = true;
+    kspGeminiE2eRecordStage_(evidence, currentStage, 'PASS',
+      kspGeminiE2eStagePassDiagnostic_(currentStage, null, {
+        modelId: candidateProfile.modelId, correlationHash: correlationHash
+      }));
+
+    currentStage = 'SYNTHETIC_UPLOAD_INDEX_READBACK';
+    kspAssert_(typeof environment.uploadSourceToFileSearchStore === 'function' &&
+      typeof environment.findProviderDocumentsBySource === 'function' &&
+      typeof environment.readProviderDocument === 'function',
+    'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE', 'Synthetic document readback path is unavailable.');
+    var uploaded = environment.uploadSourceToFileSearchStore(store.name, source);
+    var documents = environment.findProviderDocumentsBySource(
+      KSP_AI_PROVIDERS.GEMINI, config, source.sourceType, source.sourceId
+    );
+    evidence.duplicateCurrentDocumentCount = Array.isArray(documents) ? documents.length : 0;
+    kspAssert_(Array.isArray(documents) && documents.length === 1 &&
+      kspAiTrim_(uploaded && uploaded.name) === kspAiTrim_(documents[0] && documents[0].name) &&
+      kspGeminiCitationDocumentMatches_(documents[0], store.name,
+        source.sourceType, source.sourceId, source.contentHash),
+    'AI_DOCUMENT_READBACK_FAILED', 'Synthetic document identity is not exact.');
+    documentValue = environment.readProviderDocument(
+      KSP_AI_PROVIDERS.GEMINI, config, documents[0], source
+    );
+    kspAssert_(kspAiTrim_(documentValue && documentValue.name) === kspAiTrim_(documents[0].name) &&
+      kspGeminiCitationDocumentMatches_(documentValue, store.name,
+        source.sourceType, source.sourceId, source.contentHash),
+    'AI_DOCUMENT_READBACK_FAILED', 'Synthetic document readback is not current.');
+    evidence.temporaryDocumentVerified = true;
+    kspGeminiE2eRecordStage_(evidence, currentStage, 'PASS',
+      kspGeminiQualificationSafeDiagnostic_({
+        classification: 'PASS', stage: currentStage, transport: 'INTERACTIONS',
+        modelId: candidateProfile.modelId, responseShapeValid: true,
+        metadataSourceTypeMatched: true, metadataSourceIdMatched: true,
+        metadataContentHashMatched: true, providerDocumentUniqueMatched: true,
+        providerDocumentReadbackMatched: true, correlationHash: correlationHash
+      }));
+
+    currentStage = 'FILE_SEARCH_QUERY';
+    kspAssert_(new Date().getTime() - campaignStartedAt <= 240000,
+      'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE', 'Qualification campaign budget was exhausted before query.');
+    var request = kspBuildProviderSearchRequest_(KSP_AI_PROVIDERS.GEMINI, config, {
+      route: KSP_AI_PROVIDERS.GEMINI,
+      mode: KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION,
+      questionOrInstruction: 'Return the unique validation token from the selected synthetic source.',
+      filters: { sourceType: source.sourceType, sourceId: source.sourceId }
+    });
+    var queryResponse = environment.queryProvider(KSP_AI_PROVIDERS.GEMINI, config, request);
+    var verifiedEnvironment = {
+      findProviderDocumentsBySource: function () { return [documentValue]; },
+      readProviderDocument: function () { return documentValue; }
+    };
+    var queryDiagnostic = kspGeminiEvaluateSyntheticQualificationResponse_(queryResponse, {
+      transport: KSP_AI_QUERY_TRANSPORTS.INTERACTIONS,
+      modelId: candidateProfile.modelId,
+      expectedToken: token,
+      source: source,
+      document: documentValue,
+      storeName: store.name,
+      config: config,
+      environment: verifiedEnvironment,
+      sourceMaps: kspBuildGeminiSyntheticAuthoritativeSourceMaps_(source, documentValue, store.name),
+      correlationHash: correlationHash
+    });
+    queryDiagnostic.stage = currentStage;
+    queryDiagnostic = kspGeminiQualificationSafeDiagnostic_(queryDiagnostic);
+    candidate.fileSearchQuery = {
+      result: queryDiagnostic.classification === 'PASS' ? 'PASS' : 'FAIL', diagnostic: queryDiagnostic
+    };
+    candidate.terminalDiagnostic = queryDiagnostic;
+    terminalDiagnostic = queryDiagnostic;
+    kspGeminiE2eRecordStage_(evidence, currentStage, candidate.fileSearchQuery.result, queryDiagnostic);
+    if (queryDiagnostic.classification === 'PASS') {
+      candidate.progression = 'STOP_QUALIFIED';
+      evidence.qualifiedModelId = candidateProfile.modelId;
+    } else {
+      candidate.progression = 'STOP_DISALLOWED';
+    }
+    evidence.candidates.push(candidate);
+  } catch (error) {
+    terminalDiagnostic = error && error.qualificationDiagnostic
+      ? kspGeminiQualificationSafeDiagnostic_(error.qualificationDiagnostic)
+      : kspGeminiE2eDiagnosticForError_(error, currentStage, correlationHash, candidateProfile.modelId);
+    terminalDiagnostic.stage = currentStage;
+    terminalDiagnostic.correlationHash = correlationHash;
+    terminalDiagnostic = kspGeminiQualificationSafeDiagnostic_(terminalDiagnostic);
+    kspGeminiE2eRecordStage_(evidence, currentStage, 'FAIL', terminalDiagnostic);
+    if (!candidate.terminalDiagnostic) {
+      candidate.terminalDiagnostic = terminalDiagnostic;
+      candidate.progression = 'STOP_DISALLOWED';
+      evidence.candidates.push(candidate);
+    }
+    if (!store && currentStage === 'TEMP_STORE_CREATE' && error && error.ambiguousTransport === true) {
+      evidence.cleanupRequired = true;
+      evidence.cleanupConfirmed = false;
+    }
+  } finally {
+    if (store && store.name) {
+      evidence.cleanupAttempted = true;
+      try {
+        environment.deleteFileSearchStore(store.name);
+        kspGeminiE2eRecordStage_(evidence, 'TEMP_STORE_DELETE', 'PASS',
+          kspGeminiE2eStagePassDiagnostic_('TEMP_STORE_DELETE', null, {
+            modelId: candidateProfile.modelId, correlationHash: correlationHash
+          }));
+      } catch (deleteError) {
+        kspGeminiE2eRecordStage_(evidence, 'TEMP_STORE_DELETE', 'FAIL',
+          kspGeminiE2eDiagnosticForError_(deleteError, 'TEMP_STORE_DELETE', correlationHash,
+            candidateProfile.modelId));
+      }
+      try {
+        evidence.cleanupConfirmed = Boolean(environment.confirmFileSearchStoreDeleted(store.name));
+      } catch (ignoredConfirmError) {
+        evidence.cleanupConfirmed = false;
+      }
+      kspGeminiE2eRecordStage_(evidence, 'CLEANUP_CONFIRMATION',
+        evidence.cleanupConfirmed ? 'PASS' : 'FAIL',
+        evidence.cleanupConfirmed
+          ? kspGeminiE2eStagePassDiagnostic_('CLEANUP_CONFIRMATION', null, {
+            modelId: candidateProfile.modelId, correlationHash: correlationHash
+          })
+          : { classification: 'RESPONSE_SHAPE_OR_APPLICATION_FAILURE', stage: 'CLEANUP_CONFIRMATION',
+            transport: 'INTERACTIONS', modelId: candidateProfile.modelId,
+            correlationHash: correlationHash });
+    } else if (!evidence.cleanupRequired) {
+      kspGeminiE2eRecordStage_(evidence, 'CLEANUP_CONFIRMATION', 'PASS',
+        kspGeminiE2eStagePassDiagnostic_('CLEANUP_CONFIRMATION', null, {
+          modelId: candidateProfile.modelId, correlationHash: correlationHash
+        }));
+    }
+  }
+
+  if (evidence.cleanupRequired && !evidence.cleanupConfirmed) {
+    evidence.terminalOutcome = 'BLOCKED_RESOURCE_CLEANUP';
+  } else if (terminalDiagnostic && terminalDiagnostic.classification === 'PASS') {
+    evidence.terminalOutcome = 'QUALIFIED_DISABLED';
+  } else if (terminalDiagnostic && terminalDiagnostic.classification === 'PROVIDER_OR_TRANSIENT_FAILURE') {
+    evidence.terminalOutcome = 'DISABLED_TRANSIENT_PROVIDER_LIMITATION';
+  } else if (terminalDiagnostic && terminalDiagnostic.classification === 'MODEL_ACCESS_OR_UNSUPPORTED') {
+    evidence.terminalOutcome = 'DISABLED_MODEL_ACCESS_LIMITATION';
+  } else {
+    evidence.terminalOutcome = 'BLOCKED_PRODUCT_DEFECT';
+  }
+  evidence.auditRecorded = kspGeminiE2eAppendAudit_(environment, context, evidence);
+  var safeEvidence = kspGeminiE2eSafeEvidence_(evidence);
+  if (safeEvidence.terminalOutcome !== 'QUALIFIED_DISABLED') {
+    var terminalCode = safeEvidence.terminalOutcome === 'BLOCKED_RESOURCE_CLEANUP'
+      ? 'AI_GEMINI_RESOURCE_CLEANUP_BLOCKED'
+      : safeEvidence.terminalOutcome === 'DISABLED_TRANSIENT_PROVIDER_LIMITATION'
+        ? 'AI_GEMINI_TRANSIENT_PROVIDER_LIMITATION'
+        : safeEvidence.terminalOutcome === 'DISABLED_MODEL_ACCESS_LIMITATION'
+          ? 'AI_GEMINI_MODEL_ACCESS_LIMITATION' : 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE';
+    var terminalError = kspAiModelPolicyError_(terminalCode);
+    terminalError.geminiE2e = true;
+    terminalError.terminalOutcome = safeEvidence.terminalOutcome;
+    terminalError.qualificationEvidence = safeEvidence;
+    throw terminalError;
+  }
+  candidateProfile.isProviderDefault = true;
+  candidateProfile.userVisible = false;
+  return {
+    status: 'PASS',
+    qualification: {
+      status: 'PASS', qualified: 1, failed: 0, accessible: true,
+      latencyMs: safeEvidence.stages.FILE_SEARCH_QUERY.diagnostic
+        ? safeEvidence.stages.FILE_SEARCH_QUERY.diagnostic.latencyMs : 0,
+      thinkingResults: [{ thinkingProfileId: 'low', passed: true }],
+      storeName: '',
+      requestProfileVersion: KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION
+    },
+    selectedProfile: candidateProfile,
+    attemptedProfiles: [candidateProfile],
+    evidence: safeEvidence,
+    terminalOutcome: 'QUALIFIED_DISABLED'
+  };
+}
+
 function kspGeminiQualificationCampaignError_(external, evidence) {
   var safeEvidence = kspGeminiQualificationSafeCampaignEvidence_(evidence);
   var code = external ? 'AI_GEMINI_EXTERNAL_LIMITATION' : 'AI_GEMINI_QUALIFICATION_APPLICATION_FAILURE';
@@ -1353,9 +1671,18 @@ function kspRunGeminiExactTupleQualification_(environment, context, settings, pr
   };
   var documents = environment.findProviderDocumentsBySource(
     KSP_AI_PROVIDERS.GEMINI, config, source.sourceType, source.sourceId
-  ).filter(function (documentValue) { return kspGeminiDocumentMatchesSource_(documentValue, source); });
-  kspAssert_(documents.length === 1, 'AI_DOCUMENT_READBACK_FAILED',
+  );
+  kspAssert_(documents.length === 1 && kspGeminiDocumentMatchesSource_(documents[0], source),
+    'AI_DOCUMENT_READBACK_FAILED',
     'Gemini qualification requires exactly one current provider document.');
+  kspAssert_(typeof environment.readProviderDocument === 'function', 'AI_DOCUMENT_READBACK_FAILED',
+    'Gemini qualification document readback is unavailable.');
+  var documentValue = environment.readProviderDocument(
+    KSP_AI_PROVIDERS.GEMINI, config, documents[0], source
+  );
+  kspAssert_(kspAiTrim_(documentValue && documentValue.name) === kspAiTrim_(documents[0].name) &&
+    kspGeminiDocumentMatchesSource_(documentValue, source), 'AI_DOCUMENT_READBACK_FAILED',
+  'Gemini qualification document readback did not match the current source.');
   var request = kspBuildProviderSearchRequest_(KSP_AI_PROVIDERS.GEMINI, config, {
     route: KSP_AI_PROVIDERS.GEMINI,
     mode: KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION,
@@ -1390,16 +1717,23 @@ function kspRunGeminiExactTupleQualification_(environment, context, settings, pr
       modelId: profile.modelId, httpStatus: Number(raw && raw.__kspHttpStatus || 0), latencyMs: latencyMs
     });
   }
-  var mapped = kspMapKnowledgeCitations_(parsed.citations,
-    kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
+  var sourceMaps = kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows);
+  var mapped = transport === KSP_AI_QUERY_TRANSPORTS.INTERACTIONS
+    ? kspResolveGeminiKnowledgeCitations_(parsed.citations, sourceMaps, {
+      environment: {
+        findProviderDocumentsBySource: function () { return [documentValue]; },
+        readProviderDocument: function () { return documentValue; }
+      },
+      config: config,
+      storeName: config.storeName
+    })
+    : kspMapKnowledgeCitations_(parsed.citations, sourceMaps);
   var answerPresent = Boolean(parsed.answer);
   var expectedTokenPresent = answerPresent &&
     parsed.answer.indexOf('CODEX18_SYNTH_PITCHBOOK_20260830') !== -1;
   var modelOutputBlockCount = kspGeminiQualificationModelOutputBlockCount_(raw, transport);
   var fileCitationCount = Array.isArray(parsed.citations) ? parsed.citations.length : 0;
-  var exactCitationCount = (parsed.citations || []).filter(function (citation) {
-    return kspGeminiQualificationCitationMatches_(citation, documents[0], source);
-  }).length;
+  var exactCitationCount = mapped.citations.length;
   var authoritativeCitationMatched = exactCitationCount === 1 && mapped.citations.length === 1 &&
     mapped.warnings.length === 0 &&
     mapped.citations[0].sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK &&
@@ -1411,6 +1745,10 @@ function kspRunGeminiExactTupleQualification_(environment, context, settings, pr
     modelOutputBlockCount: modelOutputBlockCount, fileCitationCount: fileCitationCount,
     authoritativeCitationMatched: authoritativeCitationMatched, latencyMs: latencyMs
   };
+  if (mapped.evidence) {
+    Object.keys(mapped.evidence).forEach(function (key) { diagnostic[key] = mapped.evidence[key]; });
+    diagnostic.normalMappingParity = authoritativeCitationMatched;
+  }
   if (!answerPresent || !expectedTokenPresent) {
     diagnostic.classification = 'COMPLETED_NO_GROUNDED_ANSWER';
     throw kspGeminiQualificationError_(diagnostic);
@@ -1763,7 +2101,7 @@ function kspMutateAiProviderSettings_(environment, input) {
       }
       try {
         var geminiCampaign = isGeminiQualification
-          ? kspRunGeminiSyntheticE2eQualification_(environment, context,
+          ? kspRunGeminiStrictCitationE2eQualification_(environment, context,
             qualifyingProfile, input.thinkingProfileId) : null;
         var qualification = isGeminiQualification
           ? geminiCampaign.qualification

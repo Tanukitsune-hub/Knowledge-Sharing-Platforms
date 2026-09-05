@@ -2,17 +2,17 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 6,
-  "source_git_commit": "11865c49b17c578713c3c1b4bc5c2307434d50e9",
+  "source_git_commit": "aa55bbac75a3b97c58df513d2c0465a2c7fde505",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "bc80c41d3650a2bc485e601d28262eda8e02b634110cc04bf4246900d48c6744",
-  "bundle_file_sha256": "8d361c8354d77c54f992aac8e6f3dca690e1a9f8e3675b50c6960f9baa542952",
+  "bundle_payload_sha256": "80031853af5eafc1e3e48008459d77f82d13a47163f7f5c8d043d40210afbb62",
+  "bundle_file_sha256": "c1b1496ac32c54c21255a38b9ea957809ceffdd473d5bf6781b2450c1d2bf6a2",
   "source_manifest_sha256": "ac17af72f807a89a162f82f3da5d7a2bcf3f14404acd59f9d0316ae9ae413dfa",
   "source_order_sha256": "35bebf16094d45474dfb99f2a5b7db22c191fc51b6536cc0ba20eb0c796eb6b9",
   "bundle_metrics": {
-    "bytes": 1042332,
-    "characters": 1007034,
-    "lines": 17566,
+    "bytes": 1072244,
+    "characters": 1036946,
+    "lines": 18173,
     "server_source_count": 59,
     "embedded_html_count": 22
   },
@@ -199,8 +199,8 @@
     },
     {
       "file": "src/132_AiKnowledgeContracts.gs",
-      "bytes": 8151,
-      "sha256": "2a1f6e1797f7a5d93e5a88f3202bd5d164fb5707901758689e8f503b5bcf598d"
+      "bytes": 9745,
+      "sha256": "dad202a2c5a74e9aae48a48c6d7a5f64da9d24e637c04ffbe675255a58494766"
     },
     {
       "file": "src/133_AiRetryContracts.gs",
@@ -229,8 +229,8 @@
     },
     {
       "file": "src/150_KnowledgeSearchModels.gs",
-      "bytes": 17157,
-      "sha256": "afabd18325126dafc6b233a0227f4c710006a8c9b10ff57ae325d68771f22e3b"
+      "bytes": 27493,
+      "sha256": "46eea0862c09a01374538a06b71a851e6cbf052e35f4dc27c3a38ade70991d12"
     },
     {
       "file": "src/151_KnowledgeSearchService.gs",
@@ -264,8 +264,8 @@
     },
     {
       "file": "src/161_GeminiRestClient.gs",
-      "bytes": 39877,
-      "sha256": "2fac0a74f50e47f396f32a1d367694f6fea3e34e3325881d6ce1ccff191cb045"
+      "bytes": 39998,
+      "sha256": "be3c185a89033fd4d5768d4f2b960c3858dddbcaeca3cd08485b60a9ca6b453f"
     },
     {
       "file": "src/162_AiLiveDataAdapters.gs",
@@ -279,13 +279,13 @@
     },
     {
       "file": "src/164_AiProviderCore.gs",
-      "bytes": 90956,
-      "sha256": "4e0f34faf0328db39ea3f4ccb3107c1a8aef24a57730e15424a1d4c5e63845c7"
+      "bytes": 91327,
+      "sha256": "8b556319abb9db5a2ba247bbfa04b07378baa30aa7dfa75bcf447cc5c9dcdce2"
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
-      "bytes": 102167,
-      "sha256": "ec1a6cc777a8fecc5742b9c4ea4f29821d120580b2044bdbb8ec29e79f77df92"
+      "bytes": 119657,
+      "sha256": "539076023fcf45757f4a733c0a636cc433135078c55f1d7c5bf5476bb3b7d0ba"
     },
     {
       "file": "src/170_AiEntryPoints.gs",

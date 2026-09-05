@@ -131,7 +131,8 @@ function geminiQualificationResponse(contentHash, options = {}) {
   };
   const annotations = options.withCitation === false ? [] : [{
     type: 'file_citation',
-    source: options.citationSource || 'fileSearchStores/synthetic/documents/current',
+    source: options.citationSource || 'Synthetic excerpt, not a provider identity.',
+    document_uri: options.documentUri || 'fileSearchStores/synthetic',
     custom_metadata: Object.entries(citationMetadata).map(([key, string_value]) => ({ key, string_value }))
   }];
   return {
@@ -171,6 +172,13 @@ function makeGeminiQualificationEnvironment(sequence = []) {
     File_URL: 'https://drive.test/doc-17', Status: 'Active' };
   const bytes = Array.from(Buffer.from('CODEX18_SYNTH_PITCHBOOK_20260830', 'utf8'));
   const contentHash = ksp.kspAiHashBytesFallback_(bytes);
+  const document = { name: 'fileSearchStores/synthetic/documents/current', state: 'ACTIVE', customMetadata: {
+    source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
+  } };
+  context.pitchbookRows[0].AI_Provider_State_JSON = JSON.stringify({ stateVersion: 1, GEMINI: {
+    status: 'Indexed', documentName: document.name, storeName: 'fileSearchStores/synthetic',
+    contentHash
+  } });
   const profile = {
     profileId: 'gemini-38-low', provider: 'GEMINI', modelId: 'gemini-3.8-flash',
     displayName: 'Gemini 3.8 Flash', family: 'Gemini 3.8', enabled: true, userVisible: true,
@@ -209,9 +217,14 @@ function makeGeminiQualificationEnvironment(sequence = []) {
       assert.equal(provider, 'GEMINI');
       assert.equal(sourceType, 'Pitchbook');
       assert.equal(sourceId, 'DOC-000017');
-      return [{ name: 'fileSearchStores/synthetic/documents/current', state: 'ACTIVE', customMetadata: {
-        source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
-      } }];
+      return [plain(document)];
+    },
+    readProviderDocument(provider, config, value, source) {
+      assert.equal(provider, 'GEMINI');
+      assert.equal(config.storeName, 'fileSearchStores/synthetic');
+      assert.equal(value.name, document.name);
+      assert.equal(source.contentHash, contentHash);
+      return plain(document);
     },
     queryProvider(provider, config, request) {
       calls.push({ provider, config: plain(config), request: plain(request) });
@@ -276,6 +289,12 @@ test('Gemini qualification sends one exact 3.8 low 2048 Interactions File Search
     File_URL: 'https://drive.test/doc-17', Status: 'Active' };
   const bytes = Array.from(Buffer.from('CODEX18_SYNTH_PITCHBOOK_20260830', 'utf8'));
   const contentHash = ksp.kspAiHashBytesFallback_(bytes);
+  const document = { name: 'fileSearchStores/private/documents/current', state: 'ACTIVE', customMetadata: {
+    source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
+  } };
+  context.pitchbookRows[0].AI_Provider_State_JSON = JSON.stringify({ stateVersion: 1, GEMINI: {
+    status: 'Indexed', documentName: document.name, storeName: 'fileSearchStores/private', contentHash
+  } });
   const calls = [];
   const env = {
     readPitchbookSource() { return { mimeType: 'text/plain', bytes }; },
@@ -284,15 +303,17 @@ test('Gemini qualification sends one exact 3.8 low 2048 Interactions File Search
       assert.equal(provider, 'GEMINI');
       assert.equal(sourceType, 'Pitchbook');
       assert.equal(sourceId, 'DOC-000017');
-      return [{ name: 'fileSearchStores/private/documents/current', state: 'ACTIVE', customMetadata: {
-        source_type: 'Pitchbook', source_id: 'DOC-000017', content_hash: contentHash
-      } }];
+      return [plain(document)];
+    },
+    readProviderDocument() {
+      return plain(document);
     },
     queryProvider(provider, config, request) {
       calls.push({ provider, config: plain(config), request: plain(request) });
       return { status: 'completed', steps: [{ type: 'model_output', content: [{
         type: 'text', text: 'CODEX18_SYNTH_PITCHBOOK_20260830', annotations: [{
-          type: 'file_citation', source: 'fileSearchStores/private/documents/current', custom_metadata: [
+          type: 'file_citation', source: 'Synthetic excerpt, not a provider identity.',
+          document_uri: 'fileSearchStores/private', custom_metadata: [
             { key: 'source_type', string_value: 'Pitchbook' },
             { key: 'source_id', string_value: 'DOC-000017' },
             { key: 'content_hash', string_value: contentHash }

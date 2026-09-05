@@ -904,5 +904,8 @@ function kspListAllFileSearchDocumentsLive_(storeName) {
     pageToken = normalized.nextPageToken;
     if (!pageToken) break;
   }
+  if (pageToken) {
+    throw kspGeminiStageError_('AI_DOCUMENT_READBACK_FAILED', 'DOCUMENT_READBACK', 0, {}, false);
+  }
   return documents;
 }
