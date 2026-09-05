@@ -1,17 +1,17 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-ACTIVE_DISPATCH_ID: 0028-CODEX-01
+ACTIVE_DISPATCH_ID: 0028-CODEX-02
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
 
 ## Current dispatch
 
-`0028-CODEX-01` — shared-password administrator mode for the AI Provider Settings management page, without normal-operation dependence on a named Google account.
+`0028-CODEX-02` — shared-password administrator mode plus current personal-DEV bootstrap using the temporary disclosed password supplied in the dispatch prompt.
 
-Instruction: `docs/handoffs/0028-CODEX-01-shared-admin-password-instruction.md`
-Report: `docs/handoffs/0028-CODEX-01-shared-admin-password-report.md`
+Instruction: `docs/handoffs/0028-CODEX-02-shared-admin-password-bootstrap-instruction.md`
+Report: `docs/handoffs/0028-CODEX-02-shared-admin-password-bootstrap-report.md`
 
 ```text
 BASE_MAIN: b0efbbfd8a5ce5c2e3b3d64f5ccba56838306ef2
@@ -23,14 +23,20 @@ ADMIN_MUTATIONS_AFTER_MIGRATION: shared password session required
 ACCOUNT_BOUND_ADMIN_AFTER_MIGRATION: prohibited for AI Provider Settings mutations
 ADMIN_AUTO_TIMEOUT: none
 CLIENT_SESSION_STORAGE: sessionStorage only
+PASSWORD_CHANGE_UI: required
+TEMP_DEV_BOOTSTRAP_PASSWORD: supplied in dispatch prompt / not a product default
 GEMINI: preserve Work 0027 qualified-disabled state
 ```
 
-All runtime passwords, password verifiers, salts, signing secrets, admin-session tokens, private URLs/IDs and account identifiers are sensitive. Never commit or report their values. Any user password entry happens only in the Web App UI; do not ask the user to paste it into chat, Codex, terminal, logs or GitHub.
+The temporary personal-DEV bootstrap password may be disclosed to Codex for this run and entered by Codex in the normal Web App UI. It must not be hard-coded as a product default or persisted in plaintext. Real future passwords, password verifiers, salts, signing secrets, admin-session tokens, private URLs/IDs and account identifiers remain sensitive and must never be committed or reported.
 
-CODEX-01 may request user-assisted browser actions to type the initial shared administrator password directly into the Web App and later re-enter it for unlock verification. Those user actions stay under the same Dispatch ID. After Codex returns, any new instruction or rerun requires `0028-CODEX-02`.
+## Superseded dispatch
+
+`0028-CODEX-01` — SUPERSEDED before execution after the user explicitly removed the USER password-entry requirement and authorized a temporary disclosed bootstrap password for DEV. Do not execute or resume CODEX-01.
+
+Any new Codex run after CODEX-02 returns requires `0028-CODEX-03`.
 
 WORK_ID: 0028
-ACTIVE_DISPATCH_ID: 0028-CODEX-01
+ACTIVE_DISPATCH_ID: 0028-CODEX-02
 BALL: CODEX
 STATUS: READY
