@@ -133,7 +133,7 @@ RUNTIME_CHANGED: NO
 READY_FOR_PRODUCTION_BUILD: NO
 BLOCKER: NONE
 BRANCH: codex/0028-selected-light-family
-DRAFT_PR: PENDING
+DRAFT_PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/41
 FINAL_COMMIT: RECORDED_IN_DRAFT_PR_AND_RETURN_STATUS
 REPORT_PATH: docs/handoffs/0028-CODEX-04-cross-page-light-family-report.md
 ```
