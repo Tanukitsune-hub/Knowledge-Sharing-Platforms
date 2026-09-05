@@ -3,17 +3,17 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-03
 ACTIVE_DISPATCH_ID: 0028-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 PHASE: A1 / DESIGN ONLY
 
 ## Current ball and authorization
 
-The user has requested the next Codex prompt using Product Design after Work 0029 closed and adopted the controller's design approach. ChatGPT has fixed the brief and issued a bounded design-only dispatch. READY means the instruction is ready to be started by the user in Codex; no Codex run has been observed or launched by ChatGPT.
+The user has requested the next Codex prompt using Product Design after Work 0029 closed and adopted the controller's design approach. ChatGPT has fixed the brief and issued a bounded design-only dispatch. CODEX-03 has returned source-grounded design artifacts with a visual-contract parity blocker. RETURNED is not visual acceptance or implementation authorization.
 
 Instruction: `docs/handoffs/0028-CODEX-03-product-design-light-mocks-instruction.md`.
-Expected report: `docs/handoffs/0028-CODEX-03-product-design-light-mocks-report.md` (not created yet).
+Report: `docs/handoffs/0028-CODEX-03-product-design-light-mocks-report.md`.
 
 The former A0 no-mock/no-Codex permission boundary is now superseded only for source-grounded design-artifact generation and review. Production source changes, application-runtime access, bundle generation, deployment, credential changes and provider enablement remain prohibited. Approach approval is not selection of an unseen visual mock.
 
@@ -51,7 +51,7 @@ The current dispatch and Work brief supersede outdated A0 permission/status/disp
 | N/A | Route A UI/UX planning and source-based reconciliation, documentation only. |
 | 0028-CODEX-01 | Historically issued on the misidentified shared-admin line and superseded before execution. Never reuse. |
 | 0028-CODEX-02 | Historically used for shared-admin implementation on PR #38; invalid Work identity for that outcome. PR #38 is closed/unmerged/SUPERSEDED; canonical product outcome completed under 0029-CODEX-01. Never reuse or resume this ID. |
-| 0028-CODEX-03 | Current canonical UI/UX design-only Product Design Light mock dispatch. READY / BALL CODEX; execution not yet observed. |
+| 0028-CODEX-03 | Current canonical UI/UX design-only Product Design Light mock dispatch. RETURNED / BALL CHATGPT; 11 images saved and shown; strict visual parity FAIL. See CODEX-03 report. |
 
 The historical tombstones are verified against PR #38 and its register at `c058dc7c5498555dc303bbb60d43725755353874`; they are not imports of the conflicting branch and do not reopen it. The earlier main statement that no UI/UX dispatch had run was accurate for this outcome, but must not be used to recycle identifiers already present in history.
 
@@ -70,11 +70,11 @@ Do not continue automatically in the background or infer selection/implementatio
 ```text
 PLANNING_UPDATE: COMPLETE
 DESIGN_ONLY_DISPATCH_ISSUED: YES / 0028-CODEX-03
-CODEX_RUN_OBSERVED: NO
+CODEX_RUN_OBSERVED: YES
 SOURCE_PREFLIGHT: PARTIAL SOURCE-BASED / NOT A FULL RENDERED AUDIT
-FULL_SURFACE_INVENTORY: PENDING
-THREE_LIGHT_MOCKS: NOT_STARTED
-HEURISTIC_REVIEW: NOT_RUN
+FULL_SURFACE_INVENTORY: PARTIAL / SOURCE-BASED
+THREE_LIGHT_MOCKS: THREE_DIRECTIONS_PRESENTED / VISUAL_PARITY_FAIL
+HEURISTIC_REVIEW: SEVEN_SCENARIOS_REVIEWED
 USER_DIRECTION_SELECTED: NO
 SELECTED_DARK_MOCK: NOT_STARTED
 CHART_SURFACE_THEME: LIGHT_FIXED
@@ -82,7 +82,7 @@ PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
 RUNTIME_CHANGED: NO
 TARGET_RUNTIME_QUALIFICATION: NOT_RUN / OUT_OF_SCOPE
-SIDE_EFFECT_STATE: GITHUB_DOCUMENTATION_ONLY
+SIDE_EFFECT_STATE: LOCAL_DESIGN_ARTIFACTS_AND_GITHUB_DESIGN_DRAFT_ONLY
 READY_FOR_PRODUCTION_BUILD: NO
 WORK_0028_COMPLETE: NO
 WORK_0029_REOPENED: NO
@@ -91,5 +91,5 @@ WORK_0029_REOPENED: NO
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-03
 ACTIVE_DISPATCH_ID: 0028-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
