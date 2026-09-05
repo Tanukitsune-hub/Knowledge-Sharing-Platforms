@@ -20,7 +20,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
 | 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design planning only) | 0027 accepted baseline | Plan published; next complete inventory and three Light mocks, user selection, selected Dark mock; no execution authorization |
-| 7 | 0029 | Portable shared-password administrator mode | READY | Work 0028 preserved; canonical port and version-75 smoke passed | Final review and merge PR #39 |
+| 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 10 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -56,7 +56,31 @@ BLOCKER: NONE
 
 The accepted strict Gemini citation resolver binds the returned Store and exact metadata tuple to one current Active authoritative source/current Gemini hash and one independently verified current provider document. Qualification and normal immediate/POLL mapping share this resolver. OpenAI/FULL_OUTPUT behavior remains preserved.
 
-The optional sanitized Audit persistence gap is `FIX_SOON`, not a blocker. Representative large files, migration, company qualification, rollout, future-model qualification, and administrator-authorization redesign are separate future outcomes.
+The optional sanitized Audit persistence gap is `FIX_SOON`, not a blocker. Representative large files, migration, company qualification, rollout and future-model qualification are separate future outcomes.
+
+### Work 0029
+PR #39 merge `872dbec83d17e6dfe1f33d8260006c2124d38a6c`; canonical implementation `9fa668619a0b91fb60ed53f696363d3954cf709e`; final branch head `b29ee3e538e72c4641f8d825e304fea1c186a265`.
+
+```text
+PRIVATE_WEB_APP_VERSION: 75
+FOCUSED_TESTS: PASS / 59 of 59
+LOGIC_VALIDATION: PASS / 456 of 456
+BUNDLE_VALIDATION: PASS / 27 of 27
+SOURCE_READBACK: PASS / 82 of 82
+TARGET_RUNTIME_QUALIFICATION: PASS
+SHARED_ADMIN_CREDENTIAL: configured
+FINAL_ADMIN_STATE: locked
+ACCOUNT_INDEPENDENT_ADMIN_SESSION: PASS
+SESSIONSTORAGE_RELOAD_AND_SERVER_REVALIDATION: PASS
+EXPLICIT_LOGOUT: PASS
+PROVIDER_DATA_MUTATIONS: 0
+WORK_0028_CONTROL_FILES_PRESERVED: PASS
+BLOCKER: NONE
+```
+
+Routine AI Provider Settings administration is now unlocked by a shared administrator password rather than Google account/email after bootstrap. There is no timed session expiry. The browser stores only an opaque signed token in `sessionStorage`; server-side validation guards every existing AI Provider Settings mutation. Password rotation invalidates older token generations. Installer/setup/deployment/readiness account checks remain unchanged.
+
+The temporary personal-DEV administrator password remains intentionally temporary and should be changed later through the accepted password-change UI. GitHub CI did not run and is not acceptance evidence.
 
 ## Active design boundary
 
@@ -85,7 +109,7 @@ Key boundary:
 
 The shared-administrator-password implementation was initially developed on an isolated branch using Work ID 0028 before the controller observed that authoritative `main` had already assigned 0028 to the UI/UX Work above. The product implementation reached personal-DEV version 74 and passed its bounded functional qualification, but PR #38 was stopped unmerged with `GITHUB_WORK_ID_COLLISION`.
 
-Work 0029 is the canonical identity for that shared-admin outcome. CODEX-01 selectively ported the validated product/test changes onto current main, corrected only shared-admin Work metadata to 0029, regenerated distribution artifacts from the canonical implementation commit, and passed one version-75 runtime alignment smoke. Current-main Work 0028 control files remained byte-identical, provider/data mutations were zero, and the final shared-admin state is configured/locked. PR #39 is ready for final review; old PR #38 remains superseded, closed and unmerged.
+Work 0029 became the canonical identity. CODEX-01 selectively ported the validated product/test changes onto current main, corrected only shared-admin Work metadata to 0029, regenerated distribution artifacts from the canonical implementation commit, and passed one version-75 runtime alignment smoke. Work 0028 control files remained byte-identical. ChatGPT reviewed the result, merged PR #39, and applied the Work 0029 completion latch. PR #38 remains superseded, closed and unmerged.
 
 ## Scope discipline
 
