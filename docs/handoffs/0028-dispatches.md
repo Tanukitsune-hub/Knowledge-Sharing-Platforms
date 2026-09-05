@@ -3,8 +3,8 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-05
 ACTIVE_DISPATCH_ID: 0028-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 PHASE: A1.7 / LIGHT FAMILY REFINEMENT / DESIGN ONLY
 
@@ -12,7 +12,7 @@ PHASE: A1.7 / LIGHT FAMILY REFINEMENT / DESIGN ONLY
 
 CODEX-04 returned on Draft PR #41 with the selected Light cross-page family. ChatGPT technical review passed the design package, but user visual acceptance remained pending. The user then reviewed the visible Light pages and requested a bounded refinement batch.
 
-CODEX-05 is authorized to refine the existing selected Light family only. It must preserve the accepted visual direction and source contracts, and must not modify production source/runtime or proceed to Dark/build/deployment.
+CODEX-05 returned the bounded refinement on a fresh design branch. The corrected family preserves the accepted visual direction and source contracts, and does not modify production source/runtime or proceed to Dark/build/deployment.
 
 Instruction: `docs/handoffs/0028-CODEX-05-light-family-refinement-instruction.md`.
 Expected report: `docs/handoffs/0028-CODEX-05-light-family-refinement-report.md`.
@@ -68,7 +68,7 @@ These are refinements, not permission for a new visual direction or backend capa
 | 0028-CODEX-02 | Historical tombstone from superseded shared-admin PR #38; never reuse. |
 | 0028-CODEX-03 | Product Design A/B/C Light comparison; RETURNED PARTIAL on Draft PR #40. |
 | 0028-CODEX-04 | Selected Light cross-page family; RETURNED on Draft PR #41; technical review PASS, user corrections requested. |
-| 0028-CODEX-05 | Current bounded Light refinement; READY / BALL CODEX. |
+| 0028-CODEX-05 | Bounded Light refinement; RETURNED / BALL CHATGPT on a new Draft PR. |
 
 ## Gates
 
@@ -85,15 +85,17 @@ USER_DIRECTION_SELECTED: YES
 SELECTED_LIGHT_VISUAL_LANGUAGE: FIXED
 CODEX_04_RETURNED: YES
 PR_41_TECHNICAL_REVIEW: PASS
-USER_LIGHT_ACCEPTANCE: CORRECTIONS_REQUESTED
 LIGHT_REFINEMENT_BATCH: AUTHORIZED
+CODEX_05_RETURNED: YES
+LIGHT_REFINEMENT_TECHNICAL_RESULT: PASS
+USER_LIGHT_ACCEPTANCE: PENDING_REVIEW
 SIDEBAR_BASE_COLOR: #182124
-SAYAGATA_MOTIF: SELECTED / DENSITY REFINEMENT REQUIRED
+SAYAGATA_MOTIF: SELECTED / 92PX REPEAT REFINEMENT COMPLETE
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
 OTHER_E1001F_USAGE: PROHIBITED
-NORMAL_USER_THINKING_CONTROL: REMOVE FROM VISIBLE LIGHT DESIGN
-LIGHT_MAIN_BACKGROUND: COOL SLATE REFINEMENT REQUIRED
-SIDEBAR_ICON_FAMILY: REFINEMENT REQUIRED
+NORMAL_USER_THINKING_CONTROL: HIDDEN
+LIGHT_MAIN_BACKGROUND: COOL SLATE #F4F7FA
+SIDEBAR_ICON_FAMILY: LOCAL LUCIDE SVG PRESENT
 SELECTED_DARK_MOCK: NOT_STARTED
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
@@ -105,5 +107,5 @@ WORK_0028_COMPLETE: NO
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-05
 ACTIVE_DISPATCH_ID: 0028-CODEX-05
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
