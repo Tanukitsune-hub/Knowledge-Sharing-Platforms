@@ -1,7 +1,7 @@
 # Work 0028 instruction
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-01
+DISPATCH_ID: 0028-CODEX-02
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
@@ -12,7 +12,7 @@ Replace routine AI Provider Settings mutation authorization with a shared admini
 
 Current detailed instruction:
 
-`docs/handoffs/0028-CODEX-01-shared-admin-password-instruction.md`
+`docs/handoffs/0028-CODEX-02-shared-admin-password-bootstrap-instruction.md`
 
 Current ball:
 
@@ -29,10 +29,14 @@ Current result:
 - no 30-minute or other timed expiry;
 - browser unlock stored only as an opaque token in `sessionStorage`;
 - explicit logout clears browser unlock;
-- password change invalidates all previous tokens;
-- password plaintext never persisted;
+- password change is included in the management UI;
+- password change invalidates previous tokens and the new credential works;
+- password plaintext is never persisted;
 - existing account/email admin remains only as the one-time bootstrap gate when no shared credential exists;
-- installer/setup/deployment/readiness operator authorization is outside this Work and must not be weakened.
+- installer/setup/deployment/readiness operator authorization is outside this Work and must not be weakened;
+- current personal-DEV bootstrap uses a temporary disclosed password supplied in the CODEX-02 prompt so Codex can perform bootstrap/unlock without USER handoff; it is not a product default and will be changed later by the user.
+
+`0028-CODEX-01` is SUPERSEDED before execution. Do not resume it.
 
 Work 0027 is ACCEPTED. Preserve Gemini 3.7 as qualified-disabled/hidden and preserve accepted OpenAI/FULL_OUTPUT behavior.
 
