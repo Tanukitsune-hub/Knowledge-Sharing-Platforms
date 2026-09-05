@@ -92,10 +92,12 @@ READY_FOR_PRODUCTION_BUILD: NO
 WORK_0029_REOPENED: NO
 BLOCKER: VISUAL_CONTRACT_PARITY_NOT_MET
 BRANCH: codex/0028-product-design-light-mocks
-DRAFT_PR: NOT_CREATED_YET
-FINAL_COMMIT: PENDING_GIT_RECEIPT
+DRAFT_PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/40
+FINAL_COMMIT: 0672f1195b1513f337f37d51e356dc8b6686be27 (final design-artifact commit; publication receipt follows)
 REPORT_PATH: docs/handoffs/0028-CODEX-03-product-design-light-mocks-report.md
 ```
+
+Git receipt: Draft PR #40を作成し、design artifact commit `0672f1195b1513f337f37d51e356dc8b6686be27` をpush済み。本段落とPR URLを確定するreceipt-only commitが後続します。自己参照するcommit hashをreportへ埋め込まず、最終branch HEADはPRと会話の返却に記録します。
 
 SOURCE_CODE_CHANGEDはproductionを指します。design artifactsとreport/registerは変更しています。RETURNEDはcontrollerへの返却であり、ACCEPTEDやWork 0028完了ではありません。最も安い次の判断はChatGPTによるerrata付きの方向性レビューです。必要な追補はChatGPTが新Dispatchを発行する場合のみで、本runは継続しません。
 
