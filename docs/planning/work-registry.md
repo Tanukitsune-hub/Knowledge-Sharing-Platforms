@@ -19,9 +19,10 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
-| 7 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 8 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 6 | 0028 | UI/UX surface refinement and terminology simplification without backend redesign | ACTIVE | 0027 accepted baseline | Produce three comparable mocks and select a direction before source implementation |
+| 7 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
+| 8 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 9 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -55,6 +56,25 @@ BLOCKER: NONE
 The accepted strict Gemini citation resolver binds the returned Store and exact metadata tuple to one current Active authoritative source/current Gemini hash and one independently verified current provider document. Qualification and normal immediate/POLL mapping share this resolver. OpenAI/FULL_OUTPUT behavior remains preserved.
 
 The optional sanitized Audit persistence gap is `FIX_SOON`, not a blocker. Representative large files, migration, company qualification, rollout, future-model qualification, and administrator-authorization redesign are separate future outcomes.
+
+## Active design boundary
+
+### Work 0028
+
+Work 0028 is a UI/UX refinement Work, not a system redesign.
+
+Phase A is design-only and has no Codex dispatch. It must compare three distinct visual directions over the same accepted functional surface before any `src/` edits or runtime changes.
+
+The governing decision is `docs/decisions/ui-surface-language-and-backend-preservation.md` and the active brief is `docs/handoffs/0028-instruction.md`.
+
+Key boundary:
+
+- preserve Work 0027 backend/data/provider/runtime semantics;
+- user-facing labels may differ from internal implementation terms;
+- normal-user `Inactive` behavior may surface as `削除`, with clear confirmation that data is retained/restorable where material;
+- do not silently convert current ChatGPT/Gemini/全文出力 route semantics into automatic routing;
+- if a preferred mock would require backend redesign, alter the mock rather than the system unless a separate explicit product decision is made;
+- source implementation begins only after user design selection.
 
 ## Scope discipline
 
