@@ -18,7 +18,7 @@ Statuses: ACCEPTED (closed/merged evidence), ACTIVE (current implementation), RE
 | 2 | 0021 | Structured search, five modes, multi-Entity, six formats | ACCEPTED | 0025 | Preserve PR #34 and version-66 evidence |
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36; coarse failure is historical only |
-| 5 | 0027 | Personal-DEV Gemini File Search baseline | ACTIVE | CODEX-02 returned; citation blocker retained | Execute 0027-CODEX-03 citation identity repair on 3.7 only |
+| 5 | 0027 | Personal-DEV Gemini File Search baseline | ACTIVE | CODEX-03 returned; citation blocker retained | Controller review before any new bounded 3.7 citation diagnostic |
 | 6 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic provider path qualified | Allocate separate Work |
 | 7 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 8 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -47,17 +47,19 @@ CODEX-01 final ref `2c6cd20bfe6a4ef3b6262160b4126266307222dd`: resilience/upload
 
 CODEX-02 final ref `0032a9cdb69cc1431566dee82f7e2c2196ddee50`, implementation `acd3aa08a3ecc01a7b0852afef8f58202934af82`: 440/440 checks, 82/82 readback, version-72 shell PASS. 3.7 File Search returned HTTP 200, expected token and one citation; attempts 2/retries 1; 34,992ms. Strict source/metadata match failed. 3.6 correctly NOT_RUN. Cleanup confirmed. Gemini remains disabled/hidden.
 
+CODEX-03 started at `11865c49b17c578713c3c1b4bc5c2307434d50e9`. Retained evidence did not identify the individual mismatching field. The one authorized 3.7 diagnostic returned HTTP 429 / `too_many_requests` before model output or citation; attempts 2/retries 1, cumulative sleep 514ms, latency 21,825ms. Cleanup passed, mutable source was restored/read back 82/82, and no repair, immutable version or deployment was produced.
+
 ```text
 CURRENT_DISPATCH: 0027-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 WORK_ACCEPTANCE: NOT_MET
 BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 MODEL: gemini-3.7-flash / low / 2048
 PR_37: Draft / Open / unmerged
 ```
 
-Scope: explain actual field mismatch, preserve a sanitized observed-shape fixture, repair shared Gemini identity mapping, confirm once in personal DEV. No 3.6/3.8/GenerateContent call or general model campaign. Latest bounded authorization is in `docs/handoffs/0027-CODEX-03-citation-identity-repair-instruction.md`; previous Dispatch budgets have expired.
+CODEX-03 stopped because the diagnostic budget ended in a provider failure before an observed citation shape. No 3.6/3.8/GenerateContent call or general model campaign occurred. Its budgets have expired; any renewed attempt requires controller review and a new dispatch.
 
 Only a correctly grounded `QUALIFIED_DISABLED` result with cleanup meets current Work acceptance. CI absence is FIX SOON, not a blocker by itself. Accepted reference behavior in personal DEV is not proof of company readiness.
 

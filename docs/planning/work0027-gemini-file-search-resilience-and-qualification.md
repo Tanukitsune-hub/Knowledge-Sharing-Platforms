@@ -3,8 +3,8 @@
 WORK_ID: 0027
 MODE: BUILD
 ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 ## Primary outcome
 
@@ -24,9 +24,11 @@ CODEX-01: transient/auth separation, bounded retry, correct GAS upload headers a
 
 CODEX-02: stable candidate parameterization implemented; 440/440 checks; version 72, 82/82 source readback, shell PASS; 3.7 File Search HTTP 200 with token and one citation, but exact identity/metadata mismatch; 3.6 not called; cleanup PASS. Final ref `0032a9cdb69cc1431566dee82f7e2c2196ddee50`. Report: `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-report.md`.
 
-## Strategy reset after CODEX-02
+CODEX-03: retained evidence remained field-insufficient. Its one authorized 3.7 diagnostic File Search query returned HTTP 429 / `too_many_requests` after 2 attempts, 1 retry, 514ms cumulative sleep and 21,825ms latency, before model output or citation annotation. Cleanup PASS; mutable source restored and read back 82/82; no repair, version or deployment. Report: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`.
 
-The remaining problem is no longer basic transport, upload or model selection. Fix the citation identity/metadata boundary without changing model/transport.
+## Strategy reset after CODEX-03
+
+The remaining problem is still the citation identity/metadata boundary, but the actual failing field remains unobserved. The new transient diagnostic failure is not the root-cause classification. Do not change model/transport or infer a resolver repair from schema alone.
 
 ```text
 MODEL: gemini-3.7-flash
@@ -37,7 +39,7 @@ OTHER_MODEL_CALLS: prohibited in CODEX-03
 CURRENT_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 ```
 
-The present qualifier's source-equals-Document-name predicate is not guaranteed by the reviewed public schema. Its actual involvement is a hypothesis until per-field runtime evidence is captured. Do not weaken grounding based on that hypothesis alone.
+The present qualifier's source-equals-Document-name predicate is not guaranteed by the reviewed public schema. Its actual involvement remains a hypothesis because CODEX-03 produced no citation annotation. Do not weaken grounding based on that hypothesis alone.
 
 ## Required scope
 
@@ -47,7 +49,7 @@ No token-only, filename-only, filter-only or singleton-Store inference. Missing 
 
 ## Bounds and evidence
 
-Detailed CODEX-03 limits supersede expired CODEX-02 budgets: optional diagnostic query <=1, post-fix confirmation <=1, generation HTTP attempts <=4 under existing retry rules; temporary Stores <=2 sequential, one active at a time; at most one tiny document each; final version <=1 expected 73; same Web App update <=1; no version 74+ and never version 67. No existing source mutation, OpenAI/FULL_OUTPUT call, company data or rollout.
+CODEX-03 budgets are exhausted and returned. Actual use: diagnostic query 1, temporary Store 1, temporary document 1, final confirmation 0, immutable versions 0, deployment updates 0. Cleanup passed. Any renewed provider call, version or deployment requires a new controller dispatch; version 67 remains prohibited.
 
 Evidence hierarchy:
 

@@ -2,8 +2,8 @@
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 ## Current dispatch
 
@@ -12,13 +12,17 @@ STATUS: READY
 Instruction: `docs/handoffs/0027-CODEX-03-citation-identity-repair-instruction.md`
 Report: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`
 
-Scope: establish the actual mismatching citation field, fix only the observed normalization/source-resolution gap in shared qualification and normal Gemini mapping, then confirm the repaired 3.7 path in personal DEV. No further model campaign.
+Scope result: the exact mismatching citation field remains unobserved. The one authorized 3.7 diagnostic reached HTTP 429 before model output or citation annotation, cleanup passed, and the STOP rule prevented implementation, version 73, deployment update, or confirmation. No further model campaign was started.
 
 ```text
 MODEL: gemini-3.7-flash / low / 2048
 CURRENT_RUNTIME: version 72 / CODEX-02 shell PASS
 WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-CODEX_03_IMPLEMENTATION_OR_RUNTIME_EVIDENCE: NOT_RUN
+CODEX_03_DIAGNOSTIC: HTTP 429 / PROVIDER_OR_TRANSIENT_FAILURE / attempts 2 / retries 1
+CODEX_03_CITATION_SHAPE: NOT_OBSERVED
+CODEX_03_IMPLEMENTATION: NOT_RUN / STOP
+CODEX_03_SOURCE_READBACK: PASS / 82 of 82 after scratch removal
+CODEX_03_VERSION_OR_DEPLOYMENT: NONE / version 72 unchanged
 GEMINI: disabled / hidden
 ```
 
@@ -27,6 +31,27 @@ GEMINI: disabled / hidden
 The detailed instruction is authoritative. At most one optional diagnostic query and one post-fix confirmation, <=4 generation HTTP attempts under existing retry safeguards. At most two temporary Stores sequentially, one tiny document each, one active Store at a time. Diagnostic source staging <=1 without deployment; final source delivery <=1. New immutable version <=1, expected 73; same Web App update <=1. Never deploy 67 or create 74+. No Models/short-generation/3.6/3.8/GenerateContent/OpenAI/FULL_OUTPUT calls. Existing sources and Stores remain untouched. Cleanup must be confirmed.
 
 ## Returned dispatch history
+
+### 0027-CODEX-03 — RETURNED / diagnostic provider failure, citation blocker retained
+
+```text
+STARTING_REF: 11865c49b17c578713c3c1b4bc5c2307434d50e9
+IMPLEMENTATION_COMMIT: NONE
+MODEL: gemini-3.7-flash / explicit low / 2048 / Interactions + File Search
+DIAGNOSTIC_HTTP: 429 / too_many_requests
+DIAGNOSTIC_ATTEMPTS_RETRIES: 2 / 1
+DIAGNOSTIC_CUMULATIVE_SLEEP_MS: 514
+DIAGNOSTIC_LATENCY_MS: 21825
+CITATION_SHAPE: NOT_OBSERVED
+TEMP_RESOURCE_CLEANUP: PASS
+MUTABLE_SOURCE_RESTORATION: PASS / 82 of 82
+IMMUTABLE_VERSION_CREATED: NO
+WEB_APP_UPDATE: NO / version 72 unchanged
+WORK_ACCEPTANCE: NOT_MET
+BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+```
+
+Report: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`.
 
 ### 0027-CODEX-02 — RETURNED / citation identity blocker
 
@@ -67,5 +92,5 @@ Work 0026 remains ACCEPTED. Preserve CODEX-01/02 evidence for what was observed;
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

@@ -2,12 +2,12 @@
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 ## Current outcome
 
-CODEX-02 finished its authorized campaign but did not meet Work acceptance. CODEX-03 is prepared, not executed, to diagnose and repair the exact citation binding defect. PR #37 remains Draft/Open/unmerged; main remains `8c9be2392a1247ff81efc6a153fc0be449b1318b` at this review.
+CODEX-03 returned safely without an identity repair. Retained CODEX-02 evidence did not identify the individual mismatching field, and the one authorized diagnostic File Search query ended with HTTP 429 before model output or citation annotation. Cleanup and exact mutable-source restoration passed. PR #37 remains Draft/Open/unmerged; main remains `8c9be2392a1247ff81efc6a153fc0be449b1318b` at this return.
 
 ```text
 REVIEWED_CODEX_02_HEAD: 0032a9cdb69cc1431566dee82f7e2c2196ddee50
@@ -28,6 +28,27 @@ TEMP_RESOURCE_CLEANUP: PASS
 GEMINI: disabled / hidden
 OPENAI_FULL_OUTPUT_LIVE_CALLS: 0
 WORK_ACCEPTANCE: NOT_MET
+```
+
+CODEX-03 evidence:
+
+```text
+STARTING_REF: 11865c49b17c578713c3c1b4bc5c2307434d50e9
+MODEL: gemini-3.7-flash / explicit low / 2048 / Interactions + File Search
+DIAGNOSTIC_HTTP: 429
+DIAGNOSTIC_CLASSIFICATION: PROVIDER_OR_TRANSIENT_FAILURE
+DIAGNOSTIC_ERROR_CODE: too_many_requests
+DIAGNOSTIC_ATTEMPTS_RETRIES: 2 / 1
+DIAGNOSTIC_CUMULATIVE_SLEEP_MS: 514
+DIAGNOSTIC_LATENCY_MS: 21825
+MODEL_OUTPUT_BLOCKS: 0
+FILE_CITATIONS: 0
+CITATION_FIELD_MISMATCH: NOT_ESTABLISHED
+TEMP_RESOURCE_CLEANUP: PASS
+MUTABLE_SOURCE_READBACK: PASS / 82 of 82
+IMPLEMENTATION: NOT_RUN / STOP
+IMMUTABLE_VERSION_CREATED: NO
+WEB_APP_UPDATE: NO / version 72 unchanged
 ```
 
 Detailed immutable evidence remains in `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-report.md`. No historic report has been rewritten as a success.
@@ -54,15 +75,15 @@ FIX_SOON: GitHub CI remains absent
 BACKLOG: additional model qualification, representative large files, historical migration, company rollout
 ```
 
-The citation blocker prevents Gemini activation and PR acceptance. It does not establish that company rollout is ready, or that all Gemini models fail.
+The citation blocker prevents Gemini activation and PR acceptance. The CODEX-03 HTTP 429 is a new transient diagnostic observation; it neither explains nor erases the earlier citation mismatch and does not establish that all Gemini models fail.
 
 ## Next action
 
-Execute `0027-CODEX-03` under `docs/handoffs/0027-CODEX-03-citation-identity-repair-instruction.md`. Fix the observed identity representation/resolution gap using the same resolver in qualification and normal Gemini mapping. Stay on 3.7. Keep source authority, exact current hashes, ambiguity rejection and cleanup intact.
+Controller review is required before any renewed runtime attempt. A future dispatch may retry one evidence-led 3.7 citation-shape capture with a compliant private execution path, then repair only the observed identity representation/resolution gap using the same resolver in qualification and normal Gemini mapping. Keep source authority, exact current hashes, ambiguity rejection and cleanup intact.
 
-CODEX-03 source repair, logic tests, runtime and deployment evidence: NOT_RUN.
+CODEX-03 source repair, logic tests, final runtime confirmation and deployment: NOT_RUN by STOP rule.
 
 WORK_ID: 0027
 ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

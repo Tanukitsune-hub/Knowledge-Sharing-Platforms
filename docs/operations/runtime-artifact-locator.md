@@ -1,9 +1,9 @@
 # Knowledge Share Runtime / Artifact Locator
 
-LAST_RUNTIME_EVIDENCE_AT: 2026-09-04 JST
-LAST_RUNTIME_EVIDENCE_BY: Codex, CODEX-02
-LATEST_CONTROLLER_ACTION: CODEX-02 GitHub review and CODEX-03 preparation; no new runtime execution
-STATUS: version 72 remains deployed; citation repair dispatched but not yet executed
+LAST_RUNTIME_EVIDENCE_AT: 2026-09-05 JST
+LAST_RUNTIME_EVIDENCE_BY: Codex, CODEX-03
+LATEST_CONTROLLER_ACTION: CODEX-03 returned after its one diagnostic ended before citation output
+STATUS: version 72 remains deployed; citation blocker retained; new authorization required
 
 ## Source and current ball
 
@@ -13,11 +13,12 @@ MAIN_AT_REVIEW: `8c9be2392a1247ff81efc6a153fc0be449b1318b`
 ACTIVE_BRANCH: `agent/0027-gemini-file-search-resilience`
 REVIEWED_IMPLEMENTATION: `acd3aa08a3ecc01a7b0852afef8f58202934af82`
 REVIEWED_CODEX_02_FINAL_REF: `0032a9cdb69cc1431566dee82f7e2c2196ddee50`
+CODEX_03_START_REF: `11865c49b17c578713c3c1b4bc5c2307434d50e9`
 PR: `#37 / Draft / Open / unmerged`
 CURRENT_ACTIVE_WORK: `0027`
 CURRENT_ACTIVE_DISPATCH: `0027-CODEX-03`
-BALL: `CODEX`
-STATUS: `READY`
+BALL: `CHATGPT`
+STATUS: `RETURNED`
 
 Current ball is authoritative in `docs/handoffs/0027-dispatches.md`. Local workspace paths, private URLs/IDs, provider resource names, credentials and signed URLs must not appear here.
 
@@ -40,7 +41,7 @@ VERSION_72: current / CODEX-02 shell PASS
 VERSION_73_PLUS_CREATED_IN_CODEX_02: NO
 ```
 
-Future authorization is not observed deployment. CODEX-03 may create at most version 73 after an evidence-led repair and deterministic PASS; it may update this same private deployment once. Version 74+ is not authorized. An optional private editor diagnostic does not update the deployed Web App.
+CODEX-03 created no immutable version and did not update the Web App. Its version-73 and deployment budgets expired on return. Version 74+ remains unauthorized and version 67 remains prohibited. Any future version or deployment requires a new controller dispatch.
 
 ## Accepted merges and provider boundary
 
@@ -66,7 +67,14 @@ CODEX_02_QUERY_ATTEMPTS_RETRIES: 2 / 1
 CODEX_02_QUERY_LATENCY_MS: 34992
 AUTHORITATIVE_CITATION_IDENTITY_MATCH: FAIL
 GEMINI_3_6_CALLED_IN_CODEX_02: NO
-TEMP_RESOURCE_CLEANUP: PASS / deletion confirmed
+CODEX_03_DIAGNOSTIC_HTTP: 429 / too_many_requests
+CODEX_03_DIAGNOSTIC_ATTEMPTS_RETRIES: 2 / 1
+CODEX_03_DIAGNOSTIC_CUMULATIVE_SLEEP_MS: 514
+CODEX_03_DIAGNOSTIC_LATENCY_MS: 21825
+CODEX_03_MODEL_OUTPUT_AND_CITATIONS: 0 / 0
+CODEX_03_TEMP_RESOURCE_CLEANUP: PASS / deletion confirmed
+CODEX_03_MUTABLE_SOURCE_RESTORATION: PASS / 82 of 82
+CODEX_03_VERSION_OR_DEPLOYMENT: NONE / version 72 unchanged
 GEMINI_ENABLED: false
 NORMAL_USER_GEMINI_VISIBILITY: false
 EXISTING_SOURCE_OR_STORE_MUTATION: 0
@@ -74,7 +82,7 @@ OPENAI_FULL_OUTPUT_LIVE_CALLS: 0
 BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 ```
 
-CODEX-03 fixes only the observed citation identity boundary on 3.7. Its implementation/runtime evidence is NOT_RUN. At most one optional diagnostic and one final confirmation use separate sequential temporary Stores with cleanup between them; no existing Store/record is repurposed. See `docs/handoffs/0027-CODEX-03-citation-identity-repair-instruction.md` for authoritative budgets.
+CODEX-03 did not observe a citation shape because its one diagnostic stopped at HTTP 429. No implementation or final confirmation was run. The unresolved CODEX-02 citation blocker remains authoritative; the new transient observation is not a replacement root cause. See `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`.
 
 ## Next phases
 
