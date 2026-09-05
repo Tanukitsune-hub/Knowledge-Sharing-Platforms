@@ -4,6 +4,34 @@
       <div><h2>AIプロバイダ設定</h2><p class="hint">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>
     </div>
     <div id="ai-provider-admin-notice" class="status" role="status" aria-live="polite"></div>
+    <section class="card ai-provider-card" aria-labelledby="shared-admin-heading">
+      <h3 id="shared-admin-heading">管理者モード</h3>
+      <dl class="ai-provider-state">
+        <dt>共有管理者パスワード</dt><dd id="shared-admin-credential-state">確認中…</dd>
+        <dt>現在のモード</dt><dd id="shared-admin-session-state">確認中…</dd>
+      </dl>
+      <p id="shared-admin-guidance" class="hint"></p>
+      <div id="shared-admin-bootstrap-panel" class="actions" hidden><div class="action-group">
+        <label for="shared-admin-bootstrap-password">初回管理者パスワード</label>
+        <input id="shared-admin-bootstrap-password" type="password" autocomplete="new-password" spellcheck="false" disabled>
+        <label for="shared-admin-bootstrap-confirmation">パスワードの確認</label>
+        <input id="shared-admin-bootstrap-confirmation" type="password" autocomplete="new-password" spellcheck="false" disabled>
+        <button id="shared-admin-bootstrap" class="action primary" type="button" disabled>共有管理者モードを初期化</button>
+      </div></div>
+      <div id="shared-admin-unlock-panel" class="actions" hidden><div class="action-group">
+        <label for="shared-admin-unlock-password">管理者パスワード</label>
+        <input id="shared-admin-unlock-password" type="password" autocomplete="current-password" spellcheck="false" disabled>
+        <button id="shared-admin-unlock" class="action primary" type="button" disabled>管理者モードを開始</button>
+      </div></div>
+      <div id="shared-admin-unlocked-panel" class="actions" hidden><div class="action-group">
+        <button id="shared-admin-logout" class="action secondary" type="button" disabled>管理者モードを終了</button>
+        <label for="shared-admin-new-password">新しい管理者パスワード</label>
+        <input id="shared-admin-new-password" type="password" autocomplete="new-password" spellcheck="false" disabled>
+        <label for="shared-admin-new-password-confirmation">新しいパスワードの確認</label>
+        <input id="shared-admin-new-password-confirmation" type="password" autocomplete="new-password" spellcheck="false" disabled>
+        <button id="shared-admin-change-password" class="action secondary" type="button" disabled>共有管理者パスワードを変更</button>
+      </div></div>
+    </section>
     <section class="card ai-provider-card" aria-labelledby="ai-provider-openai-heading">
       <h3 id="ai-provider-openai-heading">ChatGPT / OpenAI</h3>
       <dl class="ai-provider-state">

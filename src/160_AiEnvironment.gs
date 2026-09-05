@@ -168,6 +168,44 @@ function kspCreateAiEnvironment_() {
     return digest.map(function (value) { return ('0' + ((value + 256) % 256).toString(16)).slice(-2); }).join('');
   };
 
+  base.readSharedAdminCredential = function () {
+    return {
+      salt: scriptProperties.getProperty(KSP_SHARED_ADMIN_PROPERTY_KEYS.SALT) || '',
+      verifier: scriptProperties.getProperty(KSP_SHARED_ADMIN_PROPERTY_KEYS.VERIFIER) || '',
+      signingSecret: scriptProperties.getProperty(KSP_SHARED_ADMIN_PROPERTY_KEYS.SIGNING_SECRET) || '',
+      generation: scriptProperties.getProperty(KSP_SHARED_ADMIN_PROPERTY_KEYS.GENERATION) || ''
+    };
+  };
+
+  base.writeSharedAdminCredential = function (state) {
+    var values = {};
+    values[KSP_SHARED_ADMIN_PROPERTY_KEYS.SALT] = String(state.salt || '');
+    values[KSP_SHARED_ADMIN_PROPERTY_KEYS.VERIFIER] = String(state.verifier || '');
+    values[KSP_SHARED_ADMIN_PROPERTY_KEYS.SIGNING_SECRET] = String(state.signingSecret || '');
+    values[KSP_SHARED_ADMIN_PROPERTY_KEYS.GENERATION] = String(state.generation || '');
+    scriptProperties.setProperties(values, false);
+    return true;
+  };
+
+  base.withSharedAdminLock = function (callback) {
+    var lock = LockService.getScriptLock();
+    lock.waitLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS);
+    try { return callback(); }
+    finally { lock.releaseLock(); }
+  };
+
+  base.sharedAdminHmac = function (value, key) {
+    var signature = Utilities.computeHmacSha256Signature(
+      String(value), String(key), Utilities.Charset.UTF_8);
+    return Utilities.base64EncodeWebSafe(signature).replace(/=+$/g, '');
+  };
+
+  base.sharedAdminRandom = function (purpose) {
+    var seed = String(purpose || '') + '|' + Utilities.getUuid() + '|' + Utilities.getUuid();
+    var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, seed, Utilities.Charset.UTF_8);
+    return Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '');
+  };
+
   base.updateAiRow = function (sourceType, sourceId, patch) {
     var context = base.loadAiContext();
     var sheetName = sourceType === KSP_AI_SOURCE_TYPES.MEETING

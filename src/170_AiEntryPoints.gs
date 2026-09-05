@@ -15,8 +15,12 @@ function searchKnowledge(input) {
   return kspRunProviderKnowledgeSearch_(kspCreateProviderNeutralAiEnvironment_(), route, payload);
 }
 
-function getAiProviderAdminData() {
-  return kspGetAiProviderAdminData_(kspCreateProviderNeutralAiEnvironment_());
+function getAiProviderAdminData(input) {
+  return kspGetAiProviderAdminData_(kspCreateProviderNeutralAiEnvironment_(), input || {});
+}
+
+function manageAiProviderAdminSession(input) {
+  return kspManageSharedAdminSession_(kspCreateProviderNeutralAiEnvironment_(), input || {});
 }
 
 function mutateAiProviderSettings(input) {

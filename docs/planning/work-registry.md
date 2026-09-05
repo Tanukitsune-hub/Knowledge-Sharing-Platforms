@@ -20,9 +20,10 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
 | 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design planning only) | 0027 accepted baseline | Plan published; next complete inventory and three Light mocks, user selection, selected Dark mock; no execution authorization |
-| 7 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
-| 8 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 9 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 7 | 0029 | Portable shared-password administrator mode | READY | Work 0028 preserved; canonical port and version-75 smoke passed | Final review and merge PR #39 |
+| 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
+| 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 10 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -79,6 +80,12 @@ Key boundary:
 - support System/Light/Dark through frontend tokens and isolated browser-local preference, not backend/account synchronization;
 - if a preferred mock requires backend redesign, alter the mock rather than the system;
 - source implementation and Codex dispatch require selected Light/Dark approval plus explicit implementation authorization; deployment remains separately scoped.
+
+## Work 0029 collision recovery
+
+The shared-administrator-password implementation was initially developed on an isolated branch using Work ID 0028 before the controller observed that authoritative `main` had already assigned 0028 to the UI/UX Work above. The product implementation reached personal-DEV version 74 and passed its bounded functional qualification, but PR #38 was stopped unmerged with `GITHUB_WORK_ID_COLLISION`.
+
+Work 0029 is the canonical identity for that shared-admin outcome. CODEX-01 selectively ported the validated product/test changes onto current main, corrected only shared-admin Work metadata to 0029, regenerated distribution artifacts from the canonical implementation commit, and passed one version-75 runtime alignment smoke. Current-main Work 0028 control files remained byte-identical, provider/data mutations were zero, and the final shared-admin state is configured/locked. PR #39 is ready for final review; old PR #38 remains superseded, closed and unmerged.
 
 ## Scope discipline
 
