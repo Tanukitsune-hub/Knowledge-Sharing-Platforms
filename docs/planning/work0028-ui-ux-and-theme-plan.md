@@ -42,13 +42,15 @@ ChatGPT owns the source inventory, research, design recommendation, comparison, 
 | Gate 2 | User approves the selected Light/Dark design and explicitly authorizes implementation. These approvals may be given together. | Only now issue a BUILD handoff and `0028-CODEX-01`, after checking dispatch history. |
 | B: implementation and qualification | Implement the selected presentation against existing contracts, then perform bounded authorized validation. | ChatGPT reviews final diff, tests and target-runtime evidence. Deployment needs its own scoped permission. |
 
-The present request authorizes planning and GitHub documentation, not A1 mock production or any production execution. No work continues automatically in the background.
+The present request authorizes planning and GitHub documentation, not A1 mock production or any production execution. No work continues automatically in the background. The user's delegation of specialist design decisions does not waive the previously explicit visual-selection gate.
 
 ## 3. Source preflight and required complete inventory
 
-The planning preflight inspected the actual pinned source, including `Index.html`, `Styles.html`, `ClientCore.html`, `MaintenancePages.html`, `ClientMaintenance.html`, `ClientMaintenanceEnhancements.html`, `KnowledgeSearchPage.html` and `ClientKnowledgeSearch.html`. Some large files were read in bounded ranges. This is not a complete rendered UI audit, and no deployed screen was inspected in this task.
+The planning preflight inspected the actual pinned source across all 14 priority files: `Index.html`, `Styles.html`, `ClientCore.html`, `MaintenancePages.html`, `ClientMaintenance.html`, `ClientMaintenanceEnhancements.html`, `KnowledgeSearchPage.html`, `ClientKnowledgeSearch.html`, `EntityWorkspacePage.html`, `ClientEntityWorkspace.html`, `ActivityAnalyticsPage.html`, `ClientActivityAnalytics.html`, `RelationshipExplorerPage.html` and `ClientRelationshipExplorer.html`. Some large files, notably client/editor fragments, were read in bounded ranges. This is not a complete rendered UI audit, and no deployed screen was inspected in this task.
 
-Source-backed observations:
+The docs-only update at `bec1af7001e6756ff7a36dfbeee0f078de1a0d44` was reconciled before this refinement. Its comparison against the pinned baseline changed five Markdown documents and no production source. Work 0028 is already registered for this outcome; do not allocate or rename a Work because the user was unsure of the number.
+
+Source-backed observations (paths below are under `src/` at the pinned source baseline):
 
 | Observation | Evidence / design consequence |
 |---|---|
@@ -57,16 +59,22 @@ Source-backed observations:
 | Drafts already use guarded localStorage helpers and a 24-hour envelope. | `ClientCore.html::safeGet/safeSet/safeRemove/readEnvelope`. Theme preferences require a separate key without the draft TTL. Do not change draft behavior. |
 | Record actions actually say `無効化` and `再有効化`; record status badges expose internal values. | `ClientMaintenance.html::renderMeetingResults/renderPitchbookResults/changeMeetingRecordStatus`. Rename presentation, not target status, IDs, version checks or eligibility. |
 | Some status options have no explicit `value` attribute. | `MaintenancePages.html`. Replacing visible `Inactive` with `削除済み` without first preserving `value="Inactive"` would change the request. Verify DOM-to-payload parity. |
+| The Meeting list's `GP` column can display a non-GP counterparty. | `MaintenancePages.html` and `ClientMaintenance.html::renderMeetingResults`. Prefer the header `面談先`; do not change the counterparty or Related GP data. |
 | The question is below a large filter block; modes and model/thinking controls are already present. | `KnowledgeSearchPage.html`, `ClientKnowledgeSearch.html::kApplyMode/kPayload/kApplyModelPolicy`. Move or disclose controls, but retain values, policy validation and comparison requirements. |
-| Gemini is removed from the normal route selector when its approved profile list is absent. | `ClientKnowledgeSearch.html::kApplyRouteSurface`; Work 0027 accepted state has Gemini disabled and hidden. Do not show an enabled Gemini choice as the current baseline. |
+| Gemini availability is policy-dependent; Work 0027 records it disabled and hidden for normal users. | `ClientKnowledgeSearch.html::kApplyRouteSurface` and `docs/handoffs/0027-dispatches.md`. Preserve effective profile/route visibility; do not show an enabled Gemini choice as the current baseline. |
 | Results render plain answer text and separate authoritative citation records with source identity and optional page number. | `ClientKnowledgeSearch.html::kRenderResult/kRenderCitations`. Improve reading order and links, but do not invent sentence-level attribution or document highlights. |
 | Long-running queries have bounded polling and a `結果を再確認` action. | `ClientKnowledgeSearch.html` pending-query functions. A visual spinner is not permission to restart queries, alter polling, add cancel semantics or fail over providers. |
-| The export surface contains detailed Meeting/Pitchbook scope wording that must be traced to the actual export result. | `KnowledgeSearchPage.html`, export rendering functions and accepted full-output evidence. Do not relabel this as universal full-document extraction without checking the facade and tests. |
+| The current full-output surface describes Meeting Google Docs full text plus Pitchbook reference links, not Pitchbook body extraction. | `KnowledgeSearchPage.html`, `ClientKnowledgeSearch.html::kRenderExportPreview/kCreateExport`. Preserve scope, preview eligibility and package fingerprints; validate actual facade/test evidence before claiming runtime parity. Do not promise universal full-document extraction. |
+| Meeting-specific advanced filters can select Meeting as the source type. | `ClientKnowledgeSearch.html` change listeners for Team, follow-up, Related GP and Meeting Type. Show the effective scope even when the filter group is collapsed; do not change this existing behavior. |
 | Maintenance enhancements override shared behavior after other fragments load. | `ClientMaintenanceEnhancements.html::bootstrapMaintenance/applyMaintenanceMasterData`. Inspect effective load order, not only the first function definition. |
+| Activity Analytics aggregates Meeting metadata rather than a combined Meeting/Pitchbook dataset. | `ActivityAnalyticsPage.html`, `ClientActivityAnalytics.html::activityMetricCards/activityPayload`. Label this destination `面談活動の集計`; preserve its existing periods, counts, dimensions and conditional monthly-management controls. |
+| Entity Workspace distinguishes direct and related activity, and retains inactive/unresolved links. | `EntityWorkspacePage.html`, inspected `ClientEntityWorkspace.html` renderers. Preserve these distinctions; do not apply a global hide-deleted rule to relationship/history views. |
+| Relationship Explorer is a bidirectional table/detail surface over explicit links, not an inferred network graph. | `RelationshipExplorerPage.html`, `ClientRelationshipExplorer.html::relationshipRenderForward/relationshipRenderReverse`. Improve the existing tables; do not invent graph data or relationships. |
+| The relationship detail's `既存の面談保守で開く` handler currently only switches to the past-Meeting page. | `ClientRelationshipExplorer.html`, click handler on `relationship-forward-detail`. Use `面談一覧へ` for unchanged behavior. Selecting/opening a particular record would be a separate, explicitly listed client-navigation adjustment, not evidence of current behavior. |
 
 Before A1, complete the inventory over all 14 priority files in `../handoffs/0028-instruction.md`, plus the GP Workspace, provider-settings, bootstrap and shared fragments reached through `Index.html`. Read server code only as necessary to trace existing calls. Record page, visible label, DOM/handler, request/response contract, conditional visibility, source location and proposed presentation.
 
-Preserve all 11 existing destinations, including both GP Workspace and Entity Workspace. Their apparent overlap does not authorize deleting either. Read the current provider-settings implementation rather than importing unrelated administrator redesign plans. Record hard limits such as the existing 100-record maintenance display and Pitchbook status/eligibility cases; a mock must not imply new pagination, bulk actions or file replacement.
+Preserve all 11 existing destinations, including both GP Workspace and Entity Workspace. Their apparent overlap does not authorize deleting either. Read the current provider-settings implementation rather than importing unrelated administrator redesign plans. Record hard limits such as the existing 100-record maintenance display and Pitchbook status/eligibility cases; a mock must not imply new pagination, bulk actions or file replacement. Trace the existing blank/default status-filter behavior before drawing normal/deleted-list defaults; do not infer it from option labels alone.
 
 ## 4. Recommended design hypothesis and comparable alternatives
 
@@ -82,7 +90,7 @@ Proposed navigation groups, using existing pages only:
 
 - 探す: ナレッジ検索, 過去の面談記録, 過去の資料.
 - 登録する: 面談記録を登録, 資料を登録.
-- 振り返る: GPの情報, 面談先の情報, 面談・資料の集計, 面談と資料の関連.
+- 振り返る: GPの情報, 面談先の情報, 面談活動の集計, 面談と資料の関連.
 - 設定する: マスター管理, AI設定. Theme is a personal display control, not an administrator setting.
 
 These are presentation groups, not new routes or data models. Prefer flat, visible destinations over nested menus. A common header exposes `表示テーマ` and the current page. Keep the current element IDs and effective event bindings where feasible. Do not alter authorization because a link is moved into a settings group.
@@ -127,8 +135,10 @@ This is a preliminary inventory of observed strings, not a claim to have complet
 | 過去資料 | 過去の資料 | `pitchbook-past` unchanged | Consistent and brief. |
 | GP Workspace | GPの情報 | Keep GP-specific destination | Describe the content. |
 | Entity Workspace | 面談先の情報 | Preserve all Counterparty Types | Do not imply every entity is a GP. |
-| Activity Analytics | 面談・資料の集計 | Preserve existing periods/dimensions | Describe the existing dataset, not investment returns. |
+| Activity Analytics | 面談活動の集計 | Preserve existing Meeting metadata, periods and dimensions | Do not imply Pitchbook analytics or investment returns. |
 | Relationship Explorer | 面談と資料の関連 | Preserve canonical linked records | Do not imply inferred network relationships. |
+| 既存の面談保守で開く (relationship detail) | 面談一覧へ | Existing handler switches page only | Do not promise that the selected record is already opened for editing. |
+| GP (past-Meeting column) | 面談先 | Existing counterparty and Related GP fields unchanged | The displayed counterparty can be a non-GP entity. |
 | AIプロバイダ設定 | AI設定 | Provider/qualification terms may remain inside | Short entry label; technical controls stay truthful. |
 | 無効化 (record) | 削除 | `targetStatus: Inactive` | Visible removal, not physical deletion. |
 | 再有効化 (eligible record) | 復元 | `targetStatus: Active` | Familiar reversible action. |
@@ -177,7 +187,7 @@ The user prefers Dark, but that preference is not imposed on colleagues. The agr
 
 Token roles cover page background, surface layers, inputs, primary/secondary text, borders, action/link, hover/selected, focus, disabled, success/warning/error, overlay, citation and existing chart series/labels. Define Light tokens from the beginning; approve actual Dark values only after the Light direction is selected. Dark is not a palette inversion: use differentiated dark surfaces and independently verify text, input outlines, links and status colors. Preserve series meaning across themes.
 
-Source basis: MDN theme/storage documentation [R5/R6], Google iframe restrictions [R7], and Carbon's role-based theme/layer model [R4]. These document mechanisms and design patterns; they do not qualify this company's browser environment.
+Source basis: MDN theme/storage documentation [R5/R6], Google iframe restrictions [R7], and Carbon's role-based theme/layer model [R4]. These document mechanisms and design patterns; they do not qualify this company's browser environment. Embedded-frame preferences can depend on the embedding context; do not promise a direct, universal read of the OS setting in GAS before target-browser evidence exists.
 
 ## 8. Heuristic comparison and evidence rules
 
@@ -231,7 +241,7 @@ Minimum theme/interaction matrix, all initially NOT_RUN:
 
 After implementation, run targeted existing checks, `npm run check`, `git diff --check` and the established bundle-integrity/parity checks. Generate the bundle through the existing pipeline only. Do not hand-edit the bundle or revise installer architecture.
 
-Runtime qualification occurs only with explicit scope/target permission and isolated data. Budget one planned qualification pass plus one narrow repair/retest cycle; reset strategy on repeated failure. Static, mocked or CI tests are LOGIC_VALIDATION, not TARGET_RUNTIME_QUALIFICATION. Preserve Work 0027's accepted evidence; a cosmetic review does not authorize requalification or provider enablement.
+Runtime qualification occurs only with explicit scope/target permission and isolated data. Budget one planned qualification pass plus one narrow repair/retest cycle; reset strategy on repeated failure. This is not authority for a second deployment: any future deployment handoff must apply `docs/handoffs/AGENTS.md` and `docs/operations/apps-script-web-app-deployment.md`, including its one-mutation boundary and stop conditions. Static, mocked or CI tests are LOGIC_VALIDATION, not TARGET_RUNTIME_QUALIFICATION. Preserve Work 0027's accepted evidence; a cosmetic review does not authorize requalification or provider enablement.
 
 ## 10. Presentation-only limits and residuals
 
@@ -266,7 +276,7 @@ Reviewed on 2026-09-05. These primary sources inform the design; they do not est
 
 ```text
 PLANNING_TASK: COMPLETE
-SOURCE_PREFLIGHT: PARTIAL / SOURCE-BASED / NOT A RENDERED AUDIT
+SOURCE_PREFLIGHT: 14 PRIORITY FILES INSPECTED IN BOUNDED RANGES / NOT A FULL OR RENDERED AUDIT
 THREE_LIGHT_MOCKS: NOT_STARTED
 SELECTED_DARK_MOCK: NOT_STARTED
 HEURISTIC_REVIEW: NOT_RUN
