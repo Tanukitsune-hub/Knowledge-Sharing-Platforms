@@ -20,9 +20,10 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
 | 6 | 0028 | UI/UX surface refinement and terminology simplification without backend redesign | ACTIVE | 0027 accepted baseline | Produce three comparable mocks and select a direction before source implementation |
-| 7 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
-| 8 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 9 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 7 | 0029 | Portable shared-password administrator mode | ACTIVE | Version-74 feature qualification preserved; GitHub ID reconciliation required | Port validated implementation to latest main, align Work ID, then one version-75 smoke |
+| 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
+| 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 10 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -71,10 +72,16 @@ Key boundary:
 
 - preserve Work 0027 backend/data/provider/runtime semantics;
 - user-facing labels may differ from internal implementation terms;
-- normal-user `Inactive` behavior may surface as `削除`, with clear confirmation that data is retained/restorable where material;
+- normal-user `Inactive` behavior may surface as `削除`, with clear confirmation copy explaining retained/restorable data where material;
 - do not silently convert current ChatGPT/Gemini/全文出力 route semantics into automatic routing;
 - if a preferred mock would require backend redesign, alter the mock rather than the system unless a separate explicit product decision is made;
 - source implementation begins only after user design selection.
+
+## Work 0029 collision recovery
+
+The shared-administrator-password implementation was initially developed on an isolated branch using Work ID 0028 before the controller observed that authoritative `main` had already assigned 0028 to the UI/UX Work above. The product implementation reached personal-DEV version 74 and passed its bounded functional qualification, but PR #38 was stopped unmerged with `GITHUB_WORK_ID_COLLISION`.
+
+Work 0029 is the canonical identity for that shared-admin outcome. It must start from current main, preserve the UI/UX Work 0028 files, port only the validated shared-admin product/test changes, correct shared-admin Work metadata to 0029, regenerate distribution artifacts, and perform one version-75 runtime alignment smoke. The old PR #38 remains superseded history and must not merge.
 
 ## Scope discipline
 
