@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design planning only) | 0027 accepted baseline | Plan published; next complete inventory and three Light mocks, user selection, selected Dark mock; no execution authorization |
+| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | 0028-CODEX-03 READY: Product Design Light A/B/C artifacts/review; no production implementation |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -86,30 +86,39 @@ The temporary personal-DEV administrator password remains intentionally temporar
 
 ### Work 0028
 
-Work 0028 is a UI/UX refinement Work, not a system redesign.
+Work 0028 is a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1 / DESIGN ONLY.
 
-Current mode is INVESTIGATION with phase A / DESIGN ONLY. The planning update is complete; the Work and visual design are not accepted. No Codex dispatch exists. No mocks, production source changes or runtime changes were authorized by the planning-update request.
+After Work 0029 closed, the user approved the controller's approach and requested the next Codex prompt using Product Design. `0028-CODEX-03` is now issued and READY for design-artifact execution only. No Codex execution, completed visual evidence, production implementation or runtime change is asserted by issuing the instruction.
 
-The governing decision is `docs/decisions/ui-surface-language-and-backend-preservation.md`, the active brief is `docs/handoffs/0028-instruction.md`, and the research-backed delivery plan is `docs/planning/work0028-ui-ux-and-theme-plan.md`. Current ball/status remain authoritative in `docs/handoffs/0028-dispatches.md`.
+Current execution contract: `docs/handoffs/0028-CODEX-03-product-design-light-mocks-instruction.md`.
+Current ball and dispatch history: `docs/handoffs/0028-dispatches.md`.
+Work brief: `docs/handoffs/0028-instruction.md`.
+Preservation policy: `docs/decisions/ui-surface-language-and-backend-preservation.md`.
+Earlier research/inventory plan: `docs/planning/work0028-ui-ux-and-theme-plan.md`.
+
+The current contract supersedes the older plan's A0-only permission/status, first-dispatch numbering, pre-0029 baseline and separate-Dark-chart assumptions; other useful research and preservation constraints remain in force.
 
 Key boundary:
 
-- preserve Work 0027 backend/data/provider/runtime semantics, including the current disabled/hidden Gemini state;
-- user-facing labels may differ from internal implementation terms, but payload values and eligibility remain unchanged;
-- normal-user record `Inactive` behavior may surface as `削除`, with clear retained/restorable-data explanation;
-- do not silently convert ChatGPT/Gemini/全文出力 routes into automatic routing;
-- compare A/B/C Light mocks using identical capabilities, fixtures, revised terminology and policy states;
-- ChatGPT owns research, comparison and recommendation; the user selects a visible direction;
-- after Light selection, create only the selected Dark mock;
-- support System/Light/Dark through frontend tokens and isolated browser-local preference, not backend/account synchronization;
-- if a preferred mock requires backend redesign, alter the mock rather than the system;
-- source implementation and Codex dispatch require selected Light/Dark approval plus explicit implementation authorization; deployment remains separately scoped.
+- preserve accepted Work 0027 backend/data/provider behavior and Work 0029 administrator unlock/session/logout/password-change behavior;
+- source-grounded Product Design execution produces three comparable Light directions and a seven-scenario heuristic review;
+- B workspace + A search clarity + C readable table density is the adopted starting approach, not selection of an unseen mock;
+- prefer visible interactive boundaries; do not erase discoverability for a borderless aesthetic;
+- user-facing wording may differ from internal terms, but payloads, lifecycle and eligibility stay unchanged;
+- preserve explicit ChatGPT/Gemini/full-output routes, policy and authoritative evidence; current Gemini remains disabled/hidden;
+- theme selection is System/Light/Dark with browser-local storage, not account synchronization or backend persistence;
+- CHART_SURFACE_THEME: LIGHT_FIXED: chart interiors reuse the selected Light appearance in Dark; only the outer shell adapts, without a second palette/renderer;
+- adjust designs that require backend redesign instead of changing the system;
+- ChatGPT retains final review/acceptance; user Light selection precedes selected Dark design; production implementation still needs selected Light/Dark approval plus explicit authorization;
+- no production source/runtime/credential/provider changes or deployment in CODEX-03.
 
-## Work 0029 collision recovery
+## Work 0029 collision recovery and dispatch tombstones
 
 The shared-administrator-password implementation was initially developed on an isolated branch using Work ID 0028 before the controller observed that authoritative `main` had already assigned 0028 to the UI/UX Work above. The product implementation reached personal-DEV version 74 and passed its bounded functional qualification, but PR #38 was stopped unmerged with `GITHUB_WORK_ID_COLLISION`.
 
-Work 0029 became the canonical identity. CODEX-01 selectively ported the validated product/test changes onto current main, corrected only shared-admin Work metadata to 0029, regenerated distribution artifacts from the canonical implementation commit, and passed one version-75 runtime alignment smoke. Work 0028 control files remained byte-identical. ChatGPT reviewed the result, merged PR #39, and applied the Work 0029 completion latch. PR #38 remains superseded, closed and unmerged.
+Work 0029 became the canonical identity. CODEX-01 selectively ported the validated product/test changes onto current main, corrected only shared-admin Work metadata to 0029, regenerated distribution artifacts from the canonical implementation commit, and passed one version-75 runtime alignment smoke. Work 0028 control files remained byte-identical during that reconciliation. ChatGPT reviewed the result, merged PR #39, and applied the Work 0029 completion latch. PR #38 remains superseded, closed and unmerged.
+
+Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers on the superseded line. They are recorded as tombstones, not recycled for UI/UX. The next UI/UX dispatch is therefore `0028-CODEX-03`. Do not import the conflicting branch, renumber historical dispatches, allocate a duplicate Work or reopen 0029.
 
 ## Scope discipline
 
