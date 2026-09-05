@@ -26,7 +26,7 @@ test('top-level function inventory ignores comments, strings, and nested declara
 
 test('repository exposes only the canonical normal-user facade', () => {
   const result = validatePublicSurface();
-  assert.equal(PUBLIC_FACADE_ALLOWLIST.length, 30);
+  assert.equal(PUBLIC_FACADE_ALLOWLIST.length, 31);
   assert.deepEqual(
     result.publicDeclarations.map((item) => item.name).sort(),
     [...PUBLIC_FACADE_ALLOWLIST].sort()
@@ -38,4 +38,5 @@ test('repository exposes only the canonical normal-user facade', () => {
   assert.ok(result.privateDeclarations.some((item) => item.name === 'kspWriteKnowledgeExportDocument_'));
   assert.ok(result.privateDeclarations.some((item) => item.name === 'kspTrashKnowledgeExportFile_'));
   assert.ok(result.privateDeclarations.some((item) => item.name === 'runAiSyncWorker_'));
+  assert.ok(result.publicDeclarations.some((item) => item.name === 'manageAiProviderAdminSession'));
 });

@@ -3,10 +3,36 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const crypto = require('node:crypto');
 const { loadAi } = require('./ai-test-loader.cjs');
 const ksp = loadAi();
 
 function plain(value){return JSON.parse(JSON.stringify(value));}
+
+function syntheticAdminPassword(seed = 1) {
+  return String.fromCharCode(75, 83, 80, 45, 65, 68, 77, 73, 78, 45) + String(seed).padStart(8, '0');
+}
+
+function attachSharedAdminAuth(environment, options = {}) {
+  let credential = plain(options.credential || {});
+  let randomCounter = 0;
+  environment.readSharedAdminCredential = () => plain(credential);
+  environment.writeSharedAdminCredential = (state) => { credential = plain(state); return true; };
+  environment.withSharedAdminLock = (callback) => callback();
+  environment.sharedAdminHmac = (value, key) => crypto.createHmac('sha256', String(key))
+    .update(String(value), 'utf8').digest('base64url');
+  environment.sharedAdminRandom = (purpose) => crypto.createHash('sha256')
+    .update(`${purpose}|${++randomCounter}|shared-admin-test`, 'utf8').digest('base64url');
+  environment._debug = environment._debug || {};
+  environment._debug.readSharedAdminCredential = () => plain(credential);
+  if (options.configured !== false) {
+    const state = ksp.kspSharedAdminBuildCredential_(environment,
+      options.password || syntheticAdminPassword(options.seed || 1), options.generation || 1);
+    environment.writeSharedAdminCredential(state);
+    environment._debug.adminSessionToken = ksp.kspSharedAdminIssueToken_(environment, state);
+  }
+  return environment;
+}
 
 function baseContext(overrides={}) {
   return {
@@ -88,4 +114,5 @@ function createSyncEnvironment(options={}) {
   };
 }
 
-module.exports = { test, assert, fs, path, vm, ksp, plain, baseContext, createSyncEnvironment };
+module.exports = { test, assert, fs, path, vm, ksp, plain, baseContext, createSyncEnvironment,
+  syntheticAdminPassword, attachSharedAdminAuth };

@@ -88,7 +88,8 @@ test('representative accepted facades delegate identically in bundle mode withou
     ['getRelationshipExplorerData', 'kspGetRelationshipExplorerData_', 'kspCreateRelationshipExplorerEnvironment_', [{}]],
     ['searchKnowledge', 'kspRunProviderKnowledgeSearch_', 'kspCreateProviderNeutralAiEnvironment_', [{}]],
     ['previewKnowledgeExport', 'kspRunKnowledgeExportPreview_', 'kspCreateKnowledgeExportEnvironment_', [{}]],
-    ['getAiProviderAdminData', 'kspGetAiProviderAdminData_', 'kspCreateProviderNeutralAiEnvironment_', []]
+    ['getAiProviderAdminData', 'kspGetAiProviderAdminData_', 'kspCreateProviderNeutralAiEnvironment_', [{}]],
+    ['manageAiProviderAdminSession', 'kspManageSharedAdminSession_', 'kspCreateProviderNeutralAiEnvironment_', [{ action: 'UNLOCK' }]]
   ];
   for (const [facade, helper, environmentFactory, args] of cases) {
     const marker = `${facade}-ok`;

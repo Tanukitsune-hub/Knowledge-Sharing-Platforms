@@ -24,6 +24,7 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
   'getKnowledgeSearchBootstrapData',
   'searchKnowledge',
   'getAiProviderAdminData',
+  'manageAiProviderAdminSession',
   'mutateAiProviderSettings',
   'previewKnowledgeExport',
   'createKnowledgeExport',

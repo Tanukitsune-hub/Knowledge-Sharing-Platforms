@@ -1,4 +1,10 @@
-const { test, assert, fs, path, ksp, plain, baseContext } = require('./ai-test-helpers.cjs');
+const { test, assert, fs, path, ksp, plain, baseContext, attachSharedAdminAuth } = require('./ai-test-helpers.cjs');
+
+function mutateAdmin(environment, input) {
+  return ksp.kspMutateAiProviderSettings_(environment, {
+    ...(input || {}), adminSessionToken: environment._debug.adminSessionToken
+  });
+}
 
 function makeAdminEnvironment(options = {}) {
   const context = baseContext();
@@ -28,7 +34,7 @@ function makeAdminEnvironment(options = {}) {
   let geminiCredentialConfigured = options.geminiKey !== false;
   let readErrorRemaining = options.readError ? (options.readErrorOnce ? 1 : Number.MAX_SAFE_INTEGER) : 0;
   let clock = 0;
-  return {
+  const environment = {
     nowIso() { clock += 1; return `2026-08-28T00:00:${String(clock).padStart(2, '0')}.000Z`; },
     loadAiContext() { return context; },
     ensureAiSettings(rows) {
@@ -103,6 +109,7 @@ function makeAdminEnvironment(options = {}) {
     _debug: { context, writes, created, read, deleted, syncCalls, savedKeys, savedGeminiKeys,
       connectionUploads, connectionQueries, connectionDeletes }
   };
+  return attachSharedAdminAuth(environment);
 }
 
 function withSyncStub(callback) {
@@ -239,7 +246,7 @@ function makeGeminiQualificationEnvironment(sequence = []) {
     },
     _debug: { context, calls, writes, contentHash, profile }
   };
-  return env;
+  return attachSharedAdminAuth(env);
 }
 
 function runGeminiQualification(env, transport = 'INTERACTIONS') {
@@ -249,7 +256,7 @@ function runGeminiQualification(env, transport = 'INTERACTIONS') {
 
 test('OpenAI key absence fails safely and leaves the provider disabled', () => {
   const env = makeAdminEnvironment({ key: false });
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
+  const result = plain(mutateAdmin(env, { action: 'ENABLE_OPENAI' }));
   assert.equal(result.ok, false);
   assert.equal(result.error.code, 'OPENAI_API_KEY_NOT_CONFIGURED');
   assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
@@ -265,11 +272,11 @@ test('Gemini credential and Store administration is boolean-only and administrat
     action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
   }));
   assert.equal(deniedResult.ok, false);
-  assert.equal(deniedResult.error.code, 'AI_PROVIDER_ADMIN_UNAUTHORIZED');
+  assert.equal(deniedResult.error.code, 'SHARED_ADMIN_SESSION_INVALID');
   assert.equal(denied._debug.savedGeminiKeys.length, 0);
 
   const env = makeAdminEnvironment({ geminiKey: false, geminiStore: 'fileSearchStores/private-store' });
-  const connected = plain(ksp.kspMutateAiProviderSettings_(env, {
+  const connected = plain(mutateAdmin(env, {
     action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
   }));
   assert.equal(connected.ok, true, JSON.stringify(connected));
@@ -576,7 +583,7 @@ test('OpenAI Store creation uses a synthetic official REST POST and returns only
 
 test('OpenAI connection saves the key, runs an isolated synthetic self-test, and stops at READY_FOR_SYNC', () => {
   const env = makeAdminEnvironment({ key: false });
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+  const result = plain(mutateAdmin(env, {
     action: 'CONNECT_OPENAI', apiKey: 'sk-synthetic-only'
   }));
   assert.equal(result.ok, true, JSON.stringify(result));
@@ -603,8 +610,8 @@ test('OpenAI connection saves the key, runs an isolated synthetic self-test, and
 
 test('repeated OpenAI connection reuses the configured store and preserves an existing model', () => {
   const env = makeAdminEnvironment({ storeId: 'vs-existing', model: 'gpt-existing' });
-  const first = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
-  const second = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+  const first = plain(mutateAdmin(env, { action: 'CONNECT_OPENAI' }));
+  const second = plain(mutateAdmin(env, { action: 'CONNECT_OPENAI' }));
   assert.equal(first.ok, true);
   assert.equal(second.ok, true);
   assert.deepEqual(env._debug.created, []);
@@ -621,7 +628,7 @@ test('store capability failure keeps OpenAI disabled and does not invoke Gemini 
   let syncCalls = 0;
   ksp.kspRunProviderNeutralAiSync_ = () => { syncCalls += 1; throw new Error('must not run'); };
   try {
-    const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
+    const result = plain(mutateAdmin(env, { action: 'ENABLE_OPENAI' }));
     assert.equal(result.ok, false);
     assert.equal(result.error.code, 'OPENAI_CONNECTION_TEST_FAILED');
     assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
@@ -639,7 +646,7 @@ test('inaccessible configured Store is replaced once and old provider state is n
     readErrorOnce: true,
     createdStoreId: 'vs-replacement'
   });
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+  const result = plain(mutateAdmin(env, { action: 'CONNECT_OPENAI' }));
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.deepEqual(env._debug.read, ['vs-inaccessible', 'vs-replacement']);
   assert.deepEqual(env._debug.created, ['Private Assets Knowledge - OpenAI']);
@@ -655,7 +662,7 @@ test('invalid OpenAI key fails before Store or source mutation', () => {
     key: false,
     createError: Object.assign(new Error('private response'), { code: 'OPENAI_HTTP_401' })
   });
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+  const result = plain(mutateAdmin(env, {
     action: 'CONNECT_OPENAI', apiKey: 'sk-invalid-synthetic'
   }));
   assert.equal(result.ok, false);
@@ -672,7 +679,7 @@ test('invalid OpenAI connection fails before source sync and cleans the syntheti
   const env = makeAdminEnvironment({
     connectionQueryError: Object.assign(new Error('synthetic provider response'), { code: 'OPENAI_HTTP_401' })
   });
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+  const result = plain(mutateAdmin(env, {
     action: 'CONNECT_OPENAI', apiKey: 'sk-invalid-synthetic'
   }));
   assert.equal(result.ok, false);
@@ -688,22 +695,22 @@ test('invalid OpenAI connection fails before source sync and cleans the syntheti
 test('disable preserves the configured store, re-enable returns to READY_FOR_SYNC, and source sync is explicit', () => {
   const env = makeAdminEnvironment({ storeId: 'vs-existing', enabled: true, model: 'gpt-existing' });
   withSyncStub(() => {
-    const connected = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+    const connected = plain(mutateAdmin(env, { action: 'CONNECT_OPENAI' }));
     assert.equal(connected.ok, true);
-    const disabled = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'DISABLE_OPENAI' }));
+    const disabled = plain(mutateAdmin(env, { action: 'DISABLE_OPENAI' }));
     assert.equal(disabled.ok, true);
     assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
     assert.equal(env._debug.context.settings.OPENAI_VECTOR_STORE_ID, 'vs-existing');
     assert.deepEqual(env._debug.deleted, []);
-    const blocked = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC' }));
+    const blocked = plain(mutateAdmin(env, { action: 'SYNC' }));
     assert.equal(blocked.ok, false);
     assert.equal(blocked.error.code, 'OPENAI_NOT_READY_FOR_SYNC');
-    const enabled = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'CONNECT_OPENAI' }));
+    const enabled = plain(mutateAdmin(env, { action: 'CONNECT_OPENAI' }));
     assert.equal(enabled.ok, true);
     assert.deepEqual(env._debug.created, []);
     assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
     assert.equal(env._debug.context.settings.OPENAI_READINESS, 'READY_FOR_SYNC');
-    const sync = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC' }));
+    const sync = plain(mutateAdmin(env, { action: 'SYNC' }));
     assert.equal(sync.ok, true);
     assert.equal(env._debug.syncCalls.length, 1);
     assert.equal(env._debug.syncCalls[0].force, true);
@@ -715,10 +722,10 @@ test('disable preserves the configured store, re-enable returns to READY_FOR_SYN
 test('administrator SYNC forwards a trimmed sourceType and blank sourceType preserves combined behavior', () => {
   const env = makeAdminEnvironment();
   withSyncStub(() => {
-    const meeting = plain(ksp.kspMutateAiProviderSettings_(env, {
+    const meeting = plain(mutateAdmin(env, {
       action: 'SYNC', sourceType: '  Meeting  '
     }));
-    const combined = plain(ksp.kspMutateAiProviderSettings_(env, {
+    const combined = plain(mutateAdmin(env, {
       action: 'SYNC', sourceType: '  '
     }));
     assert.equal(meeting.ok, true);
@@ -736,7 +743,7 @@ test('administrator exact SYNC forwards the trimmed sourceId with its sourceType
   const env = makeAdminEnvironment();
   env._debug.context.pitchbookRows[0].Document_ID = 'DOC-000017';
   withSyncStub(() => {
-    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    const result = plain(mutateAdmin(env, {
       action: 'SYNC', sourceType: '  Pitchbook  ', sourceId: '  DOC-000017  '
     }));
     assert.equal(result.ok, true);
@@ -769,7 +776,7 @@ test('item-level OpenAI sync failure preserves the valid connection and returns 
     errors: []
   });
   try {
-    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    const result = plain(mutateAdmin(env, {
       action: 'SYNC', sourceType: 'Pitchbook'
     }));
     assert.equal(result.ok, true);
@@ -804,7 +811,7 @@ test('provider-level OpenAI sync failure invalidates readiness without exposing 
     errors: [{ provider: 'OPENAI', code: 'OPENAI_HTTP_401', privateDetail: 'must-not-leak' }]
   });
   try {
-    const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC', sourceType: 'Meeting' }));
+    const result = plain(mutateAdmin(env, { action: 'SYNC', sourceType: 'Meeting' }));
     assert.equal(result.ok, false);
     assert.equal(result.error.code, 'OPENAI_SYNC_FAILED');
     assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
@@ -818,7 +825,7 @@ test('provider-level OpenAI sync failure invalidates readiness without exposing 
 test('invalid administrator SYNC sourceType fails closed without invoking provider-neutral sync', () => {
   const env = makeAdminEnvironment();
   withSyncStub(() => {
-    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    const result = plain(mutateAdmin(env, {
       action: 'SYNC', sourceType: 'Other'
     }));
     assert.equal(result.ok, false);
@@ -850,7 +857,7 @@ test('administrator SYNC safe summary excludes source, store, and provider docum
     errors: []
   });
   try {
-    const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+    const result = plain(mutateAdmin(env, {
       action: 'SYNC', sourceType: 'Meeting'
     }));
     assert.equal(result.ok, true);
@@ -862,7 +869,7 @@ test('administrator SYNC safe summary excludes source, store, and provider docum
   }
 });
 
-test('non-administrator cannot mutate provider settings and the status response contains no private identifiers', () => {
+test('legacy account identity alone cannot mutate after shared auth and status contains no private identifiers', () => {
   const env = makeAdminEnvironment({ admin: false, storeId: 'vs-private', key: true });
   const status = plain(ksp.kspGetAiProviderAdminData_(env));
   assert.equal(status.ok, true);
@@ -871,13 +878,13 @@ test('non-administrator cannot mutate provider settings and the status response 
   assert.equal(status.openai.status, 'DISABLED');
   const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
   assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'AI_PROVIDER_ADMIN_UNAUTHORIZED');
+  assert.equal(result.error.code, 'SHARED_ADMIN_SESSION_INVALID');
   assert.equal(env._debug.writes.length, 0);
   assert.equal(env._debug.created.length, 0);
   assert.doesNotMatch(JSON.stringify(status) + JSON.stringify(result), /vs-private|KSP_OPENAI_API_KEY/);
   const sync = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC', sourceType: 'Meeting' }));
   assert.equal(sync.ok, false);
-  assert.equal(sync.error.code, 'AI_PROVIDER_ADMIN_UNAUTHORIZED');
+  assert.equal(sync.error.code, 'SHARED_ADMIN_SESSION_INVALID');
   assert.equal(env._debug.syncCalls.length, 0);
 });
 
@@ -911,7 +918,7 @@ test('administrator migrates the accepted OpenAI default into a persisted qualif
   const env = makeAdminEnvironment({
     enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
   });
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' }));
+  const result = plain(mutateAdmin(env, { action: 'MIGRATE_MODEL_POLICY' }));
   assert.equal(result.ok, true);
   assert.equal(result.workId, '0025');
   assert.equal(result.modelPolicy.schemaVersion, 1);
@@ -929,8 +936,8 @@ test('administrator can retain a historical model without auto-qualifying it or 
   const env = makeAdminEnvironment({
     enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
   });
-  assert.equal(ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' }).ok, true);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+  assert.equal(mutateAdmin(env, { action: 'MIGRATE_MODEL_POLICY' }).ok, true);
+  const result = plain(mutateAdmin(env, {
     action: 'SAVE_MODEL_PROFILE',
     profile: {
       profileId: 'openai-historical', provider: 'OPENAI', modelId: 'gpt-5.4',
@@ -954,9 +961,9 @@ test('bounded model qualification uses the existing OpenAI store and persists sa
   const env = makeAdminEnvironment({
     enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
   });
-  const migrated = ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' });
+  const migrated = mutateAdmin(env, { action: 'MIGRATE_MODEL_POLICY' });
   const profileId = migrated.modelPolicy.profiles[0].profileId;
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+  const result = plain(mutateAdmin(env, {
     action: 'QUALIFY_MODEL_PROFILE', profileId
   }));
   assert.equal(result.ok, true);
@@ -982,8 +989,8 @@ test('qualification sends each exact thinking tuple and output ceiling through o
   const env = makeAdminEnvironment({
     enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'
   });
-  ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' });
-  const saved = plain(ksp.kspMutateAiProviderSettings_(env, {
+  mutateAdmin(env, { action: 'MIGRATE_MODEL_POLICY' });
+  const saved = plain(mutateAdmin(env, {
     action: 'SAVE_MODEL_PROFILE', profile: {
       profileId: 'openai-historical', provider: 'OPENAI', modelId: 'gpt-5.4',
       displayName: 'Historical', family: 'GPT-5.4', enabled: true, userVisible: true,
@@ -993,7 +1000,7 @@ test('qualification sends each exact thinking tuple and output ceiling through o
     }
   }));
   assert.equal(saved.ok, true);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+  const result = plain(mutateAdmin(env, {
     action: 'QUALIFY_MODEL_PROFILE', profileId: 'openai-historical'
   }));
   assert.equal(result.ok, true);
@@ -1016,9 +1023,9 @@ test('partial thinking qualification keeps passing tuples and rejects the failed
     enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE',
     connectionQueryErrorRawValue: 'high'
   });
-  ksp.kspMutateAiProviderSettings_(env, { action: 'MIGRATE_MODEL_POLICY' });
+  mutateAdmin(env, { action: 'MIGRATE_MODEL_POLICY' });
   const current = plain(ksp.kspGetAiProviderAdminData_(env)).modelPolicy.profiles[0];
-  const saved = plain(ksp.kspMutateAiProviderSettings_(env, {
+  const saved = plain(mutateAdmin(env, {
     action: 'SAVE_MODEL_PROFILE', profile: {
       ...current,
       thinkingProfiles: [
@@ -1029,7 +1036,7 @@ test('partial thinking qualification keeps passing tuples and rejects the failed
     }
   }));
   assert.equal(saved.ok, true);
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, {
+  const result = plain(mutateAdmin(env, {
     action: 'QUALIFY_MODEL_PROFILE', profileId: current.profileId
   }));
   assert.equal(result.ok, true);
