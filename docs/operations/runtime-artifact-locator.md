@@ -2,7 +2,7 @@
 
 LAST_RUNTIME_EVIDENCE_AT: 2026-09-05 JST
 LAST_RUNTIME_EVIDENCE_BY: Codex, 0029-CODEX-01 bounded shared-admin smoke
-LATEST_CONTROLLER_ACTION: Work 0029 reconciliation dispatched on current main; PR #39 remains Draft/Open/unmerged
+LATEST_CONTROLLER_ACTION: Work 0029 accepted and PR #39 merged; Work 0028 UI/UX design planning remains the active unfinished Work
 STATUS: version 75 deployed; shared administrator configured/locked; Gemini 3.7 remains qualified-disabled/hidden
 
 ## Source and accepted state
@@ -14,8 +14,11 @@ WORK_0027_MERGE_COMMIT: 9cd5d2984d0d584ed05c447ed09d2ddf0e1e2366
 WORK_0027_IMPLEMENTATION: 40905f23d8c6bab5b76e7fb2f34f96b912aeb2f7
 WORK_0027_FINAL_BRANCH_HEAD: 497ecff400624330f1d5041de166f6c6e3485220
 WORK_0029_CANONICAL_IMPLEMENTATION: 9fa668619a0b91fb60ed53f696363d3954cf709e
+WORK_0029_FINAL_BRANCH_HEAD: b29ee3e538e72c4641f8d825e304fea1c186a265
+WORK_0029_MERGE_COMMIT: 872dbec83d17e6dfe1f33d8260006c2124d38a6c
 WORK_0029_BUNDLE_COMMIT: 7ea68211f87d5c15268a0deeb35d96479f32eed7
-CURRENT_ACTIVE_WORK: 0029 / final review pending
+WORK_0029_STATUS: ACCEPTED
+CURRENT_UNFINISHED_WORK: 0028 / UI/UX design planning
 BALL: CHATGPT
 STATUS: READY
 ```
@@ -34,7 +37,7 @@ BLOCKING_CONSOLE_ERRORS: 0
 VERSION_67: unused / never deploy
 VERSION_73: accepted Work 0027 baseline
 VERSION_74: prior qualified shared-admin baseline
-VERSION_75: current / Work 0029 canonical alignment
+VERSION_75: accepted Work 0029 canonical alignment
 VERSION_76_OR_HIGHER_CREATED_IN_WORK_0029: NO
 ```
 
@@ -46,6 +49,7 @@ VERSION_76_OR_HIGHER_CREATED_IN_WORK_0029: NO
 - Work 0023: `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`
 - Work 0026: `40bb7d40506c0839c35742ee0000d89650ff7ad6`
 - Work 0027: `9cd5d2984d0d584ed05c447ed09d2ddf0e1e2366`
+- Work 0029: `872dbec83d17e6dfe1f33d8260006c2124d38a6c`
 
 ## Gemini accepted personal-DEV boundary
 
@@ -71,7 +75,7 @@ BLOCKER: NONE
 
 The strict resolver treats Gemini `source` as content, uses `document_uri` as trusted Store evidence, and requires exact `source_type`, `source_id`, and `content_hash` to resolve through one current Active authoritative source/current Gemini hash and one independently verified current provider document.
 
-## Work 0029 shared administrator runtime boundary
+## Work 0029 shared administrator accepted boundary
 
 ```text
 SHARED_ADMIN_CREDENTIAL: configured / non-plaintext Script Properties state preserved
@@ -82,15 +86,24 @@ SERVER_REVALIDATION_AFTER_RELOAD: PASS
 EXPLICIT_LOGOUT: PASS
 FINAL_STATE: configured / locked
 PASSWORD_ROTATION_LIVE: NOT RUN / deterministic regression proof only
+ACCOUNT_IDENTITY_REQUIRED_AFTER_BOOTSTRAP: NO
+TIMED_ADMIN_EXPIRY: NONE
 OPENAI_GEMINI_FULL_OUTPUT_CALLS: 0
 API_KEY_PROVIDER_MODEL_STORE_SOURCE_MUTATIONS: 0
 WORK_0028_CONTROL_FILE_CHANGES: 0
+BLOCKER: NONE
 ```
 
-Version 75 serves the canonical Work 0029 source. The same private Web App retained HTTPS `/exec`, `MYSELF` access and `USER_DEPLOYING` execution. Source delivery and readback were each performed once; all 82 deployable files matched. The temporary DEV password is intentionally omitted here and remains for the user to change later through the normal UI.
+Version 75 serves the canonical accepted Work 0029 source. The same private Web App retained HTTPS `/exec`, `MYSELF` access and `USER_DEPLOYING` execution. Source delivery and readback were each performed once; all 82 deployable files matched. The temporary DEV password is intentionally omitted here and remains for the user to change later through the normal UI.
+
+## Work 0028 design boundary
+
+Work 0028 remains a separate unfinished UI/UX design/planning Work. Its current control file and design gates remain authoritative in `docs/handoffs/0028-dispatches.md`. Work 0029 acceptance does not authorize Work 0028 source implementation or deployment.
 
 ## Residuals and next phases
 
 `FIX_SOON`: persist allowlisted/sanitized Gemini qualification evidence when Audit is configured.
 
-Later Work: user rotation of the temporary DEV administrator password, representative large files, historical-material migration, company Shared Drive/domain-user/provider/quota qualification, rollout, and future Gemini model qualification. No confidential indexing, billing change, provider-state change, or rollout is implied by Work 0029 qualification.
+User follow-up: rotate the temporary DEV administrator password through the accepted in-app password-change UI.
+
+Later Work: representative large files, historical-material migration, company Shared Drive/domain-user/provider/quota qualification, rollout, and future Gemini model qualification. No confidential indexing, billing change, provider-state change, or rollout is implied by Work 0029 acceptance.
