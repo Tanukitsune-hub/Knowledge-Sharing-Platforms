@@ -19,9 +19,10 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
-| 7 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 8 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 6 | 0028 | Portable shared-password administrator mode | ACTIVE | 0027 accepted | Implement shared admin auth and one personal-DEV UI qualification |
+| 7 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
+| 8 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 9 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -55,6 +56,29 @@ BLOCKER: NONE
 The accepted strict Gemini citation resolver binds the returned Store and exact metadata tuple to one current Active authoritative source/current Gemini hash and one independently verified current provider document. Qualification and normal immediate/POLL mapping share this resolver. OpenAI/FULL_OUTPUT behavior remains preserved.
 
 The optional sanitized Audit persistence gap is `FIX_SOON`, not a blocker. Representative large files, migration, company qualification, rollout, future-model qualification, and administrator-authorization redesign are separate future outcomes.
+
+## Work 0028 current contract
+
+The user chose a shared administrator password rather than named-account administration for routine management. The AI Provider Settings page remains safely readable by all authorized Web App users. After one-time migration/bootstrap, existing provider/model mutations require a valid shared administrator-session token and must not depend on Google active/effective email.
+
+```text
+CURRENT_DISPATCH: 0028-CODEX-01
+MODE: BUILD
+BALL: CODEX
+STATUS: READY
+BASE_MAIN: b0efbbfd8a5ce5c2e3b3d64f5ccba56838306ef2
+CURRENT_PRIVATE_WEB_APP: version 73
+ADMIN_AUTO_TIMEOUT: none
+CLIENT_ADMIN_TOKEN_STORAGE: sessionStorage only
+PROVIDER_LIVE_CALLS_AUTHORIZED: 0
+WORK_ACCEPTANCE: NOT_MET
+BLOCKER: IMPLEMENTATION_NOT_RUN
+```
+
+Password plaintext must never be persisted. Server-side Script Properties hold only non-plaintext verifier/signing material. Password rotation invalidates previous tokens. Existing account/email administration is retained only as the initial bootstrap gate while no shared password is configured. Installer/setup/deployment/readiness owner checks are outside Work 0028 and must remain unchanged.
+
+Decision: `docs/decisions/shared-admin-password-mode.md`.
+Plan: `docs/planning/work0028-shared-admin-password.md`.
 
 ## Scope discipline
 
