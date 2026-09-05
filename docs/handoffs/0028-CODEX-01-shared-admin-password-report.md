@@ -2,37 +2,26 @@
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: NONE
+STATUS: SUPERSEDED
 MODE: BUILD
 
 ## Outcome
 
-Not yet executed.
+Superseded before execution.
+
+The user changed the bootstrap execution contract before Codex ran: the current personal-DEV bootstrap password may be disclosed to Codex so Codex can complete setup/unlock without a USER password-entry handoff. The product design itself is unchanged: shared-password administration, no timed expiry, password change in UI, no plaintext persistence, and no account dependency after bootstrap.
+
+CODEX-01 performed no implementation, runtime, provider, source-delivery, version or deployment work. Its budgets are not reused; CODEX-02 has the authoritative fresh execution contract.
 
 ```text
-TERMINAL_OUTCOME: NOT_RUN
+TERMINAL_OUTCOME: SUPERSEDED_BEFORE_EXECUTION
 IMPLEMENTATION: NOT_RUN
 LOGIC_VALIDATION: NOT_RUN
 TARGET_RUNTIME_QUALIFICATION: NOT_RUN
-WORK_ACCEPTANCE: NOT_MET
-BLOCKER: IMPLEMENTATION_NOT_RUN
+PROVIDER_CALLS: 0
+SOURCE_DELIVERY: 0
+VERSION_CREATED: 0
+WEB_APP_UPDATE: 0
+BLOCKER: NONE
 ```
-
-## Required report fields on return
-
-Record without exposing any password/token/verifier/salt/signing secret/private URL/ID/account identity:
-
-- implementation commit and final commit;
-- files changed;
-- shared credential bootstrap behavior;
-- account-only mutation rejection after bootstrap;
-- valid shared-session authorization behavior;
-- no-timeout/sessionStorage behavior;
-- explicit logout behavior;
-- password-rotation deterministic evidence;
-- public-surface/security/secret validation;
-- provider-call count (must be zero);
-- source delivery/readback and version/deployment evidence if performed;
-- current Gemini/OpenAI/provider state preserved;
-- blocker/follow-up classification.
