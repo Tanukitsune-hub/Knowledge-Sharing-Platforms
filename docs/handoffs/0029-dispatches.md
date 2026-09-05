@@ -2,40 +2,43 @@
 
 WORK_ID: 0029
 ACTIVE_DISPATCH_ID: 0029-CODEX-01
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: NONE
+STATUS: ACCEPTED
 MODE: BUILD
 
-## Current dispatch
+## Completion
 
-`0029-CODEX-01` — completed the canonical reconciliation of the already-qualified shared administrator password implementation, preserved Work 0028 UI/UX control, and aligned the same private Web App once from version 74 to version 75.
-
-Instruction: `docs/handoffs/0029-CODEX-01-shared-admin-reconciliation-instruction.md`
-Report: `docs/handoffs/0029-CODEX-01-shared-admin-reconciliation-report.md`
+ChatGPT completed final review of `0029-CODEX-01`, accepted the canonical shared-administrator-password implementation, and merged PR #39 into `main`.
 
 ```text
-LATEST_MAIN_AT_START: e90d6f31205249b6de7720896708cdef3e0ba212
-AUTHORITATIVE_WORK_0028: UI/UX surface refinement / preserved byte-identical
-SUPERSEDED_SHARED_ADMIN_PR: #38 / Closed / unmerged
 CANONICAL_IMPLEMENTATION: 9fa668619a0b91fb60ed53f696363d3954cf709e
-BUNDLE_COMMIT: 7ea68211f87d5c15268a0deeb35d96479f32eed7
-PRIVATE_WEB_APP: version 75 / configured and locked
+FINAL_BRANCH_HEAD: b29ee3e538e72c4641f8d825e304fea1c186a265
+MERGE_COMMIT: 872dbec83d17e6dfe1f33d8260006c2124d38a6c
+PRIVATE_WEB_APP_VERSION: 75
 FOCUSED_TESTS: PASS / 59 of 59
 LOGIC_VALIDATION: PASS / 456 of 456
 BUNDLE_VALIDATION: PASS / 27 of 27
 SOURCE_READBACK: PASS / 82 of 82
 TARGET_RUNTIME_QUALIFICATION: PASS
+FINAL_ADMIN_STATE: configured / locked
 PROVIDER_DATA_MUTATIONS: 0
-WORK_ACCEPTANCE: MET / ready for final review
-READY: YES
+WORK_0028_FILES_PRESERVED: PASS
 BLOCKER: NONE
 ```
 
-No provider/model/data call or mutation occurred. The user-supplied temporary DEV credential was used only for the bounded normal-UI unlock smoke and was not recorded in this report. Password rotation remains a later user action.
+The accepted behavior is account-independent shared-password administration for AI Provider Settings after one-time bootstrap, with no timed expiry, an opaque signed bearer token stored only in browser `sessionStorage`, server-side token validation before every mutation, explicit logout, and password rotation that invalidates older generations.
 
-Do not modify or replace the main Work 0028 control/decision files. PR #39 remains Draft/Open/unmerged.
+Current-main Work 0028 remains the separate UI/UX design/planning Work. Its control file was byte-identical on the reviewed Work 0029 head. Historical PR #38 remains superseded, closed, and unmerged.
+
+GitHub CI did not run; this is recorded as a non-blocking infrastructure gap, not runtime evidence. The temporary personal-DEV password remains intentionally temporary and should be changed later through the accepted password-change UI.
+
+## Completion latch
+
+Work 0029 is closed. Do not allocate another 0029 Codex dispatch or reopen accepted evidence unless material contradictory evidence appears. Any new outcome uses a new Work ID.
+
+Detailed evidence: `docs/handoffs/0029-CODEX-01-shared-admin-reconciliation-report.md`.
 
 WORK_ID: 0029
 ACTIVE_DISPATCH_ID: 0029-CODEX-01
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: NONE
+STATUS: ACCEPTED
