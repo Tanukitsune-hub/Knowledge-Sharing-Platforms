@@ -2,8 +2,8 @@
 
 WORK_ID: 0029
 DISPATCH_ID: 0029-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 ## Primary outcome
@@ -27,4 +27,5 @@ Work 0029 is the canonical shared-admin Work. Preserve the validated implementat
 - Work 0027 Gemini state remains qualified-disabled/hidden.
 
 Detailed execution contract: `docs/handoffs/0029-CODEX-01-shared-admin-reconciliation-instruction.md`.
+Completed evidence: `docs/handoffs/0029-CODEX-01-shared-admin-reconciliation-report.md`.
 Current ball: `docs/handoffs/0029-dispatches.md`.

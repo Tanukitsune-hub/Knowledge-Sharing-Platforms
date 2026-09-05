@@ -3,7 +3,7 @@
 WORK_ID: 0029
 MODE: BUILD
 ACTIVE_DISPATCH_ID: 0029-CODEX-01
-BALL: CODEX
+BALL: CHATGPT
 STATUS: READY
 
 ## Primary outcome
@@ -69,3 +69,9 @@ Do not carry the superseded branch's `docs/handoffs/0028-*`, `docs/planning/work
 ## Completion latch
 
 Done when Work 0029 is mergeable from latest main, deterministic checks pass, version 75 serves the exact canonical source, the bounded locked/unlock/reload/logout smoke passes with no provider/data mutation, and no Work 0028 file/control is overwritten. Remaining password rotation by the user is follow-up, not a blocker.
+
+## Completion evidence
+
+CODEX-01 met the completion latch: the selective port and Work-ID correction passed focused 59/59, canonical 456/456, bundle 27/27, agent-foundation, public-surface, security and secret gates; Apps Script readback matched 82/82 files; the same private Web App moved once from version 74 to 75; locked/unlock/reload/server-revalidation/logout passed; final state is configured/locked; provider/data mutations were zero; and Work 0028 control files remained unchanged.
+
+Canonical evidence: `docs/handoffs/0029-CODEX-01-shared-admin-reconciliation-report.md`.
