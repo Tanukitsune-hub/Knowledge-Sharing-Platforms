@@ -1,9 +1,9 @@
 # Knowledge Share Runtime / Artifact Locator
 
 LAST_RUNTIME_EVIDENCE_AT: 2026-09-05 JST
-LAST_RUNTIME_EVIDENCE_BY: Codex, CODEX-05 guarded qualification
-LATEST_CONTROLLER_ACTION: ChatGPT accepted Work 0027 and merged PR #37
-STATUS: version 73 deployed; personal-DEV Gemini 3.7 qualified but disabled/hidden
+LAST_RUNTIME_EVIDENCE_BY: Codex, Work 0028 CODEX-02 shared administrator mode qualification
+LATEST_CONTROLLER_ACTION: Codex returned Work 0028 CODEX-02 for ChatGPT final review
+STATUS: version 74 deployed; shared administrator credential configured and locked; Work 0027 provider state preserved
 
 ## Source and accepted state
 
@@ -13,9 +13,11 @@ DEFAULT_BRANCH: main
 WORK_0027_MERGE_COMMIT: 9cd5d2984d0d584ed05c447ed09d2ddf0e1e2366
 WORK_0027_IMPLEMENTATION: 40905f23d8c6bab5b76e7fb2f34f96b912aeb2f7
 WORK_0027_FINAL_BRANCH_HEAD: 497ecff400624330f1d5041de166f6c6e3485220
-CURRENT_ACTIVE_WORK: none
-BALL: NONE
-STATUS: ACCEPTED
+WORK_0028_IMPLEMENTATION: af96c145e999ac7bed9d7aa4862e41b87ad17c82
+WORK_0028_BUNDLE: 94edc01f71d7627af2cba4f216002b805b72094c
+CURRENT_ACTIVE_WORK: 0028
+BALL: CHATGPT
+STATUS: RETURNED
 ```
 
 Do not record local workspace paths, private editor/deployment URLs, Script IDs, deployment IDs, Google Drive/Spreadsheet IDs, provider Store/document resource names, credentials, or signed URLs here.
@@ -25,13 +27,14 @@ Do not record local workspace paths, private editor/deployment URLs, Script IDs,
 ```text
 TARGET_RUNTIME: Google Apps Script V8 / private Web App
 ENVIRONMENT: isolated personal DEV / qualified reference
-DEPLOYMENT_VERSION: 73
-ROOT_AND_KNOWLEDGE_BOOTSTRAP: PASS
+DEPLOYMENT_VERSION: 74
+ROOT_AND_AI_PROVIDER_BOOTSTRAP: PASS
 SOURCE_READBACK: PASS / 82 of 82
 BLOCKING_CONSOLE_ERRORS: 0
 VERSION_67: unused / never deploy
-VERSION_73: current / Work 0027 accepted
-VERSION_74_OR_HIGHER_CREATED_IN_WORK_0027: NO
+VERSION_73: Work 0027 accepted baseline / superseded by version 74 deployment
+VERSION_74: current / Work 0028 CODEX-02
+VERSION_75_OR_HIGHER_CREATED_IN_WORK_0028: NO
 ```
 
 ## Accepted merges
@@ -67,8 +70,31 @@ BLOCKER: NONE
 
 The strict resolver treats Gemini `source` as content, uses `document_uri` as trusted Store evidence, and requires exact `source_type`, `source_id`, and `content_hash` to resolve through one current Active authoritative source/current Gemini hash and one independently verified current provider document.
 
+## Shared administrator mode personal-DEV boundary
+
+```text
+SHARED_ADMIN_CREDENTIAL: configured
+FINAL_ADMIN_MODE: locked
+SAFE_STATUS_READ_WHILE_LOCKED: PASS
+GOOGLE_ACCOUNT_ONLY_MUTATION_AFTER_BOOTSTRAP: denied
+SHARED_PASSWORD_UNLOCK: PASS
+SESSION_STORAGE_RELOAD_PERSISTENCE: PASS
+SERVER_REVALIDATION_AFTER_RELOAD: PASS
+EXPLICIT_LOGOUT_TO_LOCKED_STATE: PASS
+PASSWORD_CHANGE_UI: implemented
+PASSWORD_ROTATION_LOGIC: deterministic PASS
+RUNTIME_PASSWORD_ROTATION: not run / temporary bootstrap credential retained for user change
+PROVIDER_LIVE_CALLS: 0
+API_KEY_PROVIDER_MODEL_STORE_SOURCE_DATA_MUTATIONS: 0
+BLOCKER: NONE
+```
+
+The client keeps only an opaque signed administrator token in `sessionStorage`. Every AI Provider Settings mutation revalidates that token server-side. Account-based administration remains only the absent-credential bootstrap gate; it cannot mutate provider settings after shared-password setup without a valid shared session.
+
 ## Residuals and next phases
 
 `FIX_SOON`: persist allowlisted/sanitized qualification evidence when Audit is configured.
 
-Later Work: representative large files, historical-material migration, company Shared Drive/domain-user/provider/quota qualification, rollout, future Gemini model qualification, and administrator authorization redesign. No confidential indexing, billing change, or rollout is implied by Work 0027 acceptance.
+User follow-up: replace the temporary personal-DEV bootstrap credential through the implemented administrator password-change UI.
+
+Later Work: representative large files, historical-material migration, company Shared Drive/domain-user/provider/quota qualification, rollout, and future Gemini model qualification. No confidential indexing, billing change, or rollout is implied by Work 0027 or Work 0028 qualification.

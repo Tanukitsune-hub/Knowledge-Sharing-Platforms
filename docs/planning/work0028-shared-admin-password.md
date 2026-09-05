@@ -3,8 +3,8 @@
 WORK_ID: 0028
 MODE: BUILD
 ACTIVE_DISPATCH_ID: 0028-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 ## Primary outcome
 
@@ -63,7 +63,8 @@ The user authorized ChatGPT to disclose a temporary bootstrap password directly 
 
 - Branch: `agent/0028-shared-admin-password`.
 - Base main: `b0efbbfd8a5ce5c2e3b3d64f5ccba56838306ef2`.
-- Current accepted private Web App baseline: version 73 from Work 0027.
+- Accepted baseline at dispatch start: private Web App version 73 from Work 0027.
+- Current qualified personal-DEV Web App: version 74 from CODEX-02.
 - Product source/tests/generated bundle may change only as required for Work 0028.
 - AI provider live calls: 0.
 - API-key changes: 0.
@@ -120,3 +121,19 @@ Stop and return if any of these occurs:
 ## Completion latch
 
 Done only when the shared-password mode works end to end in personal DEV, account-only mutation authorization is removed after bootstrap, password change is implemented, required tests and source/runtime checks pass, no secret leakage or blocker remains, and GitHub/PR/handoff state is updated. Preserve Work 0027 provider state unchanged.
+
+## CODEX-02 completion evidence
+
+The completion latch is met and the result is returned for ChatGPT final review. Production auth logic, client session behavior, source/bundle parity, public surface, installer security, and secret-safety tests passed. The same private Web App was updated once from version 73 to 74 after 82/82 exact source readback.
+
+Normal-UI evidence passed for locked read-only status, one-time legacy-authorized bootstrap, explicit logout/account-only denial, shared-password unlock, reload plus server revalidation, password-change UI availability, and final logout. Credential rotation and old-token invalidation passed deterministic production-logic tests without changing the runtime password. Work 0027 provider/model state remains unchanged.
+
+```text
+IMPLEMENTATION: PASS
+LOGIC_VALIDATION: PASS / 456 of 456
+BUNDLE_VALIDATION: PASS / 27 of 27
+TARGET_RUNTIME_QUALIFICATION: PASS
+WORK_ACCEPTANCE: MET
+READY: YES / ChatGPT final review
+BLOCKER: NONE
+```

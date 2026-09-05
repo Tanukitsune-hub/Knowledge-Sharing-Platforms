@@ -2,8 +2,8 @@
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 ## Primary outcome
@@ -41,3 +41,21 @@ Current result:
 Work 0027 is ACCEPTED. Preserve Gemini 3.7 as qualified-disabled/hidden and preserve accepted OpenAI/FULL_OUTPUT behavior.
 
 Read root/nearest AGENTS, the Work 0028 decision/plan, and the Apps Script deployment guardrails before implementation.
+
+## CODEX-02 return
+
+Implementation, deterministic validation, exact source delivery/readback, one version-74 update of the same private Web App, and the normal-UI personal-DEV qualification passed. The runtime shared credential is configured and explicitly logged out. Google account identity alone no longer authorizes AI Provider Settings mutation after bootstrap.
+
+```text
+IMPLEMENTATION_COMMIT: af96c145e999ac7bed9d7aa4862e41b87ad17c82
+PRIVATE_WEB_APP_VERSION: 74
+LOGIC_VALIDATION: PASS / 456 of 456
+BUNDLE_VALIDATION: PASS / 27 of 27
+SOURCE_READBACK: PASS / 82 of 82
+TARGET_RUNTIME_QUALIFICATION: PASS
+WORK_ACCEPTANCE: MET
+READY: YES / ChatGPT final review
+BLOCKER: NONE
+```
+
+The temporary DEV password remains in place for the user to change later through the implemented normal management UI. No plaintext credential is recorded here. Provider calls and provider/model/data mutations were zero.

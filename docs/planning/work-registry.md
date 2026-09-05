@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | Portable shared-password administrator mode | ACTIVE | 0027 accepted | Execute CODEX-02 shared admin auth + temporary DEV bootstrap |
+| 6 | 0028 | Portable shared-password administrator mode | READY | 0027 accepted | CODEX-02 complete; review Draft PR #38 |
 | 7 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 8 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 9 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -55,31 +55,37 @@ BLOCKER: NONE
 
 The accepted strict Gemini citation resolver binds the returned Store and exact metadata tuple to one current Active authoritative source/current Gemini hash and one independently verified current provider document. Qualification and normal immediate/POLL mapping share this resolver. OpenAI/FULL_OUTPUT behavior remains preserved.
 
-The optional sanitized Audit persistence gap is `FIX_SOON`, not a blocker. Representative large files, migration, company qualification, rollout, future-model qualification, and administrator-authorization redesign are separate future outcomes.
+The optional sanitized Audit persistence gap is `FIX_SOON`, not a blocker. Representative large files, migration, company qualification, rollout, and future-model qualification are separate future outcomes.
 
-## Work 0028 current contract
+## Work 0028 returned result
 
 The user chose a shared administrator password rather than named-account administration for routine management. The AI Provider Settings page remains safely readable by all authorized Web App users. After one-time migration/bootstrap, existing provider/model mutations require a valid shared administrator-session token and must not depend on Google active/effective email.
 
 ```text
 CURRENT_DISPATCH: 0028-CODEX-02
 MODE: BUILD
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 BASE_MAIN: b0efbbfd8a5ce5c2e3b3d64f5ccba56838306ef2
-CURRENT_PRIVATE_WEB_APP: version 73
+CURRENT_PRIVATE_WEB_APP: version 74
 ADMIN_AUTO_TIMEOUT: none
 CLIENT_ADMIN_TOKEN_STORAGE: sessionStorage only
-PASSWORD_CHANGE_UI: required
+PASSWORD_CHANGE_UI: IMPLEMENTED
 TEMP_DEV_BOOTSTRAP_PASSWORD: supplied in dispatch prompt / not a product default
 PROVIDER_LIVE_CALLS_AUTHORIZED: 0
-WORK_ACCEPTANCE: NOT_MET
-BLOCKER: IMPLEMENTATION_NOT_RUN
+IMPLEMENTATION_COMMIT: af96c145e999ac7bed9d7aa4862e41b87ad17c82
+LOGIC_VALIDATION: PASS / 456 of 456
+BUNDLE_VALIDATION: PASS / 27 of 27
+SOURCE_READBACK: PASS / 82 of 82
+TARGET_RUNTIME_QUALIFICATION: PASS
+WORK_ACCEPTANCE: MET
+READY: YES
+BLOCKER: NONE
 ```
 
 Password plaintext must never be persisted. Server-side Script Properties hold only non-plaintext verifier/signing material. Password rotation invalidates previous tokens. Existing account/email administration is retained only as the initial bootstrap gate while no shared password is configured. Installer/setup/deployment/readiness owner checks are outside Work 0028 and must remain unchanged.
 
-The user explicitly authorized a temporary disclosed personal-DEV bootstrap password so Codex can perform UI bootstrap/unlock without a USER handoff. The value is supplied in the CODEX-02 prompt, is not a product default, and will be changed later by the user through the management-page password-change function. CODEX-01 is superseded before execution.
+The user explicitly authorized a temporary disclosed personal-DEV bootstrap password so Codex could perform UI bootstrap/unlock without a USER handoff. The shared credential is configured and the final runtime state is locked. The value is not a product default and will be changed later by the user through the implemented management-page password-change function. CODEX-01 remains superseded without execution.
 
 Decision: `docs/decisions/shared-admin-password-mode.md`.
 Plan: `docs/planning/work0028-shared-admin-password.md`.
