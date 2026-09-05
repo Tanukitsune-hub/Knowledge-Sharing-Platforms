@@ -1,17 +1,15 @@
 # Work 0026 report
 
-WORK_ID: `0026`
-ACTIVE_DISPATCH_ID: `N/A`
-BALL: `NONE`
+WORK_ID: `0026`  
+ACTIVE_DISPATCH_ID: `N/A`  
+BALL: `NONE`  
 STATUS: `ACCEPTED`
 
 ## Accepted outcome
 
 Work 0026 is complete and merged through PR `#36`.
 
-The optional Gemini route was updated to the current bounded model/File Search/model-policy contract, the modular Web App template regression was repaired, and the unsafe generic failure classification was replaced with a safe decision table that keeps application failures distinct from external/provider failures.
-
-The final bounded runtime result is:
+The optional Gemini route was updated to the then-current bounded model/File Search/model-policy contract, the modular Web App template regression was repaired, and unsafe generic application failures were prevented from being relabeled as external limitations.
 
 ```text
 PR_36: MERGED
@@ -19,14 +17,12 @@ MERGE_COMMIT: 40bb7d40506c0839c35742ee0000d89650ff7ad6
 PRIVATE_WEB_APP_VERSION: 70
 ROOT_AND_KNOWLEDGE_SHELL: PASS
 GEMINI_OPTIONAL_PROVIDER_STATUS: DISABLED_EXTERNAL_LIMITATION
-EXACT_EXTERNAL_LIMITATION: HTTP_OR_CREDENTIAL_FAILURE
+HISTORICAL_CALL_CLASS: HTTP_OR_CREDENTIAL_FAILURE
 NORMAL_USER_GEMINI_ROUTE_VISIBLE: NO
 OPENAI_ACCEPTED_PATH: PRESERVED
 FULL_OUTPUT_API_INDEPENDENCE: PRESERVED
 BLOCKER: NONE
 ```
-
-Gemini remains disabled and hidden. OpenAI and API-independent FULL_OUTPUT remain the production-capable routes. Work 0026 does not claim that Gemini File Search is operational.
 
 ## Acceptance evidence
 
@@ -41,7 +37,7 @@ KNOWLEDGE_PAGE_RENDER_AND_BOOTSTRAP: PASS
 LITERAL_INCLUDE_DIRECTIVES: 0
 BLOCKING_BROWSER_CONSOLE_ERRORS: 0
 VERSION_67_DEPLOYED: NO
-VERSION_71_OR_HIGHER_CREATED: NO
+VERSION_71_OR_HIGHER_CREATED_IN_WORK_0026: NO
 ```
 
 ### Source/provider integrity
@@ -50,8 +46,6 @@ VERSION_71_OR_HIGHER_CREATED: NO
 DOC-000017_EXACT_GEMINI_DOCUMENTS: 1
 MTG-000005_EXACT_GEMINI_DOCUMENTS: 1
 GEMINI_DOCUMENT_DUPLICATES: 0
-GEMINI_SOURCE_SYNC_OR_UPLOAD_IN_CODEX_03: 0
-GEMINI_STORE_CREATE_IN_CODEX_03: 0
 OPENAI_API_CALLED_IN_CODEX_03: NO
 FULL_OUTPUT_RUNTIME_CALLED_IN_CODEX_03: NO
 NO_CROSS_PROVIDER_FALLBACK: PASS
@@ -59,9 +53,7 @@ NO_CROSS_PROVIDER_FALLBACK: PASS
 
 ### Safe failure classification
 
-The final implementation distinguishes HTTP/credential, model/access, provider-terminal, no-grounded-answer, no-file-citation, citation identity/metadata mismatch, and response-shape/application failures.
-
-Unknown and application failures cannot write `DISABLED_EXTERNAL_LIMITATION`.
+Work 0026 distinguishes provider/HTTP failure, model/access, provider-terminal, no-grounded-answer, no-file-citation, citation identity/metadata mismatch, and response-shape/application failures. Unknown and application failures cannot write `DISABLED_EXTERNAL_LIMITATION`.
 
 ```text
 FAILURE_CLASSIFICATION_REPAIR: PASS
@@ -71,8 +63,7 @@ PRIMARY_THINKING: explicit low
 PRIMARY_MAX_OUTPUT_TOKENS: 2048
 PRIMARY_TRANSPORT: Interactions + File Search
 GEMINI_QUERY_CALLS: 1
-PRIMARY_3_8_INTERACTIONS_CLASS: HTTP_OR_CREDENTIAL_FAILURE
-SECOND_CONTROL: NOT_USED
+HISTORICAL_CALL_CLASS: HTTP_OR_CREDENTIAL_FAILURE
 ```
 
 ### Deterministic validation
@@ -84,34 +75,42 @@ LOGIC_VALIDATION: PASS / 420 of 420
 AGENT_FOUNDATION: PASS
 BUNDLE_REPRODUCIBILITY: PASS
 GIT_DIFF_CHECK: PASS
-BUNDLE_BYTES: 993499
-BUNDLE_SHA256: 5c53b811fb84be249cf0d5e557a3728e5f92e1ef1393ef20e45103796a4089b2
 UNRESOLVED_REVIEW_THREADS: 0
-GITHUB_CI_ACTUALLY_RAN: NO / non-blocking because CI is not configured for this head
+GITHUB_CI_ACTUALLY_RAN: NO / non-blocking because CI was not configured
 ```
 
-## Residuals
+## Post-acceptance evidence and superseding diagnosis
 
-### FIX SOON
+A later user-supplied independent diagnostic ran from company Google Apps Script and established:
 
-- GitHub CI remains absent.
-- Automated Chrome native file selection remains an external tooling limitation.
+```text
+MODELS_API: HTTP 200
+GEMINI_3_8_MODEL_VISIBLE: YES
+GEMINI_3_8_INTERACTIONS: HTTP 200 PASS twice
+GENERATE_CONTENT: HTTP 200 observed
+GENERATE_CONTENT_HIGH_DEMAND: HTTP 503 UNAVAILABLE observed
+FILE_SEARCH_STORE_CREATE_DELETE: HTTP 200
+API_KEY_AND_BASIC_AUTH: operational
+COMPANY_GAS_NETWORK_PATH: operational
+```
 
-### DEFERRED / next product phase
+Therefore the Work 0026 string `HTTP_OR_CREDENTIAL_FAILURE` must not be used as a continuing conclusion that the API key, company GAS network path, or target model is generally unavailable.
 
-- representative large-file indexing qualification;
-- historical-material migration;
-- final company Shared Drive/domain-user/provider credential qualification and rollout.
+The Work 0026 call failure remains valid historical evidence. Its general causal interpretation is superseded by Work 0027, which separates authentication from provider-transient capacity and requalifies the full File Search path.
 
-These residuals do not reopen Work 0026.
+This addendum does not reopen Work 0026's completion latch. It preserves the accepted shell, source-integrity, fail-closed and application-safety evidence.
 
-Detailed final runtime report:
+## Follow-up
 
-`docs/handoffs/0026-CODEX-03-gemini-failure-classification-and-bounded-requalification-report.md`
+Active successor:
 
-Completion latch is closed. Future Gemini requalification requires materially new evidence and a new bounded Work/follow-up rather than another 0026 Dispatch.
+`Work 0027 — Gemini GAS File Search resilience and end-to-end qualification`
 
-WORK_ID: `0026`
-ACTIVE_DISPATCH_ID: `N/A`
-BALL: `NONE`
+Decision:
+
+`docs/decisions/gemini-gas-runtime-evidence-and-transient-resilience.md`
+
+WORK_ID: `0026`  
+ACTIVE_DISPATCH_ID: `N/A`  
+BALL: `NONE`  
 STATUS: `ACCEPTED`

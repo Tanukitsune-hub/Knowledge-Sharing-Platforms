@@ -90,17 +90,67 @@ function kspBuildInteractionRequest_(params) {
   };
 }
 
+function kspNormalizeCitationMetadataIdentity_(metadata) {
+  var raw = metadata || [];
+  var containerValid = Array.isArray(raw) || Boolean(raw && typeof raw === 'object');
+  var values = containerValid ? kspMetadataArrayToMap_(raw) : {};
+  var identityKeys = { source_type: true, source_id: true, content_hash: true };
+  var seen = {};
+  var conflicting = false;
+  var invalid = !containerValid;
+
+  if (Array.isArray(raw)) {
+    raw.forEach(function (entry) {
+      var key = kspAiTrim_(entry && entry.key);
+      if (!identityKeys[key]) return;
+      var value = entry && entry.stringValue;
+      if (value === undefined) value = entry && entry.string_value;
+      if (typeof value !== 'string' || !kspAiTrim_(value)) {
+        invalid = true;
+        return;
+      }
+      value = kspAiTrim_(value);
+      if (seen[key] !== undefined && seen[key] !== value) conflicting = true;
+      seen[key] = value;
+    });
+  } else if (raw && typeof raw === 'object') {
+    Object.keys(identityKeys).forEach(function (key) {
+      if (!Object.prototype.hasOwnProperty.call(raw, key)) return;
+      if (typeof raw[key] !== 'string' || !kspAiTrim_(raw[key])) invalid = true;
+      else seen[key] = kspAiTrim_(raw[key]);
+    });
+  } else {
+    invalid = true;
+  }
+
+  Object.keys(identityKeys).forEach(function (key) {
+    if (seen[key] !== undefined) values[key] = seen[key];
+  });
+  return {
+    metadata: values,
+    valid: !invalid && !conflicting,
+    complete: Object.keys(identityKeys).every(function (key) { return Boolean(seen[key]); }),
+    conflicting: conflicting
+  };
+}
+
 function kspNormalizeCitationAnnotation_(annotation) {
   var value = annotation || {};
-  var type = kspAiTrim_(value.type || 'file_citation');
-  if (type && type !== 'file_citation') return null;
-  var metadata = kspMetadataArrayToMap_(value.customMetadata || value.custom_metadata || []);
+  var type = kspAiTrim_(value.type);
+  if (type !== 'file_citation') return null;
+  var rawMetadata = value.customMetadata || value.custom_metadata || [];
+  var metadataIdentity = kspNormalizeCitationMetadataIdentity_(rawMetadata);
   return {
     type: 'file_citation',
     fileName: kspAiTrim_(value.fileName || value.file_name),
     source: kspAiTrim_(value.source),
+    documentUri: kspAiTrim_(value.documentUri || value.document_uri),
     pageNumber: Number(value.pageNumber || value.page_number || 0) || null,
-    metadata: metadata
+    metadata: metadataIdentity.metadata,
+    rawMetadata: kspDeepClone_(rawMetadata),
+    metadataIdentityValid: metadataIdentity.valid,
+    metadataIdentityComplete: metadataIdentity.complete,
+    metadataIdentityConflicting: metadataIdentity.conflicting
   };
 }
 
@@ -118,14 +168,6 @@ function kspParseInteractionResponse_(response) {
         if (normalized) citations.push(normalized);
       });
     });
-  });
-  var seen = {};
-  citations = citations.filter(function (citation) {
-    var sourceId = kspAiTrim_(citation.metadata.source_id);
-    var key = sourceId || [citation.fileName, citation.source, citation.pageNumber || ''].join('|');
-    if (seen[key]) return false;
-    seen[key] = true;
-    return true;
   });
   return {
     answer: answerParts.join('\n').trim(),

@@ -2,17 +2,17 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 6,
-  "source_git_commit": "5a858934f6b919751720225f0fdbd55f1a1d9983",
+  "source_git_commit": "aa55bbac75a3b97c58df513d2c0465a2c7fde505",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "97e8640e91a3d8e6b211ee8a4c94f8a0a2944042d93b4b2e677dfb58354c56cc",
-  "bundle_file_sha256": "5c53b811fb84be249cf0d5e557a3728e5f92e1ef1393ef20e45103796a4089b2",
+  "bundle_payload_sha256": "80031853af5eafc1e3e48008459d77f82d13a47163f7f5c8d043d40210afbb62",
+  "bundle_file_sha256": "c1b1496ac32c54c21255a38b9ea957809ceffdd473d5bf6781b2450c1d2bf6a2",
   "source_manifest_sha256": "ac17af72f807a89a162f82f3da5d7a2bcf3f14404acd59f9d0316ae9ae413dfa",
   "source_order_sha256": "35bebf16094d45474dfb99f2a5b7db22c191fc51b6536cc0ba20eb0c796eb6b9",
   "bundle_metrics": {
-    "bytes": 993499,
-    "characters": 958735,
-    "lines": 16539,
+    "bytes": 1072244,
+    "characters": 1036946,
+    "lines": 18173,
     "server_source_count": 59,
     "embedded_html_count": 22
   },
@@ -189,8 +189,8 @@
     },
     {
       "file": "src/130_AiConstants.gs",
-      "bytes": 8582,
-      "sha256": "fa14c8b6a890320729053c18d553f5d65d01da7c78a4cf299835935e88981aa2"
+      "bytes": 8831,
+      "sha256": "04730d228755f259b01e48c155cfaae604975dca99b46a28a43e54087650fb46"
     },
     {
       "file": "src/131_AiFileSearchContracts.gs",
@@ -199,8 +199,8 @@
     },
     {
       "file": "src/132_AiKnowledgeContracts.gs",
-      "bytes": 8151,
-      "sha256": "2a1f6e1797f7a5d93e5a88f3202bd5d164fb5707901758689e8f503b5bcf598d"
+      "bytes": 9745,
+      "sha256": "dad202a2c5a74e9aae48a48c6d7a5f64da9d24e637c04ffbe675255a58494766"
     },
     {
       "file": "src/133_AiRetryContracts.gs",
@@ -209,8 +209,8 @@
     },
     {
       "file": "src/134_AiModelPolicyContracts.gs",
-      "bytes": 24993,
-      "sha256": "0f1d7ff95d1f38dd2a61eb78df3864afda4b5b1d6927c38398cfcf3e90e14d1f"
+      "bytes": 25035,
+      "sha256": "54168857b6547cc4caba66ab095d9d43e448989c9ab7ea6a6be07ef5a8a904a2"
     },
     {
       "file": "src/140_AiSourceModels.gs",
@@ -229,8 +229,8 @@
     },
     {
       "file": "src/150_KnowledgeSearchModels.gs",
-      "bytes": 17157,
-      "sha256": "afabd18325126dafc6b233a0227f4c710006a8c9b10ff57ae325d68771f22e3b"
+      "bytes": 27493,
+      "sha256": "46eea0862c09a01374538a06b71a851e6cbf052e35f4dc27c3a38ade70991d12"
     },
     {
       "file": "src/151_KnowledgeSearchService.gs",
@@ -259,13 +259,13 @@
     },
     {
       "file": "src/160_AiEnvironment.gs",
-      "bytes": 6909,
-      "sha256": "4e7d8513e96fec9d90dd5fb622e59b29922a781e2ec8df419292413fa9cb19d0"
+      "bytes": 8245,
+      "sha256": "5176e2b7c0b5dfee7e2fb7bf3b01f13e8abc586ac906bb0e515bdb017519c1a9"
     },
     {
       "file": "src/161_GeminiRestClient.gs",
-      "bytes": 30048,
-      "sha256": "5c5c87271a40e1a54e438466106f4eb53f347d05ba50a402d3ff648d671bf8d8"
+      "bytes": 39998,
+      "sha256": "be3c185a89033fd4d5768d4f2b960c3858dddbcaeca3cd08485b60a9ca6b453f"
     },
     {
       "file": "src/162_AiLiveDataAdapters.gs",
@@ -279,13 +279,13 @@
     },
     {
       "file": "src/164_AiProviderCore.gs",
-      "bytes": 90956,
-      "sha256": "4e0f34faf0328db39ea3f4ccb3107c1a8aef24a57730e15424a1d4c5e63845c7"
+      "bytes": 91327,
+      "sha256": "8b556319abb9db5a2ba247bbfa04b07378baa30aa7dfa75bcf447cc5c9dcdce2"
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
-      "bytes": 64790,
-      "sha256": "441d17e96b0574de86e802206f4fe944c098c90c87f064adfc3c9ee7d2beaf0c"
+      "bytes": 119657,
+      "sha256": "539076023fcf45757f4a733c0a636cc433135078c55f1d7c5bf5476bb3b7d0ba"
     },
     {
       "file": "src/170_AiEntryPoints.gs",

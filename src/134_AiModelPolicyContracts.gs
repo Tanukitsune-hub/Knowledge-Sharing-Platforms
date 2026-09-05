@@ -82,7 +82,8 @@ function kspAiModelPolicyProfile_(raw) {
     return normalized;
   });
   if (provider === KSP_AI_PROVIDERS.GEMINI &&
-      (modelId === 'gemini-3.8-flash' || modelId === 'gemini-3.7-flash')) {
+      (modelId === 'gemini-3.8-flash' || modelId === 'gemini-3.7-flash' ||
+        modelId === 'gemini-3.6-flash')) {
     thinkingProfiles.forEach(function (thinking) {
       if (!thinking.providerDefault) {
         kspAiModelPolicyAssert_(['low', 'medium', 'high'].indexOf(String(thinking.rawValue).toLowerCase()) !== -1,

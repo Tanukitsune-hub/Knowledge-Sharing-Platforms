@@ -17,6 +17,18 @@ function providerQueueRow(sourceType, sourceId, updatedAt, overrides = {}) {
 
 function createResumableQueryEnvironment(options = {}) {
   const env = createSyncEnvironment();
+  const geminiContentHash = 'gemini-current-content-hash';
+  const geminiDocument = {
+    name: 'fileSearchStores/store-synthetic/documents/current',
+    state: 'ACTIVE',
+    customMetadata: {
+      source_type: 'Pitchbook', source_id: 'DOC-000001', content_hash: geminiContentHash
+    }
+  };
+  env._debug.context.pitchbookRows[0].AI_Provider_State_JSON = JSON.stringify({ stateVersion: 1, GEMINI: {
+    status: 'Indexed', documentName: geminiDocument.name,
+    storeName: 'fileSearchStores/store-synthetic', contentHash: geminiContentHash
+  } });
   env._debug.context.settings.GEMINI_ENABLED = 'true';
   env._debug.context.settings.GEMINI_DEFAULT_MODEL = 'gemini-3.8-flash';
   env._debug.context.settings.AI_MODEL_POLICY_JSON = JSON.stringify({
@@ -68,6 +80,12 @@ function createResumableQueryEnvironment(options = {}) {
     if (next instanceof Error) throw next;
     return next || { status: 'in_progress' };
   };
+  env.findProviderDocumentsBySource = (provider, config, sourceType, sourceId) => {
+    assert.equal(provider, 'GEMINI');
+    assert.equal(config.storeName, 'fileSearchStores/store-synthetic');
+    return sourceType === 'Pitchbook' && sourceId === 'DOC-000001' ? [plain(geminiDocument)] : [];
+  };
+  env.readProviderDocument = () => plain(geminiDocument);
   env._resumable = {
     cache, calls,
     setActor(value) { actor = value; }
@@ -95,9 +113,11 @@ function completedPitchbookInteraction() {
     status: 'completed',
     usage: { input_tokens: 12, output_tokens: 8, thought_tokens: 2, tool_use_tokens: 3, cached_tokens: 1 },
     steps: [{ type: 'model_output', content: [{ type: 'text', text: 'Grounded Pitchbook answer', annotations: [{
-      type: 'file_citation', source: 'provider-document-private', custom_metadata: [
+      type: 'file_citation', source: 'Grounded synthetic excerpt.',
+      document_uri: 'fileSearchStores/store-synthetic', custom_metadata: [
         { key: 'source_type', string_value: 'Pitchbook' },
-        { key: 'source_id', string_value: 'DOC-000001' }
+        { key: 'source_id', string_value: 'DOC-000001' },
+        { key: 'content_hash', string_value: 'gemini-current-content-hash' }
       ]
     }] }] }]
   };
@@ -453,6 +473,26 @@ test('Gemini START returns one opaque pending token without polling or Audit', (
     assert.equal(pendingState.interactionId, 'interaction-private');
     assert.equal(Object.hasOwn(pendingState, 'question'), false);
     assert.equal(Object.hasOwn(pendingState, 'questionOrInstruction'), false);
+  });
+});
+
+test('normal Knowledge Search never falls back to another Gemini model after a provider failure', () => {
+  withSyntheticUuid(() => {
+    const env = createResumableQueryEnvironment();
+    const attemptedModels = [];
+    env.startQueryProvider = (provider, config) => {
+      attemptedModels.push(config.modelId);
+      const error = new Error('PRIVATE_PROVIDER_FAILURE');
+      error.code = 'AI_QUERY_HTTP_FAILED';
+      error.httpStatus = 503;
+      throw error;
+    };
+    const result = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'GEMINI', {
+      mode: '自由質問', questionOrInstruction: 'synthetic question'
+    }));
+    assert.equal(result.ok, false);
+    assert.deepEqual(attemptedModels, ['gemini-3.8-flash']);
+    assert.doesNotMatch(JSON.stringify(result), /PRIVATE_PROVIDER_FAILURE/);
   });
 });
 

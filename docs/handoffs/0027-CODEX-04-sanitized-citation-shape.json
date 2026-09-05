@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "SANITIZED_SHAPE_FAITHFUL_CODEX_02_INTERACTION",
+  "sanitization": {
+    "all_resource_values_are_fictitious": true,
+    "original_ids_urls_prompts_tokens_and_source_text_are_absent": true,
+    "relationships_and_provider_field_types_match_the_observed_response": true
+  },
+  "request": {
+    "file_search_store_names": ["fileSearchStores/fixture-store"],
+    "metadata_filter": {
+      "source_type": "Pitchbook",
+      "source_id": "SYNTHETIC-SOURCE-001"
+    }
+  },
+  "response": {
+    "status": "completed",
+    "interaction_id_present": true,
+    "steps": [
+      {"type": "file_search_call"},
+      {"type": "file_search_result"},
+      {
+        "type": "model_output",
+        "content": [{
+          "type": "text",
+          "text": "Fictitious grounded answer.",
+          "annotations": [
+            {
+              "type": "file_citation",
+              "start_index": 0,
+              "end_index": 10,
+              "document_uri": "fileSearchStores/fixture-store",
+              "file_name": "synthetic-source.txt",
+              "source": "Synthetic evidence chunk.\n",
+              "custom_metadata": {
+                "source_type": "Pitchbook",
+                "source_id": "SYNTHETIC-SOURCE-001",
+                "content_hash": "8c84152b23eb1e0c6005bb75ddd6bca69cbccd38210d2508e376f6ae75cd14c9"
+              }
+            },
+            {
+              "type": "file_citation",
+              "start_index": 12,
+              "end_index": 22,
+              "document_uri": "fileSearchStores/fixture-store",
+              "file_name": "synthetic-source.txt",
+              "source": "Synthetic evidence chunk.\n",
+              "custom_metadata": {
+                "source_type": "Pitchbook",
+                "source_id": "SYNTHETIC-SOURCE-001",
+                "content_hash": "8c84152b23eb1e0c6005bb75ddd6bca69cbccd38210d2508e376f6ae75cd14c9"
+              }
+            },
+            {
+              "type": "file_citation",
+              "start_index": 24,
+              "end_index": 34,
+              "document_uri": "fileSearchStores/fixture-store",
+              "file_name": "synthetic-source.txt",
+              "source": "Synthetic evidence chunk.\n",
+              "custom_metadata": {
+                "source_type": "Pitchbook",
+                "source_id": "SYNTHETIC-SOURCE-001",
+                "content_hash": "8c84152b23eb1e0c6005bb75ddd6bca69cbccd38210d2508e376f6ae75cd14c9"
+              }
+            }
+          ]
+        }]
+      }
+    ]
+  },
+  "observed_relationships": {
+    "raw_annotation_count": 3,
+    "unique_exact_annotation_count": 1,
+    "all_annotation_types_are_file_citation": true,
+    "source_category": "CONTENT_TEXT",
+    "document_uri_category": "STORE",
+    "document_uri_equals_requested_store": true,
+    "provider_document_identity_present_in_response": false,
+    "source_type_matches_request_filter": true,
+    "source_id_matches_request_filter": true,
+    "content_hash_matches_source_after_one_trailing_newline_is_removed": true,
+    "file_name_present_but_not_authoritative_identity": true
+  },
+  "unavailable_evidence": {
+    "original_upload_readback_document_name": true
+  }
+}

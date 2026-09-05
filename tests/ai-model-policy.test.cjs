@@ -63,8 +63,8 @@ test('current OpenAI migration preserves the exact model and provider-default re
   assert.equal(Object.hasOwn(request, 'maxOutputTokens'), false);
 });
 
-test('Gemini 3.8 and 3.7 accept explicit low medium high and reject minimal', () => {
-  for (const modelId of ['gemini-3.8-flash', 'gemini-3.7-flash']) {
+test('Gemini 3.8, 3.7, and 3.6 accept explicit low medium high and reject minimal', () => {
+  for (const modelId of ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash']) {
     for (const level of ['low', 'medium', 'high']) {
       const normalized = plain(ksp.kspAiModelPolicyProfile_(profile({
         profileId: `gemini-${modelId.slice(7, 10).replace('.', '')}-${level}`,
