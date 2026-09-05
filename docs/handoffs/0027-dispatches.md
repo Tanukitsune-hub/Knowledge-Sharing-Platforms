@@ -1,102 +1,72 @@
 # Work 0027 dispatch control
 
 WORK_ID: 0027
-ACTIVE_DISPATCH_ID: 0027-CODEX-04
-BALL: CHATGPT
-STATUS: RETURNED
-MODE: INVESTIGATION
+ACTIVE_DISPATCH_ID: 0027-CODEX-05
+BALL: CODEX
+STATUS: READY
+MODE: BUILD
 
-## Current dispatch — returned investigation
+## Current dispatch — evidence-led repair
 
-`0027-CODEX-04` — read-only retained-response recovery, same-project quota preflight and compliant invocation-path review.
+`0027-CODEX-05` — shared strict Store/metadata citation resolver and one guarded 3.7 confirmation.
 
-Instruction: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`
-Report: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-report.md`
+Instruction: `docs/handoffs/0027-CODEX-05-strict-citation-resolver-instruction.md`
+Report: `docs/handoffs/0027-CODEX-05-strict-citation-resolver-report.md`
 
-CODEX-04 recovered the exact CODEX-02 stored Interaction through its retained correlation, identified the content-valued citation `source`, inspected same-project quota without a probe, and proved the existing guarded Web App administrator route. It made no product/runtime/provider mutation.
+Strategy reset from INVESTIGATION to BUILD: CODEX-04 recovered the required citation representation. No new diagnosis or model selection campaign is needed. source is content, document_uri is the Store, and exact custom metadata must resolve through trusted current source/document context. Shared qualification/normal mapping must reject conflicting, stale, inactive, wrong-Store or ambiguous identities.
 
 ```text
-MODEL_CONTEXT: gemini-3.7-flash / low / 2048
-CURRENT_RUNTIME: version 72 / unchanged by CODEX-03
+REVIEWED_CODEX_04_FINAL: 18226013d6f98a5cb2bffdf72ced52e766a8b698
+MODEL: gemini-3.7-flash / low / 2048 / Interactions + File Search
+CURRENT_RUNTIME: version 72
+CODEX_05_IMPLEMENTATION_AND_RUNTIME: NOT_RUN
 WORK_ACCEPTANCE: NOT_MET
-WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-RECOVERED_CITATION_SHAPE: source=CONTENT_TEXT / document_uri=STORE / exact custom_metadata present
-CODEX_03_429_QUOTA_CATEGORY: UNKNOWN
-CURRENT_VISIBLE_QUOTA: Free / 3.7 last-hour RPM 3 of 5 / TPM 394 of 250000 / RPD 3 of 20
-CODEX_04_EXECUTION: EVIDENCE_RECOVERED
-NEW_GENERATION_OR_MODELS_CALLS: 0
-STORE_DOCUMENT_MUTATIONS: 0
-APPS_SCRIPT_SOURCE_VERSION_DEPLOYMENT_MUTATIONS: 0
-BILLING_KEY_OR_SECURITY_CHANGES: 0
+BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 GEMINI: disabled / hidden
 ```
 
-The stored response was inspected in place and represented only by a sanitized shape fixture. Its ID, private project identity, prompt, token and raw content were not persisted. `interactions.get` was not called. The original upload/readback Document name was unavailable and was not reconstructed.
+## CODEX-05 authorization
+
+The detailed instruction is authoritative. One shared resolver repair, one logical File Search confirmation (<=2 generation HTTP attempts under existing replay/wait safeguards), one temporary Store/TXT, exact cleanup confirmation. No short generation, Models, other model, GenerateContent, OpenAI or FULL_OUTPUT live calls. No existing Store/business-source mutation. Fresh quota inspection is not a probe or permission to change billing/key. One final source delivery/readback, at most version 73 and one update of the same private Web App (72 -> 73); never deploy 67 or create 74+. No temporary diagnostic staging, handler interception or administrator-latch bypass.
+
+Only a live, independently bound QUALIFIED_DISABLED result meets Work acceptance. Tested code may be delivered with runtime confirmation pending if quota/authorization prevents the one confirmation; do not claim acceptance or discard useful tested repairs.
 
 ## Returned dispatch history
 
-### 0027-CODEX-03 — RETURNED / diagnostic provider failure, citation blocker retained
+### 0027-CODEX-04 — RETURNED / EVIDENCE_RECOVERED
 
-```text
-STARTING_REF: 11865c49b17c578713c3c1b4bc5c2307434d50e9
-FINAL_COMMIT: 745e34d8a04df4aaea8a9373775106b4b08b4523
-IMPLEMENTATION_COMMIT: NONE
-MODEL: gemini-3.7-flash / explicit low / 2048 / Interactions + File Search
-DIAGNOSTIC_HTTP: 429 / too_many_requests
-DIAGNOSTIC_ATTEMPTS_RETRIES: 2 / 1
-DIAGNOSTIC_CUMULATIVE_SLEEP_MS: 514
-DIAGNOSTIC_LATENCY_MS: 21825
-CITATION_SHAPE: NOT_OBSERVED
-TEMP_RESOURCE_CLEANUP: PASS (reported)
-MUTABLE_SOURCE_RESTORATION: PASS / 82 of 82 (reported)
-IMMUTABLE_VERSION_CREATED: NO
-WEB_APP_UPDATE: NO / version 72 unchanged
-WORK_ACCEPTANCE: NOT_MET
-BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-```
+Final: `18226013d6f98a5cb2bffdf72ced52e766a8b698`.
+
+Stored CODEX-02 response inspected in place; source CONTENT_TEXT, document_uri requested STORE, exact custom_metadata present, three equivalent raw annotations / one normalized citation. Original upload/readback Document name UNAVAILABLE. No generation, provider/resource/source/version/deployment/key/billing mutation. JSON/foundation/privacy/diff checks reported PASS. Guarded administrator Web App route available but not invoked. Free-tier quota snapshot at 2026-09-05 11:05 JST: RPM 3/5, TPM 394/250000, RPD 3/20. Earlier 429 category/reset UNKNOWN; snapshot is not current authorization or a capacity guarantee.
+
+Report: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-report.md`.
+Fixture: `docs/handoffs/0027-CODEX-04-sanitized-citation-shape.json`.
+
+### 0027-CODEX-03 — RETURNED / diagnostic blocked before citation
+
+Final: `745e34d8a04df4aaea8a9373775106b4b08b4523`. HTTP 429/too_many_requests, attempts 2/retry 1, sleep 514ms, latency 21825ms. No citation or repair/version/deployment. Temporary cleanup and mutable-source restoration 82/82 reported. A noncompliant temporary invocation-path modification was removed and excluded from acceptance; never repeat it.
 
 Report: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`.
 
-Controller review: the report discloses a noncompliant temporary invocation-path modification. It was removed and restoration reported; it is not qualification evidence. That route must not be repeated. CODEX-03 budgets expired on return, including the unused version-73/confirmation budget.
-
 ### 0027-CODEX-02 — RETURNED / citation identity blocker
 
-```text
-IMPLEMENTATION_COMMIT: acd3aa08a3ecc01a7b0852afef8f58202934af82
-FINAL_COMMIT: 0032a9cdb69cc1431566dee82f7e2c2196ddee50
-LOGIC_VALIDATION: PASS / 440 of 440
-BUNDLE_GATES: PASS / 27 of 27
-SOURCE_READBACK: PASS / 82 of 82
-PRIVATE_WEB_APP_VERSION: 72 / shell PASS
-SHORT_INTERACTIONS_3_7: HTTP 200 / 1470ms
-FILE_SEARCH_3_7: HTTP 200 / expected token PASS / file_citation 1
-QUERY_ATTEMPTS_RETRIES: 2 / 1
-QUERY_TOTAL_LATENCY_MS: 34992
-AUTHORITATIVE_METADATA_MATCH: FAIL
-GEMINI_3_6: NOT_RUN / STOP_DISALLOWED
-TEMP_RESOURCE_CLEANUP: PASS
-TERMINAL_OUTCOME: BLOCKED_PRODUCT_DEFECT
-```
+Implementation: `acd3aa08a3ecc01a7b0852afef8f58202934af82`.
+Final: `0032a9cdb69cc1431566dee82f7e2c2196ddee50`.
+Logic 440/440, bundle 27/27, readback 82/82, version-72 shell PASS. Short 3.7 Interactions HTTP 200 / 1470ms. File Search HTTP 200, token PASS, one normalized citation, attempts 2/retry 1, 34992ms; strict identity FAIL. 3.6 NOT_RUN as required; temporary cleanup PASS.
 
 Report: `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-report.md`.
 
 ### 0027-CODEX-01 — RETURNED / 3.8 transient query failure
 
-```text
-IMPLEMENTATION_COMMIT: d0456516cae5e65e68d5789e3e8e5338cffd6823
-FINAL_COMMIT: 2c6cd20bfe6a4ef3b6262160b4126266307222dd
-LOGIC_VALIDATION: PASS / 431 of 431
-PRIVATE_WEB_APP_VERSION: 71 / shell PASS
-MODELS_SHORT_INTERACTIONS_UPLOAD_INDEX_READBACK: PASS
-FILE_SEARCH_3_8: HTTP 500 / api_error / 68442ms
-TEMP_RESOURCE_CLEANUP: PASS
-```
+Implementation: `d0456516cae5e65e68d5789e3e8e5338cffd6823`.
+Final: `2c6cd20bfe6a4ef3b6262160b4126266307222dd`.
+Logic 431/431, version-71 shell, upload/index/readback and cleanup PASS. 3.8 File Search HTTP 500/api_error/68442ms; no grounded qualification.
 
 Report: `docs/handoffs/0027-CODEX-01-gemini-file-search-resilience-and-e2e-qualification-report.md`.
 
-Work 0026 remains ACCEPTED. CODEX-04 is returned. Any subsequent repair or runtime execution must use CODEX-05 with fresh authorization; all historical source/version/generation budgets remain expired.
+Work 0026 remains ACCEPTED. All old dispatch budgets expired. Only CODEX-05 is active. A native-user action within that run retains CODEX-05; a new execution after return must use CODEX-06.
 
 WORK_ID: 0027
-ACTIVE_DISPATCH_ID: 0027-CODEX-04
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: 0027-CODEX-05
+BALL: CODEX
+STATUS: READY

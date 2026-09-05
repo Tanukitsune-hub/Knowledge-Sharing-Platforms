@@ -18,7 +18,7 @@ Statuses: ACCEPTED (closed/merged evidence), ACTIVE (current implementation), RE
 | 2 | 0021 | Structured search, five modes, multi-Entity, six formats | ACCEPTED | 0025 | Preserve PR #34 and version-66 evidence |
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36; coarse failure is historical only |
-| 5 | 0027 | Personal-DEV Gemini File Search baseline | ACTIVE | Citation blocker retained; evidence recovered | Prepare CODEX-05 exact resolver repair and one guarded confirmation |
+| 5 | 0027 | Personal-DEV Gemini File Search baseline | ACTIVE | CODEX-04 evidence recovered; citation blocker retained | Execute CODEX-05 shared strict resolver repair and one guarded confirmation |
 | 6 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic provider path qualified | Allocate separate Work |
 | 7 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 8 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -49,23 +49,25 @@ CODEX-02 final ref `0032a9cdb69cc1431566dee82f7e2c2196ddee50`, implementation `a
 
 CODEX-03 final ref `745e34d8a04df4aaea8a9373775106b4b08b4523`: diagnostic HTTP 429/too_many_requests before citation, attempts 2/retries 1, sleep 514ms, latency 21825ms. No product source repair, version or deployment. Cleanup and source restoration 82/82 reported. Temporary invocation-path modification was noncompliant, removed and excluded from qualification evidence.
 
+CODEX-04 final ref `18226013d6f98a5cb2bffdf72ced52e766a8b698`: exact stored response recovered; source CONTENT_TEXT, document_uri STORE, exact custom_metadata present. Original upload/readback Document name remains unavailable. Quota snapshot showed headroom at observation, not a guarantee; exact previous 429 category/reset UNKNOWN. Guarded administrator route available, not invoked. No src/tests/dist/provider/runtime mutation. Evidence accepted for diagnosis only.
+
 ```text
-CURRENT_DISPATCH: 0027-CODEX-04 / RETURNED
-MODE: INVESTIGATION
-BALL: CHATGPT
-STATUS: RETURNED
+CURRENT_DISPATCH: 0027-CODEX-05
+MODE: BUILD
+BALL: CODEX
+STATUS: READY
 WORK_ACCEPTANCE: NOT_MET
 BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 RECOVERED_MISMATCH: SOURCE_CONTENT_IS_NOT_PROVIDER_DOCUMENT_IDENTITY
-CODEX_03_429_QUOTA_CATEGORY: UNKNOWN
-MODEL_CONTEXT: gemini-3.7-flash / low / 2048
-NEW_GENERATION_AND_RUNTIME_MUTATIONS_AUTHORIZED: 0
+MODEL: gemini-3.7-flash / low / 2048
+CURRENT_RUNTIME: version 72
+CODEX_05_IMPLEMENTATION_AND_CONFIRMATION: NOT_RUN
 PR_37: Draft / Open / unmerged
 ```
 
-CODEX-04 recovered the exact stored CODEX-02 response and confirmed `source` is content text, `document_uri` is the Store, and exact metadata is present. Same-project last-hour quota showed headroom, while the earlier 429 category/reset remains UNKNOWN. The normal guarded Web App administrator route is available. No generation, Store, source, version, deployment, billing or credential mutation occurred. See the CODEX-04 report and sanitized fixture. Prior budgets remain expired; any continuation is CODEX-05.
+Strategy reset: evidence recovery is complete; no further blind diagnostic/model campaign. CODEX-05 will implement one strict shared Store/metadata/current-document/authoritative-source resolver and perform one guarded confirmation, subject to fresh quota and exact runtime identity. Full bounds: `docs/handoffs/0027-CODEX-05-strict-citation-resolver-instruction.md`.
 
-Only a correctly grounded QUALIFIED_DISABLED result with cleanup meets Work acceptance. A read-only investigation result does not qualify Gemini. CI absence is FIX SOON, not a blocker by itself. Personal-DEV reference behavior is not company readiness.
+Only a correctly grounded QUALIFIED_DISABLED result with cleanup meets Work acceptance. A read-only investigation or test-only repair does not qualify Gemini. CI absence is FIX SOON, not a blocker by itself. Personal-DEV reference behavior is not company readiness.
 
 ## Scope discipline
 

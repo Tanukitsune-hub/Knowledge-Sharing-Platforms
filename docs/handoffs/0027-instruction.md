@@ -1,47 +1,43 @@
 # Work 0027 instruction
 
 WORK_ID: 0027
-DISPATCH_ID: 0027-CODEX-04
-BALL: CHATGPT
-STATUS: RETURNED
-MODE: INVESTIGATION
+DISPATCH_ID: 0027-CODEX-05
+BALL: CODEX
+STATUS: READY
+MODE: BUILD
 
 ## Primary outcome
 
-Make personal-DEV Gemini File Search return an answer with an authoritative current source citation before company qualification. CODEX-02 already returned a 3.7 answer and one file_citation, but identity/metadata matching failed. This Work is not accepted.
+Make personal-DEV Gemini File Search return an answer with an authoritative current source citation before company qualification. Model novelty is not required. Gemini remains disabled/hidden until controller review.
 
 ## Current execution contract
 
-`docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`
+`docs/handoffs/0027-CODEX-05-strict-citation-resolver-instruction.md`
 
 Current ball: `docs/handoffs/0027-dispatches.md`.
 Current result: `docs/handoffs/0027-report.md`.
 
-Read root/nearest AGENTS, CODEX-02/03 reports, Work plan and runtime locator. CODEX-04 replaces the expired CODEX-03 execution authority; it does not inherit unused generation, staging or version budgets.
+Read applicable AGENTS and deployment policy. CODEX-05 replaces expired CODEX-04 authority; no old unused budget carries over.
 
-## Preserved evidence
+## Closed evidence
 
-- Work 0026 remains accepted for its observed safety boundary, not successful Gemini search.
-- CODEX-01 transport/retry/upload and cleanup evidence is retained.
-- CODEX-02: reported 440/440 checks, 82/82 readback, version-72 shell PASS; 3.7 HTTP 200 with token and one citation; strict identity/metadata FAIL; 3.6 not called; cleanup PASS.
-- CODEX-03: HTTP 429/too_many_requests, attempts 2/retry 1, cumulative sleep 514ms, latency 21825ms; no citation shape, implementation or deployment; source restoration reported 82/82.
-- CODEX-03's temporary invocation modification violated its instruction and is not acceptance evidence. Do not repeat it.
+Work 0026 safety, CODEX-01 retry/upload recovery, accepted OpenAI/FULL_OUTPUT and installer boundaries remain preserved. CODEX-02 returned a 3.7 answer and citation but failed identity matching; its 440/440 tests, 82/82 readback and version-72 shell are historical evidence, not post-repair validation.
 
-## Returned investigation result
+CODEX-04 final `18226013d6f98a5cb2bffdf72ced52e766a8b698` recovered the exact stored response. source is content text, document_uri is the requested Store, and source_type/source_id/content_hash are in object custom_metadata. The existing source-equals-Document-name predicate rejects that shape. The old upload/readback Document name remains UNAVAILABLE and must not be reconstructed.
 
-The exact CODEX-02 response was recovered from the same-project AI Studio Interaction log. `source` is content text, `document_uri` is the requested Store, and exact `source_type`, `source_id` and `content_hash` are in `custom_metadata`. This establishes that the qualification matcher's `citation.source === documentValue.name` condition is the mismatch. The original upload/readback Document name itself was not retained and was not reconstructed.
+The CODEX-04 fixture/report are sufficient to start implementation. Do not repeat diagnosis, switch models or hash returned excerpts as a replacement for authoritative identity. Its historical Free-tier quota snapshot does not prove the earlier 429 cause or future headroom.
 
-Same-project AI Studio quota showed Free tier and current last-hour headroom, while its 28-day view contained a historical RPM peak above the limit. The exact quota category behind CODEX-03's 429 remains UNKNOWN because no Retry-After, quota metric or reset value was retained.
+## Decided repair
 
-The compliant future route is the existing version-72 private Web App's enabled administrator `接続・File Search確認` action through the guarded facade. It was observed but not invoked. No monkey-patch or latch bypass is needed.
+Preserve document_uri as a separate scope field. Resolve Store + exact metadata through one current Active provider document and the authorized authoritative source/current Gemini hash. Use one shared strict resolver in qualification and normal immediate/polled search. Validate before deduplicating; equivalent repeated annotations may collapse, conflicting identities must not disappear. Keep output links authoritative and OpenAI mapping unchanged.
+
+Implement and test first. Then, with a fresh same-project quota check and the existing guarded Web App administrator route, perform one synthetic 3.7/low/2048 confirmation. Use no Models/short generation/other model/transport probe. One Store/TXT; finally cleanup and confirmation; one source delivery, at most version 73 and same-private-Web-App update. No handler monkey-patch or authorization bypass.
 
 ## Completion
 
-CODEX-04 completed with `EVIDENCE_RECOVERED`, zero generation/runtime mutation, and the sanitized fixture/report. This is not Work acceptance. The exact blocker remains `GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH` until an authorized CODEX-05 repair and bounded qualification pass.
-
-Only a later authorized evidence-led repair plus end-to-end qualification can establish QUALIFIED_DISABLED. Keep Gemini disabled/hidden and PR #37 Draft/Open/unmerged. Version 72 remains deployed.
+Only correctly bound live QUALIFIED_DISABLED with shared mapping parity, source/runtime evidence, cleanup and required tests satisfies acceptance. An implementation blocked by runtime quota remains delivered but not qualified; report the precise pending gate. Keep PR #37 Draft/Open/unmerged. Do not activate Gemini or merge.
 
 WORK_ID: 0027
-DISPATCH_ID: 0027-CODEX-04
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0027-CODEX-05
+BALL: CODEX
+STATUS: READY
