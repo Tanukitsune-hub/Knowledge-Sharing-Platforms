@@ -28,6 +28,7 @@ BLOCKER: NONE
 
 ```text
 LATEST_MAIN_AT_START: e90d6f31205249b6de7720896708cdef3e0ba212
+LATEST_MAIN_AT_FINAL: fc6fa481a70f301d4afc94da7fe3bbd0781e7a57
 EXACT_STARTING_REF: 91d1af5a5fcda2bd1a3293cc7512d0f8c35df72e
 PRESERVED_IMPLEMENTATION_SOURCE: af96c145e999ac7bed9d7aa4862e41b87ad17c82
 PRESERVED_OLD_FINAL_HEAD: c058dc7c5498555dc303bbb60d43725755353874
@@ -40,6 +41,8 @@ PR_38: superseded / Closed / unmerged
 ```
 
 The validated donor changed twelve product/test files. The canonical port matches that implementation exactly except for six shared-admin-specific response/test Work-ID values corrected from 0028 to 0029. No unrelated historical Work ID was changed. Distribution artifacts were regenerated from the canonical implementation commit rather than copied from the superseded branch.
+
+While final verification was running, `origin/main` advanced through three Work 0028 documentation-only commits. They were merged normally without rebase or history rewriting. The sole registry conflict was resolved by retaining the latest-main Work 0028 row, planning status and full design boundary verbatim, then adding the Work 0029 completion row and collision-recovery section. No source, test, bundle or deployed runtime content changed in that reconciliation.
 
 ## Deterministic validation
 

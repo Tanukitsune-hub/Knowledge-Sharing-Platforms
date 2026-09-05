@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement and terminology simplification without backend redesign | ACTIVE | 0027 accepted baseline | Produce three comparable mocks and select a direction before source implementation |
+| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design planning only) | 0027 accepted baseline | Plan published; next complete inventory and three Light mocks, user selection, selected Dark mock; no execution authorization |
 | 7 | 0029 | Portable shared-password administrator mode | READY | Work 0028 preserved; canonical port and version-75 smoke passed | Final review and merge PR #39 |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -64,18 +64,22 @@ The optional sanitized Audit persistence gap is `FIX_SOON`, not a blocker. Repre
 
 Work 0028 is a UI/UX refinement Work, not a system redesign.
 
-Phase A is design-only and has no Codex dispatch. It must compare three distinct visual directions over the same accepted functional surface before any `src/` edits or runtime changes.
+Current mode is INVESTIGATION with phase A / DESIGN ONLY. The planning update is complete; the Work and visual design are not accepted. No Codex dispatch exists. No mocks, production source changes or runtime changes were authorized by the planning-update request.
 
-The governing decision is `docs/decisions/ui-surface-language-and-backend-preservation.md` and the active brief is `docs/handoffs/0028-instruction.md`.
+The governing decision is `docs/decisions/ui-surface-language-and-backend-preservation.md`, the active brief is `docs/handoffs/0028-instruction.md`, and the research-backed delivery plan is `docs/planning/work0028-ui-ux-and-theme-plan.md`. Current ball/status remain authoritative in `docs/handoffs/0028-dispatches.md`.
 
 Key boundary:
 
-- preserve Work 0027 backend/data/provider/runtime semantics;
-- user-facing labels may differ from internal implementation terms;
-- normal-user `Inactive` behavior may surface as `削除`, with clear confirmation copy explaining retained/restorable data where material;
-- do not silently convert current ChatGPT/Gemini/全文出力 route semantics into automatic routing;
-- if a preferred mock would require backend redesign, alter the mock rather than the system unless a separate explicit product decision is made;
-- source implementation begins only after user design selection.
+- preserve Work 0027 backend/data/provider/runtime semantics, including the current disabled/hidden Gemini state;
+- user-facing labels may differ from internal implementation terms, but payload values and eligibility remain unchanged;
+- normal-user record `Inactive` behavior may surface as `削除`, with clear retained/restorable-data explanation;
+- do not silently convert ChatGPT/Gemini/全文出力 routes into automatic routing;
+- compare A/B/C Light mocks using identical capabilities, fixtures, revised terminology and policy states;
+- ChatGPT owns research, comparison and recommendation; the user selects a visible direction;
+- after Light selection, create only the selected Dark mock;
+- support System/Light/Dark through frontend tokens and isolated browser-local preference, not backend/account synchronization;
+- if a preferred mock requires backend redesign, alter the mock rather than the system;
+- source implementation and Codex dispatch require selected Light/Dark approval plus explicit implementation authorization; deployment remains separately scoped.
 
 ## Work 0029 collision recovery
 

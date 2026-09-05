@@ -1,91 +1,104 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
+DISPATCH_ID: N/A
 ACTIVE_DISPATCH_ID: NONE
 BALL: CHATGPT
-STATUS: ACTIVE
-MODE: DESIGN
+STATUS: READY
+MODE: INVESTIGATION
+PHASE: A / DESIGN ONLY
 
-## Outcome
+## Current ball and authorization
 
-Improve Knowledge Shareのデザイン、操作性、画面内の情報設計、表示文言を、既存システムの機能・backend・data contractsを大幅改修せずに改善する。
+ChatGPT owns the design/research/planning work. No Codex dispatch exists. `READY` means the plan is ready for the next design-only activity, not that an implementation or runtime is ready.
 
-このWorkはまずDESIGN phaseから開始する。最初に複数のmock directionを比較し、userが方向性を選ぶまでproduction source implementationは開始しない。
+The 2026-09-05 user request authorized refining the implementation plan and updating GitHub, including Light/Dark/System behavior. It did not authorize starting mocks, editing production source, running Codex, calling the runtime or deploying. The planning task is complete; there is no ongoing background run.
 
-## Governing decision
+The user's subsequent delegation of specialist decisions and uncertainty about the Work ID were resolved against the registry: this outcome remains Work 0028. Do not rename it, allocate a duplicate Work, reopen Work 0027, or interpret delegation as waiving the explicit visual-selection gate.
 
-`docs/decisions/ui-surface-language-and-backend-preservation.md`
+## Outcome and sources of truth
 
-Key constraints:
+Improve existing Knowledge Share design, navigation, information hierarchy, user-facing language and state/result/source presentation without major backend changes.
 
-- preserve accepted Work 0027 baseline;
-- no speculative backend/schema/provider/lifecycle redesign;
-- internal technical names do not bind user-facing labels;
-- normal-user language should describe intended user action and visible outcome;
-- `Inactive` may surface as `削除`, with confirmation copy explaining retained/restorable data where material;
-- existing ChatGPT / Gemini / 全文出力 route semantics remain truthful and are not silently converted into automatic routing;
-- prefer HTML/CSS/client-side presentation changes after design selection.
+- Decision: `docs/decisions/ui-surface-language-and-backend-preservation.md`
+- Design instruction: `docs/handoffs/0028-instruction.md`
+- Detailed plan, research and initial terminology inventory: `docs/planning/work0028-ui-ux-and-theme-plan.md`
+- Accepted dependency: `docs/handoffs/0027-dispatches.md`
 
-## Phase A — visual exploration
+Planning source baseline: `e90d6f31205249b6de7720896708cdef3e0ba212`.
 
-BALL: CHATGPT
-STATUS: ACTIVE
+Work 0027 is ACCEPTED, with the recorded qualified-disabled Gemini state. Do not reopen it or display Gemini as currently enabled merely for a design comparison.
 
-Deliver three deliberately distinct mock directions using the same existing product capabilities:
+## Planning reconciliation receipt — 2026-09-05
 
-1. Minimal / Search-forward
-2. Workspace / Notion-like
-3. Investment Dashboard
+The existing docs-only plan update at `bec1af7001e6756ff7a36dfbeee0f078de1a0d44` was retained rather than duplicated. Plan refinement `65bb2a5280a0bd232f25b0014e84da8c95af44c3` integrates bounded inspection across the 14 priority UI files and clarifies:
 
-Representative screens should cover at least:
+- Activity Analytics is `面談活動の集計`, not a new combined Meeting/Pitchbook or investment-performance dataset.
+- Existing full-output presentation is Meeting original text plus Pitchbook reference links; source/package restrictions and fingerprints stay unchanged.
+- The past-Meeting counterparty column may contain non-GP entities; its proposed label is `面談先`.
+- Relationship history preserves inactive/unresolved links. An existing navigation-only action must not be presented as opening a particular record for editing.
+- Theme storage is browser-local, not Google-account synchronization; actual GAS embedding remains a later verification item.
 
-- application shell / navigation / landing state;
-- Meeting/Pitchbook maintenance or past-record list with edit, delete, deleted-state and restore actions;
-- Knowledge Search request form and result/citation presentation.
+This is source-based planning evidence, not completed visual mocks, a full rendered audit, or runtime qualification. Remaining conditional surfaces are inventoried before A1.
 
-Also produce:
+## Closed conclusions
 
-- current-to-user-facing terminology map;
-- trade-off comparison;
-- scenario-based heuristic review because external user testing is not expected;
-- one recommended direction, without implementing it before user selection.
+- Preserve five-sheet/data/ID/lifecycle/facade/search/provider/installer/security contracts.
+- Internal names may differ from user-facing labels; record deletion remains reversible Inactive behavior with accurate explanation.
+- Existing ChatGPT/Gemini/full-output semantics and model/thinking policies remain truthful and explicit; no new auto-routing or failover.
+- Compare A/B/C with identical capabilities, synthetic content, proposed terminology and provider-policy fixtures.
+- Light alternatives first; user-selected direction next; selected Dark design afterward.
+- Theme control is System/Light/Dark, explicit selection wins, browser-local storage only, no account synchronization or backend persistence.
+- ChatGPT performs the specialist research and recommendation. User chooses a visible direction, not the technical design machinery.
 
-## Design evaluation scenarios
+## Next design activity and gates
 
-At minimum walk each mock through:
+When the user resumes design work, complete the source/terminology inventory and produce three Light mocks:
 
-1. 初回利用者が過去のMeetingを探す;
-2. 既存recordを編集する;
-3. recordを「削除」して通常一覧から消す;
-4. 削除済みrecordを復元する;
-5. Knowledge Searchで質問し、回答からcitation/sourceへ進む;
-6. provider/全文出力の既存選択を理解する.
+A. Minimal / Search-forward.
+B. Workspace / Notion-like.
+C. Investment Dashboard.
 
-Evaluate discoverability, click/decision count, terminology clarity, visual density, source/citation readability, and implementation risk.
+All must cover shell/landing, Meeting/Pitchbook maintenance, edit/delete/deleted/restore, Knowledge Search input/choices, answer/citations/source and relevant states. Evaluate the same seven scenarios from the instruction.
 
-## Implementation gate
+Gate 1: user selects a direction or bounded hybrid.
 
-Do not allocate a CODEX dispatch, edit `src/`, create a runtime version, or deploy the Web App during Phase A.
+Then create that design's Dark mock with unchanged structure and the agreed theme controls.
 
-Only after the user explicitly selects or combines a mock direction may Work 0028 move to BUILD and allocate `0028-CODEX-01` or later dispatch IDs.
+Gate 2: user approves selected Light/Dark design and explicitly authorizes implementation. Only then reset to BUILD, check current history, and allocate the first actual dispatch. Light selection alone is not an automatic implementation trigger. Deployment needs explicit scoped authorization.
 
-## Completion latch for Phase A
+## Dispatch history
+
+No Codex dispatch has been issued for Work 0028. Do not reserve or create an instruction/report file for `0028-CODEX-01` before the gate.
+
+Route A planning update and reconciliation: Dispatch ID N/A; ChatGPT-only; GitHub Markdown changes only.
+
+## Evidence and completion latch
 
 ```text
-THREE_DISTINCT_MOCK_DIRECTIONS: PASS | FAIL
-SAME_FUNCTIONAL_SCOPE_ACROSS_MOCKS: PASS | FAIL
-TERMINOLOGY_MAP: PASS | FAIL
-DELETE_RESTORE_SURFACE_LANGUAGE: PASS | FAIL
-SCENARIO_REVIEW: PASS | FAIL
-IMPLEMENTATION_RISK_COMPARISON: PASS | FAIL
-USER_DIRECTION_SELECTED: YES | NO
+PLANNING_UPDATE: COMPLETE
+SOURCE_PREFLIGHT: 14 PRIORITY FILES INSPECTED IN BOUNDED RANGES / NOT A FULL OR RENDERED AUDIT
+FULL_SURFACE_INVENTORY: PENDING
+THREE_LIGHT_MOCKS: NOT_STARTED
+HEURISTIC_REVIEW: NOT_RUN
+USER_DIRECTION_SELECTED: NO
+SELECTED_DARK_MOCK: NOT_STARTED
+THEME_PLAN: DEFINED
+IMPLEMENTATION_AUTHORIZED: NO
+CODEX_DISPATCH_ISSUED: NO
 SOURCE_CODE_CHANGED: NO
 RUNTIME_CHANGED: NO
-BALL: CHATGPT
-STATUS: ACTIVE | READY_FOR_BUILD
+LOGIC_VALIDATION: NOT_RUN / DOCS-ONLY CHANGE
+TARGET_RUNTIME_QUALIFICATION: NOT_RUN
+SIDE_EFFECT_STATE: GITHUB_DOCUMENTATION_ONLY
+READY_FOR_BUILD: NO
+WORK_0028_COMPLETE: NO
 ```
 
+Stop after the planning update. The remaining visual/design gates are planned work, not blockers to publication of the plan and not completed evidence.
+
 WORK_ID: 0028
+DISPATCH_ID: N/A
 ACTIVE_DISPATCH_ID: NONE
 BALL: CHATGPT
-STATUS: ACTIVE
+STATUS: READY
