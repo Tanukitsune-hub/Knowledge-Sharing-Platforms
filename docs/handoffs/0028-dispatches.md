@@ -28,7 +28,9 @@ Selected direction:
 The user has further selected the visual language after direct ChatGPT mock exploration. Treat the following as closed visual-direction decisions for the corrected selected-Light reference and later implementation planning:
 
 - main application surface: Light / warm white-to-off-white background; keep the primary work area visually bright and readable;
-- persistent sidebar: deep navy base with restrained gold line/icon/text accents;
+- persistent sidebar base: `#182124` (RGB 24, 33, 36), a low-saturation charcoal blue-green; use this as the current design token candidate rather than the earlier generic `deep navy` wording;
+- sidebar color implementation: define the base as a semantic CSS/theme token so small later hue/value adjustments remain low-cost and do not require layout or component redesign;
+- restrained gold line/icon/text accents remain the primary decorative/accent family on the sidebar;
 - decorative motif: `紗綾形` (sayagata) only, based on a clean geometric reference rather than copying distortions from generated mock images;
 - sayagata placement: concentrated at the lower-left of the sidebar and fading/attenuating toward the upper-right so it does not interfere with navigation labels or controls;
 - sayagata color: subdued gold linework; decorative only, never an interaction affordance;
@@ -50,7 +52,8 @@ CODEX-03 reported `VISUAL_CONTRACT_PARITY_NOT_MET`, `SOURCE_CODE_CHANGED: NO`, `
 User decisions after viewing the images:
 
 - prefer the type with a left-side sidebar; users primarily operate on wide screens;
-- prefer the premium navy/gold Light visual direction with a bright main content area;
+- prefer the premium charcoal-blue-green/gold Light visual direction with a bright main content area;
+- select sidebar base `#182124` as the current implementation candidate, with later fine tuning allowed through the theme token;
 - select sayagata as the only sidebar decorative motif;
 - select Nippon Life red `#E1001F` only as the thin left-edge accent of the active sidebar item; no other red accent use.
 
@@ -75,7 +78,8 @@ CODEX_03_RETURNED: YES / PARTIAL
 DRAFT_PR_40: OPEN / DESIGN ONLY / UNMERGED
 USER_DIRECTION_SELECTED: YES
 SELECTED_LIGHT_DIRECTION: B-BASED HYBRID / LEFT SIDEBAR + A SEARCH + C TABLE DENSITY
-SELECTED_LIGHT_VISUAL_LANGUAGE: LIGHT MAIN + DEEP NAVY SIDEBAR + RESTRAINED GOLD + SAYAGATA
+SELECTED_LIGHT_VISUAL_LANGUAGE: LIGHT MAIN + #182124 SIDEBAR + RESTRAINED GOLD + SAYAGATA
+SIDEBAR_BASE_COLOR: #182124 / CURRENT IMPLEMENTATION CANDIDATE / TOKENIZED FOR LATER FINE TUNING
 ACTIVE_MENU_CORPORATE_ACCENT: #E1001F / THIN LEFT STRIP ONLY
 OTHER_E1001F_USAGE: PROHIBITED BY CURRENT DESIGN DECISION
 SELECTED_LIGHT_PIXEL_TARGET_APPROVED: NO
