@@ -98,7 +98,7 @@ Static mockからkeyboard、focus、contrast、screen reader、runtime、provide
 
 Backend change riskはNONEです。将来のproduction implementationでは、token/sidebar/form groupingは主にpresentation changeです。Visible model selectorから既存route/profile/policyへのmapping、filter disclosure、sticky action、styled confirmationはsmall frontend behaviorを伴うため、別途実装・keyboard/runtime確認が必要です。
 
-このDraft PRはfinal Light review targetとしてPR #41をsupersedeします。PR #41はpre-refinement baselineとして残します。次のgateはChatGPT/ユーザーのcorrected Light visual reviewです。Dark、production build、deploymentへ進みません。
+Draft PR #42はfinal Light review targetとしてPR #41をsupersedeします。PR #41はpre-refinement baselineとして残します。次のgateはChatGPT/ユーザーのcorrected Light visual reviewです。Dark、production build、deploymentへ進みません。
 
 ## Shared Knowledge
 
@@ -140,7 +140,7 @@ RUNTIME_CHANGED: NO
 READY_FOR_PRODUCTION_BUILD: NO
 BLOCKER: NONE
 BRANCH: codex/0028-light-family-refinement
-DRAFT_PR: RECORDED_IN_FINAL_DRAFT_PR
+DRAFT_PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/42
 FINAL_COMMIT: RECORDED_IN_DRAFT_PR_AND_RETURN_STATUS
 REPORT_PATH: docs/handoffs/0028-CODEX-05-light-family-refinement-report.md
 ```
