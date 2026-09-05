@@ -1,46 +1,63 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-04
-ACTIVE_DISPATCH_ID: 0028-CODEX-04
+DISPATCH_ID: 0028-CODEX-05
+ACTIVE_DISPATCH_ID: 0028-CODEX-05
 BALL: CODEX
 STATUS: READY
 MODE: INVESTIGATION
-PHASE: A1.6 / CROSS-PAGE LIGHT FAMILY / DESIGN ONLY
+PHASE: A1.7 / LIGHT FAMILY REFINEMENT / DESIGN ONLY
 
 ## Current ball and authorization
 
-CODEX-03 returned PARTIAL on Draft PR #40 after producing A/B/C Light directions. The user then selected and refined one direction in ChatGPT. Those visual-language decisions are now closed for cross-page design exploration.
+CODEX-04 returned on Draft PR #41 with the selected Light cross-page family. ChatGPT technical review passed the design package, but user visual acceptance remained pending. The user then reviewed the visible Light pages and requested a bounded refinement batch.
 
-CODEX-04 is authorized to apply that one selected Light design system across the real current page family and review page-specific information/input placement. It is not authorized to modify production source/runtime or to proceed to Dark/build/deployment.
+CODEX-05 is authorized to refine the existing selected Light family only. It must preserve the accepted visual direction and source contracts, and must not modify production source/runtime or proceed to Dark/build/deployment.
 
-Instruction: `docs/handoffs/0028-CODEX-04-cross-page-light-family-instruction.md`.
-Expected report: `docs/handoffs/0028-CODEX-04-cross-page-light-family-report.md`.
+Instruction: `docs/handoffs/0028-CODEX-05-light-family-refinement-instruction.md`.
+Expected report: `docs/handoffs/0028-CODEX-05-light-family-refinement-report.md`.
 
-Reviewed main before dispatch publication: `b72cbaa1cdc9321bed2a477e8d2f8eb71d806223`; the execution must record its actual current source SHA.
+Authoritative main before CODEX-05 publication was `c6701d075030385ee683925c0bbaef36221134ad`; instruction creation advanced main. CODEX-05 must fetch and record actual current main at execution start.
+
+PR #41 baseline:
+
+- Draft PR: #41
+- branch: `codex/0028-selected-light-family`
+- head: `46d16b46535239e2ce91f7d6bf362836bfaf9985`
+- technical review: PASS
+- final user visual acceptance: NOT YET
 
 ## Closed selected Light direction
 
-- persistent left sidebar; desktop-first for wide screens;
-- shell/navigation: B-like workspace;
-- Knowledge Search: A-like linear clarity;
-- record/maintenance: C-like moderate table density;
-- Light main surface: bright warm white/off-white;
-- sidebar base token: `#182124`;
+Preserve across refinement:
+
+- persistent left sidebar / desktop-first wide workspace;
+- B-like shell, A-like Knowledge Search clarity, C-like maintenance density;
+- sidebar semantic token `#182124`;
 - restrained gold accents;
-- clean geometric gold `紗綾形` concentrated lower-left, fading toward upper-right;
-- active sidebar menu only: thin left strip `#E1001F` plus non-red selected-state cue;
-- no other `#E1001F` usage;
-- no additional visual motif;
-- later Dark charts remain `CHART_SURFACE_THEME: LIGHT_FIXED`.
+- clean geometric gold sayagata lower-left fading upper-right;
+- active sidebar item left strip only `#E1001F`, plus non-red active cue;
+- no other `#E1001F` ordinary UI use;
+- white Light cards and visible control boundaries;
+- Japanese task-oriented labels;
+- later Dark charts `CHART_SURFACE_THEME: LIGHT_FIXED`;
+- Work 0027 and Work 0029 accepted behavior.
 
-The generated ChatGPT/Codex images are visual references only. Actual source contracts override malformed geometry, invented copy, missing controls and other ImageGen artifacts.
+## User-requested refinement batch
 
-## Primary design question
+CODEX-05 must apply these corrections:
 
-Visual style is no longer open-ended. CODEX-04 should determine how the fixed style works across all major existing pages, with special focus on input/form placement, grouping, width, order, density, advanced-control disclosure and wide-screen/laptop usability.
+1. Knowledge Search: replace normal-user `実行方法 / モデル / Thinking` presentation with one visible model/profile selector; Thinking remains admin policy only. Preserve Full Output semantics and current Gemini hidden baseline.
+2. Past Pitchbook: source action should clearly read `原資料を開く` and retain current new-tab source URL behavior; do not invent preview/download behavior.
+3. Meeting register/edit desktop rows: `日付 | 開始時間 | 面談場所`; `面談先区分 | 面談先`; `アセットクラス | エクイティ/デット | チーム`.
+4. Pitchbook classification edit: `日付 | GP | アセットクラス | エクイティ/デット` in one desktop row, GP widest.
+5. GP Workspace: move print/PDF next to GP selector; remove visible Active KPI and follow-up count; compact headline summary to Meeting count / Document count / last Meeting date only.
+6. Apply reasonable cross-page vertical compaction without harming readability or control target sizes.
+7. Remove yellow/cream cast from Light main background and move to cool very-light slate/blue-gray; keep white cards and cool borders. Tokenize for easy later hue tuning.
+8. Add a consistent refined thin-line SVG icon family to sidebar destinations without external runtime CDN dependency or materially increasing row height.
+9. Make the sayagata repeat materially denser/smaller scale than PR #41 while preserving clean geometry and lower-left→upper-right fade.
 
-Reordering/grouping presentation is allowed in design artifacts. Function/payload/eligibility/backend semantics are not.
+These are refinements, not permission for a new visual direction or backend capability.
 
 ## Dispatch history
 
@@ -50,15 +67,15 @@ Reordering/grouping presentation is allowed in design artifacts. Function/payloa
 | 0028-CODEX-01 | Historical tombstone from superseded shared-admin line; never reuse. |
 | 0028-CODEX-02 | Historical tombstone from superseded shared-admin PR #38; never reuse. |
 | 0028-CODEX-03 | Product Design A/B/C Light comparison; RETURNED PARTIAL on Draft PR #40. |
-| 0028-CODEX-04 | Current cross-page selected-Light design family / input-layout review; READY / BALL CODEX. |
+| 0028-CODEX-04 | Selected Light cross-page family; RETURNED on Draft PR #41; technical review PASS, user corrections requested. |
+| 0028-CODEX-05 | Current bounded Light refinement; READY / BALL CODEX. |
 
 ## Gates
 
-CODEX-04 returns the selected Light visual family and input-layout review to ChatGPT.
+CODEX-05 returns a corrected Light visual family to ChatGPT and user review.
 
-Next gate after review: user accepts/corrects the selected Light cross-page design.
-Then: create only the selected Dark visual family.
-Then: explicit user authorization before production BUILD.
+After the corrected Light family is accepted: create only the selected Dark family.
+After Light/Dark approval: explicit user authorization is still required before production BUILD.
 Deployment remains separately scoped.
 
 ## Evidence state
@@ -66,12 +83,17 @@ Deployment remains separately scoped.
 ```text
 USER_DIRECTION_SELECTED: YES
 SELECTED_LIGHT_VISUAL_LANGUAGE: FIXED
+CODEX_04_RETURNED: YES
+PR_41_TECHNICAL_REVIEW: PASS
+USER_LIGHT_ACCEPTANCE: CORRECTIONS_REQUESTED
+LIGHT_REFINEMENT_BATCH: AUTHORIZED
 SIDEBAR_BASE_COLOR: #182124
-SAYAGATA_MOTIF: SELECTED / CLEAN GEOMETRY REQUIRED
+SAYAGATA_MOTIF: SELECTED / DENSITY REFINEMENT REQUIRED
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
 OTHER_E1001F_USAGE: PROHIBITED
-CROSS_PAGE_LIGHT_FAMILY: NOT_STARTED
-INPUT_LAYOUT_REVIEW: NOT_STARTED
+NORMAL_USER_THINKING_CONTROL: REMOVE FROM VISIBLE LIGHT DESIGN
+LIGHT_MAIN_BACKGROUND: COOL SLATE REFINEMENT REQUIRED
+SIDEBAR_ICON_FAMILY: REFINEMENT REQUIRED
 SELECTED_DARK_MOCK: NOT_STARTED
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
@@ -81,7 +103,7 @@ WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-04
-ACTIVE_DISPATCH_ID: 0028-CODEX-04
+DISPATCH_ID: 0028-CODEX-05
+ACTIVE_DISPATCH_ID: 0028-CODEX-05
 BALL: CODEX
 STATUS: READY
