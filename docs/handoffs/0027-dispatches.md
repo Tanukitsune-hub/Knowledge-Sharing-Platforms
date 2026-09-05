@@ -1,34 +1,35 @@
 # Work 0027 dispatch control
 
 WORK_ID: 0027
-ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: 0027-CODEX-04
+BALL: CODEX
+STATUS: READY
+MODE: INVESTIGATION
 
-## Current dispatch
+## Current dispatch — strategy reset
 
-`0027-CODEX-03` — evidence-led Gemini 3.7 citation identity repair.
+`0027-CODEX-04` — read-only retained-response recovery, same-project quota preflight and compliant invocation-path review.
 
-Instruction: `docs/handoffs/0027-CODEX-03-citation-identity-repair-instruction.md`
-Report: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`
+Instruction: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`
+Report: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-report.md`
 
-Scope result: the exact mismatching citation field remains unobserved. The one authorized 3.7 diagnostic reached HTTP 429 before model output or citation annotation, cleanup passed, and the STOP rule prevented implementation, version 73, deployment update, or confirmation. No further model campaign was started.
+Do not repeat the CODEX-03 generation. Recover the prior successful synthetic Interaction if an exact ID/response and access remain available; otherwise identify the missing evidence. Inspect the tested project's quota without a probe request. Do not assume stored-response recovery is possible.
 
 ```text
-MODEL: gemini-3.7-flash / low / 2048
-CURRENT_RUNTIME: version 72 / CODEX-02 shell PASS
+MODEL_CONTEXT: gemini-3.7-flash / low / 2048
+CURRENT_RUNTIME: version 72 / unchanged by CODEX-03
+WORK_ACCEPTANCE: NOT_MET
 WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-CODEX_03_DIAGNOSTIC: HTTP 429 / PROVIDER_OR_TRANSIENT_FAILURE / attempts 2 / retries 1
-CODEX_03_CITATION_SHAPE: NOT_OBSERVED
-CODEX_03_IMPLEMENTATION: NOT_RUN / STOP
-CODEX_03_SOURCE_READBACK: PASS / 82 of 82 after scratch removal
-CODEX_03_VERSION_OR_DEPLOYMENT: NONE / version 72 unchanged
+CURRENT_DIAGNOSTIC_IMPEDIMENT: HTTP_429_QUOTA_DIMENSION_UNKNOWN
+CODEX_04_EXECUTION: NOT_RUN
+NEW_GENERATION_OR_MODELS_CALLS: 0 authorized
+STORE_DOCUMENT_MUTATIONS: 0 authorized
+APPS_SCRIPT_SOURCE_VERSION_DEPLOYMENT_MUTATIONS: 0 authorized
+BILLING_KEY_OR_SECURITY_CHANGES: 0 authorized
 GEMINI: disabled / hidden
 ```
 
-## CODEX-03 bounds
-
-The detailed instruction is authoritative. At most one optional diagnostic query and one post-fix confirmation, <=4 generation HTTP attempts under existing retry safeguards. At most two temporary Stores sequentially, one tiny document each, one active Store at a time. Diagnostic source staging <=1 without deployment; final source delivery <=1. New immutable version <=1, expected 73; same Web App update <=1. Never deploy 67 or create 74+. No Models/short-generation/3.6/3.8/GenerateContent/OpenAI/FULL_OUTPUT calls. Existing sources and Stores remain untouched. Cleanup must be confirmed.
+Read-only retrieval is limited to one known Interaction, <=2 HTTP attempts total. Local artifact search <=10 minutes; quota UI one inspection plus at most one refresh. No account history enumeration, credential disclosure, raw response export, installer/readiness interception, monkey-patching or authorization bypass. The detailed instruction controls all bounds.
 
 ## Returned dispatch history
 
@@ -36,6 +37,7 @@ The detailed instruction is authoritative. At most one optional diagnostic query
 
 ```text
 STARTING_REF: 11865c49b17c578713c3c1b4bc5c2307434d50e9
+FINAL_COMMIT: 745e34d8a04df4aaea8a9373775106b4b08b4523
 IMPLEMENTATION_COMMIT: NONE
 MODEL: gemini-3.7-flash / explicit low / 2048 / Interactions + File Search
 DIAGNOSTIC_HTTP: 429 / too_many_requests
@@ -43,8 +45,8 @@ DIAGNOSTIC_ATTEMPTS_RETRIES: 2 / 1
 DIAGNOSTIC_CUMULATIVE_SLEEP_MS: 514
 DIAGNOSTIC_LATENCY_MS: 21825
 CITATION_SHAPE: NOT_OBSERVED
-TEMP_RESOURCE_CLEANUP: PASS
-MUTABLE_SOURCE_RESTORATION: PASS / 82 of 82
+TEMP_RESOURCE_CLEANUP: PASS (reported)
+MUTABLE_SOURCE_RESTORATION: PASS / 82 of 82 (reported)
 IMMUTABLE_VERSION_CREATED: NO
 WEB_APP_UPDATE: NO / version 72 unchanged
 WORK_ACCEPTANCE: NOT_MET
@@ -52,6 +54,8 @@ BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
 ```
 
 Report: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`.
+
+Controller review: the report discloses a noncompliant temporary invocation-path modification. It was removed and restoration reported; it is not qualification evidence. That route must not be repeated. CODEX-03 budgets expired on return, including the unused version-73/confirmation budget.
 
 ### 0027-CODEX-02 — RETURNED / citation identity blocker
 
@@ -88,9 +92,9 @@ TEMP_RESOURCE_CLEANUP: PASS
 
 Report: `docs/handoffs/0027-CODEX-01-gemini-file-search-resilience-and-e2e-qualification-report.md`.
 
-Work 0026 remains ACCEPTED. Preserve CODEX-01/02 evidence for what was observed; neither returned dispatch authorizes additional calls or versions. Only CODEX-03 is active. After it returns, any further instruction requires CODEX-04. A user-native action within the running CODEX-03 retains CODEX-03.
+Work 0026 remains ACCEPTED. Only CODEX-04 is active. A native-user action inside the running CODEX-04 retains CODEX-04; after return, a new execution must use CODEX-05. All historical source/version/generation budgets remain expired.
 
 WORK_ID: 0027
-ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: 0027-CODEX-04
+BALL: CODEX
+STATUS: READY

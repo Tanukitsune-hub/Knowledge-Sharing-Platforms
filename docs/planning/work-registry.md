@@ -18,7 +18,7 @@ Statuses: ACCEPTED (closed/merged evidence), ACTIVE (current implementation), RE
 | 2 | 0021 | Structured search, five modes, multi-Entity, six formats | ACCEPTED | 0025 | Preserve PR #34 and version-66 evidence |
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36; coarse failure is historical only |
-| 5 | 0027 | Personal-DEV Gemini File Search baseline | ACTIVE | CODEX-03 returned; citation blocker retained | Controller review before any new bounded 3.7 citation diagnostic |
+| 5 | 0027 | Personal-DEV Gemini File Search baseline | ACTIVE | Citation blocker retained; BUILD paused for INVESTIGATION | CODEX-04 retained-response recovery and quota preflight; zero new generation |
 | 6 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic provider path qualified | Allocate separate Work |
 | 7 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 8 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -43,25 +43,28 @@ Later company-GAS diagnostics proved basic connectivity, authentication and shor
 
 ## Work 0027 evidence and current action
 
-CODEX-01 final ref `2c6cd20bfe6a4ef3b6262160b4126266307222dd`: resilience/upload repair, 431/431 checks, version-71 shell, upload/index/readback and cleanup PASS; 3.8 query HTTP 500/api_error/68,442ms. Preserve these observed boundaries.
+CODEX-01 final ref `2c6cd20bfe6a4ef3b6262160b4126266307222dd`: resilience/upload repair, 431/431 checks, version-71 shell, upload/index/readback and cleanup PASS; 3.8 query HTTP 500/api_error/68442ms. Preserve these observed boundaries.
 
-CODEX-02 final ref `0032a9cdb69cc1431566dee82f7e2c2196ddee50`, implementation `acd3aa08a3ecc01a7b0852afef8f58202934af82`: 440/440 checks, 82/82 readback, version-72 shell PASS. 3.7 File Search returned HTTP 200, expected token and one citation; attempts 2/retries 1; 34,992ms. Strict source/metadata match failed. 3.6 correctly NOT_RUN. Cleanup confirmed. Gemini remains disabled/hidden.
+CODEX-02 final ref `0032a9cdb69cc1431566dee82f7e2c2196ddee50`, implementation `acd3aa08a3ecc01a7b0852afef8f58202934af82`: 440/440 checks, 82/82 readback, version-72 shell PASS. 3.7 File Search returned HTTP 200, expected token and one citation; attempts 2/retries 1; 34992ms. Strict source/metadata match failed. 3.6 correctly NOT_RUN. Cleanup confirmed. Gemini remains disabled/hidden.
 
-CODEX-03 started at `11865c49b17c578713c3c1b4bc5c2307434d50e9`. Retained evidence did not identify the individual mismatching field. The one authorized 3.7 diagnostic returned HTTP 429 / `too_many_requests` before model output or citation; attempts 2/retries 1, cumulative sleep 514ms, latency 21,825ms. Cleanup passed, mutable source was restored/read back 82/82, and no repair, immutable version or deployment was produced.
+CODEX-03 final ref `745e34d8a04df4aaea8a9373775106b4b08b4523`: diagnostic HTTP 429/too_many_requests before citation, attempts 2/retries 1, sleep 514ms, latency 21825ms. No product source repair, version or deployment. Cleanup and source restoration 82/82 reported. Temporary invocation-path modification was noncompliant, removed and excluded from qualification evidence.
 
 ```text
-CURRENT_DISPATCH: 0027-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+CURRENT_DISPATCH: 0027-CODEX-04
+MODE: INVESTIGATION
+BALL: CODEX
+STATUS: READY
 WORK_ACCEPTANCE: NOT_MET
 BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-MODEL: gemini-3.7-flash / low / 2048
+DIAGNOSTIC_IMPEDIMENT: HTTP_429_QUOTA_DIMENSION_UNKNOWN
+MODEL_CONTEXT: gemini-3.7-flash / low / 2048
+NEW_GENERATION_AND_RUNTIME_MUTATIONS_AUTHORIZED: 0
 PR_37: Draft / Open / unmerged
 ```
 
-CODEX-03 stopped because the diagnostic budget ended in a provider failure before an observed citation shape. No 3.6/3.8/GenerateContent call or general model campaign occurred. Its budgets have expired; any renewed attempt requires controller review and a new dispatch.
+CODEX-04 attempts bounded read-only recovery of the exact old synthetic response if retained, inspects same-project quota evidence and identifies a compliant invocation route. It does not repeat the previous diagnostic. See `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`. Prior generation/version budgets remain expired.
 
-Only a correctly grounded `QUALIFIED_DISABLED` result with cleanup meets current Work acceptance. CI absence is FIX SOON, not a blocker by itself. Accepted reference behavior in personal DEV is not proof of company readiness.
+Only a correctly grounded QUALIFIED_DISABLED result with cleanup meets Work acceptance. A read-only investigation result does not qualify Gemini. CI absence is FIX SOON, not a blocker by itself. Personal-DEV reference behavior is not company readiness.
 
 ## Scope discipline
 

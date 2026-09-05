@@ -1,47 +1,47 @@
 # Work 0027 instruction
 
 WORK_ID: 0027
-DISPATCH_ID: 0027-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
-MODE: BUILD
+DISPATCH_ID: 0027-CODEX-04
+BALL: CODEX
+STATUS: READY
+MODE: INVESTIGATION
 
 ## Primary outcome
 
-Make the personal-DEV Gemini File Search path return an answer with a correctly resolved authoritative citation before company qualification. Model novelty is not required. CODEX-02 already demonstrated a 3.7 answer and a file_citation; the remaining blocker is exact source identity/metadata mapping.
+Make personal-DEV Gemini File Search return an answer with an authoritative current source citation before company qualification. CODEX-02 already returned a 3.7 answer and one file_citation, but identity/metadata matching failed. This Work is not accepted.
 
-Current detailed instruction:
+## Current execution contract
 
-`docs/handoffs/0027-CODEX-03-citation-identity-repair-instruction.md`
+`docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`
 
 Current ball: `docs/handoffs/0027-dispatches.md`.
 Current result: `docs/handoffs/0027-report.md`.
 
-Read root/nearest AGENTS, the CODEX-02 report, current Work plan and runtime locator. The CODEX-03 instruction replaces expired CODEX-02 candidate progression and version budgets. Do not execute the old instruction again.
+Read root/nearest AGENTS, CODEX-02/03 reports, Work plan and runtime locator. CODEX-04 replaces the expired CODEX-03 execution authority; it does not inherit unused generation, staging or version budgets.
 
-## Closed conclusions
+## Preserved evidence
 
-- Work 0026 remains accepted; prior coarse HTTP/credential classification is historical, not a universal causal conclusion.
-- CODEX-01 transport/retry/upload recovery and cleanup evidence remain valid.
-- CODEX-02 reports 440/440 logic checks, 82/82 source readback and version-72 shell PASS.
-- 3.7 File Search returned HTTP 200, expected token and one citation after one retry.
-- Strict source/metadata match failed, so no model has yet met Work acceptance.
-- 3.6 was correctly not attempted. Do not switch to it to evade an identity failure.
-- Cleanup was confirmed; existing sources were unchanged; Gemini remains hidden.
+- Work 0026 remains accepted for its observed safety boundary, not successful Gemini search.
+- CODEX-01 transport/retry/upload and cleanup evidence is retained.
+- CODEX-02: reported 440/440 checks, 82/82 readback, version-72 shell PASS; 3.7 HTTP 200 with token and one citation; strict identity/metadata FAIL; 3.6 not called; cleanup PASS.
+- CODEX-03: HTTP 429/too_many_requests, attempts 2/retry 1, cumulative sleep 514ms, latency 21825ms; no citation shape, implementation or deployment; source restoration reported 82/82.
+- CODEX-03's temporary invocation modification violated its instruction and is not acceptance evidence. Do not repeat it.
 
-## CODEX-03 returned result
+## Strategy reset
 
-The fixed tuple remained `gemini-3.7-flash / explicit low / 2048 / Interactions + File Search`.
+The citation blocker and the immediate 429 diagnostic impediment are distinct. The latter does not explain the former. We lack the quota dimension and the successful response's per-field shape. Do not perform another blind generation to rediscover this gap.
 
-The one authorized diagnostic query returned HTTP 429 / `PROVIDER_OR_TRANSIENT_FAILURE` after 2 attempts and 1 retry, before model output or a citation annotation. Temporary-resource cleanup and exact 82/82 mutable-source restoration passed. The current source-equals-Document-name assumption and dropped document_uri remain review findings, not a proven live root cause. No runtime-shaped fixture, shared resolver repair, version 73, or Web App update was created.
+CODEX-04 may only recover narrowly scoped retained evidence, retrieve one exact known stored Interaction if available, inspect same-project usage/quota read-only, and identify a compliant future execution route. Availability of stored response/ID is conditional and must not be assumed.
 
-No model sweep, normal-user fallback, provider change, company deployment or broad hardening. Runtime/source/resource budgets are exclusively those in the detailed CODEX-03 instruction.
+No new generations, Models probes, Stores, uploads, settings, source deliveries, immutable versions, deployments, billing changes or product source repairs. Keep 3.7 as the investigation context; do not call other models.
 
 ## Completion
 
-Work acceptance remains unmet. The blocker remains `GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH`; the new transient diagnostic failure does not replace it. Gemini remains disabled/hidden, version 72 remains deployed, and PR #37 remains Draft/Open/unmerged. Any renewed provider attempt requires a new controller dispatch and fresh bounded authorization.
+CODEX-04 completes its investigation with the recovered field matrix or explicit unavailability, quota evidence or UNKNOWN, execution-route prerequisite and one cheapest next action. This is not Work acceptance. The exact blocker remains GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH.
+
+Only a later authorized evidence-led repair plus end-to-end qualification can establish QUALIFIED_DISABLED. Keep Gemini disabled/hidden and PR #37 Draft/Open/unmerged. Version 72 remains deployed.
 
 WORK_ID: 0027
-DISPATCH_ID: 0027-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0027-CODEX-04
+BALL: CODEX
+STATUS: READY

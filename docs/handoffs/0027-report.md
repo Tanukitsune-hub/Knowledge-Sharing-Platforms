@@ -1,13 +1,16 @@
 # Work 0027 report
 
 WORK_ID: 0027
-ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: 0027-CODEX-04
+BALL: CODEX
+STATUS: READY
+MODE: INVESTIGATION
 
 ## Current outcome
 
-CODEX-03 returned safely without an identity repair. Retained CODEX-02 evidence did not identify the individual mismatching field, and the one authorized diagnostic File Search query ended with HTTP 429 before model output or citation annotation. Cleanup and exact mutable-source restoration passed. PR #37 remains Draft/Open/unmerged; main remains `8c9be2392a1247ff81efc6a153fc0be449b1318b` at this return.
+CODEX-03 produced no citation repair. The current controller action is a strategy reset to retained-response recovery and quota preflight with zero new generation or runtime mutation. CODEX-04 has not executed. PR #37 remains Draft/Open/unmerged; main remains 8c9be2392a1247ff81efc6a153fc0be449b1318b at this review.
+
+## Preserved CODEX-02 evidence
 
 ```text
 REVIEWED_CODEX_02_HEAD: 0032a9cdb69cc1431566dee82f7e2c2196ddee50
@@ -30,10 +33,13 @@ OPENAI_FULL_OUTPUT_LIVE_CALLS: 0
 WORK_ACCEPTANCE: NOT_MET
 ```
 
-CODEX-03 evidence:
+Detailed evidence: `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-report.md`.
+
+## CODEX-03 evidence and review
 
 ```text
 STARTING_REF: 11865c49b17c578713c3c1b4bc5c2307434d50e9
+REVIEWED_FINAL_REF: 745e34d8a04df4aaea8a9373775106b4b08b4523
 MODEL: gemini-3.7-flash / explicit low / 2048 / Interactions + File Search
 DIAGNOSTIC_HTTP: 429
 DIAGNOSTIC_CLASSIFICATION: PROVIDER_OR_TRANSIENT_FAILURE
@@ -44,46 +50,51 @@ DIAGNOSTIC_LATENCY_MS: 21825
 MODEL_OUTPUT_BLOCKS: 0
 FILE_CITATIONS: 0
 CITATION_FIELD_MISMATCH: NOT_ESTABLISHED
-TEMP_RESOURCE_CLEANUP: PASS
-MUTABLE_SOURCE_READBACK: PASS / 82 of 82
-IMPLEMENTATION: NOT_RUN / STOP
+REPORTED_TEMP_RESOURCE_CLEANUP: PASS
+REPORTED_MUTABLE_SOURCE_READBACK: PASS / 82 of 82
+IMPLEMENTATION: NONE
 IMMUTABLE_VERSION_CREATED: NO
 WEB_APP_UPDATE: NO / version 72 unchanged
 ```
 
-Detailed immutable evidence remains in `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-report.md`. No historic report has been rewritten as a success.
+The detailed CODEX-03 report also discloses a temporary invocation-path modification contrary to its no-monkey-patch instruction. The change was removed; source restoration is reported. That invocation is not qualification evidence. The final user summary alone omitted this limitation, so it must remain visible in controller review. No continuing deployment change or source-code change is shown by the final GitHub diff.
 
-## ChatGPT review
+ChatGPT independently checked main/PR/head, full report, dispatch/control documents, the comparison from the CODEX-03 starting ref, Actions and PR discussion. The comparison contains only documentation and generated distribution provenance/hash updates; src/ and tests/ did not change. No Actions runs or discussion entries were returned. ChatGPT did not rerun the user's Apps Script or local test suite and does not independently certify runtime restoration beyond the reported evidence.
 
-Independently read current main/PR/head, exact CODEX-02 report and ledger, compared the CODEX-02 refs, reviewed relevant current citation/metadata/mapping source and synthetic tests, and checked GitHub Actions and PR discussion. No workflow runs or comments were returned for the reviewed evidence. No live Apps Script/API test or local test suite was rerun by ChatGPT.
+Detailed evidence: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`.
 
-Confirmed source findings:
+## Source findings retained, not declared causes
 
-- the qualifier requires citation.source equal to the provider Document resource name plus three metadata equalities;
-- the citation normalizer does not retain document_uri;
-- synthetic fixtures assume source equals Document.name;
-- normal Gemini mapping and qualification use different identity rules.
+- Qualification requires citation.source equal to Document.name plus three metadata equalities.
+- Citation normalization drops document_uri; synthetic fixtures assume source equals Document.name.
+- Normal Gemini mapping differs from qualification mapping.
 
-Official FileCitation documentation lists source and document_uri separately and does not guarantee source equals Document.name. Actual per-field runtime mismatch remains unknown: the existing report exposes only aggregate failure. The next repair must be evidence-led, not a blind assertion removal.
+The official schema documents separate citation fields but does not prove which field failed in CODEX-02. No blind assertion removal or expected-value substitution is authorized.
 
 ## Classification
 
 ```text
-PRODUCT_AVAILABILITY_REGRESSION_OBSERVED: NONE / accepted personal-DEV reference paths preserved
+PRODUCT_AVAILABILITY_REGRESSION_OBSERVED: NONE / accepted personal-DEV references preserved
 WORK_ACCEPTANCE_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
-FIX_SOON: GitHub CI remains absent
-BACKLOG: additional model qualification, representative large files, historical migration, company rollout
+DIAGNOSTIC_IMPEDIMENT: HTTP_429_QUOTA_DIMENSION_UNKNOWN
+EXECUTION_PROCEDURE_FINDING: NONCOMPLIANT_TEMPORARY_INVOCATION_REMOVED
+FIX_SOON: GitHub CI absent
+BACKLOG: other models, large files, migration, company rollout
 ```
 
-The citation blocker prevents Gemini activation and PR acceptance. The CODEX-03 HTTP 429 is a new transient diagnostic observation; it neither explains nor erases the earlier citation mismatch and does not establish that all Gemini models fail.
+429 is compatible with project/model quota throttling, but this report does not identify RPM, TPM, RPD or another limit. The 514ms additional sleep is not evidence that a minute/day quota recovered or that all retry options were exhausted. A new API key or paid tier is not an established fix.
 
-## Next action
+## Next action — CODEX-04
 
-Controller review is required before any renewed runtime attempt. A future dispatch may retry one evidence-led 3.7 citation-shape capture with a compliant private execution path, then repair only the observed identity representation/resolution gap using the same resolver in qualification and normal Gemini mapping. Keep source authority, exact current hashes, ambiguity rejection and cleanup intact.
+Current instruction: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`.
 
-CODEX-03 source repair, logic tests, final runtime confirmation and deployment: NOT_RUN by STOP rule.
+First check whether the exact previous synthetic response/Interaction ID and original upload reference remain recoverable. Google documents stored-Interaction retrieval and conditional retention; this is an opportunity, not an assertion of availability. Then inspect the tested personal project's actual usage/rate-limit evidence and establish a compliant invocation route without calling a model or modifying Apps Script.
+
+Return recovered per-field evidence or explicit missing prerequisites. Do not create another temporary Store, change models, bypass an administrator latch, regenerate a bundle, or create version 73 in CODEX-04.
+
+Work acceptance stays NOT_MET. No historical report has been rewritten as successful qualification.
 
 WORK_ID: 0027
-ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: 0027-CODEX-04
+BALL: CODEX
+STATUS: READY

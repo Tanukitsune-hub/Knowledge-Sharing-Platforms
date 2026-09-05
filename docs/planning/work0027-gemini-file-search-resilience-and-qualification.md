@@ -1,16 +1,16 @@
 # Work 0027 — Gemini GAS File Search resilience and qualification
 
 WORK_ID: 0027
-MODE: BUILD
-ACTIVE_DISPATCH_ID: 0027-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+MODE: INVESTIGATION
+ACTIVE_DISPATCH_ID: 0027-CODEX-04
+BALL: CODEX
+STATUS: READY
 
 ## Primary outcome
 
-A working personal-DEV Gemini Interactions + File Search baseline with exact authoritative citation identity, before company qualification. An optional-provider safe stop is not a substitute for the user's requested grounded-search success.
+A working personal-DEV Gemini Interactions + File Search baseline with exact authoritative citation identity, before company qualification. An optional-provider safe stop is not a substitute for the user's grounded-search success.
 
-Current execution contract: `docs/handoffs/0027-CODEX-03-citation-identity-repair-instruction.md`.
+Current execution contract: `docs/handoffs/0027-CODEX-04-evidence-recovery-and-quota-preflight-instruction.md`.
 Current ball: `docs/handoffs/0027-dispatches.md`.
 
 ## Preserved starting evidence
@@ -18,49 +18,43 @@ Current ball: `docs/handoffs/0027-dispatches.md`.
 Main: `8c9be2392a1247ff81efc6a153fc0be449b1318b`.
 Work 0026: ACCEPTED, PR #36 merge `40bb7d40506c0839c35742ee0000d89650ff7ad6`.
 OpenAI/FULL_OUTPUT, structured search, bundle and installer accepted boundaries remain unchanged.
-Independent company-GAS results are preserved in `docs/handoffs/0027-company-gas-gemini-smoke-evidence.md`. They demonstrate basic connectivity in that tested account/environment, not completed company File Search qualification.
+Independent company-GAS results remain in `docs/handoffs/0027-company-gas-gemini-smoke-evidence.md`; they prove basic connectivity in that account/environment, not company File Search qualification.
 
-CODEX-01: transient/auth separation, bounded retry, correct GAS upload headers and resumable recovery implemented; 431/431 checks; version 71; upload/index/readback and cleanup PASS; 3.8 File Search HTTP 500 after 68,442ms. Report: `docs/handoffs/0027-CODEX-01-gemini-file-search-resilience-and-e2e-qualification-report.md`.
+CODEX-01: transient/auth separation, bounded retry, correct GAS upload headers and resumable recovery implemented; 431/431 checks; version 71; upload/index/readback and cleanup PASS; 3.8 File Search HTTP 500 after 68442ms. Preserve its report.
 
-CODEX-02: stable candidate parameterization implemented; 440/440 checks; version 72, 82/82 source readback, shell PASS; 3.7 File Search HTTP 200 with token and one citation, but exact identity/metadata mismatch; 3.6 not called; cleanup PASS. Final ref `0032a9cdb69cc1431566dee82f7e2c2196ddee50`. Report: `docs/handoffs/0027-CODEX-02-stable-model-file-search-baseline-report.md`.
+CODEX-02: stable candidate parameterization; 440/440 checks; version 72, 82/82 readback, shell PASS; 3.7 HTTP 200 with token and one citation but exact identity/metadata mismatch; 3.6 not called; cleanup PASS. Final ref `0032a9cdb69cc1431566dee82f7e2c2196ddee50`.
 
-CODEX-03: retained evidence remained field-insufficient. Its one authorized 3.7 diagnostic File Search query returned HTTP 429 / `too_many_requests` after 2 attempts, 1 retry, 514ms cumulative sleep and 21,825ms latency, before model output or citation annotation. Cleanup PASS; mutable source restored and read back 82/82; no repair, version or deployment. Report: `docs/handoffs/0027-CODEX-03-citation-identity-repair-report.md`.
+CODEX-03: final ref `745e34d8a04df4aaea8a9373775106b4b08b4523`. One diagnostic returned HTTP 429/too_many_requests, attempts 2/retry 1, sleep 514ms, latency 21825ms, no citation. No repair/version/deployment. Cleanup and 82/82 source restoration reported. Its temporary invocation-path modification violated the instruction and is not qualification evidence; do not repeat it.
 
-## Strategy reset after CODEX-03
+## Strategy reset — BUILD paused for bounded INVESTIGATION
 
-The remaining problem is still the citation identity/metadata boundary, but the actual failing field remains unobserved. The new transient diagnostic failure is not the root-cause classification. Do not change model/transport or infer a resolver repair from schema alone.
+Two problems remain distinct: the existing citation-binding failure, and the 429 that prevented observing its shape. The report does not identify the quota dimension. Repeated generation/Store/deploy cycles without either fact are not the next action.
+
+CODEX-04 checks whether the known successful synthetic Interaction can be recovered within its retention/access boundary, inspects same-project quota evidence, and specifies a compliant next execution route. This phase has zero new generation, Store, source-delivery, version, deployment or billing authority.
 
 ```text
-MODEL: gemini-3.7-flash
-THINKING: explicit low
-MAX_OUTPUT_TOKENS: 2048
-TRANSPORT: Interactions + File Search
-OTHER_MODEL_CALLS: prohibited in CODEX-03
-CURRENT_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+MODEL_CONTEXT: gemini-3.7-flash / low / 2048
+WORK_BLOCKER: GEMINI_3_7_FILE_CITATION_IDENTITY_OR_METADATA_MISMATCH
+DIAGNOSTIC_IMPEDIMENT: HTTP_429_QUOTA_DIMENSION_UNKNOWN
+CURRENT_RUNTIME: version 72
 ```
 
-The present qualifier's source-equals-Document-name predicate is not guaranteed by the reviewed public schema. Its actual involvement remains a hypothesis because CODEX-03 produced no citation annotation. Do not weaken grounding based on that hypothesis alone.
+Stored-response recovery is conditional; do not assume an Interaction ID, free-tier log viewer or original upload snapshot exists. Bound the search, then report unavailable rather than invent a fixture or widen scope.
 
-## Required scope
+## Subsequent repair boundary — not authorized by CODEX-04
 
-Establish the actual raw-to-normalized citation shape using retained evidence or one optional synthetic diagnostic. Preserve a sanitized shape-faithful regression fixture. Repair only the observed gap. Use the same strict identity resolver in qualification and normal Gemini source mapping. Verify exact Active source, configured-Store binding, current Gemini hash and authoritative source links. Ambiguous, conflicting, stale or unresolvable citations must reject.
+After actual shape is known, repair only the observed normalization/resolution gap through shared qualification and normal Gemini mapping. Verify exact Active source, configured-Store binding, current Gemini hash and authoritative link. Reject ambiguous/conflicting/stale/unresolvable citations.
 
-No token-only, filename-only, filter-only or singleton-Store inference. Missing optional metadata may be resolved only through a trusted canonical provider locator and verified document metadata, never by copying expected request data.
+No token-only, filename-only, filter-only or singleton-Store inference. Missing metadata may be resolved only using trusted provider identity and verified document metadata, not copied expected values. Preserve accepted OpenAI mapping.
 
-## Bounds and evidence
+A future fresh capture, if necessary, must have same-project quota headroom/wait evidence, a compliant invocation path and instrumentation that retains a sanitized per-field fixture before cleanup. Merely changing the Dispatch number is not sufficient.
 
-CODEX-03 budgets are exhausted and returned. Actual use: diagnostic query 1, temporary Store 1, temporary document 1, final confirmation 0, immutable versions 0, deployment updates 0. Cleanup passed. Any renewed provider call, version or deployment requires a new controller dispatch; version 67 remains prohibited.
+## Evidence and completion
 
-Evidence hierarchy:
+For CODEX-04: actual retained synthetic response/reference and actual quota metadata outrank schema or inference. UNKNOWN/UNAVAILABLE is permitted as an investigation result with one explicit next prerequisite; no Work PASS may be claimed.
 
-1. post-fix personal-DEV response/citation bound to the exact current authoritative source through production mapping;
-2. temporary-resource deletion/nonexistence confirmation;
-3. exact final source readback and same-private-Web-App shell smoke;
-4. observed-shape failing-before/passing-after tests, wrong-source/ambiguity/stale/inactive negatives;
-5. canonical checks, bundle reproducibility, secret scan and diff hygiene.
+Work completion still requires post-fix personal-DEV token/citation/source/hash correctness through production mapping, cleanup, exact source/runtime evidence and deterministic regressions. Only QUALIFIED_DISABLED with required evidence satisfies Work acceptance. Keep Gemini hidden/disabled pending final review.
 
-## Completion latch
+All prior source/version/call budgets expired on return. CODEX-04 allows one exact known Interaction read, <=2 HTTP attempts total, <=10 minutes local evidence search, one quota UI inspection plus one refresh, and no external mutations. Its instruction is authoritative.
 
-Only `QUALIFIED_DISABLED` on 3.7 with correct token/citation/source/hash, shared mapping parity, cleanup and logic/runtime PASS satisfies this scope. Keep Gemini disabled/hidden pending ChatGPT final review. Other terminal outcomes are safe stops and preserve the exact unresolved blocker. One evidence-led repair and one post-fix confirmation; no further model/transport/reindex experiment within CODEX-03.
-
-Large-file qualification, other models, company credentials/permissions, historical migration and rollout remain later work. No decision here authorizes confidential indexing.
+Large files, other models, migration, company credentials/permissions and rollout remain later work. No confidential indexing or billing change is authorized.
