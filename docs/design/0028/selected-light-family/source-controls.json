@@ -1,0 +1,1465 @@
+{
+  "source_sha": "c6701d075030385ee683925c0bbaef36221134ad",
+  "controls": [
+    {
+      "file": "Index.html",
+      "line": 15,
+      "tag": "button",
+      "id": "nav-meeting",
+      "class": "active",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 16,
+      "tag": "button",
+      "id": "nav-pitchbook",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 17,
+      "tag": "button",
+      "id": "nav-meeting-past",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 18,
+      "tag": "button",
+      "id": "nav-pitchbook-past",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 19,
+      "tag": "button",
+      "id": "nav-gp-workspace",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 20,
+      "tag": "button",
+      "id": "nav-entity-workspace",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 21,
+      "tag": "button",
+      "id": "nav-activity-analytics",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 22,
+      "tag": "button",
+      "id": "nav-relationship-explorer",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 23,
+      "tag": "button",
+      "id": "nav-masters",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 24,
+      "tag": "button",
+      "id": "nav-knowledge",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 25,
+      "tag": "button",
+      "id": "nav-ai-provider-settings",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 33,
+      "tag": "input",
+      "id": "meeting-date",
+      "type": "date",
+      "required": null
+    },
+    {
+      "file": "Index.html",
+      "line": 34,
+      "tag": "input",
+      "id": "meeting-time",
+      "type": "time"
+    },
+    {
+      "file": "Index.html",
+      "line": 35,
+      "tag": "select",
+      "id": "meeting-locationId"
+    },
+    {
+      "file": "Index.html",
+      "line": 36,
+      "tag": "select",
+      "id": "meeting-counterpartyType",
+      "required": null
+    },
+    {
+      "file": "Index.html",
+      "line": 37,
+      "tag": "select",
+      "id": "meeting-counterpartyId",
+      "required": null
+    },
+    {
+      "file": "Index.html",
+      "line": 37,
+      "tag": "button",
+      "id": "meeting-quick-add-counterparty",
+      "class": "small-button",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 38,
+      "tag": "select",
+      "id": "meeting-relatedGpIds",
+      "multiple": null,
+      "size": "5"
+    },
+    {
+      "file": "Index.html",
+      "line": 39,
+      "tag": "select",
+      "id": "meeting-assetClassId",
+      "required": null
+    },
+    {
+      "file": "Index.html",
+      "line": 40,
+      "tag": "select",
+      "id": "meeting-capitalTypeId"
+    },
+    {
+      "file": "Index.html",
+      "line": 41,
+      "tag": "select",
+      "id": "meeting-teamId"
+    },
+    {
+      "file": "Index.html",
+      "line": 42,
+      "tag": "input",
+      "id": "meeting-fundStrategy",
+      "maxlength": "500"
+    },
+    {
+      "file": "Index.html",
+      "line": 43,
+      "tag": "input",
+      "type": "checkbox",
+      "data-meeting-type": "meeting",
+      "value": "ANNUAL_REVIEW"
+    },
+    {
+      "file": "Index.html",
+      "line": 43,
+      "tag": "input",
+      "type": "checkbox",
+      "data-meeting-type": "meeting",
+      "value": "OFFICE_VISIT"
+    },
+    {
+      "file": "Index.html",
+      "line": 43,
+      "tag": "input",
+      "type": "checkbox",
+      "data-meeting-type": "meeting",
+      "value": "ANNUAL_GENERAL_MEETING"
+    },
+    {
+      "file": "Index.html",
+      "line": 44,
+      "tag": "select",
+      "id": "meeting-relatedPitchbookIds",
+      "multiple": null,
+      "size": "5"
+    },
+    {
+      "file": "Index.html",
+      "line": 45,
+      "tag": "input",
+      "id": "meeting-followUpRequired",
+      "type": "checkbox"
+    },
+    {
+      "file": "Index.html",
+      "line": 46,
+      "tag": "textarea",
+      "id": "meeting-followUpNote",
+      "maxlength": "2000"
+    },
+    {
+      "file": "Index.html",
+      "line": 47,
+      "tag": "input",
+      "id": "meeting-counterparty",
+      "maxlength": "500"
+    },
+    {
+      "file": "Index.html",
+      "line": 48,
+      "tag": "input",
+      "id": "meeting-internalParticipants",
+      "maxlength": "500"
+    },
+    {
+      "file": "Index.html",
+      "line": 49,
+      "tag": "textarea",
+      "id": "meeting-notes",
+      "maxlength": "20000",
+      "placeholder": "自由に記載してください。改行は保存されます。"
+    },
+    {
+      "file": "Index.html",
+      "line": 52,
+      "tag": "button",
+      "id": "meeting-clear",
+      "class": "action secondary",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 52,
+      "tag": "button",
+      "id": "meeting-submit",
+      "class": "action primary",
+      "type": "submit",
+      "disabled": null
+    },
+    {
+      "file": "Index.html",
+      "line": 62,
+      "tag": "input",
+      "id": "pitchbook-date",
+      "type": "date",
+      "required": null
+    },
+    {
+      "file": "Index.html",
+      "line": 63,
+      "tag": "select",
+      "id": "pitchbook-gpId",
+      "required": null
+    },
+    {
+      "file": "Index.html",
+      "line": 63,
+      "tag": "button",
+      "id": "pitchbook-quick-add-gp",
+      "class": "small-button",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 64,
+      "tag": "select",
+      "id": "pitchbook-assetClassId",
+      "required": null
+    },
+    {
+      "file": "Index.html",
+      "line": 65,
+      "tag": "select",
+      "id": "pitchbook-capitalTypeId"
+    },
+    {
+      "file": "Index.html",
+      "line": 66,
+      "tag": "input",
+      "id": "pitchbook-fundStrategy",
+      "maxlength": "500"
+    },
+    {
+      "file": "Index.html",
+      "line": 67,
+      "tag": "input",
+      "id": "pitchbook-files",
+      "class": "hidden-input",
+      "type": "file",
+      "multiple": null,
+      "accept": ".pdf,.pptx,.xlsx,.docx,.txt,.eml"
+    },
+    {
+      "file": "Index.html",
+      "line": 69,
+      "tag": "button",
+      "id": "pitchbook-clear",
+      "class": "action secondary",
+      "type": "button"
+    },
+    {
+      "file": "Index.html",
+      "line": 69,
+      "tag": "button",
+      "id": "pitchbook-retry",
+      "class": "action warning",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "Index.html",
+      "line": 69,
+      "tag": "button",
+      "id": "pitchbook-submit",
+      "class": "action primary",
+      "type": "submit",
+      "disabled": null
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 5,
+      "tag": "input",
+      "id": "meeting-past-dateFrom",
+      "type": "date"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 6,
+      "tag": "input",
+      "id": "meeting-past-dateTo",
+      "type": "date"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 7,
+      "tag": "select",
+      "id": "meeting-past-counterpartyType"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 8,
+      "tag": "select",
+      "id": "meeting-past-counterpartyId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 9,
+      "tag": "select",
+      "id": "meeting-past-relatedGpId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 10,
+      "tag": "select",
+      "id": "meeting-past-assetClassId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 11,
+      "tag": "select",
+      "id": "meeting-past-capitalTypeId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 12,
+      "tag": "select",
+      "id": "meeting-past-teamId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 13,
+      "tag": "input",
+      "id": "meeting-past-fundStrategy",
+      "maxlength": "500"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 14,
+      "tag": "select",
+      "id": "meeting-past-meetingTypeCode"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 15,
+      "tag": "input",
+      "id": "meeting-past-followUpOnly",
+      "type": "checkbox"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 16,
+      "tag": "select",
+      "id": "meeting-past-filterStatus"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 18,
+      "tag": "button",
+      "id": "meeting-past-search",
+      "class": "action primary",
+      "type": "button"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 23,
+      "tag": "button",
+      "id": "meeting-edit-close",
+      "class": "small-button",
+      "type": "button"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 25,
+      "tag": "input",
+      "id": "meeting-edit-meetingId",
+      "type": "hidden"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 25,
+      "tag": "input",
+      "id": "meeting-edit-expectedVersion",
+      "type": "hidden"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 27,
+      "tag": "input",
+      "id": "meeting-edit-date",
+      "type": "date",
+      "required": null
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 28,
+      "tag": "input",
+      "id": "meeting-edit-time",
+      "type": "time"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 29,
+      "tag": "select",
+      "id": "meeting-edit-locationId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 30,
+      "tag": "select",
+      "id": "meeting-edit-counterpartyType",
+      "required": null
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 31,
+      "tag": "select",
+      "id": "meeting-edit-counterpartyId",
+      "required": null
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 32,
+      "tag": "select",
+      "id": "meeting-edit-relatedGpIds",
+      "multiple": null,
+      "size": "5"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 33,
+      "tag": "select",
+      "id": "meeting-edit-assetClassId",
+      "required": null
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 34,
+      "tag": "select",
+      "id": "meeting-edit-capitalTypeId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 35,
+      "tag": "select",
+      "id": "meeting-edit-teamId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 36,
+      "tag": "input",
+      "id": "meeting-edit-fundStrategy",
+      "maxlength": "500"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 37,
+      "tag": "input",
+      "type": "checkbox",
+      "data-meeting-type": "meeting-edit",
+      "value": "ANNUAL_REVIEW"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 37,
+      "tag": "input",
+      "type": "checkbox",
+      "data-meeting-type": "meeting-edit",
+      "value": "OFFICE_VISIT"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 37,
+      "tag": "input",
+      "type": "checkbox",
+      "data-meeting-type": "meeting-edit",
+      "value": "ANNUAL_GENERAL_MEETING"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 38,
+      "tag": "select",
+      "id": "meeting-edit-relatedPitchbookIds",
+      "multiple": null,
+      "size": "5"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 39,
+      "tag": "input",
+      "id": "meeting-edit-followUpRequired",
+      "type": "checkbox"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 40,
+      "tag": "textarea",
+      "id": "meeting-edit-followUpNote",
+      "maxlength": "2000"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 41,
+      "tag": "input",
+      "id": "meeting-edit-counterparty",
+      "maxlength": "500"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 42,
+      "tag": "input",
+      "id": "meeting-edit-internalParticipants",
+      "maxlength": "500"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 43,
+      "tag": "textarea",
+      "id": "meeting-edit-notes",
+      "maxlength": "20000"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 45,
+      "tag": "button",
+      "class": "action primary",
+      "type": "submit"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 55,
+      "tag": "input",
+      "id": "pitchbook-past-dateFrom",
+      "type": "date"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 56,
+      "tag": "input",
+      "id": "pitchbook-past-dateTo",
+      "type": "date"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 57,
+      "tag": "select",
+      "id": "pitchbook-past-gpId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 58,
+      "tag": "select",
+      "id": "pitchbook-past-assetClassId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 59,
+      "tag": "select",
+      "id": "pitchbook-past-capitalTypeId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 60,
+      "tag": "input",
+      "id": "pitchbook-past-fundStrategy",
+      "maxlength": "500"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 61,
+      "tag": "select",
+      "id": "pitchbook-past-filterStatus"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 63,
+      "tag": "button",
+      "id": "pitchbook-past-search",
+      "class": "action primary",
+      "type": "button"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 68,
+      "tag": "button",
+      "id": "pitchbook-edit-close",
+      "class": "small-button",
+      "type": "button"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 70,
+      "tag": "input",
+      "id": "pitchbook-edit-documentId",
+      "type": "hidden"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 70,
+      "tag": "input",
+      "id": "pitchbook-edit-expectedUpdatedAt",
+      "type": "hidden"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 72,
+      "tag": "input",
+      "id": "pitchbook-edit-date",
+      "type": "date",
+      "required": null
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 73,
+      "tag": "select",
+      "id": "pitchbook-edit-gpId",
+      "required": null
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 74,
+      "tag": "select",
+      "id": "pitchbook-edit-assetClassId",
+      "required": null
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 75,
+      "tag": "select",
+      "id": "pitchbook-edit-capitalTypeId"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 76,
+      "tag": "input",
+      "id": "pitchbook-edit-fundStrategy",
+      "maxlength": "500"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 78,
+      "tag": "button",
+      "class": "action primary",
+      "type": "submit"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 86,
+      "tag": "button",
+      "id": "masters-refresh",
+      "class": "small-button",
+      "type": "button"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 89,
+      "tag": "input",
+      "id": "gp-add-name",
+      "maxlength": "200",
+      "placeholder": "GP名"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 89,
+      "tag": "button",
+      "class": "action primary",
+      "type": "submit"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 93,
+      "tag": "select",
+      "id": "option-add-type"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 93,
+      "tag": "input",
+      "id": "option-add-name",
+      "maxlength": "200",
+      "placeholder": "選択肢名"
+    },
+    {
+      "file": "MaintenancePages.html",
+      "line": 93,
+      "tag": "button",
+      "class": "action primary",
+      "type": "submit"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 6,
+      "tag": "select",
+      "id": "knowledge-route"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 14,
+      "tag": "select",
+      "id": "knowledge-mode"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 25,
+      "tag": "select",
+      "id": "knowledge-model-profile",
+      "disabled": null
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 29,
+      "tag": "select",
+      "id": "knowledge-thinking-profile",
+      "disabled": null
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 36,
+      "tag": "input",
+      "id": "knowledge-dateFrom",
+      "type": "date"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 37,
+      "tag": "input",
+      "id": "knowledge-dateTo",
+      "type": "date"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 38,
+      "tag": "select",
+      "id": "knowledge-counterpartyType"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 39,
+      "tag": "select",
+      "id": "knowledge-entityKey"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 40,
+      "tag": "select",
+      "id": "knowledge-entityKeys",
+      "multiple": null,
+      "size": "5",
+      "aria-describedby": "knowledge-multi-entity-help"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 41,
+      "tag": "select",
+      "id": "knowledge-gpId"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 42,
+      "tag": "select",
+      "id": "knowledge-assetClassId"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 43,
+      "tag": "select",
+      "id": "knowledge-capitalTypeId"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 44,
+      "tag": "select",
+      "id": "knowledge-teamId"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 45,
+      "tag": "select",
+      "id": "knowledge-fundStrategy"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 46,
+      "tag": "select",
+      "id": "knowledge-followUp"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 47,
+      "tag": "select",
+      "id": "knowledge-relatedGpId"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 48,
+      "tag": "select",
+      "id": "knowledge-meetingTypeCode"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 49,
+      "tag": "select",
+      "id": "knowledge-sourceType",
+      "aria-describedby": "knowledge-source-help"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 53,
+      "tag": "textarea",
+      "id": "knowledge-instruction",
+      "maxlength": "5000",
+      "placeholder": "例: 最近の資料では、APACインフラの投資機会についてどのような見解が示されていますか？"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 59,
+      "tag": "button",
+      "id": "knowledge-clear",
+      "class": "action secondary",
+      "type": "button"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 60,
+      "tag": "button",
+      "id": "knowledge-submit",
+      "class": "action primary",
+      "type": "submit",
+      "disabled": null
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 65,
+      "tag": "button",
+      "id": "knowledge-recheck",
+      "class": "action secondary",
+      "type": "button",
+      "hidden": null
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 81,
+      "tag": "button",
+      "id": "knowledge-export-preview-button",
+      "class": "action secondary",
+      "type": "button"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 87,
+      "tag": "button",
+      "id": "knowledge-export-copy",
+      "class": "action primary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 88,
+      "tag": "button",
+      "id": "knowledge-export-docs",
+      "class": "action primary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 89,
+      "tag": "button",
+      "id": "knowledge-export-pdf",
+      "class": "action primary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 96,
+      "tag": "button",
+      "id": "knowledge-export-prompt",
+      "class": "action secondary",
+      "type": "button"
+    },
+    {
+      "file": "KnowledgeSearchPage.html",
+      "line": 101,
+      "tag": "textarea",
+      "id": "knowledge-export-prompt-text",
+      "readonly": null,
+      "aria-describedby": "knowledge-export-policy"
+    },
+    {
+      "file": "GpWorkspacePage.html",
+      "line": 5,
+      "tag": "button",
+      "id": "gp-workspace-print-button",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "GpWorkspacePage.html",
+      "line": 7,
+      "tag": "select",
+      "id": "gp-workspace-gpId"
+    },
+    {
+      "file": "EntityWorkspacePage.html",
+      "line": 5,
+      "tag": "button",
+      "id": "entity-workspace-print-button",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "EntityWorkspacePage.html",
+      "line": 8,
+      "tag": "select",
+      "id": "entity-workspace-type"
+    },
+    {
+      "file": "EntityWorkspacePage.html",
+      "line": 9,
+      "tag": "select",
+      "id": "entity-workspace-entity"
+    },
+    {
+      "file": "EntityWorkspacePage.html",
+      "line": 18,
+      "tag": "select",
+      "id": "entity-workspace-fund"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 7,
+      "tag": "select",
+      "id": "activity-period"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 8,
+      "tag": "input",
+      "id": "activity-date-from",
+      "type": "date"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 9,
+      "tag": "input",
+      "id": "activity-date-to",
+      "type": "date"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 10,
+      "tag": "select",
+      "id": "activity-dimension"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 11,
+      "tag": "select",
+      "id": "activity-filter-counterpartyType"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 12,
+      "tag": "select",
+      "id": "activity-filter-counterpartyEntity"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 13,
+      "tag": "select",
+      "id": "activity-filter-relatedGp"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 14,
+      "tag": "select",
+      "id": "activity-filter-assetClass"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 15,
+      "tag": "select",
+      "id": "activity-filter-team"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 16,
+      "tag": "select",
+      "id": "activity-filter-meetingType"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 17,
+      "tag": "select",
+      "id": "activity-filter-status"
+    },
+    {
+      "file": "ActivityAnalyticsPage.html",
+      "line": 19,
+      "tag": "button",
+      "id": "activity-analytics-refresh",
+      "class": "action primary",
+      "type": "button"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 7,
+      "tag": "input",
+      "id": "relationship-date-from",
+      "type": "date"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 8,
+      "tag": "input",
+      "id": "relationship-date-to",
+      "type": "date"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 9,
+      "tag": "select",
+      "id": "relationship-counterparty-type"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 10,
+      "tag": "select",
+      "id": "relationship-counterparty-entity"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 11,
+      "tag": "select",
+      "id": "relationship-related-gp"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 12,
+      "tag": "select",
+      "id": "relationship-pitchbook-gp"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 13,
+      "tag": "select",
+      "id": "relationship-asset-class"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 14,
+      "tag": "select",
+      "id": "relationship-fund-strategy"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 15,
+      "tag": "select",
+      "id": "relationship-meeting-status"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 16,
+      "tag": "select",
+      "id": "relationship-pitchbook-status"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 18,
+      "tag": "button",
+      "id": "relationship-explorer-clear",
+      "class": "action secondary",
+      "type": "button"
+    },
+    {
+      "file": "RelationshipExplorerPage.html",
+      "line": 18,
+      "tag": "button",
+      "id": "relationship-explorer-refresh",
+      "class": "action primary",
+      "type": "button"
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 16,
+      "tag": "input",
+      "id": "shared-admin-bootstrap-password",
+      "type": "password",
+      "autocomplete": "new-password",
+      "spellcheck": "false",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 18,
+      "tag": "input",
+      "id": "shared-admin-bootstrap-confirmation",
+      "type": "password",
+      "autocomplete": "new-password",
+      "spellcheck": "false",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 19,
+      "tag": "button",
+      "id": "shared-admin-bootstrap",
+      "class": "action primary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 23,
+      "tag": "input",
+      "id": "shared-admin-unlock-password",
+      "type": "password",
+      "autocomplete": "current-password",
+      "spellcheck": "false",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 24,
+      "tag": "button",
+      "id": "shared-admin-unlock",
+      "class": "action primary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 27,
+      "tag": "button",
+      "id": "shared-admin-logout",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 29,
+      "tag": "input",
+      "id": "shared-admin-new-password",
+      "type": "password",
+      "autocomplete": "new-password",
+      "spellcheck": "false",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 31,
+      "tag": "input",
+      "id": "shared-admin-new-password-confirmation",
+      "type": "password",
+      "autocomplete": "new-password",
+      "spellcheck": "false",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 32,
+      "tag": "button",
+      "id": "shared-admin-change-password",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 45,
+      "tag": "input",
+      "id": "ai-provider-openai-key-input",
+      "type": "password",
+      "autocomplete": "new-password",
+      "spellcheck": "false",
+      "placeholder": "Script Propertiesへ安全に保存"
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 47,
+      "tag": "select",
+      "id": "ai-provider-sync-source",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 53,
+      "tag": "input",
+      "id": "ai-provider-sync-source-id",
+      "type": "text",
+      "autocomplete": "off",
+      "spellcheck": "false",
+      "placeholder": "例: DOC-000017",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 54,
+      "tag": "button",
+      "id": "ai-provider-openai-enable",
+      "class": "action primary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 55,
+      "tag": "button",
+      "id": "ai-provider-openai-disable",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 56,
+      "tag": "button",
+      "id": "ai-provider-openai-sync",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 70,
+      "tag": "input",
+      "id": "ai-provider-gemini-key-input",
+      "type": "password",
+      "autocomplete": "new-password",
+      "spellcheck": "false",
+      "placeholder": "Script Propertiesへ安全に保存"
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 72,
+      "tag": "select",
+      "id": "ai-provider-gemini-sync-source",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 74,
+      "tag": "input",
+      "id": "ai-provider-gemini-sync-source-id",
+      "type": "text",
+      "autocomplete": "off",
+      "spellcheck": "false",
+      "placeholder": "例: DOC-000017",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 75,
+      "tag": "button",
+      "id": "ai-provider-gemini-connect",
+      "class": "action primary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 76,
+      "tag": "button",
+      "id": "ai-provider-gemini-enable",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 77,
+      "tag": "button",
+      "id": "ai-provider-gemini-disable",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 78,
+      "tag": "button",
+      "id": "ai-provider-gemini-sync",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 87,
+      "tag": "select",
+      "id": "ai-model-profile-select",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 90,
+      "tag": "input",
+      "id": "ai-model-profile-id",
+      "type": "text",
+      "autocomplete": "off",
+      "placeholder": "openai-approved-model",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 91,
+      "tag": "select",
+      "id": "ai-model-provider",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 92,
+      "tag": "input",
+      "id": "ai-model-id",
+      "type": "text",
+      "autocomplete": "off",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 93,
+      "tag": "input",
+      "id": "ai-model-display-name",
+      "type": "text",
+      "autocomplete": "off",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 94,
+      "tag": "input",
+      "id": "ai-model-family",
+      "type": "text",
+      "autocomplete": "off",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 95,
+      "tag": "input",
+      "id": "ai-model-max-output",
+      "type": "number",
+      "min": "1",
+      "max": "65536",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 99,
+      "tag": "textarea",
+      "id": "ai-model-thinking-profiles",
+      "placeholder": "provider-default | プロバイダ標準 |\nlow | Low | low",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 102,
+      "tag": "input",
+      "id": "ai-model-default-thinking",
+      "type": "text",
+      "autocomplete": "off",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 103,
+      "tag": "input",
+      "id": "ai-model-enabled",
+      "type": "checkbox",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 104,
+      "tag": "input",
+      "id": "ai-model-user-visible",
+      "type": "checkbox",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 105,
+      "tag": "input",
+      "id": "ai-model-provider-default",
+      "type": "checkbox",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 113,
+      "tag": "button",
+      "id": "ai-model-policy-migrate",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 114,
+      "tag": "button",
+      "id": "ai-model-profile-save",
+      "class": "action primary",
+      "type": "button",
+      "disabled": null
+    },
+    {
+      "file": "AiProviderSettingsPage.html",
+      "line": 115,
+      "tag": "button",
+      "id": "ai-model-profile-qualify",
+      "class": "action secondary",
+      "type": "button",
+      "disabled": null
+    }
+  ]
+}

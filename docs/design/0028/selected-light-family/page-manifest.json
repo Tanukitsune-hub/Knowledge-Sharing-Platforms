@@ -1,0 +1,95 @@
+{
+  "source_sha": "c6701d075030385ee683925c0bbaef36221134ad",
+  "pages": [
+    {
+      "file": "01-search.html",
+      "title": "ナレッジ検索",
+      "active": "01-search"
+    },
+    {
+      "file": "02-meetings.html",
+      "title": "過去の面談記録",
+      "active": "02-meetings"
+    },
+    {
+      "file": "03-pitchbooks.html",
+      "title": "過去の資料",
+      "active": "03-pitchbooks"
+    },
+    {
+      "file": "04-meeting-form.html",
+      "title": "面談を登録",
+      "active": "04-meeting-form"
+    },
+    {
+      "file": "04b-meeting-edit.html",
+      "title": "面談記録を編集",
+      "active": "02-meetings"
+    },
+    {
+      "file": "05-pitchbook-form.html",
+      "title": "資料を登録",
+      "active": "05-pitchbook-form"
+    },
+    {
+      "file": "05b-pitchbook-edit.html",
+      "title": "資料の分類情報を編集",
+      "active": "03-pitchbooks"
+    },
+    {
+      "file": "06-gp.html",
+      "title": "GP Workspace",
+      "active": "06-gp"
+    },
+    {
+      "file": "07-entity.html",
+      "title": "Entity Workspace",
+      "active": "07-entity"
+    },
+    {
+      "file": "07b-entity-gp.html",
+      "title": "Entity Workspace · GP context",
+      "active": "07-entity"
+    },
+    {
+      "file": "08-analytics.html",
+      "title": "面談活動の集計",
+      "active": "08-analytics"
+    },
+    {
+      "file": "09-relationships.html",
+      "title": "面談と資料の関連",
+      "active": "09-relationships"
+    },
+    {
+      "file": "10-masters.html",
+      "title": "マスター管理",
+      "active": "10-masters"
+    },
+    {
+      "file": "11-provider.html",
+      "title": "AIプロバイダ設定",
+      "active": "11-provider"
+    },
+    {
+      "file": "11b-admin-detail.html",
+      "title": "管理者モード · 設定操作",
+      "active": "11-provider"
+    },
+    {
+      "file": "12-search-states.html",
+      "title": "ナレッジ検索 · 状態参照",
+      "active": "01-search"
+    },
+    {
+      "file": "13-export.html",
+      "title": "全文出力 · 状態参照",
+      "active": "01-search"
+    },
+    {
+      "file": "14-record-states.html",
+      "title": "記録の操作 · 状態参照",
+      "active": "02-meetings"
+    }
+  ]
+}
