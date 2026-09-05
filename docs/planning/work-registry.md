@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Gate 1 selected B-based hybrid with left sidebar; next create one corrected selected-Light composite before selected Dark design |
+| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | 0028-CODEX-04 READY: apply selected Light design across major current pages and review input/layout placement |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -86,22 +86,16 @@ The temporary personal-DEV administrator password remains intentionally temporar
 
 ### Work 0028
 
-Work 0028 is a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.5 / selected-Light refinement.
+Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.6 / cross-page selected-Light family.
 
-`0028-CODEX-03` used Product Design on Draft PR #40 and returned 11 Light PNG artifacts plus inventory/comparison evidence at head `a4ec3eeee70848d443ea3b152c10327f447ef6ed`. It returned PARTIAL with `VISUAL_CONTRACT_PARITY_NOT_MET`: the images are useful for direction selection but contain documented wording/control omissions and are not an implementation-ready pixel target. Production source and runtime were unchanged; Draft PR #40 remains unmerged.
+CODEX-03 returned PARTIAL on Draft PR #40 after the A/B/C Light comparison. The user then closed the visual direction in ChatGPT. The current selected Light system is: B-like persistent left-sidebar workspace, A-like Knowledge Search clarity, C-like maintenance-table density, bright warm-white main content, sidebar token `#182124`, restrained gold accents, a clean geometric gold sayagata motif fading from the lower-left, and Nippon Life red `#E1001F` only as a thin left strip on the active sidebar item. No other red use is selected. `CHART_SURFACE_THEME: LIGHT_FIXED` remains planned for Dark.
 
-After viewing the alternatives, the user selected a persistent left-sidebar layout because normal users work mainly on wide desktop screens. Gate 1 is therefore closed at the direction level:
+`0028-CODEX-04` is issued to apply this one selected visual language consistently across the real major page family and to review page-specific form/input placement, grouping, width, ordering, density and progressive disclosure. It is design-only: no production source/runtime/build/deployment changes are authorized.
 
-- base shell/navigation: B Workspace / persistent left sidebar;
-- Knowledge Search: A-like linear question/search/result clarity;
-- record/maintenance views: C-like moderately dense, scan-friendly tables;
-- keep visible interactive boundaries and Japanese task-oriented wording;
-- design desktop-first for wide screens while preserving a reasonable laptop/smaller-width fallback;
-- keep `CHART_SURFACE_THEME: LIGHT_FIXED` for the later Dark design.
+Current execution contract: `docs/handoffs/0028-CODEX-04-cross-page-light-family-instruction.md`.
+Current ball/status: `docs/handoffs/0028-dispatches.md`.
 
-This selection does not accept the erroneous B PNG as-is. Before Dark design, create one corrected selected-Light composite/reference using only already-reviewed A/B/C elements and resolving the known PR #40 errata. Then review that selected Light reference; only afterward create the selected Dark design. Production implementation still requires selected Light/Dark approval plus explicit authorization. Deployment remains separately scoped.
-
-Current ball and next action are authoritative in `docs/handoffs/0028-dispatches.md`.
+After CODEX-04 review, the user may approve/correct the selected Light cross-page family. Only then create the selected Dark family. Production implementation requires explicit authorization after Light/Dark approval. Deployment remains separately scoped.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
@@ -109,7 +103,7 @@ The shared-administrator-password implementation was initially developed on an i
 
 Work 0029 became the canonical identity. CODEX-01 selectively ported the validated product/test changes onto current main, corrected only shared-admin Work metadata to 0029, regenerated distribution artifacts from the canonical implementation commit, and passed one version-75 runtime alignment smoke. Work 0028 control files remained byte-identical during that reconciliation. ChatGPT reviewed the result, merged PR #39, and applied the Work 0029 completion latch. PR #38 remains superseded, closed and unmerged.
 
-Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers on the superseded line. They are recorded as tombstones, not recycled for UI/UX. `0028-CODEX-03` is the Product Design Light-comparison dispatch and is now returned. The next dispatch, if issued, is `0028-CODEX-04`.
+Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers on the superseded line. They are recorded as tombstones, not recycled for UI/UX. `0028-CODEX-03` is the returned Product Design Light-comparison dispatch. `0028-CODEX-04` is the current selected-Light cross-page design dispatch.
 
 ## Scope discipline
 
