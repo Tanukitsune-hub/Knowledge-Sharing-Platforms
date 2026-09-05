@@ -14,6 +14,8 @@ ChatGPT owns the design/research/planning work. No Codex dispatch exists. `READY
 
 The 2026-09-05 user request authorized refining the implementation plan and updating GitHub, including Light/Dark/System behavior. It did not authorize starting mocks, editing production source, running Codex, calling the runtime or deploying. The planning task is complete; there is no ongoing background run.
 
+The user's subsequent delegation of specialist decisions and uncertainty about the Work ID were resolved against the registry: this outcome remains Work 0028. Do not rename it, allocate a duplicate Work, reopen Work 0027, or interpret delegation as waiving the explicit visual-selection gate.
+
 ## Outcome and sources of truth
 
 Improve existing Knowledge Share design, navigation, information hierarchy, user-facing language and state/result/source presentation without major backend changes.
@@ -26,6 +28,18 @@ Improve existing Knowledge Share design, navigation, information hierarchy, user
 Planning source baseline: `e90d6f31205249b6de7720896708cdef3e0ba212`.
 
 Work 0027 is ACCEPTED, with the recorded qualified-disabled Gemini state. Do not reopen it or display Gemini as currently enabled merely for a design comparison.
+
+## Planning reconciliation receipt — 2026-09-05
+
+The existing docs-only plan update at `bec1af7001e6756ff7a36dfbeee0f078de1a0d44` was retained rather than duplicated. Plan refinement `65bb2a5280a0bd232f25b0014e84da8c95af44c3` integrates bounded inspection across the 14 priority UI files and clarifies:
+
+- Activity Analytics is `面談活動の集計`, not a new combined Meeting/Pitchbook or investment-performance dataset.
+- Existing full-output presentation is Meeting original text plus Pitchbook reference links; source/package restrictions and fingerprints stay unchanged.
+- The past-Meeting counterparty column may contain non-GP entities; its proposed label is `面談先`.
+- Relationship history preserves inactive/unresolved links. An existing navigation-only action must not be presented as opening a particular record for editing.
+- Theme storage is browser-local, not Google-account synchronization; actual GAS embedding remains a later verification item.
+
+This is source-based planning evidence, not completed visual mocks, a full rendered audit, or runtime qualification. Remaining conditional surfaces are inventoried before A1.
 
 ## Closed conclusions
 
@@ -57,13 +71,13 @@ Gate 2: user approves selected Light/Dark design and explicitly authorizes imple
 
 No Codex dispatch has been issued for Work 0028. Do not reserve or create an instruction/report file for `0028-CODEX-01` before the gate.
 
-Route A planning update: Dispatch ID N/A; ChatGPT-only; GitHub Markdown changes only.
+Route A planning update and reconciliation: Dispatch ID N/A; ChatGPT-only; GitHub Markdown changes only.
 
 ## Evidence and completion latch
 
 ```text
 PLANNING_UPDATE: COMPLETE
-SOURCE_PREFLIGHT: PARTIAL / NOT A RENDERED AUDIT
+SOURCE_PREFLIGHT: 14 PRIORITY FILES INSPECTED IN BOUNDED RANGES / NOT A FULL OR RENDERED AUDIT
 FULL_SURFACE_INVENTORY: PENDING
 THREE_LIGHT_MOCKS: NOT_STARTED
 HEURISTIC_REVIEW: NOT_RUN
