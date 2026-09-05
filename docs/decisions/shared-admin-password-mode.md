@@ -16,8 +16,9 @@ For the AI Provider Settings management page:
 - there is no time-based automatic administrator-session expiry;
 - unlock persists for the browser page session using `sessionStorage`, not `localStorage`;
 - explicit `管理者モードを終了` removes the browser token;
+- the UI includes shared administrator password change;
 - changing the shared password invalidates all previously issued administrator tokens;
-- the password itself must never be stored in source, GitHub, Sheets, logs, Audit, or browser storage.
+- password plaintext must never be persisted in product source, Script Properties, Sheets, logs, Audit or browser storage.
 
 The user explicitly prefers this simple trusted-team model over named-account administration, Google Group administration, MFA, timed expiry, or lockout mechanisms.
 
@@ -29,7 +30,7 @@ Password verification must use an Apps-Script-native digest/HMAC design with a r
 
 A successful unlock returns an opaque signed administrator-session token containing no email/account identity and no expiry timestamp. The token is signed server-side and includes the current credential generation plus a random nonce. Every administrator mutation verifies the token server-side. Credential rotation increments the generation so all earlier tokens fail.
 
-The client stores only the opaque session token in `sessionStorage`. It must never store the password. No token or password may appear in URLs, console output, errors, Audit rows, telemetry, GitHub, or reports.
+The client stores only the opaque session token in `sessionStorage`. It must never store the password. No token or real secret password may appear in URLs, console output, errors, Audit rows or telemetry.
 
 ## Bootstrap and migration
 
@@ -39,7 +40,9 @@ Existing installations already have account/email-based AI administrator authori
 2. after shared-password initialization succeeds, the legacy account/email alone no longer grants AI Provider Settings mutation rights;
 3. all normal future AI Provider Settings mutations require a valid shared administrator-session token.
 
-This preserves a safe migration path without making routine administration dependent on the original administrator's account.
+For the current personal-DEV Work 0028 qualification, the user explicitly authorized ChatGPT to disclose a temporary bootstrap password to Codex so Codex can complete bootstrap/unlock without a USER handoff. That runtime value is not a product default, must not be hard-coded, and will be changed by the user after introduction. Product code must support arbitrary future passwords entered through the UI.
+
+Password change is part of Work 0028. It requires an already valid shared administrator session, rotates the verifier/generation, invalidates previous tokens, and leaves the current browser in a coherent post-change state.
 
 Emergency forgotten-password recovery is not a normal Web App flow in Work 0028. A script owner can perform a separately documented operator recovery if ever required.
 
