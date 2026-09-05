@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-05
+Current as of: 2026-09-06
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | 0028-CODEX-04 READY: apply selected Light design across major current pages and review input/layout placement |
+| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | 0028-CODEX-05 READY: refine PR #41 Light family from user visual review, then return for final Light acceptance |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -86,16 +86,40 @@ The temporary personal-DEV administrator password remains intentionally temporar
 
 ### Work 0028
 
-Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.6 / cross-page selected-Light family.
+Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.7 / selected-Light refinement.
 
-CODEX-03 returned PARTIAL on Draft PR #40 after the A/B/C Light comparison. The user then closed the visual direction in ChatGPT. The current selected Light system is: B-like persistent left-sidebar workspace, A-like Knowledge Search clarity, C-like maintenance-table density, bright warm-white main content, sidebar token `#182124`, restrained gold accents, a clean geometric gold sayagata motif fading from the lower-left, and Nippon Life red `#E1001F` only as a thin left strip on the active sidebar item. No other red use is selected. `CHART_SURFACE_THEME: LIGHT_FIXED` remains planned for Dark.
+CODEX-03 returned PARTIAL on Draft PR #40 after the A/B/C Light comparison. The user then closed the visual direction in ChatGPT. CODEX-04 applied that direction across the current major page family and returned Draft PR #41 at head `46d16b46535239e2ce91f7d6bf362836bfaf9985`. ChatGPT technical review passed the design package, but user visual acceptance remained pending.
 
-`0028-CODEX-04` is issued to apply this one selected visual language consistently across the real major page family and to review page-specific form/input placement, grouping, width, ordering, density and progressive disclosure. It is design-only: no production source/runtime/build/deployment changes are authorized.
+The user then requested a bounded Light correction batch. `0028-CODEX-05` is issued to refine PR #41 without reopening the visual direction or changing production source/runtime.
 
-Current execution contract: `docs/handoffs/0028-CODEX-04-cross-page-light-family-instruction.md`.
+Preserved Light system:
+
+- B-like persistent left-sidebar workspace;
+- A-like Knowledge Search clarity;
+- C-like maintenance-table density;
+- sidebar token `#182124`;
+- restrained gold accents;
+- clean geometric gold sayagata lower-left fading upper-right;
+- Nippon Life red `#E1001F` only as a thin active-item left strip;
+- white Light cards and visible control boundaries;
+- `CHART_SURFACE_THEME: LIGHT_FIXED` for future Dark.
+
+CODEX-05 required refinements:
+
+- normal-user Knowledge Search shows one model/profile selector; visible Thinking is removed while admin policy remains;
+- Past Pitchbook source action is clearly labelled `原資料を開く` while preserving current new-tab URL behavior;
+- Meeting register/edit fields are compacted into the user-selected 3-row arrangement;
+- Pitchbook classification edit uses one desktop row for Date/GP/Asset Class/Equity-Debt;
+- GP Workspace moves print/PDF next to GP selector and reduces headline summary to Meeting count / Document count / last Meeting date;
+- cross-page vertical whitespace is reduced reasonably;
+- Light page background moves from yellow/cream cast to cool light slate/blue-gray with white cards;
+- sidebar gets a consistent refined thin-line local/inline SVG icon family;
+- sayagata repeat is made materially denser/smaller-scale than PR #41.
+
+Current execution contract: `docs/handoffs/0028-CODEX-05-light-family-refinement-instruction.md`.
 Current ball/status: `docs/handoffs/0028-dispatches.md`.
 
-After CODEX-04 review, the user may approve/correct the selected Light cross-page family. Only then create the selected Dark family. Production implementation requires explicit authorization after Light/Dark approval. Deployment remains separately scoped.
+After CODEX-05 review, the user may accept/correct the refined selected Light family. Only after Light acceptance create the selected Dark family. Production implementation requires explicit authorization after Light/Dark approval. Deployment remains separately scoped.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
@@ -103,7 +127,7 @@ The shared-administrator-password implementation was initially developed on an i
 
 Work 0029 became the canonical identity. CODEX-01 selectively ported the validated product/test changes onto current main, corrected only shared-admin Work metadata to 0029, regenerated distribution artifacts from the canonical implementation commit, and passed one version-75 runtime alignment smoke. Work 0028 control files remained byte-identical during that reconciliation. ChatGPT reviewed the result, merged PR #39, and applied the Work 0029 completion latch. PR #38 remains superseded, closed and unmerged.
 
-Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers on the superseded line. They are recorded as tombstones, not recycled for UI/UX. `0028-CODEX-03` is the returned Product Design Light-comparison dispatch. `0028-CODEX-04` is the current selected-Light cross-page design dispatch.
+Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers on the superseded line. They are recorded as tombstones, not recycled for UI/UX. `0028-CODEX-03` is the returned Product Design Light-comparison dispatch. `0028-CODEX-04` is the returned selected-Light cross-page design dispatch. `0028-CODEX-05` is the current bounded Light refinement dispatch.
 
 ## Scope discipline
 
