@@ -18,9 +18,11 @@ BASE_MAIN: b0efbbfd8a5ce5c2e3b3d64f5ccba56838306ef2
 EXACT_STARTING_REF: 10a0cc8ea6681f91eada5a9d4d4fbb81c3dba43e
 IMPLEMENTATION_COMMIT: af96c145e999ac7bed9d7aa4862e41b87ad17c82
 PRIVATE_WEB_APP: version 74
-WORK_ACCEPTANCE: MET
-READY: YES / ChatGPT final review
-BLOCKER: NONE
+WORK_ACCEPTANCE: NOT_MET / GitHub reconciliation pending
+FUNCTIONAL_ACCEPTANCE: MET
+GITHUB_DELIVERY: BLOCKED
+READY: NO
+BLOCKER: GITHUB_WORK_ID_COLLISION
 ADMIN_PAGE_READ_ONLY: PASS while locked
 ADMIN_MUTATIONS_AFTER_MIGRATION: shared password session required
 ACCOUNT_BOUND_ADMIN_AFTER_MIGRATION: rejected for AI Provider Settings mutation
@@ -41,7 +43,9 @@ Provider calls, API-key changes, provider/model policy changes, Store mutations,
 
 ## Completion latch
 
-CODEX-02 is returned to ChatGPT for final review. Do not allocate another Work 0028 dispatch for non-blocking refinement. Any future password policy, recovery, MFA, rollout, or unrelated provider outcome requires separately scoped work.
+CODEX-02 functional and runtime gates are complete. A fresh final check found that latest `origin/main` independently uses Work 0028 for an unrelated UI/UX design outcome, leaving PR #38 conflicting in Work control/tracking files. Do not resolve by silently overwriting main or renumbering either outcome. ChatGPT must assign distinct Work identity or explicitly reconcile the collision before this PR can become merge-ready.
+
+Do not allocate another Work 0028 dispatch for non-blocking refinement. Any future password policy, recovery, MFA, rollout, or unrelated provider outcome requires separately scoped work.
 
 WORK_ID: 0028
 ACTIVE_DISPATCH_ID: 0028-CODEX-02

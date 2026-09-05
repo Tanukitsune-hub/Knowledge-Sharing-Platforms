@@ -2,8 +2,8 @@
 
 LAST_RUNTIME_EVIDENCE_AT: 2026-09-05 JST
 LAST_RUNTIME_EVIDENCE_BY: Codex, Work 0028 CODEX-02 shared administrator mode qualification
-LATEST_CONTROLLER_ACTION: Codex returned Work 0028 CODEX-02 for ChatGPT final review
-STATUS: version 74 deployed; shared administrator credential configured and locked; Work 0027 provider state preserved
+LATEST_CONTROLLER_ACTION: Codex returned Work 0028 CODEX-02 with GitHub Work-ID reconciliation required
+STATUS: version 74 deployed and runtime-qualified; shared administrator credential configured and locked; PR #38 conflicting with unrelated main Work 0028 tracking
 
 ## Source and accepted state
 
@@ -18,6 +18,8 @@ WORK_0028_BUNDLE: 94edc01f71d7627af2cba4f216002b805b72094c
 CURRENT_ACTIVE_WORK: 0028
 BALL: CHATGPT
 STATUS: RETURNED
+GITHUB_PR_38: Draft / Open / unmerged / conflicting
+GITHUB_DELIVERY_BLOCKER: GITHUB_WORK_ID_COLLISION
 ```
 
 Do not record local workspace paths, private editor/deployment URLs, Script IDs, deployment IDs, Google Drive/Spreadsheet IDs, provider Store/document resource names, credentials, or signed URLs here.

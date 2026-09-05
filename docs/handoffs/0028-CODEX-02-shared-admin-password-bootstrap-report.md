@@ -12,14 +12,17 @@ The shared administrator-password mode is implemented, deterministically validat
 
 The supplied temporary DEV bootstrap value was entered only into password-type UI fields. It is not present as a product default or fallback and was not persisted as plaintext in source, Script Properties, Sheets, Audit, logs, browser storage, fixtures, reports, or GitHub. The runtime remains on that temporary value for the user to rotate later through the implemented password-change UI.
 
+After the scoped result was pushed, a fresh GitHub-source-of-truth check found that `origin/main` had independently registered an unrelated UI/UX design outcome under the same Work ID 0028. PR #38 is therefore conflicting in the two Work control files and the Work registry. No merge or conflict resolution was attempted: choosing which distinct outcome retains Work 0028, or renumbering either outcome, is a controller decision outside this dispatch.
+
 ```text
 TERMINAL_OUTCOME: QUALIFIED_SHARED_ADMIN_MODE
 IMPLEMENTATION: PASS
 LOGIC_VALIDATION: PASS
 TARGET_RUNTIME_QUALIFICATION: PASS
-WORK_ACCEPTANCE: MET
-READY: YES / for ChatGPT final review
-BLOCKER: NONE
+WORK_ACCEPTANCE: NOT_MET / GitHub reconciliation pending
+GITHUB_DELIVERY: BLOCKED
+READY: NO
+BLOCKER: GITHUB_WORK_ID_COLLISION
 ```
 
 ## Git and implementation
@@ -30,8 +33,9 @@ EXACT_STARTING_REF: 10a0cc8ea6681f91eada5a9d4d4fbb81c3dba43e
 IMPLEMENTATION_COMMIT: af96c145e999ac7bed9d7aa4862e41b87ad17c82
 BUNDLE_COMMIT: 94edc01f71d7627af2cba4f216002b805b72094c
 FINAL_COMMIT: this report/tracking commit; resolve from PR #38 head and final return
+LATEST_ORIGIN_MAIN_OBSERVED: 8a88c027764756a566e494799bba34afe98587c9
 BRANCH: agent/0028-shared-admin-password
-PR: #38 / Draft / Open / unmerged
+PR: #38 / Draft / Open / unmerged / conflicting
 ```
 
 The implementation adds one reusable server auth primitive with Apps-Script-native HMAC, random salt, random signing material, credential generation, constant-time comparison, script-lock-protected bootstrap/rotation, and an opaque signed token containing only version, generation, random nonce, and signature. The client stores only that token in `sessionStorage`, revalidates it with the server before enabling mutation controls, and removes it on explicit logout.
@@ -136,9 +140,12 @@ IMPLEMENTATION: PASS
 LOGIC_VALIDATION: PASS
 TARGET_RUNTIME_QUALIFICATION: PASS
 SIDE_EFFECT_STATE: CLEAN / intended shared credential plus version-74 deployment only
-READY: YES / ChatGPT final review
-BLOCKER: NONE
+FUNCTIONAL_ACCEPTANCE: MET
+GITHUB_DELIVERY: BLOCKED / latest main assigns a different outcome to Work 0028
+READY: NO
+BLOCKER: GITHUB_WORK_ID_COLLISION
 FOLLOW_UP: user rotates the temporary DEV password through the normal management UI
+CONTROLLER_ACTION_REQUIRED: assign distinct Work identity or explicitly reconcile the two Work 0028 outcomes
 ```
 
 ## Shared Knowledge

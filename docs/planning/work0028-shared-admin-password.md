@@ -124,7 +124,7 @@ Done only when the shared-password mode works end to end in personal DEV, accoun
 
 ## CODEX-02 completion evidence
 
-The completion latch is met and the result is returned for ChatGPT final review. Production auth logic, client session behavior, source/bundle parity, public surface, installer security, and secret-safety tests passed. The same private Web App was updated once from version 73 to 74 after 82/82 exact source readback.
+The functional and target-runtime parts of the completion latch are met. Production auth logic, client session behavior, source/bundle parity, public surface, installer security, and secret-safety tests passed. The same private Web App was updated once from version 73 to 74 after 82/82 exact source readback.
 
 Normal-UI evidence passed for locked read-only status, one-time legacy-authorized bootstrap, explicit logout/account-only denial, shared-password unlock, reload plus server revalidation, password-change UI availability, and final logout. Credential rotation and old-token invalidation passed deterministic production-logic tests without changing the runtime password. Work 0027 provider/model state remains unchanged.
 
@@ -133,7 +133,11 @@ IMPLEMENTATION: PASS
 LOGIC_VALIDATION: PASS / 456 of 456
 BUNDLE_VALIDATION: PASS / 27 of 27
 TARGET_RUNTIME_QUALIFICATION: PASS
-WORK_ACCEPTANCE: MET
-READY: YES / ChatGPT final review
-BLOCKER: NONE
+WORK_ACCEPTANCE: NOT_MET / GitHub reconciliation pending
+FUNCTIONAL_ACCEPTANCE: MET
+GITHUB_DELIVERY: BLOCKED
+READY: NO
+BLOCKER: GITHUB_WORK_ID_COLLISION
 ```
+
+Latest `origin/main` registered a separate UI/UX design outcome under Work 0028 after this dispatch started, making PR #38 conflict in Work control/tracking files. The branch was not merged with main because silently choosing one outcome or renumbering either is outside this dispatch. ChatGPT controller reconciliation is required.

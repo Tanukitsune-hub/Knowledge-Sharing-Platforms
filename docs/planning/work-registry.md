@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | Portable shared-password administrator mode | READY | 0027 accepted | CODEX-02 complete; review Draft PR #38 |
+| 6 | 0028 | Portable shared-password administrator mode | BLOCKED | 0027 accepted | Reconcile GitHub Work-ID collision with the unrelated main UI/UX outcome |
 | 7 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 8 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 9 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -78,14 +78,18 @@ LOGIC_VALIDATION: PASS / 456 of 456
 BUNDLE_VALIDATION: PASS / 27 of 27
 SOURCE_READBACK: PASS / 82 of 82
 TARGET_RUNTIME_QUALIFICATION: PASS
-WORK_ACCEPTANCE: MET
-READY: YES
-BLOCKER: NONE
+WORK_ACCEPTANCE: NOT_MET / GitHub reconciliation pending
+FUNCTIONAL_ACCEPTANCE: MET
+GITHUB_DELIVERY: BLOCKED
+READY: NO
+BLOCKER: GITHUB_WORK_ID_COLLISION
 ```
 
 Password plaintext must never be persisted. Server-side Script Properties hold only non-plaintext verifier/signing material. Password rotation invalidates previous tokens. Existing account/email administration is retained only as the initial bootstrap gate while no shared password is configured. Installer/setup/deployment/readiness owner checks are outside Work 0028 and must remain unchanged.
 
 The user explicitly authorized a temporary disclosed personal-DEV bootstrap password so Codex could perform UI bootstrap/unlock without a USER handoff. The shared credential is configured and the final runtime state is locked. The value is not a product default and will be changed later by the user through the implemented management-page password-change function. CODEX-01 remains superseded without execution.
+
+Final GitHub reconciliation found that latest `origin/main` independently assigns Work 0028 to an unrelated UI/UX design outcome. PR #38 conflicts in `docs/handoffs/0028-dispatches.md`, `docs/handoffs/0028-instruction.md`, and this registry. No merge or renumbering was attempted; the controller must first assign distinct Work identity or explicitly reconcile the outcomes.
 
 Decision: `docs/decisions/shared-admin-password-mode.md`.
 Plan: `docs/planning/work0028-shared-admin-password.md`.
