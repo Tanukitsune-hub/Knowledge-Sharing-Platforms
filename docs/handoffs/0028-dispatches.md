@@ -15,9 +15,10 @@ CODEX-04 returned on Draft PR #41 with the selected Light cross-page family. Cha
 CODEX-05 is authorized to refine the existing selected Light family only. It must preserve the accepted visual direction and source contracts, and must not modify production source/runtime or proceed to Dark/build/deployment.
 
 Instruction: `docs/handoffs/0028-CODEX-05-light-family-refinement-instruction.md`.
+Latest required amendment: `docs/handoffs/0028-CODEX-05-light-family-refinement-amendment-01.md`.
 Expected report: `docs/handoffs/0028-CODEX-05-light-family-refinement-report.md`.
 
-Authoritative main before CODEX-05 publication was `c6701d075030385ee683925c0bbaef36221134ad`; instruction creation advanced main. CODEX-05 must fetch and record actual current main at execution start.
+The amendment is part of the same active Dispatch ID and does not create a new Codex dispatch. CODEX-05 must read both instruction files before execution and record actual current main at start.
 
 PR #41 baseline:
 
@@ -56,6 +57,13 @@ CODEX-05 must apply these corrections:
 7. Remove yellow/cream cast from Light main background and move to cool very-light slate/blue-gray; keep white cards and cool borders. Tokenize for easy later hue tuning.
 8. Add a consistent refined thin-line SVG icon family to sidebar destinations without external runtime CDN dependency or materially increasing row height.
 9. Make the sayagata repeat materially denser/smaller scale than PR #41 while preserving clean geometry and lower-left→upper-right fade.
+10. Meeting register/edit: place existing `未登録の面談先を追加` inline to the right of the 面談先 dropdown on desktop, with natural narrow fallback.
+11. Consolidate normal-user registration navigation: one top-level `記録を追加`-type destination with internal `面談 / 資料` sub-tabs, while preserving separate forms/datasets/contracts.
+12. Consolidate normal-user past-record navigation: one top-level `過去の記録` destination with internal `面談 / 資料` sub-tabs, while preserving separate tables/status/edit/delete/restore/source semantics.
+13. Meeting register/edit: visibly present the existing three multi-select Meeting Type checkboxes, user-facing labels `年1面談 / オフィス訪問 / 年次総会` as the preferred wording, preserving existing values and `meetingTypeCodes` payload.
+14. Add a clear user-facing `面談履歴` surface for choosing a specific YYYY-MM and reviewing that month's individual Meeting records. Ground it in current date-range Meeting search / Activity Analytics monthly+drill capabilities; do not invent a new backend. Preserve `面談活動の集計` as the separate analytics view.
+
+Detailed constraints for items 10–14 are authoritative in Amendment 01.
 
 These are refinements, not permission for a new visual direction or backend capability.
 
@@ -68,7 +76,7 @@ These are refinements, not permission for a new visual direction or backend capa
 | 0028-CODEX-02 | Historical tombstone from superseded shared-admin PR #38; never reuse. |
 | 0028-CODEX-03 | Product Design A/B/C Light comparison; RETURNED PARTIAL on Draft PR #40. |
 | 0028-CODEX-04 | Selected Light cross-page family; RETURNED on Draft PR #41; technical review PASS, user corrections requested. |
-| 0028-CODEX-05 | Current bounded Light refinement; READY / BALL CODEX. |
+| 0028-CODEX-05 | Current bounded Light refinement, including Amendment 01; READY / BALL CODEX. |
 
 ## Gates
 
@@ -87,6 +95,7 @@ CODEX_04_RETURNED: YES
 PR_41_TECHNICAL_REVIEW: PASS
 USER_LIGHT_ACCEPTANCE: CORRECTIONS_REQUESTED
 LIGHT_REFINEMENT_BATCH: AUTHORIZED
+CODEX_05_AMENDMENT_01: REQUIRED
 SIDEBAR_BASE_COLOR: #182124
 SAYAGATA_MOTIF: SELECTED / DENSITY REFINEMENT REQUIRED
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
@@ -94,6 +103,10 @@ OTHER_E1001F_USAGE: PROHIBITED
 NORMAL_USER_THINKING_CONTROL: REMOVE FROM VISIBLE LIGHT DESIGN
 LIGHT_MAIN_BACKGROUND: COOL SLATE REFINEMENT REQUIRED
 SIDEBAR_ICON_FAMILY: REFINEMENT REQUIRED
+REGISTER_NAV_CONSOLIDATION: REQUIRED
+PAST_RECORD_NAV_CONSOLIDATION: REQUIRED
+MEETING_TYPE_CHECKBOXES: EXISTING / MUST BE VISIBLE
+MONTHLY_MEETING_HISTORY_SURFACE: REQUIRED / EXISTING CONTRACT REUSE
 SELECTED_DARK_MOCK: NOT_STARTED
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
