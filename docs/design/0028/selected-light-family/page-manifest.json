@@ -1,0 +1,85 @@
+{
+  "source_sha": "c5aa1c189c1e915a44f676ac1a8358a5f189e4bb",
+  "pages": [
+    {
+      "file": "00-navigation.html",
+      "title": "Light navigation",
+      "active": "01-search"
+    },
+    {
+      "file": "01-search.html",
+      "title": "ナレッジ検索",
+      "active": "01-search"
+    },
+    {
+      "file": "02-meeting-history.html",
+      "title": "面談履歴",
+      "active": "02-meeting-history"
+    },
+    {
+      "file": "03-record-add-meeting.html",
+      "title": "記録を追加",
+      "active": "03-record-add-meeting"
+    },
+    {
+      "file": "04-record-add-pitchbook.html",
+      "title": "記録を追加",
+      "active": "03-record-add-meeting"
+    },
+    {
+      "file": "05-past-records-meeting.html",
+      "title": "過去の記録",
+      "active": "05-past-records-meeting"
+    },
+    {
+      "file": "06-past-records-pitchbook.html",
+      "title": "過去の記録",
+      "active": "05-past-records-meeting"
+    },
+    {
+      "file": "07-meeting-edit.html",
+      "title": "面談記録を編集",
+      "active": "05-past-records-meeting"
+    },
+    {
+      "file": "08-pitchbook-edit.html",
+      "title": "資料の分類情報を編集",
+      "active": "05-past-records-meeting"
+    },
+    {
+      "file": "09-workspace-gp.html",
+      "title": "Workspace",
+      "active": "09-workspace-gp"
+    },
+    {
+      "file": "10-workspace-entity.html",
+      "title": "Workspace",
+      "active": "09-workspace-gp"
+    },
+    {
+      "file": "11-analytics.html",
+      "title": "面談活動の集計",
+      "active": "11-analytics"
+    },
+    {
+      "file": "12-relationships.html",
+      "title": "面談と資料の関連",
+      "active": "12-relationships"
+    },
+    {
+      "file": "13-masters.html",
+      "title": "マスター管理",
+      "active": "13-masters"
+    },
+    {
+      "file": "14-provider.html",
+      "title": "AIプロバイダ設定",
+      "active": "14-provider"
+    },
+    {
+      "file": "15-representative-states.html",
+      "title": "検索・記録の代表状態",
+      "active": "01-search"
+    }
+  ]
+}
