@@ -3,8 +3,8 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-06
 ACTIVE_DISPATCH_ID: 0028-CODEX-06
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 PHASE: A1.8 / LIGHT NAVIGATION + WORKSPACE CONSOLIDATION / DESIGN ONLY
 
@@ -12,10 +12,18 @@ PHASE: A1.8 / LIGHT NAVIGATION + WORKSPACE CONSOLIDATION / DESIGN ONLY
 
 CODEX-05 returned on Draft PR #42 after applying the bounded Light visual refinement. PR #42 is the current refined visual/style baseline and remains Draft/unmerged. The user then requested one more bounded design pass focused on navigation consolidation and Workspace consolidation.
 
-CODEX-06 is authorized for design-only navigation/workspace consolidation. It must preserve PR #42 visual tokens/layout refinements and all existing backend/data/provider/security contracts. It must not modify production source/runtime or proceed to Dark/build/deployment.
+CODEX-06 returned the design-only navigation/workspace consolidation on Draft PR #43. It preserves PR #42 visual tokens/layout refinements and the existing backend/data/provider/security contracts. Production source/runtime, Dark, build and deployment were not changed or started.
 
 Instruction: `docs/handoffs/0028-CODEX-06-navigation-workspace-consolidation-instruction.md`.
 Expected report: `docs/handoffs/0028-CODEX-06-navigation-workspace-consolidation-report.md`.
+
+CODEX-06 return:
+
+- Draft PR: #43
+- branch: `codex/0028-light-navigation-consolidation`
+- first design commit: `23745d8f2f437c27678da619a95268b0ff545051`
+- 9 top-level destinations / 16 inert page references
+- final user Light acceptance: NOT YET
 
 PR #42 baseline:
 
@@ -85,11 +93,11 @@ Internal `面談 / 資料` tabs are not separate sidebar destinations.
 | 0028-CODEX-03 | Product Design A/B/C Light comparison; RETURNED PARTIAL on Draft PR #40. |
 | 0028-CODEX-04 | Selected Light cross-page family; RETURNED on Draft PR #41; technical review PASS. |
 | 0028-CODEX-05 | Bounded Light visual refinement; RETURNED on Draft PR #42; visual/style baseline for next pass. |
-| 0028-CODEX-06 | Current Light navigation/workspace consolidation; READY / BALL CODEX. |
+| 0028-CODEX-06 | Light navigation/workspace consolidation; RETURNED on Draft PR #43 / BALL CHATGPT. |
 
 ## Gates
 
-CODEX-06 returns the consolidated Light family to ChatGPT/user review.
+CODEX-06 returned the consolidated Light family to ChatGPT/user review on Draft PR #43.
 
 After the consolidated Light family is accepted: create only the selected Dark family.
 After Light/Dark approval: explicit user authorization is still required before production BUILD.
@@ -103,12 +111,12 @@ SELECTED_LIGHT_VISUAL_LANGUAGE: FIXED
 CODEX_05_RETURNED: YES
 PR_42_REFINED_LIGHT_BASELINE: YES
 USER_LIGHT_ACCEPTANCE: ADDITIONAL_CONSOLIDATION_REQUESTED
-REGISTER_NAV_CONSOLIDATION: REQUIRED
-PAST_RECORD_NAV_CONSOLIDATION: REQUIRED
-MONTHLY_MEETING_HISTORY_SURFACE: REQUIRED / EXISTING CONTRACT REUSE
-MEETING_TYPE_CHECKBOXES: EXISTING / MUST BE VISIBLE
-COUNTERPARTY_QUICK_ADD_INLINE: REQUIRED
-WORKSPACE_CONSOLIDATION: REQUIRED
+REGISTER_NAV_CONSOLIDATION: PASS
+PAST_RECORD_NAV_CONSOLIDATION: PASS
+MONTHLY_MEETING_HISTORY_SURFACE: PASS / EXISTING CONTRACT REUSE
+MEETING_TYPE_CHECKBOXES: PASS / THREE VISIBLE
+COUNTERPARTY_QUICK_ADD_INLINE: PASS
+WORKSPACE_CONSOLIDATION: PASS
 GP_AND_ENTITY_READ_CONTRACTS: PRESERVE / DO_NOT_MERGE BACKEND
 SIDEBAR_BASE_COLOR: #182124
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
@@ -124,5 +132,5 @@ WORK_0028_COMPLETE: NO
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-06
 ACTIVE_DISPATCH_ID: 0028-CODEX-06
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

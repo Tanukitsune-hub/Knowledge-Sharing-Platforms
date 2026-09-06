@@ -168,6 +168,6 @@ RUNTIME_CHANGED: NO
 READY_FOR_PRODUCTION_BUILD: NO
 BLOCKER: NONE
 BRANCH: codex/0028-light-navigation-consolidation
-DRAFT_PR: TO_BE_CREATED
+DRAFT_PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/43
 FINAL_COMMIT: RECORDED_IN_DRAFT_PR_HEAD_AND_RETURN_MESSAGE
 REPORT_PATH: docs/handoffs/0028-CODEX-06-navigation-workspace-consolidation-report.md
