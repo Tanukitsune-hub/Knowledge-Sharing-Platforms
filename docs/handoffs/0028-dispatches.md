@@ -3,31 +3,46 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-06
 ACTIVE_DISPATCH_ID: 0028-CODEX-06
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: REVIEW
 MODE: INVESTIGATION
 PHASE: A1.8 / LIGHT NAVIGATION + WORKSPACE CONSOLIDATION / DESIGN ONLY
 
-## Current ball and authorization
+## Current ball and review state
 
-CODEX-05 returned on Draft PR #42 after applying the bounded Light visual refinement. PR #42 is the current refined visual/style baseline and remains Draft/unmerged. The user then requested one more bounded design pass focused on navigation consolidation and Workspace consolidation.
+CODEX-06 returned on Draft PR #43 after consolidating the selected Light navigation and Workspace while preserving PR #42 visual/style decisions. ChatGPT controller review has checked the PR metadata, changed paths, CODEX-06 report, Product Design QA and navigation validation.
 
-CODEX-06 is authorized for design-only navigation/workspace consolidation. It must preserve PR #42 visual tokens/layout refinements and all existing backend/data/provider/security contracts. It must not modify production source/runtime or proceed to Dark/build/deployment.
+Controller judgment: `TECHNICAL_REVIEW_PASS / USER_LIGHT_ACCEPTANCE_PENDING`.
 
-Instruction: `docs/handoffs/0028-CODEX-06-navigation-workspace-consolidation-instruction.md`.
-Expected report: `docs/handoffs/0028-CODEX-06-navigation-workspace-consolidation-report.md`.
+Draft PR #43:
 
-PR #42 baseline:
+- branch: `codex/0028-light-navigation-consolidation`
+- head: `cd43591b65b22e52aea10dd52107850fff4aed7f`
+- base source recorded by CODEX-06: `c5aa1c189c1e915a44f676ac1a8358a5f189e4bb`
+- design-only / Draft / unmerged
+- production `src/**`, `dist/**`, runtime, deployment, provider/credential/backend/data contract: unchanged
 
-- Draft PR: #42
-- branch: `codex/0028-light-family-refinement`
-- head: `64b5c4699422ec271f715741fd31e0350c41cdb6`
-- visual refinement: PASS per CODEX-05 report
-- final user Light acceptance: NOT YET
+## Accepted technical evidence for this review gate
+
+- 16 visual pages render; 1366×768 horizontal overflow 0/16;
+- active sidebar destination exactly 1 per page;
+- sidebar base `#182124`;
+- ordinary UI `#E1001F` usage 0; active left strip exactly 1 per page;
+- PR #42 visual system preserved: cool slate Light surface, white cards, restrained gold, local thin-line SVG icons, dense 92px sayagata;
+- `記録を追加` is one top-level destination with `面談 / 資料` internal tabs, while Meeting/Pitchbook contracts remain separate;
+- `過去の記録` is one top-level destination with separate `面談 / 資料` maintenance surfaces and separate semantics;
+- `面談履歴` uses YYYY-MM and individual Meeting rows, with existing date-range / monthly+drill contracts documented as the future implementation mapping and no new backend;
+- Meeting Type checkboxes remain the existing three values and are visible;
+- quick-add counterparty is inline on desktop;
+- `Workspace` is one top-level destination; GP and non-GP views preserve their current specialized content while future implementation may route to the existing GP or Entity read facade rather than merging server contracts;
+- Product Design QA found one duplicate Workspace target-control P2, corrected it in the single allowed correction pass, and reported no remaining actionable P0/P1/P2;
+- browser console warning/error 0 in the static design harness;
+- `git diff --check` PASS;
+- static design evidence does not claim keyboard/focus/contrast/screen-reader/Apps Script runtime/provider/server-mapping PASS.
 
 ## Preserved selected Light direction
 
-Preserve across CODEX-06:
+The following remains closed unless the user explicitly changes it:
 
 - persistent left sidebar / desktop-first wide workspace;
 - sidebar `#182124`;
@@ -35,26 +50,15 @@ Preserve across CODEX-06:
 - restrained gold accents;
 - local refined thin-line SVG icon family;
 - clean dense gold sayagata lower-left fading upper-right;
-- active sidebar item left strip only `#E1001F` plus non-red cue;
+- active sidebar item left strip only `#E1001F` plus non-red active cue;
 - no other `#E1001F` ordinary UI use;
 - Knowledge Search one visible model/profile selector and no normal-user Thinking;
 - current Gemini qualified-disabled / normal-user hidden baseline;
-- compact form/layout refinements from PR #42;
+- compact Meeting/Pitchbook/Workspace layouts;
 - future Dark charts `CHART_SURFACE_THEME: LIGHT_FIXED`;
 - Work 0027 and Work 0029 accepted behavior.
 
-## User-requested CODEX-06 changes
-
-1. Consolidate top-level Meeting/Pitchbook registration into one `記録を追加` destination with internal `面談 / 資料` sub-tabs. Preserve separate forms/datasets/contracts.
-2. Consolidate top-level past Meeting/Pitchbook maintenance into one `過去の記録` destination with internal `面談 / 資料` sub-tabs. Preserve separate search/table/status/edit/delete/restore/source semantics.
-3. Add a clear `面談履歴` top-level surface: choose YYYY-MM and review that month’s individual Meetings, reusing existing Meeting date-range search / Activity Analytics monthly+drill capabilities without new backend.
-4. Keep `面談活動の集計` separate as analytics.
-5. Meeting register/edit: keep existing three Meeting Type checkboxes visibly available as `年1面談 / オフィス訪問 / 年次総会`, preserving existing values/payload semantics.
-6. Meeting register/edit: keep existing quick-add counterparty action inline to the right of the counterparty selector on desktop.
-7. Consolidate `GP Workspace` and `Entity Workspace` into one top-level `Workspace` destination.
-8. Unified Workspace uses `対象区分 / 対象 / 印刷・PDF` selector/action row. GP selection preserves GP-specific compact summary/content; non-GP selection preserves Entity-specific context/content. Future implementation may select the existing GP or Entity read facade; no backend merge is authorized.
-
-## Preferred final sidebar structure
+## Consolidated Light navigation under review
 
 ### 探す
 - ナレッジ検索
@@ -84,35 +88,36 @@ Internal `面談 / 資料` tabs are not separate sidebar destinations.
 | 0028-CODEX-02 | Historical tombstone from superseded shared-admin PR #38; never reuse. |
 | 0028-CODEX-03 | Product Design A/B/C Light comparison; RETURNED PARTIAL on Draft PR #40. |
 | 0028-CODEX-04 | Selected Light cross-page family; RETURNED on Draft PR #41; technical review PASS. |
-| 0028-CODEX-05 | Bounded Light visual refinement; RETURNED on Draft PR #42; visual/style baseline for next pass. |
-| 0028-CODEX-06 | Current Light navigation/workspace consolidation; READY / BALL CODEX. |
+| 0028-CODEX-05 | Bounded Light visual refinement; RETURNED on Draft PR #42; visual/style baseline. |
+| 0028-CODEX-06 | Light navigation/Workspace consolidation; RETURNED on Draft PR #43; controller technical review PASS, user visual acceptance pending. |
 
-## Gates
+## Next gate
 
-CODEX-06 returns the consolidated Light family to ChatGPT/user review.
+The user reviews Draft PR #43 as the current final Light visual target. If accepted, Light design is closed and the next fresh dispatch may create only the selected Dark family. If the user requests further Light corrections, allocate a fresh Dispatch ID; do not append work to returned CODEX-06.
 
-After the consolidated Light family is accepted: create only the selected Dark family.
-After Light/Dark approval: explicit user authorization is still required before production BUILD.
-Deployment remains separately scoped.
+Production implementation remains unauthorized until selected Light and Dark are both approved and the user explicitly authorizes BUILD. Deployment remains separately scoped.
 
 ## Evidence state
 
 ```text
 USER_DIRECTION_SELECTED: YES
 SELECTED_LIGHT_VISUAL_LANGUAGE: FIXED
-CODEX_05_RETURNED: YES
-PR_42_REFINED_LIGHT_BASELINE: YES
-USER_LIGHT_ACCEPTANCE: ADDITIONAL_CONSOLIDATION_REQUESTED
-REGISTER_NAV_CONSOLIDATION: REQUIRED
-PAST_RECORD_NAV_CONSOLIDATION: REQUIRED
-MONTHLY_MEETING_HISTORY_SURFACE: REQUIRED / EXISTING CONTRACT REUSE
-MEETING_TYPE_CHECKBOXES: EXISTING / MUST BE VISIBLE
-COUNTERPARTY_QUICK_ADD_INLINE: REQUIRED
-WORKSPACE_CONSOLIDATION: REQUIRED
-GP_AND_ENTITY_READ_CONTRACTS: PRESERVE / DO_NOT_MERGE BACKEND
+CODEX_06_RETURNED: YES
+DRAFT_PR_43: OPEN / DESIGN ONLY / UNMERGED
+CONTROLLER_TECHNICAL_REVIEW: PASS
+USER_LIGHT_ACCEPTANCE: PENDING
+REGISTER_NAV_CONSOLIDATION: PASS
+PAST_RECORD_NAV_CONSOLIDATION: PASS
+MONTHLY_MEETING_HISTORY_SURFACE: PASS / EXISTING CONTRACT REUSE DESIGN
+MEETING_TYPE_CHECKBOXES: PASS / EXISTING VALUES PRESERVED
+COUNTERPARTY_QUICK_ADD_INLINE: PASS
+WORKSPACE_CONSOLIDATION: PASS
+GP_CONTEXT_PRESERVED: PASS
+NON_GP_CONTEXT_PRESERVED: PASS
+GP_AND_ENTITY_READ_CONTRACTS: PRESERVE / DO_NOT MERGE BACKEND
 SIDEBAR_BASE_COLOR: #182124
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
-OTHER_E1001F_USAGE: PROHIBITED
+OTHER_E1001F_USAGE: NONE
 SELECTED_DARK_MOCK: NOT_STARTED
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
@@ -124,5 +129,5 @@ WORK_0028_COMPLETE: NO
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-06
 ACTIVE_DISPATCH_ID: 0028-CODEX-06
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: REVIEW
