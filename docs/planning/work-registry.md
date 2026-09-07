@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-06
+Current as of: 2026-09-07
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | 0028-CODEX-06 READY: consolidate Light navigation and GP/Entity Workspace using PR #42 as visual baseline |
+| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Draft PR #44 final Light target: controller technical review PASS; user screenshot acceptance pending |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -56,8 +56,6 @@ BLOCKER: NONE
 
 The accepted strict Gemini citation resolver binds the returned Store and exact metadata tuple to one current Active authoritative source/current Gemini hash and one independently verified current provider document. Qualification and normal immediate/POLL mapping share this resolver. OpenAI/FULL_OUTPUT behavior remains preserved.
 
-The optional sanitized Audit persistence gap is `FIX_SOON`, not a blocker. Representative large files, migration, company qualification, rollout and future-model qualification are separate future outcomes.
-
 ### Work 0029
 PR #39 merge `872dbec83d17e6dfe1f33d8260006c2124d38a6c`; canonical implementation `9fa668619a0b91fb60ed53f696363d3954cf709e`; final branch head `b29ee3e538e72c4641f8d825e304fea1c186a265`.
 
@@ -78,58 +76,81 @@ WORK_0028_CONTROL_FILES_PRESERVED: PASS
 BLOCKER: NONE
 ```
 
-Routine AI Provider Settings administration is now unlocked by a shared administrator password rather than Google account/email after bootstrap. There is no timed session expiry. The browser stores only an opaque signed token in `sessionStorage`; server-side validation guards every existing AI Provider Settings mutation. Password rotation invalidates older token generations. Installer/setup/deployment/readiness account checks remain unchanged.
-
-The temporary personal-DEV administrator password remains intentionally temporary and should be changed later through the accepted password-change UI. GitHub CI did not run and is not acceptance evidence.
+Routine AI Provider Settings administration remains unlocked by the accepted shared administrator password contract. Browser-side opaque session token, server validation, logout and password rotation semantics are preserved.
 
 ## Active design boundary
 
 ### Work 0028
 
-Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.8 / Light navigation + Workspace consolidation.
+Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.9 / final Light correction + screenshot review.
 
-CODEX-03 returned PARTIAL on Draft PR #40 after the A/B/C Light comparison. The user then closed the visual direction in ChatGPT. CODEX-04 applied that direction across the current major page family and returned Draft PR #41. CODEX-05 then applied the bounded visual refinement and returned Draft PR #42 at head `64b5c4699422ec271f715741fd31e0350c41cdb6`.
+Design history:
 
-PR #42 is now the refined Light visual/style baseline. Preserve its selected appearance:
+- CODEX-03: A/B/C Light comparison, returned PARTIAL on Draft PR #40.
+- CODEX-04: selected Light cross-page family, Draft PR #41.
+- CODEX-05: bounded Light refinement, Draft PR #42.
+- CODEX-06: navigation / GP-Entity Workspace consolidation, Draft PR #43.
+- CODEX-07: final Light correction and screenshot package, Draft PR #44 at head `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`.
+
+Draft PR #44 is the current final Light review target. ChatGPT controller technical review is PASS; user visual acceptance is still pending.
+
+Final Light system under review:
 
 - persistent left sidebar / desktop-first wide workspace;
-- sidebar token `#182124`;
-- cool light slate page with white cards and cool borders;
+- flat sidebar with exactly 8 user-facing destinations and no group headings;
+- sidebar `#182124`;
+- cool slate Light page with white cards and cool borders;
 - restrained gold accents;
 - local refined thin-line SVG icon family;
 - dense clean gold sayagata lower-left fading upper-right;
-- Nippon Life red `#E1001F` only as the thin active-item left strip;
-- Knowledge Search one visible model/profile selector, normal-user Thinking hidden;
-- compact Meeting/Pitchbook/GP layout refinements;
-- `CHART_SURFACE_THEME: LIGHT_FIXED` for future Dark.
+- Nippon Life red `#E1001F` only as the active-item left strip, plus non-red active cue;
+- Knowledge Search one visible model/profile selector, normal-user Thinking hidden, Gemini current hidden baseline;
+- `記録を追加` and `過去の記録` each use internal `面談 / 資料` tabs while preserving separate datasets/contracts;
+- `面談先サマリー` presents GP/non-GP through existing separate read-facade mapping;
+- `面談実績の集計` merges monthly history with analytics: compact criteria, summary, period chart + numeric table, breakdown chart + table, individual Meeting list and rightmost `確認済み` checkbox mapped to existing admin-check persistence contract;
+- `プルダウンの管理` and `管理者ページ` are user-facing label changes only;
+- future Dark chart interior remains `CHART_SURFACE_THEME: LIGHT_FIXED`.
 
-The user requested one additional bounded Light pass. `0028-CODEX-06` consolidates normal-user navigation and the two Workspace destinations without changing backend contracts.
+Final sidebar labels:
 
-CODEX-06 required consolidation:
+1. ナレッジ検索
+2. 記録を追加
+3. 過去の記録
+4. 面談先サマリー
+5. 面談実績の集計
+6. 面談と資料の関連
+7. プルダウンの管理
+8. 管理者ページ
 
-- `面談を追加 / 資料を追加` → one top-level `記録を追加`, internal `面談 / 資料` sub-tabs; separate forms/datasets/contracts preserved;
-- `過去の面談記録 / 過去の資料` → one top-level `過去の記録`, internal `面談 / 資料` sub-tabs; separate maintenance semantics preserved;
-- add `面談履歴`: choose YYYY-MM and review individual Meeting records using existing date-range search / Activity Analytics monthly+drill capabilities, with no new backend; keep `面談活動の集計` separate;
-- Meeting registration/edit keeps the existing three Meeting Type checkboxes visible as `年1面談 / オフィス訪問 / 年次総会`, preserving current values/payload;
-- existing quick-add counterparty action stays inline next to the counterparty selector on desktop;
-- `GP Workspace / Entity Workspace` → one top-level `Workspace` with `対象区分 / 対象 / 印刷・PDF` selector/action row;
-- GP selection preserves GP-specific compact summary, Fund/Strategy, Meeting, Pitchbook and explicit relationships;
-- non-GP selection preserves Entity Workspace Fund drill, direct/related/linked context, Meetings, mix/follow-up, explicit relationships and timeline;
-- future production may route to current GP or Entity read facade according to selection; no server/data-facade merge is authorized.
+CODEX-07 evidence:
 
-Current execution contract: `docs/handoffs/0028-CODEX-06-navigation-workspace-consolidation-instruction.md`.
+- 15 rendered pages; horizontal overflow 0/15 at 1366×768;
+- active sidebar exactly 1/page;
+- 8 flat destinations, group headings 0;
+- ordinary red usage 0, active red strip only;
+- 13 PNG screenshots saved and major previews embedded in PR #44;
+- Product Design QA PASS / no actionable P0/P1/P2;
+- browser console warning/error 0 in static harness;
+- `git diff --check` PASS;
+- production `src/**` / `dist/**` changes NONE.
+
+Static design does not qualify keyboard/focus/contrast/screen-reader/Apps Script runtime/server mapping/admin-check save persistence.
+
+Current execution report: `docs/handoffs/0028-CODEX-07-final-light-correction-report.md` on Draft PR #44.
 Current ball/status: `docs/handoffs/0028-dispatches.md`.
 
-After CODEX-06 review, the user may accept/correct the consolidated Light family. Only after Light acceptance create the selected Dark family. Production implementation requires explicit authorization after Light/Dark approval. Deployment remains separately scoped.
+## Next gate
+
+User reviews Draft PR #44 screenshots. If accepted, selected Light design closes and the next fresh dispatch creates only the selected Dark family.
+
+If further Light correction is requested, use a fresh Dispatch ID; do not append work to returned CODEX-07.
+
+Production implementation still requires selected Light and Dark approval plus explicit user BUILD authorization. Deployment remains separately scoped.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
-The shared-administrator-password implementation was initially developed on an isolated branch using Work ID 0028 before the controller observed that authoritative `main` had already assigned 0028 to the UI/UX Work above. The product implementation reached personal-DEV version 74 and passed its bounded functional qualification, but PR #38 was stopped unmerged with `GITHUB_WORK_ID_COLLISION`.
-
-Work 0029 became the canonical identity. CODEX-01 selectively ported the validated product/test changes onto current main, corrected only shared-admin Work metadata to 0029, regenerated distribution artifacts from the canonical implementation commit, and passed one version-75 runtime alignment smoke. Work 0028 control files remained byte-identical during that reconciliation. ChatGPT reviewed the result, merged PR #39, and applied the Work 0029 completion latch. PR #38 remains superseded, closed and unmerged.
-
-Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers on the superseded line. They are recorded as tombstones, not recycled for UI/UX. `0028-CODEX-03` is the returned Product Design Light-comparison dispatch. `0028-CODEX-04` is the returned selected-Light cross-page design dispatch. `0028-CODEX-05` is the returned visual refinement dispatch on Draft PR #42. `0028-CODEX-06` is the current navigation/workspace consolidation dispatch.
+Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers from the superseded shared-admin line and are never reused. Work 0029 remains the canonical accepted shared-admin implementation.
 
 ## Scope discipline
 
-Only normal primary-flow failure, source/data integrity, credentials/authorization, authoritative citations, material irreversible side effects, or required runtime evidence may block delivery. Cosmetic work, broad benchmarks and unrelated hardening remain follow-up.
+Only normal primary-flow failure, source/data integrity, credentials/authorization, authoritative citations, material irreversible side effects or required runtime evidence may block delivery. Cosmetic work, broad benchmarks and unrelated hardening remain follow-up.
