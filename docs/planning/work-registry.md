@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-13 on PR #51: prepare lifecycle repair + provider-independent target-runtime qualification |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-14 on PR #51 using editor-approved operator path + provider-independent `/exec` qualification |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | PLANNED | Work 0028 accepted provider-neutral baseline | After Work 0028 acceptance, start `0030-CODEX-01` with Azure synthetic qualification first |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
@@ -95,40 +95,73 @@ Closed UI direction:
 - `全文出力` is a dedicated Meeting-only / non-AI action, not a model option.
 - analytics approved 9-column Meeting list, GP/Entity summary read facades, admin preset/shared-admin behavior are preserved.
 
-### CODEX-12 return / controller review
+### PR #51 production implementation
 
-CODEX-12 returned Draft PR #51 with production implementation.
+PR #51 implements the accepted production delta on `codex/0028-production-contract-build`.
 
-- branch: `codex/0028-production-contract-build`
-- returned head: `2916cc7946626ec95ab46c2a70ffada9fc85f497`
-- frozen production source: `f1c5cb7ae0e98c7ab68b78d5ddf9384caf0f09f7`
+Current CODEX-13 return:
+
+- HEAD: `7b1241fc03c6bee6f7fb0ec0748aa3c1ae4bc577`
+- frozen source: `5842a07255a10415d39d524fd8ec174450248855`
+- bundle commit: `2ab8b262c7211af5464f3201a77c6e45484cdc6c`
 - schema 7: `Pitchbook_Index` 4 append-only columns
-- Codex evidence: focused 485/485、`npm run check` 512/512、bundle 27/27、local production UI PASS
-- target runtime business flow: NOT RUN
+- focused 78/78 PASS
+- `npm run check` 515/515 PASS
+- bundle 27/27 PASS
+- local production UI PASS
+
+Production scope retained:
+
+- saved Active Meeting parent binding before new file registration;
+- file/link partial failure recovery with stable IDs and no duplicate blind retry;
+- non-GP parent context in filename/index/provider-neutral metadata;
+- relation-only add/unlink/relink with CAS and no Meeting Docs regeneration;
+- parent-bound retrieval eligibility and citation context revalidation;
+- independent Meeting-only / non-AI Full Output;
+- accepted Light production UI.
+
+### CODEX-13 controller review
 
 Controller review:
-`docs/handoffs/0028-CODEX-12-controller-review.md`
+`docs/handoffs/0028-CODEX-13-controller-review.md`
 
-Source direction is accepted with two merge blockers:
+Prepare lifecycle finite-lifetime blocker is CLOSED. The source uses bounded request generations/retention while preserving recent exact replay, unresolved INTENT safety, retired-token rejection and bounded Script Properties.
 
-1. prepare idempotency request records are never retired and global 32 records stop future normal registrations; bounded safe lifecycle required.
-2. target-runtime identity chain / synthetic acceptance incomplete due local WEB_APP-selection automation limitation.
+Apps Script identity chain for accepted version 75 was positively proven through project / saved source / immutable version / intended WEB_APP `/exec` / execute-as / access / browser account / observed execution.
 
-### CODEX-13 convergence
+The remaining 403 occurred when `getInstallationStatus_` was invoked through Google Apps Script Execution API. This is classified as the wrong qualification execution surface rather than an application defect.
 
-Continue PR #51 rather than creating another implementation PR.
+Google `scripts.run` requires API-executable/OAuth/Cloud-project configuration that is unnecessary for Work 0028. Repository policy already establishes private setup/status via editor/trigger/privacy-preserving operator path. Therefore no API executable, OAuth expansion, Cloud project switch or public diagnostic wrapper will be added.
 
-CODEX-13 must:
+### CODEX-14 runtime qualification
 
-- fix bounded prepare request retention/compaction without weakening lost-response idempotency or unresolved INTENT safety;
-- rerun focused/canonical/bundle gates;
-- fix runtime target selection logic and complete read-only identity chain;
-- if identity is proven, use at most one deployment mutation and execute the provider-independent synthetic primary-flow matrix;
-- verify schema 7, GP/non-GP parent-first file registration, follow-up add, unlink/relink, exact Docs-body preservation and dedicated Full Output;
-- keep provider API calls at zero.
+Approved control path:
+
+```text
+Apps Script editor
+  -> checkKnowledgeShareReadiness()
+  -> installKnowledgeShare() only if required
+  -> checkKnowledgeShareReadiness()
+  -> confirmKnowledgeShareDeploymentSecurity() only if readiness requires it
+
+verified versioned WEB_APP /exec
+  -> normal public facades for R1-R8 business acceptance
+```
+
+CODEX-14 must:
+
+- refresh identity read-only;
+- push exact reviewed source once and prove saved-source parity;
+- use editor-visible approved operator wrappers for setup/readiness;
+- create one immutable version;
+- update the positively identified existing WEB_APP at most once, with no new deployment;
+- run provider-independent synthetic R1-R8 through `/exec`;
+- prove schema 7, GP/non-GP parent-first file registration, existing-Meeting follow-up, unlink/relink, exact Docs body preservation and dedicated Full Output;
+- preserve Work 0027 Gemini disabled state and Work 0029 shared-admin without credential rotation;
+- make Direct OpenAI/Gemini/Azure provider calls 0.
 
 Active instruction:
-`docs/handoffs/0028-CODEX-13-runtime-qualification-instruction.md`
+`docs/handoffs/0028-CODEX-14-editor-runtime-qualification-instruction.md`
 
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
@@ -160,11 +193,11 @@ Authoritative decision:
 Implementation plan:
 `docs/planning/work0030-azure-openai-provider-transition.md`
 
-Work 0028 CODEX-13 must make provider calls 0 and defer actual File Search/citation runtime evidence to Work 0030. Once Work 0028's provider-independent source baseline is accepted/merged, allocate `0030-CODEX-01`.
+Work 0028 CODEX-14 keeps provider calls at zero and defers actual File Search/citation runtime evidence to Work 0030. Once Work 0028 provider-independent source/runtime baseline is accepted/merged, allocate `0030-CODEX-01`.
 
 ## Next gate
 
-CODEX-13 returns on the existing PR #51 with prepare lifecycle repaired, regenerated bundle and provider-independent target-runtime evidence. ChatGPT reviews final source/runtime evidence. If Work 0028 blockers are closed, merge PR #51 and apply Completion Latch to Work 0028. Then activate Work 0030 for Azure OpenAI synthetic qualification and adapter transition.
+CODEX-14 returns on existing PR #51 with editor/operator setup evidence, exact remote/deployed source continuity and provider-independent target-runtime R1-R8 evidence. ChatGPT reviews the final state. If no BLOCKER remains, merge PR #51 and apply Completion Latch to Work 0028. Then activate Work 0030 for Azure OpenAI synthetic qualification and adapter transition.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
