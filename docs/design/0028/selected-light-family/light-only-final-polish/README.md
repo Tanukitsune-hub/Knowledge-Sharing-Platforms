@@ -1,7 +1,7 @@
 # Light-only final polish — screenshot review
 
-WORK_ID: 0028  
-DISPATCH_ID: 0028-CODEX-08  
+WORK_ID: 0028
+DISPATCH_ID: 0028-CODEX-08
 SOURCE_SHA: `960d225c388912791443cbc68efe5e5426f2a9d2`
 
 PR #44をvisual baselineとして、closed Light familyを1回のbounded polishで仕上げたreview packageです。Web Appの初期画面は`ナレッジ検索`であり、navigation overviewはacceptance screenshotに含めていません。

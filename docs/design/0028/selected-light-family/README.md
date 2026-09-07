@@ -1,9 +1,9 @@
 # 選択済みLight family — A1.10 Light-only final polish
 
-WORK_ID: 0028  
-DISPATCH_ID: 0028-CODEX-08  
-BASE_MAIN_SHA: `960d225c388912791443cbc68efe5e5426f2a9d2`  
-BASE_LIGHT_PR44_SHA: `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`  
+WORK_ID: 0028
+DISPATCH_ID: 0028-CODEX-08
+BASE_MAIN_SHA: `960d225c388912791443cbc68efe5e5426f2a9d2`
+BASE_LIGHT_PR44_SHA: `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`
 MODE: INVESTIGATION / DESIGN ONLY
 
 Draft PR #44をreview historyとして保持し、確定済みLight visual familyへ最終polishを加えた静的設計資料です。Production `src/**`、`dist/**`、Apps Script runtime、deployment、provider、credential、backend/data contractは変更していません。

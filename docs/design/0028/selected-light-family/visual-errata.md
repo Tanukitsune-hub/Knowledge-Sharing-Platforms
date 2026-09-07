@@ -1,6 +1,6 @@
 # Visual errata — A1.10 Light-only final polish
 
-Source SHA: `960d225c388912791443cbc68efe5e5426f2a9d2`  
+Source SHA: `960d225c388912791443cbc68efe5e5426f2a9d2`
 Baseline: Draft PR #44 / `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`
 
 ## PR #44からの補正

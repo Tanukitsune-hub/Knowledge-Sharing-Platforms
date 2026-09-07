@@ -1,7 +1,7 @@
 # Navigation and static-browser validation — A1.10
 
-Validation viewport: `1366x768`  
-Browser: local deterministic HTML in Chrome  
+Validation viewport: `1366x768`
+Browser: local deterministic HTML in Chrome
 Source SHA: `960d225c388912791443cbc68efe5e5426f2a9d2`
 
 ## Result
