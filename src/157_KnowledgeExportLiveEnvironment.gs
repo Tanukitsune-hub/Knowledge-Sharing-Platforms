@@ -144,6 +144,9 @@ function kspWriteKnowledgeExportDocument_(documentId, model) {
   body.clear();
   kspAppendKnowledgeExportParagraph_(body, String(model.title || 'Knowledge Export'))
     .setHeading(DocumentApp.ParagraphHeading.TITLE);
+  (model.headerLines || []).forEach(function (line) {
+    kspAppendKnowledgeExportParagraph_(body, String(line));
+  });
 
   var sections = model.meetingSections || [];
   sections.forEach(function (section, index) {
@@ -156,14 +159,7 @@ function kspWriteKnowledgeExportDocument_(documentId, model) {
     kspAppendKnowledgeExportParagraph_(body, String(section.body || ''));
   });
 
-  if ((model.pitchbookLines || []).length) {
-    if (sections.length) body.appendPageBreak();
-    kspAppendKnowledgeExportParagraph_(body, 'Pitchbooks / metadata and authoritative links only')
-      .setHeading(DocumentApp.ParagraphHeading.HEADING1);
-    model.pitchbookLines.forEach(function (line) {
-      kspAppendKnowledgeExportParagraph_(body, String(line));
-    });
-  }
+  // Full Output is Meeting-only, including the generated Docs/PDF artifact.
   document.saveAndClose();
 }
 

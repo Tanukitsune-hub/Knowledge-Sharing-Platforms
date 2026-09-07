@@ -75,13 +75,13 @@ function kspCreateMeetingEnvironment_(){return{
 };}
 `;
   new vm.Script(bootstrap).runInContext(context);
-  for(const file of ['00_Core.gs','05_TemporalContracts.gs','30_MeetingCore.gs','62_PitchbookIdentity.gs','100_MaintenanceCore.gs','120_MaintenanceLiveEnvironment.gs','121_MaintenanceLiveHelpers.gs'])new vm.Script(fs.readFileSync(path.join(__dirname,'..','src',file),'utf8'),{filename:file}).runInContext(context);
+  for(const file of ['00_Core.gs','05_TemporalContracts.gs','30_MeetingCore.gs','62_PitchbookIdentity.gs','73_ParentRelations.gs','100_MaintenanceCore.gs','120_MaintenanceLiveEnvironment.gs','121_MaintenanceLiveHelpers.gs'])new vm.Script(fs.readFileSync(path.join(__dirname,'..','src',file),'utf8'),{filename:file}).runInContext(context);
 
   function addSpreadsheet(id,sheets){spreadsheets.set(id,new FakeSpreadsheet(sheets));}
   return {context,properties,spreadsheets,files,docs,addSpreadsheet,FakeSheet};
 }
 
-const MEETING_HEADERS=['Meeting_ID','Date','Time','Doc_File_ID','Status','Version','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'];
+const MEETING_HEADERS=['Meeting_ID','Date','Time','Doc_File_ID','Status','Version','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error','Related_Pitchbook_IDs'];
 const PITCH_HEADERS=['Document_ID','Batch_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','File_URL','Original_Filename','Saved_Filename','Status','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Fund_Strategy'];
 const GP_HEADERS=['GP_ID','GP_Name','Status','Created_At','Updated_At','Created_By','Updated_By'];
 const OPTION_HEADERS=['Option_ID','Type','Name','Sort_Order','Status','Created_At','Updated_At','Created_By','Updated_By'];
@@ -255,4 +255,25 @@ test('audit retention deletes only rows older than cutoff',()=>{
   const result=env.deleteAuditRowsBefore('audit','2021-08-16T00:00:00.000Z');
   assert.equal(result.deletedRows,1);
   const sheet=f.spreadsheets.get('audit').getSheetByName('Audit_Log');assert.equal(sheet.values.length,2);assert.equal(sheet.values[1][1],'keep');
+});
+
+test('relation-only live adapter preserves Docs bytes, native date/time, shared links and inactive document',()=>{
+ const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_(),sheet=f.spreadsheets.get('backend').getSheetByName('Meeting_Index'),pitch=f.spreadsheets.get('backend').getSheetByName('Pitchbook_Index');
+ const original='原文\r\n\t人手編集済み\n';f.docs.set('doc-1',original);f.files.set('doc-1',{name:'Do not rename'});
+ const nativeDate=new Date('2026-08-15T15:00:00Z'),nativeTime=new Date('1899-12-30T05:00:00Z');sheet.values[1][MEETING_HEADERS.indexOf('Date')]=nativeDate;sheet.values[1][MEETING_HEADERS.indexOf('Time')]=nativeTime;
+ sheet.values.push(MEETING_HEADERS.map(h=>({Meeting_ID:'MTG-000002',Status:'Active',Version:8,Related_Pitchbook_IDs:'DOC-000001'})[h]??''));const otherBefore=sheet.values[2].slice();
+ pitch.values[1][PITCH_HEADERS.indexOf('Status')]='Inactive';const beforeDoc=pitch.values[1].slice();
+ for(const [i,operation] of ['add','remove','add'].entries()){
+  const result=env.updateMeetingRelationsAtomic({meetingId:'MTG-000001',documentId:'DOC-000001',expectedVersion:i+1,operation},'actor','2026-09-08T00:00:00.000Z');assert.equal(result.Version,i+2);
+  assert.equal(f.docs.get('doc-1'),original);assert.equal(f.files.get('doc-1').name,'Do not rename');assert.equal(sheet.values[1][MEETING_HEADERS.indexOf('Date')],nativeDate);assert.equal(sheet.values[1][MEETING_HEADERS.indexOf('Time')],nativeTime);assert.deepEqual(sheet.values[2],otherBefore);
+ }
+ assert.equal(pitch.values[1][PITCH_HEADERS.indexOf('Status')],'Inactive');
+ for(const key of ['File_ID','GP_ID','Date','Saved_Filename','Original_Filename'])assert.equal(pitch.values[1][PITCH_HEADERS.indexOf(key)],beforeDoc[PITCH_HEADERS.indexOf(key)]);
+ const columns=sheet.writes.map(w=>MEETING_HEADERS[w.col-1]);assert.ok(columns.every(c=>['Related_Pitchbook_IDs','Version','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error'].includes(c)));
+});
+test('parent upload/edit lease prevents concurrent status and relation mutation',()=>{
+ const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
+ const claim=env.claimRecordEdit('Meeting','MTG-000001','Meeting_Index','Meeting_ID','Version',1,'2026-09-08T00:00:00.000Z',300000);
+ assert.throws(()=>env.updateStatusAtomic('Meeting_Index','Meeting_ID','MTG-000001','Version',1,'Inactive','actor','2026-09-08T00:00:01.000Z'),e=>e.code==='RECORD_EDIT_IN_PROGRESS');
+ assert.throws(()=>env.updateMeetingRelationsAtomic({meetingId:'MTG-000001',documentId:'DOC-000001',expectedVersion:1,operation:'add'},'actor','2026-09-08T00:00:01.000Z'),e=>e.code==='RECORD_EDIT_IN_PROGRESS');env.releaseRecordEditClaim(claim);
 });

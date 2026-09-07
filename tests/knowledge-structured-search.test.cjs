@@ -165,8 +165,8 @@ test('safe Audit metadata contains stable filters but redacts question and answe
   assert.doesNotMatch(JSON.stringify(row), /answer/i);
 });
 
-test('FULL_OUTPUT package embeds the shared mode and scope while keeping Pitchbooks reference-only', () => {
-  const request = ksp.kspNormalizeKnowledgeExportInput_(canonical({
+test('FULL_OUTPUT package preserves common scope and Meeting body independently from AI mode', () => {
+  const request = ksp.kspNormalizeKnowledgeFullOutputInput_(canonical({
     mode: '比較', questionOrInstruction: 'Compare periods', filters: { sourceType: 'Meeting' }
   }));
   const model = plain(ksp.kspBuildKnowledgeExportRenderModel_(request, [{
@@ -176,9 +176,10 @@ test('FULL_OUTPUT package embeds the shared mode and scope while keeping Pitchbo
     source: { sourceId: 'DOC-1', date: '2026-08-02', canonicalUrl: 'https://drive.google.com/open?id=file-1', row: rows().pitchbooks[0] }
   }], { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} }, 'Synthetic package'));
   const text = ksp.kspBuildKnowledgeExportPlainText_(model);
-  assert.match(text, /Mode: 比較/);
-  assert.match(text, /Compare periods/);
+  assert.match(text, /Meeting全文出力（非AI）/);
+  assert.match(text, /Scope: Source Meeting/);
+  assert.doesNotMatch(text, /Mode: 比較|Compare periods/);
   assert.match(text, /AUTHORITATIVE MEETING BODY/);
-  assert.match(text, /Pitchbooks \/ reference metadata and authoritative links only/);
+  assert.doesNotMatch(text, /Pitchbooks \/ reference|file-1|Document ID: DOC-1/);
   assert.doesNotMatch(text, /PITCHBOOK BODY/);
 });

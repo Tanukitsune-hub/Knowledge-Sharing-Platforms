@@ -9,26 +9,36 @@ function kspUploadPitchbookFile_(environment, rawInput) {
   var fileInfo = null;
   var claim = null;
   var reservationValidated = false;
+  var parentClaim = null;
   try {
     context = kspLoadPitchbookRuntimeContext_(environment);
     row = environment.findRowByKey(context.backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX,
       'Document_ID', input.documentId);
+    kspAssert_(row && row.Parent_Meeting_ID && String(row.Parent_Meeting_ID) === input.parentMeetingId,
+      'PITCHBOOK_PARENT_CONFLICT', '資料の登録元記録が一致しません。');
+    var parent = environment.findRowByKey(context.backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX,
+      'Meeting_ID', input.parentMeetingId);
+    kspAssert_(parent && parent.Status === KSP_STATUS.ACTIVE, 'PITCHBOOK_PARENT_UNAVAILABLE', '親記録を利用できません。');
     if (row && String(row.Status) === KSP_PITCHBOOK_STATUS.ACTIVE && row.File_ID) {
       kspAssert_(String(row.Batch_ID) === input.batchId, 'PITCHBOOK_BATCH_CONFLICT', 'Batch IDが一致しません。');
       kspAssert_(String(row.Original_Filename) === input.originalFilename, 'PITCHBOOK_FILENAME_CONFLICT',
         '選択されたファイル名が登録済み資料と一致しません。');
-      return { ok: true, workId: KSP_PITCHBOOK_WORK_ID,
+      return kspFinishPitchbookLink_(environment, input, { ok: true, workId: KSP_PITCHBOOK_WORK_ID,
         slot: { batchId: String(row.Batch_ID), documentId: String(row.Document_ID),
           sequenceNo: Number(row.Sequence_No || 0), originalFilename: String(row.Original_Filename || ''),
           savedFilename: String(row.Saved_Filename || ''), status: String(row.Status),
           fileId: String(row.File_ID), fileUrl: String(row.File_URL || ''),
           sizeBytes: input.sizeBytes, mimeType: input.mimeType, slotFingerprint: input.slotFingerprint },
-        idempotentReplay: true, warnings: warnings };
+        idempotentReplay: true, warnings: warnings });
     }
 
     reservation = environment.getPitchbookReservation(input.batchId);
     reservedFile = kspFindPitchbookReservationFile_(reservation, input.documentId);
     kspValidatePitchbookUploadInput_(input, row, reservation);
+    kspRequirePitchbookParent_(environment, context.backendSpreadsheetId, input.parentMeetingId, input.expectedParentVersion);
+    parentClaim = environment.claimRecordEdit('Meeting', input.parentMeetingId, KSP_SHEET_NAMES.MEETING_INDEX,
+      'Meeting_ID', 'Version', input.expectedParentVersion, environment.nowIso(), KSP_MAINTENANCE_LIMITS.EDIT_CLAIM_TTL_MS);
+    kspAssert_(parentClaim.row.Status === KSP_STATUS.ACTIVE, 'PITCHBOOK_PARENT_UNAVAILABLE', '親記録を利用できません。');
     reservationValidated = true;
 
     var decoded = environment.decodeBase64(input.base64Data);
@@ -72,7 +82,8 @@ function kspUploadPitchbookFile_(environment, rawInput) {
       input.documentId,
       fileInfo,
       actor,
-      environment.nowIso()
+      environment.nowIso(),
+      { parentMeetingId: input.parentMeetingId, expectedParentVersion: input.expectedParentVersion, parentClaim: parentClaim }
     );
     environment.clearPitchbookReservationIfComplete(
       context.backendSpreadsheetId,
@@ -86,11 +97,16 @@ function kspUploadPitchbookFile_(environment, rawInput) {
     });
     if (auditWarning) warnings.push(auditWarning);
 
-    return { ok: true, workId: KSP_PITCHBOOK_WORK_ID,
+    environment.releaseRecordEditClaim(parentClaim);
+    parentClaim = null;
+    return kspFinishPitchbookLink_(environment, input, { ok: true, workId: KSP_PITCHBOOK_WORK_ID,
       slot: kspPitchbookSlotFromRow_(row, reservedFile, reservation.totalBytes),
-      reusedFile: Boolean(fileInfo.reused), warnings: warnings };
+      reusedFile: Boolean(fileInfo.reused), warnings: warnings });
   } catch (error) {
-    if (context && row && reservationValidated) {
+    // Saved file metadata remains in the reservation after a completion/CAS conflict.
+    // Never downgrade newer state; retry must reuse the file and fresh parent state.
+    if (context && row && reservationValidated && !fileInfo &&
+        !/^(PITCHBOOK_COMPLETION_CONFLICT|PITCHBOOK_INDEX_LOCK_TIMEOUT|PITCHBOOK_UPLOAD_CLAIM_CONFLICT|RECORD_EDIT_CLAIM_LOST|STALE_RECORD_VERSION)$/.test(kspGetErrorCode_(error))) {
       try {
         row = environment.failPitchbookRow(
           context.backendSpreadsheetId,
@@ -116,5 +132,27 @@ function kspUploadPitchbookFile_(environment, rawInput) {
       retry: row ? kspPitchbookSlotFromRow_(row, reservedFile, reservation ? reservation.totalBytes : 0) : null,
       warnings: warnings
     };
+  } finally {
+    if (parentClaim) {
+      try { environment.releaseRecordEditClaim(parentClaim); }
+      catch (releaseError) { warnings.push({code:'PARENT_CLAIM_RELEASE_FAILED',message:'処理権の解除を確認できません。時間をおいて再確認してください。'}); }
+    }
   }
+}
+
+function kspFinishPitchbookLink_(environment, input, response) {
+  var linked = kspUpdateMeetingRelations_(environment, {meetingId:input.parentMeetingId,
+    expectedVersion:input.expectedParentVersion,documentId:input.documentId,operation:'add'});
+  response.fileSaved = true;
+  response.linkConfirmed = linked.ok;
+  response.slot.parentMeetingId = input.parentMeetingId;
+  response.slot.parentVersion = linked.ok ? linked.version : input.expectedParentVersion;
+  response.parentVersion = response.slot.parentVersion;
+  if (!linked.ok) {
+    response.ok = false;
+    response.error = linked.error;
+    response.retry = response.slot;
+    response.retryStage = 'LINK_ONLY';
+  }
+  return response;
 }

@@ -147,20 +147,48 @@ test('empty advanced pre-resolution returns no-evidence without invoking the pro
   assert.ok(result.warnings.some(item => item.code === 'AI_ADVANCED_FILTER_NO_EVIDENCE'));
 });
 
-test('FULL_OUTPUT applies identical multi-Entity and exact-token semantics with evidence gaps', () => {
+test('FULL_OUTPUT independently applies common Meeting filters, not AI comparison context', () => {
   const data = fixtures();
-  const normalized = ksp.kspNormalizeKnowledgeExportInput_(request({ filters: {
-    sourceType: 'Meeting', relatedGpId: 'GP-1', meetingTypeCode: 'ANNUAL_REVIEW'
-  } }));
-  const sources = plain(ksp.kspResolveKnowledgeExportSources_(data.meetings, [], normalized));
-  assert.deepEqual(sources.map(item => [item.entityKey, item.sourceId]), [['LP_ASSET_OWNER:LP-1', 'MTG-1']]);
-  const model = plain(ksp.kspBuildKnowledgeExportRenderModel_(normalized, [], [], {
-    gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {},
-    counterparty: { 'GP:GP-1': 'GP 1', 'LP_ASSET_OWNER:LP-1': 'LP 1' }
-  }, 'Synthetic'));
-  const text = ksp.kspBuildKnowledgeExportPlainText_(model);
-  assert.match(text, /Selected Entity: GP 1 \(GP:GP-1\)/);
-  assert.match(text, /Selected Entity: LP 1 \(LP_ASSET_OWNER:LP-1\)/);
-  assert.match(text, /Evidence gap: GP 1/);
-  assert.match(text, /Evidence gap: LP 1/);
+  const meetings = data.meetings.concat([
+    { ...data.meetings[0], Meeting_ID: 'MTG-OTHER-ENTITY', Counterparty_ID: 'LP-2' },
+    { ...data.meetings[0], Meeting_ID: 'MTG-OUTSIDE-PERIOD', Date: '2026-09-01' }
+  ]);
+  const pitchbooks = [{ ...data.meetings[0], Meeting_ID: '', Document_ID: 'DOC-EXCLUDED' }];
+  for (const mode of ['自由質問', '比較', '面談準備']) {
+    // An unfinished AI comparison must neither block export nor override its primary Entity.
+    const input = request({ mode, questionOrInstruction: '', modelProfileId: '', thinkingProfileId: '',
+      selectedEntityKeys: ['GP:GP-1'], filters: {
+        entityKey: 'LP_ASSET_OWNER:LP-1', sourceType: 'Pitchbook',
+        dateFrom: '2026-08-01', dateTo: '2026-08-31',
+        relatedGpId: 'GP-1', meetingTypeCode: 'ANNUAL_REVIEW'
+      } });
+    const before = plain(input);
+    const normalized = ksp.kspValidateKnowledgeExportFilters_(
+      ksp.kspNormalizeKnowledgeFullOutputInput_(input), catalog());
+    assert.deepEqual(plain(input), before);
+    assert.equal(normalized.filters.sourceType, 'Meeting');
+    assert.equal(normalized.filters.entityKey, 'LP_ASSET_OWNER:LP-1');
+    assert.equal(normalized.questionOrInstruction, '');
+    assert.deepEqual(plain(normalized.selectedEntityKeys), []);
+    const sources = plain(ksp.kspResolveKnowledgeExportSources_(meetings, pitchbooks, normalized));
+    assert.deepEqual(sources.map(item => [item.sourceType, item.entityKey, item.sourceId]),
+      [['Meeting', 'LP_ASSET_OWNER:LP-1', 'MTG-1']]);
+    const body = 'Synthetic authoritative Meeting body';
+    const model = plain(ksp.kspBuildKnowledgeExportRenderModel_(normalized,
+      sources.map(source => ({ source, body })), [], {
+        gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {},
+        counterparty: { 'GP:GP-1': 'GP 1', 'LP_ASSET_OWNER:LP-1': 'LP 1' }
+      }, 'Synthetic'));
+    assert.deepEqual(model.pitchbookLines, []);
+    const text = ksp.kspBuildKnowledgeExportPlainText_(model);
+    assert.match(text, /Meeting全文出力（非AI）/);
+    assert.match(text, /Counterparty Entity: LP 1/);
+    assert.match(text, /Related GP: GP-1, GP-2/);
+    assert.ok(text.includes(body));
+    assert.doesNotMatch(text, /Selected Entity:|Evidence gap:|DOC-EXCLUDED|Pitchbooks \/ reference/);
+    assert.throws(() => ksp.kspValidateKnowledgeExportFilters_(
+      ksp.kspNormalizeKnowledgeFullOutputInput_({ ...input,
+        filters: { ...input.filters, dateFrom: '2026-09-01' } }), catalog()),
+      error => error.code === 'KNOWLEDGE_EXPORT_DATE_RANGE_INVALID');
+  }
 });

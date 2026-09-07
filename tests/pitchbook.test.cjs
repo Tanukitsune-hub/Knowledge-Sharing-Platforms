@@ -22,12 +22,16 @@ function kspBuildMeetingCatalog_(gpRows,optionRows){
 `,context);
 new vm.Script(fs.readFileSync(path.join(root,'src','00_Core.gs'),'utf8'),{filename:'00_Core.gs'}).runInContext(context);
 new vm.Script(fs.readFileSync(path.join(root,'src','05_TemporalContracts.gs'),'utf8'),{filename:'05_TemporalContracts.gs'}).runInContext(context);
+for(const file of ['30_MeetingCore.gs','100_MaintenanceCore.gs','112_MaintenanceServiceHelpers.gs'])new vm.Script(fs.readFileSync(path.join(root,'src',file),'utf8'),{filename:file}).runInContext(context);
 for(const file of fs.readdirSync(path.join(root,'src')).filter((file)=>/^(?:6|7)\d_.*\.gs$/.test(file)).sort())new vm.Script(fs.readFileSync(path.join(root,'src',file),'utf8'),{filename:file}).runInContext(context);
 const ksp=context;
 const gpRows=[{GP_ID:'GP-1',GP_Name:'KKR',Status:'Active'}];
 const optionRows=[{Option_ID:'AC-1',Type:'ASSET_CLASS',Name:'Infrastructure',Sort_Order:1,Status:'Active'},{Option_ID:'CT-1',Type:'CAPITAL_TYPE',Name:'Equity',Sort_Order:1,Status:'Active'}];
-function batchInput(files=[{originalFilename:'deck.pdf',sizeBytes:10,mimeType:'application/pdf'}]){return{date:'2026-08-16',gpId:'GP-1',assetClassId:'AC-1',capitalTypeId:'CT-1',files};}
+for(const def of ksp.KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(d=>d.optionType))optionRows.push({Option_ID:'CP-'+def.code,Type:def.optionType,Name:'Synthetic '+def.code,Sort_Order:1,Status:'Active'});
+function batchInput(files=[{originalFilename:'deck.pdf',sizeBytes:10,mimeType:'application/pdf'}]){return{parentMeetingId:'MTG-000001',expectedParentVersion:1,date:'2026-08-16',gpId:'GP-1',assetClassId:'AC-1',capitalTypeId:'CT-1',files};}
 function makeEnv(options={}){
+ const parent=options.parent===null?null:{Meeting_ID:'MTG-000001',Version:1,Status:'Active',Doc_File_ID:'DOCS-PARENT',GP_ID:'GP-1',Counterparty_Type:'GP',Counterparty_ID:'GP-1',Related_Pitchbook_IDs:'',Date:new Date('2026-08-15T15:00:00Z'),Time:'14:00',...(options.parent||{})};
+ let parentClaim=null,failLink=options.failLink||0;
  let batchCounter=1,docCounter=1;const rows=(options.rows||[]).map(r=>({...r}));const files=new Map();const audits=[];const reservations=new Map();let now=0;let failCreate=options.failCreate||0;let failComplete=options.failComplete||0;let failAudit=options.failAudit||0;
  const env={
   nowIso(){now++;return`2026-08-16T00:00:${String(now).padStart(2,'0')}.000Z`;},
@@ -44,18 +48,21 @@ function makeEnv(options={}){
   claimPitchbookUpload(batchId,documentId,nowIso){const r=reservations.get(batchId);const f=ksp.kspFindPitchbookReservationFile_(r,documentId);if(f.fileId)return{claimToken:'',fileInfo:{id:f.fileId,url:f.fileUrl,reused:true}};if(f.uploadState==='UPLOADING'){const e=new Error('in progress');e.code='PITCHBOOK_UPLOAD_IN_PROGRESS';throw e;}f.uploadState='UPLOADING';f.claimToken='claim-'+documentId;f.claimedAt=nowIso;return{claimToken:f.claimToken,fileInfo:null};},
   completePitchbookUploadClaim(batchId,documentId,token,fileInfo,nowIso){const f=ksp.kspFindPitchbookReservationFile_(reservations.get(batchId),documentId);assert.equal(f.claimToken,token);Object.assign(f,{uploadState:'UPLOADED',claimToken:'',claimedAt:nowIso,fileId:fileInfo.id,fileUrl:fileInfo.url});},
   releasePitchbookUploadClaim(batchId,documentId,token,message,nowIso){const f=ksp.kspFindPitchbookReservationFile_(reservations.get(batchId),documentId);assert.equal(f.claimToken,token);Object.assign(f,{uploadState:'FAILED',claimToken:'',claimedAt:nowIso,lastError:message});},
-  findRowByKey(id,sheet,key,value){const found=rows.filter(r=>String(r[key])===String(value));if(found.length>1)throw new Error('duplicate');return found[0]?{...found[0]}:null;},
+  findRowByKey(id,sheet,key,value){if(sheet==='Meeting_Index')return parent&&parent.Meeting_ID===value?{...parent}:null;const found=rows.filter(r=>String(r[key])===String(value));if(found.length>1)throw new Error('duplicate');return found[0]?{...found[0]}:null;},
+  claimRecordEdit(entity,id,sheet,key,token,expected){if(parentClaim)throw Object.assign(new Error('busy'),{code:'RECORD_EDIT_IN_PROGRESS'});assert.equal(parent.Version,expected);parentClaim={row:{...parent}};return parentClaim;},
+  releaseRecordEditClaim(){parentClaim=null;},
+  updateMeetingRelationsAtomic(input,actor,nowIso){if(failLink-->0)throw Object.assign(new Error('link interrupted'),{code:'LINK_INTERRUPTED'});assert.equal(parentClaim,null);const document=rows.find(r=>r.Document_ID===input.documentId);const patch=ksp.kspBuildMeetingRelationPatch_(parent,document,input,actor,nowIso);Object.assign(parent,patch);return {...parent};},
   decodeBase64(text){return [...Buffer.from(text,'base64')];},
   createOrReusePitchbookFile(folder,row,bytes,mime){if(files.has(row.Document_ID))return{...files.get(row.Document_ID),reused:true};const info={id:'FILE-'+row.Document_ID,name:row.Saved_Filename,url:'https://drive/'+row.Document_ID,reused:false,bytes:[...bytes],mime};files.set(row.Document_ID,info);if(failCreate-->0){const e=new Error('create interrupted');e.code='CREATE_INTERRUPTED';throw e;}return{...info};},
   completePitchbookRow(id,documentId,fileInfo,actor,nowIso){if(failComplete-->0){const e=new Error('index interrupted');e.code='INDEX_INTERRUPTED';throw e;}const row=rows.find(r=>r.Document_ID===documentId);if(row.Status==='Active'&&row.File_ID)return{...row};Object.assign(row,{File_ID:fileInfo.id,File_URL:fileInfo.url,Status:'Active',Updated_At:nowIso,Updated_By:actor,AI_Index_Status:'Pending'});return{...row};},
   failPitchbookRow(id,documentId,fileInfo,actor,nowIso){const row=rows.find(r=>r.Document_ID===documentId);if(row.Status!=='Active'){if(fileInfo)Object.assign(row,{File_ID:fileInfo.id,File_URL:fileInfo.url});Object.assign(row,{Status:'Failed',Updated_At:nowIso,Updated_By:actor});}return{...row};},
   clearPitchbookReservationIfComplete(id,batchId){const batchRows=rows.filter(r=>r.Batch_ID===batchId);if(batchRows.length&&batchRows.every(r=>r.Status==='Active')){reservations.delete(batchId);return true;}return false;},
   appendRow(id,sheet,row){if(failAudit-->0)throw new Error('audit down');audits.push({...row});return{rowNumber:audits.length};},
-  _debug:{rows,files,audits,reservations}
+  _debug:{rows,files,audits,reservations,parent,docsBody:'原文\r\n人手追記\t保持'}
  };return env;
 }
 async function prepare(env,input=batchInput()){return ksp.kspPreparePitchbookBatch_(env,input)}
-async function upload(env,slot,file={name:slot.originalFilename,bytes:Buffer.from('0123456789'),mime:slot.mimeType||'application/octet-stream'}){return ksp.kspUploadPitchbookFile_(env,{batchId:slot.batchId,documentId:slot.documentId,slotFingerprint:slot.slotFingerprint,originalFilename:file.name,sizeBytes:file.bytes.length,mimeType:file.mime,base64Data:file.bytes.toString('base64')})}
+async function upload(env,slot,file={name:slot.originalFilename,bytes:Buffer.from('0123456789'),mime:slot.mimeType||'application/octet-stream'}){return ksp.kspUploadPitchbookFile_(env,{parentMeetingId:slot.parentMeetingId,expectedParentVersion:env._debug.parent?.Version,batchId:slot.batchId,documentId:slot.documentId,slotFingerprint:slot.slotFingerprint,originalFilename:file.name,sizeBytes:file.bytes.length,mimeType:file.mime,base64Data:file.bytes.toString('base64')})}
 
 test('publishes exact initial upload limits and allowed extensions',()=>{assert.equal(ksp.KSP_PITCHBOOK_LIMITS.FILE_BYTES,25*1024*1024);assert.equal(ksp.KSP_PITCHBOOK_LIMITS.FILE_COUNT,10);assert.equal(ksp.KSP_PITCHBOOK_LIMITS.TOTAL_BYTES,100*1024*1024);assert.deepEqual(Array.from(ksp.KSP_PITCHBOOK_ALLOWED_EXTENSIONS),['pdf','pptx','xlsx','docx','txt','eml']);});
 test('validates file count, size, total size, and extension',()=>{const catalog=ksp.kspBuildPitchbookCatalog_(gpRows,optionRows);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([])),catalog),/1つ以上/);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([{originalFilename:'x.pdf',sizeBytes:25*1024*1024+1}])),catalog),/25MB/);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([{originalFilename:'x.exe',sizeBytes:1}])),catalog),/対応していない/);});
@@ -76,17 +83,17 @@ test('canonicalizes Date cells for fingerprints and preserves sequence across la
  assert.equal(uploadResult.ok,true);
  assert.equal(env._debug.rows.find(row=>row.Document_ID===first.slots[0].documentId).Date.getTime(),Date.UTC(2026,7,16));
  assert.equal(env._debug.rows.find(row=>row.Document_ID==='DOC-000099').Date,nativeDate);
- const second=await prepare(env);
+ const second=await prepare(env,{...batchInput(),expectedParentVersion:env._debug.parent.Version});
  assert.equal(second.slots[0].sequenceNo,6);
  assert.match(second.slots[0].savedFilename,/_06\.pdf$/);
 });
 test('canonicalizes UTC-midnight and Tokyo-midnight representations to the same business date',()=>{const utcMidnight=new Date('2026-08-13T00:00:00.000Z'),tokyoMidnight=new Date('2026-08-12T15:00:00.000Z');assert.equal(ksp.kspCanonicalPitchbookDateKey_(utcMidnight),'2026-08-13');assert.equal(ksp.kspCanonicalPitchbookDateKey_(tokyoMidnight),'2026-08-13');});
 test('reserves one batch with stable document IDs and sequences after current max',async()=>{const env=makeEnv({rows:[{Document_ID:'DOC-000099',Batch_ID:'BAT-000099',Date:'2026-08-16',GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:'CT-1',Sequence_No:4,Original_Filename:'old.pdf',Saved_Filename:'old.pdf',Status:'Active'}]});const result=await prepare(env,batchInput([{originalFilename:'a.pdf',sizeBytes:10},{originalFilename:'b.pptx',sizeBytes:10}]));assert.equal(result.ok,true);assert.equal(result.batchId,'BAT-000001');assert.deepEqual(result.slots.map(s=>s.documentId),['DOC-000001','DOC-000002']);assert.deepEqual(result.slots.map(s=>s.sequenceNo),[5,6]);assert.match(result.slots[0].savedFilename,/_05\.pdf$/);assert.equal(env._debug.rows.find(row=>row.Document_ID==='DOC-000001').AI_Index_Status,'NotIndexed');});
-test('happy path activates one slot, stores one file, and audits metadata only',async()=>{const env=makeEnv();const prepared=await prepare(env);const result=await upload(env,prepared.slots[0]);assert.equal(result.ok,true);assert.equal(env._debug.rows[0].Status,'Active');assert.equal(env._debug.files.size,1);assert.equal(env._debug.audits.length,1);const audit=JSON.stringify(env._debug.audits[0]);assert.equal(audit.includes('MDEyMzQ1Njc4OQ=='),false);assert.equal(audit.includes('base64Data'),false);});
+test('happy path activates one slot, stores one file, and audits file plus relation metadata only',async()=>{const env=makeEnv();const prepared=await prepare(env);const result=await upload(env,prepared.slots[0]);assert.equal(result.ok,true);assert.equal(env._debug.rows[0].Status,'Active');assert.equal(env._debug.files.size,1);assert.equal(env._debug.audits.length,2);const audit=JSON.stringify(env._debug.audits);assert.equal(audit.includes('MDEyMzQ1Njc4OQ=='),false);assert.equal(audit.includes('base64Data'),false);});
 test('Fund Strategy survives Pitchbook prepare, upload, replay, and audit metadata',async()=>{const env=makeEnv();const prepared=await prepare(env,{...batchInput(),fundStrategy:'Fund Beta'});assert.equal(prepared.ok,true);assert.equal(env._debug.rows[0].Fund_Strategy,'Fund Beta');const uploaded=await upload(env,prepared.slots[0]);assert.equal(uploaded.ok,true);assert.equal(env._debug.rows[0].Fund_Strategy,'Fund Beta');assert.equal(JSON.parse(env._debug.audits[0].After_Metadata_JSON).Fund_Strategy,'Fund Beta');const replay=await upload(env,uploaded.slot);assert.equal(replay.ok,true);assert.equal(replay.idempotentReplay,true);});
 test('legacy Pitchbook slot fingerprint remains valid only with blank Fund Strategy',async()=>{const env=makeEnv();const prepared=await prepare(env);const row=env._debug.rows[0],reservation=env._debug.reservations.get(prepared.batchId);const legacy=ksp.kspBuildLegacyPitchbookSlotFingerprint_(row,reservation.files[0],reservation.totalBytes);const result=await upload(env,{...prepared.slots[0],slotFingerprint:legacy});assert.equal(result.ok,true,JSON.stringify(result));const changed=makeEnv();const rich=await prepare(changed,{...batchInput(),fundStrategy:'Fund Gamma'});const richRow=changed._debug.rows[0],richReservation=changed._debug.reservations.get(rich.batchId);const old=ksp.kspBuildLegacyPitchbookSlotFingerprint_(richRow,richReservation.files[0],richReservation.totalBytes);const rejected=await upload(changed,{...rich.slots[0],slotFingerprint:old});assert.equal(rejected.ok,false);assert.equal(rejected.error.code,'PITCHBOOK_SLOT_FINGERPRINT_CONFLICT');});
 test('mixed result preserves successful file and marks only failing file Failed',async()=>{const env=makeEnv({failCreate:1});const prepared=await prepare(env,batchInput([{originalFilename:'a.pdf',sizeBytes:10},{originalFilename:'b.pdf',sizeBytes:10}]));const first=await upload(env,prepared.slots[0]);const second=await upload(env,prepared.slots[1]);assert.equal(first.ok,false);assert.equal(second.ok,true);assert.equal(env._debug.rows[0].Status,'Failed');assert.equal(env._debug.rows[1].Status,'Active');assert.equal(env._debug.files.size,2);});
-test('retry after Drive creation and Index interruption reuses the file and same row',async()=>{const env=makeEnv({failComplete:1});const prepared=await prepare(env);const first=await upload(env,prepared.slots[0]);assert.equal(first.ok,false);assert.equal(env._debug.rows.length,1);assert.equal(env._debug.files.size,1);assert.equal(env._debug.rows[0].Status,'Failed');const retry=await upload(env,first.retry);assert.equal(retry.ok,true);assert.equal(retry.reusedFile,true);assert.equal(env._debug.rows.length,1);assert.equal(env._debug.files.size,1);assert.equal(env._debug.rows[0].Status,'Active');});
+test('retry after Drive creation and Index interruption reuses the file and same row',async()=>{const env=makeEnv({failComplete:1});const prepared=await prepare(env);const first=await upload(env,prepared.slots[0]);assert.equal(first.ok,false);assert.equal(env._debug.rows.length,1);assert.equal(env._debug.files.size,1);assert.equal(env._debug.rows[0].Status,'Pending');assert.equal(env._debug.reservations.get(prepared.slots[0].batchId).files[0].fileId,env._debug.files.get(prepared.slots[0].documentId).id);const retry=await upload(env,first.retry);assert.equal(retry.ok,true);assert.equal(retry.reusedFile,true);assert.equal(env._debug.rows.length,1);assert.equal(env._debug.files.size,1);assert.equal(env._debug.rows[0].Status,'Active');});
 test('replaying an Active slot is idempotent',async()=>{const env=makeEnv();const prepared=await prepare(env);const first=await upload(env,prepared.slots[0]);const second=await upload(env,first.slot);assert.equal(second.ok,true);assert.equal(second.idempotentReplay,true);assert.equal(env._debug.files.size,1);assert.equal(env._debug.rows.length,1);});
 test('audit failure does not roll back an authoritative success',async()=>{const env=makeEnv({failAudit:1});const prepared=await prepare(env);const result=await upload(env,prepared.slots[0]);assert.equal(result.ok,true);assert.equal(env._debug.rows[0].Status,'Active');assert.ok(result.warnings.some(w=>w.code==='AUDIT_WRITE_FAILED'));});
 test('actor lookup failure falls back without blocking preparation or upload',async()=>{const env=makeEnv({actorError:true});const prepared=await prepare(env);assert.equal(prepared.ok,true);const result=await upload(env,prepared.slots[0]);assert.equal(result.ok,true);assert.equal(env._debug.rows[0].Created_By,'UNIDENTIFIED');});
@@ -104,4 +111,39 @@ test('upload rejects a file whose actual size differs from its reserved descript
   const result=await upload(env,prepared.slots[0],wrong);
   assert.equal(result.ok,false);assert.equal(result.error.code,'PITCHBOOK_FILE_SIZE_MISMATCH');
   assert.equal(env._debug.files.size,0);assert.equal(env._debug.rows[0].Status,'Pending');
+});
+
+test('parent missing/inactive/stale rejects prepare with zero file/index/link mutations',async()=>{
+ for(const [opts,input,code] of [[{parent:null},batchInput(),'PITCHBOOK_PARENT_UNAVAILABLE'],[{parent:{Status:'Inactive'}},batchInput(),'PITCHBOOK_PARENT_UNAVAILABLE'],[{}, {...batchInput(),expectedParentVersion:9},'STALE_RECORD_VERSION'],[{}, {...batchInput(),parentMeetingId:''},'PITCHBOOK_PARENT_REQUIRED']]){
+  const env=makeEnv(opts);const result=await prepare(env,input);assert.equal(result.ok,false);assert.equal(result.error.code,code);assert.equal(env._debug.rows.length,0);assert.equal(env._debug.files.size,0);assert.equal(env._debug.parent?.Related_Pitchbook_IDs||'','');
+ }
+});
+test('each existing Counterparty type is bound from authoritative parent, never client GP',async()=>{
+ for(const def of ksp.KSP_COUNTERPARTY_TYPE_DEFINITIONS){
+  const id=def.code==='GP'?'GP-1':'CP-'+def.code;const env=makeEnv({parent:{Counterparty_Type:def.code,Counterparty_ID:id,GP_ID:def.code==='GP'?id:''}});
+  const result=await prepare(env,{...batchInput(),gpId:'FAKE-GP'});assert.equal(result.ok,true,JSON.stringify(result));
+  const row=env._debug.rows[0];assert.equal(row.Counterparty_Type,def.code);assert.equal(row.Counterparty_ID,id);assert.equal(row.Parent_Meeting_ID,'MTG-000001');assert.equal(row.GP_ID,def.code==='GP'?id:'');assert.ok(!row.Saved_Filename.includes('FAKE-GP'));
+  const uploaded=await upload(env,result.slots[0]);assert.equal(uploaded.ok,true,JSON.stringify(uploaded));assert.equal(uploaded.linkConfirmed,true);
+ }
+});
+test('upload revalidates parent state/version and exact binding before file mutation',async()=>{
+ for(const mode of ['inactive','stale','swapped']){
+  const env=makeEnv();const prepared=await prepare(env);const slot=prepared.slots[0];
+  const input={...slot,parentMeetingId:slot.parentMeetingId,expectedParentVersion:1,base64Data:Buffer.from('0123456789').toString('base64')};
+  if(mode==='inactive')env._debug.parent.Status='Inactive';if(mode==='stale')env._debug.parent.Version=2;if(mode==='swapped')input.parentMeetingId='MTG-000002';
+  const result=ksp.kspUploadPitchbookFile_(env,input);assert.equal(result.ok,false);assert.equal(env._debug.files.size,0);assert.equal(env._debug.rows[0].Status,'Pending');assert.equal(env._debug.parent.Related_Pitchbook_IDs,'');
+ }
+});
+test('file success/link failure replays same ID without payload, duplicate or source loss',async()=>{
+ const env=makeEnv({failLink:1});const prepared=await prepare(env);const failed=await upload(env,prepared.slots[0]);
+ assert.equal(failed.ok,false);assert.equal(failed.fileSaved,true);assert.equal(failed.linkConfirmed,false);assert.equal(failed.retryStage,'LINK_ONLY');assert.equal(env._debug.rows[0].Status,'Active');assert.equal(env._debug.files.size,1);
+ const retry=ksp.kspUploadPitchbookFile_(env,{...failed.retry,expectedParentVersion:env._debug.parent.Version});
+ assert.equal(retry.ok,true,JSON.stringify(retry));assert.equal(retry.idempotentReplay,true);assert.equal(retry.slot.documentId,failed.retry.documentId);assert.equal(env._debug.rows.length,1);assert.equal(env._debug.files.size,1);assert.equal(env._debug.parent.Related_Pitchbook_IDs,retry.slot.documentId);
+});
+test('relation add/remove/relink preserves original inactive document and business cells',()=>{
+ const date=new Date('2026-08-15T15:00:00Z');const parent={Meeting_ID:'MTG-000001',Status:'Active',Version:1,Date:date,Time:'14:00',Saved_Filename:'untouched',Related_Pitchbook_IDs:''};
+ const doc={Document_ID:'DOC-000001',File_ID:'file',Status:'Inactive'};
+ for(const operation of ['add','remove','add']){const patch=ksp.kspBuildMeetingRelationPatch_(parent,doc,{documentId:doc.Document_ID,operation,expectedVersion:parent.Version},'actor','2026-09-08T00:00:00.000Z');assert.equal(Object.hasOwn(patch,'Date'),false);assert.equal(Object.hasOwn(patch,'Time'),false);assert.equal(Object.hasOwn(patch,'Saved_Filename'),false);Object.assign(parent,patch);assert.equal(parent.Date,date);assert.equal(doc.Status,'Inactive');}
+ assert.throws(()=>ksp.kspBuildMeetingRelationPatch_(parent,doc,{documentId:doc.Document_ID,operation:'remove',expectedVersion:1},'actor','now'),e=>e.code==='STALE_RECORD_VERSION');
+ assert.equal(Object.keys(ksp.kspBuildMeetingRelationPatch_(parent,doc,{documentId:doc.Document_ID,operation:'add',expectedVersion:1},'actor','now')).length,0);
 });

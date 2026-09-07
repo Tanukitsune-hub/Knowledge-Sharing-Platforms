@@ -80,6 +80,10 @@ function quickAddGp(name) {
   return kspQuickAddGp_(kspCreateMaintenanceEnvironment_(), name);
 }
 
+function updateMeetingRelations(input) {
+  return kspUpdateMeetingRelations_(kspCreateMaintenanceEnvironment_(), input);
+}
+
 function getGpWorkspaceData(gpId) {
   return kspGetGpWorkspaceData_(kspCreateGpWorkspaceEnvironment_(), gpId);
 }

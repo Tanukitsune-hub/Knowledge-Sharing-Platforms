@@ -3,12 +3,14 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-12
 ACTIVE_DISPATCH_ID: 0028-CODEX-12
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
 
 ## Current state
+
+CODEX-12はproduction sourceとgenerated bundleを返却。`npm run check` 512/512、bundle 27/27、local browser renderingはPASS。runtime preflightの自動選択条件がHEAD/旧版を含む複数WEB_APPで停止し、stop-on-first-failureを適用。既取得metadataではversion 75のWEB_APP + `/exec`は一意だが、remote source/browser identity以降はNOT RUN。source push・version/deployment mutationは0。詳細: `0028-CODEX-12-production-contract-build-report.md`。Workは未完了、source凍結、次はChatGPT reviewとbounded runtime qualification。
 
 ユーザーがPR #50のLight案を現時点のproduction baselineとして受け入れ、細部は後続で詰める方針を明示した。PR #50はmainへsquash merge済み。
 
@@ -95,7 +97,7 @@ Apps Script version/deploymentが必要な場合は`docs/operations/apps-script-
 | 0028-CODEX-09 | PR #46 / RETURNED / controller PASS |
 | 0028-CODEX-10 | PR #47/#48/#49返却履歴。consumed |
 | 0028-CODEX-11 | PR #50 / RETURNED -> controller scoped repair -> user accepted -> merged |
-| 0028-CODEX-12 | production contract BUILD / READY |
+| 0028-CODEX-12 | Draft PR #51 / RETURNED PARTIAL / deterministic PASS・runtime BLOCKED |
 
 ## Next gate
 
@@ -108,8 +110,8 @@ DESIGN_MERGE_SHA: 98bd1f233a5a462c55a9a3f9e4bc0dda6c705067
 USER_LIGHT_ACCEPTANCE: ACCEPTED_WITH_FOLLOW_UP_POLISH
 MODE: BUILD
 ACTIVE_DISPATCH: 0028-CODEX-12
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: YES
 TARGET_RUNTIME_SYNTHETIC_QUALIFICATION_AUTHORIZED: YES
 REAL_DATA_ROLLOUT_AUTHORIZED: NO
@@ -120,5 +122,5 @@ WORK_0028_COMPLETE: NO
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-12
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

@@ -112,7 +112,8 @@ function kspRunFeatureFreezeKnowledgeSearch_(environment, rawInput) {
       questionOrInstruction: input.questionOrInstruction, gpId: input.gpId, metadataFilter: metadataFilter
     });
     var parsed = kspParseInteractionResponse_(environment.queryFileSearch(request));
-    var mapped = kspMapKnowledgeCitations_(parsed.citations, kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows));
+    var citationContext = environment.loadAiContext();
+    var mapped = kspMapKnowledgeCitations_(parsed.citations, kspBuildAuthoritativeSourceMaps_(citationContext.meetingRows, citationContext.pitchbookRows));
     warnings = warnings.concat(mapped.warnings);
     var answer = parsed.answer;
     var insufficientEvidence = !answer || mapped.citations.length === 0;

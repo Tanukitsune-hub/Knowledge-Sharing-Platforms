@@ -69,9 +69,10 @@ function kspRunFreeQuestion_(environment, rawInput) {
     });
     var rawResponse = environment.queryFileSearch(request);
     var parsed = kspParseInteractionResponse_(rawResponse);
+    var citationContext = environment.loadAiContext();
     var mapped = kspMapKnowledgeCitations_(
       parsed.citations,
-      kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows)
+      kspBuildAuthoritativeSourceMaps_(citationContext.meetingRows, citationContext.pitchbookRows)
     );
     warnings = warnings.concat(mapped.warnings);
 

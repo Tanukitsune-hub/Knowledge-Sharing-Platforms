@@ -89,4 +89,58 @@ async function quickAddCounterpartyFromRegistration(){
 
 el('meeting-quick-add-counterparty').onclick=quickAddCounterpartyFromRegistration;
 el('pitchbook-quick-add-gp').onclick=()=>quickAddGpFromRegistration('pitchbook','pitchbook-status');
+let meetingDetailRecord=null,meetingDetailBusy=false,meetingDetailRequest=0;
+const meetingDetailKnownDocuments=new Map();
+function renderMeetingDetail(record){
+  meetingDetailRecord=record;
+  el('meeting-detail-identity').textContent=record.meetingId+' / Version '+record.version+' / '+record.status;
+  const fields=[['日付',record.date],['時間',record.time],['面談場所',record.locationName],['面談先',record.counterpartyEntityName||record.gpName],['Asset Class',record.assetClassName],['Equity / Debt',record.capitalTypeName],['Team',record.teamName],['Fund / Strategy',record.fundStrategy],['Meeting Type',(record.meetingTypeLabels||[]).join(' / ')],['関連GP',(record.relatedGpNames||[]).join(', ')],['面談相手',record.counterparty],['当社側',record.internalParticipants],['要フォロー',record.followUpRequired?'あり':'なし'],['フォローメモ',record.followUpNote]];
+  el('meeting-detail-attributes').innerHTML=fields.map(([label,value])=>'<div><strong>'+escapeHtml(label)+'</strong><div>'+escapeHtml(value||'—')+'</div></div>').join('');
+  el('meeting-detail-body').textContent=record.notes||'（本文なし）';
+  const original=kspSafeDriveUrl(record.documentUrl);el('meeting-detail-original').hidden=!original;if(original)el('meeting-detail-original').href=original;else el('meeting-detail-original').removeAttribute('href');
+  el('meeting-detail-lifecycle').textContent=record.status==='Active'?'記録を削除（Inactive）':'記録を復元';
+  ['meeting-detail-add-files','meeting-detail-link'].forEach(id=>el(id).disabled=record.status!=='Active');
+  const known=meetingDetailKnownDocuments.get(record.meetingId)||new Map();
+  (record.relatedPitchbooks||[]).forEach(item=>{if((record.relatedPitchbookIds||[]).includes(item.id))known.set(item.id,item)});
+  (record.relatedPitchbookIds||[]).forEach(id=>{if(!known.has(id))known.set(id,{id,title:id})});
+  meetingDetailKnownDocuments.set(record.meetingId,known);
+  el('meeting-detail-files').innerHTML=[...known.values()].map(item=>{const linked=(record.relatedPitchbookIds||[]).includes(item.id);return'<div class="file-row"><div><strong>'+escapeHtml(item.title||item.id)+'</strong><div class="hint">'+escapeHtml(item.id)+' / '+escapeHtml(item.status||'状態未確認')+' / '+(linked?'関連あり':'この記録から解除済み')+'</div></div><button class="small-button" data-detail-file-open="'+escapeHtml(item.id)+'">原本</button><div class="row-actions"><button class="small-button" data-detail-classify="'+escapeHtml(item.id)+'">分類を編集</button><button class="small-button" data-detail-relation="'+escapeHtml(item.id)+'" data-operation="'+(linked?'remove':'add')+'"'+(record.status!=='Active'?' disabled':'')+'>'+(linked?'削除':'削除を取り消す')+'</button></div></div>'}).join('')||'<p class="hint">関連資料はありません。</p>';
+  el('meeting-detail-card').classList.remove('hidden-panel');
+}
+async function openMeetingDetail(meetingId){
+  const request=++meetingDetailRequest;
+  clearStatus('meeting-detail-status');
+  try{const result=await serverCall('getMeetingMaintenanceRecord',meetingId);if(request!==meetingDetailRequest)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'記録を読み込めません。');renderMeetingDetail(result.record);el('meeting-detail-card').scrollIntoView({behavior:'smooth',block:'start'})}catch(error){showStatus('meeting-past-status','error',error.message||String(error))}
+}
+async function changeDetailRelation(documentId,operation){
+  if(meetingDetailBusy||pitchbookBusy||!meetingDetailRecord||!documentId)return;
+  meetingDetailBusy=true;
+  try{
+    bindPitchbookParent(meetingDetailRecord,true);
+    await linkParentDocument(documentId,operation);
+    await openMeetingDetail(meetingDetailRecord.meetingId);
+    showStatus('meeting-detail-status','success',operation==='remove'?'この記録との関連のみ解除しました。原本と他の関連は維持されます。':'関連付けました。資料のStatusは変更していません。');
+  }catch(error){showStatus('meeting-detail-status','error',(error.message||String(error))+' 再試行時に現在の関係を照合します。')}
+  finally{meetingDetailBusy=false}
+}
+el('meeting-past-results').addEventListener('click',event=>{const button=event.target.closest('[data-meeting-detail]');if(button)openMeetingDetail(button.dataset.meetingDetail)});
+el('meeting-detail-close').onclick=()=>{meetingDetailRequest++;el('meeting-detail-card').classList.add('hidden-panel')};
+el('meeting-detail-edit').onclick=()=>{if(meetingDetailRecord)openMeetingEdit(meetingDetailRecord.meetingId)};
+el('meeting-detail-lifecycle').onclick=async()=>{
+  if(meetingDetailBusy||pitchbookBusy||!meetingDetailRecord)return;
+  const record=meetingDetailRecord;if(!confirm(record.status==='Active'?'記録をInactiveにします。資料本体は削除しません。':'記録を復元します。解除済み資料は再linkしません。'))return;
+  meetingDetailBusy=true;
+  try{const result=await serverCall('changeMeetingStatus',{meetingId:record.meetingId,expectedVersion:record.version,targetStatus:record.status==='Active'?'Inactive':'Active'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'状態を変更できません。');await openMeetingDetail(record.meetingId);await searchMeetings()}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}finally{meetingDetailBusy=false}
+};
+el('meeting-detail-add-files').onclick=()=>{
+  if(pitchbookBusy||meetingDetailBusy||!meetingDetailRecord)return;
+  try{bindPitchbookParent(meetingDetailRecord,true);el('meeting-detail-file-home').appendChild(el('meeting-file-panel'));setPitchbookBusy(false);el('meeting-file-panel').scrollIntoView({behavior:'smooth',block:'start'})}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}
+};
+el('meeting-detail-link').onclick=()=>changeDetailRelation(el('meeting-detail-documentId').value.trim(),'add');
+el('meeting-detail-files').addEventListener('click',async event=>{
+  const relation=event.target.closest('[data-detail-relation]'),classify=event.target.closest('[data-detail-classify]'),open=event.target.closest('[data-detail-file-open]');
+  if(relation){await changeDetailRelation(relation.dataset.detailRelation,relation.dataset.operation);return}
+  if(classify){el('meeting-detail-classification-home').appendChild(el('pitchbook-edit-card'));await openPitchbookEdit(classify.dataset.detailClassify);return}
+  if(open){try{const result=await serverCall('getPitchbookMaintenanceRecord',open.dataset.detailFileOpen);if(!result||!result.ok)throw new Error('原本情報を読み込めません。');const url=kspSafeDriveUrl(result.record.fileUrl);if(!url)throw new Error('有効な原本リンクがありません。');showStatus('meeting-detail-status','info','<a target="_blank" rel="noopener" href="'+escapeHtml(url)+'">資料原本を開く</a>',true)}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}}
+});
 </script>

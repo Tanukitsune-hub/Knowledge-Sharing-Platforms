@@ -161,15 +161,19 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
   });
 
   (pitchbookRows || []).forEach(function (row) {
-    var gpId = String(row.GP_ID || '');
+    var context = kspPitchbookAiContext_(row);
     add({
       sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
       sourceId: String(row.Document_ID || ''),
       date: kspCanonicalBusinessDate_(row.Date),
       driveUrl: String(row.File_URL || ''),
       savedFilename: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
-      entityKey: gpId ? 'GP:' + gpId : '',
-      counterpartyType: gpId ? 'GP' : '',
+      entityKey: context.entityKey,
+      counterpartyType: context.counterpartyType,
+      counterpartyId: context.counterpartyId,
+      relatedGpIds: context.relatedGpIds,
+      parentMeetingId: context.parentMeetingId,
+      retrievalEligible: kspIsParentBoundPitchbookEligible_(row, meetingRows) && (!context.parentMeetingId || context.valid),
       status: String(row.Status || ''),
       aiDocumentName: String(row.AI_Document_Name || ''),
       providerContentHashes: kspKnowledgeSourceProviderContentHashes_(row),
@@ -184,7 +188,16 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
 
 function kspKnowledgeSourceIdentityEquivalent_(left, right) {
   return left && right && left.sourceType === right.sourceType &&
-    left.sourceId === right.sourceId && left.contentHash === right.contentHash;
+    left.sourceId === right.sourceId && left.contentHash === right.contentHash &&
+    left.entityKey === right.entityKey && left.status === right.status &&
+    left.retrievalEligible === right.retrievalEligible;
+}
+
+function kspParentBoundCitationContextMatches_(source, metadata) {
+  if (!source.parentMeetingId) return true;
+  return kspAiTrim_(metadata.entity_key) === source.entityKey &&
+    kspAiTrim_(metadata.counterparty_type) === source.counterpartyType &&
+    kspAiTrim_(metadata.counterparty_id) === source.counterpartyId;
 }
 
 function kspKnowledgeSourceProviderContentHashes_(row) {
@@ -337,7 +350,11 @@ function kspResolveGeminiKnowledgeCitations_(rawCitations, sourceMaps, options) 
       reject(sourceKey, 'GEMINI_CITATION_SOURCE_NOT_FOUND', 'Gemini citation could not be matched to one authoritative source.');
       return;
     }
-    if (authoritative.status !== KSP_STATUS.ACTIVE) {
+    if (!kspParentBoundCitationContextMatches_(authoritative, metadata)) {
+      reject(sourceKey, 'AI_CITATION_CONTEXT_CONFLICT', '資料の面談先contextが一致しない引用を除外しました。');
+      return;
+    }
+    if (authoritative.status !== KSP_STATUS.ACTIVE || authoritative.retrievalEligible === false) {
       reject(sourceKey, 'GEMINI_CITATION_SOURCE_INACTIVE', 'An inactive Gemini citation source was excluded.');
       return;
     }
@@ -506,7 +523,11 @@ function kspMapKnowledgeCitations_(rawCitations, sourceMaps) {
       });
       return;
     }
-    if (authoritative.status !== KSP_STATUS.ACTIVE) {
+    if (!kspParentBoundCitationContextMatches_(authoritative, metadata)) {
+      warnings.push({ code: 'AI_CITATION_CONTEXT_CONFLICT', message: '資料の面談先contextが一致しない引用を除外しました。' });
+      return;
+    }
+    if (authoritative.status !== KSP_STATUS.ACTIVE || authoritative.retrievalEligible === false) {
       warnings.push({
         code: 'AI_CITATION_SOURCE_INACTIVE',
         message: 'An inactive source citation was excluded.',

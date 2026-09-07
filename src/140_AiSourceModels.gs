@@ -1,3 +1,52 @@
+function kspIsParentBoundPitchbookEligible_(row, meetingRows) {
+  if (!row || String(row.Status || '') !== KSP_STATUS.ACTIVE) return false;
+  if (!kspAiTrim_(row.Parent_Meeting_ID)) return true;
+  var documentId = kspAiTrim_(row.Document_ID);
+  return Boolean(documentId && (meetingRows || []).some(function (meeting) {
+    return meeting && kspAiTrim_(meeting.Meeting_ID) && String(meeting.Status || '') === KSP_STATUS.ACTIVE &&
+      kspMaintenanceSplitCodes_(meeting.Related_Pitchbook_IDs).indexOf(documentId) !== -1;
+  }));
+}
+
+function kspPitchbookAiContext_(row) {
+  var bound = Boolean(kspAiTrim_(row.Parent_Meeting_ID));
+  var type = bound ? kspAiTrim_(row.Counterparty_Type) : 'GP';
+  var id = bound ? kspAiTrim_(row.Counterparty_ID) : kspAiTrim_(row.GP_ID);
+  var valid = Boolean(id && KSP_COUNTERPARTY_TYPE_DEFINITIONS.some(function (item) { return item.code === type; }));
+  return {
+    valid: valid, parentMeetingId: kspAiTrim_(row.Parent_Meeting_ID),
+    counterpartyType: type, counterpartyId: id, entityKey: valid ? type + ':' + id : '',
+    relatedGpIds: bound ? kspAiTrim_(row.Related_GP_IDs) : kspAiTrim_(row.GP_ID)
+  };
+}
+
+function kspApplyPitchbookAiContext_(source, row, maps) {
+  var context = kspPitchbookAiContext_(row);
+  kspAssert_(!context.parentMeetingId || context.valid, 'AI_PARENT_SOURCE_CONTEXT_INVALID', '資料の面談先contextが不正です。');
+  source.parentMeetingId = context.parentMeetingId;
+  source.entityKey = context.entityKey;
+  source.counterpartyType = context.counterpartyType;
+  source.counterpartyId = context.counterpartyId;
+  source.counterpartyName = (maps.counterparties || {})[context.entityKey] ||
+    (context.counterpartyType === 'GP' ? maps.gps[context.counterpartyId] : '') || context.counterpartyId;
+  source.relatedGpIds = context.relatedGpIds;
+  if (context.parentMeetingId) {
+    source.gpId = context.counterpartyType === 'GP' ? context.counterpartyId : '';
+    source.gpName = source.gpId ? (maps.gps[source.gpId] || source.gpId) : '';
+  }
+  return source;
+}
+
+function kspParentBoundSourceHash_(environment, source) {
+  if (!source.parentMeetingId) return source;
+  // The immutable reservation context participates in derived identity, not the filename.
+  source.contentHash = environment.hashText(JSON.stringify([
+    source.contentHash, source.parentMeetingId, source.entityKey, source.relatedGpIds,
+    source.dateKey, source.assetClassId, source.capitalTypeId, source.fundStrategy
+  ]));
+  return source;
+}
+
 function kspBuildAiMasterMaps_(gpRows, optionRows) {
   var maps = { gps: {}, assetClasses: {}, capitalTypes: {}, teams: {}, counterparties: {} };
   (gpRows || []).forEach(function (row) {
@@ -72,7 +121,7 @@ function kspBuildPitchbookAiSource_(row, maps, text, contentHash) {
   var extension = kspGetPitchbookExtensionForAi_(row);
   kspAssert_(extension === 'txt', 'AI_FORMAT_DEFERRED_TO_WORK_0009',
     'Work 0008 indexes Meeting text and TXT sources only.');
-  return {
+  return kspApplyPitchbookAiContext_({
     sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
     sourceId: String(row.Document_ID),
     dateKey: kspCanonicalBusinessDate_(row.Date),
@@ -94,7 +143,7 @@ function kspBuildPitchbookAiSource_(row, maps, text, contentHash) {
     mimeType: 'text/plain',
     text: String(text || ''),
     contentHash: String(contentHash || '')
-  };
+  }, row, maps);
 }
 
 function kspAiWorkItemFromRow_(sourceType, row) {
@@ -130,6 +179,11 @@ function kspSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
   });
   (pitchbookRows || []).forEach(function (row) {
     var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.PITCHBOOK, row);
+    item.retrievalEligible = kspIsParentBoundPitchbookEligible_(row, meetingRows);
+    if (!item.retrievalEligible && String(row.Status) === KSP_STATUS.ACTIVE) {
+      if (row.AI_Document_Name || row.AI_Content_Hash) items.push(item);
+      return;
+    }
     if (kspIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
   });
   items.sort(function (left, right) {
@@ -160,5 +214,6 @@ function kspBuildAiSource_(environment, item, maps) {
     throw unsupported;
   }
   text = environment.readTextFile(String(row.File_ID || ''));
-  return kspBuildPitchbookAiSource_(row, maps, text, environment.hashText(text));
+  return kspParentBoundSourceHash_(environment,
+    kspBuildPitchbookAiSource_(row, maps, text, environment.hashText(text)));
 }

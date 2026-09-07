@@ -94,6 +94,26 @@ test('stale Pitchbook metadata update is rejected without renaming file', () => 
   assert.equal(result.ok,false); assert.equal(result.error.code,'STALE_RECORD_VERSION'); assert.deepEqual(env._debug.files.get('file-1'),before);
 });
 
+test('parent-bound non-GP classification edit preserves original entity despite client GP substitution', () => {
+  const row = {Document_ID:'DOC-000001',Batch_ID:'BAT-000001',Parent_Meeting_ID:'MTG-000001',
+    Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-000002',
+    GP_ID:'',Date:new Date(Date.UTC(2026,7,1)),Asset_Class_ID:'OPT-AC-002',Capital_Type_ID:'',
+    Sequence_No:1,File_ID:'file-1',File_URL:'https://example/file-1',Original_Filename:'source.pdf',
+    Saved_Filename:'source.pdf',Status:'Active',Updated_At:'2026-08-01T00:00:00.000Z'};
+  const env=createFakeEnvironment({pitchbookRows:[row]});
+  const result=ksp.kspUpdatePitchbookMaintenance_(env,{documentId:row.Document_ID,expectedUpdatedAt:row.Updated_At,
+    date:'2026-08-01',gpId:'GP-000001',assetClassId:'OPT-AC-002',fundStrategy:'Synthetic revision'});
+  assert.equal(result.ok,true,JSON.stringify(result));
+  assert.equal(result.record.gpId,'');
+  assert.equal(result.record.counterpartyType,'LP_ASSET_OWNER');
+  assert.equal(result.record.counterpartyId,'OPT-CPLP-001');
+  assert.equal(result.record.parentMeetingId,'MTG-000001');
+  assert.equal(result.record.fileId,'file-1');
+  assert.equal(result.record.sequenceNo,1);
+  assert.match(result.record.savedFilename,/Synthetic_Asset_Owner/);
+  assert.equal(env._debug.pitchbookWrites[0].includes('Date'),false);
+});
+
 test('failed Pitchbook metadata commit restores filename and releases the edit claim', () => {
   const env=createFakeEnvironment({commitError:true}); const before={...env._debug.files.get('file-1')};
   const result=ksp.kspUpdatePitchbookMaintenance_(env,{documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-02',gpId:'GP-000001',assetClassId:'OPT-AC-001',capitalTypeId:''});

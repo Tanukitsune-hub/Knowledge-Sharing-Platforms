@@ -1,6 +1,6 @@
 <section id="page-meeting-past" class="page">
   <div class="card">
-    <div class="section-heading"><div><h2>過去の面談記録</h2><p class="hint">条件はすべて任意です。編集時は最新Versionを確認して保存します。</p></div></div>
+    <div class="section-heading"><div><h2>過去の記録</h2><p class="hint">記録の詳細から原本・関連資料・編集を開けます。</p></div></div>
     <div class="filter-grid">
       <div class="field"><label for="meeting-past-dateFrom">Date From</label><input id="meeting-past-dateFrom" type="date"></div>
       <div class="field"><label for="meeting-past-dateTo">Date To</label><input id="meeting-past-dateTo" type="date"></div>
@@ -19,6 +19,17 @@
     <div id="meeting-past-status" class="status" role="status" aria-live="polite"></div>
     <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>GP</th><th>Asset Class</th><th>Status</th><th>Version</th><th>操作</th></tr></thead><tbody id="meeting-past-results"></tbody></table></div>
   </div>
+  <section id="meeting-detail-card" class="card hidden-panel">
+    <div class="section-heading"><div><h2>記録の詳細</h2><p id="meeting-detail-identity" class="hint"></p></div><button id="meeting-detail-close" class="small-button" type="button">閉じる</button></div>
+    <div id="meeting-detail-attributes" class="grid"></div>
+    <h3>面談内容</h3><div id="meeting-detail-body" class="record-body"></div>
+    <div class="actions"><a id="meeting-detail-original" class="small-link" target="_blank" rel="noopener">Google Docs原本</a><button id="meeting-detail-edit" class="small-button" type="button">記録を編集</button><button id="meeting-detail-lifecycle" class="small-button" type="button">記録を削除</button></div>
+    <h3>関連資料</h3><p class="hint">資料の「削除」はこの記録との関連解除です。資料本体・他の記録との関係・資料のStatusは変更しません。</p>
+    <div id="meeting-detail-files" class="file-list"></div>
+    <div class="actions"><label for="meeting-detail-documentId">既存Document_ID</label><input id="meeting-detail-documentId" placeholder="DOC-…"><button id="meeting-detail-link" class="small-button" type="button">既存資料を関連付ける</button><button id="meeting-detail-add-files" class="small-button" type="button">資料を追加</button></div>
+    <div id="meeting-detail-file-home"></div><div id="meeting-detail-classification-home"></div>
+    <div id="meeting-detail-status" class="status" role="status" aria-live="polite"></div>
+  </section>
   <div id="meeting-edit-card" class="card maintenance-editor hidden-panel">
     <div class="section-heading"><div><h2>面談記録を修正</h2><p id="meeting-edit-id" class="hint"></p></div><button id="meeting-edit-close" class="small-button" type="button">閉じる</button></div>
     <form id="meeting-edit-form" novalidate>
@@ -35,7 +46,7 @@
         <div class="field"><label for="meeting-edit-teamId">Team</label><select id="meeting-edit-teamId"><option value="">未選択</option></select></div>
         <div class="field"><label for="meeting-edit-fundStrategy">Fund / Strategy</label><input id="meeting-edit-fundStrategy" maxlength="500"></div>
         <div class="field full"><label>Meeting Type</label><div class="checkbox-row"><label><input type="checkbox" data-meeting-type="meeting-edit" value="ANNUAL_REVIEW"> 定例年1回</label><label><input type="checkbox" data-meeting-type="meeting-edit" value="OFFICE_VISIT"> 先方オフィス訪問</label><label><input type="checkbox" data-meeting-type="meeting-edit" value="ANNUAL_GENERAL_MEETING"> 年次総会</label></div></div>
-        <div class="field full"><label for="meeting-edit-relatedPitchbookIds">関連Pitchbook</label><select id="meeting-edit-relatedPitchbookIds" multiple size="5"></select></div>
+        <div class="field full" hidden><label for="meeting-edit-relatedPitchbookIds">関連資料（詳細画面で操作）</label><select id="meeting-edit-relatedPitchbookIds" multiple size="5" disabled></select></div>
         <div class="field"><label><input id="meeting-edit-followUpRequired" type="checkbox"> 要フォロー</label></div>
         <div class="field full"><label for="meeting-edit-followUpNote">フォローアップメモ</label><textarea id="meeting-edit-followUpNote" maxlength="2000"></textarea></div>
         <div class="field"><label for="meeting-edit-counterparty">面談相手（氏名・役職）</label><input id="meeting-edit-counterparty" maxlength="500"></div>
@@ -70,7 +81,7 @@
       <input id="pitchbook-edit-documentId" type="hidden"><input id="pitchbook-edit-expectedUpdatedAt" type="hidden">
       <div class="grid">
         <div class="field"><label class="required" for="pitchbook-edit-date">日付</label><input id="pitchbook-edit-date" type="date" required></div>
-        <div class="field"><label class="required" for="pitchbook-edit-gpId">GP</label><select id="pitchbook-edit-gpId" required><option value="">未選択</option></select></div>
+        <div class="field"><label for="pitchbook-edit-gpId">元のGP（non-GP資料は未選択）</label><select id="pitchbook-edit-gpId" disabled><option value="">未選択</option></select></div>
         <div class="field"><label class="required" for="pitchbook-edit-assetClassId">Asset Class</label><select id="pitchbook-edit-assetClassId" required><option value="">未選択</option></select></div>
         <div class="field"><label for="pitchbook-edit-capitalTypeId">Equity / Debt</label><select id="pitchbook-edit-capitalTypeId"><option value="">未選択</option></select></div>
         <div class="field"><label for="pitchbook-edit-fundStrategy">Fund / Strategy</label><input id="pitchbook-edit-fundStrategy" maxlength="500"></div>
