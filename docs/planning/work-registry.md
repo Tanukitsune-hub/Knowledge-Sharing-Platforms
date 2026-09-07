@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Execute queued CODEX-10 record-centric design correction, then final user Light visual acceptance |
+| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Review returned CODEX-10 record-centric design package, then final user Light visual acceptance |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -87,7 +87,7 @@ Routine AI Provider Settings administration remains unlocked by the accepted sha
 
 ### Work 0028
 
-Work 0028 remains a UI/UX design Work. Current mode is INVESTIGATION, phase A1.13 / record-centric final IA correction / Light only.
+Work 0028 remains a UI/UX design Work. Current mode is INVESTIGATION, phase A1.14 / CODEX-10 record-centric IA and Knowledge Search correction returned for review / Light only.
 
 Dark/System variants remain canceled. Production implementation remains unauthorized until the final Light family is visually accepted and the user explicitly authorizes BUILD.
 
@@ -100,7 +100,7 @@ Design history:
 - CODEX-07: final Light correction, PR #44; controller technical review PASS.
 - CODEX-08: Light-only final polish, PR #45; controller technical review PASS.
 - CODEX-09: final accumulated user corrections, Draft PR #46; controller technical review PASS / user acceptance pending.
-- CODEX-10: next unused dispatch. Record-centric IA + final Knowledge Search corrections are closed for execution when requested.
+- CODEX-10: returned fresh design-only package; next unused dispatch is CODEX-11. Record-centric IA + final Knowledge Search corrections are represented in the current review package.
 
 PR #46 is the current Light visual baseline / review history. CODEX-10 will supersede only the affected design surfaces.
 
@@ -137,6 +137,7 @@ Authoritative CODEX-10 decisions:
 
 - `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
 - `docs/handoffs/0028-CODEX-10-record-centric-architecture-decisions.md`
+- `docs/handoffs/0028-CODEX-10-record-centric-design-report.md`
 
 Current ball/status:
 
@@ -144,7 +145,7 @@ Current ball/status:
 
 ## Next gate
 
-When requested, execute `0028-CODEX-10` as DESIGN ONLY and return a fresh Draft PR / corrected Light screenshots / validation / report.
+Review the returned `0028-CODEX-10` design-only package and close user Light acceptance. The package includes corrected Light screenshots, validation, and report.
 
 If the returned Light family is visually accepted, apply Completion Latch to the Work 0028 design phase. Production implementation then requires a separate Strategy Reset plus explicit user BUILD authorization. Deployment remains separately scoped.
 

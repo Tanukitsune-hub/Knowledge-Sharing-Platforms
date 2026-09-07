@@ -1,0 +1,11 @@
+<p class="hint">利用者に表示する検索モードと、固定質問を管理します。</p>
+<div class="mode-row mode-head"><span>表示名</span><span>固定質問 / 指示文</span><span>有効</span><span>表示順</span></div>
+<div id="mode-registry">
+  <div class="mode-row" data-mode-id="free" data-behavior="FREE_QUESTION"><div><strong>自由質問</strong><p class="protected">保護された基本モード<br>削除・無効化不可</p></div><p class="hint">利用者が質問を入力します。<br>固定質問は設定しません。</p><label><input type="checkbox" checked disabled aria-label="自由質問 有効（変更不可）">有効</label><input type="number" value="0" disabled aria-label="自由質問 表示順"></div>
+  <div class="mode-row" data-mode-id="summary" data-behavior="SUMMARY"><input aria-label="要約 表示名" value="要約"><textarea aria-label="要約 固定質問">対象期間の面談記録・資料を要約し、主要論点、確認済み事項、未確認事項を出典とともに整理してください。</textarea><label><input type="checkbox" checked aria-label="要約 有効">有効</label><input type="number" min="1" value="10" aria-label="要約 表示順"></div>
+  <div class="mode-row" data-mode-id="timeline" data-behavior="TIMELINE"><input aria-label="時系列 表示名" value="時系列"><textarea aria-label="時系列 固定質問">対象期間の情報を日付順に整理し、方針や判断の変化を出典とともに示してください。</textarea><label><input type="checkbox" checked aria-label="時系列 有効">有効</label><input type="number" min="1" value="20" aria-label="時系列 表示順"></div>
+  <div class="mode-row" data-mode-id="compare" data-behavior="COMPARISON"><div><input aria-label="比較 表示名" value="比較"><p class="hint">2〜5対象の選択を維持</p></div><textarea aria-label="比較 固定質問">選択した2〜5件の対象について共通の評価軸で比較し、相違点と根拠不足を対象別の出典とともに示してください。</textarea><label><input type="checkbox" checked aria-label="比較 有効">有効</label><input type="number" min="1" value="30" aria-label="比較 表示順"></div>
+  <div class="mode-row" data-mode-id="prep" data-behavior="MEETING_PREP"><div><input aria-label="面談準備 表示名" value="面談準備"><p class="hint">面談対象の選択は必須</p></div><textarea aria-label="面談準備 固定質問">選択した面談対象について過去の確認事項と未解決論点を整理し、次回面談で確認する質問を出典とともに示してください。</textarea><label><input type="checkbox" checked aria-label="面談準備 有効">有効</label><input type="number" min="1" value="40" aria-label="面談準備 表示順"></div>
+</div>
+<div class="mode-toolbar"><button type="button" id="add-preset">プリセットを追加</button><button type="button" class="primary" id="save-presets">設定を保存（デモ）</button><span class="hint" role="status" id="preset-status"></span></div>
+<p class="mode-setting-note">追加するプリセットは固定質問のみを持ちます。無効にしたモードは利用者の選択肢から外れます。比較・面談準備の対象選択条件は保持します。</p>

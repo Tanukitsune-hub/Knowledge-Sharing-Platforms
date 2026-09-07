@@ -1,0 +1,44 @@
+{
+  "workId": "0028",
+  "dispatchId": "0028-CODEX-10",
+  "url": "http://127.0.0.1:8772/docs/design/0028/selected-light-family/01-search.html",
+  "browser": "Codex In-app Browser",
+  "states": [
+    {
+      "name": "initial",
+      "viewport": { "width": 1366, "height": 768 },
+      "scrollWidth": 1366,
+      "consoleWarnings": 0,
+      "consoleErrors": 0,
+      "screenshot": "screenshots/01-search-initial-1366x768.png"
+    },
+    {
+      "name": "full-output",
+      "viewport": { "width": 1366, "height": 768 },
+      "selectedCounterparty": "LP:A",
+      "exportVisible": true,
+      "answerVisible": false,
+      "modelOptions": ["GPT-5.6 Luna"],
+      "screenshot": "screenshots/02-full-export-meeting-only.png"
+    },
+    {
+      "name": "mobile-full-output",
+      "viewport": { "width": 390, "height": 844 },
+      "scrollWidth": 375,
+      "exportVisible": true,
+      "consoleWarnings": 0,
+      "consoleErrors": 0,
+      "screenshot": "screenshots/04-mobile-export-390x844.png"
+    },
+    {
+      "name": "normal-ai-search",
+      "viewport": { "width": 1366, "height": 768 },
+      "answerVisible": true,
+      "exportVisible": false,
+      "sourceType": "",
+      "model": "APPROVED_OPENAI_PROFILE",
+      "screenshot": "screenshots/05-ai-search-results-1366x768.png"
+    }
+  ],
+  "runtimeBoundary": "synthetic inert HTML only; no Apps Script, provider, persistence, or deployment qualification"
+}

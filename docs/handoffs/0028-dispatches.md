@@ -1,23 +1,30 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-09
-ACTIVE_DISPATCH_ID: 0028-CODEX-09
+DISPATCH_ID: 0028-CODEX-10
+ACTIVE_DISPATCH_ID: 0028-CODEX-10
 BALL: CHATGPT
-STATUS: REVIEW
+STATUS: RETURNED
 MODE: INVESTIGATION
-PHASE: A1.13 / RECORD-CENTRIC FINAL IA CORRECTION / DESIGN ONLY
+PHASE: A1.14 / RECORD-CENTRIC IA AND KNOWLEDGE SEARCH / DESIGN ONLY
 
 ## Current state
 
-CODEX-09 returned Draft PR #46 from `codex/0028-final-light-user-corrections`.
+CODEX-09 returned Draft PR #46 from `codex/0028-final-light-user-corrections` and remains the accepted Light visual baseline.
 
 - PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/46
 - PR head: `400f2f0e77acf81deb32e363d79a3962dfd2f017`
 - design artifact: `933111ce96cd170210f80ca7bada862cbdfe310c`
 - report: `docs/handoffs/0028-CODEX-09-final-light-user-corrections-report.md`
 
-PR #46 remains the current Light visual baseline. ChatGPT controller technical review for CODEX-09 is PASS; no technical BLOCKER is open.
+PR #46 remains the CODEX-09 Light visual baseline. ChatGPT controller technical review for CODEX-09 is PASS; no technical BLOCKER is open.
+
+CODEX-10 returned a fresh design-only package from `codex/0028-codex10-record-centric-design`.
+
+- PR: pending creation after final local validation
+- report: `docs/handoffs/0028-CODEX-10-record-centric-design-report.md`
+- current scope: Knowledge Search action correction + record-centric add/history surfaces
+- production `src/**` / `dist/**`: unchanged
 
 ## Accepted CODEX-09 evidence preserved
 
@@ -32,12 +39,15 @@ PR #46 remains the current Light visual baseline. ChatGPT controller technical r
 
 Static design evidence does not qualify Apps Script runtime, persistence, authentication, server-side preset resolution, measured contrast, screen-reader behavior, complete keyboard paths or mobile behavior.
 
-## Closed corrections queued for CODEX-10
+## CODEX-10 returned design corrections
 
-Authoritative decisions:
+Authoritative decisions and returned artifact:
 
 - `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
 - `docs/handoffs/0028-CODEX-10-record-centric-architecture-decisions.md`
+- `docs/handoffs/0028-CODEX-10-record-centric-design-report.md`
+
+The closed decisions below are represented in the CODEX-10 design package. They remain future BUILD requirements; this dispatch did not change production source or runtime.
 
 ### Knowledge Search
 
@@ -128,31 +138,32 @@ Future Pitchbook upload receives a parent `Meeting_ID`, validates the authoritat
 | 0028-CODEX-07 | Final Light correction; RETURNED on PR #44. |
 | 0028-CODEX-08 | Light-only final polish; RETURNED on PR #45; controller technical review PASS. |
 | 0028-CODEX-09 | Final accumulated Light user corrections; RETURNED on PR #46; controller technical review PASS. |
+| 0028-CODEX-10 | Knowledge Search and record-centric Light correction; RETURNED on a fresh design-only package. |
 
 ## Next gate
 
-The record-centric IA and Knowledge Search corrections are now CLOSED for the next design correction.
+Review CODEX-10's Light package and close user Light acceptance. If accepted, apply the Work 0028 Completion Latch before any separate production BUILD request.
 
-If the user asks to execute them, allocate fresh Dispatch ID `0028-CODEX-10`; do not reuse CODEX-09.
-
-CODEX-10 remains DESIGN ONLY. Production BUILD requires a later Strategy Reset plus explicit user authorization.
+CODEX-10 remains DESIGN ONLY. Production BUILD requires a later Strategy Reset plus explicit user authorization. The unresolved external runtime boundaries are not blockers for this design return.
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
 DRAFT_PR_46: CURRENT LIGHT VISUAL BASELINE
+CODEX10_PR: PENDING_CREATION
 CONTROLLER_TECHNICAL_REVIEW_CODEX_09: PASS
+CONTROLLER_TECHNICAL_REVIEW_CODEX_10: PENDING
 USER_LIGHT_ACCEPTANCE: PENDING
 KNOWLEDGE_PRIMARY_TARGET_LABEL: 面談先
 FULL_EXPORT_UI: DEDICATED_BUTTON / NOT_MODEL_OPTION
 RECORD_CENTRIC_IA: CLOSED_FOR_CODEX_10
-ADD_RECORD_SUBTABS: REMOVE
-PAST_RECORD_SUBTABS: REMOVE
+ADD_RECORD_SUBTABS: REMOVED_IN_DESIGN
+PAST_RECORD_SUBTABS: REMOVED_IN_DESIGN
 RECORD_TYPES: MEETING / DATA_RECEIPT
 PITCHBOOK_PARENT_REQUIREMENT: VALID_MEETING_ID
 PITCHBOOK_GP_REQUIRED: REMOVE_IN_FUTURE_BUILD
 RELATED_FILE_DELETE_UI: UNLINK
 STANDALONE_PITCHBOOK_REGISTRATION: REMOVE
-NEXT_UNUSED_DISPATCH: 0028-CODEX-10
+NEXT_UNUSED_DISPATCH: 0028-CODEX-11
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
 RUNTIME_CHANGED: NO
@@ -161,6 +172,6 @@ WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-09
+DISPATCH_ID: 0028-CODEX-10
 BALL: CHATGPT
-STATUS: REVIEW
+STATUS: RETURNED

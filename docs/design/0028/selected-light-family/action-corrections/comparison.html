@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CODEX-10 visual comparison</title>
+<style>body{margin:0;background:#eef3f7;color:#26333a;font:14px/1.5 'Yu Gothic UI','Meiryo',sans-serif;padding:20px}h1{font:26px Georgia,'Yu Mincho',serif;margin:0 0 6px}.note{color:#5b6871;margin:0 0 18px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}.panel{background:#fff;border:1px solid #d3dce4;border-radius:6px;padding:12px}.panel h2{font-size:15px;margin:0 0 10px;color:#6d5128}.panel img{display:block;width:100%;height:auto;border:1px solid #d3dce4}.caption{font-size:12px;color:#5b6871;margin-top:8px}.state{margin-top:20px;background:#fff;border:1px solid #d3dce4;border-radius:6px;padding:12px}.state img{display:block;max-width:100%;height:auto;border:1px solid #d3dce4}@media(max-width:900px){.pair{grid-template-columns:1fr}}</style>
+<h1>CODEX-10 · Light comparison</h1>
+<p class="note">同一1366×768 viewport。BaselineはCODEX-09、右はCODEX-10初期表示。既存Light familyを保ったまま、面談先と独立全文出力actionを比較する。</p>
+<div class="pair">
+  <section class="panel"><h2>CODEX-09 baseline</h2><img src="../final-user-corrections/screenshots/01-free-question.jpg" alt="CODEX-09 baseline search screen"><p class="caption">GP selector / normal search action</p></section>
+  <section class="panel"><h2>CODEX-10 implementation</h2><img src="screenshots/01-search-initial-1366x768.png" alt="CODEX-10 initial search screen"><p class="caption">面談先 entity selector / 検索・全文出力・条件をクリア</p></section>
+</div>
+<section class="state"><h2>CODEX-10 Full Output state</h2><img src="screenshots/02-full-export-meeting-only.png" alt="CODEX-10 Meeting-only full output preview"><p class="caption">Meeting attributes + Google Docs本文。AI model selector remains independent。</p></section>

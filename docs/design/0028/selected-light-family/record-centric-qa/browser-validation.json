@@ -1,0 +1,33 @@
+{
+  "workId": "0028",
+  "dispatchId": "0028-CODEX-10",
+  "server": "local static server",
+  "syntheticData": true,
+  "runtimeQualified": false,
+  "pages": [
+    {
+      "path": "../03-record-add-meeting.html",
+      "viewport": "1366x768",
+      "scrollWidth": 1351,
+      "scrollHeight": 2462,
+      "consoleWarningsOrErrors": 0,
+      "recordTypeOptions": ["MEETING", "DATA_RECEIPT"],
+      "meetingFilePolicy": "optional",
+      "dataReceiptFilePolicy": "required"
+    },
+    {
+      "path": "../05-past-records-meeting.html",
+      "viewport": "1366x768",
+      "scrollWidth": 1351,
+      "scrollHeight": 1157,
+      "consoleWarningsOrErrors": 0,
+      "subtabs": 0,
+      "relatedFileActions": ["資料を追加", "削除（紐付け解除）"]
+    }
+  ],
+  "comparison": {
+    "path": "comparison.html",
+    "viewport": "1366x768",
+    "allLocalImagesLoaded": true
+  }
+}
