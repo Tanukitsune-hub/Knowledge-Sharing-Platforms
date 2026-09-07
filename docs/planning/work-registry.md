@@ -5,7 +5,7 @@ Status: Active planning source of truth
 
 ## Purpose and identity rules
 
-Work IDs identify stable outcomes, not execution order. Never renumber or reuse an issued ID. Keep the same Work through implementation, qualification, repair and PR convergence while its outcome remains unchanged. Give each new Codex execution a new Dispatch ID. Normally only one Work is active for implementation. Current ball is authoritative in `docs/handoffs/<WORK_ID>-dispatches.md`.
+Work IDs identify stable outcomes, not execution order. Never renumber or reuse an issued ID. Keep the same Work through implementation, qualification, repair and PR convergence while its outcome remains unchanged. Give each new Codex execution a new Dispatch ID. Current ball is authoritative in `docs/handoffs/<WORK_ID>-dispatches.md`.
 
 Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 
@@ -15,13 +15,13 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 |---:|---|---|---|---|---|
 | 0 | 0020 | Provider core, OpenAI File Search, citations, lifecycle, full output | ACCEPTED | — | Preserve accepted evidence |
 | 1 | 0025 | Administrator model/thinking policy | ACCEPTED | 0020 | Preserve exact tuple policy |
-| 2 | 0021 | Structured search, five modes, multi-Entity, six formats | ACCEPTED | 0025 | Preserve PR #34 and version-66 evidence |
-| 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
-| 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
-| 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録・資料導線と高品質Light UIの整合 | ACTIVE (design only) | Accepted 0027 and 0029 baseline | PR #50のController限定修正・18回帰PASSを踏まえ、Light visual review / user acceptanceへ |
-| 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
-| 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
+| 2 | 0021 | Structured search, five modes, multi-Entity, six formats | ACCEPTED | 0025 | Preserve PR #34 / version-66 evidence |
+| 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
+| 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
+| 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-12 production contract BUILD + target-runtime synthetic qualification |
+| 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
+| 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 10 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
@@ -29,19 +29,15 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 
 ### Work 0021
 
-PR #34 merge `533c849bd1229827ec77cd5ad6506312ea286940`; private version 66. Core filters/five modes, multi-Entity/advanced filters, OpenAI six-format matrix 6/6, EML attachment boundary and FULL_OUTPUT six-format reference parity PASS. Logic 376/376.
+PR #34 merge `533c849bd1229827ec77cd5ad6506312ea286940`; private version 66. Core filters/five modes, multi-Entity/advanced filters, OpenAI six-format matrix 6/6 and FULL_OUTPUT parity accepted.
 
 ### Work 0023
 
-PR #35 merge `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`. Deterministic bundle/installer, owner latch, takeover rejection, deployment attestation, source parity, and idempotent install evidence accepted.
-
-### Work 0026
-
-PR #36 merge `40bb7d40506c0839c35742ee0000d89650ff7ad6`; version 70 shell/readback accepted. Its old coarse Gemini failure classification is historical only and was superseded as a general causal explanation by later Work 0027 evidence.
+PR #35 merge `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`. Deterministic bundle/installer, owner latch, deployment attestation, source parity and idempotent install evidence accepted.
 
 ### Work 0027
 
-PR #37 merge `9cd5d2984d0d584ed05c447ed09d2ddf0e1e2366`; implementation `40905f23d8c6bab5b76e7fb2f34f96b912aeb2f7`; final branch head `497ecff400624330f1d5041de166f6c6e3485220`.
+PR #37 merge `9cd5d2984d0d584ed05c447ed09d2ddf0e1e2366`; final branch head `497ecff400624330f1d5041de166f6c6e3485220`.
 
 ```text
 PRIVATE_WEB_APP_VERSION: 73
@@ -52,17 +48,14 @@ BUNDLE_VALIDATION: PASS / 27 of 27
 SOURCE_READBACK: PASS / 82 of 82
 TARGET_RUNTIME_QUALIFICATION: PASS
 AUTHORITATIVE_CITATION: PASS
-TEMP_RESOURCE_CLEANUP: PASS
 GEMINI_ENABLED: false
 NORMAL_USER_GEMINI_VISIBILITY: false
 BLOCKER: NONE
 ```
 
-The accepted strict Gemini citation resolver binds the returned Store and exact metadata tuple to one current Active authoritative source/current Gemini hash and one independently verified current provider document. Qualification and normal immediate/POLL mapping share this resolver. OpenAI/FULL_OUTPUT behavior remains preserved.
-
 ### Work 0029
 
-PR #39 merge `872dbec83d17e6dfe1f33d8260006c2124d38a6c`; canonical implementation `9fa668619a0b91fb60ed53f696363d3954cf709e`; final branch head `b29ee3e538e72c4641f8d825e304fea1c186a265`.
+PR #39 merge `872dbec83d17e6dfe1f33d8260006c2124d38a6c`; final branch head `b29ee3e538e72c4641f8d825e304fea1c186a265`.
 
 ```text
 PRIVATE_WEB_APP_VERSION: 75
@@ -77,69 +70,58 @@ ACCOUNT_INDEPENDENT_ADMIN_SESSION: PASS
 SESSIONSTORAGE_RELOAD_AND_SERVER_REVALIDATION: PASS
 EXPLICIT_LOGOUT: PASS
 PROVIDER_DATA_MUTATIONS: 0
-WORK_0028_CONTROL_FILES_PRESERVED: PASS
 BLOCKER: NONE
 ```
 
-Routine AI Provider Settings administration remains unlocked by the accepted shared administrator password contract. Browser-side opaque session token, server validation, logout and password rotation semantics are preserved.
+## Work 0028 current contract
 
-## Active design boundary
+### Design phase accepted
 
-### Work 0028
+PR #50 was accepted by the user as the current Light production baseline with minor polish deferred, then squash-merged:
 
-MODE: INVESTIGATION
-PHASE: A1.15 / INTEGRITY-RECONCILED LIGHT CORRECTION / DESIGN ONLY
+- PR #50 merge: `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`
+- design/controller review: `docs/handoffs/0028-CODEX-11-controller-review.md`
+- acceptance / Strategy Reset: `docs/handoffs/0028-design-acceptance-and-build-reset.md`
 
-CODEX-11はPR #50で返却済み。現在はBALL CHATGPT / STATUS REVIEW。CODEX-10はPR #47/#48/#49の返却履歴として使用済みを保持する。次の未使用dispatchはCODEX-12であり、新規実行はまだ指示していない。
+Closed UI direction:
 
-| Dispatch | Design history |
-|---|---|
-| CODEX-03〜07 | PR #40〜44、Light探索・展開・改善の履歴 |
-| CODEX-08 | PR #45、controller technical review PASS |
-| CODEX-09 | PR #46、controller technical review PASS / user acceptance pending |
-| CODEX-10 | PR #47/#48/#49の履歴。旧designの選択継承元。最新レビュー対象ではない |
-| CODEX-11 | PR #50、RETURNED後ChatGPTが限定修正。source照合と分離DOMの18回帰PASS。Light visual acceptanceはPENDING |
+- Light-only, sidebar 7, `#182124`, active `#E1001F` left strip, metallic gold, 紗綾形.
+- `記録を追加`: single Meeting form with optional new files + existing Document link; no Meeting/資料 tab, record-type selector, Data Receipt surface, standalone Pitchbook route.
+- `過去の記録`: single Meeting list/detail; original, edit, Meeting delete/reactivate, related files, add/unlink/relink, classification edit in parent context.
+- related-file visible `削除` means unlink from current Meeting, not Pitchbook-wide Inactive or physical delete.
+- Knowledge Search: Row1 `面談先 / 情報ソース / 開始日 / 終了日 / 全期間`; Row2 `検索モード / AIモデル`; Row3 wide `質問`.
+- source options: `面談記録・資料 / 面談記録のみ / 資料のみ`.
+- `全文出力` is a dedicated Meeting-only / non-AI action, not a model option.
+- analytics approved 9-column Meeting list, GP/Entity summary read facades, admin preset/shared-admin behavior are preserved.
 
-元の返却HEADは`7564865badc88e01ca930faba27e4edf0c29b174`、Controllerコード修正完了は`841fa291676bee5de0490814dbc51a10fd11d3dc`。PR #50が現在のレビュー対象。元の456 tests/12画面/22操作はCodex検証artifactの証拠で、patch後の全画面再検証と混同しない。
+### BUILD phase
 
-### 閉じたUI方針
+Mode changed from INVESTIGATION to BUILD because the accepted UI requires production contract changes before the backend can satisfy it.
 
-- Light-only、sidebar 7項目、#182124、active左stripのみ#E1001F、gold icons/separator、紗綾形は維持。Dark/Systemなし。
-- `記録を追加`は単一form。面談/資料tab、記録種別selector、データ受領専用form、独立した資料だけ追加経路は置かない。
-- `過去の記録`は単一一覧。本文・属性・面談原本・編集・記録削除/復元・関連資料操作を同じ文脈に集約する。
-- 新規資料は保存成功済みの親Meeting_IDが必須。非GPも対象。既存親へのfollow-up資料追加は親を再作成しない。
-- 通常資料buttonの`削除`は当該リンク解除。記録Inactive、資料Inactive、物理削除を混同しない。
-- ナレッジ検索は`面談先 / 情報ソース / 開始日 / 終了日 / 全期間`、`検索モード / AIモデル`、大きな質問欄。
-- 情報ソース3択は維持。専用`全文出力`buttonを設け、AIモデルoptionから除く。共通条件のActive MeetingのDocs全文と業務属性を出力し、質問/AI設定を前提にしない。
-- admin preset、自由質問保護、readonly/draft復元、面談集計の承認済み構成と9列、Work 0027/0029は保持。
+CODEX-12 must implement and qualify the smallest coherent production delta for:
 
-### 本番境界と残余事項
+- saved Active parent Meeting binding before new Pitchbook registration;
+- safe file/link partial-failure recovery with stable IDs and no duplicates;
+- non-GP validation/naming/metadata/provider attributes/citation context;
+- relation-only add/unlink/relink with Lock/CAS and Google Docs body preservation;
+- retrieval eligibility based on active parent relation for new parent-bound sources;
+- independent Meeting-only Knowledge Export validator/action;
+- accepted Light production UI wiring for core flows;
+- deterministic tests, generated bundle parity and target-runtime synthetic evidence.
 
-GP必須の撤廃、親binding、関連確定の再試行、source metadata/引用、unlink後の検索eligibility、Docs原文保全、export validatorは後続BUILDで必要な限定契約変更。単なるUI置換で実装済みになるとは扱わない。
+Preserve 5-sheet backend, stable IDs, Shared Drive authoritative source, no physical delete, no provider auto-failover, Work 0027 Gemini hidden and Work 0029 shared-admin.
 
-「データ受領タブ不要」を「受領のみの記録自体を登録禁止」と拡張した前回答は未確認の解釈として確定扱いから外す。今回専用分岐を復活させず、受領のみ記録と面談集計の扱いをBUILD前確認事項にする。Record_Type/DATA_RECEIPT schemaを今作らない。
+Historical orphan Pitchbook bulk migration, new relationship table/Record_Index, Data Receipt schema, broad rollout, real confidential data, Dark/System are non-goals.
 
-既存の親のない資料・共有関連は破壊せず、必要な移行は実データ確認後の限定課題とする。資料タブの廃止で既存metadata編集や文脈付きsummary参照を黙って失わない。
+Active instruction:
+`docs/handoffs/0028-CODEX-12-production-contract-build-instruction.md`
 
-現在のControllerレビュー:
-`docs/handoffs/0028-CODEX-11-controller-review.md`
-
-実行instruction:
-`docs/handoffs/0028-CODEX-11-meeting-centric-design-instruction.md`
-
-事前整合性レビュー:
-`docs/handoffs/0028-CODEX-11-consistency-review.md`
-
-更新済み詳細判断:
-- `docs/handoffs/0028-CODEX-10-record-centric-architecture-decisions.md`
-- `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
-
-現在のBALL/STATUS:
+Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
 
 ## Next gate
 
-PR #50修正後のLight visual review / user acceptance。Controllerの限定回帰は18/18 PASSだが、patch後全画面・元22case・npm・画像比較の独立再実行はNOT RUN。ユーザーのLight accept後もproduction BUILDには別の明示承認とStrategy Resetが必要。deploy、実データ移行、provider外部操作は別途scopeとする。
+CODEX-12 returns a Draft PR with production implementation, focused/canonical tests, source/bundle parity and target-runtime synthetic evidence. ChatGPT reviews final diff and runtime evidence. Only BLOCKER prevents acceptance. Broad deployment/company rollout remains separately authorized.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
@@ -147,4 +129,4 @@ Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers and a
 
 ## Scope discipline
 
-Only normal primary-flow failure, source/data integrity, credentials/authorization, authoritative citations, material irreversible side effects or required runtime evidence may block delivery. Cosmetic work, broad benchmarks and unrelated hardening remain follow-up.
+Only normal primary-flow failure, source/data integrity, credentials/authorization, authoritative citations, material irreversible side effects or required runtime evidence may block delivery. Cosmetic work, broad benchmarks and unrelated hardening remain FOLLOW_UP/OPTIONAL.
