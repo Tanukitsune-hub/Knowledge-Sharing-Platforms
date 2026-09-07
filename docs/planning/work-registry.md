@@ -21,9 +21,10 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
 | 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-12 production contract BUILD + target-runtime synthetic qualification |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
-| 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 10 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | PLANNED | Work 0028 / CODEX-12 return + ChatGPT baseline review | Freeze accepted provider-neutral source, then start `0030-CODEX-01` |
+| 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 10 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 11 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -119,9 +120,36 @@ Active instruction:
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
 
+## Work 0030 planned contract
+
+User clarified that the company-provided OpenAI-family credential is Azure OpenAI, not Direct OpenAI.
+
+Work 0030 is intentionally separate from active CODEX-12 so provider-neutral product-contract implementation and Azure transport qualification do not contaminate each other's evidence.
+
+Closed direction:
+
+- company OpenAI-family provider = Azure OpenAI;
+- Azure v1 Responses / Files / Vector Stores / `file_search` are the target provider APIs;
+- company API-key auth is the first qualification route;
+- Azure `model` value maps to approved deployment name/profile rather than assuming a public Direct OpenAI model ID;
+- Direct OpenAI is not a company fallback;
+- Azure provider state/resource identity is distinct from historical Direct `OPENAI` state;
+- no new provider-state sheet/database; append-only provider state in the existing five-sheet architecture is preferred;
+- normal-user Knowledge Search UI remains provider-neutral; admin provider settings identify Azure OpenAI;
+- synthetic Responses + File Search lifecycle must PASS before any real source indexing;
+- FULL_EXPORT remains non-AI and independent of Azure availability.
+
+Authoritative decision:
+`docs/decisions/company-azure-openai-provider.md`
+
+Implementation plan:
+`docs/planning/work0030-azure-openai-provider-transition.md`
+
+Work 0030 has no active Dispatch yet. After CODEX-12 returns, ChatGPT reviews and freezes the accepted source baseline before allocating `0030-CODEX-01`.
+
 ## Next gate
 
-CODEX-12 returns a Draft PR with production implementation, focused/canonical tests, source/bundle parity and target-runtime synthetic evidence. ChatGPT reviews final diff and runtime evidence. Only BLOCKER prevents acceptance. Broad deployment/company rollout remains separately authorized.
+CODEX-12 returns a Draft PR with production implementation, focused/canonical tests, source/bundle parity and target-runtime synthetic evidence. ChatGPT reviews final diff and runtime evidence. Only BLOCKER prevents acceptance. Azure provider conversion remains queued as Work 0030 and does not alter the active CODEX-12 instruction. Broad deployment/company rollout remains separately authorized.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
