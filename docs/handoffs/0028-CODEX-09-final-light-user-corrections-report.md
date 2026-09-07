@@ -14,7 +14,8 @@ PR #45をvisual baselineに、検索条件3段配置、情報ソース3択、固
 - BASE_MAIN_SHA: `7ea55f55278bddfceb03e279f7e536e6b7590c16`
 - BASE_LIGHT_PR45_SHA: `2a1843048f76b6a48cec35fcdfe2c5b116c7e3dd`
 - BRANCH: `codex/0028-final-light-user-corrections`
-- DRAFT_PR: 登録後に追記
+- DRAFT_PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/46 / Draft / Open / unmerged
+- DESIGN_ARTIFACT_COMMIT: `933111ce96cd170210f80ca7bada862cbdfe310c`
 - [Review package](../design/0028/selected-light-family/final-user-corrections/README.md)
 - [Screenshots](../design/0028/selected-light-family/final-user-corrections/index.html)
 - [PR45比較](../design/0028/selected-light-family/final-user-corrections/comparison.html)
@@ -49,7 +50,7 @@ Dataは架空、通信先はlocal previewのみ。許可範囲はdesign/docs・c
 - Screenshots: 必須6状態を含む8枚のreview画像とPR45 baseline 2枚。全画像のサイズはreview packageに記録。
 - Diff hygiene: staged `git diff --check` PASS。production src/dist変更NONE。
 - TARGET_RUNTIME_QUALIFICATION: NOT RUN / design-only。静的browser確認からGAS・認証・保存・providerのPASSは主張しない。
-- GITHUB_CI_ACTUALLY_RAN: 未確認（最終確認を追記）。
+- GITHUB_CI_ACTUALLY_RAN: NO。PR checks空、当該branchのActions runs空を確認。ローカル検証とは分離する。
 
 ## Production handoff / limits
 

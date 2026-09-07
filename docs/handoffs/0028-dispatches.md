@@ -16,6 +16,8 @@ CODEX-09はLight最終修正とreview packageを完成し、以下のbranchか�
 
 `codex/0028-final-light-user-corrections`
 
+返却先: [Draft PR #46](https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/46)。Design artifact commit: `933111ce96cd170210f80ca7bada862cbdfe310c`。15画面・8 review画像・456 tests PASS。Production readinessは未認定。
+
 Instruction:
 
 `docs/handoffs/0028-CODEX-09-final-light-user-corrections-instruction.md`
