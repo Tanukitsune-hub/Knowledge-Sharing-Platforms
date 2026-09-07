@@ -6,7 +6,7 @@ ACTIVE_DISPATCH_ID: 0028-CODEX-09
 BALL: CHATGPT
 STATUS: REVIEW
 MODE: INVESTIGATION
-PHASE: A1.13 / POST-CODEX-09 FINAL LIGHT REVIEW / DESIGN ONLY
+PHASE: A1.13 / RECORD-CENTRIC FINAL IA CORRECTION / DESIGN ONLY
 
 ## Current state
 
@@ -17,92 +17,102 @@ CODEX-09 returned Draft PR #46 from `codex/0028-final-light-user-corrections`.
 - design artifact: `933111ce96cd170210f80ca7bada862cbdfe310c`
 - report: `docs/handoffs/0028-CODEX-09-final-light-user-corrections-report.md`
 
-PR #46 is the current Light visual review target.
+PR #46 remains the current Light visual baseline. ChatGPT controller technical review for CODEX-09 is PASS; no technical BLOCKER is open.
 
-ChatGPT controller technical review: `TECHNICAL_REVIEW_PASS / USER_LIGHT_ACCEPTANCE_PENDING`.
+## Accepted CODEX-09 evidence preserved
 
-No technical BLOCKER is open.
-
-## Accepted CODEX-09 technical evidence
-
-- Draft PR #46: open / draft / mergeable / unmerged;
-- changed paths: design/docs/report/control files only; production `src/**` / `dist/**` changes NONE;
 - 15/15 design pages rendered at 1366×768;
-- horizontal overflow 0 / 15;
-- sidebar destinations exactly 7; active exactly 1 per page;
+- horizontal overflow 0/15;
+- sidebar destinations 7 / active exactly 1;
 - browser console warning/error 0;
 - Product Design QA actionable P0/P1/P2 = 0;
-- `npm run check`: PASS / 456 of 456;
-- design assertions / JS syntax / diff hygiene: PASS;
-- GitHub CI status checks: none reported; local validation only;
-- runtime / deploy / Dark / System / provider / data / auth changes: NONE.
+- `npm run check` 456/456 PASS;
+- production `src/**` / `dist/**` changes NONE;
+- runtime / deploy / Dark / System / provider / data / auth changes NONE.
 
-Static design evidence does not qualify Apps Script runtime, persistence, server-side preset resolution, authentication behavior, measured contrast, screen-reader behavior, complete keyboard paths or mobile behavior.
+Static design evidence does not qualify Apps Script runtime, persistence, authentication, server-side preset resolution, measured contrast, screen-reader behavior, complete keyboard paths or mobile behavior.
 
-## Closed user corrections implemented in CODEX-09
+## Closed corrections queued for CODEX-10
+
+Authoritative decisions:
+
+- `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
+- `docs/handoffs/0028-CODEX-10-record-centric-architecture-decisions.md`
 
 ### Knowledge Search
 
-- Row 1: `GP / 情報ソース / 開始日 / 終了日 / 全期間`
-- Row 2: `検索モード / AIモデル`
-- Row 3: wide / larger `質問`
-- default rolling 3 years / `全期間` OFF
-- information source: `面談記録・資料 / 面談記録のみ / 資料のみ`
-- Free Question editable; non-free preset gray readonly; free draft restored
-- admin page has search-mode preset design
+1. Row 1 first field is `面談先`, not `GP`.
+2. `面談先` uses existing Counterparty Entity / `entityKey` semantics across GP / LP / 日本生命 / グループ会社 / Consultant / その他.
+3. `全文出力` is removed from the `AIモデル` selector.
+4. Action area becomes `検索 / 全文出力 / 条件をクリア`.
+5. `全文出力` is Meeting-only / non-AI and exports authoritative Google Docs full text plus authoritative Meeting attributes.
 
-### 面談実績の集計
+### Record-centric information architecture
 
-Lower Meeting table:
-`日付 / 面談先 / Asset Class / Team / 原資料 / 年1回面談 / オフィス訪問 / 年次総会 / 確認済み`
+The previous dual `面談 / 資料` surface is superseded.
 
-Existing `meetingTypeCodes` map to `○ / —`; `確認済み` remains existing admin-check mapping.
+#### `記録を追加`
 
-### Visual polish
+- remove `面談 / 資料` subtab;
+- introduce `記録種別 = 面談 / データ受領`;
+- normal Meeting may include optional file upload;
+- `データ受領` records a short receipt-background memo plus files;
+- no standalone `資料だけ追加` route/action;
+- parent record is created first; only after `Meeting_ID` is issued may Pitchbook/file registration begin;
+- if parent record creation fails, Pitchbook registration count must remain 0;
+- file-level partial failure/retry semantics remain independent from the successful parent record.
 
-Sidebar local Lucide/Feather-family SVG uses stronger metallic gold treatment with no new runtime dependency.
+#### `過去の記録`
 
-## New closed corrections after CODEX-09 return
+- remove `面談 / 資料` subtab;
+- show one record list for record anchors;
+- record detail shows related files;
+- allow new file upload from an existing record, including later follow-up files;
+- user-facing `削除` on a related file means unlink from the current record, not hard delete;
+- no independent Pitchbook list and no `資料 → 関連面談` reverse surface.
 
-Authoritative decision:
+### Pitchbook eligibility correction
 
-`docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
+Current production `Pitchbook` registration incorrectly requires `GP_ID`.
 
-### 1. Knowledge Search `GP` → `面談先`
+Future production eligibility must be based on a valid parent `Meeting_ID`, not GP identity. Any existing Meeting counterparty type may own attached files.
 
-Primary Row 1 final label/order:
+Parent counterparty categories remain:
 
-`面談先 / 情報ソース / 開始日 / 終了日 / 全期間`
+- GP / 運用会社
+- LP / Asset Owner
+- 日本生命
+- グループ会社
+- Consultant / Gatekeeper
+- その他
 
-`面談先` is not GP-only. It must represent existing Counterparty Entity / `entityKey` across GP, LP / Asset Owner, 日本生命, グループ会社, Consultant / Gatekeeper and その他. Do not infer or auto-convert a non-GP counterparty to a GP.
+Pitchbook File Search metadata / citation context must preserve non-GP parent context without GP-name inference.
 
-### 2. Full Output becomes a dedicated action
+### `データ受領`
 
-Remove `全文出力（AIを使わない）` from the `AIモデル` selector.
+A standalone received file is represented as a new record, not as a standalone Pitchbook.
 
-Action area gets an independent `全文出力` button, separate from normal AI search. Preferred action order:
+- create a `データ受領` record;
+- issue a stable `Meeting_ID`;
+- record date / source counterparty / classification / short receipt-background memo;
+- upload received files only after the parent ID is committed.
 
-`検索 / 全文出力 / 条件をクリア`
+Future BUILD should prefer a minimal `Meeting_Index` schema extension such as `Record_Type = MEETING | DATA_RECEIPT`; existing rows migrate logically to `MEETING`. Do not create a new Record_Index unless source review proves necessary.
 
-Full Output is Meeting-only / non-AI. It exports authoritative Google Docs full text plus all available authoritative Meeting attributes for matching Active Meeting records. It does not include Pitchbook body or a Pitchbook reference-link section. Meeting-row relationship attributes such as `Related_Pitchbook_IDs` may remain as metadata.
+### Relationship truth
 
-Future BUILD should reuse existing Knowledge Export preview/copy/Google Docs/PDF machinery where practical, but CODEX-10 remains design-only.
+Prefer preserving `Meeting_Index.Related_Pitchbook_IDs` as the active relationship truth.
 
-## Pending Past Records decision
-
-The user is reviewing the full `過去の記録` specification and is still considering whether to remove the reverse `資料 → 関連面談` presentation while preserving `面談 → 関連資料`.
-
-This reverse-relation removal is NOT CLOSED yet. Do not implement it until the user explicitly confirms the final direction.
-
-Current relationship truth remains `Meeting_Index.Related_Pitchbook_IDs`; relationship mutation remains only in Meeting registration/edit.
+Future Pitchbook upload receives a parent `Meeting_ID`, validates the authoritative record, registers files, then adds resulting `Document_ID`s to the parent relationship list. No new relationship table/network model.
 
 ## Preserved boundaries
 
 - Work 0027 Gemini qualified-disabled / normal-user hidden;
 - Work 0029 shared-admin security behavior;
 - Light only; Dark/System/theme selector canceled;
-- sidebar `#182124`;
-- active `#E1001F` thin left strip only;
+- sidebar `#182124`, active `#E1001F` thin left strip only;
+- Knowledge Search continues to support Meeting + Pitchbook File Search sources;
+- Pitchbook physical file lifecycle / Document_ID remain separate from Meeting data;
 - production implementation and deployment remain unauthorized.
 
 ## Dispatch history
@@ -121,19 +131,27 @@ Current relationship truth remains `Meeting_Index.Related_Pitchbook_IDs`; relati
 
 ## Next gate
 
-Review the full Past Records direction. If the user closes the reverse-relation decision and/or asks to execute the queued search corrections, allocate fresh Dispatch ID `0028-CODEX-10`.
+The record-centric IA and Knowledge Search corrections are now CLOSED for the next design correction.
 
-Do not reuse CODEX-09. Production BUILD still requires a separate Strategy Reset and explicit user authorization.
+If the user asks to execute them, allocate fresh Dispatch ID `0028-CODEX-10`; do not reuse CODEX-09.
+
+CODEX-10 remains DESIGN ONLY. Production BUILD requires a later Strategy Reset plus explicit user authorization.
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
-DRAFT_PR_46: OPEN / DRAFT / CURRENT LIGHT VISUAL REVIEW TARGET
+DRAFT_PR_46: CURRENT LIGHT VISUAL BASELINE
 CONTROLLER_TECHNICAL_REVIEW_CODEX_09: PASS
 USER_LIGHT_ACCEPTANCE: PENDING
 KNOWLEDGE_PRIMARY_TARGET_LABEL: 面談先
 FULL_EXPORT_UI: DEDICATED_BUTTON / NOT_MODEL_OPTION
-FULL_EXPORT_SOURCE: MEETING_ONLY / NON_AI
-PAST_RECORD_REVERSE_RELATION_REMOVAL: USER_CONSIDERING / NOT_CLOSED
+RECORD_CENTRIC_IA: CLOSED_FOR_CODEX_10
+ADD_RECORD_SUBTABS: REMOVE
+PAST_RECORD_SUBTABS: REMOVE
+RECORD_TYPES: MEETING / DATA_RECEIPT
+PITCHBOOK_PARENT_REQUIREMENT: VALID_MEETING_ID
+PITCHBOOK_GP_REQUIRED: REMOVE_IN_FUTURE_BUILD
+RELATED_FILE_DELETE_UI: UNLINK
+STANDALONE_PITCHBOOK_REGISTRATION: REMOVE
 NEXT_UNUSED_DISPATCH: 0028-CODEX-10
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
