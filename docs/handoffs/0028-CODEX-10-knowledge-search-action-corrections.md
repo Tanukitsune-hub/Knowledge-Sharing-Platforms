@@ -1,119 +1,50 @@
-# Work 0028 / CODEX-10 candidate — Knowledge Search action corrections
+# Work 0028 — ナレッジ検索と独立全文出力の設計判断
 
 WORK_ID: 0028
-STATUS: CLOSED USER CORRECTION FOR NEXT DISPATCH
 MODE: INVESTIGATION
-SCOPE: DESIGN ONLY / FUTURE BUILD REQUIREMENT RECORDED
+SCOPE: DESIGN ONLY / FUTURE BUILD REQUIREMENTS
 
-## Context
+CODEX-10はPR #47/#48で使用済み。本版は2026-09-07の全体整合性レビューを反映する。次の実行正本は`0028-CODEX-11-meeting-centric-design-instruction.md`、詳細根拠は`0028-CODEX-11-consistency-review.md`。
 
-Draft PR #46 / CODEX-09 is the current Light visual review target. After its return, the user identified two additional Knowledge Search corrections. These are not production implementation authorization.
+## 検索条件
 
-## 1. Primary selector: `GP` → `面談先`
+- Row 1: `面談先 / 情報ソース / 開始日 / 終了日 / 全期間`。
+- Row 2: `検索モード / AIモデル`。
+- Row 3: 横幅を広く取った`質問`欄。
+- 初期期間は既存business timezoneに従った直近3年。全期間ONで日付を条件から外し、OFFで直前値を復元する。
+- 面談先は既存Counterparty Entity / entityKeyを使用し、GP/LP/日本生命/グループ会社/Consultant/その他を扱う。GP専用selectorを名前だけ変更しない。
+- 同じ相手先を主要欄と詳細欄で二重管理しない。比較2〜5 Entityと単一entityKeyの競合を避ける。面談準備のtarget必須を維持するが、同じ対象の再入力を強制しない。
+- 情報ソースは`面談記録・資料 / 面談記録のみ / 資料のみ`。新規non-GP親に適格な添付資料があれば`資料のみ`でも対象にする。真の0件は示すが、GP限定のまま0件になる不整合を許容しない。
+- その他のMeeting専用filterを資料へ無断拡張しない。未対応組合せは明示して既存契約を維持する。
 
-Knowledge Searchの主要1行目にある`GP`は、通常検索対象がGPに限らず、LP / Asset Owner、日本生命、グループ会社、Consultant / Gatekeeper、その他を含むMeeting counterparty全体であるため、ユーザー向けlabelを`面談先`へ変更する。
+## AI検索
 
-Row 1 final visible order:
+AIモデルselectorには通常利用者に許可されたAI profileのみを表示。全文出力、Thinkingは置かない。Gemini hiddenとno automatic failoverを維持する。
 
-1. `面談先`
-2. `情報ソース`
-3. `開始日`
-4. `終了日`
-5. `全期間`
+自由質問は編集可能。他modeは管理者固定文をgray readonly表示し、自由質問draftを復元する。管理者presetの保存・serverによる固定文の解決はfuture BUILDであり、demoを実装済みと扱わない。
 
-`面談先`selectorはGP専用`gpId`をprimary UI truthにせず、既存Counterparty Entity / `entityKey` contractを使う。GPはその選択肢の1種として扱う。
+## 全文出力
 
-Existing counterparty categories remain unchanged:
+action順は`検索 / 全文出力 / 条件をクリア`。全文出力は独立した非AI buttonであり、AIモデルselectorのoptionではない。
 
-- GP / 運用会社
-- LP / Asset Owner
-- 日本生命
-- グループ会社
-- Consultant / Gatekeeper
-- その他
+対象は共通filterに一致するActiveなMeeting。Docs原文全文と保存済み業務属性を出力する。Pitchbook本文もPitchbookリンク集も出力しない。Meeting自身のRelated_Pitchbook_IDsは業務属性として出力できる。
 
-`比較`modeの2–5 Entity selectorや`面談準備`のtarget requirementは既存special semanticsを維持する。
+### AI条件との分離
 
-`資料のみ`を選んだ状態でnon-GPの面談先を指定した場合など、条件の組み合わせで該当資料が0件になることは許容し、架空の関係推定や自動的なGP置換は行わない。
+- 質問、AIモデル/API設定、preset、比較用の選択件数、面談準備用targetを前提にしない。
+- 共通条件に有効な日付/相手先等があれば空質問でも出力可能。
+- 情報ソースselectorはAI検索用。exportは常にMeeting-onlyである旨をbutton補足とpreviewで示す。selector値を勝手に変更しない。
+- previewは実際に適用する共通filter、件数、原文/属性を示す。mode専用条件をexport対象と誤認させず、scopeを黙って拡張しない。
+- 無効な共通filterは拒否。古いvalidatorを通すための架空質問注入はしない。
 
-## 2. `全文出力`をAIモデルselectorから分離
+### 出力内容
 
-`全文出力（AIを使わない）`を`AIモデル`プルダウンの選択肢として表示しない。
+Meeting ID、日付/時刻、面談先区分/相手先、関連GP、場所、Asset Class、Equity / Debt、Team、Fund / Strategy、Meeting Type、Related Pitchbook IDs、要フォロー/メモ、参加者、確認済み等の業務属性、authoritative Docs identity/URLと全文を対応表で確認する。存在しない項目を補完しない。IDと表示名、未設定を区別する。
 
-AIモデルselectorには、管理者が通常利用者向けに許可したAI model/profileだけを表示する。Work 0027のGemini qualified-disabled / normal-user hidden baselineと、no provider auto-failoverを維持する。
+認証token、credential、provider内部状態JSON等の内部情報は業務属性の対象外。全rowの無条件dumpはしない。
 
-Knowledge Searchのaction areaに独立した`全文出力`buttonを設ける。
+既存Knowledge Exportのpreview/copy/Google Docs/PDF、安全上限、source readback/fingerprint、再生成防止を可能な限り再利用する。件数/文字数/時間上限を外さず、読出し失敗・上限超過・0件を明示する。途中切捨てを「全文」と表示しない。
 
-推奨action order:
+## 検証境界
 
-1. `検索` — primary
-2. `全文出力` — dedicated secondary action
-3. `条件をクリア`
-
-`全文出力`はAI routeではなく、既存Knowledge Export系のnon-AI actionとして扱う。
-
-## Full Output — user outcome
-
-目的はシンプルに、選択条件に一致する過去Meetingの権威あるGoogle Docs内容と、そのMeetingに紐づく属性データをまとめて書き出すこと。
-
-### Scope
-
-- sourceはMeetingのみ。
-- Pitchbook本文は含めない。
-- Pitchbook原資料リンク一覧も別sectionとして含めない。
-- `Related_Pitchbook_IDs`のようにMeeting row自体に保存されているrelationship attributeは、Meeting metadataの一部として書き出してよい。
-- AI / File Search / model inferenceは一切実行しない。
-- 検索画面で指定したMeetingへ適用可能なfilterをそのままexport scopeに使う。
-- lifecycleは既存Knowledge ExportのActive authoritative source boundaryを維持し、削除済み資料を勝手に混ぜない。
-
-### Per-Meeting package
-
-各Meetingについて、少なくとも次を含む「権威あるGoogle Docs全文 + 保存済み属性」のpackageとする。実productionではsource schemaから利用可能なauthoritative fieldを省略しないことを優先する。
-
-- Meeting ID / 日付 / 時刻
-- 面談先区分 / 面談先
-- 関連GP
-- 面談場所
-- Asset Class
-- Equity / Debt
-- Team
-- Fund / Strategy
-- Meeting Type
-- Related Pitchbook IDs
-- 要フォロー状態 / follow-up metadata
-- 参加者等、Meeting_Index / authoritative Meeting rowに保存されているその他属性
-- 権威あるGoogle Docsの全文
-- authoritative document identity / URL等、既存export integrity確認に必要なmetadata
-
-表示名へ解決できる属性はIDと表示名の双方を確認できる形が望ましい。ただし新しいdatasetや推測による属性補完はしない。
-
-### Existing export machinery
-
-現行productionにはMeeting Google Docs全文とmetadataをpackage化し、preview / copy / Google Docs / PDFへ出力するKnowledge Export contractがある。Future BUILDではこれを可能な限り再利用し、AI model selectorと結合しているpresentationを分離する。
-
-専用`全文出力`buttonから既存preview/export flowへ遷移する構成を第一候補とする。ユーザーが同じ画面で対象件数や内容を確認してからcopy / Google Docs / PDFを選べる既存安全性は維持してよい。
-
-## Preserve
-
-- Knowledge Search通常AI検索のMeeting / Pitchbook File Search contract
-- `情報ソース`: `面談記録・資料 / 面談記録のみ / 資料のみ`
-- rolling 3 years / 全期間 behavior
-- `検索モード / AIモデル / 質問`のCODEX-09 layout
-- admin-managed preset design / server-authoritative fixed prompt future requirement
-- Work 0027 Gemini hidden baseline
-- Work 0029 shared-admin security behavior
-- production `src/**` / `dist/**` / deployは未許可
-
-## Acceptance evidence for next design correction
-
-- Row 1 first label is `面談先`, not `GP`
-- selector clearly represents GP / non-GP counterparty entities
-- `AIモデル`selector contains no Full Output option
-- independent `全文出力`button is visible in the action area
-- Full Output design clearly states Meeting-only / non-AI
-- export preview sample contains Meeting Google Docs body plus representative Meeting attributes
-- no Pitchbook body / Pitchbook reference-link section in Full Output
-- existing normal AI search source/citation/model behavior remains visually distinct
-- production `src/**` / `dist/**` changes NONE
-
-次にdesign correctionを実行する場合はfresh Dispatch ID `0028-CODEX-10`を使用し、CODEX-09は再利用しない。
+CODEX-11は静的demoと契約対応表まで。現行155/156のmode依存validatorや出力処理をproductionで変更する許可はない。実装と実機検証はLight accept後の明示BUILD承認・Strategy Resetを要する。

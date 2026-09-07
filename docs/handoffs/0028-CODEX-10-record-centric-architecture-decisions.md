@@ -1,170 +1,49 @@
-# Work 0028 / CODEX-10 candidate — Record-centric information architecture
+# Work 0028 — 単一記録・資料統合の設計判断
 
 WORK_ID: 0028
-STATUS: CLOSED USER DIRECTION FOR NEXT DISPATCH
 MODE: INVESTIGATION
-SCOPE: DESIGN ONLY / FUTURE BUILD REQUIREMENTS RECORDED
+SCOPE: DESIGN ONLY / FUTURE BUILD REQUIREMENTS
 
-## Primary outcome
+このfilenameはCODEX-10準備時から維持する。CODEX-10はPR #47/#48で使用済み。次の実行は`0028-CODEX-11-meeting-centric-design-instruction.md`と`0028-CODEX-11-consistency-review.md`を正本とする。本版は2026-09-07の全体整合性レビューを反映した。
 
-UI上で`面談`と`資料`を独立した2つの世界として扱う構成をやめ、`面談記録`を唯一の親contextとして、その記録に紐付く資料を管理するシンプルな導線へ統合する。
+## 確定しているUI方針
 
-Production backendではMeeting / Pitchbookの既存責務分離を可能な限り保持するが、Pitchbookの新規登録は必ず既存の`Meeting_ID`を親contextとして開始する。GPであることは登録要件にしない。
+- `記録を追加`は単一の通常登録フォーム。面談/資料subtab、記録種別selector、データ受領専用tab/form、資料だけ追加の独立経路を作らない。
+- `過去の記録`は単一の一覧。detail内で本文・属性・面談原本・編集・記録の削除/復元・関連資料を扱う。
+- 新規資料は必ず保存済みの親Meeting_IDから登録する。新規記録の保存失敗時は資料登録を開始しない。過去記録からの追加では既存親を使う。
+- 資料登録はGPに限定しない。GP/LP/日本生命/グループ会社/Consultant/その他の全Counterpartyを対象にする。
+- 資料行の表示は`削除`、意味は当該記録からのunlink。物理削除やPitchbook全体のInactive化と同一にしない。
+- 独立資料管理画面や資料→面談の逆引きsurfaceは不要。既存資料の明示関連付け・資料分類編集は同じ親detailの補助操作へ移せる。
 
-## Closed user decisions
+## 前版の解釈訂正
 
-### 1. `過去の記録 / 資料`タブを廃止
+「データ受領タブ不要」を「面談を伴わない受領は一切登録不可」と読み替えた文は、ユーザー未確認の解釈として撤回する。受領の専用分岐を復活させる許可でもない。
 
-`過去の記録`は独立した資料一覧を持たず、面談記録一覧を主画面とする。
+今回のdesignでは新しいRecord_Type/Record_Index/DATA_RECEIPT schema、受領専用UI、禁止メッセージをいずれも追加しない。受領のみの記録の扱いと面談集計との区別はBUILD前確認事項とし、通常の面談3属性から推定しない。
 
-各面談記録のdetail / expansionから関連資料を確認・追加できる。
+## 親と資料の処理
 
-関連資料で必要な利用者操作:
+利用者は1つのformから`登録`する。内部順序は、親保存成功→ID確定→ファイル別登録→関連確定とする。事前のファイル選択は可、親成功前のDrive/Index登録は不可。
 
-- 原資料を開く
-- 新しい資料をアップロード
-- 表面上の`削除`
+親・ファイル・関連の3段階で成功/失敗を分ける。資料upload成功後に関連確定だけ失敗した場合は、同じDocument_IDで関連付けだけ再試行する。成功済みの親やファイルを再作成しない。親IDはprepare/upload/retryを通じてserverが確認する。
 
-`削除`の内部意味はhard deleteではなく、従来どおり当該面談記録との紐付け解除とする。物理ファイルやPitchbook rowを即時破棄しない。
+現行Pitchbookには親ID必須契約がなく、GP専用のvalidation/filename/source属性がある。これは後続BUILDでの明示的な変更対象であり、UIのlabel変更だけでは完成しない。
 
-資料から関連Meetingを逆引きする専用surfaceは不要。
+## 関係・削除・検索
 
-### 2. `記録を追加 / 資料`タブを廃止
+- `Meeting_Index.Related_Pitchbook_IDs`を有効な関係の正本として維持する案を優先。新relationship tableは作らない。
+- 新規登録元の親contextの追跡と、現在有効な関係は区別する。必要な最小field/予約bindingの具体schemaは後続BUILDで確定する。
+- 資料`削除`は当該リンクのみ解除。取消/復元もリンクを対象にする。もともとInactiveの資料を無条件で有効化しない。
+- 新規親必須資料の通常検索は有効な親関係も含めて判定する方針とし、最後の関連解除、親Inactive、関連未完了の資料が意図せず検索へ残らないようにする。他記録への有効リンクがある場合は保持する。
+- 資料だけの操作でMeeting本文を古いformから再生成しない。Docs原文と他の属性を保全し、競合を検出する。
+- non-GP資料の検索・引用・summaryも親の実際のCounterparty contextと整合させる。仮GP、名称一致、自動推測を使わない。
 
-`記録を追加`は面談記録の作成surfaceだけにする。
+## 歴史データ・既存機能
 
-- `面談 / 資料`subtabは置かない。
-- `記録種別`selectorも置かない。
-- `データ受領`等の別record typeは作らない。
-- standalone `資料だけ追加` actionも作らない。
+既存のMeeting/Pitchbook/ID/ファイル/共有関連を破壊しない。親のない歴史資料を新規upload途中の未関連資料と同一扱いせず、自動削除・一括Inactive化・GP名による親推定は行わない。限定移行が必要かは実データ確認後に判断する。
 
-新しい資料は、必ず新規または既存の面談記録に紐付く形でのみ追加する。
+GP/Entityサマリーの文脈付き資料参照は維持できる。独立資料管理tabの廃止は、これらの参照やmetadata編集契約を黙って消す意味ではない。最新UIでの残置/移設をcontrol coverageに記録する。
 
-特定の面談記録に紐付かない資料は、新規登録対象にしない。将来必要性が確認された場合のみ別Workで再検討する。
+## 保持する境界
 
-### 3. 新規登録順序
-
-資料uploadを伴う新規面談記録は必ず次の順序とする。
-
-1. 面談記録を先に登録する
-2. `Meeting_ID`を確定する
-3. 確定済み`Meeting_ID`をparent contextとして資料登録を開始する
-4. 各Pitchbook / fileの登録成功後、その`Document_ID`を当該Meetingへ関連付ける
-
-面談記録の作成が失敗した場合はPitchbook登録を開始しない。
-
-Pitchbook側で先に仮の資料を作り、後からMeetingへ紐付ける順序は禁止する。
-
-資料uploadの部分失敗時は、親Meetingを保持し、成功済み資料も保持し、失敗した資料だけ既存のfile-level retry semanticsを使って再試行できる構成を優先する。
-
-### 4. PitchbookのGP必須要件を廃止
-
-現行productionのPitchbook batch validationでは`GP_ID`が必須だが、これはユーザー意図と異なる既存設計制約として扱う。
-
-今後の資料登録可否は`GPであること`ではなく、`有効な親Meeting_IDが存在すること`で決める。
-
-親MeetingのCounterpartyは既存Meeting contractどおり以下を許容する。
-
-- GP / 運用会社
-- LP / Asset Owner
-- 日本生命
-- グループ会社
-- Consultant / Gatekeeper
-- その他
-
-資料登録は親Meetingのcounterparty typeに関係なく可能とする。
-
-Future BUILDではPitchbookの検索・File Search metadataもGP専用前提を外し、親Meetingのauthoritative counterparty contextを正しく表現できるようにする。GP名から関係を推測しない。
-
-### 5. Meeting_IDを唯一の親anchorとする
-
-新しい資料登録はすべて`Meeting_ID`を親anchorとする。
-
-新しい`Record_Type`、`DATA_RECEIPT`、`Record_Index`等は作らない。
-
-既存`Meeting_Index` / stable `Meeting_ID` / Meeting Google Docs原本 / audit semanticsを維持する。
-
-### 6. 関係の正本とunlink semantics
-
-現行の`Meeting_Index.Related_Pitchbook_IDs`をactive relationshipの正本として維持する案を優先する。
-
-資料upload API / future registration flowにはparent `Meeting_ID`を必須inputとして渡し、親Meetingをauthoritativeにvalidateしてから資料登録する。
-
-登録成功後に`Document_ID`を親Meetingの`Related_Pitchbook_IDs`へ追加する。
-
-これにより利用者の`削除`は当該`Document_ID`を現在のMeetingから外すunlinkとして実現できる。
-
-新しい関係tableやnetwork graphは作らない。
-
-### 7. Follow-up資料
-
-既存Meeting後のfollow-upで受領した資料は、新しい独立資料recordを作らず、`過去の記録`から該当Meetingを開いて`資料を追加`する。
-
-これにより、面談時資料と後日follow-up資料を同じMeeting contextで扱える。
-
-## Final user flow
-
-```text
-記録を追加
-└─ 面談記録
-   ├─ 面談情報
-   ├─ 面談内容 / follow-up
-   └─ 関連資料（任意upload）
-
-過去の記録
-└─ 面談記録一覧
-   └─ Meeting detail
-      ├─ 面談本文 / metadata / 原資料
-      ├─ 編集 / 削除 / 復元
-      └─ 関連資料
-         ├─ 原資料を開く
-         ├─ 資料を追加
-         └─ 削除（内部はunlink）
-```
-
-`面談 / 資料`のsubtabは両画面から無くす。
-
-## Existing historical Pitchbook boundary
-
-Future BUILDでは既存Pitchbookデータを破壊しない。
-
-既存の親Meetingを持たないPitchbookを自動推定でMeetingへ紐付けない。新規registration ruleだけをparent-Meeting必須へ変更し、historical orphan handling / migrationは必要なら別途限定的に設計する。
-
-## Preserve
-
-- Pitchbook physical file lifecycle、Document_ID、File Search indexingは資料sourceとして維持
-- Meeting Google Docs原本 / stable Meeting_ID / audit semantics
-- user-facing deleteは可逆な内部semanticsを優先
-- Work 0027 Gemini qualified-disabled / normal-user hidden
-- Work 0029 shared-admin security behavior
-- Knowledge SearchはMeeting / Pitchbook両sourceを引き続き検索可能
-- CODEX-10のKnowledge Search correction: `GP`→`面談先`、`全文出力`をdedicated actionへ分離
-- production `src/**` / `dist/**` / deployはまだ未許可
-
-## Future BUILD design constraints
-
-Production実装時は以下を満たす。
-
-- Pitchbook batch / upload開始時にvalid parent `Meeting_ID`を必須検証
-- parent Meeting作成失敗時はfile registration 0件
-- GP必須validationを廃止
-- non-GP parentでもPitchbook登録可能
-- File Search metadata / citation identityでnon-GP parent contextを失わない
-- Meeting creationとfile registrationを巨大transactionへまとめず、parent-first + file-level retryで可逆性を保つ
-- unlinkとphysical delete / Inactiveを混同しない
-- migrationでexisting Meeting / Pitchbookを破壊しない
-- historical orphan PitchbookをGP名等から自動推定でparent化しない
-
-## Acceptance evidence for CODEX-10 design correction
-
-- `記録を追加`に`面談 / 資料`subtabがない
-- `記録種別`selectorや`データ受領`surfaceがない
-- 面談registration内からoptional資料uploadができる
-- standalone `資料だけ追加`actionがない
-- `過去の記録`に`面談 / 資料`subtabがない
-- Meeting detail内に関連資料list + add + delete(unlink)がある
-- 独立資料一覧 / 資料→関連Meeting surfaceがない
-- design copyがparent Meeting_ID firstを明示
-- production `src/**` / `dist/**` changes NONE
-
-次にこのdesign correctionを実行する場合はfresh Dispatch ID `0028-CODEX-10`を使用し、CODEX-09は再利用しない。
+Light-only/7 sidebar/gold/紗綾形、既存Meeting3属性、別Meeting/Pitchbook dataset、stable IDs、既存5-sheet構造、provider経路とstrict citations、Work 0027 hidden、Work 0029認証は維持する。production実装・schema変更・migration・deployは本design dispatchでは未許可。

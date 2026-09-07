@@ -1,159 +1,101 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-09
-ACTIVE_DISPATCH_ID: 0028-CODEX-09
-BALL: CHATGPT
-STATUS: REVIEW
+DISPATCH_ID: 0028-CODEX-11
+ACTIVE_DISPATCH_ID: 0028-CODEX-11
+BALL: CODEX
+STATUS: READY
 MODE: INVESTIGATION
-PHASE: A1.13 / RECORD-CENTRIC FINAL IA CORRECTION / DESIGN ONLY
+PHASE: A1.15 / INTEGRITY-RECONCILED LIGHT CORRECTION / DESIGN ONLY
 
-## Current state
+## 現在の正本
 
-CODEX-09 returned Draft PR #46 from `codex/0028-final-light-user-corrections`.
+ユーザーの全体整合性再確認依頼を受け、main、既存コード、PR #46/#47/#48を照合した。CODEX-10名義の返却を発見したため、未使用番号をCODEX-11へ進める。CODEX-09/10は再利用しない。
 
-- PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/46
-- PR head: `400f2f0e77acf81deb32e363d79a3962dfd2f017`
-- design artifact: `933111ce96cd170210f80ca7bada862cbdfe310c`
-- report: `docs/handoffs/0028-CODEX-09-final-light-user-corrections-report.md`
+- 確認時main: `f2d965c39ed2a1259d07aaff7aca8d60e6b68a8e`
+- 直前のcontroller technical review済み基準: PR #46、`400f2f0e77acf81deb32e363d79a3962dfd2f017`
+- CODEX-10検索修正返却: PR #47、`d2efeff4d04d4c13dba6d0d72a707eacb9aabbe4`
+- 最新返却/修復用donor: PR #48、`108a6e9002270ed0d4264991dd8971cff7cc663f`
+- PR #48は最新候補だが、不要な記録種別/データ受領分岐や既存操作の不足があり、最終Light acceptはしない。
+- prepared branch: `codex/0028-codex11-integrity-light-design`
 
-PR #46 remains the current Light visual baseline. ChatGPT controller technical review for CODEX-09 is PASS; no technical BLOCKER is open.
+実行instruction:
+`docs/handoffs/0028-CODEX-11-meeting-centric-design-instruction.md`
 
-## Accepted CODEX-09 evidence preserved
+レビュー/契約根拠:
+`docs/handoffs/0028-CODEX-11-consistency-review.md`
 
-- 15/15 design pages rendered at 1366×768;
-- horizontal overflow 0/15;
-- sidebar destinations 7 / active exactly 1;
-- browser console warning/error 0;
-- Product Design QA actionable P0/P1/P2 = 0;
-- `npm run check` 456/456 PASS;
-- production `src/**` / `dist/**` changes NONE;
-- runtime / deploy / Dark / System / provider / data / auth changes NONE.
+詳細の確定済みUI判断:
+- `docs/handoffs/0028-CODEX-10-record-centric-architecture-decisions.md`（CODEX-11用に整合更新）
+- `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`（同上）
 
-Static design evidence does not qualify Apps Script runtime, persistence, authentication, server-side preset resolution, measured contrast, screen-reader behavior, complete keyboard paths or mobile behavior.
+## Strategy Reset
 
-## Closed corrections queued for CODEX-10
+ModeはINVESTIGATIONを維持する。作業を「CODEX-10未実行の追加修正」から「CODEX-10返却を再利用した整合性修復」へ変更する。旧PRの管理文書を正本へ取り込まず、最新mainの限定docs更新から再開する。
 
-Authoritative decisions:
+Primary Outcomeは単純なLightの記録/資料導線を成立させること。既存の見た目を再設計しない。本番実装やmigrationは開始しない。
 
-- `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
-- `docs/handoffs/0028-CODEX-10-record-centric-architecture-decisions.md`
+## 保持するAccepted Evidence
 
-### Knowledge Search
+CODEX-09 / PR #46の15画面render、1366×768 overflow 0、sidebar 7/active 1、console warning/error 0、Product Design QA P0/P1/P2=0、local456 tests PASS、src/dist/runtime変更NONEは当該artifactの過去証拠として保持する。
 
-1. Row 1 first field is `面談先`, not `GP`.
-2. `面談先` uses existing Counterparty Entity / `entityKey` semantics across GP / LP / 日本生命 / グループ会社 / Consultant / その他.
-3. `全文出力` is removed from the `AIモデル` selector.
-4. Action area becomes `検索 / 全文出力 / 条件をクリア`.
-5. `全文出力` is Meeting-only / non-AI and exports authoritative Google Docs full text plus authoritative Meeting attributes.
+CODEX-10 / PR #47/#48も検証PASSを報告しているが、今回はGitHub source/文書レビューであり、ChatGPTがそれらを再実行したとは扱わない。不要分岐等が残るため「最新要件との全体整合PASS」には読み替えない。static designでApps Script実機の保存・認証・検索・引用を認定しない。
 
-### Record-centric information architecture
+## CODEX-11の確定範囲
 
-The previous dual `面談 / 資料` surface is superseded.
+- 単一の記録登録form/過去記録一覧。資料tab、記録種別selector、受領専用form、資料だけ追加routeなし。
+- 親記録の保存成功後だけ資料登録。既存親へは後日追加可能。親・file・関係確定の部分失敗と同一ID再試行を区別するdemo。
+- GP以外も資料を添付。GP依存のvalidation/filename/search/citationはfuture deltaを対応表へ記録。
+- 資料行の`削除`は当該リンク解除。記録のInactiveや資料全体のInactive、物理削除と分離する。
+- 記録本文、原本、属性、関連GP、編集、記録削除/復元、既存資料関連付け/分類編集の残置・移設を検証する。
+- 検索の面談先はgeneric entityKey。全文出力は独立buttonかつ空質問/AI未設定でも使える非AI動作設計。既存上限や原本整合は維持。
+- 7 sidebar、Light-only、metallic gold、紗綾形、面談集計の9列、admin preset、Work 0027/0029の認定境界を維持。
 
-#### `記録を追加`
+「データ受領タブ不要」から「受領のみの記録自体を全面禁止」とした前回答の拡張解釈は確定扱いから外す。今回受領分岐を作るという意味ではない。受領のみ記録と面談実績の扱いはBUILD前確認事項。CODEX-11は通常単一formのまま進める。
 
-- remove `面談 / 資料` subtab;
-- no `記録種別` selector;
-- no `データ受領` surface;
-- no standalone `資料だけ追加` route/action;
-- the screen is a Meeting registration surface only;
-- normal Meeting may include optional file upload;
-- parent Meeting is created first; only after `Meeting_ID` is issued may Pitchbook/file registration begin;
-- if parent Meeting creation fails, Pitchbook registration count must remain 0;
-- file-level partial failure/retry semantics remain independent from the successful parent Meeting.
+## 変更権限と残余事項
 
-New files that have no Meeting context are not accepted as new registrations under this simplified IA.
+許可: design/docs/local synthetic demo、検証、commit/push、新規Draft PR。production src/dist、production tests/依存更新、Drive/Sheets実データ、provider API、deploy、schema/migrationは不許可。
 
-#### `過去の記録`
+現在の最新Light案accept前BLOCKERは不要分岐と既存操作欠落等であり、CODEX-11の修正対象。設計修正の開始にはBLOCKERなし。親binding、non-GP source、unlink eligibility、export validator、legacy保持、受領のみ記録/集計等は後続BUILDの必須確認に分離する。
 
-- remove `面談 / 資料` subtab;
-- show one Meeting list;
-- Meeting detail shows related files;
-- allow new file upload from an existing Meeting, including later follow-up files;
-- user-facing `削除` on a related file means unlink from the current Meeting, not hard delete;
-- no independent Pitchbook list and no `資料 → 関連面談` reverse surface.
-
-### Pitchbook eligibility correction
-
-Current production `Pitchbook` registration incorrectly requires `GP_ID`.
-
-Future production eligibility must be based on a valid parent `Meeting_ID`, not GP identity. Any existing Meeting counterparty type may own attached files.
-
-Parent counterparty categories remain:
-
-- GP / 運用会社
-- LP / Asset Owner
-- 日本生命
-- グループ会社
-- Consultant / Gatekeeper
-- その他
-
-Pitchbook File Search metadata / citation context must preserve non-GP parent context without GP-name inference.
-
-### Meeting_ID as the only parent anchor
-
-No new `Record_Type`, `DATA_RECEIPT`, or `Record_Index` is introduced.
-
-`Meeting_Index` / stable `Meeting_ID` remain the parent anchor for newly registered files.
-
-### Relationship truth
-
-Prefer preserving `Meeting_Index.Related_Pitchbook_IDs` as the active relationship truth.
-
-Future Pitchbook upload receives a parent `Meeting_ID`, validates the authoritative Meeting, registers files, then adds resulting `Document_ID`s to the parent relationship list. No new relationship table/network model.
-
-Historical Pitchbook rows must not be destroyed or auto-attached to Meetings by GP-name inference. New registration becomes parent-Meeting-required; historical orphan handling is a separate migration concern if later needed.
-
-## Preserved boundaries
-
-- Work 0027 Gemini qualified-disabled / normal-user hidden;
-- Work 0029 shared-admin security behavior;
-- Light only; Dark/System/theme selector canceled;
-- sidebar `#182124`, active `#E1001F` thin left strip only;
-- Knowledge Search continues to support Meeting + Pitchbook File Search sources;
-- Pitchbook physical file lifecycle / Document_ID remain separate from Meeting data;
-- production implementation and deployment remain unauthorized.
-
-## Dispatch history
+## Dispatch履歴
 
 | Dispatch ID | Disposition |
 |---|---|
 | 0028-CODEX-01 | Historical tombstone; never reuse. |
 | 0028-CODEX-02 | Historical tombstone; never reuse. |
-| 0028-CODEX-03 | A/B/C Light exploration; RETURNED PARTIAL on PR #40. |
-| 0028-CODEX-04 | Selected Light family; RETURNED on PR #41. |
-| 0028-CODEX-05 | Light refinement; RETURNED on PR #42. |
-| 0028-CODEX-06 | Navigation/Workspace consolidation; RETURNED on PR #43. |
-| 0028-CODEX-07 | Final Light correction; RETURNED on PR #44. |
-| 0028-CODEX-08 | Light-only final polish; RETURNED on PR #45; controller technical review PASS. |
-| 0028-CODEX-09 | Final accumulated Light user corrections; RETURNED on PR #46; controller technical review PASS. |
+| 0028-CODEX-03 | A/B/C Light探索、PR #40、RETURNED PARTIAL。 |
+| 0028-CODEX-04 | selected Light family、PR #41、RETURNED。 |
+| 0028-CODEX-05 | Light refinement、PR #42、RETURNED。 |
+| 0028-CODEX-06 | Navigation/Workspace統合、PR #43、RETURNED。 |
+| 0028-CODEX-07 | Final Light、PR #44、RETURNED。 |
+| 0028-CODEX-08 | Light-only polish、PR #45、RETURNED、controller technical review PASS。 |
+| 0028-CODEX-09 | User corrections、PR #46、RETURNED、controller technical review PASS。 |
+| 0028-CODEX-10 | PR #47/#48に同名義のRETURNEDを確認。使用済み。改番/再利用しない。最新案は修正要。 |
+| 0028-CODEX-11 | 全体整合性修復と単一記録Light、READY。 |
 
 ## Next gate
 
-The simplified record-centric IA and Knowledge Search corrections are CLOSED for the next design correction.
-
-If the user asks to execute them, allocate fresh Dispatch ID `0028-CODEX-10`; do not reuse CODEX-09.
-
-CODEX-10 remains DESIGN ONLY. Production BUILD requires a later Strategy Reset plus explicit user authorization.
+CODEX-11が新規Draft PR、操作demo、screenshots、validation、契約対応表、reportを返す。ChatGPTがreviewし、ユーザーがLightをacceptする。Light acceptのみで本番実装・deployへ進まない。
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
-DRAFT_PR_46: CURRENT LIGHT VISUAL BASELINE
-CONTROLLER_TECHNICAL_REVIEW_CODEX_09: PASS
+LATEST_RETURNED_PR: 48
+REPAIR_DONOR_SHA: 108a6e9002270ed0d4264991dd8971cff7cc663f
+LAST_CONTROLLER_REVIEWED_BASELINE_PR: 46
 USER_LIGHT_ACCEPTANCE: PENDING
-KNOWLEDGE_PRIMARY_TARGET_LABEL: 面談先
-FULL_EXPORT_UI: DEDICATED_BUTTON / NOT_MODEL_OPTION
-RECORD_CENTRIC_IA: CLOSED_FOR_CODEX_10
-ADD_RECORD_SUBTABS: REMOVE
-PAST_RECORD_SUBTABS: REMOVE
-RECORD_TYPES: MEETING_ONLY
-DATA_RECEIPT: REMOVE
-PITCHBOOK_PARENT_REQUIREMENT: VALID_MEETING_ID
-PITCHBOOK_GP_REQUIRED: REMOVE_IN_FUTURE_BUILD
+CODEX_10: RETURNED / CONSUMED
+ACTIVE_DISPATCH: 0028-CODEX-11
+NEXT_UNUSED_DISPATCH: 0028-CODEX-12
+ADD_RECORD_SUBTABS: NONE
+PAST_RECORD_SUBTABS: NONE
+RECORD_TYPE_SELECTOR: NONE
+DATA_RECEIPT_DEDICATED_UI: NONE
+RECEIPT_ONLY_BUSINESS_POLICY: CONFIRM_BEFORE_BUILD
+FULL_EXPORT_UI: DEDICATED_BUTTON
+PITCHBOOK_PARENT_REQUIREMENT: VALID_SAVED_MEETING_ID / FUTURE_BUILD
 RELATED_FILE_DELETE_UI: UNLINK
-STANDALONE_PITCHBOOK_REGISTRATION: REMOVE
-NEXT_UNUSED_DISPATCH: 0028-CODEX-10
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
 RUNTIME_CHANGED: NO
@@ -162,6 +104,6 @@ WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-09
-BALL: CHATGPT
-STATUS: REVIEW
+DISPATCH_ID: 0028-CODEX-11
+BALL: CODEX
+STATUS: READY

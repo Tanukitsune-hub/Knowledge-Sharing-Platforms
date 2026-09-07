@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Execute queued CODEX-10 record-centric design correction, then final user Light visual acceptance |
+| 6 | 0028 | 単一記録・資料導線と高品質Light UIの整合 | ACTIVE (design only) | Accepted 0027 and 0029 baseline | CODEX-11でPR #48の限定修正と契約対応表を返却し、最終Light reviewへ |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -87,66 +87,56 @@ Routine AI Provider Settings administration remains unlocked by the accepted sha
 
 ### Work 0028
 
-Work 0028 remains a UI/UX design Work. Current mode is INVESTIGATION, phase A1.13 / record-centric final IA correction / Light only.
+MODE: INVESTIGATION
+PHASE: A1.15 / INTEGRITY-RECONCILED LIGHT CORRECTION / DESIGN ONLY
 
-Dark/System variants remain canceled. Production implementation remains unauthorized until the final Light family is visually accepted and the user explicitly authorizes BUILD.
+現在の実行はCODEX-11。CODEX-10未使用という旧記述は無効。GitHubにPR #47/#48のCODEX-10返却があるため、これを使用済み履歴として保持する。
 
-Design history:
+| Dispatch | Design history |
+|---|---|
+| CODEX-03〜07 | PR #40〜44、Light探索・展開・改善の履歴 |
+| CODEX-08 | PR #45、controller technical review PASS |
+| CODEX-09 | PR #46、controller technical review PASS / user acceptance pending |
+| CODEX-10 | PR #47（検索action）およびPR #48（記録中心設計）にRETURNED。最新PR #48は不要分岐と既存機能欠落の修正が必要 |
+| CODEX-11 | `codex/0028-codex11-integrity-light-design`、READY。全体整合性レビューに基づく限定修正 |
 
-- CODEX-03: A/B/C Light comparison, PR #40.
-- CODEX-04: selected Light cross-page family, PR #41.
-- CODEX-05: bounded Light refinement, PR #42.
-- CODEX-06: navigation / GP-Entity Workspace consolidation, PR #43.
-- CODEX-07: final Light correction, PR #44; controller technical review PASS.
-- CODEX-08: Light-only final polish, PR #45; controller technical review PASS.
-- CODEX-09: final accumulated user corrections, Draft PR #46; controller technical review PASS / user acceptance pending.
-- CODEX-10: next unused dispatch. Record-centric IA + final Knowledge Search corrections are closed for execution when requested.
+最新返却/再利用候補はPR #48 `108a6e9002270ed0d4264991dd8971cff7cc663f`。以前のcontroller確認済みvisual基準はPR #46 `400f2f0e77acf81deb32e363d79a3962dfd2f017`。新しいこととaccept済みであることは区別する。
 
-PR #46 is the current Light visual baseline / review history. CODEX-10 will supersede only the affected design surfaces.
+### 閉じたUI方針
 
-Current closed Light-only direction:
+- Light-only、sidebar 7項目、#182124、active左stripのみ#E1001F、gold icons/separator、紗綾形は維持。Dark/Systemなし。
+- `記録を追加`は単一form。面談/資料tab、記録種別selector、データ受領専用form、独立した資料だけ追加経路は置かない。
+- `過去の記録`は単一一覧。本文・属性・面談原本・編集・記録削除/復元・関連資料操作を同じ文脈に集約する。
+- 新規資料は保存成功済みの親Meeting_IDが必須。非GPも対象。既存親へのfollow-up資料追加は親を再作成しない。
+- 通常資料buttonの`削除`は当該リンク解除。記録Inactive、資料Inactive、物理削除を混同しない。
+- ナレッジ検索は`面談先 / 情報ソース / 開始日 / 終了日 / 全期間`、`検索モード / AIモデル`、大きな質問欄。
+- 情報ソース3択は維持。専用`全文出力`buttonを設け、AIモデルoptionから除く。共通条件のActive MeetingのDocs全文と業務属性を出力し、質問/AI設定を前提にしない。
+- admin preset、自由質問保護、readonly/draft復元、面談集計の承認済み構成と9列、Work 0027/0029は保持。
 
-- persistent left sidebar / desktop-first wide workspace;
-- sidebar `#182124`, active `#E1001F` thin left strip only;
-- sidebar destinations exactly 7;
-- stronger metallic gold icon treatment preserved;
-- Knowledge Search Row 1 final: `面談先 / 情報ソース / 開始日 / 終了日 / 全期間`;
-- `面談先` uses generic Counterparty Entity semantics, not GP-only;
-- Knowledge Search Row 2: `検索モード / AIモデル`;
-- Row 3: wide `質問` textarea;
-- `情報ソース`: `面談記録・資料 / 面談記録のみ / 資料のみ`;
-- `全文出力` is a dedicated non-AI action, not an AI-model option; it exports Meeting Google Docs full text + authoritative Meeting attributes only;
-- admin-managed search-mode preset design remains; persistence/server-authoritative prompt resolution is future BUILD;
-- `面談実績の集計` lower list remains `日付 / 面談先 / Asset Class / Team / 原資料 / 年1回面談 / オフィス訪問 / 年次総会 / 確認済み`;
-- record-centric IA supersedes the previous `面談 / 資料` subtab model in `記録を追加` and `過去の記録`;
-- `記録を追加` becomes one surface with `記録種別 = 面談 / データ受領`;
-- any new file/Pitchbook registration requires a successfully committed parent record and valid `Meeting_ID` first;
-- no standalone Pitchbook registration route/action;
-- current Pitchbook GP-required validation is a known design mismatch and must be removed in future BUILD; any existing Meeting counterparty type can own attached files;
-- `データ受領` creates a lightweight record with receipt-background memo, issues `Meeting_ID`, then registers files;
-- `過去の記録` becomes one record list; record detail owns related-file viewing and later follow-up uploads;
-- user-facing related-file `削除` means unlink, not hard delete;
-- no independent Pitchbook list and no `資料 → 関連面談` reverse surface;
-- prefer preserving `Meeting_Index.Related_Pitchbook_IDs` as active relationship truth and existing Document_ID / file lifecycle;
-- future BUILD should prefer a minimal `Meeting_Index` extension such as `Record_Type = MEETING | DATA_RECEIPT`; existing rows map to `MEETING`;
-- Work 0027 Gemini qualified-disabled / normal-user hidden preserved;
-- Work 0029 shared-admin security behavior preserved;
-- production `src/**` / `dist/**`, runtime and deploy remain out of scope.
+### 本番境界と残余事項
 
-Authoritative CODEX-10 decisions:
+GP必須の撤廃、親binding、関連確定の再試行、source metadata/引用、unlink後の検索eligibility、Docs原文保全、export validatorは後続BUILDで必要な限定契約変更。単なるUI置換で実装済みになるとは扱わない。
 
-- `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
+「データ受領タブ不要」を「受領のみの記録自体を登録禁止」と拡張した前回答は未確認の解釈として確定扱いから外す。今回専用分岐を復活させず、受領のみ記録と面談集計の扱いをBUILD前確認事項にする。Record_Type/DATA_RECEIPT schemaを今作らない。
+
+既存の親のない資料・共有関連は破壊せず、必要な移行は実データ確認後の限定課題とする。資料タブの廃止で既存metadata編集や文脈付きsummary参照を黙って失わない。
+
+実行instruction:
+`docs/handoffs/0028-CODEX-11-meeting-centric-design-instruction.md`
+
+整合性レビュー:
+`docs/handoffs/0028-CODEX-11-consistency-review.md`
+
+更新済み詳細判断:
 - `docs/handoffs/0028-CODEX-10-record-centric-architecture-decisions.md`
+- `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
 
-Current ball/status:
-
+現在のBALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
 
 ## Next gate
 
-When requested, execute `0028-CODEX-10` as DESIGN ONLY and return a fresh Draft PR / corrected Light screenshots / validation / report.
-
-If the returned Light family is visually accepted, apply Completion Latch to the Work 0028 design phase. Production implementation then requires a separate Strategy Reset plus explicit user BUILD authorization. Deployment remains separately scoped.
+CODEX-11はdesign/docs/local synthetic demoのみで、新規Draft PR・screenshots・validation・契約対応表・reportを返す。ユーザーのLight accept後もproduction BUILDには別の明示承認とStrategy Resetが必要。deploy、実データ移行、provider外部操作は別途scopeとする。
 
 ## Work 0029 collision recovery and dispatch tombstones
 
