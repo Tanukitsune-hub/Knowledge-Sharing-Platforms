@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement, terminology and Light/Dark/System without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Draft PR #44 final Light target: controller technical review PASS; user screenshot acceptance pending |
+| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design, without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Finish bounded Light-only polish after PR #44 review, then user visual acceptance |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -82,7 +82,9 @@ Routine AI Provider Settings administration remains unlocked by the accepted sha
 
 ### Work 0028
 
-Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.9 / final Light correction + screenshot review.
+Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.10 / Light-only final polish.
+
+On 2026-09-07 the user explicitly canceled Dark/System variants. This is a Strategy Reset of the design scope, not a reopening of accepted backend/runtime evidence.
 
 Design history:
 
@@ -90,43 +92,43 @@ Design history:
 - CODEX-04: selected Light cross-page family, Draft PR #41.
 - CODEX-05: bounded Light refinement, Draft PR #42.
 - CODEX-06: navigation / GP-Entity Workspace consolidation, Draft PR #43.
-- CODEX-07: final Light correction and screenshot package, Draft PR #44 at head `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`.
+- CODEX-07: final Light correction and screenshot package, Draft PR #44 at head `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`; controller technical review PASS.
 
-Draft PR #44 is the current final Light review target. ChatGPT controller technical review is PASS; user visual acceptance is still pending.
+PR #44 is now the pre-CODEX-08 Light review baseline. User visual acceptance is still pending because the user requested additional bounded Light corrections.
 
-Final Light system under review:
+Current closed Light-only direction:
 
+- production starts at `ナレッジ検索`; `Light navigation` is design-reference only, not a product page;
 - persistent left sidebar / desktop-first wide workspace;
-- flat sidebar with exactly 8 user-facing destinations and no group headings;
 - sidebar `#182124`;
 - cool slate Light page with white cards and cool borders;
-- restrained gold accents;
 - local refined thin-line SVG icon family;
 - dense clean gold sayagata lower-left fading upper-right;
 - Nippon Life red `#E1001F` only as the active-item left strip, plus non-red active cue;
+- gold treatment will be deepened from pale flat gold toward restrained champagne/antique metallic gold, especially brand/icons/separator, without loud glow or animation;
 - Knowledge Search one visible model/profile selector, normal-user Thinking hidden, Gemini current hidden baseline;
 - `記録を追加` and `過去の記録` each use internal `面談 / 資料` tabs while preserving separate datasets/contracts;
 - `面談先サマリー` presents GP/non-GP through existing separate read-facade mapping;
 - `面談実績の集計` merges monthly history with analytics: compact criteria, summary, period chart + numeric table, breakdown chart + table, individual Meeting list and rightmost `確認済み` checkbox mapped to existing admin-check persistence contract;
-- `プルダウンの管理` and `管理者ページ` are user-facing label changes only;
-- future Dark chart interior remains `CHART_SURFACE_THEME: LIGHT_FIXED`.
+- standalone `面談と資料の関連` destination will be removed; explicit Meeting↔Pitchbook relationship views are integrated into `過去の記録 / 面談` and `過去の記録 / 資料`, while `Meeting_Index.Related_Pitchbook_IDs` remains the relationship truth;
+- `プルダウンの管理` and `管理者ページ` remain presentation-label changes only;
+- a decorative gold separator with one-row breathing space visually separates `プルダウンの管理` / `管理者ページ` from normal task destinations; no text group heading;
+- Dark family, System theme, theme selector, `prefers-color-scheme`, browser theme persistence and Dark chart palette are out of scope.
 
-Final sidebar labels:
+Final sidebar destinations for the next correction:
 
 1. ナレッジ検索
 2. 記録を追加
 3. 過去の記録
 4. 面談先サマリー
 5. 面談実績の集計
-6. 面談と資料の関連
-7. プルダウンの管理
-8. 管理者ページ
+6. プルダウンの管理
+7. 管理者ページ
 
-CODEX-07 evidence:
+CODEX-07 accepted technical evidence remains valid for its reviewed artifact:
 
 - 15 rendered pages; horizontal overflow 0/15 at 1366×768;
 - active sidebar exactly 1/page;
-- 8 flat destinations, group headings 0;
 - ordinary red usage 0, active red strip only;
 - 13 PNG screenshots saved and major previews embedded in PR #44;
 - Product Design QA PASS / no actionable P0/P1/P2;
@@ -136,16 +138,16 @@ CODEX-07 evidence:
 
 Static design does not qualify keyboard/focus/contrast/screen-reader/Apps Script runtime/server mapping/admin-check save persistence.
 
-Current execution report: `docs/handoffs/0028-CODEX-07-final-light-correction-report.md` on Draft PR #44.
+Authoritative next-correction decisions: `docs/handoffs/0028-light-final-correction-decisions.md`.
 Current ball/status: `docs/handoffs/0028-dispatches.md`.
 
 ## Next gate
 
-User reviews Draft PR #44 screenshots. If accepted, selected Light design closes and the next fresh dispatch creates only the selected Dark family.
+Continue user Light screenshot review. Any new Codex execution must use fresh Dispatch ID `0028-CODEX-08` and remain design-only.
 
-If further Light correction is requested, use a fresh Dispatch ID; do not append work to returned CODEX-07.
+If the corrected Light family is accepted, apply Completion Latch to the Light design phase. No Dark/System family is required.
 
-Production implementation still requires selected Light and Dark approval plus explicit user BUILD authorization. Deployment remains separately scoped.
+Production implementation then requires only a separate Strategy Reset plus explicit user BUILD authorization. Deployment remains separately scoped.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
