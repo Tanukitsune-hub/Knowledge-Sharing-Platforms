@@ -1,0 +1,65 @@
+{
+  "source_sha": "9fa668619a0b91fb60ed53f696363d3954cf709e",
+  "pages": [
+    {
+      "file": "00-navigation.html",
+      "title": "Sidebar reference",
+      "active": "01-search"
+    },
+    {
+      "file": "01-search.html",
+      "title": "ナレッジ検索",
+      "active": "01-search"
+    },
+    {
+      "file": "03-record-add-meeting.html",
+      "title": "記録を追加",
+      "active": "03-record-add-meeting"
+    },
+    {
+      "file": "05-past-records-meeting.html",
+      "title": "過去の記録",
+      "active": "05-past-records-meeting"
+    },
+    {
+      "file": "07-meeting-edit.html",
+      "title": "記録を編集",
+      "active": "05-past-records-meeting"
+    },
+    {
+      "file": "09-workspace-gp.html",
+      "title": "面談先サマリー",
+      "active": "09-workspace-gp"
+    },
+    {
+      "file": "10-workspace-entity.html",
+      "title": "面談先サマリー",
+      "active": "09-workspace-gp"
+    },
+    {
+      "file": "11-analytics.html",
+      "title": "面談実績の集計",
+      "active": "11-analytics"
+    },
+    {
+      "file": "13-masters.html",
+      "title": "プルダウンの管理",
+      "active": "13-masters"
+    },
+    {
+      "file": "14-provider.html",
+      "title": "管理者ページ",
+      "active": "14-provider"
+    },
+    {
+      "file": "15-representative-states.html",
+      "title": "検索・記録の代表状態",
+      "active": "01-search"
+    },
+    {
+      "file": "14-mode-settings.html",
+      "title": "検索モード設定",
+      "active": "14-provider"
+    }
+  ]
+}
