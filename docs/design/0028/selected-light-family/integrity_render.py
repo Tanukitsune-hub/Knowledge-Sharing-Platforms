@@ -31,7 +31,8 @@ def render_integrity(out, source, pages, page, card, grid, field, table, meeting
     page('07-meeting-edit', '記録を編集', '元の記録と原本を引き継いで編集する。', edit+'<script src="record-demo.js" defer></script>', active='05-past-records-meeting')
     for name in ['09-workspace-gp.html', '10-workspace-entity.html']:
         p = out/name
-        text = p.read_text(encoding='utf-8').replace('</main>', '<p><a href="05-past-records-meeting.html#meeting-detail">記録を開いて関連資料を操作</a></p></main>')
+        target = '05-past-records-meeting.html' + ('?entity=LP' if name == '10-workspace-entity.html' else '') + '#meeting-detail'
+        text = p.read_text(encoding='utf-8').replace('</main>', f'<p><a href="{target}">記録を開いて関連資料を操作</a></p></main>')
         p.write_text(text, encoding='utf-8')
     # Current evidence is regenerated; historical screenshots remain explicitly historical.
     for p in out.glob('*.html'):
