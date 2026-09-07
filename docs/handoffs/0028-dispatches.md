@@ -54,21 +54,24 @@ The previous dual `面談 / 資料` surface is superseded.
 #### `記録を追加`
 
 - remove `面談 / 資料` subtab;
-- introduce `記録種別 = 面談 / データ受領`;
-- normal Meeting may include optional file upload;
-- `データ受領` records a short receipt-background memo plus files;
+- no `記録種別` selector;
+- no `データ受領` surface;
 - no standalone `資料だけ追加` route/action;
-- parent record is created first; only after `Meeting_ID` is issued may Pitchbook/file registration begin;
-- if parent record creation fails, Pitchbook registration count must remain 0;
-- file-level partial failure/retry semantics remain independent from the successful parent record.
+- the screen is a Meeting registration surface only;
+- normal Meeting may include optional file upload;
+- parent Meeting is created first; only after `Meeting_ID` is issued may Pitchbook/file registration begin;
+- if parent Meeting creation fails, Pitchbook registration count must remain 0;
+- file-level partial failure/retry semantics remain independent from the successful parent Meeting.
+
+New files that have no Meeting context are not accepted as new registrations under this simplified IA.
 
 #### `過去の記録`
 
 - remove `面談 / 資料` subtab;
-- show one record list for record anchors;
-- record detail shows related files;
-- allow new file upload from an existing record, including later follow-up files;
-- user-facing `削除` on a related file means unlink from the current record, not hard delete;
+- show one Meeting list;
+- Meeting detail shows related files;
+- allow new file upload from an existing Meeting, including later follow-up files;
+- user-facing `削除` on a related file means unlink from the current Meeting, not hard delete;
 - no independent Pitchbook list and no `資料 → 関連面談` reverse surface.
 
 ### Pitchbook eligibility correction
@@ -88,22 +91,19 @@ Parent counterparty categories remain:
 
 Pitchbook File Search metadata / citation context must preserve non-GP parent context without GP-name inference.
 
-### `データ受領`
+### Meeting_ID as the only parent anchor
 
-A standalone received file is represented as a new record, not as a standalone Pitchbook.
+No new `Record_Type`, `DATA_RECEIPT`, or `Record_Index` is introduced.
 
-- create a `データ受領` record;
-- issue a stable `Meeting_ID`;
-- record date / source counterparty / classification / short receipt-background memo;
-- upload received files only after the parent ID is committed.
-
-Future BUILD should prefer a minimal `Meeting_Index` schema extension such as `Record_Type = MEETING | DATA_RECEIPT`; existing rows migrate logically to `MEETING`. Do not create a new Record_Index unless source review proves necessary.
+`Meeting_Index` / stable `Meeting_ID` remain the parent anchor for newly registered files.
 
 ### Relationship truth
 
 Prefer preserving `Meeting_Index.Related_Pitchbook_IDs` as the active relationship truth.
 
-Future Pitchbook upload receives a parent `Meeting_ID`, validates the authoritative record, registers files, then adds resulting `Document_ID`s to the parent relationship list. No new relationship table/network model.
+Future Pitchbook upload receives a parent `Meeting_ID`, validates the authoritative Meeting, registers files, then adds resulting `Document_ID`s to the parent relationship list. No new relationship table/network model.
+
+Historical Pitchbook rows must not be destroyed or auto-attached to Meetings by GP-name inference. New registration becomes parent-Meeting-required; historical orphan handling is a separate migration concern if later needed.
 
 ## Preserved boundaries
 
@@ -131,7 +131,7 @@ Future Pitchbook upload receives a parent `Meeting_ID`, validates the authoritat
 
 ## Next gate
 
-The record-centric IA and Knowledge Search corrections are now CLOSED for the next design correction.
+The simplified record-centric IA and Knowledge Search corrections are CLOSED for the next design correction.
 
 If the user asks to execute them, allocate fresh Dispatch ID `0028-CODEX-10`; do not reuse CODEX-09.
 
@@ -147,7 +147,8 @@ FULL_EXPORT_UI: DEDICATED_BUTTON / NOT_MODEL_OPTION
 RECORD_CENTRIC_IA: CLOSED_FOR_CODEX_10
 ADD_RECORD_SUBTABS: REMOVE
 PAST_RECORD_SUBTABS: REMOVE
-RECORD_TYPES: MEETING / DATA_RECEIPT
+RECORD_TYPES: MEETING_ONLY
+DATA_RECEIPT: REMOVE
 PITCHBOOK_PARENT_REQUIREMENT: VALID_MEETING_ID
 PITCHBOOK_GP_REQUIRED: REMOVE_IN_FUTURE_BUILD
 RELATED_FILE_DELETE_UI: UNLINK
