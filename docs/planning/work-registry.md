@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-12 production contract BUILD + target-runtime synthetic qualification |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD / runtime未認定) | Accepted design PR #50 + Work 0027/0029 | CODEX-12返却: deterministic/bundle/local render PASS。ChatGPT review後に残るruntime identityとsynthetic qualification |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -74,6 +74,8 @@ BLOCKER: NONE
 ```
 
 ## Work 0028 current contract
+
+CODEX-12はproduction実装とbundleを返却した。canonical 512/512・bundle 27/27 PASS。runtimeはread-only preflightの自動選択条件で停止し、source push / version / deployment mutation 0。version 75のWEB_APP + `/exec`は既取得metadataで一意だが、remote source/browser account以降は未検証。`docs/handoffs/0028-CODEX-12-production-contract-build-report.md`を参照。WorkのCompletion Latchは未達。
 
 ### Design phase accepted
 
