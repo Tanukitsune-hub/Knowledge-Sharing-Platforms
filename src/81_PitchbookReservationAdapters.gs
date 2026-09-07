@@ -1,5 +1,6 @@
 function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProperties) {
   meetingEnvironment.reservePitchbookBatch = function (spreadsheetId, input, selected, totalBytes, actor, nowIso) {
+    kspAssert_(input.requestId, 'PITCHBOOK_PREPARE_REQUEST_ID_REQUIRED', 'Prepare request IDが必要です。');
     var lock = LockService.getScriptLock();
     if (!lock.tryLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS)) {
       var lockError = new Error('Could not acquire the Pitchbook reservation lock.');
@@ -30,6 +31,9 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
           'Prepare request IDの利用者・内容・親記録が一致しません。');
         return kspReadbackPitchbookPrepare_(prior, existingRows, scriptProperties, batchSequence, documentSequence);
       }
+      var generation = kspPitchbookPrepareGeneration_(batchSequence);
+      if (requestKey) kspAssert_(kspPitchbookRequestGeneration_(input.requestId) === generation,
+        'PITCHBOOK_PREPARE_REQUEST_RETIRED', '古い予約tokenは再採番できません。保存結果を確認してください。');
       // Only a new allocation derives defaults from the current parent. Replay keeps
       // its original immutable row context, even after unrelated parent links advance CAS.
       kspApplyPitchbookParentContext_(input, parent);
@@ -46,15 +50,6 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
       var pendingKeys = Object.keys(properties).filter(function (key) {
         return key.indexOf(KSP_PITCHBOOK_RESERVATION_PREFIX + 'REQUEST_') === 0;
       });
-      // Keep at most 32 retained request records (each <= 8,000 UTF-8 bytes).
-      // Do not expire/GC them: deleting a token silently re-enables duplicate allocation.
-      // Recovery is an explicitly authorized operator action: reconcile rows/counters,
-      // archive the exact COMPLETE intent, confirm every caller has permanently retired
-      // that UUID (never resend it), then remove only that reviewed request property.
-      // Uncertain/INTENT records must not be removed to bypass this guard.
-      // Existing request readback above remains available even when capacity is reached.
-      if (requestKey) kspAssert_(pendingKeys.length < 32, 'PITCHBOOK_PREPARE_CAPACITY_EXCEEDED',
-        '予約履歴の保持上限です。管理者による確認と復旧が必要です。');
       var unresolved = 0;
       pendingKeys.forEach(function (key) {
         var intent = kspSafeParseJson_(properties[key], key);
@@ -66,6 +61,22 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
           kspReadbackPitchbookPrepare_(intent, existingRows, scriptProperties, batchSequence, documentSequence);
         }
       });
+      var retireKeys = kspPitchbookPrepareRetirementKeys_(properties, pendingKeys, generation);
+      if (requestKey) kspAssert_(pendingKeys.length - retireKeys.length < 32,
+        'PITCHBOOK_PREPARE_UNCERTAIN', '未確定の予約履歴を確認してください。');
+      var batchKeys = Object.keys(properties).filter(function (key) {
+        return /^BAT-\d{6}$/.test(key.slice(KSP_PITCHBOOK_RESERVATION_PREFIX.length)) &&
+          key.indexOf(KSP_PITCHBOOK_RESERVATION_PREFIX) === 0;
+      });
+      var completedBatchKeys = batchKeys.filter(function (key) {
+        var batchId = key.slice(KSP_PITCHBOOK_RESERVATION_PREFIX.length);
+        var rows = existingRows.filter(function (row) { return String(row.Batch_ID) === batchId; });
+        return rows.length > 0 && rows.every(function (row) {
+          return row.Status === KSP_PITCHBOOK_STATUS.ACTIVE && row.File_ID && row.File_URL;
+        });
+      });
+      kspAssert_(batchKeys.length - completedBatchKeys.length < 32,
+        'PITCHBOOK_PREPARE_UPLOAD_BACKLOG', '未完了の資料登録を完了してから追加してください。');
       var maxSequence = existingRows.reduce(function (maximum, row) {
         var sameContext = kspCanonicalBusinessDate_(row.Date) === kspCanonicalBusinessDate_(input.date) &&
           String(row.GP_ID || '') === input.gpId &&
@@ -118,10 +129,14 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
         nextBatch: batchSequence + 1, nextDocument: documentSequence + rows.length,
         reservation: reservation, manifests: rows.map(kspPitchbookPrepareRowManifest_)
       } : null;
+      if (!intent) retireKeys.concat(completedBatchKeys).forEach(function (key) { scriptProperties.deleteProperty(key); });
       if (intent) {
         var intentText = JSON.stringify(intent);
         kspAssert_(encodeURIComponent(intentText).replace(/%[0-9A-F]{2}/g, 'x').length <= 8000,
           'PITCHBOOK_PREPARE_INTENT_TOO_LARGE', '予約情報が大きすぎます。ファイル数を減らしてください。');
+        // NEXT_BATCH_ID is the existing monotonic retired-token guard. No clock,
+        // per-token tombstones, new sheet or unbounded historical properties.
+        retireKeys.concat(completedBatchKeys).forEach(function (key) { scriptProperties.deleteProperty(key); });
         scriptProperties.setProperty(requestKey, intentText);
         kspAssert_(scriptProperties.getProperty(requestKey) === intentText,
           'PITCHBOOK_PREPARE_UNCERTAIN', '予約intentを確認できません。');
@@ -155,6 +170,31 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
     );
   };
 
+}
+
+function kspPitchbookPrepareGeneration_(nextBatch) {
+  kspAssert_(Number.isSafeInteger(Number(nextBatch)) && Number(nextBatch) > 0,
+    'COUNTER_VALUE_INVALID', 'Batch counterを確認してください。');
+  return Math.floor((Number(nextBatch) - 1) / 16) + 1;
+}
+
+function kspPitchbookRequestGeneration_(requestId) {
+  var match = /^g([1-9]\d*)_[A-Za-z0-9_-]{8,96}$/.exec(String(requestId || ''));
+  return match && Number.isSafeInteger(Number(match[1])) ? Number(match[1]) : 0;
+}
+
+function kspPitchbookPrepareRetirementKeys_(properties, keys, generation) {
+  var prefix = KSP_PITCHBOOK_RESERVATION_PREFIX + 'REQUEST_';
+  var eligible = keys.filter(function (key) {
+    var intent = kspSafeParseJson_(properties[key], key);
+    return intent && intent.state === 'COMPLETE' &&
+      kspPitchbookRequestGeneration_(key.slice(prefix.length)) < generation;
+  }).sort(function (left, right) {
+    var a = kspSafeParseJson_(properties[left], left), b = kspSafeParseJson_(properties[right], right);
+    return Number(a.nextBatch) - Number(b.nextBatch) || left.localeCompare(right);
+  });
+  // Retain the latest 32 requests (at least the current 16-admission generation).
+  return eligible.slice(0, Math.max(0, keys.length - 31));
 }
 
 function kspPitchbookPrepareRequestKey_(requestId) {

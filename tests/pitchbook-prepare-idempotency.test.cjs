@@ -25,6 +25,7 @@ function fixture(failure = '') {
     }
   }
   const props = {getProperty: key => properties.get(key) ?? null,
+    deleteProperty(key) {properties.delete(key);writes.push('retire')},
     getProperties: () => Object.fromEntries(properties),
     setProperty(key, value) {
       if (key.includes('REQUEST_')) {
@@ -59,13 +60,29 @@ function fixture(failure = '') {
       [{Option_ID:'AC-1',Type:'ASSET_CLASS',Name:'Synthetic Asset',Status:'Active'}]},
     findRowByKey(_id, _sheet, _key, id) {return id === parent.Meeting_ID ? {...parent} : null}};
   ksp.kspAttachPitchbookReservationAdapters_(env, props);
-  const input = {requestId:'synthetic-request-001',parentMeetingId:parent.Meeting_ID,expectedParentVersion:1,
+  const input = {requestId:'g1_synthetic-request-001',parentMeetingId:parent.Meeting_ID,expectedParentVersion:1,
     files:[{originalFilename:'one.pdf',sizeBytes:10,mimeType:'application/pdf'},
       {originalFilename:'two.pdf',sizeBytes:20,mimeType:'application/pdf'}]};
   const run = value => ksp.kspPreparePitchbookBatch_(env, value || input);
   const rows = () => ksp.kspReadObjectsFromSheet_(sheets.get('Pitchbook_Index'), schemas.Pitchbook_Index);
   return {ksp, input, run, writes, properties, sheets, parent, rows, setActor: value => {actor = value}};
 }
+
+test('missing or empty request ID cannot allocate or bypass durable replay protection', () => {
+  for (const requestId of [undefined, null, '', '   ']) {
+    const f = fixture();
+    const result = f.run({...f.input, requestId});
+    assert.equal(result.ok, false);
+    assert.equal(result.error.code, 'PITCHBOOK_PREPARE_REQUEST_ID_REQUIRED');
+    assert.equal(f.writes.length, 0);
+    assert.equal(f.properties.size, 0);
+    assert.equal(f.rows().length, 0);
+    const environment = {};
+    f.ksp.kspAttachPitchbookReservationAdapters_(environment, {});
+    assert.throws(() => environment.reservePitchbookBatch(
+      'synthetic-backend', {requestId: ''}), /Prepare request ID/);
+  }
+});
 
 test('same prepare request returns the same batch and slots with zero duplicate writes', () => {
   const f = fixture(), before = JSON.stringify(f.input);
@@ -120,7 +137,7 @@ test('missing, inactive, stale and racing parent fail before new mutations', () 
 
 test('UNIDENTIFIED fallback can prepare and replay its exact random UUID request without writes', () => {
   const f = fixture();f.setActor('UNIDENTIFIED');
-  const input = {...f.input, requestId:'f2d6d891-6f49-4b2b-a0bd-d614761748ea'};
+  const input = {...f.input, requestId:'g1_f2d6d891-6f49-4b2b-a0bd-d614761748ea'};
   const first = f.run(input);assert.equal(first.ok, true, JSON.stringify(first));
   const count = f.writes.length, replay = f.run(input);
   assert.equal(replay.ok, true);assert.equal(replay.idempotentReplay, true);
@@ -130,16 +147,58 @@ test('UNIDENTIFIED fallback can prepare and replay its exact random UUID request
   assert.equal(f.writes.length, count);
 });
 
-test('retained request capacity fails closed without eviction and still permits exact replay', () => {
-  const f = fixture();assert.equal(f.run().ok, true);
-  const key = f.ksp.kspPitchbookPrepareRequestKey_(f.input.requestId);
-  const record = f.properties.get(key);
-  for (let i = 0; i < 31; i++) f.properties.set(f.ksp.kspPitchbookPrepareRequestKey_('retained-request-' + i), record);
-  const before = JSON.stringify([...f.properties]), count = f.writes.length;
-  const result = f.run({...f.input,requestId:'new-request-over-cap'});
-  assert.equal(result.error.code, 'PITCHBOOK_PREPARE_CAPACITY_EXCEEDED');
-  assert.equal(f.run().idempotentReplay, true);
-  assert.equal(f.writes.length, count);assert.equal(JSON.stringify([...f.properties]), before);
+function currentInput(f, suffix) {
+  const next = Number(f.sheets.get('Settings').values[1][1]);
+  return {...f.input,requestId:'g'+f.ksp.kspPitchbookPrepareGeneration_(next)+'_request-'+suffix};
+}
+function finishFiles(f) {
+  const sheet=f.sheets.get('Pitchbook_Index'), headers=sheet.values[0];
+  for(const row of sheet.values.slice(1)) {
+    row[headers.indexOf('Status')]='Active';
+    row[headers.indexOf('File_ID')]='synthetic-'+row[0];
+    row[headers.indexOf('File_URL')]='https://drive.google.com/open?id=synthetic-'+row[0];
+  }
+}
+test('160 successful batches continue past 32; recent replay exact; retired tokens reject; properties bounded', () => {
+  const f=fixture(), history=[];
+  for(let i=0;i<160;i++) {
+    const input=currentInput(f,String(i).padStart(8,'0')), result=f.run(input);
+    assert.equal(result.ok,true,JSON.stringify(result));history.push({input,result});
+    finishFiles(f);
+    assert.ok(f.properties.size<=33,'32 intents plus current batch, no tombstone accumulation');
+    assert.ok([...f.properties.values()].reduce((n,v)=>n+Buffer.byteLength(v),0)<300000);
+  }
+  const count=f.writes.length, counter=f.sheets.get('Settings').values[1][1];
+  for(const item of history.slice(-32)) {
+    const replay=f.run(item.input);assert.equal(replay.ok,true,JSON.stringify(replay));
+    assert.equal(replay.batchId,item.result.batchId);
+    assert.deepEqual(Array.from(replay.slots,x=>x.documentId),Array.from(item.result.slots,x=>x.documentId));
+  }
+  for(const item of history.slice(0,128))assert.equal(f.run(item.input).error.code,'PITCHBOOK_PREPARE_REQUEST_RETIRED');
+  assert.equal(f.run({...f.input,requestId:'legacy-unknown-request'}).error.code,'PITCHBOOK_PREPARE_REQUEST_RETIRED');
+  assert.equal(f.run({...f.input,requestId:'g9999_future-request'}).error.code,'PITCHBOOK_PREPARE_REQUEST_RETIRED');
+  assert.equal(f.writes.length,count);assert.equal(f.sheets.get('Settings').values[1][1],counter);
+  assert.equal(f.rows().length,320);
+});
+test('unfinished upload backlog is bounded without deleting pending reservations or allocating new rows',()=>{
+  const f=fixture();
+  for(let i=0;i<32;i++)assert.equal(f.run(currentInput(f,String(i).padStart(8,'0'))).ok,true);
+  const before=JSON.stringify([...f.properties]), count=f.writes.length;
+  assert.equal(f.run(currentInput(f,'overflow')).error.code,'PITCHBOOK_PREPARE_UPLOAD_BACKLOG');
+  assert.equal(f.properties.size,64);assert.equal(f.writes.length,count);assert.equal(JSON.stringify([...f.properties]),before);
+  finishFiles(f);assert.equal(f.run(currentInput(f,'after-completion')).ok,true);
+});
+test('retirement never selects INTENT and retained legacy requests remain replayable',()=>{
+  const f=fixture();assert.equal(f.run().ok,true);
+  const key=f.ksp.kspPitchbookPrepareRequestKey_(f.input.requestId), legacy=f.ksp.kspPitchbookPrepareRequestKey_('legacy-request-001');
+  const record=JSON.parse(f.properties.get(key));
+  record.state='INTENT';f.properties.set(key,JSON.stringify(record));
+  for(let i=0;i<40;i++)f.properties.set(f.ksp.kspPitchbookPrepareRequestKey_('old-complete-'+i),JSON.stringify({...record,state:'COMPLETE'}));
+  const selected=f.ksp.kspPitchbookPrepareRetirementKeys_(Object.fromEntries(f.properties),[...f.properties.keys()].filter(x=>x.includes('REQUEST_')),2);
+  assert.equal(selected.includes(key),false);assert.equal(JSON.parse(f.properties.get(key)).state,'INTENT');
+  const scope=JSON.parse(record.scope), semantic=JSON.parse(scope[2]);semantic.requestId='legacy-request-001';scope[2]=JSON.stringify(semantic);
+  f.properties.set(legacy,JSON.stringify({...record,state:'COMPLETE',scope:JSON.stringify(scope)}));
+  assert.equal(f.run({...f.input,requestId:'legacy-request-001'}).idempotentReplay,true);
 });
 
 test('intent/counter/partial-row uncertainty blocks duplicate and fresh allocations without repair writes', () => {
@@ -148,7 +207,7 @@ test('intent/counter/partial-row uncertainty blocks duplicate and fresh allocati
     assert.ok([...f.properties.keys()].some(key => key.includes('REQUEST_')), failure);
     const count = f.writes.length;
     assert.equal(f.run().error.code, 'PITCHBOOK_PREPARE_UNCERTAIN', failure);
-    assert.equal(f.run({...f.input,requestId:'synthetic-request-002'}).error.code, 'PITCHBOOK_PREPARE_UNCERTAIN', failure);
+    assert.equal(f.run({...f.input,requestId:'g1_synthetic-request-002'}).error.code, 'PITCHBOOK_PREPARE_UNCERTAIN', failure);
     assert.equal(f.writes.length, count, failure);
   }
 });

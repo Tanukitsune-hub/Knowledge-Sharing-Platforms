@@ -5,7 +5,7 @@ const http=require('node:http');
 const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..');
-const out=path.join(root,'docs/handoffs/0028-CODEX-12-ui-evidence');
+const out=process.env.KSP_UI_EVIDENCE_DIR?path.resolve(process.env.KSP_UI_EVIDENCE_DIR):path.join(root,'docs/handoffs/0028-CODEX-12-ui-evidence');
 const playwrightPath=process.env.KSP_PLAYWRIGHT_PATH||path.join(process.env.USERPROFILE,'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const {chromium}=require(playwrightPath);
 const included=new Map();
@@ -22,7 +22,7 @@ const options={gps,assetClasses:[masterOptions[0]],capitalTypes:[masterOptions[1
 const documentRecord={documentId:'DOC-SYNTH',parentMeetingId:'MTG-SYNTH',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'LP-SYNTH',counterpartyEntityName:'Synthetic LP',date:'2026-09-08',gpId:'',assetClassId:'AC-SYNTH',capitalTypeId:'CAP-SYNTH',fundStrategy:'Synthetic strategy',fileId:'FILE-SYNTH',fileUrl:'',status:'Active',updatedAt:'2026-09-08T00:00:00.000Z',savedFilename:'Synthetic LP — overview.txt'};
 const meetingRecord={meetingId:'MTG-SYNTH',version:1,status:'Active',date:'2026-09-08',time:'10:00',locationId:'LOC-SYNTH',locationName:'Online',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'LP-SYNTH',counterpartyEntityName:'Synthetic LP',relatedGpIds:[],relatedGpNames:[],assetClassId:'AC-SYNTH',assetClassName:'Private Equity',capitalTypeId:'CAP-SYNTH',capitalTypeName:'Equity',teamId:'TEAM-SYNTH',teamName:'Synthetic team',fundStrategy:'Synthetic strategy',meetingTypeCodes:['ANNUAL_REVIEW'],meetingTypeLabels:['定例年1回'],followUpRequired:true,followUpNote:'Synthetic follow-up',counterparty:'Synthetic participant',internalParticipants:'Synthetic team',notes:'Synthetic meeting notes.\nThis is a transport fixture for local rendering only.',documentUrl:'',relatedPitchbookIds:['DOC-SYNTH'],relatedPitchbooks:[{id:'DOC-SYNTH',title:documentRecord.savedFilename,status:'Active',date:'2026-09-08'}]};
 const fixtures={
-  getMeetingBootstrapData:{ok:true,options},getPitchbookBootstrapData:{ok:true,options},
+  getMeetingBootstrapData:{ok:true,options},getPitchbookBootstrapData:{ok:true,options,prepareRequestGeneration:1},
   getPhase1MaintenanceBootstrapData:{ok:true,options,masters:{gps,options:masterOptions}},
   getKnowledgeSearchBootstrapData:{ok:true,providers:{OPENAI:{configured:false},GEMINI:{configured:false}},modelPolicies:{OPENAI:{profiles:[]},GEMINI:{profiles:[]}},modeDefinitions:[{mode:'自由質問',inputRequired:true},{mode:'比較',inputRequired:false},{mode:'面談準備',targetRequired:true}],options:{...options,counterpartyTypes:types.map(x=>({id:x.code,name:x.label})),counterpartyEntities:[{id:'LP_ASSET_OWNER:LP-SYNTH',type:'LP_ASSET_OWNER',name:'Synthetic LP'}]}},
   registerMeeting:{ok:true,meeting:{id:'MTG-NEW-SYNTH',version:1,status:'Active',documentUrl:''}},

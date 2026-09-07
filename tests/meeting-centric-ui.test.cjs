@@ -24,7 +24,7 @@ function harness(respond){
       return new Proxy({},{get(_,name){return payload=>{
         const wirePayload=JSON.parse(JSON.stringify(payload??null));
         calls.push({name,payload:wirePayload});
-        Promise.resolve().then(()=>respond(name,wirePayload)).then(resolve,reject);
+        Promise.resolve().then(()=>name==='getPitchbookBootstrapData'?{ok:true,prepareRequestGeneration:1}:respond(name,wirePayload)).then(resolve,reject);
       }}});
     }};
   }}}};
@@ -130,4 +130,6 @@ test('unknown parent registration response cannot create a second parent',async(
 test('unknown prepare response reuses identical requestId and descriptors',async()=>{
   const h=harness(name=>{if(name==='getMeetingMaintenanceRecord')return{ok:true,record:parent()};throw Error('Transport lost')});fileSetup(h);h.run("bindPitchbookParent({meetingId:'MTG-1',version:1,status:'Active'},false)");
   await h.run('completeParentAttachments()');await h.run('completeParentAttachments()');const preparations=h.calls.filter(x=>x.name==='preparePitchbookBatch');assert.equal(preparations.length,2);assert.ok(preparations[0].payload.requestId);assert.deepEqual(preparations[0].payload,preparations[1].payload);
+  assert.match(preparations[0].payload.requestId,/^g1_/);
+  assert.equal(h.calls.filter(x=>x.name==='getPitchbookBootstrapData').length,1,'lost response must not acquire a new token');
 });

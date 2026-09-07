@@ -28,7 +28,7 @@ const ksp=context;
 const gpRows=[{GP_ID:'GP-1',GP_Name:'KKR',Status:'Active'}];
 const optionRows=[{Option_ID:'AC-1',Type:'ASSET_CLASS',Name:'Infrastructure',Sort_Order:1,Status:'Active'},{Option_ID:'CT-1',Type:'CAPITAL_TYPE',Name:'Equity',Sort_Order:1,Status:'Active'}];
 for(const def of ksp.KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(d=>d.optionType))optionRows.push({Option_ID:'CP-'+def.code,Type:def.optionType,Name:'Synthetic '+def.code,Sort_Order:1,Status:'Active'});
-function batchInput(files=[{originalFilename:'deck.pdf',sizeBytes:10,mimeType:'application/pdf'}]){return{parentMeetingId:'MTG-000001',expectedParentVersion:1,date:'2026-08-16',gpId:'GP-1',assetClassId:'AC-1',capitalTypeId:'CT-1',files};}
+function batchInput(files=[{originalFilename:'deck.pdf',sizeBytes:10,mimeType:'application/pdf'}]){return{requestId:'g1_synthetic-request',parentMeetingId:'MTG-000001',expectedParentVersion:1,date:'2026-08-16',gpId:'GP-1',assetClassId:'AC-1',capitalTypeId:'CT-1',files};}
 function makeEnv(options={}){
  const parent=options.parent===null?null:{Meeting_ID:'MTG-000001',Version:1,Status:'Active',Doc_File_ID:'DOCS-PARENT',GP_ID:'GP-1',Counterparty_Type:'GP',Counterparty_ID:'GP-1',Related_Pitchbook_IDs:'',Date:new Date('2026-08-15T15:00:00Z'),Time:'14:00',...(options.parent||{})};
  let parentClaim=null,failLink=options.failLink||0;
@@ -39,6 +39,8 @@ function makeEnv(options={}){
   getActor(){if(options.actorError)throw new Error('actor unavailable');return options.actor||'user@example.com';},
   readRows(id,sheet){return sheet==='GP_Master'?gpRows:sheet==='Option_Master'?optionRows:rows.map(r=>({...r}));},
   reservePitchbookBatch(id,input,selected,totalBytes,actor,nowIso){
+   ksp.kspApplyPitchbookParentContext_(input,parent);
+   const validation=ksp.kspValidatePitchbookBatchInput_(input,ksp.kspBuildPitchbookCatalog_(gpRows,optionRows));selected=validation.selected;totalBytes=validation.totalBytes;
    const max=rows.filter(r=>ksp.kspCanonicalPitchbookDateKey_(r.Date)===ksp.kspCanonicalPitchbookDateKey_(input.date)&&r.GP_ID===input.gpId&&r.Asset_Class_ID===input.assetClassId&&String(r.Capital_Type_ID||'')===input.capitalTypeId).reduce((m,r)=>Math.max(m,Number(r.Sequence_No)||0),0);
    const batchId=ksp.kspFormatBatchId_(batchCounter++);
    const created=input.files.map((file,index)=>{const sequenceNo=max+index+1;const documentId=ksp.kspFormatDocumentId_(docCounter++);const savedFilename=ksp.kspBuildPitchbookFilename_(input,selected,sequenceNo,ksp.kspGetPitchbookExtension_(file.originalFilename));const row=ksp.kspBuildPitchbookPendingRow_({batchId,documentId,sequenceNo,input,selected,file,savedFilename,actor,nowIso});rows.push(row);return{...row};});

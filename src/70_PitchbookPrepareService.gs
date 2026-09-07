@@ -1,7 +1,10 @@
 function kspGetPitchbookBootstrapData_(environment) {
   try {
     var context = kspLoadPitchbookRuntimeContext_(environment);
-    return kspBuildPitchbookBootstrapResponse_(context.catalog);
+    var response = kspBuildPitchbookBootstrapResponse_(context.catalog);
+    response.prepareRequestGeneration = kspPitchbookPrepareGeneration_(
+      environment.getCounterValue(context.backendSpreadsheetId, 'NEXT_BATCH_ID'));
+    return response;
   } catch (error) {
     return { ok: false, workId: KSP_PITCHBOOK_WORK_ID,
       error: { code: kspGetErrorCode_(error), message: kspSafePublicErrorMessage_(kspGetErrorCode_(error), 'PITCHBOOK') } };
@@ -14,6 +17,7 @@ function kspPreparePitchbookBatch_(environment, rawInput) {
   try {
     var context = kspLoadPitchbookRuntimeContext_(environment);
     var input = kspNormalizePitchbookBatchInput_(rawInput);
+    kspAssert_(input.requestId, 'PITCHBOOK_PREPARE_REQUEST_ID_REQUIRED', 'Prepare request IDが必要です。');
     if (input.requestId) {
       kspAssert_(/^[A-Za-z0-9_-]{8,128}$/.test(input.requestId), 'PITCHBOOK_PREPARE_REQUEST_ID_INVALID',
         'Prepare request IDが不正です。');
@@ -25,10 +29,6 @@ function kspPreparePitchbookBatch_(environment, rawInput) {
     var parent = kspRequirePitchbookParent_(environment, context.backendSpreadsheetId,
       input.parentMeetingId, input.expectedParentVersion);
     var validation = { selected: null, totalBytes: 0 };
-    if (!input.requestId) {
-      kspApplyPitchbookParentContext_(input, parent);
-      validation = kspValidatePitchbookBatchInput_(input, context.catalog);
-    }
     var reserved = environment.reservePitchbookBatch(
       context.backendSpreadsheetId,
       input,
