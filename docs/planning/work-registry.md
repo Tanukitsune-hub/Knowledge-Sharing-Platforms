@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録・資料導線と高品質Light UIの整合 | ACTIVE (design only) | Accepted 0027 and 0029 baseline | CODEX-11でPR #48の限定修正と契約対応表を返却し、最終Light reviewへ |
+| 6 | 0028 | 単一記録・資料導線と高品質Light UIの整合 | ACTIVE (design only) | Accepted 0027 and 0029 baseline | PR #50のController限定修正・18回帰PASSを踏まえ、Light visual review / user acceptanceへ |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -90,17 +90,17 @@ Routine AI Provider Settings administration remains unlocked by the accepted sha
 MODE: INVESTIGATION
 PHASE: A1.15 / INTEGRITY-RECONCILED LIGHT CORRECTION / DESIGN ONLY
 
-現在の実行はCODEX-11。CODEX-10未使用という旧記述は無効。GitHubにPR #47/#48のCODEX-10返却があるため、これを使用済み履歴として保持する。
+CODEX-11はPR #50で返却済み。現在はBALL CHATGPT / STATUS REVIEW。CODEX-10はPR #47/#48/#49の返却履歴として使用済みを保持する。次の未使用dispatchはCODEX-12であり、新規実行はまだ指示していない。
 
 | Dispatch | Design history |
 |---|---|
 | CODEX-03〜07 | PR #40〜44、Light探索・展開・改善の履歴 |
 | CODEX-08 | PR #45、controller technical review PASS |
 | CODEX-09 | PR #46、controller technical review PASS / user acceptance pending |
-| CODEX-10 | PR #47（検索action）およびPR #48（記録中心設計）にRETURNED。最新PR #48は不要分岐と既存機能欠落の修正が必要 |
-| CODEX-11 | `codex/0028-codex11-integrity-light-design`、READY。全体整合性レビューに基づく限定修正 |
+| CODEX-10 | PR #47/#48/#49の履歴。旧designの選択継承元。最新レビュー対象ではない |
+| CODEX-11 | PR #50、RETURNED後ChatGPTが限定修正。source照合と分離DOMの18回帰PASS。Light visual acceptanceはPENDING |
 
-最新返却/再利用候補はPR #48 `108a6e9002270ed0d4264991dd8971cff7cc663f`。以前のcontroller確認済みvisual基準はPR #46 `400f2f0e77acf81deb32e363d79a3962dfd2f017`。新しいこととaccept済みであることは区別する。
+元の返却HEADは`7564865badc88e01ca930faba27e4edf0c29b174`、Controllerコード修正完了は`841fa291676bee5de0490814dbc51a10fd11d3dc`。PR #50が現在のレビュー対象。元の456 tests/12画面/22操作はCodex検証artifactの証拠で、patch後の全画面再検証と混同しない。
 
 ### 閉じたUI方針
 
@@ -121,10 +121,13 @@ GP必須の撤廃、親binding、関連確定の再試行、source metadata/引�
 
 既存の親のない資料・共有関連は破壊せず、必要な移行は実データ確認後の限定課題とする。資料タブの廃止で既存metadata編集や文脈付きsummary参照を黙って失わない。
 
+現在のControllerレビュー:
+`docs/handoffs/0028-CODEX-11-controller-review.md`
+
 実行instruction:
 `docs/handoffs/0028-CODEX-11-meeting-centric-design-instruction.md`
 
-整合性レビュー:
+事前整合性レビュー:
 `docs/handoffs/0028-CODEX-11-consistency-review.md`
 
 更新済み詳細判断:
@@ -136,7 +139,7 @@ GP必須の撤廃、親binding、関連確定の再試行、source metadata/引�
 
 ## Next gate
 
-CODEX-11はdesign/docs/local synthetic demoのみで、新規Draft PR・screenshots・validation・契約対応表・reportを返す。ユーザーのLight accept後もproduction BUILDには別の明示承認とStrategy Resetが必要。deploy、実データ移行、provider外部操作は別途scopeとする。
+PR #50修正後のLight visual review / user acceptance。Controllerの限定回帰は18/18 PASSだが、patch後全画面・元22case・npm・画像比較の独立再実行はNOT RUN。ユーザーのLight accept後もproduction BUILDには別の明示承認とStrategy Resetが必要。deploy、実データ移行、provider外部操作は別途scopeとする。
 
 ## Work 0029 collision recovery and dispatch tombstones
 
