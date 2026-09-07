@@ -1,8 +1,8 @@
 # Knowledge Share 0.1.2 installation
 
-Source commit: `f1c5cb7ae0e98c7ab68b78d5ddf9384caf0f09f7`
-Bundle SHA-256: `26dd8ed431f393ca93c0c9fa21a729c55f44976f7a1269fbd69f2c63d9219c3e`
-Payload SHA-256: `13155a97bdbf3ec5fa1377925d71e745fa0c20f434130f3d45b1e49f3e8cd5cb`
+Source commit: `5842a07255a10415d39d524fd8ec174450248855`
+Bundle SHA-256: `4442a8c39955820c34e01290d82a0c97843b88482c8ccf7fa077d364edd5d0c0`
+Payload SHA-256: `28c4e7c5ba1f4f344a61be990cf94ffbe890dc8276a386e43ea1065502a06e3c`
 
 1. Create a Google Spreadsheet in the intended company Drive folder.
 2. Open Extensions -> Apps Script and add the Drive API service.
