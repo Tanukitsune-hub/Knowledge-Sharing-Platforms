@@ -3,35 +3,123 @@
 WORK_ID: 0028
 STATUS: DESIGN DECISIONS CLOSED FOR NEXT DISPATCH
 
-この文書はDraft PR #43に対するユーザーレビュー後、次回のfresh Codex dispatchで反映するLight最終修正事項を固定する。
+この文書はDraft PR #44に対するユーザーレビュー後、次回のfresh Codex dispatchで反映するLight最終修正事項を固定する。
 
-## Sidebar
+## Strategy Reset — Light only
 
-ユーザー向けsidebarはグループ見出しを表示しない。`探す / 記録する / 振り返る / 設定する`は削除し、destinationをフラットに並べる。
+ユーザー明示判断により、Work 0028のtheme scopeを`Light / Dark / System`から`Light only`へ変更する。
 
-最終候補:
+保持するAccepted Evidence / Closed Conclusions:
 
-- ナレッジ検索
-- 記録を追加
-- 過去の記録
-- 面談先サマリー
-- 面談実績の集計
-- 面談と資料の関連
-- プルダウンの管理
-- 管理者ページ
+- Work 0027 Gemini qualified-disabled / normal-user hidden
+- Work 0029 shared-admin behavior
+- Meeting / Pitchbook dataset・handler・validation・lifecycle分離
+- GP / non-GP separate read-facade mapping
+- Knowledge Search five modes / filters / citations / source identity / provider route semantics
+- sidebar `#182124`、active left strip only `#E1001F`、cool Light workspace、white cards、cool borders
+- selected Light familyのtechnical review evidence
 
-名称変更:
+変更するcompletion gate:
 
-- `Workspace` → `面談先サマリー`
-- `マスター管理` → `プルダウンの管理`
-- `AIプロバイダ設定` → `管理者ページ`
-- standalone `面談履歴` と `面談活動の集計` → `面談実績の集計` に統合
+- Dark familyは作成しない。
+- System themeも作成しない。
+- theme selector、`prefers-color-scheme`、browser-local theme preference、Dark chart palette / `CHART_SURFACE_THEME: LIGHT_FIXED`はWork 0028のscopeから外す。
+- Light familyのuser acceptance後、production BUILDはユーザーの明示許可だけを追加gateとする。
+- production implementation / deploymentは引き続き未許可。
 
-内部page ID / handler / backend contract / GP・Entity read facade / provider/admin semanticsは名称変更により変更しない。
+## Start surface / navigation reference
+
+`Light navigation`はdesign review用referenceであり、productionのtop pageにはしない。
+
+- Web App起動時は`ナレッジ検索`から開始する。
+- `Light navigation`というユーザー向けpage / destinationは作らない。
+- design artifactとしてのnavigation overviewは残してよいが、production surfaceとして数えない。
+
+## Sidebar — final Light polish
+
+ユーザー向けsidebarはグループ見出しを表示しない。`探す / 記録する / 振り返る / 設定する`は復活させない。
+
+最終destination:
+
+1. ナレッジ検索
+2. 記録を追加
+3. 過去の記録
+4. 面談先サマリー
+5. 面談実績の集計
+6. プルダウンの管理
+7. 管理者ページ
+
+`面談と資料の関連`は独立destinationから外し、`過去の記録`へ統合する。
+
+### System-tool separator
+
+`面談実績の集計`と`プルダウンの管理`の間に、system/tool領域を視覚的に区切るdecorative separatorを入れる。
+
+要件:
+
+- `プルダウンの管理`の上に約1行分の余白を置く。
+- その余白内に1本のgold decorative ruleを置く。
+- 両端は細く尖り、中央がわずかに膨らむ、細身で上品な形状とする。
+- text group headingは追加しない。
+- `プルダウンの管理`と`管理者ページ`を、通常業務destinationから視覚的に分けるためのpresentation cueとする。
+- 外部runtime dependencyは追加しない。local SVG / CSSで表現する。
+
+## Gold treatment — richer but restrained
+
+現状の薄いflat goldを、Light family全体の品位を保ったまま少し深みのあるmetallic goldへ調整する。
+
+対象の優先順位:
+
+- 左上`Knowledge Share` brand
+- sidebar icon family
+- new decorative separator
+- 既存の小さなgold rule / accent
+
+方向性:
+
+- champagne gold〜antique gold寄りの深みを持たせる。
+- 1色flatだけでなく、ごく控えめなhighlight / shade / gradientを許容する。
+- 強い鏡面反射、派手なglow、アニメーション、過度な3D表現は使わない。
+- nav label本文の可読性を優先し、文字全体を派手なmetallic treatmentにはしない。
+- SVG iconはthin-line familyを維持しつつ、必要ならstroke gradient等で僅かな金属感を与える。
+- contrastの数値PASSはstatic designだけでは主張しない。production前のaccessibility qualification対象とする。
+
+## 面談と資料の関連 — 過去の記録へ統合
+
+現行Relationship Explorerの主旨とbackend/read contractは維持し、独立pageだけを廃止する。
+
+関係の正本は引き続き`Meeting_Index.Related_Pitchbook_IDs`に保存された明示的Document IDである。GP名の一致から関係を推定しない。
+
+### 過去の記録 / 資料
+
+既存Pitchbook listをprimary surfaceとして維持し、各資料に`関連面談`を追加する。
+
+推奨表示:
+
+- list columnまたはcompact secondary actionとして`関連面談 n件`
+- 選択時に、そのDocument IDを明示的に参照するMeetingをinline / row detailで展開
+- related Meetingの優先情報: 日付、面談先、Meeting Type / Fund Strategy、原資料への導線
+
+既存のPitchbook検索・edit・Inactive/Reactivate・source actionは維持する。
+
+### 過去の記録 / 面談
+
+各Meetingに`関連資料 n件`を表示し、選択時に`Related_Pitchbook_IDs`の解決結果を展開する。
+
+- resolved / Inactive / unresolved relationshipを既存semanticsどおり保持
+- source URLがある資料は`原資料を開く`
+- 関係の追加・削除は既存Meeting registration/edit contractで行い、Past Records listに新しいrelation mutation workflowは作らない。
+
+### Backend boundary
+
+- existing Relationship Explorer read logicを再利用・再配置する想定
+- new database / sheet / relation model / endpointは作らない
+- Meeting / Pitchbook datasetを統合しない
+- GPはfilter / presentation軸として利用できるが、relation判定は明示IDのみ
 
 ## 面談実績の集計 — final information architecture
 
-Standalone `面談履歴`を廃止し、その月次個別Meeting確認機能を既存Activity Analyticsへ統合する。新backend、新dataset、新endpointは作らない。
+Standalone `面談履歴`を廃止し、その月次個別Meeting確認機能をexisting Activity Analyticsへ統合する。新backend、新dataset、新endpointは作らない。
 
 ### 1. 集計条件
 
@@ -123,17 +211,16 @@ wide desktopを活かし、`期間別面談件数グラフ | 期間別数値表`
 
 旧`Workspace`のユーザー向け名称は`面談先サマリー`とする。
 
-GPとnon-GP Entityを1つの入口で見るPR #43の統合設計は維持する。GP/non-GPでexisting read facadeを使い分ける境界、Fund / Strategy、Meeting、Pitchbook、relation、timeline等の既存表示意味は変更しない。
+GPとnon-GP Entityを1つの入口で見る統合設計は維持する。GP/non-GPでexisting read facadeを使い分ける境界、Fund / Strategy、Meeting、Pitchbook、relation、timeline等の既存表示意味は変更しない。
 
 ## Visual decisions preserved
 
-次回Light修正でもPR #43までに固定した以下を再検討しない。
+次回Light修正でも以下は再検討しない。
 
 - persistent left sidebar
 - desktop-first wide workspace
 - sidebar `#182124`
 - cool light slate page / white cards / cool borders
-- restrained gold
 - local thin-line SVG icons
 - dense clean sayagata
 - active menu left strip only `#E1001F`
@@ -141,12 +228,14 @@ GPとnon-GP Entityを1つの入口で見るPR #43の統合設計は維持する�
 - normal-user Knowledge Search: one model/profile selector, no visible Thinking
 - current Gemini qualified-disabled / normal-user hidden
 - compact Meeting/Pitchbook/summary layouts
-- future Dark chart surface `LIGHT_FIXED`
+- Work 0027 / 0029 accepted contracts
 
 ## Next gate
 
-次回はfresh Dispatch ID `0028-CODEX-07`を使用する。Returned CODEX-06へ追記しない。
+次回のfresh Dispatch IDは`0028-CODEX-08`。Returned CODEX-07へ追記しない。
 
-CODEX-07はこの文書のclosed decisionsをPR #43 visual baselineへ反映するdesign-only final Light correctionとする。
+CODEX-08はPR #44をreview historyとして保持し、この文書のclosed decisionsを反映するdesign-only final Light polishとする。
 
-Production implementation / Dark / deploymentはまだ未許可。
+Light familyのuser visual acceptanceが得られたらLight design phaseへCompletion Latchを適用する。Dark / System familyは作成しない。
+
+Production BUILDはLight acceptance後にユーザーが明示許可した場合のみStrategy Resetして開始する。Deploymentは別scopeのまま。
