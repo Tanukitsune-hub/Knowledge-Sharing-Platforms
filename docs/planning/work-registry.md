@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-07
+Current as of: 2026-09-08
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Execute queued CODEX-10 record-centric design correction, then final user Light visual acceptance |
+| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Review returned CODEX-10 Meeting-centric Light package, then final user Light visual acceptance |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -87,7 +87,7 @@ Routine AI Provider Settings administration remains unlocked by the accepted sha
 
 ### Work 0028
 
-Work 0028 remains a UI/UX design Work. Current mode is INVESTIGATION, phase A1.13 / record-centric final IA correction / Light only.
+Work 0028 remains a UI/UX design Work. Current mode is INVESTIGATION, phase A1.14 / Knowledge Search and Meeting-centric IA / Light only.
 
 Dark/System variants remain canceled. Production implementation remains unauthorized until the final Light family is visually accepted and the user explicitly authorizes BUILD.
 
@@ -100,7 +100,7 @@ Design history:
 - CODEX-07: final Light correction, PR #44; controller technical review PASS.
 - CODEX-08: Light-only final polish, PR #45; controller technical review PASS.
 - CODEX-09: final accumulated user corrections, Draft PR #46; controller technical review PASS / user acceptance pending.
-- CODEX-10: next unused dispatch. Record-centric IA + final Knowledge Search corrections are closed for execution when requested.
+- CODEX-10: returned Meeting-centric IA + Knowledge Search design correction; user Light acceptance remains pending.
 
 PR #46 is the current Light visual baseline / review history. CODEX-10 will supersede only the affected design surfaces.
 
@@ -119,16 +119,15 @@ Current closed Light-only direction:
 - admin-managed search-mode preset design remains; persistence/server-authoritative prompt resolution is future BUILD;
 - `面談実績の集計` lower list remains `日付 / 面談先 / Asset Class / Team / 原資料 / 年1回面談 / オフィス訪問 / 年次総会 / 確認済み`;
 - record-centric IA supersedes the previous `面談 / 資料` subtab model in `記録を追加` and `過去の記録`;
-- `記録を追加` becomes one surface with `記録種別 = 面談 / データ受領`;
+- `記録を追加` becomes one Meeting-only surface with no type selector or data-receipt branch;
 - any new file/Pitchbook registration requires a successfully committed parent record and valid `Meeting_ID` first;
 - no standalone Pitchbook registration route/action;
 - current Pitchbook GP-required validation is a known design mismatch and must be removed in future BUILD; any existing Meeting counterparty type can own attached files;
-- `データ受領` creates a lightweight record with receipt-background memo, issues `Meeting_ID`, then registers files;
 - `過去の記録` becomes one record list; record detail owns related-file viewing and later follow-up uploads;
 - user-facing related-file `削除` means unlink, not hard delete;
 - no independent Pitchbook list and no `資料 → 関連面談` reverse surface;
 - prefer preserving `Meeting_Index.Related_Pitchbook_IDs` as active relationship truth and existing Document_ID / file lifecycle;
-- future BUILD should prefer a minimal `Meeting_Index` extension such as `Record_Type = MEETING | DATA_RECEIPT`; existing rows map to `MEETING`;
+- future BUILD should keep `Meeting_Index` / stable `Meeting_ID` as the only parent anchor and avoid introducing a new record-type storage layer;
 - Work 0027 Gemini qualified-disabled / normal-user hidden preserved;
 - Work 0029 shared-admin security behavior preserved;
 - production `src/**` / `dist/**`, runtime and deploy remain out of scope.
@@ -144,7 +143,7 @@ Current ball/status:
 
 ## Next gate
 
-When requested, execute `0028-CODEX-10` as DESIGN ONLY and return a fresh Draft PR / corrected Light screenshots / validation / report.
+The returned `0028-CODEX-10` package is DESIGN ONLY. Review its Draft PR / corrected Light screenshots / validation / report before applying the Completion Latch.
 
 If the returned Light family is visually accepted, apply Completion Latch to the Work 0028 design phase. Production implementation then requires a separate Strategy Reset plus explicit user BUILD authorization. Deployment remains separately scoped.
 

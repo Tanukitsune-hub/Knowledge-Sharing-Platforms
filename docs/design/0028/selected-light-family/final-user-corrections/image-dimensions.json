@@ -1,0 +1,52 @@
+[
+  {
+    "file": "01-free-question.jpg",
+    "height": 768,
+    "width": 1366
+  },
+  {
+    "file": "02-fixed-preset.jpg",
+    "height": 768,
+    "width": 1366
+  },
+  {
+    "file": "03-all-period.jpg",
+    "height": 768,
+    "width": 1366
+  },
+  {
+    "file": "04-meeting-only-export.jpg",
+    "height": 768,
+    "width": 1366
+  },
+  {
+    "file": "05-admin-mode-settings.jpg",
+    "height": 922,
+    "width": 1351
+  },
+  {
+    "file": "06-generic-preset.jpg",
+    "height": 1009,
+    "width": 1351
+  },
+  {
+    "file": "07-analytics-meeting-types.jpg",
+    "height": 768,
+    "width": 1366
+  },
+  {
+    "file": "08-sidebar-comparison.jpg",
+    "height": 600,
+    "width": 650
+  },
+  {
+    "file": "00-pr45-search.jpg",
+    "height": 1028,
+    "width": 1351
+  },
+  {
+    "file": "00-pr45-analytics.jpg",
+    "height": 768,
+    "width": 1366
+  }
+]
