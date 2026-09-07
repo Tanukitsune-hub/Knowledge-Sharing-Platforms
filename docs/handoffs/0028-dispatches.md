@@ -1,101 +1,124 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-11
-ACTIVE_DISPATCH_ID: 0028-CODEX-11
-BALL: CHATGPT
-STATUS: REVIEW
-MODE: INVESTIGATION
-PHASE: A1.15 / INTEGRITY-RECONCILED LIGHT CORRECTION / DESIGN ONLY
+DISPATCH_ID: 0028-CODEX-12
+ACTIVE_DISPATCH_ID: 0028-CODEX-12
+BALL: CODEX
+STATUS: READY
+MODE: BUILD
+PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
 
-## 現在の正本
+## Current state
 
-CODEX-11はDraft PR #50でRETURNED。ChatGPTが差分・契約対応・操作デモをレビューし、ユーザー許可の範囲で同じPR branchへ限定修正した。新しいCodex dispatchは発行していない。
+ユーザーがPR #50のLight案を現時点のproduction baselineとして受け入れ、細部は後続で詰める方針を明示した。PR #50はmainへsquash merge済み。
 
-- 現行レビュー対象: PR #50 / `codex/0028-codex11-integrity-light-design`
-- Codex返却HEAD: `7564865badc88e01ca930faba27e4edf0c29b174`
-- 元の検証済みartifact: `39aaba1a5e8ae13b4015468b2d3255a9d4992f28`
-- Controllerコード修正完了: `841fa291676bee5de0490814dbc51a10fd11d3dc`
-- Controller結果保存: `b1a7f376c8d04735b01ffd6f9b9dcbfe63c1a82e`
-- 現在のreview: `docs/handoffs/0028-CODEX-11-controller-review.md`
-- 元のreportはPR branchの`docs/handoffs/0028-CODEX-11-meeting-centric-design-report.md`。
+- merged PR: #50
+- merge commit: `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`
+- design acceptance / Strategy Reset: `docs/handoffs/0028-design-acceptance-and-build-reset.md`
+- CODEX-12 instruction: `docs/handoffs/0028-CODEX-12-production-contract-build-instruction.md`
+- prepared branch: `codex/0028-production-contract-build`
 
-PR #46は以前のvisual基準、PR #47/#48/#49はCODEX-10の履歴/選択継承元。古いcontrolを復活させない。どの返却が同一runかは推定せずIDを改番しない。PR #50より古い案を最新案と扱わない。
+INVESTIGATION/design-only phaseは受入れ済みとして閉じ、production codeへ反映して裏側contractをtarget runtimeで検証するBUILDへ移行する。
 
-## Controller判定と証拠
+## Primary Outcome
 
-CONTROLLER_TECHNICAL_REVIEW: PASS_WITH_SCOPED_EVIDENCE
-USER_LIGHT_ACCEPTANCE: PENDING
+確定Light UIの主要フローが、既存データを破壊せず次のend-to-end契約で動くこと。
 
-確認時mainと返却HEADのsrc/dist/tests/package/scripts/toolsはGitの内容SHAが一致。本番コードの旧作業混入・巻戻しは見つからない。
+1. Meeting commit後にauthoritative `Meeting_ID`を発行。
+2. 保存済みActive Meetingだけをparentとして資料登録。
+3. GP以外のCounterpartyでも資料registration / metadata / retrieval / citation contextを保持。
+4. file保存とrelationship確定を分離し、部分失敗を同じIDで安全に回復。
+5. 既存Meetingへ後日資料追加、`削除`はunlink。
+6. relation-only mutationでMeeting Google Docs本文を変更しない。
+7. Knowledge Searchとdedicated Meeting-only / non-AI `全文出力`を新UI contractへ整合。
+8. Work 0027 Gemini hidden/qualified-disabledとWork 0029 shared-adminを保持。
 
-Codexの456 tests / 12画面 / 22操作PASSは元artifactの証拠として保持。Controllerは実JSを使う分離DOM/Chromiumの18回帰を実行し18/18 PASS、JS/Python syntaxおよび生成元の対象リンク処理を確認した。全12画面再描画・元22case・全generator・npm再実行・画像の独立比較はNOT RUN。変更後の全visual認定とは扱わない。
+## Accepted design conclusions
 
-修正済み: source選択に一致する結果、Meeting専用filterの境界、古い結果の無効化、Inactive親の変更抑止、不正ファイルの成功誤表示、連続追加/同一ID retry、reset整合、LP詳細への対象引継ぎ。
+- Light only。Dark/System/theme selectorなし。
+- sidebar 7、`#182124`、active `#E1001F` left strip、metallic gold、紗綾形。
+- `記録を追加`: 単一Meeting form。資料tab / record type / Data Receipt専用UI / standalone資料登録なし。
+- `過去の記録`: 単一Meeting list/detail。本文・属性・原本・編集・記録削除/復元・関連資料操作を集約。
+- related file `削除`はcurrent Meetingからのunlink。Pitchbook全体Inactive/physical deleteとは別。
+- Knowledge Search: `面談先 / 情報ソース / 開始日 / 終了日 / 全期間` -> `検索モード / AIモデル` -> wide `質問`。
+- `情報ソース`: `面談記録・資料 / 面談記録のみ / 資料のみ`。
+- `全文出力`: dedicated action、Meeting-only / non-AI、Docs全文 + Meeting business attributes。
+- 面談実績の承認済み9列、面談先サマリーのGP/Entity read facade、admin preset/shared-adminを保持。
 
-証拠はPR branchの`integrity-light-review/controller-review-results.json`。元画像をpatch後の新規証拠と表示しない。
+## BUILD authorization boundary
 
-## Closed Conclusions
+許可:
+- production `src/**`
+- required tests
+- exact-source regenerated `dist/**`
+- required docs/report
+- synthetic/anonymized isolated target-runtime qualification
 
-- 単一の通常登録form/過去記録一覧。面談/資料tab、記録種別selector、受領専用form、独立した資料だけ追加routeなし。
-- 新規は親記録の保存成功後だけ資料登録。既存親への後日追加可。親・file・link確定の失敗と同一ID再試行を分離。
-- 全6区分のCounterpartyを扱う。GP依存validation/filename/search/citationの撤廃は後続BUILDで必要。
-- 関連資料の`削除`は当該unlink。親Inactive、資料全体Inactive、physical deleteと混同しない。
-- 本文、原本、属性、関連GP、編集、記録削除/復元、既存資料関連付け/分類編集を保持する。
-- 検索targetは`面談先`/entityKey。情報ソース3択、直近3年、検索mode/preset、広い質問欄を維持。
-- `全文出力`は独立button。空質問・AI未設定でも共通Meeting条件でDocs全文/業務属性を出し、Pitchbook本文/参照link sectionは出さない。
-- sidebar 7、Light-only、#182124、active左stripのみ#E1001F、metallic gold、紗綾形、面談集計9列を維持。
-- Work 0027のGemini hidden/qualified-disabled、Work 0029のshared-adminは維持。
-- 受領のみrecordを禁止する拡張解釈はしない。受領の業務扱い/集計はBUILD前確認事項。専用分岐もschemaも今作らない。
+未許可:
+- real confidential data
+- broad user rollout / access expansion
+- destructive migration / physical delete
+- secret rotation
+- Gemini enablement
+- Dark/System
+- new DB/sheet/relationship model
+- historical orphan bulk migration/auto-parent inference
 
-## 権限・未実装境界
+Apps Script version/deploymentが必要な場合は`docs/operations/apps-script-web-app-deployment.md`に従う。identity chainを先に固定し、既存deploymentの`WEB_APP` + `/exec`をpositive proofする。ambiguous/Libraryへmutationしない。deployment mutationは本dispatch最大1回、stop-on-first-failure。
 
-許可はdesign/docs/検証のみ。本番src/dist、production tests/依存、Drive/Sheets実データ、provider API、deploy、schema/migrationは未許可。
+## Evidence hierarchy
 
-parent binding、non-GP source、unlink eligibility、原文保全、独立export validator、legacy orphan保持、受領と集計は契約対応表にある後続BUILD必須事項。デモPASSで本番完成と扱わない。
+1. target Apps Script / Workspace authoritative readback
+2. versioned Web App actual browser behavior
+3. exact remote source / bundle parity
+4. repository deterministic tests
+5. inference
 
-実行instruction: `docs/handoffs/0028-CODEX-11-meeting-centric-design-instruction.md`
-事前review: `docs/handoffs/0028-CODEX-11-consistency-review.md`
-確定済みUI詳細: `0028-CODEX-10-record-centric-architecture-decisions.md` / `0028-CODEX-10-knowledge-search-action-corrections.md`
+## Bounds / reset
 
-## Dispatch履歴
+- implementation + focused repair: maximum 2 rounds
+- deployment mutation: maximum 1
+- same failure repeat / identity mismatch / architecture or migration expansion / data-integrity contradiction -> Strategy Reset
+- only BLOCKER stops completion
+
+## Dispatch history
 
 | Dispatch | Disposition |
 |---|---|
-| 0028-CODEX-01 / 02 | Historical tombstone。再利用不可 |
+| 0028-CODEX-01 / 02 | Historical tombstone; never reuse |
 | 0028-CODEX-03 | PR #40 / RETURNED PARTIAL |
 | 0028-CODEX-04 | PR #41 / RETURNED |
 | 0028-CODEX-05 | PR #42 / RETURNED |
 | 0028-CODEX-06 | PR #43 / RETURNED |
 | 0028-CODEX-07 | PR #44 / RETURNED |
-| 0028-CODEX-08 | PR #45 / RETURNED / controller review PASS |
-| 0028-CODEX-09 | PR #46 / RETURNED / controller review PASS |
-| 0028-CODEX-10 | PR #47/#48/#49名義の返却。使用済み、履歴保持 |
-| 0028-CODEX-11 | PR #50 / RETURNED。ChatGPT限定修正・18回帰PASS、現在REVIEW |
+| 0028-CODEX-08 | PR #45 / RETURNED / controller PASS |
+| 0028-CODEX-09 | PR #46 / RETURNED / controller PASS |
+| 0028-CODEX-10 | PR #47/#48/#49返却履歴。consumed |
+| 0028-CODEX-11 | PR #50 / RETURNED -> controller scoped repair -> user accepted -> merged |
+| 0028-CODEX-12 | production contract BUILD / READY |
 
 ## Next gate
 
-PR #50修正後Lightのvisual review。ユーザーacceptは未実施。Completion Latchは本controllerの限定修正・回帰検証部分だけとし、Light phase/Work全体には適用しない。
-
-次のCodex新指示は`0028-CODEX-12`。本番BUILDはLight acceptanceと明示許可、Strategy Resetを要する。旧PRのmerge/closeやdeployは行わない。
+CODEX-12がproduction implementation、tests、bundle parity、target-runtime synthetic evidenceをDraft PRとreportで返す。ChatGPTがfinal diff/runtime evidenceをreviewする。主要acceptance達成後にCompletion Latchを適用する。Broad deployment/rolloutは別gate。
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
-CURRENT_REVIEW_PR: 50
-CODEX_11: RETURNED
-CONTROLLER_TECHNICAL_REVIEW: PASS_WITH_SCOPED_EVIDENCE
-CONTROLLER_FOCUSED_REGRESSIONS: 18/18 PASS
-FULL_VISUAL_RECHECK_AFTER_PATCH: NOT RUN
-USER_LIGHT_ACCEPTANCE: PENDING
-NEXT_UNUSED_DISPATCH: 0028-CODEX-12
-PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
-SOURCE_CODE_CHANGED: NO
-RUNTIME_CHANGED: NO
-READY_FOR_PRODUCTION_BUILD: NO
+DESIGN_BASELINE: PR_50_MERGED
+DESIGN_MERGE_SHA: 98bd1f233a5a462c55a9a3f9e4bc0dda6c705067
+USER_LIGHT_ACCEPTANCE: ACCEPTED_WITH_FOLLOW_UP_POLISH
+MODE: BUILD
+ACTIVE_DISPATCH: 0028-CODEX-12
+BALL: CODEX
+STATUS: READY
+PRODUCTION_IMPLEMENTATION_AUTHORIZED: YES
+TARGET_RUNTIME_SYNTHETIC_QUALIFICATION_AUTHORIZED: YES
+REAL_DATA_ROLLOUT_AUTHORIZED: NO
+BROAD_DEPLOYMENT_AUTHORIZED: NO
+NEXT_UNUSED_DISPATCH: 0028-CODEX-13
 WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-11
-BALL: CHATGPT
-STATUS: REVIEW
+DISPATCH_ID: 0028-CODEX-12
+BALL: CODEX
+STATUS: READY
