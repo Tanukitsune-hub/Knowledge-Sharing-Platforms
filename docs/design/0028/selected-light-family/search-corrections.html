@@ -1,0 +1,23 @@
+<form id="search-demo">
+  <div class="search-scope">
+    <div><label for="search-counterparty">面談先</label><select id="search-counterparty" data-contract="entityKey"><option value="">すべての面談先</option><option value="GP:A">サンプルGP（GP / 運用会社）</option><option value="LP:A">サンプルLP（LP / Asset Owner）</option><option value="NLI:A">日本生命（日本生命）</option><option value="GROUP:A">サンプルグループ（グループ会社）</option><option value="CONSULTANT:A">サンプルConsultant（Consultant / Gatekeeper）</option><option value="OTHER:A">その他（その他）</option></select><p class="field-hint">既存Counterparty Entity / <code>entityKey</code></p></div>
+    <div><label for="search-source">情報ソース</label><select id="search-source" data-contract="sourceType"><option value="">面談記録・資料</option><option value="Meeting">面談記録のみ</option><option value="Pitchbook">資料のみ</option></select></div>
+    <div><label for="search-from">開始日</label><input id="search-from" type="date" value="2023-09-07" data-contract="dateFrom"></div>
+    <div><label for="search-to">終了日</label><input id="search-to" type="date" value="2026-09-07" data-contract="dateTo"></div>
+    <label class="all-period"><input id="all-period" type="checkbox">全期間</label>
+  </div>
+  <div class="search-choice">
+    <div><label for="search-mode">検索モード</label><select id="search-mode"><option value="free">自由質問</option><option value="summary">要約</option><option value="timeline">時系列</option><option value="compare">比較</option><option value="prep">面談準備</option></select></div>
+    <div><label for="knowledge-visible-model">AIモデル</label><select id="knowledge-visible-model" data-visible-model-selector="true" data-contract-map="route modelProfileId thinkingProfileId"><option value="APPROVED_OPENAI_PROFILE">GPT-5.6 Luna</option><option value="">未設定（デモ）</option></select><p class="field-hint">通常のAI検索で使用する許可済みprofile</p></div>
+  </div>
+  <label for="search-question">質問 <span class="req" id="question-required">必須</span></label>
+  <textarea class="question-wide" id="search-question" maxlength="5000" required placeholder="知りたい内容を入力してください。"></textarea>
+  <p class="search-help" id="question-help">自由に質問を入力できます。5,000文字まで。</p>
+  <div id="compare-context" class="mode-context" hidden><label for="compare-entities">比較対象（2〜5件）</label><select id="compare-entities" multiple size="3" data-contract="selectedEntityKeys"><option value="GP:A">サンプルGP</option><option value="GP:B">サンプルGP B</option><option value="LP:A">サンプルLP</option></select><p class="hint">対象を2〜5件選択してください。GPとEntityの既存比較条件を維持します。</p></div>
+  <p id="prep-context" class="mode-context" hidden>面談準備の対象は上段の面談先を使います。</p>
+  <details><summary>詳細条件（任意）</summary><!-- EXTRA_FILTERS --></details>
+  <details><summary>外部AI用プロンプト（デモ）</summary><label for="external-prompt">確認用プロンプト</label><textarea id="external-prompt" readonly>架空の記録だけを使い、出典と未確認点を区別してください。</textarea><button type="button" data-export-demo="プロンプトのコピー">プロンプトをコピー</button><p class="hint">design例です。実原文の転送やクリップボード変更は行いません。</p></details>
+  <details><summary>検証用の出力状態（架空データ）</summary><label for="export-scenario">全文出力の結果例</label><select id="export-scenario"><option value="success">通常</option><option value="empty">0件</option><option value="limit">安全上限超過</option><option value="read-fail">原本読出し失敗</option></select></details>
+  <div class="actions search-actions"><button class="primary" id="search-run" type="submit">検索</button><button class="export-action" id="full-export-run" type="button" data-action="knowledge-export" aria-controls="export-answer">全文出力</button><button id="search-clear" type="button">条件をクリア</button><span class="export-scope" aria-label="全文出力の対象">面談記録のみ · AIなし</span><span class="hint" id="search-status" role="status">初期期間：直近3年間</span></div>
+</form>
+<script src="search-demo.js" defer></script>

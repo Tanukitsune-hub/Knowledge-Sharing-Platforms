@@ -1,0 +1,206 @@
+{
+  "environment": "Headless Chrome / Playwright; IAB interaction evidence retained, screenshot crop fallback",
+  "viewport": "1366x768",
+  "layouts": [
+    {
+      "page": "00-navigation.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "01-search.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "03-record-add-meeting.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "05-past-records-meeting.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "07-meeting-edit.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "09-workspace-gp.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "10-workspace-entity.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "11-analytics.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "13-masters.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "14-provider.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "15-representative-states.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    },
+    {
+      "page": "14-mode-settings.html",
+      "width": 1366,
+      "height": 768,
+      "pageOverflow": false,
+      "tableOverflow": 0,
+      "nav": 7,
+      "active": 1
+    }
+  ],
+  "cases": [
+    {
+      "case": "six-counterparty-types",
+      "result": "PASS"
+    },
+    {
+      "case": "parent-fail",
+      "result": "PASS"
+    },
+    {
+      "case": "file-fail",
+      "result": "PASS"
+    },
+    {
+      "case": "file-fail-retry",
+      "result": "PASS"
+    },
+    {
+      "case": "link-fail",
+      "result": "PASS"
+    },
+    {
+      "case": "link-fail-retry",
+      "result": "PASS"
+    },
+    {
+      "case": "parent-restore-shared-unlink",
+      "result": "PASS"
+    },
+    {
+      "case": "inactive-unlink-undo-not-reactivate",
+      "result": "PASS"
+    },
+    {
+      "case": "original-classification-body-preserved",
+      "result": "PASS"
+    },
+    {
+      "case": "existing-document-reuse",
+      "result": "PASS"
+    },
+    {
+      "case": "lp-edit-back",
+      "result": "PASS"
+    },
+    {
+      "case": "existing-parent-followup",
+      "result": "PASS"
+    },
+    {
+      "case": "non-gp-pitchbook",
+      "result": "PASS"
+    },
+    {
+      "case": "empty-question-no-ai-export-values-preserved",
+      "result": "PASS"
+    },
+    {
+      "case": "incomplete-compare-export",
+      "result": "PASS"
+    },
+    {
+      "case": "incomplete-prep-export",
+      "result": "PASS"
+    },
+    {
+      "case": "export-empty",
+      "result": "PASS"
+    },
+    {
+      "case": "export-limit",
+      "result": "PASS"
+    },
+    {
+      "case": "export-read-fail",
+      "result": "PASS"
+    },
+    {
+      "case": "date-reversal-rejected",
+      "result": "PASS"
+    },
+    {
+      "case": "dates-fixed-prompt-draft-restored",
+      "result": "PASS"
+    },
+    {
+      "case": "exclusive-compare-scope",
+      "result": "PASS"
+    }
+  ],
+  "consoleWarningsErrors": [],
+  "targetRuntime": "NOT RUN"
+}
