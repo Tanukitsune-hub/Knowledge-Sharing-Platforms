@@ -10,9 +10,9 @@ PHASE: A1.8 / LIGHT NAVIGATION + WORKSPACE CONSOLIDATION / DESIGN ONLY
 
 ## Current ball and review state
 
-CODEX-06 returned on Draft PR #43 after consolidating the selected Light navigation and Workspace while preserving PR #42 visual/style decisions. ChatGPT controller review has checked the PR metadata, changed paths, CODEX-06 report, Product Design QA and navigation validation.
+CODEX-06 returned on Draft PR #43 after consolidating the selected Light navigation and Workspace while preserving PR #42 visual/style decisions. ChatGPT controller technical review passed. The user has now requested a further bounded Light correction, so final Light acceptance is not yet granted.
 
-Controller judgment: `TECHNICAL_REVIEW_PASS / USER_LIGHT_ACCEPTANCE_PENDING`.
+Controller judgment: `TECHNICAL_REVIEW_PASS / USER_LIGHT_ACCEPTANCE_CORRECTIONS_REQUESTED`.
 
 Draft PR #43:
 
@@ -31,7 +31,6 @@ Draft PR #43:
 - PR #42 visual system preserved: cool slate Light surface, white cards, restrained gold, local thin-line SVG icons, dense 92px sayagata;
 - `記録を追加` is one top-level destination with `面談 / 資料` internal tabs, while Meeting/Pitchbook contracts remain separate;
 - `過去の記録` is one top-level destination with separate `面談 / 資料` maintenance surfaces and separate semantics;
-- `面談履歴` uses YYYY-MM and individual Meeting rows, with existing date-range / monthly+drill contracts documented as the future implementation mapping and no new backend;
 - Meeting Type checkboxes remain the existing three values and are visible;
 - quick-add counterparty is inline on desktop;
 - `Workspace` is one top-level destination; GP and non-GP views preserve their current specialized content while future implementation may route to the existing GP or Entity read facade rather than merging server contracts;
@@ -58,26 +57,38 @@ The following remains closed unless the user explicitly changes it:
 - future Dark charts `CHART_SURFACE_THEME: LIGHT_FIXED`;
 - Work 0027 and Work 0029 accepted behavior.
 
-## Consolidated Light navigation under review
+## User-requested Light corrections after PR #43
 
-### 探す
-- ナレッジ検索
-- 面談履歴
+These decisions are now closed at the navigation-label level and must be included in the next fresh Light correction dispatch after the merged analytics page structure is confirmed:
 
-### 記録する
-- 記録を追加
+1. Remove sidebar group headings `探す / 記録する / 振り返る / 設定する`. Show a flat destination list only. Keep icons, spacing, active treatment, colors and sayagata.
+2. Merge standalone `面談履歴` capability into the analytics destination. The merged user-facing destination/page name is `面談実績の集計`.
+3. Rename `マスター管理` to `プルダウンの管理`. Internal master IDs/contracts/operations remain unchanged.
+4. Rename `AIプロバイダ設定` to `管理者ページ`. Existing shared-admin password/session/logout/provider/model-policy behavior remains unchanged.
+5. Do not issue CODEX-07 until ChatGPT/user confirm the full information architecture of the merged `面談実績の集計` page. This avoids duplicated date/month controls and vertical bloat.
 
-### 振り返る
-- 過去の記録
-- Workspace
-- 面談活動の集計
-- 面談と資料の関連
+## `面談実績の集計` source surfaces to reconcile
 
-### 設定する
-- マスター管理
-- AIプロバイダ設定
+Current PR #43 standalone `面談履歴` contains:
 
-Internal `面談 / 資料` tabs are not separate sidebar destinations.
+- YYYY-MM month selector;
+- Display action;
+- individual Meeting list for that selected month;
+- columns for date/Meeting ID, counterparty, Asset Class, Team/Meeting Type, Fund/Strategy and source action;
+- design mapping to existing Meeting date-range search or Activity Analytics monthly+drill; no new backend.
+
+Current PR #43 `面談活動の集計` contains:
+
+- period unit;
+- breakdown dimension;
+- start/end dates;
+- optional filters for counterparty type/entity, related GP, Asset Class, Team, Meeting Type and status;
+- headline summary;
+- period trend chart + table;
+- selected-dimension breakdown table;
+- matching Meeting drill table.
+
+The next design must keep the useful capabilities of both without duplicating controls or adding a new dataset/backend endpoint.
 
 ## Dispatch history
 
@@ -89,11 +100,13 @@ Internal `面談 / 資料` tabs are not separate sidebar destinations.
 | 0028-CODEX-03 | Product Design A/B/C Light comparison; RETURNED PARTIAL on Draft PR #40. |
 | 0028-CODEX-04 | Selected Light cross-page family; RETURNED on Draft PR #41; technical review PASS. |
 | 0028-CODEX-05 | Bounded Light visual refinement; RETURNED on Draft PR #42; visual/style baseline. |
-| 0028-CODEX-06 | Light navigation/Workspace consolidation; RETURNED on Draft PR #43; controller technical review PASS, user visual acceptance pending. |
+| 0028-CODEX-06 | Light navigation/Workspace consolidation; RETURNED on Draft PR #43; controller technical review PASS; further user Light corrections requested. |
 
 ## Next gate
 
-The user reviews Draft PR #43 as the current final Light visual target. If accepted, Light design is closed and the next fresh dispatch may create only the selected Dark family. If the user requests further Light corrections, allocate a fresh Dispatch ID; do not append work to returned CODEX-06.
+ChatGPT and the user first confirm the full-page information architecture for `面談実績の集計`. After that, allocate fresh `0028-CODEX-07` for the bounded final Light correction. Do not append new work to returned CODEX-06.
+
+If the corrected Light family is accepted after CODEX-07, Light design closes and the next fresh dispatch may create only the selected Dark family.
 
 Production implementation remains unauthorized until selected Light and Dark are both approved and the user explicitly authorizes BUILD. Deployment remains separately scoped.
 
@@ -105,16 +118,22 @@ SELECTED_LIGHT_VISUAL_LANGUAGE: FIXED
 CODEX_06_RETURNED: YES
 DRAFT_PR_43: OPEN / DESIGN ONLY / UNMERGED
 CONTROLLER_TECHNICAL_REVIEW: PASS
-USER_LIGHT_ACCEPTANCE: PENDING
+USER_LIGHT_ACCEPTANCE: CORRECTIONS_REQUESTED
+SIDEBAR_GROUP_HEADINGS: REMOVE
+MEETING_HISTORY_STANDALONE_DESTINATION: REMOVE / MERGE INTO ANALYTICS
+MERGED_ANALYTICS_LABEL: 面談実績の集計
+MASTER_PAGE_LABEL: プルダウンの管理
+ADMIN_PAGE_LABEL: 管理者ページ
+MERGED_ANALYTICS_PAGE_STRUCTURE: PENDING USER/CHATGPT CONFIRMATION
+NEXT_FRESH_DISPATCH: 0028-CODEX-07 AFTER STRUCTURE CONFIRMATION
 REGISTER_NAV_CONSOLIDATION: PASS
 PAST_RECORD_NAV_CONSOLIDATION: PASS
-MONTHLY_MEETING_HISTORY_SURFACE: PASS / EXISTING CONTRACT REUSE DESIGN
 MEETING_TYPE_CHECKBOXES: PASS / EXISTING VALUES PRESERVED
 COUNTERPARTY_QUICK_ADD_INLINE: PASS
 WORKSPACE_CONSOLIDATION: PASS
 GP_CONTEXT_PRESERVED: PASS
 NON_GP_CONTEXT_PRESERVED: PASS
-GP_AND_ENTITY_READ_CONTRACTS: PRESERVE / DO_NOT MERGE BACKEND
+GP_AND_ENTITY_READ_CONTRACTS: PRESERVE / DO NOT MERGE BACKEND
 SIDEBAR_BASE_COLOR: #182124
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
 OTHER_E1001F_USAGE: NONE
