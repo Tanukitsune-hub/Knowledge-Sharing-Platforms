@@ -6,49 +6,104 @@ ACTIVE_DISPATCH_ID: 0028-CODEX-07
 BALL: CHATGPT
 STATUS: REVIEW
 MODE: INVESTIGATION
-PHASE: A1.9 / FINAL LIGHT CORRECTION + SCREENSHOT REVIEW / DESIGN ONLY
+PHASE: A1.10 / LIGHT-ONLY FINAL POLISH / DESIGN ONLY
 
-## Current ball and review state
+## Strategy Reset — 2026-09-07
 
-CODEX-07 returned on Draft PR #44 after applying the final bounded Light correction requested after PR #43. ChatGPT controller review checked PR metadata, changed paths, CODEX-07 report, final-light validation, Product Design QA and the consolidated analytics design contract.
+User explicitly changed Work 0028 from `Light / Dark / System` to `Light only`.
 
-Controller judgment: `TECHNICAL_REVIEW_PASS / USER_LIGHT_ACCEPTANCE_PENDING`.
+Primary Outcome is now: finish one high-quality Light UI/UX family without backend redesign, obtain user visual acceptance, then stop the design phase.
+
+Accepted evidence and backend/source-contract boundaries from CODEX-07 remain closed. Dark/System design, theme selector, `prefers-color-scheme`, browser-local theme persistence and Dark chart palette are no longer required.
+
+Production BUILD remains unauthorized until Light is accepted and the user explicitly authorizes BUILD.
+
+## Current review state
+
+CODEX-07 returned on Draft PR #44. ChatGPT technical review remains PASS for the evidence it actually established.
+
+User visual acceptance is still pending because the user requested another bounded Light correction package after reviewing PR #44.
 
 Draft PR #44:
 
 - branch: `codex/0028-final-light-correction`
 - head: `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`
-- base main recorded by CODEX-07: `02cc825fce3ed7debdeaaefe6ff5dd97f926e9f1`
-- PR #43 baseline: `cd43591b65b22e52aea10dd52107850fff4aed7f`
 - design-only / Draft / unmerged
+- current review history / pre-CODEX-08 Light baseline
 - production `src/**`, `dist/**`, runtime, deployment, provider/credential/backend/data contract: unchanged
 
-## Accepted technical evidence for this review gate
+## Accepted technical evidence from CODEX-07
 
-- 15 visual pages render with 1366×768 horizontal overflow 0/15;
-- sidebar destinations exactly 8; group headings 0; active destination exactly 1 per page;
-- sidebar base `#182124`; ordinary UI `#E1001F` usage 0; active red left strip exactly 1;
-- PR #43 visual system preserved: cool slate page, white cards, cool borders, restrained gold, local thin-line SVG icons, dense sayagata;
-- final user-facing labels applied: `面談先サマリー`, `面談実績の集計`, `プルダウンの管理`, `管理者ページ`;
-- standalone `面談履歴` destination removed and its monthly selector/list capability integrated into `面談実績の集計`;
-- `面談実績の集計` layout contains compact criteria, compact summary, period chart + numeric table side-by-side, breakdown chart + table side-by-side, and individual Meeting list;
-- monthly Meeting list rightmost `確認済み` checkbox is mapped to existing `adminCheckCompleted` / `updateMeetingAdminCheck` / expected timestamp semantics without new backend;
-- 13 PNG screenshots saved and PR body directly embeds major review images;
-- Product Design QA: PASS / no actionable P0/P1/P2;
+- 15 visual pages rendered with 1366×768 horizontal overflow 0/15;
+- active sidebar destination exactly 1 per page;
+- sidebar base `#182124`; ordinary UI `#E1001F` usage 0; active red left strip only;
+- Product Design QA PASS / no actionable P0/P1/P2;
 - browser console warning/error 0 in static harness;
 - `git diff --check` PASS;
-- changed-path review confirms no production `src/**` or `dist/**` modifications.
+- changed-path review confirmed no production `src/**` or `dist/**` modifications.
 
-Static design evidence does not qualify keyboard navigation, focus order, measured contrast, screen reader behavior, Apps Script runtime, provider/server mapping or actual admin-check save persistence.
+Static design evidence still does not qualify keyboard navigation, focus order, measured contrast, screen reader behavior, Apps Script runtime, provider/server mapping or actual admin-check save persistence.
+
+## Closed user corrections for next fresh dispatch
+
+Authoritative detail: `docs/handoffs/0028-light-final-correction-decisions.md`.
+
+### 1. Start surface
+
+- `Light navigation` is design reference only, not a production page.
+- production app starts at `ナレッジ検索`.
+
+### 2. Relationship Explorer integration
+
+- remove standalone `面談と資料の関連` sidebar destination;
+- preserve its purpose and explicit relationship semantics;
+- integrate `資料 → 関連面談` into `過去の記録 / 資料`;
+- integrate `面談 → 関連資料` into `過去の記録 / 面談`;
+- relationship truth remains `Meeting_Index.Related_Pitchbook_IDs` explicit Document IDs;
+- GP may be a filter/presentation axis but must not become an inferred relationship rule;
+- no new database / sheet / relation model / mutation workflow.
+
+### 3. Final sidebar information architecture
+
+Normal task destinations:
+
+1. ナレッジ検索
+2. 記録を追加
+3. 過去の記録
+4. 面談先サマリー
+5. 面談実績の集計
+
+System/tool destinations:
+
+6. プルダウンの管理
+7. 管理者ページ
+
+No text group headings.
+
+Between `面談実績の集計` and `プルダウンの管理`, add approximately one row of breathing space plus a decorative gold separator with pointed ends and a subtle center swell.
+
+### 4. Gold polish
+
+- deepen the current pale flat gold toward restrained champagne / antique metallic gold;
+- prioritize the brand, sidebar icons, decorative separator and existing small gold accents;
+- allow subtle highlight/shade/gradient;
+- no strong glow, animation, mirror-like shine or loud 3D treatment;
+- preserve thin-line icon family and text readability.
+
+### 5. Theme scope
+
+- Light only;
+- Dark family: canceled;
+- System theme: canceled;
+- no theme selector / theme persistence / `prefers-color-scheme` requirement in Work 0028.
 
 ## Preserved selected Light direction
 
-Closed unless the user explicitly changes it:
+Closed unless user explicitly changes it:
 
 - persistent left sidebar / desktop-first wide workspace;
 - sidebar `#182124`;
 - cool light slate page / white cards / cool borders;
-- restrained gold accents;
 - local refined thin-line SVG icon family;
 - clean dense gold sayagata lower-left fading upper-right;
 - active sidebar item left strip only `#E1001F` plus non-red active cue;
@@ -56,21 +111,7 @@ Closed unless the user explicitly changes it:
 - Knowledge Search one visible model/profile selector and no normal-user Thinking;
 - current Gemini qualified-disabled / normal-user hidden baseline;
 - compact Meeting / Pitchbook / counterparty-summary layouts;
-- future Dark chart interior `CHART_SURFACE_THEME: LIGHT_FIXED`;
 - Work 0027 and Work 0029 accepted behavior.
-
-## Final Light sidebar under review
-
-- ナレッジ検索
-- 記録を追加
-- 過去の記録
-- 面談先サマリー
-- 面談実績の集計
-- 面談と資料の関連
-- プルダウンの管理
-- 管理者ページ
-
-No group headings are shown.
 
 ## Dispatch history
 
@@ -83,27 +124,35 @@ No group headings are shown.
 | 0028-CODEX-04 | Selected Light cross-page family; RETURNED on Draft PR #41; technical review PASS. |
 | 0028-CODEX-05 | Bounded Light visual refinement; RETURNED on Draft PR #42. |
 | 0028-CODEX-06 | Navigation/Workspace consolidation; RETURNED on Draft PR #43; technical review PASS; further user corrections requested. |
-| 0028-CODEX-07 | Final Light correction + screenshot review; RETURNED on Draft PR #44; controller technical review PASS, user visual acceptance pending. |
+| 0028-CODEX-07 | Final Light correction + screenshot review; RETURNED on Draft PR #44; controller technical review PASS; further user Light corrections requested. |
 
 ## Next gate
 
-The user reviews Draft PR #44 screenshots as the current final Light visual target.
+Continue user review / collect any final Light comments. Any new Codex execution must use fresh Dispatch ID `0028-CODEX-08`; never reuse CODEX-07.
 
-If accepted, Light design closes. The next fresh dispatch may create only the selected Dark family. If the user requests another Light correction, allocate a fresh Dispatch ID; do not append work to returned CODEX-07.
+CODEX-08, when dispatched, is design-only final Light polish. It must not implement production source, deploy, or create Dark/System variants.
 
-Production implementation remains unauthorized until selected Light and Dark are both approved and the user explicitly authorizes BUILD. Deployment remains separately scoped.
+If the resulting Light family is visually accepted, apply Completion Latch to the Light design phase. Production BUILD can begin only after a separate Strategy Reset and explicit user authorization.
 
 ## Evidence state
 
 ```text
 USER_DIRECTION_SELECTED: YES
-SELECTED_LIGHT_VISUAL_LANGUAGE: FIXED
+THEME_SCOPE: LIGHT_ONLY
+DARK_FAMILY_REQUIRED: NO
+SYSTEM_THEME_REQUIRED: NO
 CODEX_07_RETURNED: YES
-DRAFT_PR_44: OPEN / DESIGN ONLY / UNMERGED
+DRAFT_PR_44: OPEN / DESIGN ONLY / UNMERGED / REVIEW HISTORY BASELINE
 CONTROLLER_TECHNICAL_REVIEW: PASS
 USER_LIGHT_ACCEPTANCE: PENDING
-FLAT_SIDEBAR_DESTINATIONS: PASS / 8
+LIGHT_NAVIGATION_PRODUCTION_PAGE: NO
+PRODUCTION_START_SURFACE: ナレッジ検索
+RELATIONSHIP_STANDALONE_DESTINATION: REMOVE_NEXT_CORRECTION
+RELATIONSHIP_TARGET_SURFACE: 過去の記録 / 面談・資料
+FINAL_SIDEBAR_DESTINATIONS: 7
 SIDEBAR_GROUP_HEADINGS: NONE
+SYSTEM_TOOL_SEPARATOR: REQUIRED_NEXT_CORRECTION
+GOLD_METALLIC_POLISH: REQUIRED_NEXT_CORRECTION
 COUNTERPARTY_SUMMARY_LABEL: 面談先サマリー
 MERGED_ANALYTICS_LABEL: 面談実績の集計
 MASTER_PAGE_LABEL: プルダウンの管理
@@ -112,13 +161,11 @@ ACTIVITY_ANALYTICS_MERGED_STRUCTURE: PASS
 MONTHLY_MEETING_LIST_INTEGRATED: PASS
 ROW_ADMIN_CHECKBOX_DESIGN: PASS / EXISTING CONTRACT MAPPING
 CHART_TABLE_SIDE_BY_SIDE: PASS
-SCREENSHOTS_SAVED: PASS / 13 PNG
-PR_VISUAL_PREVIEW_EMBEDDED: PASS
-SOURCE_CONTRACT_PARITY: PASS
+SOURCE_CONTRACT_PARITY: PRESERVE
 SIDEBAR_BASE_COLOR: #182124
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
 OTHER_E1001F_USAGE: NONE
-SELECTED_DARK_MOCK: NOT_STARTED
+NEXT_UNUSED_DISPATCH: 0028-CODEX-08
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
 RUNTIME_CHANGED: NO
