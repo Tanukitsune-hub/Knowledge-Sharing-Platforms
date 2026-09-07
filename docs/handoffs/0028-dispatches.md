@@ -3,8 +3,8 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-08
 ACTIVE_DISPATCH_ID: 0028-CODEX-08
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 PHASE: A1.10 / LIGHT-ONLY FINAL POLISH / DESIGN ONLY
 
@@ -20,15 +20,15 @@ Production BUILD remains unauthorized until Light is accepted and the user expli
 
 ## Current dispatch
 
-CODEX-08 is prepared for the bounded Light-only final polish.
+CODEX-08 returned the bounded Light-only final polish on Draft PR #45.
 
 Instruction:
 `docs/handoffs/0028-CODEX-08-light-only-final-polish-instruction.md`
 
-Prepared branch:
+Returned branch:
 `codex/0028-light-only-final-polish`
 
-PR #44 remains unmerged review history / pre-CODEX-08 Light baseline. CODEX-08 should create a fresh Draft PR from current main rather than extend/rebase PR #44.
+PR #44 remains unmerged review history / pre-CODEX-08 Light baseline. Draft PR #45 is the current Light visual review target and supersedes PR #44 without modifying it.
 
 ## Accepted technical evidence from CODEX-07
 
@@ -123,11 +123,11 @@ Closed unless user explicitly changes it:
 | 0028-CODEX-05 | Bounded Light visual refinement; RETURNED on Draft PR #42. |
 | 0028-CODEX-06 | Navigation/Workspace consolidation; RETURNED on Draft PR #43; technical review PASS; further user corrections requested. |
 | 0028-CODEX-07 | Final Light correction + screenshot review; RETURNED on Draft PR #44; controller technical review PASS; further user Light corrections requested. |
-| 0028-CODEX-08 | Light-only final polish; READY for Codex on prepared branch. |
+| 0028-CODEX-08 | Light-only final polish; RETURNED on Draft PR #45; user visual acceptance pending. |
 
 ## Next gate
 
-Codex executes `0028-CODEX-08` from the GitHub instruction and returns a new design-only Draft PR plus screenshot/validation/report evidence.
+ChatGPT reviews Draft PR #45 and its embedded Light screenshots for final visual acceptance.
 
 Do not implement production source, deploy, or create Dark/System variants.
 
@@ -142,7 +142,9 @@ DARK_FAMILY_REQUIRED: NO
 SYSTEM_THEME_REQUIRED: NO
 CODEX_07_RETURNED: YES
 CODEX_08_PREPARED: YES
+CODEX_08_RETURNED: YES
 DRAFT_PR_44: OPEN / DESIGN ONLY / UNMERGED / REVIEW HISTORY BASELINE
+DRAFT_PR_45: OPEN / DRAFT / CURRENT LIGHT VISUAL REVIEW TARGET
 CONTROLLER_TECHNICAL_REVIEW: PASS
 USER_LIGHT_ACCEPTANCE: PENDING
 LIGHT_NAVIGATION_PRODUCTION_PAGE: NO
@@ -165,7 +167,7 @@ SOURCE_CONTRACT_PARITY: PRESERVE
 SIDEBAR_BASE_COLOR: #182124
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
 OTHER_E1001F_USAGE: NONE
-ACTIVE_DISPATCH: 0028-CODEX-08
+ACTIVE_DISPATCH: 0028-CODEX-08 / RETURNED
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
 RUNTIME_CHANGED: NO
@@ -176,5 +178,5 @@ WORK_0028_COMPLETE: NO
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-08
 ACTIVE_DISPATCH_ID: 0028-CODEX-08
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

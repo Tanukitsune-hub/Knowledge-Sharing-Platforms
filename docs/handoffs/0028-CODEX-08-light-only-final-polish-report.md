@@ -96,6 +96,7 @@ PR #44のnavigation / standalone Relationship Explorerと、CODEX-08のnavigatio
 | Product Design actionable P0/P1/P2 | PASS / 0 |
 | screenshots | PASS / 11 PNG saved and inspected |
 | deterministic validator | PASS |
+| `npm run check` | PASS / 456 tests |
 | `git diff --check` | PASS |
 | production `src/**` / `dist/**` change | NONE |
 
@@ -111,8 +112,8 @@ Static artifactからkeyboard、focus order、contrast測定、screen reader、A
 ## Delivery
 
 BRANCH: `codex/0028-light-only-final-polish`
-DRAFT_PR: `PENDING_CREATION`
-DESIGN_ARTIFACT_COMMIT: `PENDING`
+DRAFT_PR: `https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/45`
+DESIGN_ARTIFACT_COMMIT: `d59bae3f65f2679904449ea50c4136354c6682f8`
 REPORT_PATH: `docs/handoffs/0028-CODEX-08-light-only-final-polish-report.md`
 
 ## Shared Knowledge
@@ -142,7 +143,7 @@ LIGHT_ONLY_SCOPE: PASS
 SOURCE_CONTRACT_PARITY: PASS
 PRODUCT_DESIGN_QA: PASS / P0 0 / P1 0 / P2 0
 SCREENSHOTS_SAVED: PASS / 11
-PR_VISUAL_PREVIEW_EMBEDDED: PENDING
+PR_VISUAL_PREVIEW_EMBEDDED: PASS / 8 IMAGES
 SIDEBAR_BASE: #182124
 ACTIVE_MENU_ACCENT: #E1001F / LEFT STRIP ONLY
 OTHER_E1001F_USAGE: NONE
@@ -155,7 +156,7 @@ RUNTIME_CHANGED: NO
 READY_FOR_PRODUCTION_BUILD: NO
 BLOCKER: NONE
 BRANCH: codex/0028-light-only-final-polish
-DRAFT_PR: PENDING_CREATION
-DESIGN_ARTIFACT_COMMIT: PENDING
+DRAFT_PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/45
+DESIGN_ARTIFACT_COMMIT: d59bae3f65f2679904449ea50c4136354c6682f8
 REPORT_PATH: docs/handoffs/0028-CODEX-08-light-only-final-polish-report.md
 ```
