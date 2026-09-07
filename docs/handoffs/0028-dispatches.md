@@ -3,8 +3,8 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-11
 ACTIVE_DISPATCH_ID: 0028-CODEX-11
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 PHASE: A1.15 / INTEGRITY-RECONCILED LIGHT CORRECTION / DESIGN ONLY
 
@@ -73,11 +73,11 @@ CODEX-10 / PR #47/#48も検証PASSを報告しているが、今回はGitHub sou
 | 0028-CODEX-08 | Light-only polish、PR #45、RETURNED、controller technical review PASS。 |
 | 0028-CODEX-09 | User corrections、PR #46、RETURNED、controller technical review PASS。 |
 | 0028-CODEX-10 | PR #47/#48に同名義のRETURNEDを確認。使用済み。改番/再利用しない。最新案は修正要。 |
-| 0028-CODEX-11 | 全体整合性修復と単一記録Light、READY。 |
+| 0028-CODEX-11 | 全体整合性修復と単一記録Light、RETURNED。report: `0028-CODEX-11-meeting-centric-design-report.md`。 |
 
 ## Next gate
 
-CODEX-11が新規Draft PR、操作demo、screenshots、validation、契約対応表、reportを返す。ChatGPTがreviewし、ユーザーがLightをacceptする。Light acceptのみで本番実装・deployへ進まない。
+CODEX-11は操作demo、screenshots、validation、契約対応表、reportを返却済み。design artifact `39aaba1a5e8ae13b4015468b2d3255a9d4992f28`、12画面/22case/456 tests PASS（local）。新規Draft PRのURLはreport参照。ChatGPTがreviewし、ユーザーがLightをacceptする。Light acceptのみで本番実装・deployへ進まない。
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
@@ -105,5 +105,5 @@ WORK_0028_COMPLETE: NO
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-11
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録・資料導線と高品質Light UIの整合 | ACTIVE (design only) | Accepted 0027 and 0029 baseline | CODEX-11でPR #48の限定修正と契約対応表を返却し、最終Light reviewへ |
+| 6 | 0028 | 単一記録・資料導線と高品質Light UIの整合 | ACTIVE (design only) | Accepted 0027 and 0029 baseline | CODEX-11 RETURNED。新規Draft PRのdesign・契約対応表をChatGPT review→ユーザーLight acceptへ |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -98,7 +98,7 @@ PHASE: A1.15 / INTEGRITY-RECONCILED LIGHT CORRECTION / DESIGN ONLY
 | CODEX-08 | PR #45、controller technical review PASS |
 | CODEX-09 | PR #46、controller technical review PASS / user acceptance pending |
 | CODEX-10 | PR #47（検索action）およびPR #48（記録中心設計）にRETURNED。最新PR #48は不要分岐と既存機能欠落の修正が必要 |
-| CODEX-11 | `codex/0028-codex11-integrity-light-design`、READY。全体整合性レビューに基づく限定修正 |
+| CODEX-11 | `codex/0028-codex11-integrity-light-design`、RETURNED / BALL=CHATGPT。12画面/22case/456 local tests PASS、契約対応表あり。report: `0028-CODEX-11-meeting-centric-design-report.md` |
 
 最新返却/再利用候補はPR #48 `108a6e9002270ed0d4264991dd8971cff7cc663f`。以前のcontroller確認済みvisual基準はPR #46 `400f2f0e77acf81deb32e363d79a3962dfd2f017`。新しいこととaccept済みであることは区別する。
 
