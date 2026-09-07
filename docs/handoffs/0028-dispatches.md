@@ -6,7 +6,7 @@ ACTIVE_DISPATCH_ID: 0028-CODEX-09
 BALL: CHATGPT
 STATUS: REVIEW
 MODE: INVESTIGATION
-PHASE: A1.12 / LIGHT-ONLY FINAL USER CORRECTIONS / DESIGN ONLY
+PHASE: A1.13 / POST-CODEX-09 FINAL LIGHT REVIEW / DESIGN ONLY
 
 ## Current state
 
@@ -17,11 +17,11 @@ CODEX-09 returned Draft PR #46 from `codex/0028-final-light-user-corrections`.
 - design artifact: `933111ce96cd170210f80ca7bada862cbdfe310c`
 - report: `docs/handoffs/0028-CODEX-09-final-light-user-corrections-report.md`
 
-PR #45 remains the prior visual baseline / review history. PR #46 is the current Light visual review target.
+PR #46 is the current Light visual review target.
 
 ChatGPT controller technical review: `TECHNICAL_REVIEW_PASS / USER_LIGHT_ACCEPTANCE_PENDING`.
 
-No technical BLOCKER was found.
+No technical BLOCKER is open.
 
 ## Accepted CODEX-09 technical evidence
 
@@ -39,53 +39,62 @@ No technical BLOCKER was found.
 
 Static design evidence does not qualify Apps Script runtime, persistence, server-side preset resolution, authentication behavior, measured contrast, screen-reader behavior, complete keyboard paths or mobile behavior.
 
-## Closed user corrections implemented in CODEX-09 design
+## Closed user corrections implemented in CODEX-09
 
-### 1. Knowledge Search
+### Knowledge Search
 
-Primary layout:
+- Row 1: `GP / 情報ソース / 開始日 / 終了日 / 全期間`
+- Row 2: `検索モード / AIモデル`
+- Row 3: wide / larger `質問`
+- default rolling 3 years / `全期間` OFF
+- information source: `面談記録・資料 / 面談記録のみ / 資料のみ`
+- Free Question editable; non-free preset gray readonly; free draft restored
+- admin page has search-mode preset design
 
-1. Row 1: `GP / 情報ソース / 開始日 / 終了日 / 全期間`
-2. Row 2: `検索モード / AIモデル`
-3. Row 3: wide / larger `質問`
+### 面談実績の集計
 
-Default period: rolling 3 years / `全期間` OFF.
-
-Information source options:
-
-- `面談記録・資料` → Meeting + Pitchbook
-- `面談記録のみ` → Meeting
-- `資料のみ` → Pitchbook
-
-`全文出力（AIを使わない）` is Meeting-only and excludes Pitchbook body/reference links.
-
-Free Question remains editable. Non-free modes display fixed prompts in gray read-only textarea and preserve the free-question draft when switching back.
-
-### 2. Search mode admin design
-
-`管理者ページ` includes a `検索モード設定` design with:
-
-- display name;
-- fixed prompt / instruction;
-- enabled state;
-- sort order;
-- generic preset addition;
-- protected `自由質問` baseline;
-- preserved special semantics for `比較` and `面談準備`.
-
-Persistence and authoritative server-side fixed-prompt resolution remain future BUILD requirements; CODEX-09 does not implement them.
-
-### 3. 面談実績の集計
-
-Lower Meeting table columns:
-
+Lower Meeting table:
 `日付 / 面談先 / Asset Class / Team / 原資料 / 年1回面談 / オフィス訪問 / 年次総会 / 確認済み`
 
-Meeting Type display uses existing `meetingTypeCodes` with `○ / —`, including multiple applicable types per row. `確認済み` remains rightmost with existing admin-check mapping. `Fund / Strategy` is removed from this specific monthly admin-review table only.
+Existing `meetingTypeCodes` map to `○ / —`; `確認済み` remains existing admin-check mapping.
 
-### 4. Gold icon polish
+### Visual polish
 
-Sidebar icon geometry remains local Lucide/Feather-family SVG with existing ISC/MIT license. CODEX-09 uses local masks at 22px with bright highlight / rich gold / antique shadow and subtle drop shadow. No new external runtime dependency or CDN.
+Sidebar local Lucide/Feather-family SVG uses stronger metallic gold treatment with no new runtime dependency.
+
+## New closed corrections after CODEX-09 return
+
+Authoritative decision:
+
+`docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections.md`
+
+### 1. Knowledge Search `GP` → `面談先`
+
+Primary Row 1 final label/order:
+
+`面談先 / 情報ソース / 開始日 / 終了日 / 全期間`
+
+`面談先` is not GP-only. It must represent existing Counterparty Entity / `entityKey` across GP, LP / Asset Owner, 日本生命, グループ会社, Consultant / Gatekeeper and その他. Do not infer or auto-convert a non-GP counterparty to a GP.
+
+### 2. Full Output becomes a dedicated action
+
+Remove `全文出力（AIを使わない）` from the `AIモデル` selector.
+
+Action area gets an independent `全文出力` button, separate from normal AI search. Preferred action order:
+
+`検索 / 全文出力 / 条件をクリア`
+
+Full Output is Meeting-only / non-AI. It exports authoritative Google Docs full text plus all available authoritative Meeting attributes for matching Active Meeting records. It does not include Pitchbook body or a Pitchbook reference-link section. Meeting-row relationship attributes such as `Related_Pitchbook_IDs` may remain as metadata.
+
+Future BUILD should reuse existing Knowledge Export preview/copy/Google Docs/PDF machinery where practical, but CODEX-10 remains design-only.
+
+## Pending Past Records decision
+
+The user is reviewing the full `過去の記録` specification and is still considering whether to remove the reverse `資料 → 関連面談` presentation while preserving `面談 → 関連資料`.
+
+This reverse-relation removal is NOT CLOSED yet. Do not implement it until the user explicitly confirms the final direction.
+
+Current relationship truth remains `Meeting_Index.Related_Pitchbook_IDs`; relationship mutation remains only in Meeting registration/edit.
 
 ## Preserved boundaries
 
@@ -93,15 +102,8 @@ Sidebar icon geometry remains local Lucide/Feather-family SVG with existing ISC/
 - Work 0029 shared-admin security behavior;
 - Light only; Dark/System/theme selector canceled;
 - sidebar `#182124`;
-- active `#E1001F` thin left strip only; ordinary UI red none;
-- Past Records explicit Meeting↔Pitchbook relation semantics remain unchanged by CODEX-09;
+- active `#E1001F` thin left strip only;
 - production implementation and deployment remain unauthorized.
-
-## Pending user design thought after CODEX-09 started
-
-The user is considering simplifying Past Records relationship presentation to keep `面談 → 関連資料` while removing the reverse `資料 → 関連面談` view because the latter may not be used in practice.
-
-This was not part of CODEX-09 and is not yet a closed requirement. Do not implement it until the user explicitly confirms the final direction.
 
 ## Dispatch history
 
@@ -119,21 +121,19 @@ This was not part of CODEX-09 and is not yet a closed requirement. Do not implem
 
 ## Next gate
 
-User visual review of Draft PR #46.
+Review the full Past Records direction. If the user closes the reverse-relation decision and/or asks to execute the queued search corrections, allocate fresh Dispatch ID `0028-CODEX-10`.
 
-If the user accepts the Light family and confirms no additional visual correction, record Light acceptance and apply Completion Latch to the Work 0028 design phase.
-
-If the user explicitly confirms removal of `資料 → 関連面談` or requests another visual correction, allocate fresh Dispatch ID `0028-CODEX-10`; do not reuse CODEX-09.
-
-Production BUILD still requires a separate Strategy Reset and explicit user authorization. Deployment remains separately scoped.
+Do not reuse CODEX-09. Production BUILD still requires a separate Strategy Reset and explicit user authorization.
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
 DRAFT_PR_46: OPEN / DRAFT / CURRENT LIGHT VISUAL REVIEW TARGET
 CONTROLLER_TECHNICAL_REVIEW_CODEX_09: PASS
 USER_LIGHT_ACCEPTANCE: PENDING
+KNOWLEDGE_PRIMARY_TARGET_LABEL: 面談先
+FULL_EXPORT_UI: DEDICATED_BUTTON / NOT_MODEL_OPTION
+FULL_EXPORT_SOURCE: MEETING_ONLY / NON_AI
 PAST_RECORD_REVERSE_RELATION_REMOVAL: USER_CONSIDERING / NOT_CLOSED
-ACTIVE_DISPATCH: 0028-CODEX-09 / RETURNED
 NEXT_UNUSED_DISPATCH: 0028-CODEX-10
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
