@@ -1,23 +1,29 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-09
-ACTIVE_DISPATCH_ID: 0028-CODEX-09
+DISPATCH_ID: 0028-CODEX-10
+ACTIVE_DISPATCH_ID: 0028-CODEX-10
 BALL: CHATGPT
-STATUS: REVIEW
+STATUS: RETURNED
 MODE: INVESTIGATION
-PHASE: A1.13 / POST-CODEX-09 FINAL LIGHT REVIEW / DESIGN ONLY
+PHASE: A1.14 / KNOWLEDGE SEARCH ACTION CORRECTIONS / DESIGN ONLY
 
 ## Current state
 
-CODEX-09 returned Draft PR #46 from `codex/0028-final-light-user-corrections`.
+CODEX-10 returned a new design-only review package from `codex/0028-knowledge-search-action-corrections`, based on current `origin/main`.
+
+- PR: pending creation after final local validation
+- branch: `codex/0028-knowledge-search-action-corrections`
+- report: `docs/handoffs/0028-CODEX-10-knowledge-search-action-corrections-report.md`
+
+CODEX-09 remains available as the accepted visual baseline in Draft PR #46.
 
 - PR: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/46
 - PR head: `400f2f0e77acf81deb32e363d79a3962dfd2f017`
 - design artifact: `933111ce96cd170210f80ca7bada862cbdfe310c`
 - report: `docs/handoffs/0028-CODEX-09-final-light-user-corrections-report.md`
 
-PR #46 is the current Light visual review target.
+PR #46 is the CODEX-09 historical Light review baseline; CODEX-10 is the current review package.
 
 ChatGPT controller technical review: `TECHNICAL_REVIEW_PASS / USER_LIGHT_ACCEPTANCE_PENDING`.
 
@@ -118,23 +124,26 @@ Current relationship truth remains `Meeting_Index.Related_Pitchbook_IDs`; relati
 | 0028-CODEX-07 | Final Light correction; RETURNED on PR #44. |
 | 0028-CODEX-08 | Light-only final polish; RETURNED on PR #45; controller technical review PASS. |
 | 0028-CODEX-09 | Final accumulated Light user corrections; RETURNED on PR #46; controller technical review PASS. |
+| 0028-CODEX-10 | Knowledge Search action corrections; RETURNED on a new design-only Draft PR after local validation. |
 
 ## Next gate
 
-Review the full Past Records direction. If the user closes the reverse-relation decision and/or asks to execute the queued search corrections, allocate fresh Dispatch ID `0028-CODEX-10`.
+Review the CODEX-10 Light package and close user Light acceptance. The unresolved Past Records reverse-relation decision remains separate and must not be inferred from this dispatch.
 
-Do not reuse CODEX-09. Production BUILD still requires a separate Strategy Reset and explicit user authorization.
+Production BUILD still requires a separate Strategy Reset and explicit user authorization. Do not change `src/**`, `dist/**`, runtime, or deployment within CODEX-10.
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
-DRAFT_PR_46: OPEN / DRAFT / CURRENT LIGHT VISUAL REVIEW TARGET
+DRAFT_PR_46: OPEN / DRAFT / CODEX-09 HISTORICAL LIGHT BASELINE
+CODEX10_PR: PENDING_CREATION
 CONTROLLER_TECHNICAL_REVIEW_CODEX_09: PASS
+CONTROLLER_TECHNICAL_REVIEW_CODEX_10: PENDING
 USER_LIGHT_ACCEPTANCE: PENDING
 KNOWLEDGE_PRIMARY_TARGET_LABEL: 面談先
 FULL_EXPORT_UI: DEDICATED_BUTTON / NOT_MODEL_OPTION
 FULL_EXPORT_SOURCE: MEETING_ONLY / NON_AI
 PAST_RECORD_REVERSE_RELATION_REMOVAL: USER_CONSIDERING / NOT_CLOSED
-NEXT_UNUSED_DISPATCH: 0028-CODEX-10
+NEXT_UNUSED_DISPATCH: 0028-CODEX-11
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
 RUNTIME_CHANGED: NO
@@ -143,6 +152,6 @@ WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-09
+DISPATCH_ID: 0028-CODEX-10
 BALL: CHATGPT
-STATUS: REVIEW
+STATUS: RETURNED

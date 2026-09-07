@@ -1,0 +1,22 @@
+/* CODEX-09: local Lucide masks retain the licensed source geometry. */
+.metal-icon,nav a.active .metal-icon{width:22px;height:22px;flex-basis:22px;opacity:1;filter:drop-shadow(0 1px 1px #0009);background:linear-gradient(145deg,#fff3ba 4%,#e4b34a 27%,#fff4c7 39%,#c18b24 56%,#f1d078 70%,#84601e 92%);mask:var(--icon) center/contain no-repeat;-webkit-mask:var(--icon) center/contain no-repeat}
+.brand-title{background-image:linear-gradient(110deg,#f5d78c 5%,#fff3b9 29%,#c38b2d 47%,#f9dc88 69%,#b17e28 97%)}
+.nav-separator:before{opacity:1;background:linear-gradient(90deg,transparent,#956821 10%,#e4b34a 33%,#fff3b9 50%,#d3a340 69%,#956821 90%,transparent)}
+.search-scope{display:grid;grid-template-columns:minmax(150px,1.15fr) minmax(180px,1.15fr) minmax(145px,1fr) minmax(145px,1fr) 80px;gap:14px;align-items:end}
+.search-choice{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin:18px 0}
+.all-period{display:flex;align-items:center;gap:7px;height:37px;margin:0;white-space:nowrap}
+.question-wide{display:block;width:100%;min-height:132px;line-height:1.7}
+textarea.question-wide[readonly]{background:#edf0f3;color:#626e78;border-color:#a6b0b9;cursor:text}
+.search-help{font-size:12px;color:#5b6871;margin:6px 0 0;min-height:19px}
+.field-hint{font-size:11px;color:#5b6871;margin:4px 0 0;min-height:17px}.field-hint code{font-size:10px;color:#6d5128}.search-actions{align-items:center}.export-action{border-color:#9b7435;color:#6d5128;background:#fffaf0}.export-action[aria-pressed="true"]{background:#f2e5c7;border-color:#80602b}.export-scope{font-size:11px;color:#6d5128;border:1px solid #c3a96e;background:#fffaf5;border-radius:4px;padding:4px 8px;white-space:nowrap}
+[hidden]{display:none!important}.mode-context{margin:12px 0;padding:12px;background:#f8fafc;border:1px solid #c9d3dc;border-radius:4px}
+.export-preview{border:1px solid #c9d3dc;background:#f8fafc;border-radius:4px;padding:14px}.export-preview-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.export-preview-grid{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(420px,1.1fr);gap:14px}.export-preview-grid>section{border:1px solid #d3dce4;background:#fff;padding:12px;border-radius:4px}.export-preview-grid h3{margin-bottom:8px;color:#6d5128}.export-document{min-height:240px}.export-document .reader{margin:0;font-size:14px;line-height:1.8}.export-actions{margin-top:12px}.export-actions button{cursor:default}
+.mode-row{display:grid;grid-template-columns:180px minmax(260px,1fr) 82px 74px;gap:12px;align-items:start;border-top:1px solid #d3dce4;padding:12px 0}
+.mode-row textarea{min-height:62px;font-size:12px}.mode-row input[type=number]{max-width:72px}.mode-row label{font-weight:500}
+.mode-head{padding:8px 0;font-size:12px;font-weight:600}.mode-row .protected{font-size:11px;color:#5b6871}.mode-toolbar{display:flex;gap:10px;align-items:center;margin-top:10px}
+.mode-setting-note{margin-top:14px;font-size:12px;color:#5b6871}.preset-capture .heading,.preset-capture #admin-existing{display:none}
+.analytics-list table{table-layout:fixed}.analytics-list th,.analytics-list td{padding:8px 6px;font-size:12px;overflow-wrap:anywhere}.analytics-list th:nth-child(1){width:112px}.analytics-list th:nth-child(2){width:18%}.analytics-list th:nth-child(3){width:12%}.analytics-list th:nth-child(4){width:12%}.analytics-list th:nth-child(5){width:110px}.analytics-list th:nth-child(n+6),.analytics-list td:nth-child(n+6){text-align:center}.analytics-list td:nth-child(n+6){font-size:16px}.analytics-list th:last-child{width:68px}
+button{cursor:pointer}button:disabled{cursor:default}input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #8b703e;outline-offset:3px}
+@media(max-width:1100px){.search-scope{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-row{grid-template-columns:150px minmax(180px,1fr) 72px 60px}}
+@media(max-width:760px){.search-scope,.search-choice,.mode-row{grid-template-columns:1fr}.mode-head{display:none}}
+@media(max-width:760px){.export-preview-grid{grid-template-columns:1fr}.export-scope{white-space:normal}}

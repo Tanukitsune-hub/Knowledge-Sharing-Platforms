@@ -1,0 +1,144 @@
+{
+  "viewport": {
+    "width": 1366,
+    "height": 768
+  },
+  "pages": [
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "00-navigation.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "01-search.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "03-record-add-meeting.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "04-record-add-pitchbook.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "05-past-records-meeting.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "06-past-records-pitchbook.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "07-meeting-edit.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "08-pitchbook-edit.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "09-workspace-gp.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "10-workspace-entity.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "11-analytics.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "13-masters.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "14-provider.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "15-representative-states.html",
+      "width": 1366
+    },
+    {
+      "active": 1,
+      "height": 768,
+      "icons": 7,
+      "nav": 7,
+      "overflow": 0,
+      "page": "14-mode-settings.html",
+      "width": 1366
+    }
+  ],
+  "console": []
+}
