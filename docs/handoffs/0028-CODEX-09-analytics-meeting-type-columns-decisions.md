@@ -38,20 +38,21 @@ Meeting Typeはcheckbox由来の複数選択可能な配列として扱い、1Me
 
 ## Layout decision
 
-現行の`Team / 面談種別`列はMeeting Type情報が新3列と重複するため、`Team`列へ簡素化する。これにより情報重複を避け、3つのnarrow flag column追加による横幅増加を抑える。
+現行の`Team / 面談種別`列はMeeting Type情報が新3列と重複するため、`Team`列へ簡素化する。
 
-推奨列順:
+ユーザー指定の最終列順:
 
 1. 日付（Meeting IDは補助表示）
 2. 面談先
 3. Asset Class
 4. Team
-5. Fund / Strategy
-6. 原資料
-7. 年1回面談
-8. オフィス訪問
-9. 年次総会
-10. 確認済み
+5. 原資料
+6. 年1回面談
+7. オフィス訪問
+8. 年次総会
+9. 確認済み
+
+`Fund / Strategy`はこの月次個別Meeting一覧から外す。事務担当者が面談日付・面談先・主要分類・Meeting Type該当有無・確認状態を一目で確認できることを優先する。
 
 Meeting Type 3列と`確認済み`は中央寄せのnarrow columnとし、1366×768でhorizontal overflow 0を維持する。
 
@@ -60,15 +61,17 @@ Meeting Type 3列と`確認済み`は中央寄せのnarrow columnとし、1366×
 - `確認済み`は右端のまま、既存`adminCheckCompleted` / `updateMeetingAdminCheck` contractを維持
 - Meeting Typeの保存・編集contractは変更しない
 - Activity Analyticsのfilter / breakdown dimension `meetingType`を変更しない
+- `Fund / Strategy`自体のsource data / contractは削除しない。下部Meeting一覧のpresentationから外すだけ
 - 新しいmutation / backend / dataset / endpointを追加しない
 - Light-only visual direction、sidebar、gold treatment、Past Records relation integration等のaccepted decisionsは再検討しない
 
 ## Acceptance evidence for next design correction
 
-- 下部Meeting一覧に3列が`確認済み`直前で表示される
+- 下部Meeting一覧の列順が `日付 / 面談先 / Asset Class / Team / 原資料 / 年1回面談 / オフィス訪問 / 年次総会 / 確認済み` である
 - codeごとに`○ / —`が正しく対応するsynthetic fixtureを含む
 - 少なくとも1rowは複数Meeting Type該当例を含め、複数`○`を確認できる
 - `Team / 面談種別`の重複表示は解消し`Team`へ簡素化
+- `Fund / Strategy`は当該一覧に表示しない
 - 1366×768 horizontal overflow 0
 - existing `確認済み`column / mapping維持
 - production `src/**` / `dist/**` changes NONE
