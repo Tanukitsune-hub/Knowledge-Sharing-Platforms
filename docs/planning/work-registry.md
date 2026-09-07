@@ -100,7 +100,7 @@ PHASE: A1.15 / INTEGRITY-RECONCILED LIGHT CORRECTION / DESIGN ONLY
 | CODEX-10 | PR #47（検索action）およびPR #48（記録中心設計）にRETURNED。最新PR #48は不要分岐と既存機能欠落の修正が必要 |
 | CODEX-11 | `codex/0028-codex11-integrity-light-design`、RETURNED / BALL=CHATGPT。12画面/22case/456 local tests PASS、契約対応表あり。report: `0028-CODEX-11-meeting-centric-design-report.md` |
 
-最新返却/再利用候補はPR #48 `108a6e9002270ed0d4264991dd8971cff7cc663f`。以前のcontroller確認済みvisual基準はPR #46 `400f2f0e77acf81deb32e363d79a3962dfd2f017`。新しいこととaccept済みであることは区別する。
+最新返却はDraft PR #50（CODEX-11）。修復donorはPR #48 `108a6e9002270ed0d4264991dd8971cff7cc663f`、以前のcontroller確認済みvisual基準はPR #46 `400f2f0e77acf81deb32e363d79a3962dfd2f017`。新しいこととaccept済みであることは区別する。
 
 ### 閉じたUI方針
 

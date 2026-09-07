@@ -12,7 +12,7 @@ DONOR_SHA: 108a6e9002270ed0d4264991dd8971cff7cc663f
 VISUAL_BASELINE_SHA: 400f2f0e77acf81deb32e363d79a3962dfd2f017
 FINAL_COMMIT: 39aaba1a5e8ae13b4015468b2d3255a9d4992f28
 BRANCH: codex/0028-codex11-integrity-light-design
-PR_URL: PENDING_CREATION
+PR_URL: https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/50
 
 `FINAL_COMMIT`は検証済みdesign artifactを確定したcommit。以後のreport/dispatch/PR URLのみのmetadata commitはこのartifactを変えません。PRのheadはGitHubで確認できます。
 
@@ -44,7 +44,7 @@ PR #48からLight/assets/検索/preset等の使えるdesign treeを選択継承�
 | Product Design QA | final result: passed（design-only。ユーザーacceptとは別） |
 | Diff hygiene | `git diff --check` / staged check PASS。変更はdesign＋このreport＋Work管理文書だけ |
 | TARGET_RUNTIME_QUALIFICATION | NOT RUN：Apps Script、Workspace、provider、実保存、認証、原本readback、Docs/PDF |
-| GitHub CI | PENDING_PR_SNAPSHOT。local 456 PASSをCI PASSとは扱わない |
+| GitHub CI | NOT RUN / reported checks=0（PR #50作成後snapshot）。OPEN / Draft / MERGEABLE。local 456 PASSをCI PASSとは扱わない |
 
 IABで先に操作確認しましたが、DOM=1366×768に対し画像=1275×760となる撮影cropがありました。既存Playwright/Headless Chromeへ限定fallbackし、全current/baseline画像を1366×768で新規撮影、22caseを再検証しました。追加依存なし。visual/interaction修正は最大2round内、撮影fallbackで製品designを再変更していません。
 
