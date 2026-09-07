@@ -11,6 +11,7 @@ STATUS: RETURNED
 - BASE_MAIN_SHA: `a29ae5ed9262bad9c245538e52ff859b42405d1f`
 - DESIGN_MERGE_SHA: `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`（PR #50）
 - BRANCH: `codex/0028-production-contract-build`
+- DRAFT_PR: [#51](https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/51)
 - SOURCE_COMMIT: `f1c5cb7ae0e98c7ab68b78d5ddf9384caf0f09f7`
 - BUNDLE_COMMIT: `b31a0e8`。report/evidence追記はsourceを変更しない。
 - 開始時working treeはclean。prepared branchを追跡し、無関係な変更の破棄・shared historyの書換えは行っていない。

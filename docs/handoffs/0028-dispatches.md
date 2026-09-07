@@ -97,7 +97,7 @@ Apps Script version/deploymentが必要な場合は`docs/operations/apps-script-
 | 0028-CODEX-09 | PR #46 / RETURNED / controller PASS |
 | 0028-CODEX-10 | PR #47/#48/#49返却履歴。consumed |
 | 0028-CODEX-11 | PR #50 / RETURNED -> controller scoped repair -> user accepted -> merged |
-| 0028-CODEX-12 | production contract BUILD / RETURNED PARTIAL / deterministic PASS・runtime BLOCKED |
+| 0028-CODEX-12 | Draft PR #51 / RETURNED PARTIAL / deterministic PASS・runtime BLOCKED |
 
 ## Next gate
 
