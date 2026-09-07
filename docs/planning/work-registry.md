@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design, without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Review Draft PR #45 for final Light visual acceptance; production BUILD remains unauthorized |
+| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design, without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Execute prepared `0028-CODEX-09`, then final user Light visual acceptance |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -82,74 +82,60 @@ Routine AI Provider Settings administration remains unlocked by the accepted sha
 
 ### Work 0028
 
-Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.10 / Light-only final polish.
+Work 0028 remains a UI/UX refinement Work, not a system redesign. Current mode is INVESTIGATION, phase A1.12 / Light-only final user corrections.
 
-On 2026-09-07 the user explicitly canceled Dark/System variants. This is a Strategy Reset of the design scope, not a reopening of accepted backend/runtime evidence.
+Dark/System variants remain canceled. Production implementation remains unauthorized until the final Light family is visually accepted and the user explicitly authorizes BUILD.
 
 Design history:
 
-- CODEX-03: A/B/C Light comparison, returned PARTIAL on Draft PR #40.
-- CODEX-04: selected Light cross-page family, Draft PR #41.
-- CODEX-05: bounded Light refinement, Draft PR #42.
-- CODEX-06: navigation / GP-Entity Workspace consolidation, Draft PR #43.
-- CODEX-07: final Light correction and screenshot package, Draft PR #44 at head `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`; controller technical review PASS.
-- CODEX-08: Light-only final polish returned on Draft PR #45 from `codex/0028-light-only-final-polish`; 14-page render, 11 screenshots, relationship integration, Product Design QA and deterministic validation PASS; BALL CHATGPT / STATUS RETURNED.
+- CODEX-03: A/B/C Light comparison, PR #40.
+- CODEX-04: selected Light cross-page family, PR #41.
+- CODEX-05: bounded Light refinement, PR #42.
+- CODEX-06: navigation / GP-Entity Workspace consolidation, PR #43.
+- CODEX-07: final Light correction, PR #44; controller technical review PASS.
+- CODEX-08: Light-only final polish, PR #45 head `2a1843048f76b6a48cec35fcdfe2c5b116c7e3dd`; 14-page render, 11 screenshots, Product Design QA and deterministic validation PASS; controller technical review PASS.
+- CODEX-09: final accumulated user corrections prepared on `codex/0028-final-light-user-corrections`; BALL CODEX / STATUS READY.
 
-PR #44 is the pre-CODEX-08 Light review baseline and remains unmerged review history. Draft PR #45 supersedes it as the current Light visual review target. User visual acceptance is pending.
+PR #45 remains the visual baseline / review history. CODEX-09 will create a fresh Draft PR from current main and must preserve current controller files.
 
-Current closed Light-only direction:
+Current closed Light-only direction and CODEX-09 corrections:
 
-- production starts at `ナレッジ検索`; `Light navigation` is design-reference only, not a product page;
+- production starts at `ナレッジ検索`;
 - persistent left sidebar / desktop-first wide workspace;
-- sidebar `#182124`;
-- cool slate Light page with white cards and cool borders;
-- local refined thin-line SVG icon family;
-- dense clean gold sayagata lower-left fading upper-right;
-- Nippon Life red `#E1001F` only as the active-item left strip, plus non-red active cue;
-- gold treatment will be deepened from pale flat gold toward restrained champagne/antique metallic gold, especially brand/icons/separator, without loud glow or animation;
-- Knowledge Search one visible model/profile selector, normal-user Thinking hidden, Gemini current hidden baseline;
-- `記録を追加` and `過去の記録` each use internal `面談 / 資料` tabs while preserving separate datasets/contracts;
-- `面談先サマリー` presents GP/non-GP through existing separate read-facade mapping;
-- `面談実績の集計` merges monthly history with analytics: compact criteria, summary, period chart + numeric table, breakdown chart + table, individual Meeting list and rightmost `確認済み` checkbox mapped to existing admin-check persistence contract;
-- standalone `面談と資料の関連` destination is removed; explicit Meeting↔Pitchbook relationship views are integrated into `過去の記録 / 面談` and `過去の記録 / 資料`, while `Meeting_Index.Related_Pitchbook_IDs` remains the relationship truth;
-- `プルダウンの管理` and `管理者ページ` remain presentation-label changes only;
-- a decorative gold separator with one-row breathing space visually separates `プルダウンの管理` / `管理者ページ` from normal task destinations; no text group heading;
-- Dark family, System theme, theme selector, `prefers-color-scheme`, browser theme persistence and Dark chart palette are out of scope.
+- sidebar `#182124`, active `#E1001F` thin left strip only;
+- sidebar destinations exactly 7;
+- gold icon treatment to be strengthened beyond PR #45, with permissive-license local-vendored external SVG allowed if needed, no runtime remote dependency;
+- Knowledge Search visible primary layout:
+  - Row 1 `GP / 情報ソース / 開始日 / 終了日 / 全期間`;
+  - default rolling 3 years, `全期間` OFF;
+  - Row 2 `検索モード / AIモデル`;
+  - Row 3 wide / larger `質問` textarea;
+- Knowledge Search `情報ソース` options: `面談記録・資料 / 面談記録のみ / 資料のみ` while preserving existing Meeting/Pitchbook File Search contracts;
+- `全文出力（AIを使わない）` is Meeting-only and excludes Pitchbook body / reference links;
+- search-mode design becomes admin-managed preset registry concept: `自由質問` protected/editable; non-free modes gray read-only fixed prompt; admin design supports display name / fixed prompt / enabled / sort order / generic preset addition; existing `比較` / `面談準備` special semantics preserved;
+- admin-managed preset persistence and server-side authoritative fixed-prompt resolution are future BUILD requirements, not CODEX-09 implementation;
+- `面談実績の集計` lower Meeting table visible columns: `日付 / 面談先 / Asset Class / Team / 原資料 / 年1回面談 / オフィス訪問 / 年次総会 / 確認済み`; existing `meetingTypeCodes` display as `○ / —`; `確認済み` remains existing admin-check mapping;
+- Past Records explicit Meeting↔Pitchbook relationship integration preserved;
+- Work 0027 Gemini qualified-disabled / normal-user hidden preserved;
+- Work 0029 shared-admin security behavior preserved;
+- production `src/**` / `dist/**`, runtime and deploy remain out of scope.
 
-Final sidebar destinations for CODEX-08:
+Authoritative CODEX-09 instruction:
+`docs/handoffs/0028-CODEX-09-final-light-user-corrections-instruction.md`
 
-1. ナレッジ検索
-2. 記録を追加
-3. 過去の記録
-4. 面談先サマリー
-5. 面談実績の集計
-6. プルダウンの管理
-7. 管理者ページ
+Authoritative decision details:
 
-CODEX-07 accepted technical evidence remains valid for its reviewed artifact:
+- `docs/handoffs/0028-CODEX-09-analytics-meeting-type-columns-decisions.md`
+- `docs/handoffs/0028-CODEX-09-knowledge-search-layout-and-mode-policy-decisions.md`
 
-- 15 rendered pages; horizontal overflow 0/15 at 1366×768;
-- active sidebar exactly 1/page;
-- ordinary red usage 0, active red strip only;
-- 13 PNG screenshots saved and major previews embedded in PR #44;
-- Product Design QA PASS / no actionable P0/P1/P2;
-- browser console warning/error 0 in static harness;
-- `git diff --check` PASS;
-- production `src/**` / `dist/**` changes NONE.
-
-Static design does not qualify keyboard/focus/contrast/screen-reader/Apps Script runtime/server mapping/admin-check save persistence.
-
-Authoritative next-correction decisions: `docs/handoffs/0028-light-final-correction-decisions.md`.
-Current dispatch instruction: `docs/handoffs/0028-CODEX-08-light-only-final-polish-instruction.md`.
-Current ball/status: `docs/handoffs/0028-dispatches.md`.
+Current ball/status:
+`docs/handoffs/0028-dispatches.md`
 
 ## Next gate
 
-Review Draft PR #45 and its embedded screenshots. If accepted, apply the Completion Latch to the Light design phase.
+Execute `0028-CODEX-09` as design-only and return a fresh Draft PR with corrected Light screenshots, validation and report evidence.
 
-If the corrected Light family is accepted, apply Completion Latch to the Light design phase. No Dark/System family is required.
-
-Production implementation then requires only a separate Strategy Reset plus explicit user BUILD authorization. Deployment remains separately scoped.
+If the returned Light family is visually accepted, apply Completion Latch to the Work 0028 design phase. Production implementation then requires a separate Strategy Reset plus explicit user BUILD authorization. Deployment remains separately scoped.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
