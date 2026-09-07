@@ -19,9 +19,9 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-12 production contract BUILD + target-runtime synthetic qualification |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-13 on PR #51: prepare lifecycle repair + provider-independent target-runtime qualification |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
-| 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | PLANNED | Work 0028 / CODEX-12 return + ChatGPT baseline review | Freeze accepted provider-neutral source, then start `0030-CODEX-01` |
+| 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | PLANNED | Work 0028 accepted provider-neutral baseline | After Work 0028 acceptance, start `0030-CODEX-01` with Azure synthetic qualification first |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 10 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 11 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -95,36 +95,51 @@ Closed UI direction:
 - `全文出力` is a dedicated Meeting-only / non-AI action, not a model option.
 - analytics approved 9-column Meeting list, GP/Entity summary read facades, admin preset/shared-admin behavior are preserved.
 
-### BUILD phase
+### CODEX-12 return / controller review
 
-Mode changed from INVESTIGATION to BUILD because the accepted UI requires production contract changes before the backend can satisfy it.
+CODEX-12 returned Draft PR #51 with production implementation.
 
-CODEX-12 must implement and qualify the smallest coherent production delta for:
+- branch: `codex/0028-production-contract-build`
+- returned head: `2916cc7946626ec95ab46c2a70ffada9fc85f497`
+- frozen production source: `f1c5cb7ae0e98c7ab68b78d5ddf9384caf0f09f7`
+- schema 7: `Pitchbook_Index` 4 append-only columns
+- Codex evidence: focused 485/485、`npm run check` 512/512、bundle 27/27、local production UI PASS
+- target runtime business flow: NOT RUN
 
-- saved Active parent Meeting binding before new Pitchbook registration;
-- safe file/link partial-failure recovery with stable IDs and no duplicates;
-- non-GP validation/naming/metadata/provider attributes/citation context;
-- relation-only add/unlink/relink with Lock/CAS and Google Docs body preservation;
-- retrieval eligibility based on active parent relation for new parent-bound sources;
-- independent Meeting-only Knowledge Export validator/action;
-- accepted Light production UI wiring for core flows;
-- deterministic tests, generated bundle parity and target-runtime synthetic evidence.
+Controller review:
+`docs/handoffs/0028-CODEX-12-controller-review.md`
 
-Preserve 5-sheet backend, stable IDs, Shared Drive authoritative source, no physical delete, no provider auto-failover, Work 0027 Gemini hidden and Work 0029 shared-admin.
+Source direction is accepted with two merge blockers:
 
-Historical orphan Pitchbook bulk migration, new relationship table/Record_Index, Data Receipt schema, broad rollout, real confidential data, Dark/System are non-goals.
+1. prepare idempotency request records are never retired and global 32 records stop future normal registrations; bounded safe lifecycle required.
+2. target-runtime identity chain / synthetic acceptance incomplete due local WEB_APP-selection automation limitation.
+
+### CODEX-13 convergence
+
+Continue PR #51 rather than creating another implementation PR.
+
+CODEX-13 must:
+
+- fix bounded prepare request retention/compaction without weakening lost-response idempotency or unresolved INTENT safety;
+- rerun focused/canonical/bundle gates;
+- fix runtime target selection logic and complete read-only identity chain;
+- if identity is proven, use at most one deployment mutation and execute the provider-independent synthetic primary-flow matrix;
+- verify schema 7, GP/non-GP parent-first file registration, follow-up add, unlink/relink, exact Docs-body preservation and dedicated Full Output;
+- keep provider API calls at zero.
 
 Active instruction:
-`docs/handoffs/0028-CODEX-12-production-contract-build-instruction.md`
+`docs/handoffs/0028-CODEX-13-runtime-qualification-instruction.md`
 
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
+
+Historical orphan Pitchbook bulk migration, new relationship table/Record_Index, Data Receipt schema, broad rollout, real confidential data, Dark/System are non-goals.
 
 ## Work 0030 planned contract
 
 User clarified that the company-provided OpenAI-family credential is Azure OpenAI, not Direct OpenAI.
 
-Work 0030 is intentionally separate from active CODEX-12 so provider-neutral product-contract implementation and Azure transport qualification do not contaminate each other's evidence.
+Work 0030 is intentionally separate so provider-neutral product/backend qualification and Azure transport/provider qualification do not contaminate each other's evidence.
 
 Closed direction:
 
@@ -145,11 +160,11 @@ Authoritative decision:
 Implementation plan:
 `docs/planning/work0030-azure-openai-provider-transition.md`
 
-Work 0030 has no active Dispatch yet. After CODEX-12 returns, ChatGPT reviews and freezes the accepted source baseline before allocating `0030-CODEX-01`.
+Work 0028 CODEX-13 must make provider calls 0 and defer actual File Search/citation runtime evidence to Work 0030. Once Work 0028's provider-independent source baseline is accepted/merged, allocate `0030-CODEX-01`.
 
 ## Next gate
 
-CODEX-12 returns a Draft PR with production implementation, focused/canonical tests, source/bundle parity and target-runtime synthetic evidence. ChatGPT reviews final diff and runtime evidence. Only BLOCKER prevents acceptance. Azure provider conversion remains queued as Work 0030 and does not alter the active CODEX-12 instruction. Broad deployment/company rollout remains separately authorized.
+CODEX-13 returns on the existing PR #51 with prepare lifecycle repaired, regenerated bundle and provider-independent target-runtime evidence. ChatGPT reviews final source/runtime evidence. If Work 0028 blockers are closed, merge PR #51 and apply Completion Latch to Work 0028. Then activate Work 0030 for Azure OpenAI synthetic qualification and adapter transition.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
