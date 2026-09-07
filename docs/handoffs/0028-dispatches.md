@@ -3,8 +3,8 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-09
 ACTIVE_DISPATCH_ID: 0028-CODEX-09
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 PHASE: A1.12 / LIGHT-ONLY FINAL USER CORRECTIONS / DESIGN ONLY
 
@@ -12,7 +12,7 @@ PHASE: A1.12 / LIGHT-ONLY FINAL USER CORRECTIONS / DESIGN ONLY
 
 CODEX-08 returned Draft PR #45 at head `2a1843048f76b6a48cec35fcdfe2c5b116c7e3dd`; controller technical review PASS. User visual acceptance remains pending because bounded final Light corrections were requested.
 
-CODEX-09 is now prepared for execution from latest `main` on:
+CODEX-09はLight最終修正とreview packageを完成し、以下のbranchから新規Draft PRで返却する。
 
 `codex/0028-final-light-user-corrections`
 
@@ -73,11 +73,11 @@ Summary:
 | 0028-CODEX-06 | Navigation/Workspace consolidation; RETURNED on PR #43. |
 | 0028-CODEX-07 | Final Light correction; RETURNED on PR #44. |
 | 0028-CODEX-08 | Light-only final polish; RETURNED on PR #45; controller technical review PASS. |
-| 0028-CODEX-09 | Final accumulated Light user corrections; READY. |
+| 0028-CODEX-09 | 最終Light修正・15画面検証・screenshots・report完成。RETURNED。 |
 
 ## Next gate
 
-Codex executes CODEX-09 as design-only and returns fresh Draft PR + screenshots + validation + report. ChatGPT then reviews evidence and requests final user visual acceptance.
+ChatGPTがCODEX-09のDraft PR、`docs/design/0028/selected-light-family/final-user-corrections/`の画像・検証、および`0028-CODEX-09-final-light-user-corrections-report.md`をreviewし、ユーザーの最終Light visual acceptanceへ進む。
 
 Do not implement production source or deploy.
 
@@ -87,7 +87,7 @@ DRAFT_PR_45: VISUAL_BASELINE / UNMERGED
 CONTROLLER_TECHNICAL_REVIEW_CODEX_08: PASS
 USER_LIGHT_ACCEPTANCE: PENDING
 ACTIVE_DISPATCH: 0028-CODEX-09
-CODEX_09_INSTRUCTION: PREPARED
+CODEX_09_INSTRUCTION: EXECUTED / RETURNED
 CODEX_09_BRANCH: codex/0028-final-light-user-corrections
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
@@ -98,5 +98,5 @@ WORK_0028_COMPLETE: NO
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-09
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

@@ -94,7 +94,7 @@ Design history:
 - CODEX-06: navigation / GP-Entity Workspace consolidation, PR #43.
 - CODEX-07: final Light correction, PR #44; controller technical review PASS.
 - CODEX-08: Light-only final polish, PR #45 head `2a1843048f76b6a48cec35fcdfe2c5b116c7e3dd`; 14-page render, 11 screenshots, Product Design QA and deterministic validation PASS; controller technical review PASS.
-- CODEX-09: final accumulated user corrections prepared on `codex/0028-final-light-user-corrections`; BALL CODEX / STATUS READY.
+- CODEX-09: `codex/0028-final-light-user-corrections`で最終Light修正を完成。15画面・screenshots・検証・reportを返却。BALL CHATGPT / STATUS RETURNED。
 
 PR #45 remains the visual baseline / review history. CODEX-09 will create a fresh Draft PR from current main and must preserve current controller files.
 
@@ -133,7 +133,7 @@ Current ball/status:
 
 ## Next gate
 
-Execute `0028-CODEX-09` as design-only and return a fresh Draft PR with corrected Light screenshots, validation and report evidence.
+`0028-CODEX-09`の新規Draft PR・修正後Light screenshots・検証・reportをreviewし、ユーザーの最終visual acceptanceを得る。
 
 If the returned Light family is visually accepted, apply Completion Latch to the Work 0028 design phase. Production implementation then requires a separate Strategy Reset plus explicit user BUILD authorization. Deployment remains separately scoped.
 
