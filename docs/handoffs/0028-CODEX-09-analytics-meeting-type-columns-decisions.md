@@ -1,4 +1,4 @@
-# Work 0028 / CODEX-09 candidate — 面談種別3列とgold icon最終補正
+# Work 0028 / CODEX-09 candidate — 面談種別3列・gold icon・情報ソース表記の最終補正
 
 WORK_ID: 0028
 STATUS: CLOSED USER CORRECTION FOR NEXT DISPATCH
@@ -10,6 +10,8 @@ SCOPE: DESIGN ONLY
 `面談実績の集計`下部の個別Meeting一覧で、事務担当者が各GPとの面談日付とMeeting Type該当有無を一覧で即時確認できるようにする。
 
 あわせてsidebar iconは、現状より明確に「金」と認識できる強い存在感へ引き上げる。必要なら外部の類似icon素材を採用してよい。
+
+さらに`ナレッジ検索`の`Source Type`表記を、ユーザーに意味が伝わる`情報ソース`へ変更する。通常検索ではMeetingとPitchbookの双方を検索対象として維持し、`全文出力（AIを使わない）`は面談記録のみを対象とする。
 
 ## Source contract
 
@@ -23,7 +25,15 @@ SCOPE: DESIGN ONLY
 
 Meeting Typeはcheckbox由来の複数選択可能な配列として扱い、1Meetingが複数列で`○`になることを許容する。
 
-## Required presentation change
+Knowledge Searchのunderlying source contractは維持する。
+
+- `sourceType = ''` → Meeting + Pitchbook
+- `sourceType = Meeting` → Meetingのみ
+- `sourceType = Pitchbook` → Pitchbookのみ
+
+UI表記だけを日本語で分かりやすくする。通常AI検索ではPitchbookのFile Search対応を維持する。
+
+## Required presentation change — 面談実績の集計
 
 `面談実績の集計`下部の個別Meeting一覧で、`確認済み`列の直前に以下3列を追加する。
 
@@ -58,6 +68,28 @@ Meeting Typeはcheckbox由来の複数選択可能な配列として扱い、1Me
 
 Meeting Type 3列と`確認済み`は中央寄せのnarrow columnとし、1366×768でhorizontal overflow 0を維持する。
 
+## Knowledge Search — 情報ソース表記
+
+現行の`資料の種類` / `Source Type`というユーザー向け名称は使わず、`情報ソース`へ変更する。
+
+選択肢の表示名:
+
+1. `面談記録・資料` → underlying `sourceType = ''`（Meeting + Pitchbook）
+2. `面談記録のみ` → underlying `sourceType = Meeting`
+3. `資料のみ` → underlying `sourceType = Pitchbook`
+
+`資料`はPitchbookその他、`記録を追加 / 資料`で登録されFile Searchへindexされる既存資料群を意味する。通常AI検索でのPitchbook検索機能・provider filter・citation/source identity contractは変更しない。
+
+### 全文出力（AIを使わない）
+
+ユーザー判断により、全文出力は`面談記録のみ`でよい。
+
+- `全文出力（AIを使わない）`選択時は情報ソースをMeetingに固定する。
+- UI上は`情報ソース = 面談記録のみ`と明示し、Pitchbookを選べるように見せない。
+- Pitchbook本文もPitchbook参照リンクも全文出力対象に含めない。
+- Meeting原文の全文出力という既存の主目的を維持する。
+- このDispatchではdesign-only。production behavior変更は後続BUILDで実装・検証する。
+
 ## Gold icon direction — user override
 
 前回の「控えめなmetallic gold」より一段強くする。sidebar iconは装飾ではなくnavigation identityとして存在感を持たせる。
@@ -91,6 +123,7 @@ CODEX-09では、現行PR #45 iconとの比較が分かるsidebar screenshotを�
 - Meeting Typeの保存・編集contractは変更しない
 - Activity Analyticsのfilter / breakdown dimension `meetingType`を変更しない
 - `Fund / Strategy`自体のsource data / contractは削除しない。下部Meeting一覧のpresentationから外すだけ
+- Knowledge Search通常AI検索のMeeting / Pitchbook sourceType、provider filter、citations、source identityを維持
 - 新しいmutation / backend / dataset / endpointを追加しない
 - Light-only direction、sidebar information architecture、system/tool separator、Past Records relation integration等のaccepted decisionsは再検討しない
 - active menuの`#E1001F` thin left stripと、ordinary UIでのred不使用を維持する
@@ -102,6 +135,10 @@ CODEX-09では、現行PR #45 iconとの比較が分かるsidebar screenshotを�
 - 少なくとも1rowは複数Meeting Type該当例を含め、複数`○`を確認できる
 - `Team / 面談種別`の重複表示は解消し`Team`へ簡素化
 - `Fund / Strategy`は当該一覧に表示しない
+- `資料の種類`ではなく`情報ソース`を表示する
+- 選択肢が `面談記録・資料 / 面談記録のみ / 資料のみ` である
+- 通常AI検索ではMeeting / Pitchbook双方の既存source contractを維持する
+- `全文出力（AIを使わない）`では`面談記録のみ`に固定されたdesignになっている
 - 1366×768 horizontal overflow 0
 - existing `確認済み`column / mapping維持
 - sidebar iconがPR #45より明確に強いgold metallic presenceを持つ
