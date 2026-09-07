@@ -1,10 +1,10 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-07
-ACTIVE_DISPATCH_ID: 0028-CODEX-07
-BALL: CHATGPT
-STATUS: REVIEW
+DISPATCH_ID: 0028-CODEX-08
+ACTIVE_DISPATCH_ID: 0028-CODEX-08
+BALL: CODEX
+STATUS: READY
 MODE: INVESTIGATION
 PHASE: A1.10 / LIGHT-ONLY FINAL POLISH / DESIGN ONLY
 
@@ -18,19 +18,17 @@ Accepted evidence and backend/source-contract boundaries from CODEX-07 remain cl
 
 Production BUILD remains unauthorized until Light is accepted and the user explicitly authorizes BUILD.
 
-## Current review state
+## Current dispatch
 
-CODEX-07 returned on Draft PR #44. ChatGPT technical review remains PASS for the evidence it actually established.
+CODEX-08 is prepared for the bounded Light-only final polish.
 
-User visual acceptance is still pending because the user requested another bounded Light correction package after reviewing PR #44.
+Instruction:
+`docs/handoffs/0028-CODEX-08-light-only-final-polish-instruction.md`
 
-Draft PR #44:
+Prepared branch:
+`codex/0028-light-only-final-polish`
 
-- branch: `codex/0028-final-light-correction`
-- head: `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`
-- design-only / Draft / unmerged
-- current review history / pre-CODEX-08 Light baseline
-- production `src/**`, `dist/**`, runtime, deployment, provider/credential/backend/data contract: unchanged
+PR #44 remains unmerged review history / pre-CODEX-08 Light baseline. CODEX-08 should create a fresh Draft PR from current main rather than extend/rebase PR #44.
 
 ## Accepted technical evidence from CODEX-07
 
@@ -44,7 +42,7 @@ Draft PR #44:
 
 Static design evidence still does not qualify keyboard navigation, focus order, measured contrast, screen reader behavior, Apps Script runtime, provider/server mapping or actual admin-check save persistence.
 
-## Closed user corrections for next fresh dispatch
+## Closed user corrections for CODEX-08
 
 Authoritative detail: `docs/handoffs/0028-light-final-correction-decisions.md`.
 
@@ -125,12 +123,13 @@ Closed unless user explicitly changes it:
 | 0028-CODEX-05 | Bounded Light visual refinement; RETURNED on Draft PR #42. |
 | 0028-CODEX-06 | Navigation/Workspace consolidation; RETURNED on Draft PR #43; technical review PASS; further user corrections requested. |
 | 0028-CODEX-07 | Final Light correction + screenshot review; RETURNED on Draft PR #44; controller technical review PASS; further user Light corrections requested. |
+| 0028-CODEX-08 | Light-only final polish; READY for Codex on prepared branch. |
 
 ## Next gate
 
-Continue user review / collect any final Light comments. Any new Codex execution must use fresh Dispatch ID `0028-CODEX-08`; never reuse CODEX-07.
+Codex executes `0028-CODEX-08` from the GitHub instruction and returns a new design-only Draft PR plus screenshot/validation/report evidence.
 
-CODEX-08, when dispatched, is design-only final Light polish. It must not implement production source, deploy, or create Dark/System variants.
+Do not implement production source, deploy, or create Dark/System variants.
 
 If the resulting Light family is visually accepted, apply Completion Latch to the Light design phase. Production BUILD can begin only after a separate Strategy Reset and explicit user authorization.
 
@@ -142,17 +141,18 @@ THEME_SCOPE: LIGHT_ONLY
 DARK_FAMILY_REQUIRED: NO
 SYSTEM_THEME_REQUIRED: NO
 CODEX_07_RETURNED: YES
+CODEX_08_PREPARED: YES
 DRAFT_PR_44: OPEN / DESIGN ONLY / UNMERGED / REVIEW HISTORY BASELINE
 CONTROLLER_TECHNICAL_REVIEW: PASS
 USER_LIGHT_ACCEPTANCE: PENDING
 LIGHT_NAVIGATION_PRODUCTION_PAGE: NO
 PRODUCTION_START_SURFACE: ナレッジ検索
-RELATIONSHIP_STANDALONE_DESTINATION: REMOVE_NEXT_CORRECTION
+RELATIONSHIP_STANDALONE_DESTINATION: REMOVE_IN_CODEX_08
 RELATIONSHIP_TARGET_SURFACE: 過去の記録 / 面談・資料
 FINAL_SIDEBAR_DESTINATIONS: 7
 SIDEBAR_GROUP_HEADINGS: NONE
-SYSTEM_TOOL_SEPARATOR: REQUIRED_NEXT_CORRECTION
-GOLD_METALLIC_POLISH: REQUIRED_NEXT_CORRECTION
+SYSTEM_TOOL_SEPARATOR: REQUIRED_IN_CODEX_08
+GOLD_METALLIC_POLISH: REQUIRED_IN_CODEX_08
 COUNTERPARTY_SUMMARY_LABEL: 面談先サマリー
 MERGED_ANALYTICS_LABEL: 面談実績の集計
 MASTER_PAGE_LABEL: プルダウンの管理
@@ -165,7 +165,7 @@ SOURCE_CONTRACT_PARITY: PRESERVE
 SIDEBAR_BASE_COLOR: #182124
 ACTIVE_MENU_ACCENT: #E1001F / THIN LEFT STRIP ONLY
 OTHER_E1001F_USAGE: NONE
-NEXT_UNUSED_DISPATCH: 0028-CODEX-08
+ACTIVE_DISPATCH: 0028-CODEX-08
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: NO
 SOURCE_CODE_CHANGED: NO
 RUNTIME_CHANGED: NO
@@ -174,7 +174,7 @@ WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-07
-ACTIVE_DISPATCH_ID: 0028-CODEX-07
-BALL: CHATGPT
-STATUS: REVIEW
+DISPATCH_ID: 0028-CODEX-08
+ACTIVE_DISPATCH_ID: 0028-CODEX-08
+BALL: CODEX
+STATUS: READY
