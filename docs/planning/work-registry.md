@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 and installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 and its historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 merge and version-73 qualified-disabled evidence |
-| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design, without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Execute prepared `0028-CODEX-08` Light-only final polish, then user visual acceptance |
+| 6 | 0028 | UI/UX surface refinement and terminology with one high-quality Light design, without backend redesign | ACTIVE (design only) | Accepted 0027 and 0029 baseline | Review Draft PR #45 for final Light visual acceptance; production BUILD remains unauthorized |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved; canonical port and version-75 smoke passed | Preserve PR #39 merge and version-75 configured/locked evidence; rotate temporary DEV password later |
 | 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic Gemini path qualified | Allocate separate Work |
 | 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -93,9 +93,9 @@ Design history:
 - CODEX-05: bounded Light refinement, Draft PR #42.
 - CODEX-06: navigation / GP-Entity Workspace consolidation, Draft PR #43.
 - CODEX-07: final Light correction and screenshot package, Draft PR #44 at head `7a82b530b51227d1cc44a8cbd2b4e4b225c57d6d`; controller technical review PASS.
-- CODEX-08: Light-only final polish instruction prepared at `docs/handoffs/0028-CODEX-08-light-only-final-polish-instruction.md`; prepared branch `codex/0028-light-only-final-polish`; BALL CODEX / STATUS READY.
+- CODEX-08: Light-only final polish returned on Draft PR #45 from `codex/0028-light-only-final-polish`; 14-page render, 11 screenshots, relationship integration, Product Design QA and deterministic validation PASS; BALL CHATGPT / STATUS RETURNED.
 
-PR #44 is the pre-CODEX-08 Light review baseline and remains unmerged review history. User visual acceptance is pending until CODEX-08 corrections are returned and reviewed.
+PR #44 is the pre-CODEX-08 Light review baseline and remains unmerged review history. Draft PR #45 supersedes it as the current Light visual review target. User visual acceptance is pending.
 
 Current closed Light-only direction:
 
@@ -111,7 +111,7 @@ Current closed Light-only direction:
 - `記録を追加` and `過去の記録` each use internal `面談 / 資料` tabs while preserving separate datasets/contracts;
 - `面談先サマリー` presents GP/non-GP through existing separate read-facade mapping;
 - `面談実績の集計` merges monthly history with analytics: compact criteria, summary, period chart + numeric table, breakdown chart + table, individual Meeting list and rightmost `確認済み` checkbox mapped to existing admin-check persistence contract;
-- standalone `面談と資料の関連` destination will be removed; explicit Meeting↔Pitchbook relationship views are integrated into `過去の記録 / 面談` and `過去の記録 / 資料`, while `Meeting_Index.Related_Pitchbook_IDs` remains the relationship truth;
+- standalone `面談と資料の関連` destination is removed; explicit Meeting↔Pitchbook relationship views are integrated into `過去の記録 / 面談` and `過去の記録 / 資料`, while `Meeting_Index.Related_Pitchbook_IDs` remains the relationship truth;
 - `プルダウンの管理` and `管理者ページ` remain presentation-label changes only;
 - a decorative gold separator with one-row breathing space visually separates `プルダウンの管理` / `管理者ページ` from normal task destinations; no text group heading;
 - Dark family, System theme, theme selector, `prefers-color-scheme`, browser theme persistence and Dark chart palette are out of scope.
@@ -145,7 +145,7 @@ Current ball/status: `docs/handoffs/0028-dispatches.md`.
 
 ## Next gate
 
-Execute fresh Dispatch `0028-CODEX-08` as design-only and return a new Draft PR with corrected Light screenshots, validation and report evidence.
+Review Draft PR #45 and its embedded screenshots. If accepted, apply the Completion Latch to the Light design phase.
 
 If the corrected Light family is accepted, apply Completion Latch to the Light design phase. No Dark/System family is required.
 
