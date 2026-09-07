@@ -1,85 +1,126 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-12
-ACTIVE_DISPATCH_ID: 0028-CODEX-12
+DISPATCH_ID: 0028-CODEX-13
+ACTIVE_DISPATCH_ID: 0028-CODEX-13
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
-PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
+PHASE: B1.2 / PR #51 CONVERGENCE + TARGET RUNTIME QUALIFICATION
 
 ## Current state
 
-ユーザーがPR #50のLight案を現時点のproduction baselineとして受け入れ、細部は後続で詰める方針を明示した。PR #50はmainへsquash merge済み。
+PR #50のLight designはaccepted/merged済み。CODEX-12はDraft PR #51でproduction implementationを返却した。
 
-- merged PR: #50
-- merge commit: `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`
-- design acceptance / Strategy Reset: `docs/handoffs/0028-design-acceptance-and-build-reset.md`
-- CODEX-12 instruction: `docs/handoffs/0028-CODEX-12-production-contract-build-instruction.md`
-- prepared branch: `codex/0028-production-contract-build`
+- PR #51: `codex/0028-production-contract-build`
+- returned HEAD: `2916cc7946626ec95ab46c2a70ffada9fc85f497`
+- frozen CODEX-12 source: `f1c5cb7ae0e98c7ab68b78d5ddf9384caf0f09f7`
+- schema: 7 / Pitchbook_Index 4 columns append
+- Codex deterministic evidence: focused 485/485、`npm run check` 512/512、bundle 27/27、local production UI PASS
+- target runtime: NOT RUN / BLOCKED at preflight automation selector
+- source push / version / deployment mutation / runtime business write / provider call: 0
 
-INVESTIGATION/design-only phaseは受入れ済みとして閉じ、production codeへ反映して裏側contractをtarget runtimeで検証するBUILDへ移行する。
+ChatGPT controller source review:
+`docs/handoffs/0028-CODEX-12-controller-review.md`
+
+Controller判定:
+
+```text
+CONTROLLER_SOURCE_REVIEW: PASS_WITH_BLOCKERS
+MERGE_READY: NO
+```
+
+## BLOCKER
+
+### B1 Prepare request finite lifetime
+
+CODEX-12のprepare idempotencyは安全性を高めているが、成功済み`REQUEST_` propertyを永続保持しglobal 32件で新規allocationを拒否する。そのため正常利用でも32 batch後に資料登録不能になる。
+
+CODEX-13で、安全なrecent replay/uncertain intent保持/duplicate防止を維持しつつbounded retention/compactionへ修復する。
+
+### B2 Runtime identity / acceptance incomplete
+
+CODEX-12のread-only preflightはApps Script inventory読取に成功したが、HEAD/旧版を含む3 WEB_APPを見てlocal checkerが全件数=1を要求し停止した。これはAUTOMATION_LIMITATIONでありApps Script defectではない。
+
+CODEX-13は正しいidentity chainを固定し、必要なら1 deployment mutation以内でprovider-independent synthetic runtime acceptanceを行う。
 
 ## Primary Outcome
 
-確定Light UIの主要フローが、既存データを破壊せず次のend-to-end契約で動くこと。
+受入れ済みLight UIの主要production flowを、既存データを破壊せずtarget runtimeで証明する。
 
-1. Meeting commit後にauthoritative `Meeting_ID`を発行。
-2. 保存済みActive Meetingだけをparentとして資料登録。
-3. GP以外のCounterpartyでも資料registration / metadata / retrieval / citation contextを保持。
-4. file保存とrelationship確定を分離し、部分失敗を同じIDで安全に回復。
-5. 既存Meetingへ後日資料追加、`削除`はunlink。
-6. relation-only mutationでMeeting Google Docs本文を変更しない。
-7. Knowledge Searchとdedicated Meeting-only / non-AI `全文出力`を新UI contractへ整合。
-8. Work 0027 Gemini hidden/qualified-disabledとWork 0029 shared-adminを保持。
+1. Meeting commit後にauthoritative Meeting_IDを発行。
+2. saved Active Meetingをparentとしてnew file registration。
+3. GP/non-GP Counterparty contextをPitchbook Indexへ保持。
+4. partial failure / retryでstable IDs、no duplicate。
+5. existing Meetingへfollow-up資料追加。
+6. visible資料削除 = unlink、physical deleteなし。
+7. relation-only mutationでauthoritative Meeting Docs本文を変更しない。
+8. dedicated Meeting-only / non-AI Full Outputをruntimeで確認。
+9. Work 0027 Gemini state / Work 0029 shared-adminを非破壊で維持。
 
-## Accepted design conclusions
+## Azure provider Strategy adjustment
 
-- Light only。Dark/System/theme selectorなし。
-- sidebar 7、`#182124`、active `#E1001F` left strip、metallic gold、紗綾形。
-- `記録を追加`: 単一Meeting form。資料tab / record type / Data Receipt専用UI / standalone資料登録なし。
-- `過去の記録`: 単一Meeting list/detail。本文・属性・原本・編集・記録削除/復元・関連資料操作を集約。
-- related file `削除`はcurrent Meetingからのunlink。Pitchbook全体Inactive/physical deleteとは別。
-- Knowledge Search: `面談先 / 情報ソース / 開始日 / 終了日 / 全期間` -> `検索モード / AIモデル` -> wide `質問`。
-- `情報ソース`: `面談記録・資料 / 面談記録のみ / 資料のみ`。
-- `全文出力`: dedicated action、Meeting-only / non-AI、Docs全文 + Meeting business attributes。
-- 面談実績の承認済み9列、面談先サマリーのGP/Entity read facade、admin preset/shared-adminを保持。
+ユーザーは会社OpenAI-family providerがDirect OpenAIではなくAzure OpenAIであることを確定。Azure provider implementation/live File Search qualificationはWork 0030へ分離済み。
 
-## BUILD authorization boundary
+そのためCODEX-13では:
+
+```text
+Direct OpenAI provider calls: 0
+Gemini provider calls: 0
+Azure OpenAI provider calls: 0
+actual File Search/citation runtime: DEFERRED_TO_WORK_0030
+```
+
+Work 0028ではprovider-neutral mapping/citation deterministic testsを保持し、target runtimeではauthoritative source/metadataまでを確認する。
+
+Work 0030:
+- `docs/decisions/company-azure-openai-provider.md`
+- `docs/planning/work0030-azure-openai-provider-transition.md`
+
+## Closed design / contract conclusions
+
+- Light-only / sidebar 7 / accepted PR #50 visual family。
+- single Meeting registration surface; no standalone Pitchbook route。
+- single Past Records Meeting list/detail。
+- new file requires parent Meeting first。
+- non-GP registration allowed; no fake GP fill。
+- relationship truth = `Meeting_Index.Related_Pitchbook_IDs`。
+- relation-only add/remove does not rebuild Meeting Docs。
+- historical orphan Pitchbook preserved; no auto parent inference。
+- Knowledge Search primary target = 面談先/entityKey、source 3 options。
+- Full Output = dedicated action、Meeting-only / non-AI、Docs全文 + business attributes、no Pitchbook body/reference-link section。
+- analytics 9-column / GP+Entity summary / Work0029 shared-admin preserved。
+
+## Authorization boundary
 
 許可:
-- production `src/**`
+- PR #51 sourceのprepare lifecycle限定修正
 - required tests
-- exact-source regenerated `dist/**`
-- required docs/report
-- synthetic/anonymized isolated target-runtime qualification
+- exact-source regenerated dist
+- synthetic/anonymized target-runtime writes/readback
+- append-only schema setup
+- necessary Web App mutation max 1 after identity proof
 
 未許可:
 - real confidential data
-- broad user rollout / access expansion
-- destructive migration / physical delete
-- secret rotation
+- broad rollout/access expansion
+- physical delete/destructive migration
+- historical bulk migration
+- provider API calls
+- secret/provider configuration mutation
 - Gemini enablement
 - Dark/System
-- new DB/sheet/relationship model
-- historical orphan bulk migration/auto-parent inference
+- new DB/sheet/relationship table
 
-Apps Script version/deploymentが必要な場合は`docs/operations/apps-script-web-app-deployment.md`に従う。identity chainを先に固定し、既存deploymentの`WEB_APP` + `/exec`をpositive proofする。ambiguous/Libraryへmutationしない。deployment mutationは本dispatch最大1回、stop-on-first-failure。
+Deployment/recoveryは`docs/operations/apps-script-web-app-deployment.md`を厳守。
 
 ## Evidence hierarchy
 
 1. target Apps Script / Workspace authoritative readback
-2. versioned Web App actual browser behavior
-3. exact remote source / bundle parity
-4. repository deterministic tests
+2. intended versioned WEB_APP `/exec` observed behavior
+3. exact remote source / immutable version / bundle parity
+4. deterministic tests
 5. inference
-
-## Bounds / reset
-
-- implementation + focused repair: maximum 2 rounds
-- deployment mutation: maximum 1
-- same failure repeat / identity mismatch / architecture or migration expansion / data-integrity contradiction -> Strategy Reset
-- only BLOCKER stops completion
 
 ## Dispatch history
 
@@ -93,32 +134,44 @@ Apps Script version/deploymentが必要な場合は`docs/operations/apps-script-
 | 0028-CODEX-07 | PR #44 / RETURNED |
 | 0028-CODEX-08 | PR #45 / RETURNED / controller PASS |
 | 0028-CODEX-09 | PR #46 / RETURNED / controller PASS |
-| 0028-CODEX-10 | PR #47/#48/#49返却履歴。consumed |
-| 0028-CODEX-11 | PR #50 / RETURNED -> controller scoped repair -> user accepted -> merged |
-| 0028-CODEX-12 | production contract BUILD / READY |
+| 0028-CODEX-10 | PR #47/#48/#49 / consumed history |
+| 0028-CODEX-11 | PR #50 / returned -> controller repair -> user accepted -> merged |
+| 0028-CODEX-12 | PR #51 / RETURNED PARTIAL / source review PASS_WITH_BLOCKERS |
+| 0028-CODEX-13 | same PR #51 convergence / READY |
 
-## Next gate
+## Active instruction
 
-CODEX-12がproduction implementation、tests、bundle parity、target-runtime synthetic evidenceをDraft PRとreportで返す。ChatGPTがfinal diff/runtime evidenceをreviewする。主要acceptance達成後にCompletion Latchを適用する。Broad deployment/rolloutは別gate。
+`docs/handoffs/0028-CODEX-13-runtime-qualification-instruction.md`
+
+Continue same branch/PR #51. New PRを作らない。main control docsをbranchから上書きしない。
+
+## Completion gate
+
+CODEX-13 return後、ChatGPTがfinal source diff、deterministic evidence、remote/source parity、runtime readbackをreviewする。
+
+BLOCKER B1/B2が閉じ、provider-independent primary outcomeがruntimeで成立した場合、Work 0028をacceptしCompletion Latchを適用できる。Actual Azure provider runtimeはWork 0030へ継承する。
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
 DESIGN_BASELINE: PR_50_MERGED
-DESIGN_MERGE_SHA: 98bd1f233a5a462c55a9a3f9e4bc0dda6c705067
-USER_LIGHT_ACCEPTANCE: ACCEPTED_WITH_FOLLOW_UP_POLISH
+PR_51: OPEN_DRAFT
 MODE: BUILD
-ACTIVE_DISPATCH: 0028-CODEX-12
+ACTIVE_DISPATCH: 0028-CODEX-13
 BALL: CODEX
 STATUS: READY
+PREPARE_LIFECYCLE_BLOCKER: OPEN
+TARGET_RUNTIME_BLOCKER: OPEN
+PROVIDER_RUNTIME: DEFERRED_TO_WORK_0030
+PROVIDER_CALLS_AUTHORIZED: NO
 PRODUCTION_IMPLEMENTATION_AUTHORIZED: YES
 TARGET_RUNTIME_SYNTHETIC_QUALIFICATION_AUTHORIZED: YES
 REAL_DATA_ROLLOUT_AUTHORIZED: NO
 BROAD_DEPLOYMENT_AUTHORIZED: NO
-NEXT_UNUSED_DISPATCH: 0028-CODEX-13
+NEXT_UNUSED_DISPATCH: 0028-CODEX-14
 WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-12
+DISPATCH_ID: 0028-CODEX-13
 BALL: CODEX
 STATUS: READY
