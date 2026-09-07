@@ -2,7 +2,7 @@ var KSP_COMPONENT_WORK_ID = '0004';
 var KSP_RELEASE_VERSION = '0.1.2';
 var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
 var KSP_APP_VERSION = KSP_RELEASE_VERSION;
-var KSP_SCHEMA_VERSION = 6;
+var KSP_SCHEMA_VERSION = 7;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
@@ -393,7 +393,8 @@ function kspGetBackendSchemas_() {
     'Capital_Type_ID', 'Sequence_No', 'File_ID', 'File_URL', 'Original_Filename',
     'Saved_Filename', 'Status', 'Created_At', 'Updated_At', 'Created_By',
     'Updated_By', 'AI_Document_Name', 'AI_Index_Status', 'AI_Indexed_At',
-    'AI_Content_Hash', 'AI_Last_Error', 'Fund_Strategy', 'AI_Provider_State_JSON'
+    'AI_Content_Hash', 'AI_Last_Error', 'Fund_Strategy', 'AI_Provider_State_JSON',
+    'Parent_Meeting_ID', 'Counterparty_Type', 'Counterparty_ID', 'Related_GP_IDs'
   ];
 
   schemas[KSP_SHEET_NAMES.SETTINGS] = [

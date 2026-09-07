@@ -1,14 +1,23 @@
 <section id="page-knowledge" class="page">
+  <style>
+    #page-knowledge .knowledge-primary-row{display:grid;grid-template-columns:minmax(180px,1.4fr) minmax(160px,1.2fr) repeat(2,minmax(135px,1fr)) auto;gap:14px;align-items:end}
+    #page-knowledge .knowledge-mode-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
+    #page-knowledge .knowledge-secondary-filters{margin-top:18px}
+    #page-knowledge .knowledge-secondary-filters summary{cursor:pointer;margin-bottom:12px}
+    #page-knowledge [hidden]{display:none!important}
+    @media(max-width:900px){#page-knowledge .knowledge-primary-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:600px){#page-knowledge .knowledge-primary-row,#page-knowledge .knowledge-mode-row{grid-template-columns:1fr}}
+  </style>
   <section class="card">
-    <div class="knowledge-toolbar">
-      <div class="field route-field">
-        <label for="knowledge-route">実行ルート</label>
-        <select id="knowledge-route">
-          <option value="OPENAI">ChatGPT</option>
-          <option value="GEMINI">Gemini</option>
-          <option value="FULL_EXPORT">全文出力</option>
-        </select>
+    <form id="knowledge-form" novalidate>
+      <div class="knowledge-primary-row">
+        <div class="field"><label id="knowledge-entity-label" for="knowledge-entityKey">面談先</label><select id="knowledge-entityKey"><option value="">未選択</option></select></div>
+        <div class="field"><label for="knowledge-sourceType">情報ソース</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">面談記録・資料</option><option value="Meeting">面談記録のみ</option><option value="Pitchbook">資料のみ</option></select></div>
+        <div class="field"><label for="knowledge-dateFrom">開始日</label><input id="knowledge-dateFrom" type="date"></div>
+        <div class="field"><label for="knowledge-dateTo">終了日</label><input id="knowledge-dateTo" type="date"></div>
+        <div class="field"><label for="knowledge-all-period"><input id="knowledge-all-period" type="checkbox">全期間</label></div>
       </div>
+      <div class="knowledge-mode-row">
       <div class="field mode-field">
         <label for="knowledge-mode">検索モード</label>
         <select id="knowledge-mode">
@@ -19,26 +28,27 @@
           <option value="面談準備">面談準備</option>
         </select>
       </div>
-      <div id="knowledge-model-controls" class="filter-grid">
-        <div class="field">
-          <label for="knowledge-model-profile">モデル</label>
-          <select id="knowledge-model-profile" disabled></select>
-        </div>
-        <div class="field">
-          <label for="knowledge-thinking-profile">Thinking</label>
-          <select id="knowledge-thinking-profile" disabled></select>
+
+        <div id="knowledge-model-controls" class="field">
+          <label for="knowledge-model-profile">AIモデル</label><select id="knowledge-model-profile" disabled></select>
+          <div hidden><label for="knowledge-thinking-profile">Thinking</label><select id="knowledge-thinking-profile" disabled></select></div>
         </div>
       </div>
+      <div hidden>
+        <select id="knowledge-route"><option value="OPENAI">ChatGPT</option><option value="GEMINI">Gemini</option></select>
+        <select id="knowledge-counterpartyType"><option value="">未選択</option></select>
+        <label id="knowledge-gp-label" for="knowledge-gpId">GP</label><select id="knowledge-gpId"><option value="">未選択</option></select>
+      </div>
       <span id="knowledge-config-state" class="hint">設定を確認しています…</span>
-    </div>
-    <form id="knowledge-form" novalidate>
-      <div class="filter-grid">
-        <div class="field"><label for="knowledge-dateFrom">Date From</label><input id="knowledge-dateFrom" type="date"></div>
-        <div class="field"><label for="knowledge-dateTo">Date To</label><input id="knowledge-dateTo" type="date"></div>
-        <div class="field"><label for="knowledge-counterpartyType">Counterparty Type</label><select id="knowledge-counterpartyType"><option value="">未選択</option></select></div>
-        <div class="field"><label id="knowledge-entity-label" for="knowledge-entityKey">Counterparty Entity</label><select id="knowledge-entityKey"><option value="">未選択</option></select></div>
         <div id="knowledge-multi-entity-field" class="field full" hidden><label class="required" for="knowledge-entityKeys">比較Entity（2–5件）</label><select id="knowledge-entityKeys" multiple size="5" aria-describedby="knowledge-multi-entity-help"></select><span id="knowledge-multi-entity-help" class="hint">Ctrl / CommandまたはShiftで複数選択します。表示名と種別で確認し、安定キーを送信します。</span></div>
-        <div class="field"><label id="knowledge-gp-label" for="knowledge-gpId">GP</label><select id="knowledge-gpId"><option value="">未選択</option></select></div>
+      <div class="field full" style="margin-top:18px">
+        <label id="knowledge-instruction-label" class="required" for="knowledge-instruction">質問</label>
+        <textarea id="knowledge-instruction" maxlength="5000" placeholder="例: 最近の資料では、APACインフラの投資機会についてどのような見解が示されていますか？"></textarea>
+        <div id="knowledge-mode-help" class="hint">自由質問では質問が必須です。回答全文や検索チャンクは監査ログへ複製しません。</div>
+      </div>
+      <details class="knowledge-secondary-filters">
+        <summary>詳細条件</summary>
+        <div class="filter-grid">
         <div class="field"><label for="knowledge-assetClassId">Asset Class</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-capitalTypeId">Equity / Debt</label><select id="knowledge-capitalTypeId"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-teamId">Team</label><select id="knowledge-teamId"><option value="">未選択</option></select></div>
@@ -46,16 +56,14 @@
         <div class="field"><label for="knowledge-followUp">要フォロー</label><select id="knowledge-followUp"><option value="">未選択</option><option value="REQUIRED">必要</option><option value="NOT_REQUIRED">不要</option></select></div>
         <div class="field"><label for="knowledge-relatedGpId">Related GP</label><select id="knowledge-relatedGpId"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-meetingTypeCode">Meeting Type</label><select id="knowledge-meetingTypeCode"><option value="">未選択</option></select></div>
-        <div class="field"><label for="knowledge-sourceType">Source Type</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">未選択</option><option value="Meeting">Meeting</option><option value="Pitchbook">Pitchbook</option></select><span id="knowledge-source-help" class="hint">未選択はMeetingとPitchbookの両方です。</span></div>
-      </div>
-      <div class="field full" style="margin-top:18px">
-        <label id="knowledge-instruction-label" class="required" for="knowledge-instruction">質問</label>
-        <textarea id="knowledge-instruction" maxlength="5000" placeholder="例: 最近の資料では、APACインフラの投資機会についてどのような見解が示されていますか？"></textarea>
-        <div id="knowledge-mode-help" class="hint">自由質問では質問が必須です。回答全文や検索チャンクは監査ログへ複製しません。</div>
-      </div>
+
+        </div>
+        <p id="knowledge-source-help" class="hint">Team・要フォロー・Related GP・Meeting Typeは「面談記録のみ」で利用できます。</p>
+      </details>
       <div class="actions">
         <span class="hint">新規・更新資料が検索可能になるまで最大約15分かかる想定です。</span>
         <div class="action-group">
+          <button id="knowledge-full-output" class="action secondary" type="button">全文出力</button>
           <button id="knowledge-clear" class="action secondary" type="button">条件をクリア</button>
           <button id="knowledge-submit" class="action primary" type="submit" disabled>検索</button>
         </div>
@@ -71,12 +79,12 @@
     <div class="section-heading">
       <div>
         <h2>対象資料の書き出し</h2>
-        <p class="hint">Meeting記録のGoogle Docs全文を出力します。Pitchbook本文は含まず、該当資料は参照リンクとして表示します。Gemini検索を実行せず、ChatGPT検索も実行しません。</p>
+        <p class="hint">Meeting記録のGoogle Docs全文を出力します。Pitchbook本文・参照リンクsectionは含みません。Gemini検索を実行せず、ChatGPT検索も実行しません。</p>
       </div>
     </div>
-    <p id="knowledge-export-scope" class="hint" aria-live="polite">Source Type: 未選択（MeetingとPitchbook）</p>
+    <p id="knowledge-export-scope" class="hint" aria-live="polite">全文出力は面談記録のみ（共通条件を適用、AI検索の情報ソース・モード・質問は変更しません）</p>
     <div class="actions">
-      <span class="hint">まず対象資料を確認してください。出力は確認済みのMeeting原文と参照リンクだけを使います。</span>
+      <span class="hint">まず対象資料を確認してください。出力は確認済みのMeeting原文と業務属性だけを使います。</span>
       <div class="action-group">
         <button id="knowledge-export-preview-button" class="action secondary" type="button">対象資料を確認</button>
       </div>

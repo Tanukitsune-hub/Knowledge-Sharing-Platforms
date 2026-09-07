@@ -18,6 +18,7 @@
     "70_PitchbookPrepareService.gs",
     "71_PitchbookUploadService.gs",
     "72_PitchbookContext.gs",
+    "73_ParentRelations.gs",
     "80_PitchbookLiveEnvironment.gs",
     "81_PitchbookReservationAdapters.gs",
     "82_PitchbookClaimAdapters.gs",

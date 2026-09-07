@@ -1,6 +1,9 @@
 function kspNormalizePitchbookBatchInput_(input) {
   var source = input && typeof input === 'object' ? input : {};
   return {
+    requestId: kspTrimPitchbookField_(source.requestId),
+    parentMeetingId: kspTrimPitchbookField_(source.parentMeetingId),
+    expectedParentVersion: Number(source.expectedParentVersion),
     date: kspTrimPitchbookField_(source.date),
     gpId: kspTrimPitchbookField_(source.gpId),
     assetClassId: kspTrimPitchbookField_(source.assetClassId),
@@ -23,6 +26,8 @@ function kspNormalizePitchbookFileDescriptor_(file, index) {
 function kspNormalizePitchbookUploadInput_(input) {
   var source = input && typeof input === 'object' ? input : {};
   return {
+    parentMeetingId: kspTrimPitchbookField_(source.parentMeetingId),
+    expectedParentVersion: Number(source.expectedParentVersion),
     batchId: kspTrimPitchbookField_(source.batchId),
     documentId: kspTrimPitchbookField_(source.documentId),
     slotFingerprint: kspTrimPitchbookField_(source.slotFingerprint),
@@ -50,7 +55,7 @@ function kspBuildPitchbookCatalog_(gpRows, optionRows) {
 function kspValidatePitchbookBatchInput_(input, catalog) {
   var safeCatalog = catalog || { gps: [], assetClasses: [], capitalTypes: [] };
   kspAssert_(input.date, 'PITCHBOOK_DATE_REQUIRED', '日付は必須です。');
-  kspAssert_(input.gpId, 'PITCHBOOK_GP_REQUIRED', 'GPは必須です。');
+  kspAssert_(input.counterpartyId || input.gpId, 'PITCHBOOK_COUNTERPARTY_REQUIRED', '面談先は必須です。');
   kspAssert_(input.assetClassId, 'PITCHBOOK_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
   kspAssert_(String(input.fundStrategy || '').length <= KSP_PITCHBOOK_FUND_STRATEGY_MAX_LENGTH,
@@ -68,7 +73,8 @@ function kspValidatePitchbookBatchInput_(input, catalog) {
     '1回の合計ファイルサイズは100MBまでです。');
 
   var selected = {
-    gp: kspRequireCatalogItem_(safeCatalog.gps, input.gpId, 'PITCHBOOK_GP_UNAVAILABLE', '選択されたGPは利用できません。'),
+    gp: input.gpId ? kspRequireCatalogItem_(safeCatalog.gps, input.gpId, 'PITCHBOOK_GP_UNAVAILABLE', '選択されたGPは利用できません。') : null,
+    counterpartyEntity: input.counterpartyId ? kspRequirePitchbookCounterparty_(input, safeCatalog) : null,
     assetClass: kspRequireCatalogItem_(
       safeCatalog.assetClasses,
       input.assetClassId,

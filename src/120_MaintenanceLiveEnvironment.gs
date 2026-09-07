@@ -273,6 +273,7 @@ function kspCreateMaintenanceEnvironment_() {
       var spreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
       var found = kspMaintenanceFindSheetRow_(spreadsheetId, sheetName, keyColumn, keyValue);
       kspAssert_(found, 'RECORD_NOT_FOUND', '対象レコードが見つかりません。');
+      if (sheetName === KSP_SHEET_NAMES.MEETING_INDEX) kspAssertNoParentEditClaim_(scriptProperties, keyValue, nowIso);
       kspAssert_((tokenColumn === 'Updated_At'
         ? kspTemporalInstantComparisonKey_(found.row[tokenColumn])
         : String(found.row[tokenColumn])) === (tokenColumn === 'Updated_At'
@@ -451,5 +452,6 @@ function kspCreateMaintenanceEnvironment_() {
     return { deletedRows: rowNumbers.length };
   };
 
+  kspAttachParentRelationAdapters_(environment, scriptProperties);
   return environment;
 }

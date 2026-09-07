@@ -298,7 +298,11 @@ test('Knowledge Search UI exposes policy selectors and hides them from FULL_EXPO
   const page = fs.readFileSync(path.join(__dirname, '..', 'src', 'KnowledgeSearchPage.html'), 'utf8');
   const client = fs.readFileSync(path.join(__dirname, '..', 'src', 'ClientKnowledgeSearch.html'), 'utf8');
   for (const token of ['knowledge-model-profile', 'knowledge-thinking-profile', 'modelPolicies',
-    'modelProfileId', 'thinkingProfileId', "route!=='FULL_EXPORT'", "controls.hidden=route==='FULL_EXPORT'"]) {
+    'modelProfileId', 'thinkingProfileId', 'knowledge-full-output', 'function kExportPayload()']) {
     assert.ok((page + '\n' + client).includes(token), token);
   }
+  const payload = client.slice(client.indexOf('function kExportPayload()'), client.indexOf('\n', client.indexOf('function kExportPayload()')));
+  assert.match(payload, /route:'FULL_EXPORT'/);
+  assert.match(payload, /sourceType='Meeting'/);
+  assert.doesNotMatch(payload, /modelProfileId|thinkingProfileId|questionOrInstruction|selectedEntityKeys/);
 });

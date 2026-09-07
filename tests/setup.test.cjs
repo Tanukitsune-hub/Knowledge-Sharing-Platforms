@@ -246,7 +246,7 @@ test('defines exactly five baseline backend sheets', () => {
   assert.ok(schemas.Meeting_Index.includes('AI_Index_Status'));
   assert.ok(schemas.Pitchbook_Index.includes('Original_Filename'));
   assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-13)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs','Admin_Check_Completed','Admin_Check_Updated_At','Admin_Check_Updated_By','AI_Provider_State_JSON']);
-  assert.equal(schemas.Pitchbook_Index.at(-1), 'AI_Provider_State_JSON');
+  assert.deepEqual(Array.from(schemas.Pitchbook_Index.slice(-5)), ['AI_Provider_State_JSON','Parent_Meeting_ID','Counterparty_Type','Counterparty_ID','Related_GP_IDs']);
 });
 
 test('defines a separate audit log schema', () => {
@@ -290,6 +290,14 @@ test('forward migration appends missing columns and preserves existing columns',
 });
 
 const GP_HEADERS = ['GP_ID', 'GP_Name', 'Status'];
+
+test('CODEX12 append-only Pitchbook schema migration preserves legacy orphans and is idempotent',()=>{
+ const env=createFakeEnvironment();const backend=env.createSpreadsheet('control','Backend');const headers=Array.from(ksp.kspGetBackendSchemas_().Pitchbook_Index);
+ env.ensureSheet(backend.id,'Pitchbook_Index',headers.slice(0,-4));const sheet=env._debug.spreadsheets.get(backend.id).sheets.get('Pitchbook_Index');
+ const row={Document_ID:'DOC-000321',GP_ID:'GP-000001',Date:new Date('2026-08-15T15:00:00Z'),Status:'Active',File_ID:'legacy-file'};sheet.rows.push(row);
+ const before={...row};const first=env.ensureSheet(backend.id,'Pitchbook_Index',headers);const second=env.ensureSheet(backend.id,'Pitchbook_Index',headers);
+ assert.deepEqual(first.addedHeaders,['Parent_Meeting_ID','Counterparty_Type','Counterparty_ID','Related_GP_IDs']);assert.equal(second.action,'reused');assert.equal(sheet.rows[0],row);assert.deepEqual(row,before);assert.equal(row.Parent_Meeting_ID,undefined);
+});
 
 test('seed insertion does not overwrite mutable existing master values', () => {
   const env = createFakeEnvironment();
@@ -385,7 +393,7 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const exportsFolder = env._debug.resources.get(state.resources.knowledgeExportsFolderId);
   assert.equal(exportsFolder.name, 'Knowledge Exports');
   assert.deepEqual(exportsFolder.parents, ['knowledge-parent']);
-  assert.equal(state.schemaVersion, 6);
+  assert.equal(state.schemaVersion, 7);
   assert.equal(backend.sheets.size, 5);
   assert.equal(audit.sheets.size, 1);
   assert.equal(backend.sheets.get('GP_Master').rows.length, 30);

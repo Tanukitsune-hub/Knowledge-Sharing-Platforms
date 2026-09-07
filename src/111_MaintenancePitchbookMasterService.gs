@@ -19,6 +19,12 @@ function kspUpdatePitchbookMaintenance_(environment, rawInput) {
   try {
     context = kspLoadMaintenanceContext_(environment);
     var input = kspNormalizePitchbookEditInput_(rawInput);
+    var storedContext = kspRequireSingleRow_(context.pitchbookRows, 'Document_ID', input.documentId, 'PITCHBOOK_NOT_FOUND');
+    if (storedContext.Parent_Meeting_ID) {
+      input.gpId = String(storedContext.GP_ID || '');
+      input.counterpartyType = kspMeetingCounterpartyType_(storedContext);
+      input.counterpartyId = kspMeetingCounterpartyId_(storedContext);
+    }
     var selected = kspValidatePitchbookEditInput_(input, context.catalog);
     claim = environment.claimRecordEdit(
       'Pitchbook', input.documentId, KSP_SHEET_NAMES.PITCHBOOK_INDEX,

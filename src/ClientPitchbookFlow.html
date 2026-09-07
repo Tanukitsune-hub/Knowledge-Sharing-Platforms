@@ -1,9 +1,87 @@
 <script>
-async function uploadSlot(slot){const file=fileForSlot(slot);if(!file)return{ok:false,slot,error:{message:slot.originalFilename+' を再選択してください。'}};try{const base64Data=await readBase64(file);const result=await serverCall('uploadPitchbookFile',{batchId:slot.batchId,documentId:slot.documentId,slotFingerprint:slot.slotFingerprint,originalFilename:file.name,sizeBytes:file.size,mimeType:file.type||'application/octet-stream',base64Data});return result}catch(error){return{ok:false,slot,error:{message:error&&error.message?error.message:String(error)}}}}
-async function processSlots(slots){const results=[];for(const slot of slots){const result=await uploadSlot(slot);results.push(result);if(result&&result.slot){const index=pitchbookSlots.findIndex(item=>item.documentId===result.slot.documentId);if(index>=0)pitchbookSlots[index]={...pitchbookSlots[index],...result.slot}}else{const index=pitchbookSlots.findIndex(item=>item.documentId===slot.documentId);if(index>=0)pitchbookSlots[index].status='Failed'}savePitchbookSlots();renderPitchbookFiles()}return results}
-function summarizeResults(results){const success=results.filter(r=>r&&r.ok).length,failed=results.length-success;if(failed===0){showStatus('pitchbook-status','success',success+'件を登録しました。');pitchbookSlots=[];selectedPitchbookFiles=[];fileInput.value='';savePitchbookSlots();renderPitchbookFiles()}else{showStatus('pitchbook-status','warning',success+'件成功、'+failed+'件失敗。成功済みファイルは維持されています。失敗分を再試行できます。')}}
-el('pitchbook-form').addEventListener('submit',async event=>{event.preventDefault();clearStatus('pitchbook-status');const metadata=pitchbookMetadata(),fileError=validateFiles(selectedPitchbookFiles);if(!metadata.date||!metadata.gpId||!metadata.assetClassId){showStatus('pitchbook-status','error','日付、GP、Asset Classは必須です。');return}if(fileError){showStatus('pitchbook-status','error',fileError);return}syncShared('pitchbook');setPitchbookBusy(true);try{const prepared=await serverCall('preparePitchbookBatch',{...metadata,files:selectedPitchbookFiles.map(fileDescriptor)});if(!prepared||!prepared.ok){setPitchbookBusy(false);showStatus('pitchbook-status','error',prepared&&prepared.error?prepared.error.message:'Batch準備に失敗しました。');return}pitchbookSlots=prepared.slots.map((slot,index)=>({...slot,ordinal:index+1,sizeBytes:selectedPitchbookFiles[index].size}));savePitchbookSlots();renderPitchbookFiles();const results=await processSlots(pitchbookSlots.slice());setPitchbookBusy(false);summarizeResults(results)}catch(error){setPitchbookBusy(false);showStatus('pitchbook-status','error',error&&error.message?error.message:String(error))}});
-el('pitchbook-retry').onclick=async()=>{const retrySlots=pitchbookSlots.filter(slot=>slot.status==='Failed'||slot.status==='Pending');if(!retrySlots.length)return;const missing=retrySlots.filter(slot=>!fileForSlot(slot));if(missing.length){showStatus('pitchbook-status','error','失敗したファイルを再選択してください: '+missing.map(slot=>slot.originalFilename).join(', '));return}setPitchbookBusy(true);const results=await processSlots(retrySlots);setPitchbookBusy(false);summarizeResults(results)};
-el('pitchbook-clear').onclick=()=>{if(!confirm('Pitchbookの選択ファイルとupload slotを消去しますか？'))return;selectedPitchbookFiles=[];pitchbookSlots=[];fileInput.value='';savePitchbookSlots();renderPitchbookFiles();clearStatus('pitchbook-status')};
-
+let pitchbookParent=null,pitchbookBusy=false,meetingFlowBusy=false,pendingExistingDocumentIds=[],pitchbookPrepareUnknown=false,pitchbookPrepareRequest=null;
+function bindPitchbookParent(record,existing){
+  if(!record||!record.meetingId||!Number.isInteger(Number(record.version))||Number(record.version)<1||record.status!=='Active')throw new Error('保存済みActive記録のIDとVersionを確認できません。');
+  if(pitchbookSlots.some(slot=>slot.parentMeetingId!==record.meetingId))throw new Error('別の親記録の未完了資料があります。先にその記録で回復してください。');
+  pitchbookParent={meetingId:record.meetingId,version:Number(record.version),existing:Boolean(existing)};
+  el('pitchbook-parent-label').textContent='親記録: '+record.meetingId+' / Version '+record.version+'（新規記録は作成しません）';
+  el('pitchbook-submit').hidden=!existing;savePitchbookSlots();
+}
+async function readPitchbookParent(){
+  if(!pitchbookParent)throw new Error('先に親記録を保存してください。');
+  const result=await serverCall('getMeetingMaintenanceRecord',pitchbookParent.meetingId);
+  if(!result||!result.ok||!result.record||result.record.status!=='Active')throw new Error('親記録の状態を確認できません。再送は行いません。');
+  pitchbookParent.version=Number(result.record.version);return result.record;
+}
+async function linkParentDocument(documentId,operation){
+  const record=await readPitchbookParent(),ids=record.relatedPitchbookIds||[];
+  if(operation==='add'&&ids.includes(documentId)||operation==='remove'&&!ids.includes(documentId))return{ok:true,meetingId:record.meetingId,version:record.version,relatedPitchbookIds:ids};
+  const result=await serverCall('updateMeetingRelations',{meetingId:record.meetingId,expectedVersion:record.version,documentId,operation});
+  if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'関連付けを確認できません。再試行時に現在の関係を照合します。');
+  pitchbookParent.version=Number(result.version);savePitchbookSlots();return result;
+}
+async function uploadSlot(slot){
+  if(!pitchbookParent||slot.parentMeetingId!==pitchbookParent.meetingId)return{ok:false,slot,error:{message:'親記録の不一致により停止しました。'}};
+  try{
+    if(slot.outcomeUnknown){
+      const readback=await serverCall('getPitchbookMaintenanceRecord',slot.documentId);
+      if(!readback||!readback.ok||!readback.record)throw new Error('ファイルの保存結果が不明です。readback確認まで再uploadしません。');
+      const record=readback.record;
+      if(record.status==='Active'&&record.fileId){slot.fileSaved=true;slot.status='LinkPending'}
+      else if(record.status==='Failed'||record.status==='Pending'){slot.fileSaved=false}
+      else throw new Error('処理中または不明な資料です。再uploadしません。');
+      slot.outcomeUnknown=false;
+    }
+    if(slot.fileSaved){
+      const linked=await linkParentDocument(slot.documentId,'add');
+      return{ok:true,fileSaved:true,linkConfirmed:true,slot:{...slot,status:'Active',fileSaved:true,linkConfirmed:true,parentVersion:linked.version}};
+    }
+    const parent=await readPitchbookParent(),file=fileForSlot(slot);
+    if(!file)throw new Error(slot.originalFilename+' を再選択してください。');
+    const base64Data=await readBase64(file);
+    slot.outcomeUnknown=true;savePitchbookSlots();
+    const result=await serverCall('uploadPitchbookFile',{batchId:slot.batchId,documentId:slot.documentId,slotFingerprint:slot.slotFingerprint,parentMeetingId:slot.parentMeetingId,expectedParentVersion:parent.version,parentVersion:parent.version,originalFilename:file.name,sizeBytes:file.size,mimeType:file.type||'application/octet-stream',base64Data});
+    if(!result)throw new Error('ファイル保存結果を確認できません。');
+    const returned=result.slot||{},saved=result.fileSaved===true||returned.fileSaved===true,linked=result.linkConfirmed===true||returned.linkConfirmed===true;
+    const version=Number(result.parentVersion||returned.parentVersion||parent.version);
+    pitchbookParent.version=version;pitchbookSlots.forEach(item=>{if(item.parentMeetingId===slot.parentMeetingId)item.parentVersion=version});
+    return{...result,ok:saved&&linked,slot:{...slot,...returned,parentVersion:version,fileSaved:saved,linkConfirmed:linked,outcomeUnknown:false,status:linked?'Active':saved?'LinkPending':'Failed'}};
+  }catch(error){return{ok:false,slot:{...slot,status:slot.fileSaved?'LinkPending':'Failed'},error:{message:error.message||String(error)}}}
+}
+async function processSlots(slots){
+  const results=[];
+  for(const slot of slots){const result=await uploadSlot(slot);results.push(result);const index=pitchbookSlots.findIndex(item=>item.documentId===slot.documentId);if(index>=0)pitchbookSlots[index]={...pitchbookSlots[index],...(result.slot||{})};savePitchbookSlots();renderPitchbookFiles()}
+  return results;
+}
+function summarizeResults(results){
+  const failed=pitchbookSlots.filter(slot=>!slot.linkConfirmed).length+pendingExistingDocumentIds.length;
+  showStatus('pitchbook-status',failed?'warning':'success',failed?'親記録と保存済みファイルを維持しています。未完了 '+failed+'件。未完了分を再試行してください。':'記録・資料の関連付けを完了しました。');
+  if(!failed){pitchbookPrepareRequest=null;pitchbookPrepareUnknown=false;pitchbookSlots=[];selectedPitchbookFiles=[];fileInput.value='';savePitchbookSlots();renderPitchbookFiles()}
+}
+async function completeParentAttachments(){
+  if(pitchbookBusy)return;
+  setPitchbookBusy(true);
+  try{
+    if(!pitchbookParent)throw new Error('先に親記録を保存してください。');
+    if(!pitchbookSlots.length&&(selectedPitchbookFiles.length||pitchbookPrepareRequest)){
+      if(!pitchbookPrepareRequest){const error=validateFiles(selectedPitchbookFiles);if(error)throw new Error(error)}
+      const parent=await readPitchbookParent();
+      if(!pitchbookPrepareRequest)pitchbookPrepareRequest={...pitchbookMetadata(),requestId:crypto.randomUUID(),files:selectedPitchbookFiles.map(fileDescriptor)};
+      pitchbookPrepareUnknown=true;savePitchbookSlots();
+      const prepared=await serverCall('preparePitchbookBatch',{...pitchbookPrepareRequest,parentMeetingId:parent.meetingId,expectedParentVersion:parent.version});
+      pitchbookPrepareUnknown=false;savePitchbookSlots();
+      if(!prepared||!prepared.ok)throw new Error(prepared&&prepared.error?prepared.error.message:'資料の準備に失敗しました。');
+      pitchbookSlots=prepared.slots.map((slot,index)=>({...slot,parentMeetingId:slot.parentMeetingId||parent.meetingId,parentVersion:slot.parentVersion||parent.version,ordinal:index+1,sizeBytes:pitchbookPrepareRequest.files[index].sizeBytes}));savePitchbookSlots();
+    }
+    const results=await processSlots(pitchbookSlots.filter(slot=>!slot.linkConfirmed));
+    for(const id of pendingExistingDocumentIds.slice()){await linkParentDocument(id,'add');pendingExistingDocumentIds=pendingExistingDocumentIds.filter(item=>item!==id);savePitchbookSlots()}
+    summarizeResults(results);
+    if(pitchbookParent.existing)await openMeetingDetail(pitchbookParent.meetingId);
+  }catch(error){showStatus('pitchbook-status','error',error.message||String(error))}
+  finally{setPitchbookBusy(false);renderPitchbookFiles()}
+}
+el('pitchbook-submit').onclick=completeParentAttachments;
+el('pitchbook-retry').onclick=completeParentAttachments;
+el('pitchbook-clear').onclick=()=>{if(pitchbookSlots.length||pendingExistingDocumentIds.length){showStatus('pitchbook-status','warning','未完了IDは破棄できません。再試行または親記録で状態を確認してください。');return}selectedPitchbookFiles=[];fileInput.value='';renderPitchbookFiles()};
+function setRegisteredMeetingLocked(locked){el('meeting-form').querySelectorAll('input,select,textarea,button').forEach(node=>{if(!el('meeting-file-panel').contains(node))node.disabled=locked});el('meeting-clear').disabled=false;el('meeting-clear').textContent=locked?'新しい記録を入力':'下書きをクリア'}
 </script>

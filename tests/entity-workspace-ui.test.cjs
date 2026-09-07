@@ -60,7 +60,7 @@ function executeClient(serverCall) {
 }
 
 test('Entity Workspace is integrated, read-only, and has bounded print markup', () => {
-  assert.match(index, /id="nav-entity-workspace"[^>]*type="button">Entity Workspace<\/button>/);
+  assert.match(index, /id="nav-entity-workspace"[^>]*type="button">[\s\S]*?面談先サマリー<\/button>/);
   assert.match(index, /include_\('EntityWorkspacePage'\)/);
   assert.match(index, /include_\('ClientEntityWorkspace'\)/);
   assert.match(page, /id="page-entity-workspace"/);
