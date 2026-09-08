@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-07
+Current as of: 2026-09-08
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-14 on PR #51 using editor-approved operator path + provider-independent `/exec` qualification |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted design PR #50 + Work 0027/0029 | Execute CODEX-15 on PR #51 using standalone editor private setup/validation + provider-independent `/exec` qualification |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | PLANNED | Work 0028 accepted provider-neutral baseline | After Work 0028 acceptance, start `0030-CODEX-01` with Azure synthetic qualification first |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
@@ -99,16 +99,22 @@ Closed UI direction:
 
 PR #51 implements the accepted production delta on `codex/0028-production-contract-build`.
 
-Current CODEX-13 return:
+Current CODEX-14 return:
 
-- HEAD: `7b1241fc03c6bee6f7fb0ec0748aa3c1ae4bc577`
+- HEAD: `0aeced527ca0efe93d41c337dc10db17613b79cc`
 - frozen source: `5842a07255a10415d39d524fd8ec174450248855`
 - bundle commit: `2ab8b262c7211af5464f3201a77c6e45484cdc6c`
 - schema 7: `Pitchbook_Index` 4 append-only columns
 - focused 78/78 PASS
 - `npm run check` 515/515 PASS
 - bundle 27/27 PASS
-- local production UI PASS
+- prepare lifecycle finite-lifetime blocker CLOSED
+- frozen source was pushed once to existing Apps Script project
+- remote saved source parity 83/83 PASS
+- existing versioned `/exec` remains version 75 / deployment unchanged
+- CODEX-14 editor `checkKnowledgeShareReadiness()` stopped at `INSTALLER_BOUND_SPREADSHEET_REQUIRED`
+- setup/version/deployment/business/provider mutations after push: 0
+- R1-R8: NOT RUN
 
 Production scope retained:
 
@@ -120,48 +126,41 @@ Production scope retained:
 - independent Meeting-only / non-AI Full Output;
 - accepted Light production UI.
 
-### CODEX-13 controller review
+### CODEX-14 controller review
 
 Controller review:
-`docs/handoffs/0028-CODEX-13-controller-review.md`
+`docs/handoffs/0028-CODEX-14-controller-review.md`
 
-Prepare lifecycle finite-lifetime blocker is CLOSED. The source uses bounded request generations/retention while preserving recent exact replay, unresolved INTENT safety, retired-token rejection and bounded Script Properties.
+The CODEX-14 stop is classified as an expected installer precondition / wrong operator for this target, not an application or installer defect.
 
-Apps Script identity chain for accepted version 75 was positively proven through project / saved source / immutable version / intended WEB_APP `/exec` / execute-as / access / browser account / observed execution.
+The Work 0023 installer is intentionally container-bound: a fresh company operator creates a Spreadsheet in the intended Shared Drive folder, opens its bound Apps Script, runs the installer, then deploys the Web App. `installKnowledgeShare()` and `checkKnowledgeShareReadiness()` use the active bound Spreadsheet and parent folder as the installation/authorization boundary. That contract must not be weakened merely to qualify the historical standalone target.
 
-The remaining 403 occurred when `getInstallationStatus_` was invoked through Google Apps Script Execution API. This is classified as the wrong qualification execution surface rather than an application defect.
-
-Google `scripts.run` requires API-executable/OAuth/Cloud-project configuration that is unnecessary for Work 0028. Repository policy already establishes private setup/status via editor/trigger/privacy-preserving operator path. Therefore no API executable, OAuth expansion, Cloud project switch or public diagnostic wrapper will be added.
-
-### CODEX-14 runtime qualification
-
-Approved control path:
+The existing version-75 target is a standalone Apps Script project inherited from earlier Works. It already has standalone-compatible private editor entrypoints:
 
 ```text
-Apps Script editor
-  -> checkKnowledgeShareReadiness()
-  -> installKnowledgeShare() only if required
-  -> checkKnowledgeShareReadiness()
-  -> confirmKnowledgeShareDeploymentSecurity() only if readiness requires it
-
-verified versioned WEB_APP /exec
-  -> normal public facades for R1-R8 business acceptance
+getInstallationStatus_()
+validateInstallation_()
+setupKnowledgePlatform_()
 ```
 
-CODEX-14 must:
+These use `kspCreateAppsScriptEnvironment_()` and existing installation state/config/resource IDs rather than `SpreadsheetApp.getActiveSpreadsheet()`.
 
-- refresh identity read-only;
-- push exact reviewed source once and prove saved-source parity;
-- use editor-visible approved operator wrappers for setup/readiness;
-- create one immutable version;
-- update the positively identified existing WEB_APP at most once, with no new deployment;
-- run provider-independent synthetic R1-R8 through `/exec`;
-- prove schema 7, GP/non-GP parent-first file registration, existing-Meeting follow-up, unlink/relink, exact Docs body preservation and dedicated Full Output;
-- preserve Work 0027 Gemini disabled state and Work 0029 shared-admin without credential rotation;
-- make Direct OpenAI/Gemini/Azure provider calls 0.
+### CODEX-15 standalone runtime qualification
+
+CODEX-15 continues the same PR #51 and must:
+
+1. recheck remote saved-source/deployment continuity read-only; no second source push.
+2. run `getInstallationStatus_()` and `validateInstallation_()` directly from the owner Apps Script editor.
+3. if and only if existing installation state/resources are intact and failure is expected append-only schema drift, run `setupKnowledgePlatform_()` once.
+4. re-run `validateInstallation_()` and require schema/resource integrity PASS.
+5. create one immutable version from the frozen saved source.
+6. update the positively identified existing WEB_APP exactly once; no new deployment.
+7. run provider-independent synthetic R1-R8 through the verified `/exec`.
+8. prove schema 7, GP/non-GP parent-first file registration, same-Meeting follow-up, unlink/relink, exact Docs body preservation, dedicated Full Output, Gemini-disabled/shared-admin non-regression.
+9. keep Direct OpenAI/Gemini/Azure provider calls at 0.
 
 Active instruction:
-`docs/handoffs/0028-CODEX-14-editor-runtime-qualification-instruction.md`
+`docs/handoffs/0028-CODEX-15-standalone-runtime-qualification-instruction.md`
 
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
@@ -193,11 +192,11 @@ Authoritative decision:
 Implementation plan:
 `docs/planning/work0030-azure-openai-provider-transition.md`
 
-Work 0028 CODEX-14 keeps provider calls at zero and defers actual File Search/citation runtime evidence to Work 0030. Once Work 0028 provider-independent source/runtime baseline is accepted/merged, allocate `0030-CODEX-01`.
+Work 0028 CODEX-15 keeps provider calls at zero and defers actual File Search/citation runtime evidence to Work 0030. Once Work 0028 provider-independent source/runtime baseline is accepted/merged, allocate `0030-CODEX-01`.
 
 ## Next gate
 
-CODEX-14 returns on existing PR #51 with editor/operator setup evidence, exact remote/deployed source continuity and provider-independent target-runtime R1-R8 evidence. ChatGPT reviews the final state. If no BLOCKER remains, merge PR #51 and apply Completion Latch to Work 0028. Then activate Work 0030 for Azure OpenAI synthetic qualification and adapter transition.
+CODEX-15 returns on existing PR #51 with standalone installation continuity, schema 7 setup/validation, exact remote/version/deployment continuity and provider-independent target-runtime R1-R8 evidence. ChatGPT reviews the final state. If no BLOCKER remains, merge PR #51 and apply Completion Latch to Work 0028. Then activate Work 0030 for Azure OpenAI synthetic qualification and adapter transition.
 
 ## Work 0029 collision recovery and dispatch tombstones
 
