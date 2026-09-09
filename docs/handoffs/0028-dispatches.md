@@ -1,214 +1,179 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-15
-ACTIVE_DISPATCH_ID: 0028-CODEX-15
+DISPATCH_ID: 0028-CODEX-16
+ACTIVE_DISPATCH_ID: 0028-CODEX-16
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
-PHASE: B1.4 / STANDALONE EDITOR RUNTIME QUALIFICATION
+PHASE: B1.5 / STRATEGY RESET / FRESH BOUND TARGET QUALIFICATION
 
 ## Current state
 
 PR #50のLight designはaccepted/merged済み。Draft PR #51でproduction implementationを収束中。
 
-CODEX-14 return:
+PR #51 current return:
 
-- PR #51 HEAD: `0aeced527ca0efe93d41c337dc10db17613b79cc`
+- HEAD: `751df8350b9f08cb5a6650e5bd21d1e7793f8ab7`
 - frozen source: `5842a07255a10415d39d524fd8ec174450248855`
 - bundle commit: `2ab8b262c7211af5464f3201a77c6e45484cdc6c`
-- prepare lifecycle: CLOSED / 160 batch continuity等のAccepted Evidence維持
-- focused 78/78、canonical 515/515、bundle 27/27 PASSをAccepted Evidenceとして保持
-- frozen modular sourceをexisting Apps Script projectへ1回push済み
-- remote saved source parity: 83/83 PASS
-- existing WEB_APP `/exec`: version 75のまま、deployment mutation 0
-- `checkKnowledgeShareReadiness()` -> `INSTALLER_BOUND_SPREADSHEET_REQUIRED`
-- setup / version create / deployment update / business write / provider call: 0
-- R1–R8: NOT RUN
+- focused 78/78 PASS
+- canonical 515/515 PASS
+- bundle 27/27 PASS
+- prepare lifecycle blocker: CLOSED
+- historical standalone saved source: frozen source 83/83 parity
+- historical deployed `/exec`: immutable version75 unchanged
+- provider calls: 0
 
-Controller review:
-`docs/handoffs/0028-CODEX-14-controller-review.md`
+CODEX-15はhistorical standalone Apps Script editorでprivate `getInstallationStatus_()` / `validateInstallation_()` / `setupKnowledgePlatform_()`の定義を確認したが、observed editor function selector / context menu / command surfaceから直接実行できずmutation前停止。
 
-Controller classification:
+Controller review / Strategy Reset:
+`docs/handoffs/0028-CODEX-15-controller-review.md`
 
 ```text
-CONTROLLER_CLASSIFICATION: EXPECTED_INSTALLER_PRECONDITION / WRONG_OPERATOR_FOR_TARGET
 APPLICATION_DEFECT: NO
-INSTALLER_DEFECT: NO
-PREPARE_LIFECYCLE_BLOCKER: CLOSED
-TARGET_RUNTIME_PRIMARY_FLOW: NOT_RUN
-MERGE_READY: NO
+SOURCE_REPAIR_REQUIRED: NO
+HISTORICAL_STANDALONE_STRATEGY: SUPERSEDED
+STRATEGY_RESET: FRESH_CONTAINER_BOUND_QUALIFICATION
+MERGE_READY: NO / target runtime evidence pending
 ```
 
-## Runtime execution-path conclusion
+## Strategy Reset
 
-`installKnowledgeShare()` / `checkKnowledgeShareReadiness()` / `confirmKnowledgeShareDeploymentSecurity()`は、Work 0023で確定したfresh company install用container-bound Spreadsheet installerである。bound Spreadsheetからparent folder・owner/statusを確定するsecurity contractを持つため、既存standalone targetに合わせてguardを緩和しない。
+### Old strategy
 
-既存version 75 projectはstandalone Apps Script targetとして過去Workから継続している。Repository policyに従い、standalone-compatible private core operatorをApps Script editorから直接使用する。
+historical standalone version75 Apps Script projectをschema7へmigrationし、同projectのexisting WEB_APPでR1-R8を認定する。
+
+このstrategyはexecution surfaceの相違で3回停止した。
+
+1. Execution API private call -> 403 permission boundary
+2. container-bound installer -> standalone projectでexpected precondition
+3. private editor functions -> observed editor UIのRun selectorに非表示
+
+同targetへ別surfaceを追加する再試行は停止する。
+
+### New strategy
+
+Work0023で確定したfinal company install architectureと同じfresh container-bound targetを、isolated synthetic qualification environmentとして1件だけ作成する。
 
 ```text
-Apps Script editor / existing standalone project
-  -> getInstallationStatus_()
-  -> validateInstallation_()
-  -> setupKnowledgePlatform_() only if proven-safe append-only schema migration is required
-  -> validateInstallation_()
-
-then
-  -> immutable version create exactly once
-  -> positively identified existing WEB_APP update exactly once
-  -> verified /exec
-  -> provider-independent synthetic R1-R8
+isolated DEV folder
+-> new Google Spreadsheet
+-> container-bound Apps Script
+-> exact generated bundle / manifest
+-> installKnowledgeShare()
+-> one owner-only WEB_APP deployment
+-> security/readiness
+-> verified /exec
+-> provider-independent R1-R8
 ```
 
-禁止:
-
-- installer wrapperをstandalone targetで再使用
-- installer guardの削除/緩和
-- private `_` functionをExecution API / google.script.runで呼ぶ
-- API executable追加
-- OAuth scope/client拡張
-- Cloud project変更
-- public qualification wrapper追加
+Historical standalone project/deploymentへCODEX-16で追加mutationしない。
 
 ## Primary Outcome
 
-受入れ済みLight UIの主要production flowをprovider-independent target runtimeで証明する。
+accepted Light UI + production backend contractがfinal target architectureでend-to-end成立することを証明する。
 
-1. existing installation continuityをstandalone editor private pathで確認。
-2. schema 7 append-only setup/readback。
-3. GP/non-GP Meeting parent-first登録。
-4. parent Meeting確定後だけtiny file登録。
-5. Pitchbook parent/counterparty metadata readback。
-6. existing Meetingへfollow-up file追加。
-7. visible資料削除=unlink、relink、stable IDs、physical delete 0。
-8. relation-only mutation前後のauthoritative Meeting Google Docs本文exact equality。
-9. dedicated Meeting-only / non-AI Full Output runtime確認。
-10. Work 0027 Gemini disabled state / Work 0029 shared-admin securityを非破壊維持。
+1. fresh container-bound installer succeeds / idempotent.
+2. schema7 / 5-sheet backend / accepted resources established.
+3. GP/non-GP Meeting parent-first registration.
+4. parent-bound tiny file / metadata readback.
+5. existing Meeting follow-up file add.
+6. visible file delete=unlink / relink / stable IDs / physical delete 0.
+7. relation-only mutation preserves authoritative Meeting Google Docs body exactly.
+8. dedicated Meeting-only / non-AI Full Output works without AI provider.
+9. provider calls 0 / AI sync disabled / owner-only qualification access.
+
+## Accepted evidence retained
+
+- PR #51 source direction
+- schema7 4-column Pitchbook append contract
+- prepare lifecycle bounded safety
+- focused 78/78
+- canonical 515/515
+- bundle 27/27
+- historical saved source parity 83/83
+
+Do not re-open without direct contradiction from fresh target.
+
+## Fresh target authorization boundary
+
+Allowed:
+
+- one isolated qualification folder
+- one host Spreadsheet
+- one container-bound Apps Script project
+- one exact generated distribution install
+- installer-created accepted resources inside isolated parent
+- one owner-only qualification WEB_APP deployment
+- synthetic/anonymized records/files/exports
+
+Not allowed:
+
+- real confidential data
+- company/broad rollout
+- access expansion beyond qualification owner
+- existing historical version75 deployment mutation/rollback
+- physical delete/destructive cleanup
+- second qualification target in same dispatch
+- Direct OpenAI/Gemini/Azure provider calls
+- source repair in same dispatch unless a direct fresh-target application defect is first observed; on defect STOP and return
 
 ## Azure provider boundary
 
-会社OpenAI-family providerはAzure OpenAI。provider runtimeはWork 0030へ分離済み。
-
-CODEX-15:
-
 ```text
-Direct OpenAI provider calls: 0
-Gemini provider calls: 0
-Azure OpenAI provider calls: 0
+Direct OpenAI calls: 0
+Gemini calls: 0
+Azure OpenAI calls: 0
 actual File Search/citation runtime: DEFERRED_TO_WORK_0030
 ```
 
-Work 0030:
-- `docs/decisions/company-azure-openai-provider.md`
-- `docs/planning/work0030-azure-openai-provider-transition.md`
-
-## Closed source / contract conclusions
-
-- schema 7 / Pitchbook_Index 4-column append。
-- 5-sheet backend維持、新relation tableなし。
-- legacy orphan Pitchbook保持、auto-parent inferenceなし。
-- Meeting-first parent binding。
-- non-GP資料可、fake GP補完なし。
-- file/link partial failure stable-ID recovery。
-- prepare request lifecycleはboundedで通常利用32回制限なし。
-- relation truth = `Meeting_Index.Related_Pitchbook_IDs`。
-- relation-only mutationでMeeting Docs再生成なし。
-- parent-bound retrieval eligibility/citation logicはdeterministic Accepted Evidenceとして保持。
-- Full Output = dedicated Meeting-only / non-AI、Pitchbook body/reference-link sectionなし。
-- accepted Light UI / analytics / summary / shared-adminを維持。
-- company fresh installのcontainer-bound installer architectureを変更しない。
-
-## Authorization / mutation bounds
-
-許可:
-
-- source push: 0 remaining（CODEX-14で1回消費済み）
-- standalone editor private status/validation reads
-- append-only `setupKnowledgePlatform_()` max 1 after continuity proof
-- immutable version create max 1
-- positively identified existing WEB_APP deployment update max 1
-- synthetic/anonymized business writes/readback through normal `/exec`
-
-禁止:
-
-- source再push
-- second setup
-- new deployment
-- second version/deployment attempt
-- Execution API
-- real confidential data
-- broad rollout/access expansion
-- physical delete/destructive migration
-- provider calls/config mutation
-- secret rotation
-- Gemini enablement
-- Dark/System
-- new DB/sheet/relationship table
-
-Runtime mutation開始後の最初のfailureで停止する。
-
-## Evidence hierarchy
-
-1. target Apps Script / Workspace authoritative readback
-2. intended versioned WEB_APP `/exec` browser behavior / execution history
-3. exact remote saved source / immutable version / bundle parity
-4. accepted deterministic tests
-5. inference
+Fresh bound qualification target may be retained for Work0030 Azure synthetic qualification after Work0028 acceptance.
 
 ## Dispatch history
 
 | Dispatch | Disposition |
 |---|---|
-| 0028-CODEX-01 / 02 | Historical tombstone; never reuse |
-| 0028-CODEX-03 | PR #40 / RETURNED PARTIAL |
-| 0028-CODEX-04 | PR #41 / RETURNED |
-| 0028-CODEX-05 | PR #42 / RETURNED |
-| 0028-CODEX-06 | PR #43 / RETURNED |
-| 0028-CODEX-07 | PR #44 / RETURNED |
-| 0028-CODEX-08 | PR #45 / RETURNED / controller PASS |
-| 0028-CODEX-09 | PR #46 / RETURNED / controller PASS |
-| 0028-CODEX-10 | PR #47/#48/#49 / consumed history |
-| 0028-CODEX-11 | PR #50 / returned -> controller repair -> user accepted -> merged |
-| 0028-CODEX-12 | PR #51 / RETURNED PARTIAL / source review PASS_WITH_BLOCKERS |
-| 0028-CODEX-13 | PR #51 / RETURNED / prepare blocker CLOSED / Execution API 403 |
-| 0028-CODEX-14 | PR #51 / RETURNED / source push+83/83 parity / bound-installer precondition |
-| 0028-CODEX-15 | same PR #51 / standalone editor runtime qualification / READY |
+| 0028-CODEX-01 / 02 | historical tombstone; never reuse |
+| 0028-CODEX-03..09 | Light design iterations |
+| 0028-CODEX-10 | PR #47/#48/#49 consumed history |
+| 0028-CODEX-11 | PR #50 accepted/merged Light baseline |
+| 0028-CODEX-12 | PR #51 production BUILD / deterministic PASS / runtime incomplete |
+| 0028-CODEX-13 | prepare lifecycle blocker CLOSED / Execution API 403 |
+| 0028-CODEX-14 | saved source push 83/83 / wrong bound-installer path |
+| 0028-CODEX-15 | private editor Run path unavailable / historical strategy superseded |
+| 0028-CODEX-16 | fresh container-bound target qualification / READY |
 
 ## Active instruction
 
-`docs/handoffs/0028-CODEX-15-standalone-runtime-qualification-instruction.md`
+`docs/handoffs/0028-CODEX-16-fresh-bound-runtime-qualification-instruction.md`
 
-Continue same branch / PR #51。New PRを作らない。main control docsをbranchから上書きしない。
+Continue same branch / Draft PR #51. New implementation PRを作らない。main control docsをbranchから上書きしない。
 
 ## Completion gate
 
-CODEX-15 return後、ChatGPTがinstallation continuity、schema migration、deployed-source continuity、R1–R8、side effectsをreviewする。
-
-R1–R8がprovider-independent target runtimeで成立すればPR #51をmergeし、Work 0028へCompletion Latchを適用できる。Actual Azure provider runtimeはWork 0030へ継承する。
+CODEX-16がfresh bound installer + owner-only WEB_APP + R1-R8 runtime evidenceを返す。ChatGPTがfinal evidenceをreviewし、BLOCKERなしならPR #51をmergeしてWork0028へCompletion Latchを適用する。その後Work0030 Azure OpenAIへ進む。
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
 DESIGN_BASELINE: PR_50_MERGED
 PR_51: OPEN_DRAFT
 MODE: BUILD
-ACTIVE_DISPATCH: 0028-CODEX-15
+ACTIVE_DISPATCH: 0028-CODEX-16
 BALL: CODEX
 STATUS: READY
 PREPARE_LIFECYCLE_BLOCKER: CLOSED
-EXECUTION_API_403: CLOSED_AS_WRONG_SURFACE
-BOUND_INSTALLER_ERROR: CLOSED_AS_EXPECTED_PRECONDITION
-TARGET_RUNTIME_BLOCKER: OPEN
+HISTORICAL_STANDALONE_RUNTIME_STRATEGY: SUPERSEDED
+TARGET_RUNTIME_STRATEGY: FRESH_CONTAINER_BOUND
 PROVIDER_RUNTIME: DEFERRED_TO_WORK_0030
 PROVIDER_CALLS_AUTHORIZED: NO
-PRODUCTION_IMPLEMENTATION_AUTHORIZED: YES
-TARGET_RUNTIME_SYNTHETIC_QUALIFICATION_AUTHORIZED: YES
 REAL_DATA_ROLLOUT_AUTHORIZED: NO
 BROAD_DEPLOYMENT_AUTHORIZED: NO
-NEXT_UNUSED_DISPATCH: 0028-CODEX-16
+NEXT_UNUSED_DISPATCH: 0028-CODEX-17
 WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-15
+DISPATCH_ID: 0028-CODEX-16
 BALL: CODEX
 STATUS: READY
