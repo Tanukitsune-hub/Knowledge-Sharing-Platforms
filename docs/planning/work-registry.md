@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-09
+Current as of: 2026-09-17
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -19,9 +19,9 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source | Execute CODEX-16 fresh container-bound synthetic qualification on PR #51 |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source | CODEX-17でCODEX-16中断状態をread-only回収後、single fresh-bound qualificationを再開 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
-| 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | PLANNED | Work 0028 accepted provider-neutral baseline | Reuse accepted fresh bound target where safe; start Azure synthetic qualification |
+| 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 10 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 11 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
@@ -97,7 +97,7 @@ Closed UI direction:
 Branch:
 `codex/0028-production-contract-build`
 
-Current returned HEAD:
+Remote PR HEAD observed 2026-09-17:
 `751df8350b9f08cb5a6650e5bd21d1e7793f8ab7`
 
 Accepted implementation evidence:
@@ -145,11 +145,33 @@ Controller Strategy Reset:
 
 Historical standalone strategy is SUPERSEDED. Do not keep adding execution surfaces or wrappers.
 
-### CODEX-16 fresh container-bound qualification
+### CODEX-16 interruption and CODEX-17 recovery
 
-Use final intended architecture directly.
+CODEX-16 was issued on 2026-09-09 to qualify the final architecture on exactly one fresh container-bound synthetic target. Its remote Codex chat is not reliably readable.
 
-Create exactly one isolated synthetic qualification target:
+Controller GitHub readback on 2026-09-17 found:
+
+```text
+PR_BRANCH_REMOTE_HEAD: 751df8350b9f08cb5a6650e5bd21d1e7793f8ab7
+CODEX16_REMOTE_REPORT: ABSENT
+CODEX16_LATER_PR_BRANCH_COMMIT: NOT OBSERVED
+CODEX16_EXTERNAL_GOOGLE_SIDE_EFFECT_STATE: UNKNOWN
+```
+
+Therefore the absence of durable GitHub output is not treated as proof that CODEX-16 never started. `0028-CODEX-17` supersedes it as the active execution request and begins with read-only recovery.
+
+Recovery classification is exactly one of:
+
+```text
+RECOVERED_COMPLETE
+RECOVERED_PARTIAL
+NOT_STARTED_CONFIRMED
+AMBIGUOUS_EXTERNAL_STATE
+```
+
+The one-target/deployment/mutation budgets are cumulative across CODEX-16 + CODEX-17. Existing partial Google resources must be adopted, not recreated. Ambiguous external state stops before any second target is created.
+
+After recovery, the accepted target architecture remains:
 
 ```text
 isolated DEV folder
@@ -163,7 +185,7 @@ isolated DEV folder
 -> /exec R1-R8
 ```
 
-CODEX-16 verifies:
+R1-R8 verify:
 
 - fresh schema7 / 5-sheet backend / installer idempotency;
 - GP + non-GP parent-first Meeting creation;
@@ -174,29 +196,28 @@ CODEX-16 verifies:
 - dedicated Meeting-only Full Output without AI model/question;
 - AI sync disabled / provider calls0 / owner-only access.
 
-Fresh target may be retained for Work0030 Azure synthetic qualification.
-
 Active instruction:
-`docs/handoffs/0028-CODEX-16-fresh-bound-runtime-qualification-instruction.md`
+`docs/handoffs/0028-CODEX-17-interrupted-runtime-recovery-instruction.md`
 
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
 
-Non-goals remain: real confidential data, broad/company rollout, historical orphan migration, new relation table, Dark/System, physical delete.
+Non-goals remain: real confidential data, broad/company rollout, historical orphan migration, new relation table, Dark/System, physical delete, provider qualification.
 
-## Work 0030 planned contract
+## Work 0030 deferred contract
 
-Company OpenAI-family provider = Azure OpenAI.
+User decision 2026-09-17: Azure OpenAI transition is on hold for now.
 
-Closed direction:
+Status:
 
-- Azure v1 Responses / Files / Vector Stores / file_search;
-- company API-key auth as first qualification route;
-- raw Azure deployment names stay internal behind model profile policy;
-- no Direct OpenAI/Gemini automatic fallback;
-- Azure resource state isolated from historical Direct OPENAI state;
-- synthetic Azure qualification before real corpus indexing;
-- FULL_EXPORT stays non-AI.
+```text
+WORK_ID: 0030
+STATUS: DEFERRED
+ACTIVE_DISPATCH: NONE
+REACTIVATION: explicit later user decision required
+```
+
+The previously closed architecture direction remains documented for future reuse, but no implementation, credential setup, Azure synthetic qualification, Vector Store creation, provider code change, or dispatch starts automatically after Work 0028.
 
 Decision:
 `docs/decisions/company-azure-openai-provider.md`
@@ -206,8 +227,12 @@ Plan:
 
 ## Next gate
 
-CODEX-16 returns provider-independent fresh bound runtime evidence. ChatGPT reviews. If no BLOCKER remains, merge PR #51 and apply Completion Latch to Work0028. Then activate Work0030.
+CODEX-17 first recovers the interrupted CODEX-16 local/Git/external target state without mutation. It then resumes the same single fresh-bound target if present, or creates the one permitted fresh target only after `NOT_STARTED_CONFIRMED`.
+
+ChatGPT reviews the returned provider-independent R1-R8 evidence. If no BLOCKER remains, ChatGPT reconciles/merges PR #51 and applies Completion Latch to Work 0028.
+
+After Work 0028 acceptance, stop. Work 0030 stays deferred until the user explicitly reactivates it.
 
 ## Scope discipline
 
-Only normal primary-flow failure, source/data integrity, credentials/authorization, authoritative citations, material irreversible side effects or required runtime evidence may block delivery. Cosmetic work, broad benchmarks and unrelated hardening remain FOLLOW_UP/OPTIONAL.
+Only normal primary-flow failure, source/data integrity, credentials/authorization, material irreversible side effects, ambiguous interrupted external state, or required runtime evidence may block delivery. Cosmetic work, broad benchmarks, provider migration, and unrelated hardening remain FOLLOW_UP/OPTIONAL.
