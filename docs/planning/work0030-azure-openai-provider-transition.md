@@ -1,19 +1,35 @@
 # Work 0030 — Azure OpenAI provider transition and qualification
 
 WORK_ID: 0030
-STATUS: PLANNED
-MODE: BUILD (when activated)
-DEPENDENCY: Work 0028 / CODEX-12 return + ChatGPT source-baseline review
+STATUS: DEFERRED
+MODE: BUILD (when reactivated)
+DEPENDENCY: Work 0028 accepted provider-neutral baseline
+USER_DECISION: 2026-09-17 — Azure OpenAI transition is on hold; do not activate automatically
+
+## Current hold
+
+Work 0030 is intentionally deferred by the user. The architecture and qualification plan below are retained as future design context only.
+
+Until a later explicit user reactivation decision:
+
+- do not issue `0030-CODEX-01`;
+- do not prepare or test Azure credentials/endpoints;
+- do not create Azure Files / Vector Stores / Responses test resources;
+- do not change Knowledge Share provider code for Azure;
+- do not treat Work 0028 completion as an automatic activation gate;
+- do not invalidate previously accepted Direct OpenAI/Gemini development evidence merely because the intended company provider may later be Azure OpenAI.
 
 ## Primary Outcome
 
 会社production向けOpenAI系providerをDirect OpenAIから会社提供Azure OpenAIへ移行し、既存Knowledge Shareのprovider-neutral File Search / citation / model-policy / security契約を維持したまま、Google Apps Script target runtimeでsynthetic end-to-endを認定する。
 
+This outcome remains the future target if/when the Work is explicitly reactivated.
+
 ## Why separate Work
 
-現在のWork 0028 / CODEX-12は、単一Meeting parent、資料link/unlink、non-GP metadata、Docs原文保全、FULL_EXPORT等のproduct/backend contractを実装中である。
+Work 0028は、単一Meeting parent、資料link/unlink、non-GP metadata、Docs原文保全、FULL_EXPORT等のproduct/backend contractをprovider-independentに収束させる。
 
-Azure OpenAI化を同runへ追加すると、provider-neutralな不具合とAzure transport固有の不具合が混ざり、証拠とscopeを汚す。そのためCODEX-12には割り込まず、返却・review後のaccepted sourceをWork 0030のbaseにする。
+Azure OpenAI化をWork 0028へ追加すると、provider-neutralな不具合とAzure transport固有の不具合が混ざり、証拠とscopeを汚す。そのため別Workとして維持する。
 
 ## Closed architecture direction
 
@@ -204,8 +220,10 @@ REAL_CONFIDENTIAL_INDEXING: NONE
 - provider-specific duplicate UI
 - unrelated Work 0028 polish/refactor
 
-## Activation gate
+## Reactivation gate
 
-Work 0030は現在PLANNEDで、active dispatchを持たない。
+Work 0030 is `DEFERRED` and has no active Dispatch.
 
-Work 0028 / CODEX-12の返却後にChatGPTがfinal diff/runtime evidenceをreviewし、採用するprovider-neutral source baselineを固定してから`0030-CODEX-01`を発行する。
+A later explicit user decision is required before activation. Work 0028 acceptance alone must not trigger activation.
+
+When reactivated, ChatGPT must first confirm the then-current accepted provider-neutral source baseline and current official Azure/OpenAI API contract, then issue the first unused Work 0030 Dispatch ID.
