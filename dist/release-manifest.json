@@ -2,17 +2,17 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 7,
-  "source_git_commit": "5842a07255a10415d39d524fd8ec174450248855",
+  "source_git_commit": "cc135b49702fb04207de39b0cf529125a994172e",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "28c4e7c5ba1f4f344a61be990cf94ffbe890dc8276a386e43ea1065502a06e3c",
-  "bundle_file_sha256": "4442a8c39955820c34e01290d82a0c97843b88482c8ccf7fa077d364edd5d0c0",
-  "source_manifest_sha256": "ac17af72f807a89a162f82f3da5d7a2bcf3f14404acd59f9d0316ae9ae413dfa",
+  "bundle_payload_sha256": "8830b607496c3477f133ca223a3bb35e91954179286b78144941cd372f4b51f6",
+  "bundle_file_sha256": "8540c57ae14798e581f7cc4bce4a86179a2ae9e8d6c2bfaf9388fbb1ea7eb378",
+  "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "7cc9e9d77274c59d00f967a33c506023dfb791e9ca90c66ddfa28ee8c3a88083",
   "bundle_metrics": {
-    "bytes": 1162159,
-    "characters": 1122069,
-    "lines": 19021,
+    "bytes": 1163392,
+    "characters": 1123302,
+    "lines": 19043,
     "server_source_count": 60,
     "embedded_html_count": 22
   },
@@ -39,8 +39,8 @@
     },
     {
       "file": "src/15_Installer.gs",
-      "bytes": 18839,
-      "sha256": "58c45036840786432c5edf40902432ce72fe5a6b918239f3c09f1181b5e7201b"
+      "bytes": 20014,
+      "sha256": "3f852c09c1f43a2c1f53dc06964c1c2349983707542e83fb8b3ad252ed7e0671"
     },
     {
       "file": "src/20_LiveEnvironment.gs",
@@ -134,8 +134,8 @@
     },
     {
       "file": "src/99_EntryPoints.gs",
-      "bytes": 1709,
-      "sha256": "ba6b6b56b62ceaecd604652f10c61e32434323bb1c8dd6d86c431da350d23293"
+      "bytes": 1767,
+      "sha256": "b808b4806f7c4f2c94a49e02a11d81bcbd8d34d3bfa3fc17977c3aea23ca64b9"
     },
     {
       "file": "src/100_MaintenanceCore.gs",
