@@ -182,6 +182,26 @@ function kspInstallerSafeError_(error) {
   return { code: code, message: messages[code] || '導入状態を確認して、会社管理者として再実行してください。' };
 }
 
+// Closed vocabularies only: never log status payloads, identities, or raw errors.
+function kspLogInstallerOutcome_(status) {
+  var states = ['INSTALLING', 'READY_FOR_DEPLOYMENT', 'READY', 'ACTION_REQUIRED', 'FAILED'];
+  var codes = [
+    'INSTALLER_BOUND_SPREADSHEET_REQUIRED', 'INSTALLER_PARENT_AMBIGUOUS',
+    'INSTALLER_ACTIVE_USER_REQUIRED', 'INSTALLER_IDENTITY_AMBIGUOUS',
+    'INSTALLER_ADMIN_REQUIRED', 'INSTALLER_OWNER_MISMATCH',
+    'INSTALLER_OWNER_LATCH_INVALID', 'INSTALLER_OWNER_CONFIG_CONFLICT',
+    'INSTALLER_OWNER_MIGRATION_AMBIGUOUS', 'INSTALLER_BOOTSTRAP_CONFLICT',
+    'SETUP_LOCK_TIMEOUT', 'DUPLICATE_RESOURCE_CANDIDATES', 'INSTALLATION_STATE_MISSING',
+    'WEB_APP_DEPLOYMENT_REQUIRED', 'WEB_APP_DEPLOYMENT_IDENTITY_INVALID',
+    'DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED', 'DEPLOYMENT_SECURITY_ATTESTATION_INVALID',
+    'DEPLOYMENT_SECURITY_ATTESTATION_STALE'
+  ];
+  var state = status && states.indexOf(status.state) !== -1 ? status.state : 'FAILED';
+  var code = status && status.error ?
+    (codes.indexOf(status.error.code) !== -1 ? status.error.code : 'INSTALLER_FAILED') : 'NONE';
+  console.log(JSON.stringify({ state: state, code: code }));
+}
+
 function kspBuildInstallerStatus_(state, nextAction, details) {
   var metadata = kspGetDistributionMetadata_();
   var data = details || {};

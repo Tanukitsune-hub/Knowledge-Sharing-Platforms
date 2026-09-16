@@ -5,9 +5,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function loadInstaller() {
-  const context = vm.createContext({ console });
-  for (const file of ['00_Core.gs', '01_DistributionResources.gs', '15_Installer.gs']) {
+function loadInstaller(logger = console) {
+  const context = vm.createContext({ console: logger });
+  for (const file of ['00_Core.gs', '01_DistributionResources.gs', '15_Installer.gs', '99_EntryPoints.gs']) {
     new vm.Script(fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;
@@ -93,6 +93,42 @@ function ownerLatch(ownerEmail = 'admin@example.com') {
 const DEPLOYMENT_A = 'https://script.google.com/macros/s/qualification-a/exec';
 const DEPLOYMENT_B = 'https://script.google.com/macros/s/qualification-b/exec';
 const DEVELOPMENT_A = 'https://script.google.com/macros/s/qualification-a/dev';
+
+test('editor installer logs only safe outcomes and preserves fail-closed identity semantics', () => {
+  for (const options of [
+    { active: '', expected: 'INSTALLER_ACTIVE_USER_REQUIRED' },
+    { effective: 'other@example.com', expected: 'INSTALLER_IDENTITY_AMBIGUOUS' },
+    { expected: 'NONE' }
+  ]) {
+    const logs = [];
+    const context = loadInstaller({ log: (line) => logs.push(line) });
+    const environment = createEnvironment(options);
+    const counters = { setup: 0, resourceCreates: 0 };
+    installSetupStub(context, counters);
+    context.kspCreateInstallerEnvironment_ = () => environment;
+    const result = context.installKnowledgeShare();
+    assert.deepEqual(logs.map(JSON.parse), [{ state: result.state, code: options.expected }]);
+    if (options.expected !== 'NONE') {
+      assert.equal(result.state, 'ACTION_REQUIRED');
+      assert.equal(counters.setup, 0);
+      assert.deepEqual(environment._debug.mutations, []);
+    } else {
+      assert.equal(result.state, 'READY_FOR_DEPLOYMENT');
+      assert.equal(counters.setup, 1);
+    }
+    assert.equal(logs.join('').includes('@'), false);
+  }
+});
+
+test('outcome logging rejects arbitrary state/code and omits all private payload fields', () => {
+  const logs = [];
+  const context = loadInstaller({ log: (line) => logs.push(line) });
+  context.kspLogInstallerOutcome_({
+    state: 'private@example.com', error: { code: 'PRIVATE_IDENTIFIER', message: 'raw secret' },
+    resourceSummary: 'https://private.invalid/id', ownerEmail: 'owner@example.com'
+  });
+  assert.deepEqual(logs, ['{"state":"FAILED","code":"INSTALLER_FAILED"}']);
+});
 
 test('blank and ambiguous first-run identities fail before mutation', () => {
   for (const options of [

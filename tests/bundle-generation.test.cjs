@@ -38,6 +38,14 @@ test('generated manifest preserves V8, Drive v3, approved scopes, and no Gmail s
   const built = buildArtifacts({ rootDir, sourceCommit: 'c'.repeat(40), write: false });
   const manifest = JSON.parse(built.artifacts['appsscript.json']);
   assert.equal(manifest.runtimeVersion, 'V8');
+  assert.deepEqual(manifest.oauthScopes, [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/documents',
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/script.scriptapp',
+    'https://www.googleapis.com/auth/script.external_request'
+  ]);
   assert.ok(manifest.dependencies.enabledAdvancedServices.some((service) =>
     service.serviceId === 'drive' && service.version === 'v3'));
   assert.equal(manifest.oauthScopes.some((scope) => /gmail/i.test(scope)), false);
