@@ -1,18 +1,33 @@
-# CODEX-18 — installer identity scope repair / OAuth checkpoint
+# CODEX-18 — identity scope repair / deployment readiness blocker
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-18
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 確認日時: 2026-09-17 JST。
 
 ## 結果と再開点
 
-minimum scope修正、safe outcome log、回帰テスト、再生成・検証、およびCODEX-17の既存bound targetへの1回だけの同期を完了した。remote bundle/manifestは完全一致。editorで `installKnowledgeShare` を選択して1回実行要求したところ「承認が必要です」となり、権限確認からGoogleの未確認アプリ警告画面を開いた。ユーザーのnative OAuth操作で停止中。修正版I1の完了・safe outcomeはまだ観測していない。
+minimum scope修正、safe outcome log、回帰テスト、再生成・検証、およびCODEX-17の既存bound targetへの1回だけの同期を完了した。remote bundle/manifestは完全一致。OAuth checkpointを `514aa241d6b081700cb310e4babd762778b81ecc` に保存した後、ユーザーが承認を完了。同じeditor要求は自動継続し、repaired I1が1回完了していた。再実行はしていない。
 
-承認後は同Dispatchでread-only実行履歴・safe log・installation stateを回収する。承認後の自動継続の有無を確認してから、未実行が確認された場合のみrepaired I1を1回実行する。再同期しない。I1がFAILなら即STOPし、追加source repair・retryはしない。PASSの場合のみI2を1回、owner-only WEB_APP最大1件、security/readiness、R1-R8へ進む。
+safe logは `ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED`。I1の必須条件 `READY_FOR_DEPLOYMENT` に達していないため、その場でSTOPした。以後はread-only evidence回収とreport更新のみ。I2、deployment作成、attestation、readiness関数、R1-R8、追加source repair/retryは実施していない。次の判断はChatGPTへ返す。
+
+## OAuth後の直接観測
+
+- 実行履歴は過去7日間で計2件のみ。CODEX-17の08:02:59の実行に加え、CODEX-18は2026-09-17 08:36:56 JST開始、30.122秒、Head / Editor / installKnowledgeShare / 完了。
+- editor log: 08:36:58開始、08:37:25に固定safe state/code、08:37:28完了。「完了」はinstaller受入PASSではない。
+- hostに `KnowledgeShare_Installation` が作成され、状態ACTION_REQUIRED、同じsafe error code、schema 7、修正source commitとpayload hashを確認。resource summaryはsetup/schema/settings確認済み。
+- 隔離folder直下に既存host、Backend、Audit、knowledge root、Exportsがあり、knowledge root配下にMeeting Records、Pitchbooksがある。確認した各metadataのsharedはfalse。
+- Backendは厳密に5 sheets: GP_Master、Option_Master、Meeting_Index、Pitchbook_Index、Settings。SettingsのSCHEMA_VERSIONは7、AI_SYNC_ENABLEDはFALSE。trigger画面は0件。
+- 実行後もremote bundle/manifestはexact match、versionNumber付きdeploymentは0件。新target・versioned deploymentは作成していない。
+
+## 仮説評価とblockerの区別
+
+追加scopeとユーザー再承認後にidentity gate・setup・validationを通過したことは、safe outcomeに至るproduction制御フローと作成済みresourceの双方で裏付けられる。元のscope不足仮説を支持するが、CODEX-17の返却error codeは未観測なので、その歴史的root causeはNOT_CONFIRMEDのままとする。
+
+今回直接確認したblockerは **versioned deploymentが0件でもinstallerがdeployment security attestationを要求し、READY_FOR_DEPLOYMENTにならないこと**。productionの `kspBuildDeploymentReadinessStatus_` はservice URLが非空ならattestationを要求し、`kspGetWebAppDeploymentIdentity_` は `/dev` を `/exec` へ正規化する。既存auto-HEAD entrypointをversioned Web Appと区別できていない可能性が高い。ただし今回service URLの生値は取得・保存しておらず、具体的なURL種別は推論。source変更やattestationで迂回せず、別のbounded controller判断が必要。
 
 ## Work Contract / evidence
 
@@ -40,10 +55,10 @@ Manifest SHA-256: `c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8
 
 同期前にauthenticated principalの継続、project creator、bound parent、hostの所有・非共有・非trashed・隔離folder配置を確認した。旧accepted sourceの完全一致も確認した後、修正版2 filesを1回PUTしreadback完全一致を確認。versionNumber付きdeploymentは0件。既存auto-HEAD entrypointはqualification deploymentとは扱わない。
 
-CODEX-18: target作成0、source同期1、editor要求1（OAuth待ち）、repaired I1完了観測0、I2 0、qualification deployment 0、business mutation 0。CODEX-17と合算したtargetは同じ1組のみ。CODEX-17 I1本体実行1回と今回のOAuth要求を区別する。private budget/mappingはignored local evidenceにのみ保持し、本reportには保存しない。
+CODEX-18: target作成0、source同期1、editor要求1（OAuth後自動継続）、repaired I1本体実行1、I2 0、qualification deployment 0、business record mutation 0。installerによるstatus/設定/seed書き込みと6 resource作成（4 folders、Backend、Audit）は発生。CODEX-17と合算したtargetは同じ1組のみで、source導入/更新は計2回、installer本体実行は計2回。private budget/mappingはignored local evidenceにのみ保持し、本reportには保存しない。作成物は削除・移動せず次Dispatch用に保持した。
 
 ```text
-ACTIVE_HYPOTHESIS_RESULT: PENDING_NATIVE_OAUTH_AND_REPAIRED_I1
+ACTIVE_HYPOTHESIS_RESULT: SUPPORTED / IDENTITY_GATE_PASSED / DISTINCT_READINESS_BLOCKER_OBSERVED
 ROOT_CAUSE: NOT_CONFIRMED
 SOURCE_CHANGE_SUMMARY: MINIMUM_EMAIL_SCOPE_AND_CLOSED_VOCABULARY_OUTCOME_LOG
 MANIFEST_SCOPE_VALIDATION: PASS
@@ -51,15 +66,15 @@ FOCUSED_VALIDATION: PASS
 CANONICAL_VALIDATION: PASS / 517_OF_517
 BUNDLE_IDENTITY: PASS / EXACT_REMOTE_BUNDLE_AND_MANIFEST
 EXISTING_TARGET_REUSED: YES
-REPAIRED_INSTALLER_I1: OAUTH_PENDING / COMPLETION_NOT_OBSERVED
+REPAIRED_INSTALLER_I1: FAIL_ACCEPTANCE / EXECUTED_ONCE / ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED
 INSTALLER_IDEMPOTENCY_I2: NOT_RUN
 QUALIFICATION_WEB_APP: NOT_CREATED / VERSIONED_DEPLOYMENTS_0
-TARGET_RUNTIME_R1_R8: NOT_RUN / INSTALLER_GATE_PENDING
+TARGET_RUNTIME_R1_R8: NOT_RUN / I1_READINESS_BLOCKER
 PROVIDER_RUNTIME: OUT_OF_SCOPE / CALLS_0
 WORK_0030: DEFERRED_BY_USER
-SIDE_EFFECT_STATE: EXISTING_TARGET_SYNC_1 / NEW_TARGET_0 / PROVIDER_CALLS_0 / AI_SYNC_DISABLED
-RESIDUAL_SYNTHETIC_RESOURCES: CODEX17_EXISTING_FOLDER_HOST_BOUND_PROJECT_PRESERVED
-BLOCKER: NATIVE_GOOGLE_OAUTH_REQUIRED
+SIDE_EFFECT_STATE: EXISTING_TARGET_SYNC_1 / I1_1 / INSTALLER_RESOURCES_CREATED / NEW_TARGET_0 / PROVIDER_CALLS_0 / AI_SYNC_DISABLED / TRIGGERS_0
+RESIDUAL_SYNTHETIC_RESOURCES: EXISTING_TARGET_PLUS_4_FOLDERS_BACKEND_AUDIT_AND_STATUS_SHEET_PRESERVED
+BLOCKER: DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED_WITH_VERSIONED_DEPLOYMENTS_0
 READY: NO
 ```
 
@@ -71,5 +86,5 @@ NEW_KNOWLEDGE_CANDIDATE: NONE
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-18
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED

@@ -3,14 +3,14 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-18
 ACTIVE_DISPATCH_ID: 0028-CODEX-18
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
 
 ## Current state
 
-CODEX-18 OAuth checkpoint: latest origin/mainの `0028-CODEX-18-installer-identity-scope-repair-instruction.md` を契約としてminimum scope/safe log修正、517 tests、bundle/parity 29 tests、既存CODEX-17 bound targetへの1回同期とremote exact readbackを完了。native Google OAuth待ち。同Dispatchで履歴確認後repaired I1へ再開し、再同期・重複実行しない。詳細: `0028-CODEX-18-installer-identity-scope-repair-report.md`。以下の旧branch記録は履歴として保持し、mainのcontroller履歴との最終収束はChatGPTへ委ねる。
+CODEX-18返却: minimum scope/safe log修正、517 tests、bundle/parity 29 tests、既存CODEX-17 bound targetへの1回同期とremote exact readbackを完了。OAuth後にrepaired I1は自動継続して1回完了。identity/setupは通過したが `ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED` でREADY_FOR_DEPLOYMENT未達のためSTOP。versioned deployment 0、I2/R1-R8 NOT RUN、追加repair/retryなし。Backend5 sheets/schema7、AI sync FALSE、trigger0。詳細: `0028-CODEX-18-installer-identity-scope-repair-report.md`。以下の旧branch記録は履歴として保持し、mainのcontroller履歴との最終収束はChatGPTへ委ねる。
 
 CODEX-12はproduction sourceとgenerated bundleを返却。`npm run check` 512/512、bundle 27/27、local browser renderingはPASS。runtime preflightの自動選択条件がHEAD/旧版を含む複数WEB_APPで停止し、stop-on-first-failureを適用。既取得metadataではversion 75のWEB_APP + `/exec`は一意だが、remote source/browser identity以降はNOT RUN。source push・version/deployment mutationは0。詳細: `0028-CODEX-12-production-contract-build-report.md`。Workは未完了、source凍結、次はChatGPT reviewとbounded runtime qualification。
 
