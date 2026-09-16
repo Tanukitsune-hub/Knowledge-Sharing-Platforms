@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source | CODEX-18でinstaller identity scopeを限定修復し、existing fresh-bound targetでR1-R8まで再開 |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source | CODEX-19でpre/post-deployment readinessを分離し、existing fresh-bound targetでfinal R1-R8まで再開 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
@@ -48,7 +48,7 @@ new Google Spreadsheet
 -> Web App
 ```
 
-The installer intentionally requires bound Spreadsheet context and uses its parent folder as the safe installation boundary.
+The installer intentionally requires bound Spreadsheet context and uses its parent folder as the safe installation boundary. Deployment security remains fail-closed and administrator-attested.
 
 ### Work 0027
 
@@ -98,17 +98,19 @@ Branch:
 `codex/0028-production-contract-build`
 
 Current return HEAD:
-`5188d4497c4d626adbc6d8c67e1fbb9630404dfd`
+`399f80c584c01a0bf771737183e5ea28beb580bb`
 
-Accepted pre-runtime implementation evidence:
+Accepted implementation/runtime evidence retained:
 
 ```text
-frozen source: 5842a07255a10415d39d524fd8ec174450248855
-bundle commit: 2ab8b262c7211af5464f3201a77c6e45484cdc6c
-focused: 78/78 PASS
-canonical: 515/515 PASS
-bundle: 27/27 PASS
-prepare lifecycle: PASS / 160 batch continuity + bounded replay safety
+pre-repair frozen source: 5842a07255a10415d39d524fd8ec174450248855
+pre-repair bundle commit: 2ab8b262c7211af5464f3201a77c6e45484cdc6c
+CODEX-18 source repair: cc135b49702fb04207de39b0cf529125a994172e
+CODEX-18 generated artifact: 98c742a36d4dd42c2b7094fe26fae489b25c1030
+focused installer: 17/17 PASS
+canonical: 517/517 PASS
+bundle: 29/29 PASS
+prepare lifecycle: CLOSED
 ```
 
 Production scope implemented:
@@ -120,7 +122,9 @@ Production scope implemented:
 - parent-bound retrieval eligibility/citation revalidation;
 - independent Meeting-only non-AI Full Output;
 - accepted Light production UI;
-- schema7 / Pitchbook_Index four append-only columns.
+- schema7 / Pitchbook_Index four append-only columns;
+- explicit `userinfo.email` installer identity scope;
+- closed-vocabulary installer outcome log that does not expose identity/private payloads.
 
 ### Historical standalone qualification — superseded
 
@@ -132,64 +136,79 @@ Closed observations:
 2. bound installer against standalone -> expected `INSTALLER_BOUND_SPREADSHEET_REQUIRED`.
 3. private `_` functions existed but observed editor Run surface did not expose the required execution path.
 
-No application defect was established from those historical attempts. Historical version75 project/deployment must not be mutated for Work 0028.
+Historical version75 project/deployment must not be mutated for Work 0028.
 
-### CODEX-16 interruption / CODEX-17 recovery
+### Fresh bound qualification — CODEX-16/17/18
 
-CODEX-16 had no durable GitHub return. CODEX-17 performed read-only recovery and established:
+CODEX-16 had no durable return. CODEX-17 performed bounded recovery and established:
 
 ```text
 CODEX16_RECOVERY_STATE: NOT_STARTED_CONFIRMED
 ```
 
-CODEX-17 then created exactly one fresh container-bound synthetic qualification target, installed the accepted generated source/manifest, and after user OAuth executed the initial installer once.
+CODEX-17 then created exactly one fresh container-bound synthetic qualification target and installed the accepted generated distribution. Its initial installer execution completed at the Apps Script execution layer but produced no status/resource state. CODEX-17 stopped without retry or deployment.
 
-Direct target-runtime result:
+CODEX-18 added the minimum `userinfo.email` scope and safe outcome observability, regenerated/validated the bundle, synchronized the same target once, and after user OAuth ran repaired I1 once.
+
+Direct CODEX-18 target state:
 
 ```text
-INSTALLER_EXECUTION_HISTORY: COMPLETED
-INSTALLATION_STATUS_SHEET: ABSENT
-BACKEND_AND_INSTALLER_RESOURCES: ABSENT
-SCRIPT_PROPERTIES_AFTER_I1: EMPTY
+IDENTITY_AUTHORIZATION: PASS
+SETUP: PASS
+VALIDATION: PASS
+INSTALLER_STATUS_SHEET: PRESENT
+INSTALLER_RESOURCES: PRESENT
+BACKEND_SHEETS: EXACTLY_5
+SCHEMA_VERSION: 7
+AI_SYNC_ENABLED: FALSE
 TRIGGERS: 0
-QUALIFICATION_WEB_APP: 0
-TARGET_RUNTIME_R1_R8: NOT_RUN
+VERSIONED_DEPLOYMENTS: 0
+I1_RESULT: ACTION_REQUIRED
+I1_ERROR: DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED
+I2: NOT_RUN
+R1_R8: NOT_RUN
 PROVIDER_CALLS: 0
 READY: NO
 ```
 
-CODEX-17 stopped on this first non-consent runtime failure without I2, deployment, R1-R8, patch or retry. The target is retained and must be reused.
+CODEX-17の歴史的root causeは直接error code未観測のため `NOT_CONFIRMED` のまま。ただしscope追加後にidentity/setup/validationが通過しており、identity問題は運用上解消済みでdecision-impactはない。
 
-Controller review:
-`docs/handoffs/0028-CODEX-17-controller-review.md`
+### CODEX-19 active repair
 
-### CODEX-18 active repair
+Current blocker is a distinct pre/post-deployment stage defect.
 
-Source review narrowed the failure to the initial installer authorization/identity path before setup mutation.
+Google Apps Script automatically creates a HEAD deployment for each project; HEAD is a test surface synchronized to current code. Versioned deployments are distinct. A web app test URL ending `/dev` is development-only and does not prove that a versioned Web App exists.
 
-Current active hypothesis:
+Current installer flow evaluates deployment security immediately after setup/validation and accepts `/dev` as deployment identity. Therefore a fresh project can demand deployment attestation while authoritative versioned deployment count is still 0, blocking the intended architecture before the Web App can be created.
+
+CODEX-19 active hypothesis:
 
 ```text
-explicit manifest lacks https://www.googleapis.com/auth/userinfo.email
--> Session identity unavailable/empty at installer identity gate
--> ACTION_REQUIRED fail-closed before resource/status mutation
+pre-deployment installer completion
+and post-deployment security readiness are conflated
+-> auto HEAD/test /dev is treated as deployed identity
+-> attestation is required before versioned deployment creation
 ```
 
-The hypothesis is not yet a confirmed root cause because CODEX-17 did not directly observe the returned safe error code.
+CODEX-19 is authorized only to separate these stages without weakening security:
 
-CODEX-18 is authorized to make only the bounded repair needed to test this hypothesis:
-
-- add minimum `userinfo.email` scope through canonical manifest source/generator;
-- add safe error-code observability without logging identity/private values or weakening fail-closed behavior;
-- add focused regression coverage;
-- regenerate and validate deterministic distribution;
-- update the existing CODEX-17 bound target source/manifest once;
-- run repaired I1 once after any required Google consent;
-- if I1 PASS, run I2 once, create one owner-only qualification WEB_APP, then run R1-R8 once;
-- if repaired I1 fails, stop without a second repair/retry.
+- installer after identity/setup/validation -> `READY_FOR_DEPLOYMENT`;
+- installer pre-deployment state does not use `/dev` as versioned deployment proof;
+- `checkKnowledgeShareReadiness()` remains the post-deployment gate;
+- `confirmKnowledgeShareDeploymentSecurity()` remains admin/owner fail-closed;
+- target source sync max1;
+- one installer rerun serves as recovery + I2 idempotency proof;
+- PASS時のみowner-only versioned WEB_APPを1件作成;
+- authoritative WEB_APP metadataをread back;
+- attestation前はACTION_REQUIRED、confirmation後はREADY;
+- stored attestation hash must privately MATCH authoritative versioned `/exec` identity hash;
+- security readiness PASS後のみR1-R8を1 bounded pass。
 
 Active instruction:
-`docs/handoffs/0028-CODEX-18-installer-identity-scope-repair-instruction.md`
+`docs/handoffs/0028-CODEX-19-installer-deployment-stage-repair-instruction.md`
+
+Controller review:
+`docs/handoffs/0028-CODEX-18-controller-review.md`
 
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
@@ -198,9 +217,11 @@ Current BALL/STATUS:
 
 Work 0028 completes only after reviewable target-runtime evidence proves:
 
-- repaired fresh installer + idempotency;
-- schema7 / 5-sheet backend;
-- one owner-only WEB_APP / readiness;
+- installer returns `READY_FOR_DEPLOYMENT` after setup/validation;
+- idempotent rerun creates duplicate resources 0;
+- schema7 / exactly 5 Backend sheets;
+- one owner-only versioned WEB_APP with authoritative `/exec` identity;
+- deployment security attestation is bound to that actual versioned identity and readiness is READY;
 - GP + non-GP parent-first Meeting flow;
 - parent-bound file + follow-up file;
 - unlink/relink with stable IDs and physical delete0;
