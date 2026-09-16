@@ -313,7 +313,8 @@ test('deployment URL requires matching guarded administrator attestation before 
   const counters = { setup: 0, resourceCreates: 0 };
   installSetupStub(context, counters);
 
-  const beforeAttestation = context.kspRunInstaller_(environment);
+  assert.equal(context.kspRunInstaller_(environment).state, 'READY_FOR_DEPLOYMENT');
+  const beforeAttestation = context.kspCheckInstallerReadiness_(environment);
   assert.equal(beforeAttestation.state, 'ACTION_REQUIRED');
   assert.equal(beforeAttestation.error.code, 'DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED');
   assert.doesNotMatch(beforeAttestation.nextAction, /共有できます/);
@@ -327,12 +328,21 @@ test('deployment URL requires matching guarded administrator attestation before 
   assert.equal(context.kspCheckInstallerReadiness_(environment).state, 'READY');
 });
 
-test('development-mode service URL is canonicalized to the matching versioned deployment identity', () => {
+test('HEAD test surface does not block installation or its idempotent rerun; readiness still requires attestation', () => {
   const context = loadInstaller();
   const environment = createEnvironment({ deploymentUrl: DEVELOPMENT_A });
-  installSetupStub(context, { setup: 0, resourceCreates: 0 });
-
-  const beforeAttestation = context.kspRunInstaller_(environment);
+  const counters = { setup: 0, resourceCreates: 0 };
+  installSetupStub(context, counters);
+  for (let run = 0; run < 2; run += 1) {
+    const result = context.kspRunInstaller_(environment);
+    assert.equal(result.state, 'READY_FOR_DEPLOYMENT');
+    assert.equal(result.error, null);
+    assert.equal(environment._debug.statuses.at(-1).state, 'READY_FOR_DEPLOYMENT');
+    assert.equal(environment._debug.properties.has('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'), false);
+  }
+  assert.equal(counters.setup, 2);
+  assert.equal(counters.resourceCreates, 6);
+  const beforeAttestation = context.kspCheckInstallerReadiness_(environment);
   assert.equal(beforeAttestation.state, 'ACTION_REQUIRED');
   assert.equal(beforeAttestation.error.code, 'DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED');
 
@@ -341,6 +351,14 @@ test('development-mode service URL is canonicalized to the matching versioned de
   assert.equal(attestation.deploymentIdentitySha256,
     crypto.createHash('sha256').update(DEPLOYMENT_A).digest('hex'));
   assert.equal(context.kspCheckInstallerReadiness_(environment).state, 'READY');
+});
+
+test('installer stage never queries deployment identity', () => {
+  const context = loadInstaller();
+  const environment = createEnvironment();
+  environment.getWebAppDeploymentIdentity = () => { throw new Error('must not be queried before deployment'); };
+  installSetupStub(context, { setup: 0, resourceCreates: 0 });
+  assert.equal(context.kspRunInstaller_(environment).state, 'READY_FOR_DEPLOYMENT');
 });
 
 test('changed deployment identity invalidates prior attestation', () => {
@@ -392,6 +410,8 @@ test('missing deployment remains READY_FOR_DEPLOYMENT and malformed URL cannot b
   });
   assert.equal(context.kspConfirmInstallerDeploymentSecurity_(malformed).error.code,
     'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
+  assert.equal(context.kspCheckInstallerReadiness_(malformed).error.code,
+    'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
   assert.equal(malformed._debug.properties.has('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'), false);
 
   for (const deploymentUrl of [
@@ -405,6 +425,8 @@ test('missing deployment remains READY_FOR_DEPLOYMENT and malformed URL cannot b
       properties: Object.fromEntries(environment._debug.properties)
     });
     assert.equal(context.kspConfirmInstallerDeploymentSecurity_(invalid).error.code,
+      'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
+    assert.equal(context.kspCheckInstallerReadiness_(invalid).error.code,
       'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
     assert.equal(invalid._debug.properties.has('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'), false);
   }

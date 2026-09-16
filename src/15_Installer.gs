@@ -319,8 +319,12 @@ function kspRunInstaller_(environment) {
         KSP_INSTALLER_STATES.FAILED, safeValidationError.message, { error: safeValidationError }));
     }
 
-    return kspPersistInstallerStatus_(environment, kspBuildDeploymentReadinessStatus_(environment,
-      '必要なフォルダ、Backend、Audit、スキーマ、設定を確認しました。'));
+    // Installation completion is independent of HEAD/test deployment surfaces.
+    // Security attestation remains the separate post-deployment readiness gate.
+    return kspPersistInstallerStatus_(environment, kspBuildInstallerStatus_(
+      KSP_INSTALLER_STATES.READY_FOR_DEPLOYMENT,
+      'Apps Scriptで会社限定のWeb Appをデプロイし、デプロイ設定を確認してください。',
+      { resourceSummary: '必要なフォルダ、Backend、Audit、スキーマ、設定を確認しました。' }));
   } catch (error) {
     var safeError = kspInstallerSafeError_(error);
     return kspPersistInstallerStatus_(environment, kspBuildInstallerStatus_(
