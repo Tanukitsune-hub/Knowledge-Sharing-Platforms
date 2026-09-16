@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source | CODEX-17でCODEX-16中断状態をread-only回収後、single fresh-bound qualificationを再開 |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source | CODEX-18でinstaller identity scopeを限定修復し、existing fresh-bound targetでR1-R8まで再開 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
@@ -97,10 +97,10 @@ Closed UI direction:
 Branch:
 `codex/0028-production-contract-build`
 
-Remote PR HEAD observed 2026-09-17:
-`751df8350b9f08cb5a6650e5bd21d1e7793f8ab7`
+Current return HEAD:
+`5188d4497c4d626adbc6d8c67e1fbb9630404dfd`
 
-Accepted implementation evidence:
+Accepted pre-runtime implementation evidence:
 
 ```text
 frozen source: 5842a07255a10415d39d524fd8ec174450248855
@@ -122,93 +122,99 @@ Production scope implemented:
 - accepted Light production UI;
 - schema7 / Pitchbook_Index four append-only columns.
 
-### Historical standalone qualification attempts — superseded
+### Historical standalone qualification — superseded
 
-CODEX-13/14/15 established that the historical version75 Apps Script target is a standalone project and is a poor fit for the final installer architecture.
+CODEX-13/14/15 established that historical version75 is a standalone project and is not the final installer architecture.
 
-Observed stops:
+Closed observations:
 
 1. Execution API private function -> 403 authorization boundary.
-2. `checkKnowledgeShareReadiness()` -> expected `INSTALLER_BOUND_SPREADSHEET_REQUIRED` because target is standalone.
-3. private `_` status/setup functions exist but observed editor Run surface does not list them.
+2. bound installer against standalone -> expected `INSTALLER_BOUND_SPREADSHEET_REQUIRED`.
+3. private `_` functions existed but observed editor Run surface did not expose the required execution path.
 
-No application defect was established.
+No application defect was established from those historical attempts. Historical version75 project/deployment must not be mutated for Work 0028.
 
-Historical standalone current state:
+### CODEX-16 interruption / CODEX-17 recovery
 
-- saved source was updated once to frozen source and verified 83/83;
-- immutable version75 / served deployment remains old accepted source and unchanged;
-- no setup/version/deployment/business/provider mutation occurred after that source push.
-
-Controller Strategy Reset:
-`docs/handoffs/0028-CODEX-15-controller-review.md`
-
-Historical standalone strategy is SUPERSEDED. Do not keep adding execution surfaces or wrappers.
-
-### CODEX-16 interruption and CODEX-17 recovery
-
-CODEX-16 was issued on 2026-09-09 to qualify the final architecture on exactly one fresh container-bound synthetic target. Its remote Codex chat is not reliably readable.
-
-Controller GitHub readback on 2026-09-17 found:
+CODEX-16 had no durable GitHub return. CODEX-17 performed read-only recovery and established:
 
 ```text
-PR_BRANCH_REMOTE_HEAD: 751df8350b9f08cb5a6650e5bd21d1e7793f8ab7
-CODEX16_REMOTE_REPORT: ABSENT
-CODEX16_LATER_PR_BRANCH_COMMIT: NOT OBSERVED
-CODEX16_EXTERNAL_GOOGLE_SIDE_EFFECT_STATE: UNKNOWN
+CODEX16_RECOVERY_STATE: NOT_STARTED_CONFIRMED
 ```
 
-Therefore the absence of durable GitHub output is not treated as proof that CODEX-16 never started. `0028-CODEX-17` supersedes it as the active execution request and begins with read-only recovery.
+CODEX-17 then created exactly one fresh container-bound synthetic qualification target, installed the accepted generated source/manifest, and after user OAuth executed the initial installer once.
 
-Recovery classification is exactly one of:
+Direct target-runtime result:
 
 ```text
-RECOVERED_COMPLETE
-RECOVERED_PARTIAL
-NOT_STARTED_CONFIRMED
-AMBIGUOUS_EXTERNAL_STATE
+INSTALLER_EXECUTION_HISTORY: COMPLETED
+INSTALLATION_STATUS_SHEET: ABSENT
+BACKEND_AND_INSTALLER_RESOURCES: ABSENT
+SCRIPT_PROPERTIES_AFTER_I1: EMPTY
+TRIGGERS: 0
+QUALIFICATION_WEB_APP: 0
+TARGET_RUNTIME_R1_R8: NOT_RUN
+PROVIDER_CALLS: 0
+READY: NO
 ```
 
-The one-target/deployment/mutation budgets are cumulative across CODEX-16 + CODEX-17. Existing partial Google resources must be adopted, not recreated. Ambiguous external state stops before any second target is created.
+CODEX-17 stopped on this first non-consent runtime failure without I2, deployment, R1-R8, patch or retry. The target is retained and must be reused.
 
-After recovery, the accepted target architecture remains:
+Controller review:
+`docs/handoffs/0028-CODEX-17-controller-review.md`
+
+### CODEX-18 active repair
+
+Source review narrowed the failure to the initial installer authorization/identity path before setup mutation.
+
+Current active hypothesis:
 
 ```text
-isolated DEV folder
--> new host Spreadsheet
--> bound Apps Script
--> exact accepted generated distribution
--> installKnowledgeShare()
--> installer idempotency check
--> one owner-only WEB_APP deployment
--> deployment security/readiness
--> /exec R1-R8
+explicit manifest lacks https://www.googleapis.com/auth/userinfo.email
+-> Session identity unavailable/empty at installer identity gate
+-> ACTION_REQUIRED fail-closed before resource/status mutation
 ```
 
-R1-R8 verify:
+The hypothesis is not yet a confirmed root cause because CODEX-17 did not directly observe the returned safe error code.
 
-- fresh schema7 / 5-sheet backend / installer idempotency;
-- GP + non-GP parent-first Meeting creation;
-- tiny non-GP parent-bound file + metadata readback;
-- follow-up file on existing Meeting;
-- unlink/relink / stable IDs / physical delete0;
-- exact Meeting Docs body equality across relation-only mutation;
-- dedicated Meeting-only Full Output without AI model/question;
-- AI sync disabled / provider calls0 / owner-only access.
+CODEX-18 is authorized to make only the bounded repair needed to test this hypothesis:
+
+- add minimum `userinfo.email` scope through canonical manifest source/generator;
+- add safe error-code observability without logging identity/private values or weakening fail-closed behavior;
+- add focused regression coverage;
+- regenerate and validate deterministic distribution;
+- update the existing CODEX-17 bound target source/manifest once;
+- run repaired I1 once after any required Google consent;
+- if I1 PASS, run I2 once, create one owner-only qualification WEB_APP, then run R1-R8 once;
+- if repaired I1 fails, stop without a second repair/retry.
 
 Active instruction:
-`docs/handoffs/0028-CODEX-17-interrupted-runtime-recovery-instruction.md`
+`docs/handoffs/0028-CODEX-18-installer-identity-scope-repair-instruction.md`
 
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
+
+### Work 0028 completion gate
+
+Work 0028 completes only after reviewable target-runtime evidence proves:
+
+- repaired fresh installer + idempotency;
+- schema7 / 5-sheet backend;
+- one owner-only WEB_APP / readiness;
+- GP + non-GP parent-first Meeting flow;
+- parent-bound file + follow-up file;
+- unlink/relink with stable IDs and physical delete0;
+- exact Meeting Docs body preservation across relation-only mutation;
+- dedicated Meeting-only non-AI Full Output;
+- AI sync disabled / provider calls0 / confidential writes0.
+
+If PASS, ChatGPT reconciles/merges PR #51 and applies Completion Latch. Then development stops and the user moves to hands-on real-device/user verification.
 
 Non-goals remain: real confidential data, broad/company rollout, historical orphan migration, new relation table, Dark/System, physical delete, provider qualification.
 
 ## Work 0030 deferred contract
 
-User decision 2026-09-17: Azure OpenAI transition is on hold for now.
-
-Status:
+User decision 2026-09-17: Azure OpenAI transition is on hold.
 
 ```text
 WORK_ID: 0030
@@ -217,7 +223,7 @@ ACTIVE_DISPATCH: NONE
 REACTIVATION: explicit later user decision required
 ```
 
-The previously closed architecture direction remains documented for future reuse, but no implementation, credential setup, Azure synthetic qualification, Vector Store creation, provider code change, or dispatch starts automatically after Work 0028.
+No Azure implementation, credential setup, synthetic qualification, Vector Store creation, provider code change, or dispatch starts automatically after Work 0028.
 
 Decision:
 `docs/decisions/company-azure-openai-provider.md`
@@ -225,14 +231,6 @@ Decision:
 Plan:
 `docs/planning/work0030-azure-openai-provider-transition.md`
 
-## Next gate
-
-CODEX-17 first recovers the interrupted CODEX-16 local/Git/external target state without mutation. It then resumes the same single fresh-bound target if present, or creates the one permitted fresh target only after `NOT_STARTED_CONFIRMED`.
-
-ChatGPT reviews the returned provider-independent R1-R8 evidence. If no BLOCKER remains, ChatGPT reconciles/merges PR #51 and applies Completion Latch to Work 0028.
-
-After Work 0028 acceptance, stop. Work 0030 stays deferred until the user explicitly reactivates it.
-
 ## Scope discipline
 
-Only normal primary-flow failure, source/data integrity, credentials/authorization, material irreversible side effects, ambiguous interrupted external state, or required runtime evidence may block delivery. Cosmetic work, broad benchmarks, provider migration, and unrelated hardening remain FOLLOW_UP/OPTIONAL.
+Only primary-flow failure, source/data integrity, credentials/authorization, material irreversible side effects, required target-runtime evidence, or evidence contamination may block delivery. Cosmetic work, broad benchmarks, provider migration and unrelated hardening remain FOLLOW_UP/OPTIONAL.
