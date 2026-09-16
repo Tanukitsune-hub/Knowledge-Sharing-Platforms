@@ -1,109 +1,128 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-18
-ACTIVE_DISPATCH_ID: 0028-CODEX-18
+DISPATCH_ID: 0028-CODEX-19
+ACTIVE_DISPATCH_ID: 0028-CODEX-19
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
-PHASE: B1.6 / INSTALLER IDENTITY SCOPE REPAIR / FRESH BOUND QUALIFICATION
+PHASE: B1.7 / PRE-DEPLOYMENT READINESS REPAIR / FRESH BOUND QUALIFICATION
 
 ## Current state
 
 PR #50のLight designはaccepted/merged済み。Draft PR #51でproduction implementationとtarget-runtime qualificationを収束中。
 
-PR #51 current return:
+CODEX-18 return:
 
 ```text
-HEAD: 5188d4497c4d626adbc6d8c67e1fbb9630404dfd
-CODEX16_RECOVERY_STATE: NOT_STARTED_CONFIRMED
-fresh qualification target: 1
-accepted source installed: 1
-initial installer execution: 1
-execution history: completed
-installation status sheet: absent
-Backend / installer-created resources: absent
-Script Properties after I1: empty
-qualification deployment: 0
+PR_HEAD: 399f80c584c01a0bf771737183e5ea28beb580bb
+existing fresh bound target: retained
+userinfo.email scope repair: applied
+safe installer outcome logging: applied
+identity/setup/validation: PASS
+installer-created resources: present
+Backend: exactly 5 sheets
+schema: 7
+AI sync: FALSE
+triggers: 0
+versioned deployments: 0
+repaired I1: ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED
+I2: NOT_RUN
 R1-R8: NOT_RUN
 provider calls: 0
 READY: NO
 ```
 
-CODEX-17は初回installerが受入条件を満たさなかった最初のnon-consent failureで停止し、同run修正・再実行・deployment作成を行わなかった。この停止判断はChatGPT reviewでaccepted。
+CODEX-18は、repaired I1が契約上必要な `READY_FOR_DEPLOYMENT` に到達しなかった時点で、追加repair/retry、I2、deployment、R1-R8を行わず停止した。この停止判断はChatGPT reviewでaccepted。
 
 Controller review:
-`docs/handoffs/0028-CODEX-17-controller-review.md`
+`docs/handoffs/0028-CODEX-18-controller-review.md`
 
 ## Accepted evidence retained
 
 反証がない限り以下を再び開かない。
 
-- PR #50 Light design accepted/merged
-- PR #51 provider-independent production direction
-- schema7 / Pitchbook 4-column append contract
-- prepare lifecycle blocker CLOSED
-- pre-repair focused 78/78 PASS
-- pre-repair canonical 515/515 PASS
-- pre-repair bundle 27/27 PASS
-- CODEX-17 fresh bound target identity / exact source-install evidence
-- historical standalone saved source frozen-source parity
-- historical version75 qualification strategy SUPERSEDED
+- PR #50 Light design accepted/merged。
+- PR #51 provider-independent production direction。
+- schema7 / Pitchbook 4-column append contract。
+- prepare lifecycle blocker CLOSED。
+- CODEX-18 `userinfo.email` scope + safe closed-vocabulary installer outcome log。
+- focused installer 17/17 PASS。
+- canonical 517/517 PASS。
+- bundle 29/29 PASS。
+- existing fresh bound target identity/source/manifest exact readback。
+- repaired I1 identity/setup/validation PASS。
+- installer resources present / Backend 5 sheets / schema7。
+- AI sync FALSE / trigger0 / provider calls0。
+- historical standalone version75 strategy SUPERSEDED。
+- Work 0030 DEFERRED_BY_USER。
 
-## Active blocker and hypothesis
+CODEX-17の歴史的root causeはerror code未観測のため `NOT_CONFIRMED` のままだが、decision-impactはなく、再調査しない。
 
-Observed blocker:
+## Active blocker
 
-```text
-BLOCKER: INITIAL_INSTALL_COMPLETED_WITHOUT_INSTALLATION_OUTPUTS
-```
-
-Source review narrows the stop to the initial installer authorization/identity path before setup mutation. The explicit Apps Script manifest does not include `https://www.googleapis.com/auth/userinfo.email`; live `getSessionIdentities()` depends on `Session.getActiveUser().getEmail()` / `Session.getEffectiveUser().getEmail()` and converts retrieval exceptions to empty strings. The early authorization catch returns `ACTION_REQUIRED` without persisting the installation status sheet.
-
-Active Hypothesis for CODEX-18:
+Direct observation:
 
 ```text
-missing userinfo.email scope -> installer identity unavailable
--> initial authorization gate fails closed before setup mutation
+VERSIONED_DEPLOYMENTS: 0
+INSTALLER_RESULT: ACTION_REQUIRED
+ERROR_CODE: DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED
+EXPECTED_PRE_DEPLOYMENT_STATE: READY_FOR_DEPLOYMENT
 ```
 
-This is not yet a confirmed root cause because CODEX-17 did not directly observe the returned safe error code.
+Google Apps Scriptではproject作成時にHEAD deploymentが自動作成され、HEADはcurrent codeへ同期するtest用surfaceである。versioned deploymentは特定versionへ紐づく別物。web app test URLの `/dev` はdevelopment用であり、versioned Web App存在の証拠ではない。
 
-## CODEX-18 scope
+Current production flowはsetup/validation成功後にdeployment-security readinessを直ちに評価し、`/dev` をdeployment identityとして扱うため、versioned Web App作成前にattestationを要求できる。
 
-Use the existing CODEX-17 fresh bound target only. New target creation is forbidden.
+## Active Hypothesis — CODEX-19
 
-CODEX-18 may:
+Exactly one:
 
-1. add the minimum `userinfo.email` scope through the canonical manifest source/generator;
-2. add minimal safe error-code observability without logging personal/private identifiers or weakening fail-closed identity controls;
-3. add focused regression tests;
-4. regenerate deterministic distribution and run focused + canonical validation;
-5. sync repaired exact source/manifest to the existing bound project once;
-6. after any required user OAuth consent, execute repaired I1 once;
-7. only after I1 PASS, execute I2 idempotency once, create one owner-only WEB_APP, then run R1-R8 once.
+```text
+pre-deployment installer completion
+and post-deployment security readiness are conflated
+-> auto HEAD/test /dev is treated as deployed identity
+-> installer deadlocks before versioned deployment creation
+```
 
-If repaired I1 still fails, do not perform a second repair/retry in the same Dispatch.
+## CODEX-19 scope
+
+Existing CODEX-17/18 target only。新target禁止。
+
+CODEX-19 may:
+
+1. `installKnowledgeShare()` の成功後stateをpre-deployment `READY_FOR_DEPLOYMENT` に限定修正する。
+2. `checkKnowledgeShareReadiness()` / `confirmKnowledgeShareDeploymentSecurity()` のpost-deployment fail-closed security semanticsは維持する。
+3. targeted regression testsを追加・修正する。
+4. deterministic bundle/manifestを再生成・検証する。
+5. existing bound targetへrepaired exact source/manifestを1回だけ同期する。
+6. installerを1回だけrerunし、`READY_FOR_DEPLOYMENT` + duplicate0を確認する。この1回をI2 idempotency証拠とする。
+7. PASS時のみowner-only versioned WEB_APPを1件作成する。
+8. authoritative deployment metadataを確認し、attestation前後readinessを検証する。
+9. stored attestation hashとauthoritative versioned `/exec` identity hashをprivateに照合し、`MATCH` のみ受入。
+10. security readiness PASS後にprovider-independent R1-R8を1 bounded pass実行する。
 
 Active instruction:
-`docs/handoffs/0028-CODEX-18-installer-identity-scope-repair-instruction.md`
+`docs/handoffs/0028-CODEX-19-installer-deployment-stage-repair-instruction.md`
 
-## Fresh target / mutation boundary
+## Mutation / retry boundary
 
 ```text
 new target: 0
-existing target source update: max 1
-repaired I1: max 1
-I2 after I1 PASS: max 1
-qualification WEB_APP after installer PASS: max 1
+existing target source sync: max 1
+installer rerun / I2: max 1
+new versioned WEB_APP: max 1
+deployment update: 0
+security confirmation: max 1
+R1-R8: one bounded pass
+second source repair after target failure: 0
 second deployment: 0
-R1-R8 campaign: one bounded pass
 historical standalone mutation: 0
 physical delete: 0
-real confidential data: 0
+provider calls: 0
 ```
 
-If Google OAuth/native UI interaction is required, keep the same Dispatch ID and return `BALL: USER / STATUS: ACTION_REQUIRED`.
+Installer rerunが `READY_FOR_DEPLOYMENT` にならない、versioned WEB_APPをauthoritativeに証明できない、attestation hashがactual `/exec` identityと一致しない、またはR1-R8で最初のmaterial application failureが出た場合はSTOPしてChatGPTへ返す。
 
 ## Provider / Azure boundary
 
@@ -133,33 +152,34 @@ Work 0028 completion does not automatically activate Work 0030.
 | 0028-CODEX-14 | saved source parity / standalone mismatch |
 | 0028-CODEX-15 | historical standalone strategy superseded |
 | 0028-CODEX-16 | interrupted / no durable return |
-| 0028-CODEX-17 | recovery + fresh target + initial installer runtime failure / ACCEPTED |
-| 0028-CODEX-18 | bounded identity-scope repair + existing-target qualification / READY |
+| 0028-CODEX-17 | recovery + fresh target + initial identity-gate failure / accepted |
+| 0028-CODEX-18 | identity scope repair + resources established + readiness-stage blocker / accepted |
+| 0028-CODEX-19 | pre-deployment readiness stage repair + existing-target final qualification / READY |
 
 ## Completion gate
 
-CODEX-18が、existing target上でrepaired installer + idempotency + one owner-only WEB_APP + provider-independent R1-R8のreviewable evidenceを返す。
+CODEX-19がexisting targetで、installer/idempotency `READY_FOR_DEPLOYMENT`、one owner-only versioned WEB_APP、security readiness + authoritative attestation binding、provider-independent R1-R8のreviewable evidenceを返す。
 
-ChatGPTがfinal evidence/diffをreviewし、BLOCKERなしならPR #51を収束・mergeしてWork 0028へCompletion Latchを適用する。その後は開発を止め、ユーザーの実機確認へ進む。Work 0030はDEFERREDのまま。
+ChatGPTがfinal diff/evidenceをreviewし、BLOCKERなしならPR #51を収束・mergeしてWork 0028へCompletion Latchを適用する。その後は開発を止め、ユーザー実機確認へ進む。Work 0030はDEFERREDのまま。
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
 DESIGN_BASELINE: PR_50_MERGED
 PR_51: OPEN_DRAFT
-ACTIVE_DISPATCH: 0028-CODEX-18
+ACTIVE_DISPATCH: 0028-CODEX-19
 BALL: CODEX
 STATUS: READY
-TARGET_RUNTIME_STRATEGY: REPAIR_THEN_RESUME_EXISTING_FRESH_BOUND_TARGET
-ACTIVE_BLOCKER: INITIAL_INSTALL_COMPLETED_WITHOUT_INSTALLATION_OUTPUTS
-ACTIVE_HYPOTHESIS: MISSING_USERINFO_EMAIL_SCOPE
+TARGET_RUNTIME_STRATEGY: REPAIR_STAGE_THEN_RESUME_EXISTING_FRESH_BOUND_TARGET
+ACTIVE_BLOCKER: PRE_DEPLOYMENT_ATTESTATION_DEADLOCK
+ACTIVE_HYPOTHESIS: INSTALLER_AND_POST_DEPLOYMENT_READINESS_CONFLATED
 NEW_TARGET_AUTHORIZED: NO
 PROVIDER_CALLS_AUTHORIZED: NO
 WORK_0030: DEFERRED_BY_USER
-NEXT_UNUSED_DISPATCH: 0028-CODEX-19
+NEXT_UNUSED_DISPATCH: 0028-CODEX-20
 WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-18
+DISPATCH_ID: 0028-CODEX-19
 BALL: CODEX
 STATUS: READY
