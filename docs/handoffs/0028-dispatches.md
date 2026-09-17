@@ -3,12 +3,14 @@
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-22
 ACTIVE_DISPATCH_ID: 0028-CODEX-22
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
 
 ## Current state
+
+CODEX-22返却: version2でR1/R2/R3 initial attachment PASS、relation追加前後のDocs本文/Date/Time不変。検索UIのtemporal mismatchに対しSheets read adapterを最小修正、focused23/canonical523/bundle30 PASS。sync1/version3作成1/same owner-only deployment update1後も同じfailureが再発し、日付も前日表示となった。same failure class連続2回でSTOP。version3は既知不具合あり・未認定、R4/R5/R7およびR6/R8残項目NOT RUN、READY NO。物理セルとDocsはread-onlyで不変確認。詳細: `0028-CODEX-22-autonomous-completion-report.md`。追加repair/deployment/rollbackなし、ChatGPTのStrategy Resetへ返す。以下USER checkpointは履歴。
 
 CODEX-22再開時訂正: file-URL permissionはユーザー確認により既に有効。設定変更要求を撤回。文書化された通常click/filechooser待受でもsetFiles前にtimeoutし、native file選択のみUSER actionとして依頼。application repairではなくbrowser tooling limitation、Cycle1継続。既存non-GP親と本文baselineは保持。
 
