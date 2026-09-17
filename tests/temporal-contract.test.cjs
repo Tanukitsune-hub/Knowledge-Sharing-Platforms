@@ -36,6 +36,30 @@ function loadTemporalRuntime() {
 const ksp = loadTemporalRuntime();
 const repositoryRoot = path.join(__dirname, '..');
 
+test('Sheets adapter decodes Business Date and Time in the workbook timezone without writes', () => {
+  for (const [timezone, date, time] of [
+    ['Etc/GMT', '2026-09-17T00:00:00Z', '1899-12-30T11:15:00Z'],
+    ['Asia/Tokyo', '2026-09-16T15:00:00Z', '2026-09-17T02:15:00Z']
+  ]) {
+    const instant = new Date('2026-09-17T01:00:00Z');
+    const values = [[new Date(date), new Date(time), instant], ['2026-09-17', '11:15', 'unchanged']];
+    const before = values.map(row => row.slice());
+    const sheet = {
+      getLastRow: () => 3,
+      getParent: () => ({ getSpreadsheetTimeZone: () => timezone }),
+      getRange: () => ({ getValues: () => values })
+    };
+    const rows = ksp.kspReadObjectsFromSheet_(sheet, ['Date', 'Time', 'Created_At']);
+    assert.equal(rows[0].Date, '2026-09-17');
+    assert.equal(rows[0].Time, '11:15');
+    assert.equal(rows[0].Created_At, instant);
+    assert.equal(rows[1].Time, '11:15');
+    assert.deepEqual(values, before);
+    const mapped = ksp.kspMapMeetingSearchResult_(rows[0], { gp: {}, assetClass: {}, capitalType: {}, location: {} });
+    assert.equal(mapped.time, '11:15');
+  }
+});
+
 function meetingInput(overrides = {}) {
   return {
     date: '2026-08-13', time: '14:30', locationId: '', gpId: 'GP-1',

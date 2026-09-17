@@ -362,10 +362,21 @@ function kspReadObjectsFromSheet_(sheet, headers) {
   if (lastRow < 2 || headers.length === 0) {
     return [];
   }
+  var sheetTimezone;
   return sheet.getRange(2, 1, lastRow - 1, headers.length).getValues().map(function (values) {
     var objectValue = {};
     headers.forEach(function (header, index) {
-      objectValue[header] = values[index];
+      var value = values[index];
+      // Sheets encodes wall-clock cells using the workbook timezone, which can
+      // differ from the script timezone. Decode at the adapter boundary without
+      // changing either the physical cells or the canonical Instant contract.
+      if (value instanceof Date && (header === 'Date' || header === 'Time')) {
+        if (!sheetTimezone) sheetTimezone = sheet.getParent().getSpreadsheetTimeZone();
+        value = Number.isNaN(value.getTime()) ? '' : Utilities.formatDate(
+          value, sheetTimezone, header === 'Date' ? 'yyyy-MM-dd' : 'HH:mm');
+        value = header === 'Date' ? kspCanonicalBusinessDate_(value) : kspCanonicalBusinessTime_(value);
+      }
+      objectValue[header] = value;
     });
     return objectValue;
   });
