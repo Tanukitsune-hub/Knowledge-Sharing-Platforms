@@ -1,14 +1,16 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-19
-ACTIVE_DISPATCH_ID: 0028-CODEX-19
+DISPATCH_ID: 0028-CODEX-20
+ACTIVE_DISPATCH_ID: 0028-CODEX-20
 BALL: CHATGPT
 STATUS: RETURNED
-MODE: BUILD
+MODE: QUALIFICATION
 PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
 
 ## Current state
+
+CODEX-20返却: existing target / single owner-only version1 / saved and immutable source parityをread-only確認。browser harnessのpage evaluationはread-onlyであり、書き込みを伴うgoogle.script.run confirmationを実行できる許可された経路がないためAUTOMATION_TOOLING_LIMITATIONでSTOP。confirmation0、exec render/hash再比較/post-readiness/R1-R8はNOT RUN。MISMATCH再発やapplication failureではない。source/sync/version/deployment mutation0。詳細: `0028-CODEX-20-versioned-runtime-attestation-qualification-report.md`。mainとのcontrol-doc収束はChatGPTへ委ねる。
 
 CODEX-19返却: stage分離修正・518 tests・bundle30 tests PASS。既存targetへの同期1、installer/I2 rerun1でREADY_FOR_DEPLOYMENT、duplicate0、Backend5 sheets/schema7/AI sync FALSE/trigger0。owner-only version1 WEB_APPを1件作成しauthoritative metadataを確認。pre-attestation readinessは期待どおりACTION_REQUIRED。confirmation1回後、保存attestationと実versioned execのprivate hash比較がMISMATCHとなり即STOP。post-readinessとR1-R8はNOT RUN。詳細: `0028-CODEX-19-installer-deployment-stage-repair-report.md`。source再修正・second deploymentなし。mainとのcontrol-doc最終収束はChatGPTへ委ねる。
 
