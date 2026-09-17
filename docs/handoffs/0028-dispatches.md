@@ -1,14 +1,16 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-20
-ACTIVE_DISPATCH_ID: 0028-CODEX-20
+DISPATCH_ID: 0028-CODEX-21
+ACTIVE_DISPATCH_ID: 0028-CODEX-21
 BALL: CHATGPT
 STATUS: RETURNED
-MODE: QUALIFICATION
+MODE: BUILD
 PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
 
 ## Current state
+
+CODEX-21返却: 最小unlinked operator confirmation surfaceを追加、522 tests/bundle30 tests PASS。同じtargetへ同期1、version2作成1、同じsingle owner-only deployment更新1。通常UI confirmation1でREADY/NONE、独立attestation対authoritative exec比較MATCH。その後native editorからreadiness1を実行しACTION_REQUIRED/DEPLOYMENT_SECURITY_ATTESTATION_STALEとなったためSTOP。versioned-context readinessは未実行であり、MATCH再発失敗とは扱わない。R1-R8 NOT RUN、追加repair/sync/version/update/confirmationなし。詳細: `0028-CODEX-21-versioned-admin-confirmation-surface-report.md`。final review/merge/Completion LatchはChatGPTへ委ねる。
 
 CODEX-20返却: existing target / single owner-only version1 / saved and immutable source parityをread-only確認。browser harnessのpage evaluationはread-onlyであり、書き込みを伴うgoogle.script.run confirmationを実行できる許可された経路がないためAUTOMATION_TOOLING_LIMITATIONでSTOP。confirmation0、exec render/hash再比較/post-readiness/R1-R8はNOT RUN。MISMATCH再発やapplication failureではない。source/sync/version/deployment mutation0。詳細: `0028-CODEX-20-versioned-runtime-attestation-qualification-report.md`。mainとのcontrol-doc収束はChatGPTへ委ねる。
 
