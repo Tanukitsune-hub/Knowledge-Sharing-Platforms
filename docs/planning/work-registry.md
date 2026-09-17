@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source/runtime | CODEX-21でdurable guarded versioned-admin confirmation surfaceを追加し、same deploymentでattestation MATCH/READY後final R1-R8 |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD / QUALIFICATION) | Accepted PR #50 + PR #51 source/runtime | CODEX-22がsame targetでR1-R8まで自律完了。局所failureでは返さない |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
@@ -36,7 +36,7 @@ PR #34 merge `533c849bd1229827ec77cd5ad6506312ea286940`; private version66. Core
 
 PR #35 merge `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`.
 
-Accepted final company installation architecture:
+Accepted installation architecture:
 
 ```text
 new Google Spreadsheet
@@ -48,7 +48,7 @@ new Google Spreadsheet
 -> Web App
 ```
 
-Installer uses the bound Spreadsheet parent as the safe installation boundary. Deployment security remains fail-closed and administrator-attested.
+Installer uses the bound Spreadsheet parent as safe installation boundary. Deployment security remains fail-closed and administrator-attested.
 
 ### Work 0027
 
@@ -79,127 +79,90 @@ BLOCKER: NONE
 
 ### Accepted design
 
-PR #50 squash merge:
-`98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`
+PR #50 squash merge `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`.
 
 Closed UI direction:
 
 - Light-only, sidebar7, accepted dark sidebar/gold material family.
-- `記録を追加`: single Meeting form + optional new/existing related files; no standalone資料tab/record type/Data Receipt route.
+- `記録を追加`: single Meeting form + optional new/existing related files.
 - `過去の記録`: single Meeting list/detail with related file add/unlink/relink.
-- visible file `削除` = unlink from current Meeting, not physical/Pitchbook-wide delete.
+- visible file `削除` = unlink from current Meeting, not physical delete.
 - Knowledge Search: 面談先 / 情報ソース / period -> 検索モード / AIモデル -> 質問.
 - dedicated `全文出力`: Meeting-only / non-AI.
 - analytics 9-column Meeting list, summary/admin contracts preserved.
 
-### PR #51 production implementation
+### PR #51 production implementation / runtime
 
-Branch:
-`codex/0028-production-contract-build`
+Branch: `codex/0028-production-contract-build`
 
-Current returned HEAD:
-`4488d9b`（CODEX-21開始時にexact remote SHAをread backする）
+Current returned HEAD: `985b9ad`（CODEX-22開始時にexact remote SHAをread back）
 
-Accepted implementation/runtime evidence retained:
+Accepted production scope:
 
-```text
-pre-repair frozen source: 5842a07255a10415d39d524fd8ec174450248855
-pre-repair bundle commit: 2ab8b262c7211af5464f3201a77c6e45484cdc6c
-userinfo.email + safe outcome logging: accepted
-installer pre/post-deployment stage separation: accepted
-installer/I2: READY_FOR_DEPLOYMENT / duplicate0
-Backend: exactly 5 sheets / schema7
-AI sync: FALSE
-triggers: 0
-owner-only versioned WEB_APP: exactly1 / version1 / WEB_APP / USER_DEPLOYING / MYSELF
-canonical after CODEX-19: 518/518 PASS
-bundle after CODEX-19: 30/30 PASS
-prepare lifecycle: CLOSED
-provider calls: 0
-```
-
-Production scope implemented before CODEX-21:
-
-- Active Meeting parent binding before new file registration;
-- file/link partial-failure stable-ID recovery;
+- parent-first Meeting before file registration;
+- partial-failure stable-ID recovery;
 - non-GP parent/counterparty context;
 - relation-only add/unlink/relink without Meeting Docs regeneration;
-- parent-bound retrieval eligibility/citation revalidation;
-- independent Meeting-only non-AI Full Output;
+- parent-bound retrieval/citation revalidation;
+- Meeting-only non-AI Full Output;
 - accepted Light production UI;
-- schema7 / Pitchbook_Index four append-only columns;
-- explicit `userinfo.email` installer identity scope;
-- closed-vocabulary installer outcome log;
-- installer success after identity/setup/validation returns pre-deployment `READY_FOR_DEPLOYMENT`.
+- schema7 / Pitchbook_Index append columns;
+- installer identity scope + safe outcome logging;
+- installer pre/post-deployment stage separation;
+- durable unlinked deployment-security operator page.
 
-### Historical standalone qualification — superseded
-
-CODEX-13/14/15 established that historical version75 is a standalone project and is not the final installer architecture. Historical version75 project/deployment must not be mutated for Work 0028.
-
-### Fresh bound qualification — CODEX-16 through CODEX-20
-
-CODEX-16 had no durable return. CODEX-17 recovered `NOT_STARTED_CONFIRMED` and created exactly one fresh container-bound synthetic target.
-
-CODEX-18 repaired installer identity scope and established identity/setup/validation, installer resources, Backend exactly5, schema7, AI sync FALSE, triggers0.
-
-CODEX-19 repaired pre-deployment stage ordering. Installer rerun/I2 became `READY_FOR_DEPLOYMENT` with duplicate0. It then created exactly one owner-only versioned WEB_APP. Authoritative metadata confirmed version1 / WEB_APP / USER_DEPLOYING / MYSELF. Pre-attestation readiness correctly returned `ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED`.
-
-CODEX-19 then executed confirmation once from native editor. Persisted attestation hash did not match the authoritative versioned `/exec` hash, so it stopped before post-readiness/R1-R8.
-
-CODEX-20 attempted the cheapest source-free test of the execution-context hypothesis. It confirmed target/deployment/source parity read-only, but the available browser harness permits arbitrary JavaScript evaluation only in read-only page scope. Because normal UI had no confirmation control, `google.script.run` mutation could not be invoked safely. CODEX-20 stopped with `AUTOMATION_TOOLING_LIMITATION`; confirmation calls0, Google mutations0. This is not an application failure or a repeated hash mismatch.
-
-Controller review:
-`docs/handoffs/0028-CODEX-20-controller-review.md`
-
-### CODEX-21 active repair
-
-Strategy Reset conclusion: a repeatable deployment procedure cannot depend on Developer Tools, javascript URLs, hidden RPC, or automation-tool bypass. The application needs a minimal durable versioned-context operator path for its already-guarded deployment security confirmation.
-
-CODEX-21 adds exactly one unlinked operator-only deployment-security route/page:
-
-- not linked from normal product navigation;
-- GET/render is read-only;
-- explicit button click calls existing guarded `confirmKnowledgeShareDeploymentSecurity()` via `google.script.run`;
-- existing owner/admin fail-closed server authorization remains authoritative;
-- no arbitrary function runner/eval/debug bridge;
-- no private identifier/URL/hash/account/raw error exposure.
-
-After deterministic validation, CODEX-21 may sync the same existing target once, create one new immutable version, and update the same existing WEB_APP deployment once. It must not create a second deployment.
-
-Then normal browser UI click from the updated versioned `/exec` must produce:
+Accepted deterministic/runtime evidence:
 
 ```text
-ATTESTATION_TO_AUTHORITATIVE_VERSIONED_EXEC: MATCH
-POST_ATTESTATION_READINESS: READY
+installer/idempotency: PASS / duplicate0
+Backend: exactly5 sheets / schema7
+AI sync: FALSE
+triggers: 0
+provider calls: 0
+operator/source validation: 522/522 PASS
+bundle: 30/30 PASS
+single restricted WEB_APP: USER_DEPLOYING / MYSELF
+versioned confirmation: READY / NONE
+attestation vs authoritative current versioned /exec: MATCH
+deployment-security readiness: ACCEPTED
 ```
 
-Only then may final provider-independent R1-R8 run once.
+Native editorの `DEPLOYMENT_SECURITY_ATTESTATION_STALE` はeditor/head context-specific evidenceであり、actual versioned Web App readinessを反証しない。今後production readiness gateにeditor-context checkを使用しない。
+
+Controller review:
+`docs/handoffs/0028-CODEX-21-controller-review.md`
+
+Autonomous completion strategy:
+`docs/handoffs/0028-autonomous-completion-strategy-reset.md`
+
+### CODEX-22 active autonomous completion
+
+Remaining acceptance evidenceはprovider-independent R1-R8のみ。
+
+CODEX-22は最大3 repair/qualification cyclesまで、同一PR / 同一isolated target / 同一single deployment / 同一Outcome内で、diagnose -> minimal repair -> tests -> sync/version update -> runtime verificationを自己判断して継続する。
+
+局所的なapplication defect、test failure、runtime mismatchではChatGPTへ返さない。
+
+STOPはUSER native action、permission拡大、real/confidential/destructive operation、new target/second parallel deployment、architecture変更、same failure class連続2回、3 cycles消費、evidence contamination、provider call/Work0030必要時のみ。
 
 Active instruction:
-`docs/handoffs/0028-CODEX-21-versioned-admin-confirmation-surface-instruction.md`
-
-Current BALL/STATUS:
-`docs/handoffs/0028-dispatches.md`
+`docs/handoffs/0028-CODEX-22-autonomous-completion-instruction.md`
 
 ### Work 0028 completion gate
 
-Work 0028 completes only after reviewable target-runtime evidence proves:
+R1-R8:
 
-- installer `READY_FOR_DEPLOYMENT` + idempotent duplicate0;
-- schema7 / exactly 5 Backend sheets;
-- one restricted versioned WEB_APP with authoritative `/exec` identity;
-- deployment security attestation privately MATCHES the actual current versioned identity;
-- post-attestation readiness READY;
-- GP + non-GP parent-first Meeting flow;
-- parent-bound file + follow-up file;
+- schema7 / exactly 5 Backend sheets / AI disabled;
+- GP + non-GP parent-first Meeting;
+- parent-bound tiny file + follow-up file;
 - unlink/relink with stable IDs and physical delete0;
 - exact Meeting Docs body preservation across relation-only mutation;
 - dedicated Meeting-only non-AI Full Output;
-- AI sync disabled / provider calls0 / confidential writes0.
+- single restricted deployment / provider calls0 / confidential data0.
 
-If PASS, ChatGPT reconciles/merges PR #51 and applies Completion Latch. Then development stops and the user moves to hands-on real-device/user verification.
+CODEX-22がR1-R8 PASS、BLOCKER NONEを返したら、ChatGPTがfinal diff/evidenceをreviewし、PR #51をmergeしてCompletion Latchを適用する。その後は開発を止め、ユーザー実機確認へ移る。
 
-Non-goals remain: real confidential data, broad/company rollout, historical orphan migration, new relation table, Dark/System, physical delete, provider qualification.
+Non-goals: real confidential data, broad/company rollout, historical orphan migration, new relation table, Dark/System, physical delete, provider qualification.
 
 ## Work 0030 deferred contract
 
@@ -214,11 +177,9 @@ REACTIVATION: explicit later user decision required
 
 No Azure implementation, credential setup, synthetic qualification, Vector Store creation, provider code change, or dispatch starts automatically after Work 0028.
 
-Decision:
-`docs/decisions/company-azure-openai-provider.md`
+Decision: `docs/decisions/company-azure-openai-provider.md`
 
-Plan:
-`docs/planning/work0030-azure-openai-provider-transition.md`
+Plan: `docs/planning/work0030-azure-openai-provider-transition.md`
 
 ## Scope discipline
 
