@@ -49,7 +49,37 @@ function getPhase1MaintenanceBootstrapData() {
 }
 
 function searchMeetingRecords(input) {
+  if (input === undefined) kspObserveSyntheticTemporalReadback_();
   return kspSearchMeetingRecords_(kspCreateMaintenanceEnvironment_(), input);
+}
+
+// Temporary CODEX-23 editor-only observation; removed before the final candidate.
+function kspObserveSyntheticTemporalReadback_() {
+  var environment = kspCreateMaintenanceEnvironment_();
+  var state = environment.getInstallationState();
+  var active = Session.getActiveUser().getEmail();
+  if (!active || active !== Session.getEffectiveUser().getEmail() ||
+      !state || !state.config || state.config.adminEmails.indexOf(active) === -1) return;
+  var sheet = SpreadsheetApp.openById(state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET]).getSheetByName('Meeting_Index');
+  if (sheet.getLastRow() !== 3) return;
+  var headers = kspReadHeadersFromSheet_(sheet);
+  var rows = sheet.getRange(2, 1, 2, headers.length).getValues();
+  if (rows[0][headers.indexOf('Fund_Strategy')] !== 'SYNTHETIC CODEX22 GP' ||
+      rows[1][headers.indexOf('Fund_Strategy')] !== 'SYNTHETIC CODEX22 non-GP') return;
+  var zone = sheet.getParent().getSpreadsheetTimeZone();
+  var display = sheet.getRange(2, 2, 2, 2).getDisplayValues();
+  var mapped = kspReadObjectsFromSheet_(sheet, headers);
+  rows.forEach(function (row, index) {
+    ['Date', 'Time'].forEach(function (field, column) {
+      var value = row[headers.indexOf(field)];
+      var pattern = field === 'Date' ? 'yyyy-MM-dd' : 'HH:mm';
+      console.log(JSON.stringify({probe:'CODEX23_TEMPORAL',row:index + 1,field:field,
+        type:Object.prototype.toString.call(value),instant:value instanceof Date ? value.toISOString() : '',
+        workbookZone:zone,scriptZone:Session.getScriptTimeZone(),display:display[index][column],
+        workbookFormat:Utilities.formatDate(value, zone, pattern),gmtFormat:Utilities.formatDate(value, 'GMT', pattern),
+        appFormat:Utilities.formatDate(value, KSP_DEFAULTS.TIMEZONE, pattern),adapter:mapped[index][field]}));
+    });
+  });
 }
 
 function getMeetingMaintenanceRecord(meetingId) {
