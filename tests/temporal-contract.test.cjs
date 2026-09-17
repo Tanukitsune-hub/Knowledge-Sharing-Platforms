@@ -36,9 +36,11 @@ function loadTemporalRuntime() {
 const ksp = loadTemporalRuntime();
 const repositoryRoot = path.join(__dirname, '..');
 
-test('Sheets adapter decodes Business Date and Time in the workbook timezone without writes', () => {
+test('Sheets adapter preserves observed business displays even when native timezone disagrees', () => {
   for (const [timezone, date, time] of [
     ['Etc/GMT', '2026-09-17T00:00:00Z', '1899-12-30T11:15:00Z'],
+    // Actual CODEX23 Apps Script observation, not a hypothesized Date shape.
+    ['America/Los_Angeles', '2026-09-17T00:00:00Z', '1899-12-30T11:15:00Z'],
     ['Asia/Tokyo', '2026-09-16T15:00:00Z', '2026-09-17T02:15:00Z']
   ]) {
     const instant = new Date('2026-09-17T01:00:00Z');
@@ -47,7 +49,8 @@ test('Sheets adapter decodes Business Date and Time in the workbook timezone wit
     const sheet = {
       getLastRow: () => 3,
       getParent: () => ({ getSpreadsheetTimeZone: () => timezone }),
-      getRange: () => ({ getValues: () => values })
+      getRange: () => ({ getValues: () => values,
+        getDisplayValues: () => [['2026-09-17', '11:15', 'do not stringify'], ['2026-09-17', '11:15', 'unchanged']] })
     };
     const rows = ksp.kspReadObjectsFromSheet_(sheet, ['Date', 'Time', 'Created_At']);
     assert.equal(rows[0].Date, '2026-09-17');
@@ -58,6 +61,21 @@ test('Sheets adapter decodes Business Date and Time in the workbook timezone wit
     const mapped = ksp.kspMapMeetingSearchResult_(rows[0], { gp: {}, assetClass: {}, capitalType: {}, location: {} });
     assert.equal(mapped.time, '11:15');
   }
+});
+
+test('native business display decoding is strict and does not guess locale or alter instants', () => {
+  assert.equal(ksp.kspCanonicalSheetBusinessDisplay_('9:05', 'Time'), '09:05');
+  assert.equal(ksp.kspCanonicalSheetBusinessDisplay_('0:00', 'Time'), '00:00');
+  assert.equal(ksp.kspCanonicalSheetBusinessDisplay_('23:59', 'Time'), '23:59');
+  assert.equal(ksp.kspCanonicalSheetBusinessDisplay_('2024-02-29', 'Date'), '2024-02-29');
+  for (const [value, field] of [['09/10/2026','Date'],['2026-02-29','Date'],['11:15 PM','Time'],['24:00','Time'],['2026-09-17T00:00:00Z','Date']]) {
+    assert.throws(() => ksp.kspCanonicalSheetBusinessDisplay_(value, field), /Date\/Time/);
+  }
+  const instant = new Date('2026-09-17T01:00:00Z');
+  const sheet = {getLastRow:()=>2,getRange:()=>({getValues:()=>[['2026-09-17','10:30',instant]],getDisplayValues:()=>{throw Error('unneeded display read');}})};
+  const row = ksp.kspReadObjectsFromSheet_(sheet,['Date','Time','Created_At'])[0];
+  assert.equal(row.Created_At, instant);
+  assert.equal(row.Time, '10:30');
 });
 
 function meetingInput(overrides = {}) {
