@@ -10,6 +10,8 @@ PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
 
 ## Current state
 
+CODEX-22再開時訂正: file-URL permissionはユーザー確認により既に有効。設定変更要求を撤回。文書化された通常click/filechooser待受でもsetFiles前にtimeoutし、native file選択のみUSER actionとして依頼。application repairではなくbrowser tooling limitation、Cycle1継続。既存non-GP親と本文baselineは保持。
+
 CODEX-22中間checkpoint: Cycle1でR1/R2 PASS。既存version2 owner-only targetにsynthetic GP/non-GP Meeting各1、non-GP master1を作成。R6本文baseline取得済み。R3のbrowser file chooser取得timeout、upload設定確認先がbrowser policyでblockedのためUSER native file-upload設定待ち。uploaded files0、source repair/sync/version/update0。R3から同Dispatchを再開、親再作成不要。詳細: `0028-CODEX-22-autonomous-completion-report.md`。CODEX-21のversioned security readinessはmain controller reviewでACCEPTED、editor-context readinessを再gateにしない。
 
 CODEX-21返却: 最小unlinked operator confirmation surfaceを追加、522 tests/bundle30 tests PASS。同じtargetへ同期1、version2作成1、同じsingle owner-only deployment更新1。通常UI confirmation1でREADY/NONE、独立attestation対authoritative exec比較MATCH。その後native editorからreadiness1を実行しACTION_REQUIRED/DEPLOYMENT_SECURITY_ATTESTATION_STALEとなったためSTOP。versioned-context readinessは未実行であり、MATCH再発失敗とは扱わない。R1-R8 NOT RUN、追加repair/sync/version/update/confirmationなし。詳細: `0028-CODEX-21-versioned-admin-confirmation-surface-report.md`。final review/merge/Completion LatchはChatGPTへ委ねる。

@@ -12,7 +12,9 @@ MODE: BUILD
 
 R1・R2はactual versioned Web App / Backend読戻しでPASS。R3のtiny synthetic TXT選択時にbrowser file chooser取得がtimeoutした。ブラウザーの文書化されたupload設定確認先はbrowser URL policyでアクセスを拒否されたため、別経路で迂回せずUSER操作待ちとして停止した。source repairやruntime application failureを観測したわけではない。file-URL permissionがOFFであること自体は未確認。
 
-必要な通常UI操作は、ChromeのChatGPT browser extension詳細で「Allow access to file URLs」を有効にすること。Developer Tools、JavaScript、credential/ID/URL入力は不要。設定確認後は同DispatchをR3から再開する。既存親Meetingを新規作成し直さない。
+ユーザーは「Allow access to file URLs」は以前から有効と確認済み。設定変更要求は撤回する。再開時に通常clickとfilechooser待受を別の文書化APIで組み合わせても、setFiles到達前のchooser取得timeoutを確認した。permission errorは観測していない。sourceの通常file input経路と未送信フォーム状態も確認し、application defectとは分類しない。
+
+必要な通常UI操作は、保持中のnon-GP親Meetingの「添付資料を選択」からlocal ignored fixture `.clasp/0028-22-initial.txt` を1件選択することだけ。選択のみでserver registrationは行われない実装であり、登録buttonはCodexが後続操作する。Developer Tools、JavaScript、credential/ID/URL入力、拡張設定変更は不要。同DispatchをR3から再開し、既存親Meetingを新規作成し直さない。
 
 ## Work Contract / source of truth
 
@@ -67,7 +69,7 @@ AI_SYNC: DISABLED
 CONFIDENTIAL_DATA: 0
 PHYSICAL_DELETE: 0
 SIDE_EFFECT_STATE: SYNTHETIC_MEETINGS_2 / SYNTHETIC_NON_GP_MASTER_1 / UPLOADED_FILES_0 / RELATION_MUTATIONS_0
-BLOCKER: USER_NATIVE_FILE_UPLOAD_CONFIGURATION
+BLOCKER: BROWSER_FILE_CHOOSER_EVENT_UNAVAILABLE / USER_NATIVE_FILE_SELECTION
 READY_FOR_CHATGPT_FINAL_REVIEW: NO
 WORK_0030: DEFERRED_BY_USER
 ```
