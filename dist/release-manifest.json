@@ -2,19 +2,19 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 7,
-  "source_git_commit": "3383735556ca7678d64c45c5f948b3ae1bfb7e00",
+  "source_git_commit": "04fcc974cb7591d1bc866844eaa60a7901366076",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "911f8533ee0fac4227ab313e24b3b9abe41ccc5a3a116d8fb0a166984445a6ae",
-  "bundle_file_sha256": "70f071efd9752ac2b564df2105cc50e161150062e56022fddb9b72e1509211fb",
+  "bundle_payload_sha256": "cc7d12932be3b3eb55f43b8e217ea293ee2cfc061d11899489d7322855b4c059",
+  "bundle_file_sha256": "2d35d78cf49180411f98c38849db07cee4702d4914a7449baa854ace5adf8e33",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
-  "source_order_sha256": "7cc9e9d77274c59d00f967a33c506023dfb791e9ca90c66ddfa28ee8c3a88083",
+  "source_order_sha256": "0bfbca190f540083dce42b3594159f22817f4f6d0f0335eee1e886b4b78941bd",
   "bundle_metrics": {
-    "bytes": 1163716,
-    "characters": 1123568,
-    "lines": 19047,
+    "bytes": 1167107,
+    "characters": 1126631,
+    "lines": 19056,
     "server_source_count": 60,
-    "embedded_html_count": 22
+    "embedded_html_count": 23
   },
   "server_sources": [
     {
@@ -129,8 +129,8 @@
     },
     {
       "file": "src/90_WebApp.gs",
-      "bytes": 3521,
-      "sha256": "d91a5f90aa3f3030859a10c6df9fa29695b6b577100736b3213e71a221128d2d"
+      "bytes": 3936,
+      "sha256": "a8988610dd2a9894c4b0b4c4fa38c61c04a22584ca2b121b3a0d005bd19df3c2"
     },
     {
       "file": "src/99_EntryPoints.gs",
@@ -388,6 +388,11 @@
       "file": "src/ClientRelationshipExplorer.html",
       "bytes": 12727,
       "sha256": "28a3dc27f9b4754087949ff069b8f279909ed988732e939c34c7af8837109d2d"
+    },
+    {
+      "file": "src/DeploymentSecurityOperator.html",
+      "bytes": 2860,
+      "sha256": "fdf7591631d294d1e72ae485b64e245bff9d0252e83e3b534a523f619f021198"
     },
     {
       "file": "src/EntityWorkspacePage.html",
