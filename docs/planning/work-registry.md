@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source | CODEX-19でpre/post-deployment readinessを分離し、existing fresh-bound targetでfinal R1-R8まで再開 |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (QUALIFICATION) | Accepted PR #50 + PR #51 source/runtime | CODEX-20でexisting version1 `/exec` contextからattestation bindingを再認定し、MATCH/READYならfinal R1-R8 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
@@ -97,19 +97,18 @@ Closed UI direction:
 Branch:
 `codex/0028-production-contract-build`
 
-Current return HEAD:
-`399f80c584c01a0bf771737183e5ea28beb580bb`
+Current returned HEAD:
+`0a678cc`（CODEX-20開始時にexact remote SHAをread backする）
 
 Accepted implementation/runtime evidence retained:
 
 ```text
 pre-repair frozen source: 5842a07255a10415d39d524fd8ec174450248855
 pre-repair bundle commit: 2ab8b262c7211af5464f3201a77c6e45484cdc6c
-CODEX-18 source repair: cc135b49702fb04207de39b0cf529125a994172e
-CODEX-18 generated artifact: 98c742a36d4dd42c2b7094fe26fae489b25c1030
-focused installer: 17/17 PASS
-canonical: 517/517 PASS
-bundle: 29/29 PASS
+userinfo.email + safe outcome logging: accepted
+installer stage separation: accepted
+canonical after CODEX-19: 518/518 PASS
+bundle after CODEX-19: 30/30 PASS
 prepare lifecycle: CLOSED
 ```
 
@@ -124,91 +123,87 @@ Production scope implemented:
 - accepted Light production UI;
 - schema7 / Pitchbook_Index four append-only columns;
 - explicit `userinfo.email` installer identity scope;
-- closed-vocabulary installer outcome log that does not expose identity/private payloads.
+- closed-vocabulary installer outcome log that does not expose identity/private payloads;
+- installer success after identity/setup/validation returns pre-deployment `READY_FOR_DEPLOYMENT` without conflating post-deployment attestation readiness.
 
 ### Historical standalone qualification — superseded
 
-CODEX-13/14/15 established that historical version75 is a standalone project and is not the final installer architecture.
+CODEX-13/14/15 established that historical version75 is a standalone project and is not the final installer architecture. Historical version75 project/deployment must not be mutated for Work 0028.
 
-Closed observations:
+### Fresh bound qualification — CODEX-16 through CODEX-19
 
-1. Execution API private function -> 403 authorization boundary.
-2. bound installer against standalone -> expected `INSTALLER_BOUND_SPREADSHEET_REQUIRED`.
-3. private `_` functions existed but observed editor Run surface did not expose the required execution path.
+CODEX-16 had no durable return. CODEX-17 performed bounded recovery and established `NOT_STARTED_CONFIRMED`, then created exactly one fresh container-bound synthetic qualification target.
 
-Historical version75 project/deployment must not be mutated for Work 0028.
-
-### Fresh bound qualification — CODEX-16/17/18
-
-CODEX-16 had no durable return. CODEX-17 performed bounded recovery and established:
-
-```text
-CODEX16_RECOVERY_STATE: NOT_STARTED_CONFIRMED
-```
-
-CODEX-17 then created exactly one fresh container-bound synthetic qualification target and installed the accepted generated distribution. Its initial installer execution completed at the Apps Script execution layer but produced no status/resource state. CODEX-17 stopped without retry or deployment.
-
-CODEX-18 added the minimum `userinfo.email` scope and safe outcome observability, regenerated/validated the bundle, synchronized the same target once, and after user OAuth ran repaired I1 once.
-
-Direct CODEX-18 target state:
+CODEX-18 repaired the minimum identity scope and established:
 
 ```text
 IDENTITY_AUTHORIZATION: PASS
 SETUP: PASS
 VALIDATION: PASS
-INSTALLER_STATUS_SHEET: PRESENT
 INSTALLER_RESOURCES: PRESENT
 BACKEND_SHEETS: EXACTLY_5
 SCHEMA_VERSION: 7
 AI_SYNC_ENABLED: FALSE
 TRIGGERS: 0
-VERSIONED_DEPLOYMENTS: 0
-I1_RESULT: ACTION_REQUIRED
-I1_ERROR: DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED
-I2: NOT_RUN
-R1_R8: NOT_RUN
 PROVIDER_CALLS: 0
-READY: NO
 ```
 
-CODEX-17の歴史的root causeは直接error code未観測のため `NOT_CONFIRMED` のまま。ただしscope追加後にidentity/setup/validationが通過しており、identity問題は運用上解消済みでdecision-impactはない。
-
-### CODEX-19 active repair
-
-Current blocker is a distinct pre/post-deployment stage defect.
-
-Google Apps Script automatically creates a HEAD deployment for each project; HEAD is a test surface synchronized to current code. Versioned deployments are distinct. A web app test URL ending `/dev` is development-only and does not prove that a versioned Web App exists.
-
-Current installer flow evaluates deployment security immediately after setup/validation and accepts `/dev` as deployment identity. Therefore a fresh project can demand deployment attestation while authoritative versioned deployment count is still 0, blocking the intended architecture before the Web App can be created.
-
-CODEX-19 active hypothesis:
+CODEX-19 separated pre-deployment installer completion from post-deployment security readiness. Existing targetへの1回のsource sync後、installer rerun / I2はPASS:
 
 ```text
-pre-deployment installer completion
-and post-deployment security readiness are conflated
--> auto HEAD/test /dev is treated as deployed identity
--> attestation is required before versioned deployment creation
+INSTALLER_RESULT: READY_FOR_DEPLOYMENT
+INSTALLER_IDEMPOTENCY_I2: PASS
+RESOURCE_DUPLICATES: 0
+BACKEND_SHEETS: EXACTLY_5
+SCHEMA_VERSION: 7
+AI_SYNC_ENABLED: FALSE
+TRIGGERS: 0
 ```
 
-CODEX-19 is authorized only to separate these stages without weakening security:
+その後、owner-only versioned WEB_APPを1件だけ作成し、authoritative metadataで以下を確認:
 
-- installer after identity/setup/validation -> `READY_FOR_DEPLOYMENT`;
-- installer pre-deployment state does not use `/dev` as versioned deployment proof;
-- `checkKnowledgeShareReadiness()` remains the post-deployment gate;
-- `confirmKnowledgeShareDeploymentSecurity()` remains admin/owner fail-closed;
-- target source sync max1;
-- one installer rerun serves as recovery + I2 idempotency proof;
-- PASS時のみowner-only versioned WEB_APPを1件作成;
-- authoritative WEB_APP metadataをread back;
-- attestation前はACTION_REQUIRED、confirmation後はREADY;
-- stored attestation hash must privately MATCH authoritative versioned `/exec` identity hash;
-- security readiness PASS後のみR1-R8を1 bounded pass。
+```text
+VERSIONED_WEB_APP_COUNT: 1
+VERSION: 1
+ENTRYPOINT: WEB_APP
+EXECUTE_AS: USER_DEPLOYING
+ACCESS: MYSELF
+AUTHORITATIVE_EXEC: PRESENT
+```
+
+pre-attestation readinessは期待どおり `ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED`。
+
+しかしnative editorから`confirmKnowledgeShareDeploymentSecurity()`を1回実行した後、persisted attestation hashとauthoritative versioned `/exec` identity hashのprivate独立比較がMISMATCH。CODEX-19はpost-readinessとR1-R8を実行せず停止した。
+
+### CODEX-20 active qualification
+
+Current blockerはsource defect確定ではなく、attestation confirmationのexecution context差を最短で切り分ける段階。
+
+Apps Script `ScriptApp.getService().getUrl()` はcontext-sensitiveで、development mode web app実行時にはdevelopment URLを返す。HEAD/test deploymentとversioned deploymentは別物である。
+
+Active hypothesis:
+
+```text
+editor/head-context confirmation
+-> non-versioned context identity is hashed
+-> authoritative versioned /execとの比較がMISMATCH
+
+actual owner-only versioned /exec browser-context confirmation
+-> actual versioned WEB_APP identity is hashed
+-> authoritative versioned /execとの比較がMATCH
+```
+
+CODEX-20はsource変更なしでexisting owner-only version1 `/exec` を開き、browser page contextの`google.script.run`からexisting guarded confirmationを1回だけ実行する。
+
+- MATCH時のみ同じversioned contextでpost-attestation readinessを1回確認し、READYならR1-R8を1 bounded pass。
+- MISMATCH再発時はSTOPし、`getService().getUrl()` bindingを不十分と判断。explicit authoritative deployment-binding mechanismは別Dispatchで設計。
+- browser harness limitationでpage context invocationできない場合もsource変更せずSTOPし、tooling limitationとして分類。ユーザーにDeveloper Tools操作を要求しない。
 
 Active instruction:
-`docs/handoffs/0028-CODEX-19-installer-deployment-stage-repair-instruction.md`
+`docs/handoffs/0028-CODEX-20-versioned-runtime-attestation-qualification-instruction.md`
 
 Controller review:
-`docs/handoffs/0028-CODEX-18-controller-review.md`
+`docs/handoffs/0028-CODEX-19-controller-review.md`
 
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
@@ -217,11 +212,11 @@ Current BALL/STATUS:
 
 Work 0028 completes only after reviewable target-runtime evidence proves:
 
-- installer returns `READY_FOR_DEPLOYMENT` after setup/validation;
-- idempotent rerun creates duplicate resources 0;
+- installer `READY_FOR_DEPLOYMENT` + idempotent duplicate0;
 - schema7 / exactly 5 Backend sheets;
 - one owner-only versioned WEB_APP with authoritative `/exec` identity;
-- deployment security attestation is bound to that actual versioned identity and readiness is READY;
+- deployment security attestation privately MATCHES that actual versioned identity;
+- post-attestation readiness READY;
 - GP + non-GP parent-first Meeting flow;
 - parent-bound file + follow-up file;
 - unlink/relink with stable IDs and physical delete0;
