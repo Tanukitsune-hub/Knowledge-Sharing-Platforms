@@ -1,42 +1,42 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-19
-ACTIVE_DISPATCH_ID: 0028-CODEX-19
+DISPATCH_ID: 0028-CODEX-20
+ACTIVE_DISPATCH_ID: 0028-CODEX-20
 BALL: CODEX
 STATUS: READY
-MODE: BUILD
-PHASE: B1.7 / PRE-DEPLOYMENT READINESS REPAIR / FRESH BOUND QUALIFICATION
+MODE: QUALIFICATION
+PHASE: B1.8 / VERSIONED RUNTIME ATTESTATION / FINAL R1-R8
 
 ## Current state
 
 PR #50のLight designはaccepted/merged済み。Draft PR #51でproduction implementationとtarget-runtime qualificationを収束中。
 
-CODEX-18 return:
+CODEX-19 return:
 
 ```text
-PR_HEAD: 399f80c584c01a0bf771737183e5ea28beb580bb
+PR_HEAD: 0a678cc (exact remote SHAはPR branchでread backする)
 existing fresh bound target: retained
-userinfo.email scope repair: applied
-safe installer outcome logging: applied
-identity/setup/validation: PASS
-installer-created resources: present
+installer stage repair: PASS
+installer rerun / I2: READY_FOR_DEPLOYMENT / duplicate0
 Backend: exactly 5 sheets
 schema: 7
 AI sync: FALSE
 triggers: 0
-versioned deployments: 0
-repaired I1: ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED
-I2: NOT_RUN
+versioned WEB_APP: exactly 1 / version1 / USER_DEPLOYING / MYSELF
+pre-attestation readiness: ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED
+security confirmation: executed once from native editor
+attestation vs authoritative versioned /exec: MISMATCH
+post-readiness: NOT_RUN
 R1-R8: NOT_RUN
 provider calls: 0
 READY: NO
 ```
 
-CODEX-18は、repaired I1が契約上必要な `READY_FOR_DEPLOYMENT` に到達しなかった時点で、追加repair/retry、I2、deployment、R1-R8を行わず停止した。この停止判断はChatGPT reviewでaccepted。
+CODEX-19はattestation binding mismatchで停止し、追加修正、再confirmation、version2、deployment update、second deployment、post-readiness、R1-R8を行わなかった。この停止判断はChatGPT reviewでaccepted。
 
 Controller review:
-`docs/handoffs/0028-CODEX-18-controller-review.md`
+`docs/handoffs/0028-CODEX-19-controller-review.md`
 
 ## Accepted evidence retained
 
@@ -46,83 +46,85 @@ Controller review:
 - PR #51 provider-independent production direction。
 - schema7 / Pitchbook 4-column append contract。
 - prepare lifecycle blocker CLOSED。
-- CODEX-18 `userinfo.email` scope + safe closed-vocabulary installer outcome log。
-- focused installer 17/17 PASS。
-- canonical 517/517 PASS。
-- bundle 29/29 PASS。
-- existing fresh bound target identity/source/manifest exact readback。
-- repaired I1 identity/setup/validation PASS。
-- installer resources present / Backend 5 sheets / schema7。
+- `userinfo.email` scope + safe closed-vocabulary installer outcome log。
+- CODEX-19 installer stage repair。
+- focused/canonical/bundle deterministic validation PASS。
+- existing fresh bound target identity/source/manifest parity。
+- installer/I2 `READY_FOR_DEPLOYMENT` / duplicate0。
+- Backend exactly 5 sheets / schema7。
+- one owner-only version1 WEB_APP authoritative metadata。
 - AI sync FALSE / trigger0 / provider calls0。
 - historical standalone version75 strategy SUPERSEDED。
 - Work 0030 DEFERRED_BY_USER。
-
-CODEX-17の歴史的root causeはerror code未観測のため `NOT_CONFIRMED` のままだが、decision-impactはなく、再調査しない。
 
 ## Active blocker
 
 Direct observation:
 
 ```text
-VERSIONED_DEPLOYMENTS: 0
-INSTALLER_RESULT: ACTION_REQUIRED
-ERROR_CODE: DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED
-EXPECTED_PRE_DEPLOYMENT_STATE: READY_FOR_DEPLOYMENT
+SECURITY_CONFIRMATION_CONTEXT: NATIVE_EDITOR
+ATTESTATION_TO_AUTHORITATIVE_VERSIONED_EXEC: MISMATCH
+POST_ATTESTATION_READINESS: NOT_RUN
+R1_R8: NOT_RUN
 ```
 
-Google Apps Scriptではproject作成時にHEAD deploymentが自動作成され、HEADはcurrent codeへ同期するtest用surfaceである。versioned deploymentは特定versionへ紐づく別物。web app test URLの `/dev` はdevelopment用であり、versioned Web App存在の証拠ではない。
+`ScriptApp.getService().getUrl()` は実行context依存であり、development mode web app実行時にはdevelopment URLを返す。HEAD/test deploymentとversioned deploymentは別物である。
 
-Current production flowはsetup/validation成功後にdeployment-security readinessを直ちに評価し、`/dev` をdeployment identityとして扱うため、versioned Web App作成前にattestationを要求できる。
+CODEX-19はnative editorからconfirmationを実行し、authoritative versioned `/exec` と独立比較したため、まずcontext mismatchを最短で切り分ける。
 
-## Active Hypothesis — CODEX-19
+## Active Hypothesis — CODEX-20
 
 Exactly one:
 
 ```text
-pre-deployment installer completion
-and post-deployment security readiness are conflated
--> auto HEAD/test /dev is treated as deployed identity
--> installer deadlocks before versioned deployment creation
+editor/head-context confirmation
+-> getService().getUrl() binds to non-versioned context identity
+-> attestation hash MISMATCH
+
+actual versioned /exec browser-context confirmation
+-> getService().getUrl() binds to actual versioned WEB_APP identity
+-> attestation hash MATCH
 ```
 
-## CODEX-19 scope
+Source defectはまだ確定しない。
 
-Existing CODEX-17/18 target only。新target禁止。
+## CODEX-20 scope
 
-CODEX-19 may:
+Existing CODEX-17/18/19 targetとversion1 owner-only WEB_APPのみ使用。新target/source修正/version2/second deploymentは禁止。
 
-1. `installKnowledgeShare()` の成功後stateをpre-deployment `READY_FOR_DEPLOYMENT` に限定修正する。
-2. `checkKnowledgeShareReadiness()` / `confirmKnowledgeShareDeploymentSecurity()` のpost-deployment fail-closed security semanticsは維持する。
-3. targeted regression testsを追加・修正する。
-4. deterministic bundle/manifestを再生成・検証する。
-5. existing bound targetへrepaired exact source/manifestを1回だけ同期する。
-6. installerを1回だけrerunし、`READY_FOR_DEPLOYMENT` + duplicate0を確認する。この1回をI2 idempotency証拠とする。
-7. PASS時のみowner-only versioned WEB_APPを1件作成する。
-8. authoritative deployment metadataを確認し、attestation前後readinessを検証する。
-9. stored attestation hashとauthoritative versioned `/exec` identity hashをprivateに照合し、`MATCH` のみ受入。
-10. security readiness PASS後にprovider-independent R1-R8を1 bounded pass実行する。
+CODEX-20 may:
+
+1. current target/deployment identity chainをread-only再確認する。
+2. existing owner-only versioned `/exec` をdeploying ownerで開き、main page renderを確認する。
+3. browser page execution contextから既存guarded `confirmKnowledgeShareDeploymentSecurity()` を `google.script.run` で1回だけ呼ぶ。
+4. persisted attestation hashとauthoritative versioned `/exec` identity hashをprivateに比較する。
+5. MATCH時のみ同じversioned contextから`checkKnowledgeShareReadiness()`を1回確認する。
+6. READY時のみprovider-independent R1-R8を1 bounded pass実行する。
 
 Active instruction:
-`docs/handoffs/0028-CODEX-19-installer-deployment-stage-repair-instruction.md`
+`docs/handoffs/0028-CODEX-20-versioned-runtime-attestation-qualification-instruction.md`
 
 ## Mutation / retry boundary
 
 ```text
 new target: 0
-existing target source sync: max 1
-installer rerun / I2: max 1
-new versioned WEB_APP: max 1
+source change: 0
+source sync: 0
+new version: 0
+new deployment: 0
 deployment update: 0
 security confirmation: max 1
-R1-R8: one bounded pass
-second source repair after target failure: 0
-second deployment: 0
+post-readiness: max 1 after MATCH only
+R1-R8: one bounded pass after READY only
+second repair: 0
 historical standalone mutation: 0
 physical delete: 0
 provider calls: 0
 ```
 
-Installer rerunが `READY_FOR_DEPLOYMENT` にならない、versioned WEB_APPをauthoritativeに証明できない、attestation hashがactual `/exec` identityと一致しない、またはR1-R8で最初のmaterial application failureが出た場合はSTOPしてChatGPTへ返す。
+MISMATCHが再発した場合はSTOPし、別Dispatchでexplicit authoritative deployment-binding mechanismを設計する。
+
+browser harnessがversioned page contextから`google.script.run`を安全に実行できない場合もsource変更せずSTOPし、tooling limitationとして返す。ユーザーにDeveloper Tools操作は要求しない。
 
 ## Provider / Azure boundary
 
@@ -154,32 +156,35 @@ Work 0028 completion does not automatically activate Work 0030.
 | 0028-CODEX-16 | interrupted / no durable return |
 | 0028-CODEX-17 | recovery + fresh target + initial identity-gate failure / accepted |
 | 0028-CODEX-18 | identity scope repair + resources established + readiness-stage blocker / accepted |
-| 0028-CODEX-19 | pre-deployment readiness stage repair + existing-target final qualification / READY |
+| 0028-CODEX-19 | stage repair + I2 PASS + version1 WEB_APP + editor-context attestation mismatch / accepted |
+| 0028-CODEX-20 | versioned `/exec` context attestation qualification + final R1-R8 / READY |
 
 ## Completion gate
 
-CODEX-19がexisting targetで、installer/idempotency `READY_FOR_DEPLOYMENT`、one owner-only versioned WEB_APP、security readiness + authoritative attestation binding、provider-independent R1-R8のreviewable evidenceを返す。
+CODEX-20がexisting version1 `/exec` contextでauthoritative attestation binding MATCH、post-readiness READY、provider-independent R1-R8 PASSを返す。
 
-ChatGPTがfinal diff/evidenceをreviewし、BLOCKERなしならPR #51を収束・mergeしてWork 0028へCompletion Latchを適用する。その後は開発を止め、ユーザー実機確認へ進む。Work 0030はDEFERREDのまま。
+ChatGPTがfinal evidence/diffをreviewし、BLOCKERなしならPR #51を収束・mergeしてWork 0028へCompletion Latchを適用する。その後は開発を止め、ユーザー実機確認へ進む。Work 0030はDEFERREDのまま。
 
 ```text
 THEME_SCOPE: LIGHT_ONLY
 DESIGN_BASELINE: PR_50_MERGED
 PR_51: OPEN_DRAFT
-ACTIVE_DISPATCH: 0028-CODEX-19
+ACTIVE_DISPATCH: 0028-CODEX-20
 BALL: CODEX
 STATUS: READY
-TARGET_RUNTIME_STRATEGY: REPAIR_STAGE_THEN_RESUME_EXISTING_FRESH_BOUND_TARGET
-ACTIVE_BLOCKER: PRE_DEPLOYMENT_ATTESTATION_DEADLOCK
-ACTIVE_HYPOTHESIS: INSTALLER_AND_POST_DEPLOYMENT_READINESS_CONFLATED
+TARGET_RUNTIME_STRATEGY: VERSIONED_CONTEXT_ATTESTATION_THEN_FINAL_R1_R8
+ACTIVE_BLOCKER: ATTESTATION_BINDING_CONTEXT_MISMATCH
+ACTIVE_HYPOTHESIS: EDITOR_CONTEXT_VS_VERSIONED_EXEC_CONTEXT
 NEW_TARGET_AUTHORIZED: NO
+SOURCE_CHANGE_AUTHORIZED: NO
+NEW_DEPLOYMENT_AUTHORIZED: NO
 PROVIDER_CALLS_AUTHORIZED: NO
 WORK_0030: DEFERRED_BY_USER
-NEXT_UNUSED_DISPATCH: 0028-CODEX-20
+NEXT_UNUSED_DISPATCH: 0028-CODEX-21
 WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-19
+DISPATCH_ID: 0028-CODEX-20
 BALL: CODEX
 STATUS: READY
