@@ -1,14 +1,16 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-18
-ACTIVE_DISPATCH_ID: 0028-CODEX-18
+DISPATCH_ID: 0028-CODEX-19
+ACTIVE_DISPATCH_ID: 0028-CODEX-19
 BALL: CHATGPT
 STATUS: RETURNED
 MODE: BUILD
 PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
 
 ## Current state
+
+CODEX-19返却: stage分離修正・518 tests・bundle30 tests PASS。既存targetへの同期1、installer/I2 rerun1でREADY_FOR_DEPLOYMENT、duplicate0、Backend5 sheets/schema7/AI sync FALSE/trigger0。owner-only version1 WEB_APPを1件作成しauthoritative metadataを確認。pre-attestation readinessは期待どおりACTION_REQUIRED。confirmation1回後、保存attestationと実versioned execのprivate hash比較がMISMATCHとなり即STOP。post-readinessとR1-R8はNOT RUN。詳細: `0028-CODEX-19-installer-deployment-stage-repair-report.md`。source再修正・second deploymentなし。mainとのcontrol-doc最終収束はChatGPTへ委ねる。
 
 CODEX-18返却: minimum scope/safe log修正、517 tests、bundle/parity 29 tests、既存CODEX-17 bound targetへの1回同期とremote exact readbackを完了。OAuth後にrepaired I1は自動継続して1回完了。identity/setupは通過したが `ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED` でREADY_FOR_DEPLOYMENT未達のためSTOP。versioned deployment 0、I2/R1-R8 NOT RUN、追加repair/retryなし。Backend5 sheets/schema7、AI sync FALSE、trigger0。詳細: `0028-CODEX-18-installer-identity-scope-repair-report.md`。以下の旧branch記録は履歴として保持し、mainのcontroller履歴との最終収束はChatGPTへ委ねる。
 
