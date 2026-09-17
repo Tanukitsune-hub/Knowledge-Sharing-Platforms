@@ -434,7 +434,7 @@ test('missing deployment remains READY_FOR_DEPLOYMENT and malformed URL cannot b
 
 test('normal HTML never references guarded installer entrypoints', () => {
   const sourceDir = path.join(__dirname, '..', 'src');
-  const html = fs.readdirSync(sourceDir).filter((name) => name.endsWith('.html'))
+  const html = fs.readdirSync(sourceDir).filter((name) => name.endsWith('.html') && name !== 'DeploymentSecurityOperator.html')
     .map((name) => fs.readFileSync(path.join(sourceDir, name), 'utf8')).join('\n');
   assert.doesNotMatch(html,
     /installKnowledgeShare|checkKnowledgeShareReadiness|confirmKnowledgeShareDeploymentSecurity/);

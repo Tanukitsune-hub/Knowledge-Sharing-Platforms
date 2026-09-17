@@ -1,6 +1,14 @@
 function doGet(event) {
   var page = event && event.parameter ? String(event.parameter.page || '') : '';
 
+  // Unlinked operator surface. The RPC's server authorization, not this route,
+  // is the security boundary. Rendering never performs confirmation.
+  if (page === 'deployment-security') {
+    return kspCreateHtmlTemplate_('DeploymentSecurityOperator').evaluate()
+      .setTitle('デプロイ設定の確認 | Knowledge Sharing Platforms')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
+  }
+
   if (page === 'knowledge') {
     return kspCreateHtmlTemplate_('KnowledgeSearch').evaluate()
       .setTitle('ナレッジ検索 | Knowledge Sharing Platforms')
