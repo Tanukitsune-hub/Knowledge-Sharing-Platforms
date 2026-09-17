@@ -2,17 +2,17 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 7,
-  "source_git_commit": "6b1f180b68f70527fad42a37b774f198531c473c",
+  "source_git_commit": "998c9d1f85e6e160db59f85434068b3b23bec0dc",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "d0220108381171674f549ac08b826b6d4bb9c650d67e5506d77c62c431af4b74",
-  "bundle_file_sha256": "e2b75c8881bcfcda5a3e88b4268f029868dcf13b2ac587c912332ee382a9f277",
+  "bundle_payload_sha256": "2dff71955226887064b2f7aa416626da42f5750c65fccadfd9a5804af55703e2",
+  "bundle_file_sha256": "9e3ec936b662912f6599a2164b9a7d364aafba4c0bc3dc26de332d605a48f305",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "0bfbca190f540083dce42b3594159f22817f4f6d0f0335eee1e886b4b78941bd",
   "bundle_metrics": {
-    "bytes": 1167825,
-    "characters": 1127349,
-    "lines": 19067,
+    "bytes": 1168440,
+    "characters": 1127926,
+    "lines": 19079,
     "server_source_count": 60,
     "embedded_html_count": 23
   },
@@ -29,8 +29,8 @@
     },
     {
       "file": "src/05_TemporalContracts.gs",
-      "bytes": 2987,
-      "sha256": "3ece18dcca5b246065bc11a330049d6bfe424292bf0fb3f2c50b7515cb43b92b"
+      "bytes": 3687,
+      "sha256": "0405933d757519690de0faf4fa4817c5f59e80e5ec263d1fc4705694d9903b2d"
     },
     {
       "file": "src/10_Setup.gs",
@@ -44,8 +44,8 @@
     },
     {
       "file": "src/20_LiveEnvironment.gs",
-      "bytes": 14906,
-      "sha256": "c6f41350fd711df3fc5e2321b5aab05b8a50e9812efd65ca7d8b36e52b850dd2"
+      "bytes": 14821,
+      "sha256": "36e045ea6858d9ba1fbc24fdc81d62ccf1313c0c96f4de6563c91d01b706c6d2"
     },
     {
       "file": "src/30_MeetingCore.gs",
