@@ -1,7 +1,7 @@
 # Work 0035 — Multi-screen UI Studio
 
 WORK_ID: 0035
-STATUS: ACTIVE
+STATUS: SUPERSEDED
 MODE: BUILD
 
 ## Primary Outcome
@@ -156,3 +156,8 @@ Do not regenerate Apps Script bundle.
 ## Completion
 
 Done when one local UI Studio can edit all seven production tabs including Meeting-create, save one design project, and export stable specs/handoffs with fine positioning.
+## Superseded
+
+2026-09-19 user decision: Multi-screen Studioの追加開発は停止。今後のUI改善はproduction version10を基準に、口頭指示 + Codex implementationで直接行う。
+
+Success conditionは未達のまま終了するが、これはBLOCKEDではなくintentional strategy change。Work0033 Layout Labのaccepted成果は保持する。
