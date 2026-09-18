@@ -28,22 +28,23 @@ External CDN/dependencyなし。Node/build stepなしでも使えること。
 ## Core features
 
 1. production version8 Meeting create mock
-2. 12-column drag reorder
-3. mouse/pointer resize -> colSpan snap
-4. textarea vertical resize
-5. field hide/show palette
-6. canvas width slider / max width / left-center alignment
-7. spacing controls
-8. Desktop / Laptop / Mobile preview
-9. Current v8 / Compact Institutional / Balanced Professional / Memo First presets
-10. deterministic `整える` action
-11. lightweight design lint warnings
-12. undo/redo
-13. save named local variants
-14. reset
-15. JSON import/export
-16. Codex handoff generation/copy/download
-17. optional reference screenshot local overlay + opacity
+2. direct drag reorder + row/column placement
+3. 8-direction edge/corner mouse resize
+4. all-field vertical sizing + notes/attachment large resize
+5. Standard 12 / Fine 24 precision mode
+6. field hide/show palette
+7. canvas width slider / max width / left-center alignment
+8. spacing / colStart / topGap / row-break controls
+9. Desktop / Laptop / Mobile preview
+10. Current v8 / Compact Institutional / Balanced Professional / Memo First presets
+11. deterministic `整える` action
+12. lightweight design lint warnings
+13. undo/redo
+14. save named local variants
+15. reset
+16. spec v2 JSON import/export + v1 migration
+17. Codex handoff generation/copy/download
+18. optional reference screenshot local overlay + opacity
 
 ## UX principles
 
@@ -124,3 +125,13 @@ Do not start Work0030.
 ## Completion
 
 Done when user can run the lab locally and produce a stable layout spec / Codex handoff from presets + manual edits.
+
+## User feedback enhancement
+
+Initial implementation review requested more direct manipulation. CODEX-01 continues with 8-direction mouse resize, row/column direct placement, 12/24-column precision, and specVersion2 backward-compatible export. Supplement: `docs/handoffs/0033-CODEX-01-direct-manipulation-supplement.md`.
+
+## Selected layout candidate
+
+Current user candidate: `docs/handoffs/0033-user-layout-candidate-v1.json`.
+
+Wide 2560 / Laptop 1440 / Compact 1280は同じgrid topologyを保持し、720px以下だけsingle-column。Responsive details: `docs/handoffs/0033-CODEX-02-responsive-shape-lock-supplement.md`.

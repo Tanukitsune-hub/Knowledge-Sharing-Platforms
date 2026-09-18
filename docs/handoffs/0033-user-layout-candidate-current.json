@@ -1,0 +1,164 @@
+{
+  "specVersion": 2,
+  "screen": "meeting-create",
+  "baseline": "work0032-version8",
+  "presetOrigin": "compact-institutional",
+  "viewport": {
+    "id": "wide",
+    "widthPx": 2560
+  },
+  "container": {
+    "gridColumns": 12,
+    "widthPercent": 100,
+    "maxWidthPx": 2000,
+    "align": "left",
+    "columnGapPx": 14,
+    "rowGapPx": 14,
+    "showGrid": true
+  },
+  "fields": [
+    {
+      "id": "meeting-date",
+      "order": 1,
+      "visible": true,
+      "colStart": 1,
+      "colSpan": 2,
+      "breakBefore": false,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "metadata"
+    },
+    {
+      "id": "meeting-assetClassId",
+      "order": 2,
+      "visible": true,
+      "colStart": 8,
+      "colSpan": 2,
+      "breakBefore": false,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "metadata"
+    },
+    {
+      "id": "meeting-teamId",
+      "order": 3,
+      "visible": true,
+      "colStart": 6,
+      "colSpan": 2,
+      "breakBefore": false,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "metadata"
+    },
+    {
+      "id": "meeting-locationId",
+      "order": 4,
+      "visible": true,
+      "colStart": 4,
+      "colSpan": 2,
+      "breakBefore": false,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "metadata"
+    },
+    {
+      "id": "meeting-time",
+      "order": 5,
+      "visible": true,
+      "colStart": 3,
+      "colSpan": 1,
+      "breakBefore": false,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "metadata"
+    },
+    {
+      "id": "meeting-capitalTypeId",
+      "order": 6,
+      "visible": false,
+      "colStart": 5,
+      "colSpan": 2,
+      "breakBefore": false,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "metadata"
+    },
+    {
+      "id": "meeting-types",
+      "order": 7,
+      "visible": true,
+      "colStart": 1,
+      "colSpan": 12,
+      "breakBefore": true,
+      "topGapPx": 0,
+      "heightPx": 48,
+      "role": "group"
+    },
+    {
+      "id": "meeting-counterpartyId",
+      "order": 8,
+      "visible": true,
+      "colStart": 1,
+      "colSpan": 6,
+      "breakBefore": true,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "identity"
+    },
+    {
+      "id": "meeting-fundStrategy",
+      "order": 9,
+      "visible": true,
+      "colStart": 7,
+      "colSpan": 4,
+      "breakBefore": false,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "metadata"
+    },
+    {
+      "id": "meeting-counterparty",
+      "order": 10,
+      "visible": true,
+      "colStart": 1,
+      "colSpan": 6,
+      "breakBefore": true,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "participant"
+    },
+    {
+      "id": "meeting-internalParticipants",
+      "order": 11,
+      "visible": true,
+      "colStart": 1,
+      "colSpan": 6,
+      "breakBefore": true,
+      "topGapPx": 0,
+      "heightPx": 37,
+      "role": "participant"
+    },
+    {
+      "id": "attachment-section",
+      "order": 12,
+      "visible": true,
+      "colStart": 1,
+      "colSpan": 12,
+      "breakBefore": true,
+      "topGapPx": 0,
+      "heightPx": 130,
+      "role": "attachment"
+    },
+    {
+      "id": "meeting-notes",
+      "order": 13,
+      "visible": true,
+      "colStart": 1,
+      "colSpan": 12,
+      "breakBefore": true,
+      "topGapPx": 0,
+      "heightPx": 480,
+      "role": "notes"
+    }
+  ]
+}
