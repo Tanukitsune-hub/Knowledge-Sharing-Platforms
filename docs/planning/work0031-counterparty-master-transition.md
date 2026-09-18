@@ -1,7 +1,7 @@
 # Work 0031 — Counterparty Master transition
 
 WORK_ID: 0031
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 
 ## Primary Outcome
@@ -98,3 +98,21 @@ Done when schema8 Counterparty-centered model is end-to-end operational, legacy 
 
 Instruction:
 `docs/handoffs/0031-CODEX-01-counterparty-master-transition-instruction.md`
+
+## Final Acceptance
+
+PR #53 merge: `ed47161bc6380c3289f1554d1d7419c575497f53`
+
+- schema8 / exactly5 Backend sheets
+- Counterparty_Master authoritative
+- GP = Counterparty Type only
+- schema7 migration idempotent
+- R1-R10 actual runtime PASS
+- version7 source/runtime parity PASS
+- user-facing `面談先マスター` / `面談先サマリー`
+- legacy GP-primary visible labels0
+- provider0 / AI sync disabled / physical delete0
+- BLOCKER NONE
+
+Completion report:
+`docs/handoffs/0031-completion-report.md`
