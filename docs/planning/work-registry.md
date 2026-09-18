@@ -21,10 +21,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
 | 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACCEPTED | PR #50 + #51 + #52 | version5でpre-rollout UI/interaction再認定。Completion Latch再適用。次は会社PC移行準備 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
-| 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 10 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 11 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | PLANNED | Work 0028 version5 accepted baseline | schema8設計を正本化。implementation前にsource-wide GP dependency inventory |
+| 9 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 10 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 11 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 12 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -150,3 +151,20 @@ Plan: `docs/planning/work0030-azure-openai-provider-transition.md`
 ## Scope discipline
 
 Only primary-flow failure, source/data integrity, credentials/authorization, material irreversible side effects, required target-runtime evidence, or evidence contamination may block delivery. Cosmetic work, broad benchmarks, provider migration and unrelated hardening remain FOLLOW_UP/OPTIONAL.
+
+## Work 0031 planned contract
+
+User decision 2026-09-18: GPを独立master/entity classとして扱う設計を廃止し、すべての面談先をCounterparty Masterへ統合する。
+
+WORK_ID: 0031
+STATUS: PLANNED
+PRIMARY_MASTER: Counterparty_Master
+GENERIC_ID: CP-*
+GP_ROLE: Counterparty_Type value only
+RELATED_GP_USER_CONCEPT: REMOVE
+BACKEND_SHEETS: remain exactly 5
+TARGET_SCHEMA: 8
+WORK_0030: remains DEFERRED_BY_USER
+
+Decision: `docs/decisions/counterparty-master-unification.md`
+Plan: `docs/planning/work0031-counterparty-master-transition.md`
