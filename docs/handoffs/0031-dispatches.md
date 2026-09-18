@@ -2,81 +2,88 @@
 
 WORK_ID: 0031
 DISPATCH_ID: 0031-CODEX-02
-ACTIVE_DISPATCH_ID: 0031-CODEX-02
-BALL: CODEX
-STATUS: READY
+ACTIVE_DISPATCH_ID: NONE
+BALL: NONE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: FINAL UI WORDING CONVERGENCE
+PHASE: COMPLETION_LATCH
 
-## Primary Outcome
+## Final outcome
 
-GP中心のbusiness modelを廃止し、すべての面談先・資料主体をCounterparty_Masterへ統合する。GPはCounterparty_Typeの1値のみ。
+GP中心のbusiness modelを廃止し、すべての面談先・資料主体を`Counterparty_Master`へ統合した。GPは`Counterparty_Type = GP`の1値としてのみ残る。
 
-## Active instruction
-
-`docs/handoffs/0031-CODEX-02-user-facing-wording-convergence-instruction.md`
-
-## Accepted design
-
-`docs/decisions/counterparty-master-unification.md`
+Final merge:
 
 ```text
+PR: #53
+MERGE: ed47161bc6380c3289f1554d1d7419c575497f53
+FINAL_SERVED_VERSION: 7
 TARGET_SCHEMA: 8
 BACKEND_SHEETS: EXACTLY_5
 PRIMARY_MASTER: Counterparty_Master
-COUNTERPARTY_ID: CP-*
-GP_ROLE: Counterparty_Type only
-RELATED_GP_USER_CONCEPT: REMOVE
+GENERIC_ID: CP-*
+R1_R10: PASS
+LOGIC_VALIDATION: 520/520 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+BLOCKER: NONE
+```
+
+## Accepted evidence / Closed Conclusions
+
+- `GP_Master`はactive masterではなく、schema7 migration sourceに降格。
+- `Counterparty_Master`が唯一の面談先master。
+- GP / LP / 日本生命 / グループ会社 / Consultant / その他はCounterparty Typeで表現。
+- Meeting create/editのprimary selectorは単一`面談先`。
+- required `面談先区分 -> 面談先` 2-step UIなし。
+- normal user-facing `関連GP`なし。
+- `GP Master` / `GP Workspace` / `GPサマリー`のprimary UIなし。
+- user-facing master headingは`面談先マスター`。
+- 面談先サマリーがauthoritative summary surface。
+- generic entity keyは`COUNTERPARTY:CP-*`。
+- Material/PitchbookもCounterparty_ID中心。parent-bound materialはparent MeetingのCounterpartyを継承。
+- schema7 -> schema8 migrationはGP30/30 + non-GP1/1、duplicate0、unresolved0。
+- migration rerun idempotent。
+- Meeting_ID / Document_ID / Drive File ID / Docsを保持。
+- relation-only unlink/relink / Docs exact preservation / Date-Time contract維持。
+- Meeting-only non-AI Full Outputをgeneric Counterpartyで確認。
+- same single owner-only deployment / USER_DEPLOYING / MYSELF。
+- provider calls0 / AI sync disabled / confidential0 / physical delete0。
+- Work 0030 DEFERRED_BY_USER。
+
+Final reports:
+- `docs/handoffs/0031-CODEX-01-counterparty-master-transition-report.md`
+- `docs/handoffs/0031-CODEX-02-user-facing-wording-convergence-report.md`
+
+## R5 conclusion
+
+accepted product architectureはrecord-centric。standalone file-only create UIは追加しない。actual parent-bound material path、deployed generic Counterparty catalog、production-source standalone classification mutation testを必要十分なevidenceとして受入。
+
+## Residuals
+
+BLOCKERなし。以下はfuture scopeのみ:
+- multiple counterparties per Meeting
+- people/contact master
+- real/company rollout
+- provider transition / Work0030
+- historical migration beyond current schema7 synthetic qualification corpus
+- Dark/System
+
+## Completion Latch
+
+```text
+WORK_0031_COMPLETE: YES
+COMPLETION_LATCH: APPLIED
+ACTIVE_BLOCKER: NONE
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+STATUS: ACCEPTED
+NEXT_UNUSED_DISPATCH: 0031-CODEX-03
 WORK_0030: DEFERRED_BY_USER
 ```
 
-## Closed evidence from Work 0028
-
-Reopen only if contradicted by Work0031 changes:
-- version5 Date/Time readback
-- parent-first Meeting/file flow
-- stable IDs / unlink-relink / Docs preservation
-- non-AI Full Output
-- native date picker / responsive UI
-- owner-only deployment security
-- provider0 / AI disabled
-
-## Execution strategy
-
-Route C / autonomous completion.
-
-Codex first inventories active GP dependencies, then continues in the same dispatch through schema8 implementation, schema7 migration, deterministic tests, same-target migration, same-deployment update, and actual browser R1-R10 qualification.
-
-Ordinary defects do not return ball. Up to 3 coherent repair/runtime cycles.
-
-## Fixed safety boundary
-
-```text
-NEW_TARGET: 0
-SECOND_PARALLEL_DEPLOYMENT: 0
-REAL_CONFIDENTIAL_DATA: 0
-PHYSICAL_DELETE: 0
-PERMISSION_BROADENING: 0
-DIRECT_OPENAI/GEMINI/AZURE: 0
-AI_SYNC: DISABLED
-```
-
-## Completion gate
-
-schema8 migration/fresh install/idempotency、Counterparty-centered UI/data/search/material/master/analytics、actual R1-R10、logic/bundle、BLOCKER NONE。
-
-```text
-NEXT_UNUSED_DISPATCH: 0031-CODEX-03
-WORK_0031_COMPLETE: NO
-```
+新しいmaterial contradictory evidence、required-flow failure、または明示scope変更がない限りWork 0031を再開しない。
 
 WORK_ID: 0031
 DISPATCH_ID: 0031-CODEX-02
-BALL: CODEX
-STATUS: READY
-
-## CODEX-01 return review
-
-R1-R10 / schema8 / migration / version6はaccepted evidenceとして閉じた。残BLOCKERはnormal user-facing Master headingが `Counterparty Master` であり、accepted label `面談先マスター` と一致しない1点のみ。R5 standalone evidenceはrecord-centric architectureの範囲で受入。
-
-CODEX-02はwording-only convergence。schema/modelを再度開かない。
+BALL: NONE
+STATUS: ACCEPTED
