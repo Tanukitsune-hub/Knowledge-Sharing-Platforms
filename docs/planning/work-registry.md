@@ -26,7 +26,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACCEPTED | Work 0032 version8 accepted UI baseline | PR #55 / Layout Lab v2 accepted。Meeting-create candidateをproduction反映する次Workへ |
 | 11 | 0034 | Meeting-create production反映・shared sidebar refresh・adjacent UI convergence | ACCEPTED | Work 0033 accepted candidate / Work0032 baseline | PR #56 / version10 accepted。Completion Latch済み。次は他タブを1画面ずつLayout Labで調整 |
 | 12 | 0035 | Multi-screen UI Studio — 全7タブ一括design + fine positioning | SUPERSEDED | Work0034 version10 / Work0033 Layout Lab | User strategy reset 2026-09-19。UI Studio追加開発は停止、Work0036へ |
-| 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | ACTIVE (BUILD) | Work0034 version10 | CODEX-01で全normal tabをMeeting-create基準へ収束 |
+| 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | READY | Work0034 version10 | PR #58 / version11でruntime qualification完了。ChatGPT final review待ち |
 | 14 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 15 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 16 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -314,11 +314,11 @@ COMPLETION_LATCH: APPLIED
 
 Completion: `docs/handoffs/0034-completion-report.md`
 Current ball/status: `docs/handoffs/0034-dispatches.md`
-## Work 0035 active contract
+## Work 0035 superseded contract
 
 ```text
 WORK_ID: 0035
-STATUS: ACTIVE
+STATUS: SUPERSEDED_BY_USER
 MODE: BUILD
 BASELINE: Work0034 version10 + Work0033 Layout Lab
 SCREENS: 7
@@ -335,7 +335,7 @@ Instruction: `docs/handoffs/0035-CODEX-01-multi-screen-ui-studio-instruction.md`
 
 ```text
 WORK_ID: 0036
-STATUS: ACTIVE
+STATUS: READY
 MODE: BUILD
 BASELINE: Work0034 version10
 EQUITY_DEBT_USER_SELECTION: REMOVE
@@ -343,9 +343,13 @@ COUNTERPARTY_TYPE_USER_SELECTION: REMOVE
 LAYOUT_REFERENCE: Meeting-create accepted 12-column language
 WORK_0035: SUPERSEDED_BY_USER
 WORK_0030: DEFERRED_BY_USER
+FINAL_SERVED_VERSION: 11
+TARGET_RUNTIME_QUALIFICATION: PASS
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
 ```
 
 Decision: `docs/decisions/production-ui-cross-tab-convergence.md`
 Plan: `docs/planning/work0036-cross-tab-production-ui.md`
 Dispatch: `docs/handoffs/0036-dispatches.md`
 Instruction: `docs/handoffs/0036-CODEX-01-cross-tab-ui-convergence-instruction.md`
+Report: `docs/handoffs/0036-CODEX-01-cross-tab-ui-convergence-report.md`
