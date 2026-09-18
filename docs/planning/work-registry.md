@@ -22,10 +22,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACCEPTED | PR #50 + #51 + #52 | version5でpre-rollout UI/interaction再認定。Completion Latch再適用。次は会社PC移行準備 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACCEPTED | Work 0028 version5 accepted baseline | PR #53 / schema8 / version7 accepted。Completion Latch済み。次は会社PC移行準備 |
-| 9 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 10 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 11 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 12 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 9 | 0032 | 記録追加 / 過去の記録の最終UI polish | ACCEPTED | Work 0031 schema8 / version7 | PR #54 / version8 accepted。Completion Latch済み |
+| 10 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 11 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 12 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 13 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -196,3 +197,22 @@ COMPLETION_LATCH: APPLIED
 normal productの主語は`面談先`。`GP`は`GP / 運用会社`というCounterparty Typeの1値。`GP Master` / `GP Workspace` / `GPサマリー` / user-facing `関連GP`は廃止。
 
 Work 0030はDEFERRED_BY_USERのまま。
+## Work 0032 accepted outcome
+
+PR #54 merge: `fafc944be05cf28055834e46fe02477a6495e53b`
+
+```text
+FINAL_SERVED_VERSION: 8
+R1_R6: PASS
+LOGIC_VALIDATION: 524/524 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+Completion: `docs/handoffs/0032-completion-report.md`
+Current ball/status: `docs/handoffs/0032-dispatches.md`
