@@ -98,10 +98,9 @@ test('shared sidebar uses premium metallic gold dimensional states and a visible
   assert.match(styles, /\.page-header\{[^}]*radial-gradient[^}]*linear-gradient[^}]*border-right:1px solid #C79A38[^}]*box-shadow:/);
   assert.match(styles, /\.nav button\{[^}]*linear-gradient[^}]*box-shadow:[^}]*transition:/);
   assert.match(styles, /\.nav button:hover\{[^}]*linear-gradient[^}]*translateY\(-1px\)/);
-  assert.match(styles, /\.nav button\.active\{[^}]*linear-gradient[^}]*translateX\(2px\)[^}]*translateY\(-1px\)/);
+  assert.match(styles, /\.nav button\.active\{[^}]*linear-gradient[^}]*translateX\(1px\)[^}]*translateY\(-1px\)/);
   assert.match(styles, /\.nav-icon\{[^}]*stroke:#F0CF69[^}]*drop-shadow/);
   assert.match(styles, /\.nav button\.active \.nav-icon\{[^}]*stroke:#4E3309[^}]*drop-shadow/);
   assert.match(styles, /\.sidebar-motif\{[^}]*opacity:\.72[^}]*drop-shadow/);
   assert.match(index, /<linearGradient id="sidebar-ornament-gold"[\s\S]*?stroke="url\(#sidebar-ornament-gold\)"/);
 });
-

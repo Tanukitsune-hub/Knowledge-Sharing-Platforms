@@ -1,17 +1,17 @@
 <section id="page-meeting-past" class="page">
   <div class="card">
     <div class="section-heading"><div><h2>過去の記録</h2><p class="hint">記録の詳細から原本・関連資料・編集を開けます。</p></div></div>
-    <div class="filter-grid">
-      <div class="field"><label for="meeting-past-dateFrom">Date From</label><input id="meeting-past-dateFrom" type="date"></div>
-      <div class="field"><label for="meeting-past-dateTo">Date To</label><input id="meeting-past-dateTo" type="date"></div>
-      <div class="field"><label for="meeting-past-counterpartyId">面談先</label><select id="meeting-past-counterpartyId"><option value="">未選択</option></select></div>
-      <div class="field"><label for="meeting-past-assetClassId">Asset Class</label><select id="meeting-past-assetClassId"><option value="">未選択</option></select></div>
-      <div class="field"><label for="meeting-past-capitalTypeId">Equity / Debt</label><select id="meeting-past-capitalTypeId"><option value="">未選択</option></select></div>
-      <div class="field"><label for="meeting-past-teamId">Team</label><select id="meeting-past-teamId"><option value="">未選択</option></select></div>
+    <div class="filter-grid meeting-past-filter-grid">
+      <div class="field meeting-past-date-from-field"><label for="meeting-past-dateFrom">Date From</label><input id="meeting-past-dateFrom" type="date"></div>
+      <div class="field meeting-past-date-to-field"><label for="meeting-past-dateTo">Date To</label><input id="meeting-past-dateTo" type="date"></div>
+      <div class="field meeting-past-counterparty-field"><label for="meeting-past-counterpartyId">面談先</label><select id="meeting-past-counterpartyId"><option value="">未選択</option></select></div>
+      <div class="field meeting-past-asset-field"><label for="meeting-past-assetClassId">Asset Class</label><select id="meeting-past-assetClassId"><option value="">未選択</option></select></div>
+      <div class="field meeting-past-team-field"><label for="meeting-past-teamId">Team</label><select id="meeting-past-teamId"><option value="">未選択</option></select></div>
       <div class="field meeting-past-fund-field"><label for="meeting-past-fundStrategy">Fund / Strategy</label><input id="meeting-past-fundStrategy" maxlength="500"></div>
-      <div class="field"><label for="meeting-past-meetingTypeCode">Meeting Type</label><select id="meeting-past-meetingTypeCode"><option value="">未選択</option><option value="ANNUAL_REVIEW">定例年1回</option><option value="OFFICE_VISIT">先方オフィス訪問</option><option value="ANNUAL_GENERAL_MEETING">年次総会</option></select></div>
-      <div class="field"><label><input id="meeting-past-followUpOnly" type="checkbox"> 要フォローのみ</label></div>
-      <div class="field"><label for="meeting-past-filterStatus">Status</label><select id="meeting-past-filterStatus"><option value="">未選択</option><option>Active</option><option>Inactive</option></select></div>
+      <div class="field meeting-past-types-field"><span class="field-label">Meeting Type</span><div class="checkbox-row"><label><input type="checkbox" data-meeting-type-filter="meeting-past" value="ANNUAL_REVIEW"> 定例年1回</label><label><input type="checkbox" data-meeting-type-filter="meeting-past" value="OFFICE_VISIT"> 先方オフィス訪問</label><label><input type="checkbox" data-meeting-type-filter="meeting-past" value="ANNUAL_GENERAL_MEETING"> 年次総会</label></div></div>
+      <div class="field meeting-past-status-field"><label for="meeting-past-filterStatus">Status</label><select id="meeting-past-filterStatus"><option value="">未選択</option><option>Active</option><option>Inactive</option></select></div>
+      <div class="field maintenance-backend-filter" hidden aria-hidden="true"><label for="meeting-past-capitalTypeId">Equity / Debt</label><select id="meeting-past-capitalTypeId"><option value="">未選択</option></select></div>
+      <div class="field maintenance-backend-filter" hidden aria-hidden="true"><label><input id="meeting-past-followUpOnly" type="checkbox"> 要フォローのみ</label></div>
     </div>
     <div class="actions"><span class="hint">最大100件を新しい順で表示します。</span><button id="meeting-past-search" class="action primary" type="button">検索</button></div>
     <div id="meeting-past-status" class="status" role="status" aria-live="polite"></div>

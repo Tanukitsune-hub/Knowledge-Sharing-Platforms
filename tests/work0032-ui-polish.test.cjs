@@ -40,8 +40,8 @@ test('draft clear control leads its hint and remains a large left-aligned action
   assert.match(styles, /\.record-entry-actions \.action\{[^}]*min-height:42px/);
 });
 
-test('Past Meetings gives Fund Strategy a two-column desktop field and a one-column mobile fallback', () => {
+test('Past Meetings keeps the widened Fund Strategy field and a one-column mobile fallback', () => {
   assert.match(maintenance, /class="field meeting-past-fund-field"[\s\S]*?id="meeting-past-fundStrategy"/);
-  assert.match(styles, /#page-meeting-past \.filter-grid>\.meeting-past-fund-field\{grid-column:span 2;width:min\(100%,60ch\)/);
-  assert.match(styles, /#page-meeting-past \.filter-grid>\.meeting-past-fund-field\{grid-column:auto;width:100%\}/);
+  assert.match(styles, /\.meeting-past-fund-field\{grid-column:1\/span 6;grid-row:2\}/);
+  assert.match(styles, /\.meeting-past-filter-grid>\.field\{grid-column:1;grid-row:auto;width:100%\}/);
 });

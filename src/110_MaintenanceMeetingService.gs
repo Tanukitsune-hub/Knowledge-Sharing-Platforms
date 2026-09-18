@@ -87,6 +87,7 @@ function kspSearchPitchbookRecords_(environment, rawSearch) {
     var search = kspNormalizeRecordSearch_(rawSearch);
     search.teamId = '';
     search.meetingTypeCode = '';
+    search.meetingTypeCodes = [];
     search.followUpOnly = false;
     search = kspValidateRecordSearch_(search);
     var maps = kspBuildAllMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
