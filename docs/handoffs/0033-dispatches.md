@@ -71,3 +71,11 @@ Candidate: `docs/handoffs/0033-user-layout-candidate-v1.json`
 Supplement: `docs/handoffs/0033-CODEX-02-responsive-shape-lock-supplement.md`
 
 Wide 2560 / Laptop 1440 / Compact 1280は同じ24-column row/column topologyを保持。720px以下だけ1-column。
+
+## Revised user-selected candidate
+
+Current authoritative candidate: `docs/handoffs/0033-user-layout-candidate-current.json`
+
+Supplement: `docs/handoffs/0033-CODEX-02-revised-layout-candidate-supplement.md`
+
+Supersedes earlier 77% / 24-column candidate. Current: 12 columns / width100% / max1680 / same desktop topology across Wide-Laptop-Compact.
