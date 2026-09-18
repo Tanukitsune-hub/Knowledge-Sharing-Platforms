@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>UI Layout Lab — Knowledge Sharing Platforms</title>
+  <link rel="stylesheet" href="layout-lab.css">
+</head>
+<body>
+  <div class="lab-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">KNOWLEDGE SHARING PLATFORMS</p>
+        <div class="title-row">
+          <h1>UI Layout Lab</h1>
+          <span class="local-badge">LOCAL ONLY</span>
+          <span id="dirty-indicator" class="dirty-indicator" aria-live="polite">保存済み</span>
+        </div>
+      </div>
+      <div class="toolbar" aria-label="レイアウト操作">
+        <div id="viewport-buttons" class="segmented" aria-label="Preview viewport"></div>
+        <div id="precision-buttons" class="segmented precision-switch" aria-label="Grid precision"></div>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button id="undo-button" class="icon-button" type="button" title="元に戻す" aria-label="元に戻す">↶</button>
+        <button id="redo-button" class="icon-button" type="button" title="やり直す" aria-label="やり直す">↷</button>
+        <button id="tidy-button" class="button quiet" type="button">整える</button>
+        <button id="reset-button" class="button quiet" type="button">Reset</button>
+        <button id="json-button" class="button secondary" type="button">JSON</button>
+        <button id="handoff-button" class="button primary" type="button">Codexに渡す</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="panel left-panel" aria-label="Preset and field controls">
+        <section class="panel-section">
+          <div class="section-title-row">
+            <div>
+              <p class="section-kicker">STARTING POINT</p>
+              <h2>Presets</h2>
+            </div>
+            <span class="count-badge">4</span>
+          </div>
+          <div id="preset-list" class="preset-list"></div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title-row">
+            <div>
+              <p class="section-kicker">VISIBLE FIELDS</p>
+              <h2>表示する項目</h2>
+            </div>
+            <span id="visible-field-count" class="count-badge"></span>
+          </div>
+          <div id="field-palette" class="field-palette"></div>
+        </section>
+
+        <section class="panel-section variant-section">
+          <p class="section-kicker">MY VARIANTS</p>
+          <h2>名前付きvariant</h2>
+          <label class="control-label" for="variant-name">名前</label>
+          <div class="inline-controls">
+            <input id="variant-name" type="text" maxlength="60" placeholder="例: 会社PC最終案">
+            <button id="variant-save" class="button secondary" type="button">保存</button>
+          </div>
+          <label class="control-label" for="variant-select">保存済み</label>
+          <select id="variant-select"><option value="">variantを選択</option></select>
+          <div class="split-actions">
+            <button id="variant-load" class="button quiet" type="button">読込</button>
+            <button id="variant-delete" class="button danger-quiet" type="button">削除</button>
+          </div>
+        </section>
+      </aside>
+
+      <section class="canvas-column" aria-label="Layout canvas">
+        <div class="canvas-heading">
+          <div>
+            <p id="viewport-caption" class="canvas-kicker"></p>
+            <h2>記録を追加 — layout preview</h2>
+          </div>
+          <div class="canvas-legend">
+            <span><i class="legend-dot drag"></i>dragでrow / column配置</span>
+            <span><i class="legend-dot resize"></i>8 handlesでresize</span>
+            <span>Arrowでnudge</span>
+          </div>
+        </div>
+        <div id="canvas-scroll" class="canvas-scroll">
+          <div id="preview-frame" class="preview-frame">
+            <div id="preview-viewport" class="preview-viewport">
+              <div class="mock-appbar">
+                <div class="mock-brand">KNOWLEDGE SHARE</div>
+                <div class="mock-nav"><span></span><span class="active"></span><span></span><span></span></div>
+              </div>
+              <div class="mock-page">
+                <div id="mock-container" class="mock-container">
+                  <div class="mock-card">
+                    <div class="mock-heading-row">
+                      <div>
+                        <p class="mock-eyebrow">MEETING RECORD</p>
+                        <h3>記録を追加</h3>
+                      </div>
+                      <span id="preset-origin-chip" class="origin-chip"></span>
+                    </div>
+                    <div class="draft-action"><button type="button" tabindex="-1">下書きをクリア</button><span>新しい記録を開始できます。</span></div>
+                    <div id="mock-grid" class="mock-grid" aria-label="Editable field grid"></div>
+                    <div class="mock-footer"><span>visible UI layout mock</span><button type="button" tabindex="-1">登録</button></div>
+                  </div>
+                </div>
+              </div>
+              <img id="reference-overlay" class="reference-overlay" alt="Local reference overlay">
+            </div>
+          </div>
+        </div>
+        <div id="status-message" class="status-message" role="status" aria-live="polite"></div>
+      </section>
+
+      <aside class="panel right-panel" aria-label="Inspector">
+        <section class="panel-section inspector-section">
+          <p class="section-kicker">SELECTED FIELD</p>
+          <div id="field-inspector-empty" class="empty-note">Canvasのfieldを選択してください。</div>
+          <div id="field-inspector" hidden>
+            <div class="selected-field-heading">
+              <div>
+                <h2 id="selected-field-label"></h2>
+                <code id="selected-field-id"></code>
+              </div>
+              <span id="selected-field-order" class="count-badge"></span>
+            </div>
+            <div class="two-column-controls placement-controls">
+              <div><label class="control-label" for="field-order">Order</label><input id="field-order" type="number" min="1" max="13" step="1"></div>
+              <div><label class="control-label" for="field-start">Start column</label><input id="field-start" type="number" min="1" max="12" step="1"></div>
+              <div><label class="control-label" for="field-span">Width / span</label><input id="field-span" type="number" min="1" max="12" step="1"></div>
+              <div><label class="control-label" for="field-top-gap">Top gap px</label><input id="field-top-gap" type="number" min="0" max="160" step="4"></div>
+            </div>
+            <div id="field-height-group">
+              <label class="control-label" for="field-height">Height px</label>
+              <input id="field-height" type="number" min="34" max="720" step="4">
+              <div class="micro-actions" aria-label="Top gap quick adjustment"><button id="top-gap-less" type="button">Gap −4</button><button id="top-gap-more" type="button">Gap +4</button></div>
+            </div>
+            <label class="check-control"><input id="field-break-before" type="checkbox"> このfieldから新しいrow</label>
+            <label class="check-control"><input id="field-visible" type="checkbox"> このfieldを表示</label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <p class="section-kicker">FORM CONTAINER</p>
+          <h2>Canvas settings</h2>
+          <label class="control-label" for="container-width">Width <output id="container-width-output"></output></label>
+          <input id="container-width" type="range" min="40" max="100" step="1">
+          <label class="control-label" for="container-max-width">Max width px <span class="label-note">0 = none</span></label>
+          <input id="container-max-width" type="number" min="0" max="3000" step="10">
+          <label class="control-label" for="container-align">Alignment</label>
+          <select id="container-align"><option value="left">Left</option><option value="center">Center</option></select>
+          <div class="two-column-controls">
+            <div><label class="control-label" for="column-gap">Column gap</label><input id="column-gap" type="number" min="0" max="40" step="1"></div>
+            <div><label class="control-label" for="row-gap">Row gap</label><input id="row-gap" type="number" min="0" max="40" step="1"></div>
+          </div>
+          <label class="check-control"><input id="show-grid" type="checkbox"> editing gridを表示</label>
+        </section>
+
+        <section class="panel-section reference-section">
+          <p class="section-kicker">LOCAL REFERENCE</p>
+          <h2>Screenshot overlay</h2>
+          <p class="small-copy">画像はこのbrowser tab内だけで読み込み、保存・送信しません。</p>
+          <label class="file-button" for="reference-file">画像を選択</label>
+          <input id="reference-file" class="visually-hidden" type="file" accept="image/*">
+          <label class="control-label" for="reference-opacity">Opacity <output id="reference-opacity-output">35%</output></label>
+          <input id="reference-opacity" type="range" min="0" max="100" value="35" step="5">
+          <button id="reference-clear" class="button quiet full-button" type="button" disabled>Overlayを外す</button>
+        </section>
+
+        <section class="panel-section lint-section">
+          <div class="section-title-row">
+            <div><p class="section-kicker">DESIGN LINT</p><h2>気になる点</h2></div>
+            <span id="lint-count" class="count-badge"></span>
+          </div>
+          <ul id="lint-list" class="lint-list"></ul>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <dialog id="transfer-dialog" class="transfer-dialog">
+    <form method="dialog" class="dialog-header">
+      <div><p class="section-kicker">PORTABLE SPEC</p><h2 id="dialog-title">Layout JSON</h2></div>
+      <button class="dialog-close" value="close" aria-label="閉じる">×</button>
+    </form>
+    <section id="json-panel">
+      <p class="dialog-copy">canonical spec version 2。export→importはexact roundtripし、version 1 JSONは決定的にmigrateします。</p>
+      <textarea id="json-text" class="code-area" spellcheck="false"></textarea>
+      <div class="dialog-actions">
+        <button id="json-copy" class="button secondary" type="button">JSONをcopy</button>
+        <button id="json-download" class="button secondary" type="button">.json download</button>
+        <label class="file-button compact" for="json-file">JSON fileを選択</label>
+        <input id="json-file" class="visually-hidden" type="file" accept="application/json,.json">
+        <button id="json-import" class="button primary" type="button">このJSONを適用</button>
+      </div>
+    </section>
+    <section id="handoff-panel" hidden>
+      <p class="dialog-copy">layout値とvisual-only境界を含む、Codex向け実装briefです。</p>
+      <textarea id="handoff-text" class="code-area handoff-area" readonly></textarea>
+      <div class="dialog-actions">
+        <button id="handoff-copy" class="button secondary" type="button">Markdownをcopy</button>
+        <button id="handoff-download" class="button primary" type="button">.md download</button>
+      </div>
+    </section>
+  </dialog>
+
+  <script src="presets.js"></script>
+  <script src="layout-model.js"></script>
+  <script src="layout-lab.js"></script>
+</body>
+</html>
