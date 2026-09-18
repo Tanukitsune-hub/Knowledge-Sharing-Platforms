@@ -1,24 +1,26 @@
 <section id="page-knowledge" class="page">
   <style>
-    #page-knowledge .knowledge-primary-row{display:grid;grid-template-columns:minmax(180px,30ch) minmax(160px,30ch) repeat(2,minmax(135px,18ch)) auto;justify-content:start;gap:14px;align-items:end}
-    #page-knowledge .knowledge-mode-row{display:grid;grid-template-columns:repeat(2,minmax(220px,30ch));justify-content:start;gap:18px;margin:18px 0}
+    #page-knowledge .knowledge-primary-row,#page-knowledge .knowledge-mode-row,#page-knowledge .knowledge-detail-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:14px;row-gap:14px;align-items:end}
+    #page-knowledge .knowledge-mode-row{margin:14px 0}
+    #page-knowledge .knowledge-counterparty-field{grid-column:1/span 4}.knowledge-source-field{grid-column:5/span 2}.knowledge-date-from-field{grid-column:7/span 2}.knowledge-date-to-field{grid-column:9/span 2}.knowledge-all-period-field{grid-column:11/span 2}
+    #page-knowledge .knowledge-mode-field{grid-column:1/span 3}.knowledge-model-field{grid-column:4/span 3}
+    #page-knowledge .knowledge-asset-field{grid-column:1/span 2}.knowledge-team-field{grid-column:3/span 2}.knowledge-fund-field{grid-column:5/span 4}.knowledge-follow-up-field{grid-column:9/span 2}.knowledge-meeting-type-field{grid-column:11/span 2}
     #page-knowledge .knowledge-secondary-filters{margin-top:18px}
     #page-knowledge .knowledge-secondary-filters summary{cursor:pointer;margin-bottom:12px}
     #page-knowledge [hidden]{display:none!important}
-    @media(max-width:900px){#page-knowledge .knowledge-primary-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:600px){#page-knowledge .knowledge-primary-row,#page-knowledge .knowledge-mode-row{grid-template-columns:1fr}}
+    @media(max-width:720px){#page-knowledge .knowledge-primary-row,#page-knowledge .knowledge-mode-row,#page-knowledge .knowledge-detail-grid{grid-template-columns:1fr}#page-knowledge .knowledge-primary-row>.field,#page-knowledge .knowledge-mode-row>.field,#page-knowledge .knowledge-detail-grid>.field{grid-column:1}}
   </style>
   <section class="card">
     <form id="knowledge-form" novalidate>
       <div class="knowledge-primary-row">
-        <div class="field"><label id="knowledge-entity-label" for="knowledge-entityKey">面談先</label><select id="knowledge-entityKey"><option value="">未選択</option></select></div>
-        <div class="field"><label for="knowledge-sourceType">情報ソース</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">面談記録・資料</option><option value="Meeting">面談記録のみ</option><option value="Pitchbook">資料のみ</option></select></div>
-        <div class="field"><label for="knowledge-dateFrom">開始日</label><input id="knowledge-dateFrom" type="date"></div>
-        <div class="field"><label for="knowledge-dateTo">終了日</label><input id="knowledge-dateTo" type="date"></div>
-        <div class="field"><label for="knowledge-all-period"><input id="knowledge-all-period" type="checkbox">全期間</label></div>
+        <div class="field knowledge-counterparty-field"><label id="knowledge-entity-label" for="knowledge-entityKey">面談先</label><select id="knowledge-entityKey"><option value="">未選択</option></select></div>
+        <div class="field knowledge-source-field"><label for="knowledge-sourceType">情報ソース</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">面談記録・資料</option><option value="Meeting">面談記録のみ</option><option value="Pitchbook">資料のみ</option></select></div>
+        <div class="field knowledge-date-from-field"><label for="knowledge-dateFrom">開始日</label><input id="knowledge-dateFrom" type="date"></div>
+        <div class="field knowledge-date-to-field"><label for="knowledge-dateTo">終了日</label><input id="knowledge-dateTo" type="date"></div>
+        <div class="field knowledge-all-period-field"><label for="knowledge-all-period"><input id="knowledge-all-period" type="checkbox">全期間</label></div>
       </div>
       <div class="knowledge-mode-row">
-      <div class="field mode-field">
+      <div class="field mode-field knowledge-mode-field">
         <label for="knowledge-mode">検索モード</label>
         <select id="knowledge-mode">
           <option value="自由質問">自由質問</option>
@@ -29,7 +31,7 @@
         </select>
       </div>
 
-        <div id="knowledge-model-controls" class="field">
+        <div id="knowledge-model-controls" class="field knowledge-model-field">
           <label for="knowledge-model-profile">AIモデル</label><select id="knowledge-model-profile" disabled></select>
           <div hidden><label for="knowledge-thinking-profile">Thinking</label><select id="knowledge-thinking-profile" disabled></select></div>
         </div>
@@ -47,13 +49,13 @@
       </div>
       <details class="knowledge-secondary-filters">
         <summary>詳細条件</summary>
-        <div class="filter-grid">
-        <div class="field"><label for="knowledge-assetClassId">Asset Class</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
-        <div class="field"><label for="knowledge-capitalTypeId">Equity / Debt</label><select id="knowledge-capitalTypeId"><option value="">未選択</option></select></div>
-        <div class="field"><label for="knowledge-teamId">Team</label><select id="knowledge-teamId"><option value="">未選択</option></select></div>
-        <div class="field"><label for="knowledge-fundStrategy">Fund / Strategy</label><select id="knowledge-fundStrategy"><option value="">未選択</option></select></div>
-        <div class="field"><label for="knowledge-followUp">要フォロー</label><select id="knowledge-followUp"><option value="">未選択</option><option value="REQUIRED">必要</option><option value="NOT_REQUIRED">不要</option></select></div>
-        <div class="field"><label for="knowledge-meetingTypeCode">Meeting Type</label><select id="knowledge-meetingTypeCode"><option value="">未選択</option></select></div>
+        <div class="filter-grid knowledge-detail-grid">
+        <div class="field knowledge-asset-field"><label for="knowledge-assetClassId">Asset Class</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
+        <div class="field maintenance-backend-filter" hidden aria-hidden="true"><label for="knowledge-capitalTypeId">Equity / Debt</label><select id="knowledge-capitalTypeId"><option value="">未選択</option></select></div>
+        <div class="field knowledge-team-field"><label for="knowledge-teamId">Team</label><select id="knowledge-teamId"><option value="">未選択</option></select></div>
+        <div class="field knowledge-fund-field"><label for="knowledge-fundStrategy">Fund / Strategy</label><select id="knowledge-fundStrategy"><option value="">未選択</option></select></div>
+        <div class="field knowledge-follow-up-field"><label for="knowledge-followUp">要フォロー</label><select id="knowledge-followUp"><option value="">未選択</option><option value="REQUIRED">必要</option><option value="NOT_REQUIRED">不要</option></select></div>
+        <div class="field knowledge-meeting-type-field"><label for="knowledge-meetingTypeCode">Meeting Type</label><select id="knowledge-meetingTypeCode"><option value="">未選択</option></select></div>
 
         </div>
         <p id="knowledge-source-help" class="hint">Team・要フォロー・Meeting Typeは「面談記録のみ」で利用できます。</p>

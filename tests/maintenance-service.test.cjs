@@ -150,6 +150,14 @@ test('quick-add Counterparty returns an existing type-scoped normalized duplicat
   assert.equal(result.ok,true); assert.equal(result.counterparty.id,'CP-000001'); assert.equal(env._debug.counterpartyRows.length,before);
 });
 
+test('quick-add Counterparty requires an explicit valid type', () => {
+  for (const type of ['', 'UNSUPPORTED']) {
+    const env=createFakeEnvironment(); const before=env._debug.counterpartyRows.length;
+    const result=ksp.kspQuickAddCounterparty_(env,'Synthetic typed Counterparty',type);
+    assert.equal(result.ok,false); assert.equal(result.error.code,'COUNTERPARTY_TYPE_INVALID'); assert.equal(env._debug.counterpartyRows.length,before);
+  }
+});
+
 test('Master add, rename, reorder, deactivate and reactivate are supported', () => {
   const env=createFakeEnvironment();
   const add=ksp.kspMutateMaster_(env,{entity:'OPTION',action:'ADD',type:'ASSET_CLASS',name:'VC'}); assert.equal(add.ok,true);
