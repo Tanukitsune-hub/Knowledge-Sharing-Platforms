@@ -53,8 +53,10 @@ WORK_0033_COMPLETE: NO
 - Direct-manipulation v2 implementation: COMPLETE
 - Implementation commit: `3a21af3`
 - Revised candidate implementation commit: `c6e15fc`
-- Current authoritative candidate: 12 columns / width100% / max1680 / left / gap14-14
+- Current max-width convergence commit: `1abfb3e`
+- Current authoritative candidate: 12 columns / width100% / max2000 / left / gap14-14
 - Superseded candidate: 77% / 24 columns / NOT USED
+- Superseded max width: 1680px / NOT USED
 - Candidate parity: PASS
 - Desktop viewport placement mutation: 0
 - Focused tests: `20/20 PASS`
@@ -71,7 +73,7 @@ Current authoritative candidate: `docs/handoffs/0033-user-layout-candidate-curre
 
 Supplement: `docs/handoffs/0033-CODEX-02-revised-layout-candidate-supplement.md`
 
-Earlier 77% / 24-column candidate is superseded. Current preferred layout uses 12 columns / width100% / max1680 and preserves identical desktop topology across Wide / Laptop / Compact.
+Earlier 77% / 24-column candidate and max-width 1680px are superseded. Current preferred layout uses 12 columns / width100% / max2000 and preserves identical desktop topology across Wide / Laptop / Compact.
 
 ## CODEX-01 closed evidence
 

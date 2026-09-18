@@ -18,13 +18,13 @@ MODE: BUILD
 
 ## Implementation
 
-Implementation commits: direct-manipulation v2 `3a21af3`、revised authoritative candidate `c6e15fc`。
+Implementation commits: direct-manipulation v2 `3a21af3`、revised authoritative candidate `c6e15fc`、current max-width convergence `1abfb3e`。
 
 ### Revised authoritative candidate
 
 - latest `origin/main`の`docs/handoffs/0033-user-layout-candidate-current.json`を正本として取り込んだ。旧77% / 24-column candidateは`SUPERSEDED`でありpreferred stateとして使用しない。
 - 初期状態、`Compact Institutional` preset、Resetをcurrent 12-column candidateへ統一した。
-- containerはwidth 100% / max-width 1680px / left / gap 14px・14px。
+- containerはwidth 100% / max-width 2000px / left / gap 14px・14px。前candidateの1680pxは`SUPERSEDED`。
 - JSON array順と視覚順を分離し、rendererは各visible fieldへexplicit `gridColumn` / `gridRow`を設定する。Row 1は必ずDate → Time → Location → Team → Asset Classとなる。
 - `meeting-capitalTypeId`はhiddenで、visible row calculationとgrid spaceを消費しない。
 - preview viewportをcanonical layout/historyから分離した。Wide / Laptop / Compact / Mobile切替はcanonical JSON、placement、dirty state、undo historyを変更しない。
@@ -100,12 +100,12 @@ CODEX-02のactual `file://`操作はまだUSER未確認である。したがっ�
 
 `tools/ui-layout-lab/open-layout-lab.bat`をdouble-clickし、Chromeで次を確認する。
 
-1. 初期表示が12 columns / width 100% / max-width 1680px / left / gap 14px・14pxである。
+1. 初期表示が12 columns / width 100% / max-width 2000px / left / gap 14px・14pxである。
 2. Row 1がDate → Time → Location → Team → Asset Classで、右3 columnsが空いている。
 3. Rows 2-7がMeeting Type、面談先+Fund、面談相手、当社側、資料、面談内容の順で、Equity / Debtは非表示でspaceを使わない。
 4. JSONをcopy後、Wide → Laptop → Compact → Wideと切り替えてもrow/column topologyが変わらず、再copyしたJSONが同一である。
 5. Mobileだけ1-columnになり、Wideへ戻すと元のdesktop topologyとJSONが保たれる。
-6. `Codexに渡す`に12-column / width100% / max1680 / desktop non-reflow / Mobile-only projectionのintentが出る。
+6. `Codexに渡す`に12-column / width100% / max2000 / desktop non-reflow / Mobile-only projectionのintentが出る。
 7. E/W、N/S、corner handleで横・縦・同時resizeでき、面談内容と通常fieldの高さをsafe範囲で変更できる。
 8. fieldを別row・任意startへdragでき、ghost / row marker / guideが出て、意図した空きcolumnが残る。
 9. mouse結果とinspectorのorder / start / span / top gap / height / row breakが一致する。
@@ -129,6 +129,8 @@ private JSONや画像の共有は不要。全項目に問題がなければ`確�
 SPEC_VERSION: 2
 PREFERRED_CANDIDATE: CURRENT_12_COLUMN / PASS
 SUPERSEDED_CANDIDATE_77_PERCENT_24_COLUMN: NOT_USED
+SUPERSEDED_MAX_WIDTH_1680PX: NOT_USED
+CURRENT_MAX_WIDTH_PX: 2000
 AUTHORITATIVE_CANDIDATE_PARITY: PASS
 DESKTOP_TOPOLOGY: PRESERVED_WIDE_LAPTOP_COMPACT
 VIEWPORT_CANONICAL_JSON_MUTATION: 0
