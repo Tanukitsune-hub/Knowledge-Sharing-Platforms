@@ -376,7 +376,7 @@
     const found = model.findElement(screen, elementId);
     const grid = parentId ? card.parentElement : elements['mock-grid'];
     const cardRect = card.getBoundingClientRect();
-    gesture = { type: 'drag', pointerId: event.pointerId, elementId: elementId, parentId: parentId || null, originalProject: currentProject(), original: model.clone(found.element), startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, grabOffsetX: event.clientX - cardRect.left, card: card, grid: grid };
+    gesture = { type: 'drag', pointerId: event.pointerId, elementId: elementId, parentId: parentId || null, originalProject: currentProject(), original: model.clone(found.element), originalRect: { left: cardRect.left, top: cardRect.top, width: cardRect.width, height: cardRect.height }, startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, grabOffsetX: event.clientX - cardRect.left, grabOffsetY: event.clientY - cardRect.top, card: card, grid: grid };
     card.setPointerCapture(event.pointerId);
     card.addEventListener('pointermove', onGestureMove);
     card.addEventListener('pointerup', endGesture);
@@ -458,17 +458,32 @@
     let patch;
     if (active.type === 'drag') {
       const gridRect = active.grid.getBoundingClientRect();
-      patch = model.calculateDirectPlacement(active.original, event.clientX - active.grabOffsetX, gridRect.left, gridRect.width, screen.gridColumns, screen.microSnapPx);
+      const columnGap = parseFloat(getComputedStyle(active.grid).columnGap) || 0;
+      const desiredLeft = event.clientX - active.grabOffsetX;
+      const desiredTop = event.clientY - active.grabOffsetY;
+      patch = model.calculateDirectPlacement(active.original, desiredLeft, gridRect.left, gridRect.width, screen.gridColumns, screen.microSnapPx, columnGap);
       patch.yOffsetPx = model.snap(active.original.yOffsetPx + (event.clientY - active.startY), screen.microSnapPx);
       const candidates = Array.from(active.grid.children).filter(function (node) { return node.classList.contains('studio-block') && node.dataset.elementId !== active.elementId; });
       if (candidates.length) {
-        const nearest = candidates.reduce(function (best, node) { const distance = Math.abs(event.clientY - (node.getBoundingClientRect().top + node.getBoundingClientRect().height / 2)); return !best || distance < best.distance ? { node: node, distance: distance } : best; }, null);
+        const desiredCenterY = desiredTop + active.originalRect.height / 2;
+        const nearest = candidates.reduce(function (best, node) { const rect = node.getBoundingClientRect(); const distance = Math.abs(desiredCenterY - (rect.top + rect.height / 2)); return !best || distance < best.distance ? { node: node, rect: rect, distance: distance } : best; }, null);
         const nearestFound = model.findElement(screen, nearest.node.dataset.elementId);
-        if (nearestFound) { patch.order = nearestFound.element.order; patch.breakBefore = event.clientY > nearest.node.getBoundingClientRect().bottom; }
+        if (nearestFound) {
+          Object.assign(patch, model.calculateDragRowPatch(active.original, desiredLeft, desiredTop, active.originalRect, {
+            order: nearestFound.element.order,
+            left: nearest.rect.left,
+            width: nearest.rect.width,
+            top: nearest.rect.top,
+            bottom: nearest.rect.bottom,
+            baseTop: nearest.rect.top - nearestFound.element.yOffsetPx - nearestFound.element.topGapPx
+          }, screen.microSnapPx));
+        }
       }
     } else {
       const gridRect = active.grid.getBoundingClientRect();
-      patch = model.calculateResizePatch(active.original, active.direction, event.clientX - active.startX, event.clientY - active.startY, gridRect.width / screen.gridColumns, screen.microSnapPx, screen.gridColumns);
+      const columnGap = parseFloat(getComputedStyle(active.grid).columnGap) || 0;
+      const columnTrack = Math.max(1, (gridRect.width - columnGap * (screen.gridColumns - 1)) / screen.gridColumns);
+      patch = model.calculateResizePatch(active.original, active.direction, event.clientX - active.startX, event.clientY - active.startY, columnTrack + columnGap, screen.microSnapPx, screen.gridColumns);
     }
     let next = model.updateElement(active.originalProject, currentScreenId, active.elementId, patch);
     next = model.resolveElementCollision(next, currentScreenId, active.elementId);

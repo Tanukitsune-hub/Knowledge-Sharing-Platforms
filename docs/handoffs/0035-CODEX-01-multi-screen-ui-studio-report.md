@@ -58,14 +58,14 @@ Work 0033のMeeting specVersion1/2、current authoritative candidate、既存loc
 
 ## Deterministic validation
 
-- focused tests: `36/36 PASS`
+- focused tests: `39/39 PASS`
   - 旧Layout Lab: `20/20 PASS`
-  - Multi-screen UI Studio: `16/16 PASS`
+  - Multi-screen UI Studio: `19/19 PASS`
 - JavaScript syntax:
   - `node --check tools/ui-layout-lab/screen-definitions.js`: `PASS`
   - `node --check tools/ui-layout-lab/project-model.js`: `PASS`
   - `node --check tools/ui-layout-lab/studio.js`: `PASS`
-- canonical validation: `npm run check` → `571/571 PASS`
+- canonical validation: `npm run check` → `574/574 PASS`
 - `git diff --check`: `PASS`
 - seven baselines: `VALID / COLLISION_0`
 - whole-project stable JSON exact roundtrip: `PASS`
@@ -79,17 +79,19 @@ Work 0033のMeeting specVersion1/2、current authoritative candidate、既存loc
 ## Repair cycles
 
 - Cycle 1: focused testでJavaScriptのnegative-zero assertionとhandoff boundary文言の差を検出した。値のcanonicalizationと文言を限定修正し、focused testsを再実行して`35/35 PASS`とした。
-- 使用済みcoherent repair cycles: `1 / 3`
+- Cycle 2: USER file://確認でdrag後の座標ずれが観測された。CSS Gridのcolumn gapを無視した均等割り計算により右側ほどX誤差が累積し、別rowへのdragでは全Y差分がmicro offsetへ残ることを直接原因として特定した。実際のtrack + gap pitch、pointer grab offset、target row baseを使う計算へ限定修正し、gap-aware X reconstruction、12→24→48 coarse geometry、row insertion Y resetのregression testsを追加した。
+- 使用済みcoherent repair cycles: `2 / 3`
 
 ## File runtime qualification
 
-Chrome Browser Useで`file://`を直接開く操作はbrowser URL policyにより拒否された。迂回、raw CDP、別surfaceによる回避は行っていない。これは`AUTOMATION_TOOLING_LIMITATION`であり、application failureではない。
+Chrome Browser Useで`file://`を直接開く操作はbrowser URL policyにより拒否された。迂回、raw CDP、別surfaceによる回避は行っていない。これは`AUTOMATION_TOOLING_LIMITATION`である。
+
+USER actual file://確認ではdrag後の座標ずれが直接観測されたため、これはapplication defectとしてCycle 2で修正した。修正版のpointer操作recheckは未完了である。
 
 次のactual file://操作は未実行であり、PASSとして扱わない。
 
-- `open-layout-lab.bat`からの実起動
-- 7画面のvisual確認
-- direct drag / 8-direction resizeの実pointer操作
+- 修正版での7画面visual確認
+- 修正版でのdirect drag / 8-direction resize実pointer操作
 - localStorage variantとdownload/copyの実browser動作
 - local image overlay
 - browser console material error/warn 0
@@ -128,8 +130,8 @@ Chrome Browser Useで`file://`を直接開く操作はbrowser URL policyによ�
 
 - `LOGIC_VALIDATION`: `PASS`
 - `DETERMINISTIC_UI_CONTRACT_VALIDATION`: `PASS`
-- `ACTUAL_FILE_RUNTIME_QUALIFICATION`: `ACTION_REQUIRED`
-- `BLOCKER`: `USER_FILE_RUNTIME_CONFIRMATION_PENDING`
+- `ACTUAL_FILE_RUNTIME_QUALIFICATION`: `PARTIAL / RECHECK_REQUIRED`
+- `BLOCKER`: `USER_FILE_RUNTIME_RECHECK_PENDING`
 - `READY_FOR_CHATGPT_FINAL_REVIEW`: `NO`
 
 ## Shared Knowledge

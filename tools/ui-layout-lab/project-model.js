@@ -448,34 +448,56 @@
     return normalizeProject(next);
   }
 
-  function calculateDirectPlacement(element, pointerX, gridLeft, gridWidth, columns, microSnap) {
-    const columnWidth = gridWidth / columns;
+  function calculateDirectPlacement(element, pointerX, gridLeft, gridWidth, columns, microSnap, columnGapPx) {
+    const gap = Math.max(0, Number(columnGapPx) || 0);
+    const columnWidth = Math.max(1, (gridWidth - gap * (columns - 1)) / columns);
+    const columnPitch = columnWidth + gap;
     const raw = clamp(pointerX - gridLeft, 0, Math.max(0, gridWidth - 1));
-    const zeroColumn = clamp(Math.floor(raw / columnWidth), 0, columns - element.colSpan);
-    const macroX = zeroColumn * columnWidth;
+    const zeroColumn = clamp(Math.round(raw / columnPitch), 0, columns - element.colSpan);
+    const macroX = zeroColumn * columnPitch;
     return {
       colStart: zeroColumn + 1,
       xOffsetPx: clamp(snap(raw - macroX, microSnap), -OFFSET_LIMIT, OFFSET_LIMIT)
     };
   }
 
-  function calculateResizePatch(element, direction, deltaX, deltaY, columnWidth, microSnap, columns) {
+  function calculateDragRowPatch(element, desiredLeft, desiredTop, originalRect, target, microSnap) {
+    const sameOriginalRow = Math.abs(desiredTop - originalRect.top) < Math.max(12, originalRect.height * .45);
+    const overlapsTargetRow = desiredTop < target.bottom && desiredTop + originalRect.height > target.top;
+    const patch = {
+      order: target.order + (desiredLeft > target.left + target.width / 2 ? 1 : 0)
+    };
+    if (sameOriginalRow) {
+      patch.breakBefore = element.breakBefore;
+      patch.yOffsetPx = snap(element.yOffsetPx + desiredTop - originalRect.top, microSnap);
+    } else if (overlapsTargetRow) {
+      patch.breakBefore = false;
+      patch.yOffsetPx = snap(desiredTop - target.baseTop - element.topGapPx, microSnap);
+    } else {
+      patch.breakBefore = true;
+      patch.yOffsetPx = 0;
+    }
+    return patch;
+  }
+
+  function calculateResizePatch(element, direction, deltaX, deltaY, columnPitch, microSnap, columns) {
     const patch = {};
+    const pitch = Math.max(1, Number(columnPitch) || 1);
     const east = direction.includes('e');
     const west = direction.includes('w');
     const north = direction.includes('n');
     const south = direction.includes('s');
     if (east || west) {
       const signedDelta = east ? deltaX : -deltaX;
-      const totalWidth = element.colSpan * columnWidth + element.widthAdjustPx + signedDelta;
-      let span = clamp(Math.round(totalWidth / columnWidth), 1, columns);
+      const spanDelta = Math.round(signedDelta / pitch);
+      let span = clamp(element.colSpan + spanDelta, 1, columns);
       let start = element.colStart;
       if (west) start = element.colStart + element.colSpan - span;
       start = clamp(start, 1, columns - span + 1);
       span = clamp(span, 1, columns - start + 1);
       patch.colStart = start;
       patch.colSpan = span;
-      patch.widthAdjustPx = clamp(snap(totalWidth - span * columnWidth, microSnap), -WIDTH_ADJUST_LIMIT, WIDTH_ADJUST_LIMIT);
+      patch.widthAdjustPx = clamp(snap(element.widthAdjustPx + signedDelta - (span - element.colSpan) * pitch, microSnap), -WIDTH_ADJUST_LIMIT, WIDTH_ADJUST_LIMIT);
       if (west) patch.xOffsetPx = clamp(snap(element.xOffsetPx + deltaX, microSnap), -OFFSET_LIMIT, OFFSET_LIMIT);
     }
     if (south) patch.heightPx = clamp(snap(element.heightPx + deltaY, microSnap), 32, 760);
@@ -669,6 +691,7 @@
     detectScreenCollisions: detectScreenCollisions,
     resolveElementCollision: resolveElementCollision,
     calculateDirectPlacement: calculateDirectPlacement,
+    calculateDragRowPatch: calculateDragRowPatch,
     calculateResizePatch: calculateResizePatch,
     nudgeElement: nudgeElement,
     applyPreset: applyPreset,

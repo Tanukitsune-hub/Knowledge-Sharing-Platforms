@@ -154,6 +154,30 @@ test('12, 24, and 48-column conversion preserves appearance for even placements'
   assert.equal(model.validateProject(roundtrip).valid, true);
 });
 
+test('12 to 24 to 48 conversion preserves accepted coarse geometry with CSS gaps', () => {
+  const baseline = model.createDefaultProject();
+  const standard = model.convertScreenGrid(baseline, 'meeting-create', 12);
+  const fine = model.convertScreenGrid(standard, 'meeting-create', 24);
+  const ultra = model.convertScreenGrid(standard, 'meeting-create', 48);
+  const gridWidth = 1200;
+  const gap = 14;
+  function geometry(item, columns) {
+    const track = (gridWidth - gap * (columns - 1)) / columns;
+    return {
+      left: (item.colStart - 1) * (track + gap),
+      width: item.colSpan * track + (item.colSpan - 1) * gap
+    };
+  }
+  for (const source of standard.screens['meeting-create'].blocks) {
+    const expected = geometry(source, 12);
+    for (const [project, columns] of [[fine, 24], [ultra, 48]]) {
+      const actual = geometry(element(project, 'meeting-create', source.id), columns);
+      assert.ok(Math.abs(actual.left - expected.left) < 1e-8, `${source.id} left @${columns}`);
+      assert.ok(Math.abs(actual.width - expected.width) < 1e-8, `${source.id} width @${columns}`);
+    }
+  }
+});
+
 test('8, 4, 2, and 1px micro snaps normalize x/y/width adjustments and enforce bounds', () => {
   for (const step of model.MICRO_SNAPS) {
     let project = model.setMicroSnap(model.createDefaultProject(), 'knowledge', step);
@@ -173,7 +197,7 @@ test('direct placement and all eight resize directions return bounded macro and 
   const source = element(project, 'meeting-create', 'meeting-fundStrategy');
   const placement = model.calculateDirectPlacement(source, 695, 100, 960, 24, 4);
   assert.ok(placement.colStart >= 1 && placement.colStart <= 24);
-  assert.equal(placement.xOffsetPx % 4, 0);
+  assert.equal(Math.abs(placement.xOffsetPx) % 4, 0);
   for (const direction of ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']) {
     const patch = model.calculateResizePatch(source, direction, 97, 43, 40, 4, 24);
     if (direction.includes('e') || direction.includes('w')) {
@@ -183,6 +207,37 @@ test('direct placement and all eight resize directions return bounded macro and 
     }
     if (direction.includes('n') || direction.includes('s')) assert.ok(patch.heightPx >= 32 && patch.heightPx <= 760);
   }
+});
+
+test('direct placement measures CSS grid tracks and gaps without cumulative pointer drift', () => {
+  const source = element(model.createDefaultProject(), 'meeting-create', 'meeting-fundStrategy');
+  const gridLeft = 100;
+  const gridWidth = 960;
+  const columns = 24;
+  const gap = 14;
+  const track = (gridWidth - gap * (columns - 1)) / columns;
+  const pitch = track + gap;
+  for (const zeroColumn of [0, 5, 10, 15]) {
+    const desiredRaw = zeroColumn * pitch + 6;
+    const placement = model.calculateDirectPlacement(source, gridLeft + desiredRaw, gridLeft, gridWidth, columns, 4, gap);
+    const reconstructedRaw = (placement.colStart - 1) * pitch + placement.xOffsetPx;
+    assert.ok(Math.abs(reconstructedRaw - desiredRaw) <= 2.001, `column ${zeroColumn + 1}: ${reconstructedRaw} vs ${desiredRaw}`);
+  }
+});
+
+test('row drag keeps local y nudge but clears accumulated delta when inserting a new row', () => {
+  const source = element(model.createDefaultProject(), 'meeting-create', 'meeting-fundStrategy');
+  const originalRect = { left: 200, top: 120, width: 300, height: 40 };
+  const target = { order: 10, left: 180, width: 320, top: 320, bottom: 370, baseTop: 320 };
+  const local = model.calculateDragRowPatch(source, 230, 128, originalRect, target, 4);
+  assert.equal(local.breakBefore, source.breakBefore);
+  assert.equal(local.yOffsetPx, 8);
+  const inserted = model.calculateDragRowPatch(source, 230, 410, originalRect, target, 4);
+  assert.equal(inserted.breakBefore, true);
+  assert.equal(inserted.yOffsetPx, 0);
+  const joined = model.calculateDragRowPatch(source, 230, 330, originalRect, target, 4);
+  assert.equal(joined.breakBefore, false);
+  assert.equal(joined.yOffsetPx, 12);
 });
 
 test('screen edits are isolated while shared settings propagate as one project value', () => {
