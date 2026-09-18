@@ -1,6 +1,6 @@
 # UI Layout Lab — visual tuning workflow
 
-Status: ACCEPTED_DESIGN_DIRECTION
+Status: IMPLEMENTED_ACCEPTED
 Work ID: 0033
 Date: 2026-09-18
 
@@ -132,21 +132,7 @@ Examples:
 
 Export JSONのcanonical contract例:
 
-```json
-{
-  "specVersion": 1,
-  "screen": "meeting-create",
-  "baseline": "work0032-version8",
-  "viewport": "desktop",
-  "container": {"widthPercent": 66, "maxWidthPx": 1680, "align": "left", "gapPx": 16},
-  "fields": [
-    {"id": "meeting-date", "order": 1, "colSpan": 2, "visible": true},
-    {"id": "meeting-time", "order": 2, "colSpan": 2, "visible": true},
-    {"id": "meeting-counterpartyId", "order": 3, "colSpan": 4, "visible": true},
-    {"id": "meeting-notes", "order": 12, "colSpan": 12, "heightPx": 420, "visible": true}
-  ]
-}
-```
+Canonical export contract is implemented as `specVersion: 2` with `gridColumns`, `colStart`, `colSpan`, `breakBefore`, `topGapPx`, and `heightPx`. Legacy specVersion1 imports are migrated deterministically.
 
 Field IDsはproduction DOM IDと一致させる。
 
@@ -179,3 +165,17 @@ Codex側の実装はspecをCSS/HTMLへ反映し、production business logicを�
 ## Desktop shape preservation
 
 Wide/Laptop/Compactのpreviewではcanonical grid placementを維持し、viewport変更だけでfield order/row/colを自動再構成しない。containerはavailable content widthへfluidに広がってよい。720px以下だけsingle-column表示する。
+## Implementation Result
+
+Implemented and accepted in PR #55.
+
+```text
+MERGE: 24c8e78b0a446eddf0f1540885eb10db0bc865fa
+SPEC_VERSION: 2
+DIRECT_MANIPULATION: PASS
+USER_BROWSER_QUALIFICATION: PASS
+PRODUCTION_MUTATION: 0
+BLOCKER: NONE
+```
+
+Current preferred Meeting-create candidate: `docs/handoffs/0033-user-layout-candidate-current.json`.
