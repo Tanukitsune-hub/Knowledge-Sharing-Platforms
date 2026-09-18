@@ -196,6 +196,25 @@ test('Option reorder audit snapshot captures every affected option order', () =>
 test('explicit invalid search limits are rejected rather than silently reset', () => {
   assert.throws(() => ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ limit: -1 })), /検索件数上限/);
   assert.throws(() => ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ limit: 9999 })), /検索件数上限/);
+  assert.throws(() => ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ meetingTypeCodes: ['UNKNOWN'] })), /Meeting type filter/);
+});
+
+test('Meeting Type search supports none, legacy single, and multi-value OR without duplicates', () => {
+  const annual={Meeting_Type_Codes:'ANNUAL_REVIEW'};
+  const officeAndAgm={Meeting_Type_Codes:'OFFICE_VISIT,ANNUAL_GENERAL_MEETING'};
+  const noFilter=ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({}));
+  assert.deepEqual(Array.from(noFilter.meetingTypeCodes),[]);
+  assert.equal(ksp.kspRecordMatchesSearch_(annual,noFilter,{}),true);
+
+  const legacy=ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({meetingTypeCode:'OFFICE_VISIT'}));
+  assert.deepEqual(Array.from(legacy.meetingTypeCodes),['OFFICE_VISIT']);
+  assert.equal(ksp.kspRecordMatchesSearch_(annual,legacy,{}),false);
+  assert.equal(ksp.kspRecordMatchesSearch_(officeAndAgm,legacy,{}),true);
+
+  const multiple=ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({meetingTypeCodes:['ANNUAL_REVIEW','OFFICE_VISIT','ANNUAL_REVIEW']}));
+  assert.deepEqual(Array.from(multiple.meetingTypeCodes),['ANNUAL_REVIEW','OFFICE_VISIT']);
+  assert.equal(ksp.kspRecordMatchesSearch_(annual,multiple,{}),true);
+  assert.equal(ksp.kspRecordMatchesSearch_(officeAndAgm,multiple,{}),true);
 });
 
 test('Phase 1 diagnostics are non-destructive and report resource/schema/capability health', () => {

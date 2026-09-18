@@ -22,13 +22,14 @@ test('Meeting create hides optional backend controls without removing their cont
 });
 
 test('Meeting create uses a compact left-aligned bounded grid with expanded primary inputs', () => {
-  assert.match(styles, /#page-meeting\{width:min\(100%,1680px\);margin-right:auto\}/);
+  assert.match(styles, /#page-meeting\{width:100%;max-width:2000px;margin-left:0;margin-right:auto\}/);
   assert.match(styles, /#meeting-form>\.grid\{grid-template-columns:repeat\(12,minmax\(0,1fr\)\)/);
-  assert.match(styles, /\.meeting-field-fund\{grid-column:span 4\}/);
-  assert.match(styles, /\.meeting-field-participant\{grid-column:span 6\}/);
-  assert.match(styles, /#meeting-notes\{min-height:clamp\(260px,32vh,384px\)\}/);
+  assert.match(styles, /#meeting-form>\.grid>\.meeting-field-fund\{grid-column:7\/span 4;grid-row:3\}/);
+  assert.match(styles, /#meeting-form>\.grid>\.meeting-field-counterparty-person\{grid-column:1\/span 6;grid-row:4\}/);
+  assert.match(styles, /#meeting-form>\.grid>\.meeting-field-internal-participants\{grid-column:1\/span 6;grid-row:5\}/);
+  assert.match(styles, /#meeting-notes\{height:480px;min-height:480px\}/);
   assert.match(index, /class="field meeting-field-fund"[\s\S]*?id="meeting-fundStrategy"/);
-  assert.equal((index.match(/class="field meeting-field-participant"/g) || []).length, 2);
+  assert.equal((index.match(/class="field meeting-field-participant [^"]+"/g) || []).length, 2);
   assert.match(index, /class="field full meeting-field-notes"[\s\S]*?id="meeting-notes"/);
 });
 
@@ -39,8 +40,8 @@ test('draft clear control leads its hint and remains a large left-aligned action
   assert.match(styles, /\.record-entry-actions \.action\{[^}]*min-height:42px/);
 });
 
-test('Past Meetings gives Fund Strategy a two-column desktop field and a one-column mobile fallback', () => {
+test('Past Meetings keeps the widened Fund Strategy field and a one-column mobile fallback', () => {
   assert.match(maintenance, /class="field meeting-past-fund-field"[\s\S]*?id="meeting-past-fundStrategy"/);
-  assert.match(styles, /#page-meeting-past \.filter-grid>\.meeting-past-fund-field\{grid-column:span 2;width:min\(100%,60ch\)/);
-  assert.match(styles, /#page-meeting-past \.filter-grid>\.meeting-past-fund-field\{grid-column:auto;width:100%\}/);
+  assert.match(styles, /\.meeting-past-fund-field\{grid-column:1\/span 6;grid-row:2\}/);
+  assert.match(styles, /\.meeting-past-filter-grid>\.field\{grid-column:1;grid-row:auto;width:100%\}/);
 });

@@ -36,6 +36,17 @@ var KSP_MAINTENANCE_LIMITS = Object.freeze({
 
 function kspNormalizeRecordSearch_(input) {
   var source = input && typeof input === 'object' ? input : {};
+  var legacyMeetingTypeCode = kspMaintenanceTrim_(source.meetingTypeCode);
+  var rawMeetingTypeCodes = Array.isArray(source.meetingTypeCodes) ? source.meetingTypeCodes : [];
+  var meetingTypeCodes = [];
+  rawMeetingTypeCodes.forEach(function (value) {
+    kspMaintenanceSplitCodes_(value).forEach(function (code) {
+      if (meetingTypeCodes.indexOf(code) === -1) meetingTypeCodes.push(code);
+    });
+  });
+  if (legacyMeetingTypeCode && meetingTypeCodes.indexOf(legacyMeetingTypeCode) === -1) {
+    meetingTypeCodes.push(legacyMeetingTypeCode);
+  }
   return {
     dateFrom: kspMaintenanceTrim_(source.dateFrom),
     dateTo: kspMaintenanceTrim_(source.dateTo),
@@ -47,7 +58,8 @@ function kspNormalizeRecordSearch_(input) {
     capitalTypeId: kspMaintenanceTrim_(source.capitalTypeId),
     teamId: kspMaintenanceTrim_(source.teamId),
     fundStrategy: kspMaintenanceTrim_(source.fundStrategy),
-    meetingTypeCode: kspMaintenanceTrim_(source.meetingTypeCode),
+    meetingTypeCode: legacyMeetingTypeCode,
+    meetingTypeCodes: meetingTypeCodes,
     followUpOnly: kspToBoolean_(source.followUpOnly, false),
     status: kspMaintenanceTrim_(source.status),
     limit: source.limit === null || source.limit === undefined || source.limit === ''
@@ -67,10 +79,10 @@ function kspValidateRecordSearch_(search) {
   }
   kspAssert_(search.limit > 0 && search.limit <= KSP_MAINTENANCE_LIMITS.MAX_RESULTS,
     'SEARCH_LIMIT_INVALID', '検索件数上限が不正です。');
-  if (search.meetingTypeCode) {
-    kspAssert_(['ANNUAL_REVIEW', 'OFFICE_VISIT', 'ANNUAL_GENERAL_MEETING'].indexOf(search.meetingTypeCode) !== -1,
+  (search.meetingTypeCodes || []).forEach(function (meetingTypeCode) {
+    kspAssert_(['ANNUAL_REVIEW', 'OFFICE_VISIT', 'ANNUAL_GENERAL_MEETING'].indexOf(meetingTypeCode) !== -1,
       'SEARCH_MEETING_TYPE_INVALID', 'Meeting type filterが不正です。');
-  }
+  });
   if (search.counterpartyType) {
     kspAssert_(Boolean(kspCounterpartyTypeDefinition_(search.counterpartyType)),
       'SEARCH_COUNTERPARTY_TYPE_INVALID', '面談先区分filterが不正です。');
@@ -150,7 +162,10 @@ function kspRecordMatchesSearch_(row, search, maps) {
   if (search.capitalTypeId && String(row.Capital_Type_ID || '') !== search.capitalTypeId) return false;
   if (search.teamId && String(row.Team_ID || '') !== search.teamId) return false;
   if (search.fundStrategy && String(row.Fund_Strategy || '').toLocaleLowerCase('ja').indexOf(search.fundStrategy.toLocaleLowerCase('ja')) === -1) return false;
-  if (search.meetingTypeCode && kspMaintenanceSplitCodes_(row.Meeting_Type_Codes).indexOf(search.meetingTypeCode) === -1) return false;
+  if (search.meetingTypeCodes && search.meetingTypeCodes.length) {
+    var rowMeetingTypeCodes = kspMaintenanceSplitCodes_(row.Meeting_Type_Codes);
+    if (!search.meetingTypeCodes.some(function (code) { return rowMeetingTypeCodes.indexOf(code) !== -1; })) return false;
+  }
   if (search.followUpOnly && !kspToBoolean_(row.Follow_Up_Required, false)) return false;
   if (search.status && String(row.Status || '') !== search.status) return false;
   return true;

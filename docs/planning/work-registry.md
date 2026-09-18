@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-18
+Current as of: 2026-09-19
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -24,7 +24,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACCEPTED | Work 0028 version5 accepted baseline | PR #53 / schema8 / version7 accepted。Completion Latch済み。次は会社PC移行準備 |
 | 9 | 0032 | 記録追加 / 過去の記録の最終UI polish | ACCEPTED | Work 0031 schema8 / version7 | PR #54 / version8 accepted。Completion Latch済み |
 | 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACCEPTED | Work 0032 version8 accepted UI baseline | PR #55 / Layout Lab v2 accepted。Meeting-create candidateをproduction反映する次Workへ |
-| 11 | 0034 | Meeting-create production反映・shared sidebar refresh・adjacent UI convergence | ACTIVE (BUILD) | Work 0033 accepted candidate / Work0032 baseline | CODEX-01 version9 accepted evidence。CODEX-02でsidebar overflow / all-page 2000px / Past Meetings / Counterparty Summaryを収束 |
+| 11 | 0034 | Meeting-create production反映・shared sidebar refresh・adjacent UI convergence | ACTIVE (FINAL REVIEW) | Work 0033 accepted candidate / Work0032 baseline | CODEX-02 version10 runtime qualification完了。PR #56 final review待ち |
 | 12 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 13 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 14 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -257,19 +257,33 @@ COMPLETION_LATCH: APPLIED
 
 Completion: `docs/handoffs/0033-completion-report.md`
 Current candidate: `docs/handoffs/0033-user-layout-candidate-current.json`
+
 ## Work 0034 active contract
 
 ```text
 WORK_ID: 0034
 STATUS: ACTIVE
 MODE: BUILD
-CURRENT_ACCEPTED_RUNTIME_EVIDENCE: version9 / CODEX-01
+CURRENT_ACCEPTED_RUNTIME_EVIDENCE: version10 / CODEX-02
 ACTIVE_DISPATCH: 0034-CODEX-02
 PR: #56
-TARGET: same existing owner-only Web App
+TARGET_RUNTIME: same existing owner-only versioned Web App
+UI_CONVERGENCE: PASS
+MEETING_CREATE_LAYOUT: PASS
+PAST_MEETING_NONE_SINGLE_MULTI_OR: PASS
+COUNTERPARTY_SUMMARY_SIMPLIFICATION: PASS
+TARGET_RUNTIME_QUALIFICATION: PASS
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED / UNCHANGED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
 WORK_0030: DEFERRED_BY_USER
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
 ```
 
 Dispatch: `docs/handoffs/0034-dispatches.md`
+
 Active instruction: `docs/handoffs/0034-CODEX-02-ui-convergence-instruction.md`
-CODEX-01 report: `docs/handoffs/0034-CODEX-01-production-layout-sidebar-refresh-report.md`
+
+Report: `docs/handoffs/0034-CODEX-02-ui-convergence-report.md`
