@@ -1,16 +1,65 @@
-# CODEX-23 — 日時修復PASS / follow-up添付のnative選択待ち
+# CODEX-23 — 日時修復・R1-R8 PASS / 最終review返却
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-23
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 ## 結果 / 再開点
 
 同じ2件の元セルを保持したまま、実Apps Script観測に基づく共通read adapter修正を行った。既存single owner-only deploymentのversion4で検索・GP/non-GP詳細の日時一致を確認した。初回資料のunlink/relink、同じDocument_ID/File_ID保持、Docs body/tab content完全一致、専用非AI Full OutputもPASS。
 
-残るR4 follow-up添付は、通常browser filechooserの自動取得がsetFiles前にtimeoutした。これはapplication failureでもrepair cycle失敗でもない。ユーザーの通常ファイル選択だけが必要。親Meetingを登録し直さず、同じDispatchで続行する。R1-R8完了、ユーザー実機確認準備完了とはまだしない。
+R4 follow-up添付は一度native選択待ちとなったが、ユーザー選択後に同じDispatchで再開し完了した。追加後も元日時セル・無関係business fields・Docs body/tab content完全一致を確認。R1-R8は下記の直接観測と明示した非影響証拠継承の範囲でPASS、ChatGPT最終reviewへ返す。Work Completion Latchとmergeは未実行。
+
+## 最終結果（以下のcheckpoint記録より優先）
+
+再開時のorigin/mainは同じ `6cb0bbc7d1634a77fff2e9c9f6e7bc008dd22fad`、local/PR HEADはcheckpoint `3d21ece537f87c6fbd9d0aa12690d8998c01e0c8`、working tree clean。追加source repair/sync/version/updateは0。served version4 / source `998c9d1` / artifact `c0f694c9f69118d8329dc27264a5c02c02cf927a` は不変。
+
+ユーザーが通常UIで選択した `0028-22-followup.txt`、106B、Selected1件と既存parent/Version4を確認し、「この記録へ資料を追加」を1回クリックした。UIは「記録・資料の関連付けを完了しました」。Index readbackではDocument_ID `DOC-000002`、同じparent `MTG-000002`、Active、初回資料とは別のFile_ID、Drive metadata106B・非共有・実在。元の `DOC-000001` は保持され、親は同じ2件のまま。
+
+| 最終項目 | 結果 / version4証拠 |
+|---|---|
+| R1 | PASS、最終metadata exactly5、schema7、AI_SYNC_ENABLEDFALSE。installer/I2は非影響継承 |
+| R2 | PASS、既存親2件・同じstable IDs。追加後検索でも元日時一致 |
+| R3 | PASS、初回資料・parent・File_IDを保持。今回再uploadなし |
+| R4 | PASS、106B follow-up1件を既存parentへ追加、Index/Drive/UI readback一致 |
+| R5 | PASS、今回version4で初回資料unlink/relink済み。同じDocument_ID/File_ID、Active、物理削除0 |
+| R6 | PASS、initial addはCODEX22継承、今回unlink/relink/follow-up add各境界でDocs body/tab content exact equality。元Date/Time CellDataとbusiness fieldsも完全一致 |
+| R7 | PASS、同じfinal version4でMeeting-only専用非AI Full Output、Meeting1件・332文字・日時/本文確認。新規export artifact生成は対象外・未実行 |
+| R8 | PASS、同一single WEB_APP version4 / USER_DEPLOYING / MYSELF / same exec / immutable parity、今回native trigger画面0、最終AI FALSE、provider0/機密0/物理削除0 |
+
+追加後のnon-GP親はVersion5、related IDsは `DOC-000001,DOC-000002`。検索・詳細の日時は2026-09-17 11:15、GPは2026-09-17 10:30。最終詳細画面で関連資料2件・元本文を確認し、desktop screenshotを観測した。same exec/title、nonblank、error overlayなし、console error/warn0。mobile/他browserの見た目は今回未検証。
+
+```text
+R1_R8: PASS
+TARGET_RUNTIME_QUALIFICATION: PASS / FINAL_VERSION4
+LOGIC_VALIDATION: PASS / 524_OF_524
+BUNDLE_VALIDATION: PASS / 30_OF_30
+CYCLES_USED: 1_OF_3
+PROVIDER_CALLS: DIRECT_OPENAI_0 / GEMINI_0 / AZURE_OPENAI_0
+AI_SYNC: DISABLED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+TRIGGERS: 0
+NEW_TARGET: 0
+SECOND_DEPLOYMENT: 0
+HISTORICAL_VERSION75_MUTATION: 0
+SIDE_EFFECT_STATE: DIAGNOSTIC_SYNC_1 / REPAIR_SYNC_1 / VERSION4_1 / SAME_DEPLOYMENT_UPDATE_1 / INITIAL_RELATION_UNLINK_1_RELINK_1 / FOLLOWUP_UPLOAD_1 / FOLLOWUP_RELATION_ADD_1
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+WORK0030: DEFERRED_BY_USER / NOT_STARTED
+```
+
+### ユーザー実機確認の導線（ChatGPT最終review後）
+
+保持したChromeのKnowledge Sharing Platformsタブが、同じowner-only version4の入口。private access情報は既存ローカル管理経路に保持し、report/PRへ転記しない。
+
+1. 「過去の記録」でsynthetic2件の日付が2026-09-17、時刻が10:30 / 11:15であることを確認。
+2. non-GP詳細で元本文と関連資料2件を確認（削除/編集操作は不要）。
+3. 「ナレッジ検索」でsynthetic面談先・面談記録のみ・全期間を選び「全文出力」。質問・AIモデル不要で元本文を確認。
+
+実データ投入、provider設定/呼出し、AI sync有効化は本確認に含めない。PR #51はDraftのままmergeせず返す。
 
 ## 正本 / Work Contract
 
@@ -67,7 +116,7 @@ EXISTING_DEPLOYMENT_UPDATE: 1_OF_3
 CONFIRMATION_REEXECUTION: 0 / SECURITY_CODE_UNCHANGED
 ```
 
-## Runtime matrix / version4 checkpoint
+## Runtime matrix / version4 checkpoint（native選択前の履歴）
 
 | 項目 | 判定・証拠 |
 |---|---|
@@ -83,7 +132,7 @@ CONFIRMATION_REEXECUTION: 0 / SECURITY_CODE_UNCHANGED
 
 Browserは既存Chrome同じexecをreload。main render、検索・両詳細・relation操作・Full Outputを直接確認し、console error/warn0。frontend-testing-debuggingとSheets/Docsスキルは、画面結果と元セル/本文の独立読取・保全確認に使用した。
 
-## Native操作待ち / 同じDispatchの継続
+## Native操作待ち / 同じDispatchの継続（解消済みの履歴）
 
 添付先は既存non-GP Meeting、画面表示「親記録: MTG-000002 / Version 4（新規記録は作成しません）」。follow-up fixtureは既存ローカル `0028-22-followup.txt`、106B、syntheticのみ。
 
@@ -119,5 +168,5 @@ NEW_KNOWLEDGE_CANDIDATE: YES
 
 WORK_ID: 0028
 DISPATCH_ID: 0028-CODEX-23
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
