@@ -2,11 +2,11 @@
 
 WORK_ID: 0035
 DISPATCH_ID: 0035-CODEX-01
-ACTIVE_DISPATCH_ID: 0035-CODEX-01
-BALL: CODEX
-STATUS: READY
+ACTIVE_DISPATCH_ID: NONE
+BALL: NONE
+STATUS: SUPERSEDED
 MODE: BUILD
-PHASE: MULTI-SCREEN UI STUDIO
+PHASE: SUPERSEDED_BY_USER / STRATEGY_RESET
 
 ## Primary Outcome
 
@@ -52,10 +52,26 @@ WORK_0030: DEFERRED_BY_USER
 
 ```text
 NEXT_UNUSED_DISPATCH: 0035-CODEX-02
-WORK_0035_COMPLETE: NO
+WORK_0035_COMPLETE: NO / SUPERSEDED
 ```
 
 WORK_ID: 0035
 DISPATCH_ID: 0035-CODEX-01
 BALL: CODEX
 STATUS: READY
+## Strategy Reset — user decision
+
+2026-09-19: ユーザーはMulti-screen UI Studioの追加開発を中止し、口頭指示ベースでproduction UIを直接改善する方針へ変更した。
+
+理由: editor自体の使い勝手改善に深入りすると、Primary OutcomeであるKnowledge Sharing Platforms本体のUI改善よりtool開発に時間を消費するため。
+
+Accepted evidence from Work0033 Layout Lab / Work0034 version10は保持する。
+
+Work0035の新規Studio実装は不要。未mergeの実装が存在する場合は採用・mergeせず、0036へ持ち込まない。
+
+```text
+SUPERSEDED_BY: Work 0036
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+STATUS: SUPERSEDED
+```
