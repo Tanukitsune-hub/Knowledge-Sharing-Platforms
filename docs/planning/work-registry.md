@@ -26,7 +26,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACCEPTED | Work 0032 version8 accepted UI baseline | PR #55 / Layout Lab v2 accepted。Meeting-create candidateをproduction反映する次Workへ |
 | 11 | 0034 | Meeting-create production反映・shared sidebar refresh・adjacent UI convergence | ACCEPTED | Work 0033 accepted candidate / Work0032 baseline | PR #56 / version10 accepted。Completion Latch済み。次は他タブを1画面ずつLayout Labで調整 |
 | 12 | 0035 | Multi-screen UI Studio — 全7タブ一括design + fine positioning | SUPERSEDED | Work0034 version10 / Work0033 Layout Lab | User strategy reset 2026-09-19。UI Studio追加開発は停止、Work0036へ |
-| 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | READY | Work0034 version10 | PR #58 / version11でruntime qualification完了。ChatGPT final review待ち |
+| 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | ACCEPTED | Work0034 version10 | PR #58 / version11 accepted。Completion Latch済み |
 | 14 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 15 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 16 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -335,11 +335,11 @@ Instruction: `docs/handoffs/0035-CODEX-01-multi-screen-ui-studio-instruction.md`
 
 ```text
 WORK_ID: 0036
-STATUS: READY
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0034 version10
 EQUITY_DEBT_USER_SELECTION: REMOVE
-COUNTERPARTY_TYPE_USER_SELECTION: REMOVE
+COUNTERPARTY_TYPE_USER_SELECTION: NEW_COUNTERPARTY_MODAL_ONLY
 LAYOUT_REFERENCE: Meeting-create accepted 12-column language
 WORK_0035: SUPERSEDED_BY_USER
 WORK_0030: DEFERRED_BY_USER
@@ -353,3 +353,33 @@ Plan: `docs/planning/work0036-cross-tab-production-ui.md`
 Dispatch: `docs/handoffs/0036-dispatches.md`
 Instruction: `docs/handoffs/0036-CODEX-01-cross-tab-ui-convergence-instruction.md`
 Report: `docs/handoffs/0036-CODEX-01-cross-tab-ui-convergence-report.md`
+
+## Work 0036 accepted outcome
+
+PR #58 merge: `9537b499ed05698ab1e981a51534fe86807d910d`
+
+```text
+FINAL_SERVED_VERSION: 11
+CROSS_TAB_UI_CONVERGENCE: PASS
+NEW_COUNTERPARTY_MODAL: PASS
+NORMAL_NAVIGATION: 7/7 PASS
+VIEWPORTS: 2560 / 1440 / 1280 / 390 PASS
+LOGIC_VALIDATION: 561/561 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED / UNCHANGED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+SCHEMA_CHANGE: 0
+MIGRATION_CHANGE: 0
+SECURITY_CHANGE: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+Selection policy:
+- Equity / Debt: normal user selectionなし、existing backend valueをpreserve。
+- Counterparty Type: normal filter/analytics selectionなし。新規面談先modalのみrequired選択。
+
+Completion: `docs/handoffs/0036-completion-report.md`
+Current ball/status: `docs/handoffs/0036-dispatches.md`
