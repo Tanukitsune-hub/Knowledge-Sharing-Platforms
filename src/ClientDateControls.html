@@ -1,0 +1,7 @@
+<script>
+function kspTokyoDateParts(now){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now||new Date());return Object.fromEntries(parts.map(part=>[part.type,part.value]))}
+function kspDefaultDateRange(now){const today=kspTokyoDateParts(now),year=Number(today.year)-3,isLeap=year%4===0&&(year%100!==0||year%400===0),day=today.month==='02'&&today.day==='29'&&!isLeap?'28':today.day;return{from:year+'-'+today.month+'-'+day,to:today.year+'-'+today.month+'-'+today.day}}
+function kspSetDefaultDateRange(fromId,toId,now){const from=document.getElementById(fromId),to=document.getElementById(toId),range=kspDefaultDateRange(now);if(from)from.value=range.from;if(to)to.value=range.to;return range}
+function kspTryShowDatePicker(event){const input=event&&event.currentTarget;if(!input||input.disabled||input.readOnly||typeof input.showPicker!=='function')return;const last=Number(input.dataset.kspPickerOpenedAt||0);if(last&&Date.now()-last<250)return;try{input.showPicker();input.dataset.kspPickerOpenedAt=String(Date.now())}catch(error){}}
+function kspInstallNativeDatePickers(root){(root||document).querySelectorAll('input[type="date"]').forEach(input=>{if(input.dataset.kspPickerReady==='true')return;input.dataset.kspPickerReady='true';input.addEventListener('focus',kspTryShowDatePicker);input.addEventListener('click',kspTryShowDatePicker)})}
+</script>

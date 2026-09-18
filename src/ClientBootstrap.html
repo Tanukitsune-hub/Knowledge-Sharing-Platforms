@@ -1,6 +1,10 @@
 <script>
 // Keep the shared file controller in the real registration form; move it only for a saved parent.
 el('meeting-file-home').appendChild(el('meeting-file-panel'));
+kspSetDefaultDateRange('meeting-past-dateFrom','meeting-past-dateTo');
+kspSetDefaultDateRange('pitchbook-past-dateFrom','pitchbook-past-dateTo');
+kspSetDefaultDateRange('activity-date-from','activity-date-to');
+kspSetDefaultDateRange('relationship-date-from','relationship-date-to');
 showPage('knowledge');
 const summarySwitch=document.createElement('div');summarySwitch.className='actions';
 summarySwitch.innerHTML='<button type="button" id="summary-show-gp" class="small-button">GPサマリー</button><button type="button" id="summary-show-entity" class="small-button">面談先サマリー</button>';
