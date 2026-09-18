@@ -79,3 +79,11 @@ Current authoritative candidate: `docs/handoffs/0033-user-layout-candidate-curre
 Supplement: `docs/handoffs/0033-CODEX-02-revised-layout-candidate-supplement.md`
 
 Supersedes earlier 77% / 24-column candidate. Current: 12 columns / width100% / max1680 / same desktop topology across Wide-Laptop-Compact.
+
+## Latest candidate revision
+
+Current candidate remains `docs/handoffs/0033-user-layout-candidate-current.json`.
+
+Latest change: `maxWidthPx = 2000` (supersedes 1680). Width remains 100%, 12-column canonical layout unchanged.
+
+One stale `1680px` sentence in the user's pasted responsive prose was explicitly reconciled to 2000 because the handoff header and canonical JSON both specify 2000.
