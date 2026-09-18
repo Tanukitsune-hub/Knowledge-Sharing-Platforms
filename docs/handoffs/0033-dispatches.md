@@ -2,87 +2,87 @@
 
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-02
-ACTIVE_DISPATCH_ID: 0033-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: NONE
+BALL: NONE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: UI LAYOUT LAB / DIRECT MANIPULATION V2 / CHATGPT FINAL REVIEW
+PHASE: COMPLETION_LATCH
 
-## Outcome
+## Final outcome
 
-production UIを直接反復修正する前に、ユーザーがdrag/resize/presetで配置を決め、machine-readable specをCodexへ渡せるLayout Labを作る。
-
-## Active instruction
-
-`docs/handoffs/0033-CODEX-02-direct-manipulation-enhancement-instruction.md`
-
-## Fixed boundary
+Knowledge Sharing Platforms専用のlocal-only UI Layout Lab v2を完成・受入した。production appには変更を入れていない。
 
 ```text
+PR: #55
+MERGE: 24c8e78b0a446eddf0f1540885eb10db0bc865fa
+LAYOUT_LAB: USABLE
+SPEC_VERSION: 2
+PREFERRED_CANDIDATE: CURRENT_12_COLUMN
+CURRENT_MAX_WIDTH_PX: 2000
+DESKTOP_TOPOLOGY: PRESERVED_WIDE_LAPTOP_COMPACT
+MOBILE_PROJECTION: ONE_COLUMN_VISUAL_ONLY
+DIRECT_PLACEMENT_MODEL: PASS
+EIGHT_DIRECTION_RESIZE_MODEL: PASS
+STANDARD_FINE_CONVERSION: PASS
+V1_MIGRATION: PASS
+V2_JSON_ROUNDTRIP: PASS
+FOCUSED_TESTS: 20/20 PASS
+CANONICAL_CHECK: 544/544 PASS
+MANUAL_BROWSER_QUALIFICATION: PASS / USER_CONFIRMED
+CONSOLE_MATERIAL_ERROR_WARN: 0
 PRODUCTION_SRC_MODIFICATION: 0
 APPS_SCRIPT_DEPLOYMENT: 0
 NETWORK_CALLS: 0
-GOOGLE_CALLS: 0
 PROVIDER_CALLS: 0
-REAL_CONFIDENTIAL_DATA: 0
-WORK_0030: DEFERRED_BY_USER
+BLOCKER: NONE
 ```
 
-## Required features
+## Current authoritative candidate
 
-- Current v8 + 3 design presets
-- direct row/column drag placement
-- 8-direction edge/corner resize
-- Standard 12 / Fine 24 precision
-- hide/show
-- viewport preview
-- auto tidy + design lint
-- undo/redo
-- local variants
-- JSON import/export
-- Codex handoff
-- local screenshot reference
+`docs/handoffs/0033-user-layout-candidate-current.json`
+
+Current candidate:
+- 12 columns
+- width 100%
+- max-width 2000px
+- left aligned
+- gap 14px / 14px
+- Wide 2560 / Laptop 1440 / Compact 1280でcanonical topology維持
+- <=720pxだけsingle-column visual projection
+
+## Closed conclusions
+
+- Layout Labはproductionから独立したlocal static tool。
+- direct row/column placement、8-direction resize、Standard12/Fine24を利用可能。
+- specVersion1はv2へdeterministic migrate。
+- local variants / JSON / Codex handoff / screenshot overlayを維持。
+- viewport preview変更はcanonical desktop placementをmutationしない。
+- current preferred Meeting-create layoutは上記candidate。
+- production `src/**`はWork0033で変更していない。
+- Apps Script version9等のproduction deploymentも行っていない。
+- Work0030はDEFERRED_BY_USERのまま。
+
+## Residual / next
+
+他タブは同時に広げず、一つずつLayout Labで調整する。
+
+次の自然なstepは、current Meeting-create candidateを別Workでproductionへ忠実に反映・actual Web App認定した後、次のタブを選んでLayout Lab対象へ追加すること。
+
+## Completion Latch
 
 ```text
+WORK_0033_COMPLETE: YES
+COMPLETION_LATCH: APPLIED
+ACTIVE_BLOCKER: NONE
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+STATUS: ACCEPTED
 NEXT_UNUSED_DISPATCH: 0033-CODEX-03
-WORK_0033_COMPLETE: NO
-READY_FOR_CHATGPT_FINAL_REVIEW: YES
 ```
 
-## CODEX-02 transition
-
-- Direct-manipulation v2 implementation: COMPLETE
-- Implementation commit: `3a21af3`
-- Revised candidate implementation commit: `c6e15fc`
-- Current max-width convergence commit: `1abfb3e`
-- Current authoritative candidate: 12 columns / width100% / max2000 / left / gap14-14
-- Superseded candidate: 77% / 24 columns / NOT USED
-- Superseded max width: 1680px / NOT USED
-- Candidate parity: PASS
-- Desktop viewport placement mutation: 0
-- Focused tests: `20/20 PASS`
-- Canonical check: `544/544 PASS`
-- Production source / deployment / external calls: `0`
-- Actual Chrome `file://` qualification: PASS / USER CONFIRMED 2026-09-18
-- Report: `docs/handoffs/0033-CODEX-02-direct-manipulation-report.md`
-
-USERは`tools/ui-layout-lab/open-layout-lab.bat`からactual local surfaceを開き、最終checklistを確認して`確認完了`を返した。max-width 2000px、desktop topology / export JSON不変、Mobile-only projection、主要direct-manipulation操作、handoff文言、console material error/warn 0を受理した。CODEX-02はChatGPT final reviewへRETURNする。
-
-## Revised user-selected candidate
-
-Current authoritative candidate: `docs/handoffs/0033-user-layout-candidate-current.json`
-
-Supplement: `docs/handoffs/0033-CODEX-02-revised-layout-candidate-supplement.md`
-
-Earlier 77% / 24-column candidate and max-width 1680px are superseded. Current preferred layout uses 12 columns / width100% / max2000 and preserves identical desktop topology across Wide / Laptop / Compact.
-
-## CODEX-01 closed evidence
-
-Initial Layout Lab functionality and user manual qualification are accepted baseline evidence. CODEX-01 RETURNED at branch head `405cf7f4579b7413df3de36dab4f2675176ceafa`.
-
-New user feedback after RETURNED required CODEX-02, which adds direct 2D placement, 8-direction resize, 12/24-column precision, and spec v2 backward compatibility without reopening production boundaries.
+新しいmaterial contradictory evidence、Layout Lab defect、または明示scope変更がない限りWork0033を再開しない。
 
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: NONE
+STATUS: ACCEPTED
