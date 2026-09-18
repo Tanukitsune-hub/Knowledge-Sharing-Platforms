@@ -21,7 +21,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
 | 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACCEPTED | PR #50 + #51 + #52 | version5でpre-rollout UI/interaction再認定。Completion Latch再適用。次は会社PC移行準備 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
-| 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACTIVE (BUILD) | Work 0028 version5 accepted baseline | CODEX-01がdependency inventoryからschema8実装・same-target migration・R1-R10まで自律完了 |
+| 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACTIVE (BUILD / FINAL REVIEW) | Work 0028 version5 accepted baseline | CODEX-01 R1-R10 accepted。CODEX-02でuser-facing「面談先マスター」表記だけ収束 |
 | 9 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 10 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 11 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -169,4 +169,4 @@ WORK_0030: remains DEFERRED_BY_USER
 Decision: `docs/decisions/counterparty-master-unification.md`
 Plan: `docs/planning/work0031-counterparty-master-transition.md`
 Active dispatch: `docs/handoffs/0031-dispatches.md`
-Instruction: `docs/handoffs/0031-CODEX-01-counterparty-master-transition-instruction.md`
+Instruction: `docs/handoffs/0031-CODEX-02-user-facing-wording-convergence-instruction.md`
