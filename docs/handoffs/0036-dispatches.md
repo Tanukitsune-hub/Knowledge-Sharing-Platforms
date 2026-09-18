@@ -44,3 +44,15 @@ WORK_ID: 0036
 DISPATCH_ID: 0036-CODEX-01
 BALL: CODEX
 STATUS: READY
+## Latest user refinement — Counterparty registration modal
+
+Previous `new Counterparty => OTHER without type choice` assumption is SUPERSEDED.
+
+New rule:
+- filters/analytics still hide Counterparty Type
+- new Counterparty creation is the sole user-facing type selection exception
+- Meeting quick-add and Masters use one custom modal
+- modal requires Type + Counterparty name
+- no native prompt
+
+Authoritative detail is appended to `docs/handoffs/0036-CODEX-01-cross-tab-ui-convergence-instruction.md`.
