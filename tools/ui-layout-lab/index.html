@@ -20,6 +20,7 @@
       </div>
       <div class="toolbar" aria-label="レイアウト操作">
         <div id="viewport-buttons" class="segmented" aria-label="Preview viewport"></div>
+        <div id="precision-buttons" class="segmented precision-switch" aria-label="Grid precision"></div>
         <span class="toolbar-divider" aria-hidden="true"></span>
         <button id="undo-button" class="icon-button" type="button" title="元に戻す" aria-label="元に戻す">↶</button>
         <button id="redo-button" class="icon-button" type="button" title="やり直す" aria-label="やり直す">↷</button>
@@ -78,8 +79,9 @@
             <h2>記録を追加 — layout preview</h2>
           </div>
           <div class="canvas-legend">
-            <span><i class="legend-dot drag"></i>dragで並べ替え</span>
-            <span><i class="legend-dot resize"></i>edgeでresize</span>
+            <span><i class="legend-dot drag"></i>dragでrow / column配置</span>
+            <span><i class="legend-dot resize"></i>8 handlesでresize</span>
+            <span>Arrowでnudge</span>
           </div>
         </div>
         <div id="canvas-scroll" class="canvas-scroll">
@@ -100,7 +102,7 @@
                       <span id="preset-origin-chip" class="origin-chip"></span>
                     </div>
                     <div class="draft-action"><button type="button" tabindex="-1">下書きをクリア</button><span>新しい記録を開始できます。</span></div>
-                    <div id="mock-grid" class="mock-grid" aria-label="Editable 12-column field grid"></div>
+                    <div id="mock-grid" class="mock-grid" aria-label="Editable field grid"></div>
                     <div class="mock-footer"><span>visible UI layout mock</span><button type="button" tabindex="-1">登録</button></div>
                   </div>
                 </div>
@@ -124,12 +126,18 @@
               </div>
               <span id="selected-field-order" class="count-badge"></span>
             </div>
-            <label class="control-label" for="field-span">Width <output id="field-span-output"></output></label>
-            <input id="field-span" type="range" min="1" max="12" step="1">
-            <div id="field-height-group">
-              <label class="control-label" for="field-height">Height <output id="field-height-output"></output></label>
-              <input id="field-height" type="range" min="100" max="720" step="10">
+            <div class="two-column-controls placement-controls">
+              <div><label class="control-label" for="field-order">Order</label><input id="field-order" type="number" min="1" max="13" step="1"></div>
+              <div><label class="control-label" for="field-start">Start column</label><input id="field-start" type="number" min="1" max="12" step="1"></div>
+              <div><label class="control-label" for="field-span">Width / span</label><input id="field-span" type="number" min="1" max="12" step="1"></div>
+              <div><label class="control-label" for="field-top-gap">Top gap px</label><input id="field-top-gap" type="number" min="0" max="160" step="4"></div>
             </div>
+            <div id="field-height-group">
+              <label class="control-label" for="field-height">Height px</label>
+              <input id="field-height" type="number" min="34" max="720" step="4">
+              <div class="micro-actions" aria-label="Top gap quick adjustment"><button id="top-gap-less" type="button">Gap −4</button><button id="top-gap-more" type="button">Gap +4</button></div>
+            </div>
+            <label class="check-control"><input id="field-break-before" type="checkbox"> このfieldから新しいrow</label>
             <label class="check-control"><input id="field-visible" type="checkbox"> このfieldを表示</label>
           </div>
         </section>
@@ -147,7 +155,7 @@
             <div><label class="control-label" for="column-gap">Column gap</label><input id="column-gap" type="number" min="0" max="40" step="1"></div>
             <div><label class="control-label" for="row-gap">Row gap</label><input id="row-gap" type="number" min="0" max="40" step="1"></div>
           </div>
-          <label class="check-control"><input id="show-grid" type="checkbox"> 12-column gridを表示</label>
+          <label class="check-control"><input id="show-grid" type="checkbox"> editing gridを表示</label>
         </section>
 
         <section class="panel-section reference-section">
@@ -178,7 +186,7 @@
       <button class="dialog-close" value="close" aria-label="閉じる">×</button>
     </form>
     <section id="json-panel">
-      <p class="dialog-copy">canonical spec version 1。export→importで同じJSONへ戻ります。</p>
+      <p class="dialog-copy">canonical spec version 2。export→importはexact roundtripし、version 1 JSONは決定的にmigrateします。</p>
       <textarea id="json-text" class="code-area" spellcheck="false"></textarea>
       <div class="dialog-actions">
         <button id="json-copy" class="button secondary" type="button">JSONをcopy</button>

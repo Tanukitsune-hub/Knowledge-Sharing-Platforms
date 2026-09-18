@@ -4,56 +4,50 @@
   const presets = window.LayoutLabPresets;
   const model = window.LayoutLabModel;
   const STORAGE_KEY = 'knowledge-share-ui-layout-lab-variants-v1';
+  const RESIZE_DIRECTIONS = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 
   const elements = {};
   let history = model.createHistory(presets.getPreset('current-v8'), 50);
   let selectedId = 'meeting-date';
   let savedSnapshot = model.stableStringify(history.current());
   let draggedId = null;
+  let dragIntent = null;
   let referenceLoaded = false;
 
-  function byId(id) {
-    return document.getElementById(id);
-  }
+  function byId(id) { return document.getElementById(id); }
 
   function cacheElements() {
     [
-      'viewport-buttons', 'undo-button', 'redo-button', 'tidy-button', 'reset-button', 'json-button', 'handoff-button',
+      'viewport-buttons', 'precision-buttons', 'undo-button', 'redo-button', 'tidy-button', 'reset-button', 'json-button', 'handoff-button',
       'dirty-indicator', 'preset-list', 'field-palette', 'visible-field-count', 'variant-name', 'variant-select',
       'variant-save', 'variant-load', 'variant-delete', 'viewport-caption', 'canvas-scroll', 'preview-frame',
       'preview-viewport', 'mock-container', 'mock-grid', 'preset-origin-chip', 'status-message', 'field-inspector-empty',
-      'field-inspector', 'selected-field-label', 'selected-field-id', 'selected-field-order', 'field-span',
-      'field-span-output', 'field-height-group', 'field-height', 'field-height-output', 'field-visible',
-      'container-width', 'container-width-output', 'container-max-width', 'container-align', 'column-gap', 'row-gap',
-      'show-grid', 'reference-file', 'reference-overlay', 'reference-opacity', 'reference-opacity-output',
-      'reference-clear', 'lint-count', 'lint-list', 'transfer-dialog', 'dialog-title', 'json-panel', 'handoff-panel',
-      'json-text', 'json-copy', 'json-download', 'json-file', 'json-import', 'handoff-text', 'handoff-copy',
-      'handoff-download'
+      'field-inspector', 'selected-field-label', 'selected-field-id', 'selected-field-order', 'field-order', 'field-start',
+      'field-span', 'field-top-gap', 'field-height-group', 'field-height', 'field-break-before', 'field-visible',
+      'top-gap-less', 'top-gap-more', 'container-width', 'container-width-output', 'container-max-width', 'container-align',
+      'column-gap', 'row-gap', 'show-grid', 'reference-file', 'reference-overlay', 'reference-opacity',
+      'reference-opacity-output', 'reference-clear', 'lint-count', 'lint-list', 'transfer-dialog', 'dialog-title',
+      'json-panel', 'handoff-panel', 'json-text', 'json-copy', 'json-download', 'json-file', 'json-import',
+      'handoff-text', 'handoff-copy', 'handoff-download'
     ].forEach(function (id) { elements[id] = byId(id); });
   }
 
-  function current() {
-    return history.current();
-  }
-
-  function definition(id) {
-    return presets.fieldDefinitionById[id];
-  }
+  function current() { return history.current(); }
+  function definition(id) { return presets.fieldDefinitionById[id]; }
+  function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
 
   function setStatus(message, tone) {
     elements['status-message'].textContent = message || '';
     elements['status-message'].className = 'status-message' + (tone ? ' ' + tone : '');
   }
 
-  function commit(next, message) {
+  function commit(next, message, tone) {
     history.record(next);
     renderAll();
-    if (message) setStatus(message, 'success');
+    if (message) setStatus(message, tone || 'success');
   }
 
-  function isDirty() {
-    return model.stableStringify(current()) !== savedSnapshot;
-  }
+  function isDirty() { return model.stableStringify(current()) !== savedSnapshot; }
 
   function renderDirtyState() {
     const dirty = isDirty();
@@ -78,6 +72,24 @@
     });
   }
 
+  function renderPrecisionButtons() {
+    const layout = current();
+    elements['precision-buttons'].innerHTML = '';
+    [{ columns: 12, label: 'Standard' }, { columns: 24, label: 'Fine' }].forEach(function (mode) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = layout.container.gridColumns === mode.columns ? 'active' : '';
+      button.dataset.gridColumns = String(mode.columns);
+      button.innerHTML = mode.label + '<span>' + mode.columns + ' columns</span>';
+      button.addEventListener('click', function () {
+        if (layout.container.gridColumns === mode.columns) return;
+        const lossy = model.gridConversionLosesFidelity(layout, mode.columns);
+        commit(model.convertGrid(layout, mode.columns), lossy ? 'Standardへ安全にnormalizeしました。奇数unitはnearest columnへ丸められています。' : mode.label + ' precisionへ切り替えました。', lossy ? 'error' : 'success');
+      });
+      elements['precision-buttons'].appendChild(button);
+    });
+  }
+
   function renderPresetList() {
     const layout = current();
     elements['preset-list'].innerHTML = '';
@@ -95,8 +107,9 @@
       button.addEventListener('click', function () {
         const next = presets.getPreset(id);
         next.viewport = layout.viewport;
+        if (layout.container.gridColumns === 24) Object.assign(next, model.convertGrid(next, 24));
         selectedId = next.fields[0].id;
-        commit(next, preset.name + 'を適用しました。通常の編集状態として調整できます。');
+        commit(next, preset.name + 'をv2 editable stateとして適用しました。');
       });
       elements['preset-list'].appendChild(button);
     });
@@ -122,7 +135,7 @@
       const text = document.createElement('span');
       text.textContent = fieldDefinition.label;
       const code = document.createElement('code');
-      code.textContent = field.colSpan + '/12';
+      code.textContent = field.colStart + '→' + (field.colStart + field.colSpan - 1);
       label.append(checkbox, text, code);
       elements['field-palette'].appendChild(label);
     });
@@ -131,27 +144,22 @@
 
   function createMockControl(field) {
     const fieldDefinition = definition(field.id);
+    let control;
     if (fieldDefinition.kind === 'checks') {
-      const control = document.createElement('div');
+      control = document.createElement('div');
       control.className = 'mock-control checks';
       ['定例年1回', '先方オフィス訪問', '年次総会'].forEach(function (text) {
         const item = document.createElement('span');
         item.textContent = text;
         control.appendChild(item);
       });
-      return control;
-    }
-    if (fieldDefinition.kind === 'textarea') {
-      const control = document.createElement('div');
+    } else if (fieldDefinition.kind === 'textarea') {
+      control = document.createElement('div');
       control.className = 'mock-control textarea';
-      control.style.height = field.heightPx + 'px';
       control.textContent = '面談内容を自由に記載してください。';
-      return control;
-    }
-    if (fieldDefinition.kind === 'attachment') {
-      const control = document.createElement('div');
+    } else if (fieldDefinition.kind === 'attachment') {
+      control = document.createElement('div');
       control.className = 'attachment-control';
-      control.style.height = field.heightPx + 'px';
       const content = document.createElement('div');
       const strong = document.createElement('strong');
       strong.textContent = '資料をここへdrag & drop';
@@ -159,129 +167,161 @@
       text.textContent = 'またはlocal fileを選択';
       content.append(strong, text);
       control.appendChild(content);
-      return control;
+    } else {
+      control = document.createElement('div');
+      control.className = 'mock-control';
+      const examples = {
+        'meeting-date': '2026/09/18', 'meeting-time': '10:00', 'meeting-locationId': 'Tokyo Office',
+        'meeting-counterpartyId': 'North Harbor Partners（GP / 運用会社）', 'meeting-assetClassId': 'Private Equity',
+        'meeting-capitalTypeId': 'Equity', 'meeting-teamId': 'Investment Team', 'meeting-fundStrategy': 'Global Buyout',
+        'meeting-counterparty': 'Jane Smith / Partner', 'meeting-internalParticipants': '投資部 A、B'
+      };
+      control.textContent = examples[field.id] || '—';
     }
-    const control = document.createElement('div');
-    control.className = 'mock-control';
-    const examples = {
-      'meeting-date': '2026/09/18',
-      'meeting-time': '10:00',
-      'meeting-locationId': 'Tokyo Office',
-      'meeting-counterpartyId': 'North Harbor Partners（GP / 運用会社）',
-      'meeting-assetClassId': 'Private Equity',
-      'meeting-capitalTypeId': 'Equity',
-      'meeting-teamId': 'Investment Team',
-      'meeting-fundStrategy': 'Global Buyout',
-      'meeting-counterparty': 'Jane Smith / Partner',
-      'meeting-internalParticipants': '投資部 A、B'
-    };
-    control.textContent = examples[field.id] || '—';
+    control.style.height = field.heightPx + 'px';
     return control;
   }
 
-  function startHorizontalResize(event, field) {
-    event.preventDefault();
-    event.stopPropagation();
-    const handle = event.currentTarget;
-    const card = handle.closest('.field-card');
-    const gridRect = elements['mock-grid'].getBoundingClientRect();
-    const startX = event.clientX;
-    const startSpan = field.colSpan;
-    const columnWidth = Math.max(1, gridRect.width / 12);
-    let previewSpan = startSpan;
-    handle.setPointerCapture(event.pointerId);
-    function move(moveEvent) {
-      const delta = Math.round((moveEvent.clientX - startX) / columnWidth);
-      previewSpan = Math.max(1, Math.min(12, startSpan + delta));
-      card.style.gridColumn = 'span ' + previewSpan;
-      card.querySelector('.span-badge').textContent = previewSpan + '/12';
-    }
-    function finish() {
-      handle.removeEventListener('pointermove', move);
-      handle.removeEventListener('pointerup', finish);
-      handle.removeEventListener('pointercancel', finish);
-      if (previewSpan !== startSpan) commit(model.updateField(current(), field.id, { colSpan: previewSpan }), definition(field.id).label + 'を' + previewSpan + '/12へresizeしました。');
-      else renderAll();
-    }
-    handle.addEventListener('pointermove', move);
-    handle.addEventListener('pointerup', finish);
-    handle.addEventListener('pointercancel', finish);
+  function clearEditorAids() {
+    elements['mock-grid'].querySelectorAll('.drop-ghost,.row-insertion-marker,.alignment-guide,.grid-overflow-note').forEach(function (node) { node.remove(); });
   }
 
-  function startVerticalResize(event, field) {
+  function addAlignmentGuides(colStart, colSpan, activeId) {
+    const columns = current().container.gridColumns;
+    [colStart - 1, colStart + colSpan - 1].forEach(function (line) {
+      const guide = document.createElement('div');
+      guide.className = 'alignment-guide';
+      guide.style.left = (line / columns * 100) + '%';
+      elements['mock-grid'].appendChild(guide);
+    });
+    const center = document.createElement('div');
+    center.className = 'alignment-guide center';
+    center.style.left = '50%';
+    elements['mock-grid'].appendChild(center);
+    const targetEdges = [colStart - 1, colStart + colSpan - 1];
+    const nearbyEdges = new Set();
+    current().fields.filter(function (field) { return field.visible && field.id !== activeId; }).forEach(function (field) {
+      [field.colStart - 1, field.colStart + field.colSpan - 1].forEach(function (edge) {
+        if (targetEdges.some(function (targetEdge) { return Math.abs(targetEdge - edge) <= 1; })) nearbyEdges.add(edge);
+      });
+    });
+    nearbyEdges.forEach(function (edge) {
+      const guide = document.createElement('div');
+      guide.className = 'alignment-guide nearby';
+      guide.style.left = (edge / columns * 100) + '%';
+      elements['mock-grid'].appendChild(guide);
+    });
+  }
+
+  function addBoundaryNote(message) {
+    const note = document.createElement('div');
+    note.className = 'grid-overflow-note';
+    note.textContent = message;
+    elements['mock-grid'].appendChild(note);
+  }
+
+  function startResize(event, field, direction) {
     event.preventDefault();
     event.stopPropagation();
     const handle = event.currentTarget;
     const card = handle.closest('.field-card');
-    const control = card.querySelector('.mock-control.textarea,.attachment-control');
+    const control = card.querySelector('.mock-control,.attachment-control');
+    const startLayout = current();
+    const startX = event.clientX;
     const startY = event.clientY;
-    const startHeight = field.heightPx;
-    let previewHeight = startHeight;
+    const gridRect = elements['mock-grid'].getBoundingClientRect();
+    const unitWidth = Math.max(1, gridRect.width / startLayout.container.gridColumns);
+    const transformScale = Math.max(.05, gridRect.width / Math.max(1, elements['mock-grid'].offsetWidth));
+    let preview = { resolved: startLayout, requested: startLayout, collisions: [] };
+    let changed = false;
+    const badge = document.createElement('div');
+    badge.className = 'resize-live-badge';
+    card.appendChild(badge);
     handle.setPointerCapture(event.pointerId);
+
     function move(moveEvent) {
-      previewHeight = Math.max(100, Math.min(720, Math.round((startHeight + moveEvent.clientY - startY) / 10) * 10));
-      control.style.height = previewHeight + 'px';
+      const deltaColumns = Math.round((moveEvent.clientX - startX) / unitWidth);
+      const deltaYPx = Math.round((moveEvent.clientY - startY) / transformScale);
+      let rawStart = field.colStart;
+      let rawSpan = field.colSpan;
+      if (direction.includes('e')) rawSpan += deltaColumns;
+      if (direction.includes('w')) {
+        rawStart += deltaColumns;
+        rawSpan -= deltaColumns;
+      }
+      const touchesBoundary = rawStart < 1 || rawSpan < 1 || rawStart + rawSpan - 1 > startLayout.container.gridColumns;
+      preview = model.previewResize(startLayout, field.id, direction, deltaColumns, deltaYPx);
+      const nextField = preview.requested.fields.find(function (item) { return item.id === field.id; });
+      card.style.gridColumn = nextField.colStart + ' / span ' + nextField.colSpan;
+      card.style.marginTop = nextField.topGapPx + 'px';
+      control.style.height = nextField.heightPx + 'px';
+      card.classList.toggle('collision', preview.collisions.length > 0);
+      badge.textContent = 'start ' + nextField.colStart + ' · span ' + nextField.colSpan + ' · h ' + nextField.heightPx + ' · gap ' + nextField.topGapPx;
+      clearEditorAids();
+      addAlignmentGuides(nextField.colStart, nextField.colSpan, field.id);
+      if (touchesBoundary) addBoundaryNote('GRID BOUNDARY · safe clamp');
+      changed = model.stableStringify(preview.resolved) !== model.stableStringify(startLayout);
     }
-    function finish() {
+
+    function finish(commitChange) {
       handle.removeEventListener('pointermove', move);
-      handle.removeEventListener('pointerup', finish);
-      handle.removeEventListener('pointercancel', finish);
-      if (previewHeight !== startHeight) commit(model.updateField(current(), field.id, { heightPx: previewHeight }), definition(field.id).label + 'を高さ' + previewHeight + 'pxへresizeしました。');
+      handle.removeEventListener('pointerup', pointerUp);
+      handle.removeEventListener('pointercancel', pointerCancel);
+      clearEditorAids();
+      if (commitChange && changed) commit(preview.resolved, definition(field.id).label + 'を' + direction.toUpperCase() + ' handleでresizeしました。');
       else renderAll();
     }
+    function pointerUp() { finish(true); }
+    function pointerCancel() { finish(false); }
     handle.addEventListener('pointermove', move);
-    handle.addEventListener('pointerup', finish);
-    handle.addEventListener('pointercancel', finish);
+    handle.addEventListener('pointerup', pointerUp);
+    handle.addEventListener('pointercancel', pointerCancel);
   }
 
   function handleResizeKey(event, field, direction) {
-    const horizontalDelta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-    const verticalDelta = event.key === 'ArrowDown' ? 10 : event.key === 'ArrowUp' ? -10 : 0;
-    if (direction === 'x' && horizontalDelta) {
-      event.preventDefault();
-      commit(model.updateField(current(), field.id, { colSpan: field.colSpan + horizontalDelta }), definition(field.id).label + 'の幅を調整しました。');
-    }
-    if (direction === 'y' && verticalDelta) {
-      event.preventDefault();
-      commit(model.updateField(current(), field.id, { heightPx: field.heightPx + verticalDelta }), definition(field.id).label + 'の高さを調整しました。');
-    }
+    const horizontal = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    const vertical = event.key === 'ArrowDown' ? 8 : event.key === 'ArrowUp' ? -8 : 0;
+    if (!horizontal && !vertical) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const hDelta = direction.includes('e') || direction.includes('w') ? horizontal : 0;
+    const vDelta = direction.includes('n') || direction.includes('s') ? vertical : 0;
+    commit(model.resizeField(current(), field.id, direction, hDelta, vDelta), definition(field.id).label + 'をkeyboard resizeしました。');
   }
 
-  function createFieldCard(field) {
+  function createFieldCard(field, row) {
     const fieldDefinition = definition(field.id);
     const card = document.createElement('article');
     card.className = 'field-card' + (selectedId === field.id ? ' selected' : '');
     card.dataset.fieldId = field.id;
     card.draggable = true;
-    card.style.gridColumn = 'span ' + field.colSpan;
+    card.tabIndex = 0;
+    card.style.gridColumn = field.colStart + ' / span ' + field.colSpan;
+    card.style.gridRow = String(row);
+    card.style.marginTop = field.topGapPx + 'px';
     card.addEventListener('click', function () {
       selectedId = field.id;
       renderCanvas();
       renderInspector();
+      const selected = elements['mock-grid'].querySelector('[data-field-id="' + field.id + '"]');
+      if (selected) selected.focus({ preventScroll: true });
     });
     card.addEventListener('dragstart', function (event) {
+      if (event.target.classList.contains('resize-handle')) {
+        event.preventDefault();
+        return;
+      }
       draggedId = field.id;
+      selectedId = field.id;
       card.classList.add('dragging');
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', field.id);
     });
     card.addEventListener('dragend', function () {
       draggedId = null;
-      document.querySelectorAll('.field-card').forEach(function (item) { item.classList.remove('dragging', 'drop-target'); });
-    });
-    card.addEventListener('dragover', function (event) {
-      event.preventDefault();
-      if (draggedId && draggedId !== field.id) card.classList.add('drop-target');
-    });
-    card.addEventListener('dragleave', function () { card.classList.remove('drop-target'); });
-    card.addEventListener('drop', function (event) {
-      event.preventDefault();
-      card.classList.remove('drop-target');
-      const moved = draggedId || event.dataTransfer.getData('text/plain');
-      if (moved && moved !== field.id) {
-        selectedId = moved;
-        commit(model.reorderField(current(), moved, field.id), definition(moved).label + 'を' + fieldDefinition.label + 'の位置へ移動しました。');
-      }
+      dragIntent = null;
+      clearEditorAids();
+      document.querySelectorAll('.field-card').forEach(function (item) { item.classList.remove('dragging', 'collision'); });
     });
 
     const top = document.createElement('div');
@@ -296,7 +336,7 @@
     label.append(grip, labelText);
     const badge = document.createElement('span');
     badge.className = 'span-badge';
-    badge.textContent = field.colSpan + '/12';
+    badge.textContent = field.colStart + '–' + (field.colStart + field.colSpan - 1) + ' / ' + current().container.gridColumns;
     top.append(label, badge);
     card.append(top, createMockControl(field));
     if (field.id === 'meeting-counterpartyId') {
@@ -311,58 +351,142 @@
       hint.textContent = '本文はGoogle Docsだけに保存します。';
       card.appendChild(hint);
     }
-    const resizeX = document.createElement('div');
-    resizeX.className = 'resize-handle-x';
-    resizeX.dataset.resizeX = field.id;
-    resizeX.setAttribute('role', 'separator');
-    resizeX.setAttribute('aria-label', fieldDefinition.label + 'の幅を変更');
-    resizeX.tabIndex = 0;
-    resizeX.draggable = false;
-    resizeX.addEventListener('pointerdown', function (event) { startHorizontalResize(event, field); });
-    resizeX.addEventListener('keydown', function (event) { handleResizeKey(event, field, 'x'); });
-    card.appendChild(resizeX);
-    if (fieldDefinition.resizableY) {
-      const resizeY = document.createElement('div');
-      resizeY.className = 'resize-handle-y';
-      resizeY.dataset.resizeY = field.id;
-      resizeY.setAttribute('role', 'separator');
-      resizeY.setAttribute('aria-label', fieldDefinition.label + 'の高さを変更');
-      resizeY.tabIndex = 0;
-      resizeY.draggable = false;
-      resizeY.addEventListener('pointerdown', function (event) { startVerticalResize(event, field); });
-      resizeY.addEventListener('keydown', function (event) { handleResizeKey(event, field, 'y'); });
-      card.appendChild(resizeY);
+    if (selectedId === field.id) {
+      RESIZE_DIRECTIONS.forEach(function (direction) {
+        const handle = document.createElement('div');
+        handle.className = 'resize-handle resize-' + direction;
+        handle.dataset.resizeDirection = direction;
+        handle.setAttribute('role', 'separator');
+        handle.setAttribute('aria-label', fieldDefinition.label + ' ' + direction.toUpperCase() + ' resize');
+        handle.tabIndex = 0;
+        handle.draggable = false;
+        handle.addEventListener('pointerdown', function (event) { startResize(event, field, direction); });
+        handle.addEventListener('keydown', function (event) { handleResizeKey(event, field, direction); });
+        card.appendChild(handle);
+      });
     }
     return card;
+  }
+
+  function computeDragIntent(event) {
+    if (!draggedId) return null;
+    const layout = current();
+    const moved = layout.fields.find(function (field) { return field.id === draggedId; });
+    const gridRect = elements['mock-grid'].getBoundingClientRect();
+    const columns = layout.container.gridColumns;
+    const unit = gridRect.width / columns;
+    const rawColStart = Math.floor((event.clientX - gridRect.left) / Math.max(1, unit)) + 1;
+    const colStart = clamp(rawColStart, 1, columns - moved.colSpan + 1);
+    const cards = Array.from(elements['mock-grid'].querySelectorAll('.field-card:not(.dragging)'));
+    let order = layout.fields.length;
+    let breakBefore = true;
+    let markerY = Math.max(0, event.clientY - gridRect.top);
+    let ghostY = markerY;
+    let matched = false;
+    cards.forEach(function (card) {
+      if (matched) return;
+      const rect = card.getBoundingClientRect();
+      const fieldId = card.dataset.fieldId;
+      const target = layout.fields.find(function (item) { return item.id === fieldId; });
+      if (event.clientY >= rect.top && event.clientY <= rect.bottom) {
+        matched = true;
+        const ratio = (event.clientY - rect.top) / Math.max(1, rect.height);
+        if (ratio < .22) {
+          order = target.order;
+          breakBefore = true;
+          markerY = rect.top - gridRect.top;
+          ghostY = markerY + 3;
+        } else if (ratio > .78) {
+          order = target.order + 1;
+          breakBefore = true;
+          markerY = rect.bottom - gridRect.top;
+          ghostY = markerY + layout.container.rowGapPx;
+        } else {
+          order = event.clientX < rect.left + rect.width / 2 ? target.order : target.order + 1;
+          breakBefore = false;
+          markerY = rect.top - gridRect.top;
+          ghostY = markerY;
+        }
+      } else if (event.clientY < rect.top) {
+        matched = true;
+        order = target.order;
+        breakBefore = true;
+        markerY = rect.top - gridRect.top;
+        ghostY = markerY + 3;
+      }
+    });
+    if (!matched && cards.length) {
+      const lastRect = cards[cards.length - 1].getBoundingClientRect();
+      markerY = lastRect.bottom - gridRect.top;
+      ghostY = markerY + layout.container.rowGapPx;
+    }
+    const preview = model.previewPlacement(layout, draggedId, { order: order, colStart: colStart, breakBefore: breakBefore });
+    return { order: order, colStart: colStart, breakBefore: breakBefore, boundaryClamped: rawColStart !== colStart, ghostY: Math.max(0, ghostY), markerY: Math.max(0, markerY), preview: preview };
+  }
+
+  function renderDragIntent(intent) {
+    clearEditorAids();
+    if (!intent || !draggedId) return;
+    const layout = current();
+    const field = layout.fields.find(function (item) { return item.id === draggedId; });
+    const ghost = document.createElement('div');
+    ghost.className = 'drop-ghost' + (intent.preview.collisionResolved ? ' collision' : '');
+    ghost.style.left = ((intent.colStart - 1) / layout.container.gridColumns * 100) + '%';
+    ghost.style.width = (field.colSpan / layout.container.gridColumns * 100) + '%';
+    ghost.style.top = intent.ghostY + 'px';
+    ghost.style.height = Math.min(110, field.heightPx + 34) + 'px';
+    const label = document.createElement('span');
+    label.className = 'drop-ghost-label';
+    label.textContent = 'start ' + intent.colStart + ' · span ' + field.colSpan + (intent.preview.collisionResolved ? ' · push next row' : '');
+    ghost.appendChild(label);
+    elements['mock-grid'].appendChild(ghost);
+    if (intent.breakBefore) {
+      const marker = document.createElement('div');
+      marker.className = 'row-insertion-marker';
+      marker.style.top = intent.markerY + 'px';
+      elements['mock-grid'].appendChild(marker);
+    }
+    addAlignmentGuides(intent.colStart, field.colSpan, draggedId);
+    if (intent.boundaryClamped) addBoundaryNote('GRID BOUNDARY · safe clamp');
+  }
+
+  function bindGridDrag() {
+    elements['mock-grid'].ondragover = function (event) {
+      if (!draggedId) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      dragIntent = computeDragIntent(event);
+      renderDragIntent(dragIntent);
+    };
+    elements['mock-grid'].ondrop = function (event) {
+      event.preventDefault();
+      const movedId = draggedId || event.dataTransfer.getData('text/plain');
+      const intent = dragIntent || computeDragIntent(event);
+      clearEditorAids();
+      draggedId = null;
+      dragIntent = null;
+      if (!movedId || !intent) return renderAll();
+      selectedId = movedId;
+      const next = model.placeField(current(), movedId, { order: intent.order, colStart: intent.colStart, breakBefore: intent.breakBefore });
+      commit(next, definition(movedId).label + 'をstart ' + intent.colStart + (intent.breakBefore ? 'のnew row' : 'のrow内') + 'へ配置しました。' + (intent.preview.collisionResolved ? ' 衝突は次rowへpushしました。' : ''));
+    };
+    elements['mock-grid'].ondragleave = function (event) {
+      if (!elements['mock-grid'].contains(event.relatedTarget)) clearEditorAids();
+    };
   }
 
   function estimatedPreviewHeight(layout) {
     const visible = layout.fields.filter(function (field) { return field.visible; });
     if (layout.viewport.id === 'mobile') {
-      return 360 + visible.reduce(function (sum, field) {
-        return sum + (field.heightPx ? field.heightPx + 60 : 88) + layout.container.rowGapPx;
-      }, 0);
+      return 360 + visible.reduce(function (sum, field) { return sum + field.heightPx + field.topGapPx + 58 + layout.container.rowGapPx; }, 0);
     }
-    let fill = 0;
-    let rowHeight = 0;
-    let total = 0;
-    visible.forEach(function (field) {
-      const height = field.heightPx ? field.heightPx + 55 : 88;
-      if (fill && fill + field.colSpan > 12) {
-        total += rowHeight + layout.container.rowGapPx;
-        fill = 0;
-        rowHeight = 0;
-      }
-      fill += field.colSpan;
-      rowHeight = Math.max(rowHeight, height);
-      if (fill === 12) {
-        total += rowHeight + layout.container.rowGapPx;
-        fill = 0;
-        rowHeight = 0;
-      }
+    const placements = model.getFieldRows(layout);
+    const rowHeights = {};
+    placements.forEach(function (placement) {
+      const field = layout.fields.find(function (item) { return item.id === placement.id; });
+      rowHeights[placement.row] = Math.max(rowHeights[placement.row] || 0, field.heightPx + field.topGapPx + 52);
     });
-    if (fill) total += rowHeight;
-    return Math.max(900, total + 285);
+    return Math.max(900, Object.keys(rowHeights).reduce(function (sum, row) { return sum + rowHeights[row] + layout.container.rowGapPx; }, 285));
   }
 
   function updatePreviewScale() {
@@ -382,20 +506,23 @@
     const layout = current();
     const viewport = presets.VIEWPORTS[layout.viewport.id];
     const container = layout.container;
-    elements['viewport-caption'].textContent = viewport.label.toUpperCase() + ' / ' + viewport.widthPx + ' PX';
-    elements['preset-origin-chip'].textContent = 'origin: ' + layout.presetOrigin;
+    const placementById = Object.fromEntries(model.getFieldRows(layout).map(function (placement) { return [placement.id, placement]; }));
+    elements['viewport-caption'].textContent = viewport.label.toUpperCase() + ' / ' + viewport.widthPx + ' PX / ' + container.gridColumns + ' COLUMNS';
+    elements['preset-origin-chip'].textContent = 'v2 · ' + container.gridColumns + ' cols · ' + layout.presetOrigin;
     elements['preview-viewport'].classList.toggle('mobile', viewport.widthPx <= 720);
     elements['mock-container'].style.width = container.widthPercent + '%';
     elements['mock-container'].style.maxWidth = container.maxWidthPx === null ? 'none' : container.maxWidthPx + 'px';
     elements['mock-container'].style.marginLeft = container.align === 'center' ? 'auto' : '0';
     elements['mock-container'].style.marginRight = 'auto';
+    elements['mock-grid'].style.setProperty('--grid-columns', String(container.gridColumns));
     elements['mock-grid'].style.columnGap = container.columnGapPx + 'px';
     elements['mock-grid'].style.rowGap = container.rowGapPx + 'px';
     elements['mock-grid'].classList.toggle('show-grid', container.showGrid);
     elements['mock-grid'].innerHTML = '';
     layout.fields.filter(function (field) { return field.visible; }).forEach(function (field) {
-      elements['mock-grid'].appendChild(createFieldCard(field));
+      elements['mock-grid'].appendChild(createFieldCard(field, placementById[field.id].row));
     });
+    bindGridDrag();
     updatePreviewScale();
   }
 
@@ -407,20 +534,24 @@
       field = layout.fields[0];
     }
     const fieldDefinition = definition(field.id);
+    const limits = model.HEIGHT_LIMITS[field.role];
     elements['field-inspector-empty'].hidden = true;
     elements['field-inspector'].hidden = false;
     elements['selected-field-label'].textContent = fieldDefinition.label;
     elements['selected-field-id'].textContent = field.id;
     elements['selected-field-order'].textContent = '#' + field.order;
+    elements['field-order'].value = String(field.order);
+    elements['field-order'].max = String(layout.fields.length);
+    elements['field-start'].value = String(field.colStart);
+    elements['field-start'].max = String(layout.container.gridColumns - field.colSpan + 1);
     elements['field-span'].value = String(field.colSpan);
-    elements['field-span-output'].textContent = field.colSpan + '/12';
+    elements['field-span'].max = String(layout.container.gridColumns - field.colStart + 1);
+    elements['field-top-gap'].value = String(field.topGapPx);
+    elements['field-height'].value = String(field.heightPx);
+    elements['field-height'].min = String(limits.min);
+    elements['field-height'].max = String(limits.max);
+    elements['field-break-before'].checked = field.breakBefore;
     elements['field-visible'].checked = field.visible;
-    const hasHeight = field.heightPx !== undefined;
-    elements['field-height-group'].hidden = !hasHeight;
-    if (hasHeight) {
-      elements['field-height'].value = String(field.heightPx);
-      elements['field-height-output'].textContent = field.heightPx + 'px';
-    }
     elements['container-width'].value = String(layout.container.widthPercent);
     elements['container-width-output'].textContent = layout.container.widthPercent + '%';
     elements['container-max-width'].value = layout.container.maxWidthPx === null ? '0' : String(layout.container.maxWidthPx);
@@ -440,8 +571,7 @@
       item.textContent = warning.message;
       elements['lint-list'].appendChild(item);
     });
-    const actualWarnings = warnings.filter(function (warning) { return warning.tone !== 'ok'; }).length;
-    elements['lint-count'].textContent = String(actualWarnings);
+    elements['lint-count'].textContent = String(warnings.filter(function (warning) { return warning.tone !== 'ok'; }).length);
   }
 
   function renderHistoryButtons() {
@@ -451,6 +581,7 @@
 
   function renderAll() {
     renderViewportButtons();
+    renderPrecisionButtons();
     renderPresetList();
     renderFieldPalette();
     renderCanvas();
@@ -459,12 +590,16 @@
     renderHistoryButtons();
     renderDirtyState();
     document.body.dataset.layoutLabReady = 'true';
+    document.body.dataset.specVersion = String(presets.SPEC_VERSION);
   }
 
   function readVariants() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+      const migrated = model.migrateVariantMap(parsed);
+      if (JSON.stringify(migrated) !== JSON.stringify(parsed)) localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+      return migrated;
     } catch (error) {
       return {};
     }
@@ -506,16 +641,13 @@
     savedSnapshot = variants[name];
     renderVariants(name);
     renderDirtyState();
-    setStatus('variant「' + name + '」をlocalStorageへ保存しました。', 'success');
+    setStatus('variant「' + name + '」をspec v2で保存しました。', 'success');
   }
 
   function loadVariant() {
     const name = elements['variant-select'].value;
     const variants = readVariants();
-    if (!name || !variants[name]) {
-      setStatus('読み込むvariantを選択してください。', 'error');
-      return;
-    }
+    if (!name || !variants[name]) return setStatus('読み込むvariantを選択してください。', 'error');
     try {
       const layout = model.parseLayoutJson(variants[name]);
       history.reset(layout);
@@ -523,7 +655,7 @@
       savedSnapshot = model.stableStringify(layout);
       elements['variant-name'].value = name;
       renderAll();
-      setStatus('variant「' + name + '」を読み込みました。', 'success');
+      setStatus('variant「' + name + '」をv2 stateとして読み込みました。', 'success');
     } catch (error) {
       setStatus(error.message, 'error');
     }
@@ -532,10 +664,7 @@
   function deleteVariant() {
     const name = elements['variant-select'].value;
     const variants = readVariants();
-    if (!name || !variants[name]) {
-      setStatus('削除するvariantを選択してください。', 'error');
-      return;
-    }
+    if (!name || !variants[name]) return setStatus('削除するvariantを選択してください。', 'error');
     delete variants[name];
     if (!writeVariants(variants)) return;
     renderVariants();
@@ -546,7 +675,7 @@
     const isJson = mode === 'json';
     elements['json-panel'].hidden = !isJson;
     elements['handoff-panel'].hidden = isJson;
-    elements['dialog-title'].textContent = isJson ? 'Layout JSON' : 'Codex handoff';
+    elements['dialog-title'].textContent = isJson ? 'Layout JSON v2' : 'Codex handoff';
     if (isJson) elements['json-text'].value = model.stableStringify(current());
     else elements['handoff-text'].value = model.createHandoff(current());
     if (typeof elements['transfer-dialog'].showModal === 'function') elements['transfer-dialog'].showModal();
@@ -577,9 +706,8 @@
       temporary.remove();
       setStatus(copied ? successMessage : 'copyできませんでした。text areaから手動でcopyしてください。', copied ? 'success' : 'error');
     }
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      navigator.clipboard.writeText(text).then(function () { setStatus(successMessage, 'success'); }).catch(fallback);
-    } else fallback();
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') navigator.clipboard.writeText(text).then(function () { setStatus(successMessage, 'success'); }).catch(fallback);
+    else fallback();
   }
 
   function applyJsonText() {
@@ -589,18 +717,31 @@
       selectedId = parsed.fields[0].id;
       elements['json-text'].value = model.stableStringify(parsed);
       renderAll();
-      setStatus('Layout JSONを検証し、exact canonical formで適用しました。', 'success');
+      setStatus('Layout JSONをv2へ検証/migrateし、exact canonical formで適用しました。', 'success');
     } catch (error) {
       setStatus(error.message, 'error');
     }
   }
 
   function bindInspectorControls() {
-    elements['field-span'].addEventListener('input', function () { elements['field-span-output'].textContent = elements['field-span'].value + '/12'; });
-    elements['field-span'].addEventListener('change', function () { commit(model.updateField(current(), selectedId, { colSpan: Number(elements['field-span'].value) }), 'field幅を更新しました。'); });
-    elements['field-height'].addEventListener('input', function () { elements['field-height-output'].textContent = elements['field-height'].value + 'px'; });
+    elements['field-order'].addEventListener('change', function () {
+      const field = current().fields.find(function (item) { return item.id === selectedId; });
+      commit(model.placeField(current(), selectedId, { order: Number(elements['field-order'].value), colStart: field.colStart, breakBefore: field.breakBefore }), 'field orderを更新しました。');
+    });
+    elements['field-start'].addEventListener('change', function () { commit(model.updateField(current(), selectedId, { colStart: Number(elements['field-start'].value) }), 'start columnを更新しました。'); });
+    elements['field-span'].addEventListener('change', function () { commit(model.updateField(current(), selectedId, { colSpan: Number(elements['field-span'].value) }), 'field spanを更新しました。'); });
+    elements['field-top-gap'].addEventListener('change', function () { commit(model.updateField(current(), selectedId, { topGapPx: Number(elements['field-top-gap'].value) }), 'top gapを更新しました。'); });
     elements['field-height'].addEventListener('change', function () { commit(model.updateField(current(), selectedId, { heightPx: Number(elements['field-height'].value) }), 'field高さを更新しました。'); });
+    elements['field-break-before'].addEventListener('change', function () { commit(model.updateField(current(), selectedId, { breakBefore: elements['field-break-before'].checked }), 'row breakを更新しました。'); });
     elements['field-visible'].addEventListener('change', function () { commit(model.updateField(current(), selectedId, { visible: elements['field-visible'].checked }), 'field表示を更新しました。'); });
+    elements['top-gap-less'].addEventListener('click', function () {
+      const field = current().fields.find(function (item) { return item.id === selectedId; });
+      commit(model.updateField(current(), selectedId, { topGapPx: field.topGapPx - 4 }), 'top gapを4px縮めました。');
+    });
+    elements['top-gap-more'].addEventListener('click', function () {
+      const field = current().fields.find(function (item) { return item.id === selectedId; });
+      commit(model.updateField(current(), selectedId, { topGapPx: field.topGapPx + 4 }), 'top gapを4px広げました。');
+    });
     elements['container-width'].addEventListener('input', function () { elements['container-width-output'].textContent = elements['container-width'].value + '%'; });
     elements['container-width'].addEventListener('change', function () { commit(model.updateContainer(current(), { widthPercent: Number(elements['container-width'].value) }), 'container widthを更新しました。'); });
     elements['container-max-width'].addEventListener('change', function () {
@@ -617,10 +758,7 @@
     elements['reference-file'].addEventListener('change', function () {
       const file = elements['reference-file'].files && elements['reference-file'].files[0];
       if (!file) return;
-      if (!file.type.startsWith('image/')) {
-        setStatus('画像fileを選択してください。', 'error');
-        return;
-      }
+      if (!file.type.startsWith('image/')) return setStatus('画像fileを選択してください。', 'error');
       const reader = new FileReader();
       reader.onload = function () {
         elements['reference-overlay'].src = String(reader.result);
@@ -648,31 +786,46 @@
     });
   }
 
+  function bindFineNudge() {
+    document.addEventListener('keydown', function (event) {
+      if (event.defaultPrevented) return;
+      const target = event.target;
+      if (target instanceof Element && target.closest('input,select,textarea,button,[contenteditable="true"]')) return;
+      if (!elements['canvas-scroll'].contains(target) && target !== elements['canvas-scroll']) return;
+      const directions = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
+      const direction = directions[event.key];
+      if (!direction || !selectedId) return;
+      event.preventDefault();
+      commit(model.nudgeField(current(), selectedId, direction, event.shiftKey), definition(selectedId).label + 'を' + (event.shiftKey ? 'large ' : '') + direction + 'へnudgeしました。');
+    });
+  }
+
   function bindEvents() {
-    elements['undo-button'].addEventListener('click', function () { history.undo(); renderAll(); setStatus('1つ前のlayoutへ戻しました。'); });
-    elements['redo-button'].addEventListener('click', function () { history.redo(); renderAll(); setStatus('layout変更をやり直しました。'); });
-    elements['tidy-button'].addEventListener('click', function () { commit(model.tidyLayout(current()), 'deterministic heuristicでlayoutを整えました。'); });
+    elements['canvas-scroll'].tabIndex = 0;
+    elements['undo-button'].addEventListener('click', function () { history.undo(); renderAll(); setStatus('1つ前のgestureへ戻しました。'); });
+    elements['redo-button'].addEventListener('click', function () { history.redo(); renderAll(); setStatus('gestureをやり直しました。'); });
+    elements['tidy-button'].addEventListener('click', function () { commit(model.tidyLayout(current()), 'v2 placementをdeterministic heuristicで整えました。'); });
     elements['reset-button'].addEventListener('click', function () {
       const baseline = presets.getPreset('current-v8');
       history.reset(baseline);
       selectedId = 'meeting-date';
       savedSnapshot = model.stableStringify(baseline);
       renderAll();
-      setStatus('Current v8 baselineへresetしました。');
+      setStatus('Current v8 spec v2 baselineへresetしました。');
     });
     elements['json-button'].addEventListener('click', function () { showDialog('json'); });
     elements['handoff-button'].addEventListener('click', function () { showDialog('handoff'); });
     elements['variant-save'].addEventListener('click', saveVariant);
     elements['variant-load'].addEventListener('click', loadVariant);
     elements['variant-delete'].addEventListener('click', deleteVariant);
-    elements['json-copy'].addEventListener('click', function () { copyText(elements['json-text'].value, 'Layout JSONをclipboardへcopyしました。'); });
-    elements['json-download'].addEventListener('click', function () { downloadText('knowledge-share-meeting-layout-v1.json', elements['json-text'].value, 'application/json;charset=utf-8'); });
+    elements['json-copy'].addEventListener('click', function () { copyText(elements['json-text'].value, 'Layout JSON v2をclipboardへcopyしました。'); });
+    elements['json-download'].addEventListener('click', function () { downloadText('knowledge-share-meeting-layout-v2.json', elements['json-text'].value, 'application/json;charset=utf-8'); });
     elements['json-import'].addEventListener('click', applyJsonText);
     elements['json-file'].addEventListener('change', function () {
       const file = elements['json-file'].files && elements['json-file'].files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function () { elements['json-text'].value = String(reader.result); setStatus('JSON fileを読み込みました。「このJSONを適用」で検証します。'); };
+      reader.onload = function () { elements['json-text'].value = String(reader.result); setStatus('JSON fileを読み込みました。「このJSONを適用」でv1/v2を検証します。'); };
       reader.onerror = function () { setStatus('JSON fileを読み込めませんでした。', 'error'); };
       reader.readAsText(file, 'utf-8');
     });
@@ -680,6 +833,7 @@
     elements['handoff-download'].addEventListener('click', function () { downloadText('knowledge-share-layout-handoff.md', elements['handoff-text'].value, 'text/markdown;charset=utf-8'); });
     bindInspectorControls();
     bindReferenceControls();
+    bindFineNudge();
     window.addEventListener('resize', updatePreviewScale);
     if (typeof ResizeObserver === 'function') new ResizeObserver(updatePreviewScale).observe(elements['canvas-scroll']);
   }
@@ -689,9 +843,10 @@
     bindEvents();
     renderVariants();
     renderAll();
-    setStatus('Current v8 baselineを読み込みました。すべての操作はlocal browser内だけで完結します。');
+    setStatus('Spec v2 direct manipulation editorを読み込みました。8 handles、row/column drag、12/24 precisionをlocalで利用できます。');
     window.LayoutLabApp = {
       getLayoutJson: function () { return model.stableStringify(current()); },
+      getSelectedId: function () { return selectedId; },
       isReferenceLoaded: function () { return referenceLoaded; }
     };
   }

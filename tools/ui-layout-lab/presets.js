@@ -5,7 +5,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  const SPEC_VERSION = 1;
+  const SPEC_VERSION = 2;
   const SCREEN = 'meeting-create';
   const BASELINE = 'work0032-version8';
 
@@ -28,8 +28,8 @@
     Object.freeze({ id: 'meeting-types', label: 'Meeting Type', kind: 'checks', role: 'group' }),
     Object.freeze({ id: 'meeting-counterparty', label: '面談相手（氏名・役職）', kind: 'text', role: 'participant' }),
     Object.freeze({ id: 'meeting-internalParticipants', label: '当社側', kind: 'text', role: 'participant' }),
-    Object.freeze({ id: 'meeting-notes', label: '面談内容', kind: 'textarea', role: 'notes', resizableY: true }),
-    Object.freeze({ id: 'attachment-section', label: '資料を添付', kind: 'attachment', role: 'attachment', resizableY: true })
+    Object.freeze({ id: 'meeting-notes', label: '面談内容', kind: 'textarea', role: 'notes' }),
+    Object.freeze({ id: 'attachment-section', label: '資料を添付', kind: 'attachment', role: 'attachment' })
   ]);
 
   const fieldDefinitionById = Object.freeze(FIELD_DEFINITIONS.reduce(function (result, field) {
@@ -37,14 +37,49 @@
     return result;
   }, {}));
 
+  const DEFAULT_HEIGHTS = Object.freeze({
+    metadata: 37,
+    identity: 37,
+    participant: 37,
+    group: 48,
+    notes: 384,
+    attachment: 178
+  });
+
   function field(id, colSpan, heightPx) {
     const definition = fieldDefinitionById[id];
-    const item = { id: id, visible: true, colSpan: colSpan, role: definition.role };
-    if (heightPx !== undefined) item.heightPx = heightPx;
-    return item;
+    return {
+      id: id,
+      visible: true,
+      colSpan: colSpan,
+      heightPx: heightPx === undefined ? DEFAULT_HEIGHTS[definition.role] : heightPx,
+      role: definition.role
+    };
+  }
+
+  function placeSequentially(fields, gridColumns) {
+    let cursor = 1;
+    let nextBreak = false;
+    return fields.map(function (item, index) {
+      const next = Object.assign({}, item);
+      let breakBefore = nextBreak;
+      if (!breakBefore && cursor + next.colSpan - 1 > gridColumns) {
+        cursor = 1;
+        breakBefore = true;
+      }
+      next.order = index + 1;
+      next.colStart = cursor;
+      next.breakBefore = breakBefore;
+      next.topGapPx = 0;
+      cursor += next.colSpan;
+      nextBreak = cursor > gridColumns;
+      if (nextBreak) cursor = 1;
+      return next;
+    });
   }
 
   function layout(presetOrigin, viewportId, container, fields) {
+    const gridColumns = container.gridColumns || 12;
     return {
       specVersion: SPEC_VERSION,
       screen: SCREEN,
@@ -54,10 +89,8 @@
         id: viewportId,
         widthPx: VIEWPORTS[viewportId].widthPx
       },
-      container: container,
-      fields: fields.map(function (item, index) {
-        return Object.assign({ order: index + 1 }, item);
-      })
+      container: Object.assign({ gridColumns: gridColumns }, container),
+      fields: placeSequentially(fields, gridColumns)
     };
   }
 
@@ -67,6 +100,7 @@
       name: 'Current v8',
       description: 'Work 0032 / version 8 の比較用ベースライン。',
       layout: layout('current-v8', 'wide', {
+        gridColumns: 12,
         widthPercent: 100,
         maxWidthPx: 1680,
         align: 'left',
@@ -74,19 +108,10 @@
         rowGapPx: 15,
         showGrid: true
       }, [
-        field('meeting-date', 3),
-        field('meeting-time', 2),
-        field('meeting-locationId', 3),
-        field('meeting-counterpartyId', 4),
-        field('meeting-assetClassId', 3),
-        field('meeting-capitalTypeId', 3),
-        field('meeting-teamId', 2),
-        field('meeting-fundStrategy', 4),
-        field('meeting-types', 12),
-        field('meeting-counterparty', 6),
-        field('meeting-internalParticipants', 6),
-        field('meeting-notes', 12, 384),
-        field('attachment-section', 12, 178)
+        field('meeting-date', 3), field('meeting-time', 2), field('meeting-locationId', 3), field('meeting-counterpartyId', 4),
+        field('meeting-assetClassId', 3), field('meeting-capitalTypeId', 3), field('meeting-teamId', 2), field('meeting-fundStrategy', 4),
+        field('meeting-types', 12), field('meeting-counterparty', 6), field('meeting-internalParticipants', 6),
+        field('meeting-notes', 12, 384), field('attachment-section', 12, 178)
       ])
     }),
     'compact-institutional': Object.freeze({
@@ -94,6 +119,7 @@
       name: 'Compact Institutional',
       description: '情報密度を高め、視線移動を短くした機関投資家向け配置。',
       layout: layout('compact-institutional', 'wide', {
+        gridColumns: 12,
         widthPercent: 65,
         maxWidthPx: 1680,
         align: 'left',
@@ -101,19 +127,10 @@
         rowGapPx: 14,
         showGrid: true
       }, [
-        field('meeting-date', 2),
-        field('meeting-time', 2),
-        field('meeting-locationId', 2),
-        field('meeting-counterpartyId', 6),
-        field('meeting-assetClassId', 3),
-        field('meeting-capitalTypeId', 3),
-        field('meeting-teamId', 2),
-        field('meeting-fundStrategy', 4),
-        field('meeting-counterparty', 6),
-        field('meeting-internalParticipants', 6),
-        field('meeting-types', 12),
-        field('meeting-notes', 12, 400),
-        field('attachment-section', 12, 170)
+        field('meeting-date', 2), field('meeting-time', 2), field('meeting-locationId', 2), field('meeting-counterpartyId', 6),
+        field('meeting-assetClassId', 3), field('meeting-capitalTypeId', 3), field('meeting-teamId', 2), field('meeting-fundStrategy', 4),
+        field('meeting-counterparty', 6), field('meeting-internalParticipants', 6), field('meeting-types', 12),
+        field('meeting-notes', 12, 400), field('attachment-section', 12, 170)
       ])
     }),
     'balanced-professional': Object.freeze({
@@ -121,6 +138,7 @@
       name: 'Balanced Professional',
       description: '業務密度と余白を両立した、落ち着いた標準案。',
       layout: layout('balanced-professional', 'wide', {
+        gridColumns: 12,
         widthPercent: 72,
         maxWidthPx: 1780,
         align: 'left',
@@ -128,19 +146,10 @@
         rowGapPx: 18,
         showGrid: true
       }, [
-        field('meeting-date', 2),
-        field('meeting-time', 2),
-        field('meeting-locationId', 3),
-        field('meeting-counterpartyId', 5),
-        field('meeting-assetClassId', 3),
-        field('meeting-capitalTypeId', 3),
-        field('meeting-teamId', 2),
-        field('meeting-fundStrategy', 4),
-        field('meeting-types', 12),
-        field('meeting-counterparty', 6),
-        field('meeting-internalParticipants', 6),
-        field('meeting-notes', 12, 420),
-        field('attachment-section', 12, 180)
+        field('meeting-date', 2), field('meeting-time', 2), field('meeting-locationId', 3), field('meeting-counterpartyId', 5),
+        field('meeting-assetClassId', 3), field('meeting-capitalTypeId', 3), field('meeting-teamId', 2), field('meeting-fundStrategy', 4),
+        field('meeting-types', 12), field('meeting-counterparty', 6), field('meeting-internalParticipants', 6),
+        field('meeting-notes', 12, 420), field('attachment-section', 12, 180)
       ])
     }),
     'memo-first': Object.freeze({
@@ -148,6 +157,7 @@
       name: 'Memo First',
       description: '基本情報の直後に面談メモを置き、記録入力を最優先。',
       layout: layout('memo-first', 'wide', {
+        gridColumns: 12,
         widthPercent: 68,
         maxWidthPx: 1700,
         align: 'left',
@@ -155,19 +165,10 @@
         rowGapPx: 16,
         showGrid: true
       }, [
-        field('meeting-date', 2),
-        field('meeting-time', 2),
-        field('meeting-counterpartyId', 5),
-        field('meeting-locationId', 3),
-        field('meeting-notes', 12, 500),
-        field('meeting-assetClassId', 3),
-        field('meeting-capitalTypeId', 3),
-        field('meeting-teamId', 2),
-        field('meeting-fundStrategy', 4),
-        field('meeting-counterparty', 6),
-        field('meeting-internalParticipants', 6),
-        field('meeting-types', 12),
-        field('attachment-section', 12, 180)
+        field('meeting-date', 2), field('meeting-time', 2), field('meeting-counterpartyId', 5), field('meeting-locationId', 3),
+        field('meeting-notes', 12, 500), field('meeting-assetClassId', 3), field('meeting-capitalTypeId', 3),
+        field('meeting-teamId', 2), field('meeting-fundStrategy', 4), field('meeting-counterparty', 6),
+        field('meeting-internalParticipants', 6), field('meeting-types', 12), field('attachment-section', 12, 180)
       ])
     })
   });
@@ -188,6 +189,7 @@
     VIEWPORTS: VIEWPORTS,
     FIELD_DEFINITIONS: FIELD_DEFINITIONS,
     fieldDefinitionById: fieldDefinitionById,
+    DEFAULT_HEIGHTS: DEFAULT_HEIGHTS,
     PRESETS: PRESETS,
     getPreset: getPreset,
     clone: clone
