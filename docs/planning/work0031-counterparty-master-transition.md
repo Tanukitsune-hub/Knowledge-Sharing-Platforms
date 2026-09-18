@@ -1,7 +1,7 @@
 # Work 0031 — Counterparty Master transition
 
 WORK_ID: 0031
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
 
 ## Primary Outcome
@@ -91,3 +91,10 @@ Work 0028 version5 behavior remains accepted baseline. Reopen only components di
 ## Completion Latch
 
 Done when schema8 Counterparty-centered model is end-to-end operational, legacy schema7 migration is safe/idempotent, GP-specific normal product concepts are gone, actual runtime matrix passes, and BLOCKER NONE.
+
+## Active Dispatch
+
+`0031-CODEX-01` — dependency inventoryからschema8実装、schema7 migration、same-target runtime qualificationまで1 dispatchで自律完了。
+
+Instruction:
+`docs/handoffs/0031-CODEX-01-counterparty-master-transition-instruction.md`
