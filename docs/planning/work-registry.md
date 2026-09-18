@@ -25,10 +25,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 9 | 0032 | 記録追加 / 過去の記録の最終UI polish | ACCEPTED | Work 0031 schema8 / version7 | PR #54 / version8 accepted。Completion Latch済み |
 | 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACCEPTED | Work 0032 version8 accepted UI baseline | PR #55 / Layout Lab v2 accepted。Meeting-create candidateをproduction反映する次Workへ |
 | 11 | 0034 | Meeting-create production反映・shared sidebar refresh・adjacent UI convergence | ACCEPTED | Work 0033 accepted candidate / Work0032 baseline | PR #56 / version10 accepted。Completion Latch済み。次は他タブを1画面ずつLayout Labで調整 |
-| 12 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 13 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 14 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 15 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 12 | 0035 | Multi-screen UI Studio — 全7タブ一括design + fine positioning | ACTIVE (BUILD) | Work0034 version10 / Work0033 Layout Lab | CODEX-01で全7screen・48列・1px micro調整を実装 |
+| 13 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 14 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 15 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 16 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -312,3 +313,20 @@ COMPLETION_LATCH: APPLIED
 
 Completion: `docs/handoffs/0034-completion-report.md`
 Current ball/status: `docs/handoffs/0034-dispatches.md`
+## Work 0035 active contract
+
+```text
+WORK_ID: 0035
+STATUS: ACTIVE
+MODE: BUILD
+BASELINE: Work0034 version10 + Work0033 Layout Lab
+SCREENS: 7
+PRODUCTION_SRC_MODIFICATION: 0
+APPS_SCRIPT_DEPLOYMENT: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Decision: `docs/decisions/multi-screen-ui-studio.md`
+Plan: `docs/planning/work0035-multi-screen-ui-studio.md`
+Dispatch: `docs/handoffs/0035-dispatches.md`
+Instruction: `docs/handoffs/0035-CODEX-01-multi-screen-ui-studio-instruction.md`
