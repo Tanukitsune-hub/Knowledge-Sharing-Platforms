@@ -3,8 +3,8 @@
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-01
 ACTIVE_DISPATCH_ID: 0033-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: USER
+STATUS: ACTION_REQUIRED
 MODE: BUILD
 PHASE: UI LAYOUT LAB / LOCAL STATIC TOOL
 
@@ -45,7 +45,11 @@ NEXT_UNUSED_DISPATCH: 0033-CODEX-02
 WORK_0033_COMPLETE: NO
 ```
 
+## Current transition
+
+Implementation / deterministic validation / Draft PR `#55` are complete. Chrome automation cannot open the required `file://` surface under its security policy, so the manual browser matrix is waiting for one user-run local verification through `tools/ui-layout-lab/open-layout-lab.bat`. No application failure was observed.
+
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: USER
+STATUS: ACTION_REQUIRED
