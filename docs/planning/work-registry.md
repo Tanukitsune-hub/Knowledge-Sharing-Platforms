@@ -21,7 +21,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
 | 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACCEPTED | PR #50 + #51 + #52 | version5でpre-rollout UI/interaction再認定。Completion Latch再適用。次は会社PC移行準備 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
-| 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACTIVE (BUILD / FINAL REVIEW) | Work 0028 version5 accepted baseline | CODEX-01 R1-R10 accepted。CODEX-02でuser-facing「面談先マスター」表記だけ収束 |
+| 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACCEPTED | Work 0028 version5 accepted baseline | PR #53 / schema8 / version7 accepted。Completion Latch済み。次は会社PC移行準備 |
 | 9 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 10 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 11 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -157,7 +157,7 @@ Only primary-flow failure, source/data integrity, credentials/authorization, mat
 User decision 2026-09-18: GPを独立master/entity classとして扱う設計を廃止し、すべての面談先をCounterparty Masterへ統合する。
 
 WORK_ID: 0031
-STATUS: ACTIVE
+STATUS: ACCEPTED
 PRIMARY_MASTER: Counterparty_Master
 GENERIC_ID: CP-*
 GP_ROLE: Counterparty_Type value only
@@ -169,4 +169,30 @@ WORK_0030: remains DEFERRED_BY_USER
 Decision: `docs/decisions/counterparty-master-unification.md`
 Plan: `docs/planning/work0031-counterparty-master-transition.md`
 Active dispatch: `docs/handoffs/0031-dispatches.md`
-Instruction: `docs/handoffs/0031-CODEX-02-user-facing-wording-convergence-instruction.md`
+Final reports: `docs/handoffs/0031-CODEX-01-counterparty-master-transition-report.md`, `docs/handoffs/0031-CODEX-02-user-facing-wording-convergence-report.md`
+Completion: `docs/handoffs/0031-completion-report.md`
+## Work 0031 accepted outcome
+
+PR #53 merge: `ed47161bc6380c3289f1554d1d7419c575497f53`
+
+```text
+FINAL_SERVED_VERSION: 7
+TARGET_SCHEMA: 8
+BACKEND_SHEETS: EXACTLY_5
+PRIMARY_MASTER: Counterparty_Master
+GENERIC_ID: CP-*
+GP_ROLE: Counterparty_Type only
+R1_R10: PASS
+LOGIC_VALIDATION: 520/520 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+normal productの主語は`面談先`。`GP`は`GP / 運用会社`というCounterparty Typeの1値。`GP Master` / `GP Workspace` / `GPサマリー` / user-facing `関連GP`は廃止。
+
+Work 0030はDEFERRED_BY_USERのまま。
