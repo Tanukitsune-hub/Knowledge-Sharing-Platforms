@@ -6,7 +6,7 @@ ACTIVE_DISPATCH_ID: 0033-CODEX-01
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
-PHASE: UI LAYOUT LAB / LOCAL STATIC TOOL
+PHASE: UI LAYOUT LAB / DIRECT MANIPULATION ENHANCEMENT
 
 ## Outcome
 
@@ -30,7 +30,9 @@ WORK_0030: DEFERRED_BY_USER
 ## Required features
 
 - Current v8 + 3 design presets
-- 12-col drag/resize
+- direct row/column drag placement
+- 8-direction edge/corner resize
+- Standard 12 / Fine 24 precision
 - hide/show
 - viewport preview
 - auto tidy + design lint
@@ -49,3 +51,9 @@ WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-01
 BALL: CODEX
 STATUS: READY
+
+## User feedback before qualification
+
+Initial build reached USER manual qualification, but user requested more direct mouse resizing and more flexible placement before acceptance. Manual checklist is superseded. Same Dispatch remains active and ball returns to CODEX until direct-manipulation enhancement is complete.
+
+Supplement: `docs/handoffs/0033-CODEX-01-direct-manipulation-supplement.md`
