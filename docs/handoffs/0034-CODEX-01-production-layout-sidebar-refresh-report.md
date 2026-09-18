@@ -1,0 +1,50 @@
+# CODEX-01 — Production Meeting layout and sidebar refresh report
+
+WORK_ID: 0034
+DISPATCH_ID: 0034-CODEX-01
+BALL: CODEX
+STATUS: IN_PROGRESS
+MODE: BUILD
+
+## Work Contract
+
+Execution contract: `docs/handoffs/0034-CODEX-01-production-layout-sidebar-refresh-instruction.md`。
+
+## Implementation
+
+IN PROGRESS
+
+## Logic Validation
+
+IN PROGRESS
+
+## Target Identity / Deployment
+
+IN PROGRESS
+
+## Actual Owner-only Runtime Qualification
+
+IN PROGRESS
+
+## Side-effect State / Readiness
+
+```text
+LOGIC_VALIDATION: NOT_RUN
+TARGET_RUNTIME_QUALIFICATION: NOT_RUN
+PROVIDER_CALLS: 0
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: NO
+```
+
+## Shared Knowledge
+
+KNOWLEDGE_RETRIEVAL: RULE-0001, RULE-0002, PAT-0004, OBS-0009
+KNOWLEDGE_APPLIED: RULE-0001, RULE-0002, PAT-0004, OBS-0009
+NEW_KNOWLEDGE_CANDIDATE: NO
+
+WORK_ID: 0034
+DISPATCH_ID: 0034-CODEX-01
+BALL: CODEX
+STATUS: IN_PROGRESS

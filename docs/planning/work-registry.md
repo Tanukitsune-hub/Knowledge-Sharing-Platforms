@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-18
+Current as of: 2026-09-19
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -24,10 +24,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACCEPTED | Work 0028 version5 accepted baseline | PR #53 / schema8 / version7 accepted。Completion Latch済み。次は会社PC移行準備 |
 | 9 | 0032 | 記録追加 / 過去の記録の最終UI polish | ACCEPTED | Work 0031 schema8 / version7 | PR #54 / version8 accepted。Completion Latch済み |
 | 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACCEPTED | Work 0032 version8 accepted UI baseline | PR #55 / Layout Lab v2 accepted。Meeting-create candidateをproduction反映する次Workへ |
-| 11 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 12 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 13 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 14 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 11 | 0034 | accepted Meeting-create candidateのproduction反映とshared sidebar gold/3D refresh | ACTIVE | Work 0033 accepted candidate / Work 0032 version8 runtime | CODEX-01 implementation・same target runtime qualification |
+| 12 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 13 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 14 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 15 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -256,3 +257,21 @@ COMPLETION_LATCH: APPLIED
 
 Completion: `docs/handoffs/0033-completion-report.md`
 Current candidate: `docs/handoffs/0033-user-layout-candidate-current.json`
+
+## Work 0034 active contract
+
+```text
+WORK_ID: 0034
+STATUS: ACTIVE
+MODE: BUILD
+BASELINE: Work0032 version8 + Work0033 accepted Meeting-create candidate
+TARGET_RUNTIME: same existing owner-only versioned Web App
+PROVIDER_CALLS: 0
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Dispatch: `docs/handoffs/0034-dispatches.md`
+
+Active instruction: `docs/handoffs/0034-CODEX-01-production-layout-sidebar-refresh-instruction.md`
