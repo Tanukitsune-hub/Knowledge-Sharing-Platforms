@@ -109,7 +109,7 @@ test('current authoritative candidate matches the revised 12-column layout exact
   assert.deepEqual(layout.container, {
     gridColumns: 12,
     widthPercent: 100,
-    maxWidthPx: 1680,
+    maxWidthPx: 2000,
     align: 'left',
     columnGapPx: 14,
     rowGapPx: 14,
@@ -373,7 +373,7 @@ test('Codex handoff includes v2 precision and direct placement properties', () =
 test('preferred candidate handoff states the exact revised responsive intent', () => {
   const handoff = model.createHandoff(presets.getPreset('compact-institutional'));
   assert.match(handoff, /Desktop \(Wide\/Laptop\/Compact\)では12-column canonical placementを維持する。/);
-  assert.match(handoff, /containerはavailable application content areaの100%を使用し、max-width 1680px。/);
+  assert.match(handoff, /containerはavailable application content areaの100%を使用し、max-width 2000px。/);
   assert.match(handoff, /desktop viewport変更ではfield placementをreflow\/reorderしない。/);
   assert.match(handoff, /720px以下のみ1-column visual projectionとし、desktop specは保持する。/);
 });

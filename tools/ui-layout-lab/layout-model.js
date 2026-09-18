@@ -547,7 +547,7 @@
       '- Spec: `version ' + spec.specVersion + ' / ' + spec.container.gridColumns + ' columns`',
       '- Preset origin: `' + spec.presetOrigin + '`',
       '- Container: width ' + spec.container.widthPercent + '%, max ' + (spec.container.maxWidthPx === null ? 'none' : spec.container.maxWidthPx + 'px') + ', ' + spec.container.align + ', gap ' + spec.container.columnGapPx + 'px / ' + spec.container.rowGapPx + 'px',
-      '- Responsive intent: Desktop (Wide/Laptop/Compact)では12-column canonical placementを維持する。containerはavailable application content areaの100%を使用し、max-width 1680px。desktop viewport変更ではfield placementをreflow/reorderしない。720px以下のみ1-column visual projectionとし、desktop specは保持する。',
+      '- Responsive intent: Desktop (Wide/Laptop/Compact)では12-column canonical placementを維持する。containerはavailable application content areaの100%を使用し、max-width 2000px。desktop viewport変更ではfield placementをreflow/reorderしない。720px以下のみ1-column visual projectionとし、desktop specは保持する。',
       '', '## Field placement', ''
     ];
     visible.forEach(function (field) {

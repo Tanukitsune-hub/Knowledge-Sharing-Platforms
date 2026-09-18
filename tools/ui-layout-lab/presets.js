@@ -151,7 +151,7 @@
       layout: explicitLayout('compact-institutional', 'wide', {
         gridColumns: 12,
         widthPercent: 100,
-        maxWidthPx: 1680,
+        maxWidthPx: 2000,
         align: 'left',
         columnGapPx: 14,
         rowGapPx: 14,
