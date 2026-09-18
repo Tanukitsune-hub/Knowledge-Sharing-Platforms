@@ -63,3 +63,11 @@ Supplement: `docs/handoffs/0033-CODEX-01-direct-manipulation-supplement.md`
 Initial Layout Lab functionality and user manual qualification are accepted baseline evidence. CODEX-01 RETURNED at branch head `405cf7f4579b7413df3de36dab4f2675176ceafa`.
 
 New user feedback after RETURNED requires a new Dispatch. CODEX-02 adds direct 2D placement, 8-direction resize, 12/24-column precision, and spec v2 backward compatibility without reopening production boundaries.
+
+## User-selected layout candidate / responsive lock
+
+Candidate: `docs/handoffs/0033-user-layout-candidate-v1.json`
+
+Supplement: `docs/handoffs/0033-CODEX-02-responsive-shape-lock-supplement.md`
+
+Wide 2560 / Laptop 1440 / Compact 1280は同じ24-column row/column topologyを保持。720px以下だけ1-column。
