@@ -1,7 +1,7 @@
 # Work 0033 — UI Layout Lab
 
 WORK_ID: 0033
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 
 ## Primary Outcome
@@ -132,6 +132,21 @@ Initial implementation review requested more direct manipulation. CODEX-01 conti
 
 ## Selected layout candidate
 
-Current user candidate: `docs/handoffs/0033-user-layout-candidate-v1.json`.
+Current user candidate: `docs/handoffs/0033-user-layout-candidate-current.json`.
 
 Wide 2560 / Laptop 1440 / Compact 1280は同じgrid topologyを保持し、720px以下だけsingle-column。Responsive details: `docs/handoffs/0033-CODEX-02-responsive-shape-lock-supplement.md`.
+## Final Acceptance
+
+PR #55 merge: `24c8e78b0a446eddf0f1540885eb10db0bc865fa`
+
+- specVersion2
+- direct row/column placement
+- 8-direction resize
+- Standard12 / Fine24
+- v1 migration
+- deterministic JSON / Codex handoff
+- Wide/Laptop/Compact topology preservation
+- user manual browser qualification PASS
+- production source/deployment changes0
+
+Completion: `docs/handoffs/0033-completion-report.md`
