@@ -5,6 +5,7 @@ function kspNormalizePitchbookBatchInput_(input) {
     parentMeetingId: kspTrimPitchbookField_(source.parentMeetingId),
     expectedParentVersion: Number(source.expectedParentVersion),
     date: kspTrimPitchbookField_(source.date),
+    counterpartyId: kspTrimPitchbookField_(source.counterpartyId),
     gpId: kspTrimPitchbookField_(source.gpId),
     assetClassId: kspTrimPitchbookField_(source.assetClassId),
     capitalTypeId: kspTrimPitchbookField_(source.capitalTypeId),
@@ -53,9 +54,9 @@ function kspBuildPitchbookCatalog_(gpRows, optionRows) {
 }
 
 function kspValidatePitchbookBatchInput_(input, catalog) {
-  var safeCatalog = catalog || { gps: [], assetClasses: [], capitalTypes: [] };
+  var safeCatalog = catalog || { counterparties: [], assetClasses: [], capitalTypes: [] };
   kspAssert_(input.date, 'PITCHBOOK_DATE_REQUIRED', '日付は必須です。');
-  kspAssert_(input.counterpartyId || input.gpId, 'PITCHBOOK_COUNTERPARTY_REQUIRED', '面談先は必須です。');
+  kspAssert_(input.counterpartyId, 'PITCHBOOK_COUNTERPARTY_REQUIRED', '面談先は必須です。');
   kspAssert_(input.assetClassId, 'PITCHBOOK_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
   kspAssert_(String(input.fundStrategy || '').length <= KSP_PITCHBOOK_FUND_STRATEGY_MAX_LENGTH,
@@ -73,8 +74,8 @@ function kspValidatePitchbookBatchInput_(input, catalog) {
     '1回の合計ファイルサイズは100MBまでです。');
 
   var selected = {
-    gp: input.gpId ? kspRequireCatalogItem_(safeCatalog.gps, input.gpId, 'PITCHBOOK_GP_UNAVAILABLE', '選択されたGPは利用できません。') : null,
-    counterpartyEntity: input.counterpartyId ? kspRequirePitchbookCounterparty_(input, safeCatalog) : null,
+    gp: null,
+    counterpartyEntity: kspRequirePitchbookCounterparty_(input, safeCatalog),
     assetClass: kspRequireCatalogItem_(
       safeCatalog.assetClasses,
       input.assetClassId,

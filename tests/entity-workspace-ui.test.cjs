@@ -19,7 +19,6 @@ function workspaceData() {
     pitchbooks: { totalCount: 1, records: [{ documentId: 'DOC-1', date: '2026-08-27', gpId: 'GP-1', gpName: 'Synthetic GP', fundStrategy: 'Synthetic Fund', status: 'Active', fileUrl: '' }], omittedCount: 0 },
     linkedPitchbooks: { totalCount: 1, records: [{ documentId: 'DOC-1', date: '2026-08-27', gpId: 'GP-1', gpName: 'Synthetic GP', fundStrategy: 'Synthetic Fund', status: 'Active', fileUrl: '' }], omittedCount: 0 },
     ownedPitchbooks: { totalCount: 0, records: [], omittedCount: 0 },
-    relatedGps: [{ id: 'GP-1', name: 'Synthetic GP', status: 'Active' }],
     fundStrategies: { totalCount: 1, records: [{ text: 'Synthetic Fund', meetingCount: 1, pitchbookCount: 1, directMeetingCount: 1, relatedMeetingCount: 0, latestDate: '2026-08-27', openFollowUpCount: 0, relationshipCount: 1 }], omittedCount: 0 },
     followUps: { totalCount: 0, records: [], omittedCount: 0 },
     mixes: { teams: [{ label: 'PD', count: 1 }], assetClasses: [{ label: 'Infrastructure', count: 1 }], meetingTypes: [{ label: '定例年1回', count: 1 }] },
@@ -92,7 +91,7 @@ test('Entity Workspace client loads catalog, selected entity, exact drill, and p
   await runtime.context.loadEntityWorkspace();
   assert.equal(calls.length, 2);
   assert.match(runtime.node('entity-workspace-name').textContent, /Synthetic LP/);
-  assert.match(runtime.node('entity-workspace-related-gps').innerHTML, /Related GP/);
+  assert.doesNotMatch(page, /related-gps|関連GP|Related GP/);
   await runtime.context.loadEntityWorkspaceFund('Synthetic Fund');
   assert.equal(calls.length, 3);
   assert.match(runtime.node('entity-workspace-drill').innerHTML, /Synthetic Fund/);

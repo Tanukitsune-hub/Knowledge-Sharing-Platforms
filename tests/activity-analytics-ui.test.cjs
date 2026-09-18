@@ -36,7 +36,7 @@ test('Activity Analytics client keeps stale read responses from replacing newer 
 test('Activity Analytics filter option keys match the server response contract', () => {
   assert.match(client, /\['counterpartyTypes','activity-filter-counterpartyType'\]/);
   assert.match(client, /\['counterpartyEntities','activity-filter-counterpartyEntity'\]/);
-  assert.match(client, /\['relatedGps','activity-filter-relatedGp'\]/);
+  assert.doesNotMatch(client, /relatedGps|activity-filter-relatedGp/);
   assert.match(client, /\['assetClasses','activity-filter-assetClass'\]/);
   assert.match(client, /\['teams','activity-filter-team'\]/);
   assert.match(client, /\['meetingTypes','activity-filter-meetingType'\]/);

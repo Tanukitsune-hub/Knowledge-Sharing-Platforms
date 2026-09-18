@@ -9,10 +9,10 @@ var KSP_MAINTENANCE_ACTIONS = Object.freeze({
   PITCHBOOK_UPDATE: 'PITCHBOOK_UPDATE',
   PITCHBOOK_DEACTIVATE: 'PITCHBOOK_DEACTIVATE',
   PITCHBOOK_REACTIVATE: 'PITCHBOOK_REACTIVATE',
-  GP_ADD: 'GP_ADD',
-  GP_RENAME: 'GP_RENAME',
-  GP_DEACTIVATE: 'GP_DEACTIVATE',
-  GP_REACTIVATE: 'GP_REACTIVATE',
+  COUNTERPARTY_ADD: 'COUNTERPARTY_ADD',
+  COUNTERPARTY_RENAME: 'COUNTERPARTY_RENAME',
+  COUNTERPARTY_DEACTIVATE: 'COUNTERPARTY_DEACTIVATE',
+  COUNTERPARTY_REACTIVATE: 'COUNTERPARTY_REACTIVATE',
   OPTION_ADD: 'OPTION_ADD',
   OPTION_RENAME: 'OPTION_RENAME',
   OPTION_REORDER: 'OPTION_REORDER',
@@ -21,7 +21,7 @@ var KSP_MAINTENANCE_ACTIONS = Object.freeze({
   AUDIT_RETENTION_CLEANUP: 'AUDIT_RETENTION_CLEANUP'
 });
 
-var KSP_MASTER_ENTITY = Object.freeze({ GP: 'GP', OPTION: 'OPTION' });
+var KSP_MASTER_ENTITY = Object.freeze({ COUNTERPARTY: 'COUNTERPARTY', OPTION: 'OPTION' });
 var KSP_MASTER_MUTATION = Object.freeze({
   ADD: 'ADD', RENAME: 'RENAME', REORDER: 'REORDER',
   DEACTIVATE: 'DEACTIVATE', REACTIVATE: 'REACTIVATE'
@@ -75,8 +75,6 @@ function kspValidateRecordSearch_(search) {
     kspAssert_(Boolean(kspCounterpartyTypeDefinition_(search.counterpartyType)),
       'SEARCH_COUNTERPARTY_TYPE_INVALID', '面談先区分filterが不正です。');
   }
-  kspAssert_(!search.counterpartyId || search.counterpartyType,
-    'SEARCH_COUNTERPARTY_TYPE_REQUIRED', '面談先filterには面談先区分が必要です。');
   return search;
 }
 
@@ -110,21 +108,18 @@ function kspMaintenanceMeetingTypeLabels_(value) {
   return kspMaintenanceSplitCodes_(value).map(function (code) { return labels[code] || code; });
 }
 
-function kspBuildMaintenanceRelatedPitchbookChoices_(rows, relatedGpIds, assetClassId, existingIds) {
+function kspBuildMaintenanceRelatedPitchbookChoices_(rows, counterpartyId, assetClassId, existingIds) {
   var preserved = {};
-  var related = {};
-  (Array.isArray(relatedGpIds) ? relatedGpIds : kspMaintenanceSplitCodes_(relatedGpIds))
-    .forEach(function (id) { related[String(id)] = true; });
   (existingIds || []).forEach(function (id) { preserved[String(id)] = true; });
   var choices = (rows || []).filter(function (row) {
     var id = String(row.Document_ID || '');
     return id && (preserved[id] || (String(row.Status || '') === KSP_STATUS.ACTIVE &&
-      related[String(row.GP_ID || '')] &&
+      String(row.Counterparty_ID || '') === String(counterpartyId || '') &&
       String(row.Asset_Class_ID || '') === String(assetClassId || '')));
   }).map(function (row) {
     return {
       id: String(row.Document_ID || ''), date: kspMaintenanceCellText_(row.Date, 'date'),
-      gpId: String(row.GP_ID || ''), assetClassId: String(row.Asset_Class_ID || ''),
+      counterpartyId: String(row.Counterparty_ID || ''), assetClassId: String(row.Asset_Class_ID || ''),
       title: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
       status: String(row.Status || ''), preserved: Boolean(preserved[String(row.Document_ID || '')])
     };
@@ -134,18 +129,21 @@ function kspBuildMaintenanceRelatedPitchbookChoices_(rows, relatedGpIds, assetCl
   var resolved = {};
   choices.forEach(function (item) { resolved[item.id] = true; });
   Object.keys(preserved).filter(function (id) { return !resolved[id]; }).sort().forEach(function (id) {
-    choices.push({ id: id, date: '', gpId: '', assetClassId: '', title: id,
+    choices.push({ id: id, date: '', counterpartyId: '', assetClassId: '', title: id,
       status: '', preserved: true, unresolved: true });
   });
   return choices;
 }
 
-function kspRecordMatchesSearch_(row, search) {
+function kspRecordMatchesSearch_(row, search, maps) {
   var date = kspMaintenanceCellText_(row.Date, 'date');
   if (search.dateFrom && date < search.dateFrom) return false;
   if (search.dateTo && date > search.dateTo) return false;
   if (search.gpId && String(row.GP_ID || '') !== search.gpId) return false;
-  if (search.counterpartyType && kspMeetingCounterpartyType_(row) !== search.counterpartyType) return false;
+  var counterpartyId = kspMeetingCounterpartyId_(row);
+  var resolvedType = maps && maps.counterpartyType ? String(maps.counterpartyType[counterpartyId] || '')
+    : kspMeetingCounterpartyType_(row);
+  if (search.counterpartyType && resolvedType !== search.counterpartyType) return false;
   if (search.counterpartyId && kspMeetingCounterpartyId_(row) !== search.counterpartyId) return false;
   if (search.relatedGpId && kspMaintenanceSplitCodes_(kspMeetingRelatedGpIds_(row)).indexOf(search.relatedGpId) === -1) return false;
   if (search.assetClassId && String(row.Asset_Class_ID || '') !== search.assetClassId) return false;
@@ -158,9 +156,9 @@ function kspRecordMatchesSearch_(row, search) {
   return true;
 }
 
-function kspSearchRows_(rows, search, mapper) {
+function kspSearchRows_(rows, search, mapper, maps) {
   return (rows || [])
-    .filter(function (row) { return kspRecordMatchesSearch_(row, search); })
+    .filter(function (row) { return kspRecordMatchesSearch_(row, search, maps); })
     .sort(function (left, right) {
       var dateCompare = kspMaintenanceCellText_(right.Date, 'date').localeCompare(kspMaintenanceCellText_(left.Date, 'date'));
       if (dateCompare !== 0) return dateCompare;
@@ -177,22 +175,33 @@ function kspSearchRows_(rows, search, mapper) {
 }
 
 function kspBuildCatalogMaps_(catalog) {
-  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} };
+  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {}, counterpartyType: {} };
   (catalog.gps || []).forEach(function (item) { maps.gp[item.id] = item.name; });
   (catalog.assetClasses || []).forEach(function (item) { maps.assetClass[item.id] = item.name; });
   (catalog.capitalTypes || []).forEach(function (item) { maps.capitalType[item.id] = item.name; });
   (catalog.locations || []).forEach(function (item) { maps.location[item.id] = item.name; });
   (catalog.teams || []).forEach(function (item) { maps.team[item.id] = item.name; });
-  (catalog.counterpartyEntities || []).forEach(function (item) { maps.counterparty[item.type + ':' + item.id] = item.name; });
+  (catalog.counterpartyEntities || []).forEach(function (item) {
+    maps.counterparty[item.id] = item.name;
+    maps.counterparty[item.entityKey || kspCounterpartyEntityKey_(item.id)] = item.name;
+    maps.counterparty[item.type + ':' + item.id] = item.name;
+    maps.counterpartyType[item.id] = item.type;
+  });
   return maps;
 }
 
-function kspBuildAllMasterMaps_(gpRows, optionRows) {
-  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} };
-  (gpRows || []).forEach(function (row) {
-    if (row.GP_ID) {
-      maps.gp[String(row.GP_ID)] = String(row.GP_Name || '');
-      maps.counterparty['GP:' + String(row.GP_ID)] = String(row.GP_Name || '');
+function kspBuildAllMasterMaps_(counterpartyRows, optionRows) {
+  var maps = { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {}, counterpartyType: {} };
+  (counterpartyRows || []).forEach(function (row) {
+    var id = String(row.Counterparty_ID || row.GP_ID || '');
+    if (id) {
+      var name = String(row.Counterparty_Name || row.GP_Name || '');
+      var type = String(row.Counterparty_Type || (row.GP_ID ? 'GP' : ''));
+      maps.counterparty[id] = name;
+      maps.counterparty[kspCounterpartyEntityKey_(id)] = name;
+      maps.counterparty[type + ':' + id] = name;
+      maps.counterpartyType[id] = type;
+      if (type === 'GP') maps.gp[id] = name;
     }
   });
   (optionRows || []).forEach(function (row) {
@@ -201,17 +210,13 @@ function kspBuildAllMasterMaps_(gpRows, optionRows) {
       : String(row.Type || '') === KSP_OPTION_TYPES.LOCATION ? maps.location
       : String(row.Type || '') === KSP_OPTION_TYPES.TEAM ? maps.team : null;
     if (target && row.Option_ID) target[String(row.Option_ID)] = String(row.Name || '');
-    var definition = KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(function (item) {
-      return item.optionType === String(row.Type || '');
-    })[0];
-    if (definition && row.Option_ID) maps.counterparty[definition.code + ':' + String(row.Option_ID)] = String(row.Name || '');
   });
   return maps;
 }
 
 function kspMapMeetingSearchResult_(row, maps) {
-  var counterpartyType = kspMeetingCounterpartyType_(row);
   var counterpartyId = kspMeetingCounterpartyId_(row);
+  var counterpartyType = String((maps.counterpartyType || {})[counterpartyId] || kspMeetingCounterpartyType_(row));
   var relatedGpIds = kspMaintenanceSplitCodes_(kspMeetingRelatedGpIds_(row));
   return {
     meetingId: String(row.Meeting_ID || ''),
@@ -221,7 +226,7 @@ function kspMapMeetingSearchResult_(row, maps) {
     gpName: maps.gp[String(row.GP_ID || '')] || '',
     counterpartyType: counterpartyType,
     counterpartyId: counterpartyId,
-    counterpartyEntityName: (maps.counterparty || {})[counterpartyType + ':' + counterpartyId] || '',
+    counterpartyEntityName: (maps.counterparty || {})[counterpartyId] || '',
     relatedGpIds: relatedGpIds,
     relatedGpNames: relatedGpIds.map(function (id) { return maps.gp[id] || id; }),
     assetClassId: String(row.Asset_Class_ID || ''),
@@ -254,9 +259,9 @@ function kspMapPitchbookSearchResult_(row, maps) {
     documentId: String(row.Document_ID || ''),
     batchId: String(row.Batch_ID || ''),
     parentMeetingId: String(row.Parent_Meeting_ID || ''),
-    counterpartyType: kspMeetingCounterpartyType_(row),
+    counterpartyType: String((maps.counterpartyType || {})[kspMeetingCounterpartyId_(row)] || kspMeetingCounterpartyType_(row)),
     counterpartyId: kspMeetingCounterpartyId_(row),
-    counterpartyName: (maps.counterparty || {})[kspMeetingCounterpartyType_(row) + ':' + kspMeetingCounterpartyId_(row)] || maps.gp[String(row.GP_ID || '')] || '',
+    counterpartyName: (maps.counterparty || {})[kspMeetingCounterpartyId_(row)] || '',
     relatedGpIds: kspMeetingRelatedGpIds_(row),
     date: kspMaintenanceCellText_(row.Date, 'date'),
     gpId: String(row.GP_ID || ''),
@@ -295,7 +300,7 @@ function kspParseMeetingDocumentText_(text) {
     time: values['時間'] || '',
     locationName: values['面談場所'] || '',
     gpName: values.GP || '',
-    counterpartyTypeLabel: values['面談先区分'] || '',
+    counterpartyTypeLabel: values['面談先種別'] || values['面談先区分'] || '',
     counterpartyEntityName: values['面談先'] || values.GP || '',
     relatedGpNames: values['関連GP'] || values.GP || '',
     assetClassName: values['Asset Class'] || '',
@@ -344,10 +349,10 @@ function kspBuildMeetingEditedRow_(currentRow, input, actor, nowIso, filename) {
   updated.Date = input.date;
   updated.Time = input.time;
   updated.Location_ID = input.locationId;
-  updated.GP_ID = input.gpId;
-  updated.Counterparty_Type = input.counterpartyType;
+  updated.GP_ID = '';
+  updated.Counterparty_Type = input.counterpartyType || '';
   updated.Counterparty_ID = input.counterpartyId;
-  updated.Related_GP_IDs = input.relatedGpIds;
+  updated.Related_GP_IDs = '';
   updated.Asset_Class_ID = input.assetClassId;
   updated.Capital_Type_ID = input.capitalTypeId;
   updated.Team_ID = input.teamId;
@@ -373,7 +378,7 @@ function kspNormalizePitchbookEditInput_(input) {
     documentId: kspMaintenanceTrim_(source.documentId),
     expectedUpdatedAt: kspMaintenanceTrim_(source.expectedUpdatedAt),
     date: kspMaintenanceTrim_(source.date),
-    gpId: kspMaintenanceTrim_(source.gpId),
+    counterpartyId: kspMaintenanceTrim_(source.counterpartyId || source.gpId),
     assetClassId: kspMaintenanceTrim_(source.assetClassId),
     capitalTypeId: kspMaintenanceTrim_(source.capitalTypeId),
     fundStrategy: kspMaintenanceTrim_(source.fundStrategy)
@@ -381,16 +386,14 @@ function kspNormalizePitchbookEditInput_(input) {
 }
 
 function kspValidatePitchbookEditInput_(input, catalog) {
-  kspAssert_(input.counterpartyId || input.gpId, 'PITCHBOOK_COUNTERPARTY_REQUIRED', '面談先を確認してください。');
+  kspAssert_(input.counterpartyId, 'PITCHBOOK_COUNTERPARTY_REQUIRED', '面談先を確認してください。');
   kspParseDocumentId_(input.documentId);
   kspAssert_(input.expectedUpdatedAt, 'PITCHBOOK_EXPECTED_UPDATED_AT_REQUIRED', '更新トークンがありません。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付が不正です。');
   kspAssert_(String(input.fundStrategy || '').length <= 500,
     'PITCHBOOK_FUND_STRATEGY_TOO_LONG', 'Fund / Strategyは500文字以内で入力してください。');
   var selected = {
-    gp: input.gpId ? kspRequireCatalogItem_(catalog.gps, input.gpId,
-      'PITCHBOOK_GP_UNAVAILABLE', '選択されたGPは利用できません。') : null,
-    counterpartyEntity: input.counterpartyId ? kspRequirePitchbookCounterparty_(input, catalog) : null,
+    counterpartyEntity: kspRequirePitchbookCounterparty_(input, catalog),
     assetClass: kspRequireCatalogItem_(catalog.assetClasses, input.assetClassId,
       'PITCHBOOK_ASSET_CLASS_UNAVAILABLE', '選択されたAsset Classは利用できません。'),
     capitalType: null
@@ -408,8 +411,7 @@ function kspPitchbookContextChanged_(currentRow, input) {
 
 function kspPitchbookContextMatchesRow_(row, input) {
   return kspCanonicalBusinessDate_(row.Date) === kspCanonicalBusinessDate_(input.date) &&
-    (!input.counterpartyId || (kspMeetingCounterpartyType_(row) === input.counterpartyType && kspMeetingCounterpartyId_(row) === input.counterpartyId)) &&
-    String(row.GP_ID || '') === input.gpId &&
+    kspMeetingCounterpartyId_(row) === input.counterpartyId &&
     String(row.Asset_Class_ID || '') === input.assetClassId &&
     String(row.Capital_Type_ID || '') === input.capitalTypeId;
 }
@@ -423,7 +425,10 @@ function kspBuildPitchbookSavedFilename_(input, selected, sequenceNo, originalFi
 function kspBuildPitchbookEditedRow_(currentRow, input, actor, nowIso, sequenceNo, filename) {
   var updated = kspDeepClone_(currentRow);
   updated.Date = input.date;
-  updated.GP_ID = input.gpId;
+  updated.GP_ID = '';
+  updated.Counterparty_Type = input.counterpartyType || '';
+  updated.Counterparty_ID = input.counterpartyId;
+  updated.Related_GP_IDs = '';
   updated.Asset_Class_ID = input.assetClassId;
   updated.Capital_Type_ID = input.capitalTypeId;
   updated.Fund_Strategy = input.fundStrategy;
@@ -448,12 +453,12 @@ function kspDisplayMasterName_(value) {
   return display.trim().replace(/\s+/g, ' ');
 }
 
-function kspNextGpId_(rows) {
+function kspNextCounterpartyId_(rows) {
   var maximum = (rows || []).reduce(function (maxValue, row) {
-    var match = /^GP-(\d{6})$/.exec(String(row.GP_ID || ''));
+    var match = /^CP-(\d{6})$/.exec(String(row.Counterparty_ID || ''));
     return match ? Math.max(maxValue, Number(match[1])) : maxValue;
   }, 0);
-  return 'GP-' + String(maximum + 1).padStart(6, '0');
+  return 'CP-' + String(maximum + 1).padStart(6, '0');
 }
 
 function kspOptionPrefix_(type) {
@@ -481,9 +486,10 @@ function kspNextOptionId_(rows, type) {
 function kspFindNormalizedMasterDuplicate_(rows, entity, type, name, excludedId) {
   var normalized = kspNormalizeMasterName_(name);
   return (rows || []).filter(function (row) {
-    if (entity === KSP_MASTER_ENTITY.GP) {
-      return String(row.GP_ID || '') !== String(excludedId || '') &&
-        kspNormalizeMasterName_(row.GP_Name) === normalized;
+    if (entity === KSP_MASTER_ENTITY.COUNTERPARTY) {
+      return String(row.Counterparty_ID || '') !== String(excludedId || '') &&
+        String(row.Counterparty_Type || '') === type &&
+        kspNormalizeMasterName_(row.Counterparty_Name) === normalized;
     }
     return String(row.Option_ID || '') !== String(excludedId || '') &&
       String(row.Type || '') === type && kspNormalizeMasterName_(row.Name) === normalized;
@@ -504,7 +510,7 @@ function kspNormalizeMasterMutation_(input) {
 }
 
 function kspValidateMasterMutation_(input) {
-  kspAssert_(input.entity === KSP_MASTER_ENTITY.GP || input.entity === KSP_MASTER_ENTITY.OPTION,
+  kspAssert_(input.entity === KSP_MASTER_ENTITY.COUNTERPARTY || input.entity === KSP_MASTER_ENTITY.OPTION,
     'MASTER_ENTITY_INVALID', 'Master種別が不正です。');
   kspAssert_(Object.keys(KSP_MASTER_MUTATION).some(function (key) {
     return KSP_MASTER_MUTATION[key] === input.action;
@@ -521,8 +527,12 @@ function kspValidateMasterMutation_(input) {
         'OPTION_SORT_ORDER_INVALID', 'Sort Orderは正の整数にしてください。');
     }
   } else {
+    if (input.action === KSP_MASTER_MUTATION.ADD) {
+      kspAssert_(Boolean(kspCounterpartyTypeDefinition_(input.type)),
+        'COUNTERPARTY_TYPE_INVALID', '面談先種別が不正です。');
+    }
     kspAssert_(input.action !== KSP_MASTER_MUTATION.REORDER,
-      'GP_REORDER_NOT_ALLOWED', 'GPは名称のアルファベット順で表示するため手動並び替えできません。');
+      'COUNTERPARTY_REORDER_NOT_ALLOWED', '面談先は名称順で表示するため手動並び替えできません。');
   }
   if (input.action !== KSP_MASTER_MUTATION.ADD) {
     kspAssert_(input.id, 'MASTER_ID_REQUIRED', 'Master IDが必要です。');
@@ -546,7 +556,8 @@ function kspBuildMaintenanceAuditRow_(params) {
     Error_Code: options.errorCode || '',
     Error_Message: options.errorCode ? kspSafePublicErrorMessage_(options.errorCode, 'MAINTENANCE') : '',
     Search_Mode: '', Question_Or_Instruction: '', Date_From: '', Date_To: '',
-    GP_Filter: '', Asset_Class_Filter: '', Capital_Type_Filter: '', Source_Type_Filter: '',
+    GP_Filter: '', Counterparty_Filter: '', Counterparty_Type_Filter: '',
+    Asset_Class_Filter: '', Capital_Type_Filter: '', Source_Type_Filter: '',
     Model_ID: '', Cited_Source_IDs: ''
   };
 }
@@ -573,7 +584,8 @@ function kspMeetingAuditSnapshot_(row) {
 function kspPitchbookAuditSnapshot_(row) {
   return {
     Document_ID: row.Document_ID || '', Batch_ID: row.Batch_ID || '', Date: kspCanonicalBusinessDate_(row.Date),
-    GP_ID: row.GP_ID || '', Asset_Class_ID: row.Asset_Class_ID || '',
+    GP_ID: row.GP_ID || '', Counterparty_ID: kspMeetingCounterpartyId_(row),
+    Asset_Class_ID: row.Asset_Class_ID || '',
     Capital_Type_ID: row.Capital_Type_ID || '', Fund_Strategy: row.Fund_Strategy || '', Sequence_No: Number(row.Sequence_No || 0),
     File_ID: row.File_ID || '', File_URL: row.File_URL || '',
     Original_Filename: row.Original_Filename || '', Saved_Filename: row.Saved_Filename || '',
@@ -582,8 +594,10 @@ function kspPitchbookAuditSnapshot_(row) {
 }
 
 function kspMasterAuditSnapshot_(entity, row) {
-  if (entity === KSP_MASTER_ENTITY.GP) {
-    return { GP_ID: row.GP_ID || '', GP_Name: row.GP_Name || '', Status: row.Status || '', Updated_At: kspCanonicalInstantIso_(row.Updated_At) };
+  if (entity === KSP_MASTER_ENTITY.COUNTERPARTY) {
+    return { Counterparty_ID: row.Counterparty_ID || '', Counterparty_Name: row.Counterparty_Name || '',
+      Counterparty_Type: row.Counterparty_Type || '', Status: row.Status || '',
+      Updated_At: kspCanonicalInstantIso_(row.Updated_At) };
   }
   return {
     Option_ID: row.Option_ID || '', Type: row.Type || '', Name: row.Name || '',

@@ -796,13 +796,13 @@ function kspProviderSafeMessage_(code) {
     AI_ENTITY_GP_CONFLICT: 'Counterparty EntityとGPが一致しません。',
     AI_TEAM_FILTER_UNAVAILABLE: '選択されたTeamは利用できません。',
     AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Team、要フォロー、Related GP、Meeting TypeはMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Team、要フォロー、Meeting TypeはMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
     AI_FILTER_UNSUPPORTED_PROVIDER: '選択された構造化フィルターはこのプロバイダでは利用できません。',
     AI_MULTI_ENTITY_COUNT_INVALID: '比較するEntityは2–5件で選択してください。',
     AI_MULTI_ENTITY_DUPLICATE: '同じEntityを複数回選択できません。',
     AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
     AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
-    AI_RELATED_GP_FILTER_UNAVAILABLE: '選択されたRelated GPは利用できません。',
+    AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件は利用できません。',
     AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMeeting Typeは利用できません。',
     AI_ADVANCED_FILTER_TOO_BROAD: '該当するMeetingが多すぎます。条件を絞ってください。',
     AI_MEETING_PREP_TARGET_REQUIRED: '面談準備ではCounterparty EntityまたはGPを選択してください。',
@@ -1124,7 +1124,7 @@ function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, c
       storeName: config && config.storeName
     })
     : kspMapKnowledgeCitations_(parsed.citations, sourceMaps);
-  var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+  var catalog = kspBuildKnowledgeSearchCatalog_(kspContextCounterpartyRows_(context), context.optionRows,
     context.meetingRows, context.pitchbookRows);
   var guarded = kspGuardKnowledgeComparisonCitations_(input, catalog, mapped.citations);
   var allWarnings = (warnings || []).concat(parsed.warnings || [], mapped.warnings, guarded.warnings);
@@ -1213,7 +1213,7 @@ function kspRunProviderKnowledgeSearchStart_(environment, normalizedProvider, ra
       kspNormalizeAiSettings_(context.settings), normalizedProvider, rawInput, config, startedAt
     );
     config = kspApplyAiModelSelectionToConfig_(config, modelSelection);
-    var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+    var catalog = kspBuildKnowledgeSearchCatalog_(kspContextCounterpartyRows_(context), context.optionRows,
       context.meetingRows, context.pitchbookRows);
     kspValidateKnowledgeFilterIds_(input, catalog);
     input = kspResolveKnowledgeAdvancedSourceIds_(input, context.meetingRows);
@@ -1484,7 +1484,7 @@ function kspGetProviderNeutralKnowledgeBootstrap_(environment) {
       implementedModes: KSP_FEATURE_FREEZE_MODE_ORDER.slice(),
       targetModes: KSP_FEATURE_FREEZE_MODE_ORDER.slice(),
       modeDefinitions: kspGetKnowledgeModeDefinitions_(),
-      options: kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
+      options: kspBuildKnowledgeSearchCatalog_(kspContextCounterpartyRows_(context), context.optionRows,
         context.meetingRows, context.pitchbookRows),
       syncIntervalMinutes: settings.syncIntervalMinutes
     };
@@ -1718,7 +1718,7 @@ function kspRunProviderNeutralAiSync_(environment, options) {
       );
       report.selected += items.length;
       report.providers[provider].selected = items.length;
-      var maps = kspBuildAiMasterMaps_(context.gpRows, context.optionRows);
+      var maps = kspBuildAiMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
       items.forEach(function (item) {
         var selectedSnapshot = kspAiSyncSnapshot_(item.row, context.meetingRows);
         var claim = environment.claimAiSource ? environment.claimAiSource(item.sourceType, item.sourceId, startedAt, KSP_AI_DEFAULTS.CLAIM_TTL_MILLIS) : { token: '' };

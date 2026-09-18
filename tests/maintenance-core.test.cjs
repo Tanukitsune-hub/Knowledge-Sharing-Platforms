@@ -18,18 +18,16 @@ test('maintenance harness uses production Meeting and private Pitchbook business
   assert.equal(typeof ksp.kspBuildPitchbookSavedFilename, 'undefined');
 });
 test('optional search filters and date bounds work', () => {
-  const search = ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ dateFrom: '2026-08-01', dateTo: '2026-08-31', gpId: 'GP-1' }));
-  assert.equal(ksp.kspRecordMatchesSearch_({ Date: '2026-08-10', GP_ID: 'GP-1' }, search), true);
-  assert.equal(ksp.kspRecordMatchesSearch_({ Date: '2026-09-01', GP_ID: 'GP-1' }, search), false);
+  const search = ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ dateFrom: '2026-08-01', dateTo: '2026-08-31', counterpartyId: 'CP-000001' }));
+  assert.equal(ksp.kspRecordMatchesSearch_({ Date: '2026-08-10', Counterparty_ID: 'CP-000001' }, search), true);
+  assert.equal(ksp.kspRecordMatchesSearch_({ Date: '2026-09-01', Counterparty_ID: 'CP-000001' }, search), false);
   assert.throws(() => ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({ dateFrom: '2026-09-01', dateTo: '2026-08-01' })), /From日付/);
 });
 
-test('Counterparty search uses exact typed entity and Related GP membership with legacy GP fallback', () => {
-  const typed={Date:'2026-08-10',GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-1,GP-12'};
-  const exact=ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({counterpartyType:'LP_ASSET_OWNER',counterpartyId:'OPT-CPLP-001',relatedGpId:'GP-1'}));
+test('Counterparty search uses one exact generic entity with legacy GP read fallback', () => {
+  const typed={Date:'2026-08-10',GP_ID:'',Counterparty_Type:'',Counterparty_ID:'CP-000031',Related_GP_IDs:''};
+  const exact=ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({counterpartyId:'CP-000031'}));
   assert.equal(ksp.kspRecordMatchesSearch_(typed,exact),true);
-  assert.equal(ksp.kspRecordMatchesSearch_(typed,{...exact,relatedGpId:'GP'}),false);
-  assert.throws(()=>ksp.kspValidateRecordSearch_(ksp.kspNormalizeRecordSearch_({counterpartyId:'OPT-CPLP-001'})),error=>error.code==='SEARCH_COUNTERPARTY_TYPE_REQUIRED');
   const legacy={Date:'2026-08-10',GP_ID:'GP-1'};
   assert.equal(ksp.kspMeetingCounterpartyType_(legacy),'GP');
   assert.equal(ksp.kspMeetingCounterpartyId_(legacy),'GP-1');
@@ -72,12 +70,12 @@ test('maintenance date mapping normalizes persisted ISO date strings', () => {
   assert.equal(mapped.date, '2026-08-13');
 });
 
-test('Pitchbook edit validator uses production parser and preserves invalid ID rejection', () => {
+test('Pitchbook edit validator uses generic Counterparty and preserves invalid ID rejection', () => {
   const env=createFakeEnvironment();
   const catalog=ksp.kspLoadMaintenanceContext_(env).catalog;
-  const input={documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-01',gpId:'GP-000002',assetClassId:'OPT-AC-002',capitalTypeId:''};
+  const input={documentId:'DOC-000001',expectedUpdatedAt:'2026-08-01T00:00:00.000Z',date:'2026-08-01',counterpartyId:'CP-000002',assetClassId:'OPT-AC-002',capitalTypeId:''};
   const selected=ksp.kspValidatePitchbookEditInput_(input,catalog);
-  assert.equal(selected.gp.id,'GP-000002');
+  assert.equal(selected.counterpartyEntity.id,'CP-000002');
   assert.equal(selected.assetClass.id,'OPT-AC-002');
   assert.throws(
     () => ksp.kspValidatePitchbookEditInput_({...input,documentId:'not-a-document-id'},catalog),
@@ -113,20 +111,20 @@ test('pitchbook context change is detected and edited row preserves stable ident
 });
 
 test('live-like Pitchbook Date object matches unchanged normalized context', () => {
-  const current={Date:new Date(Date.UTC(2026,7,1)),GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:''};
-  const input={date:'2026-08-01',gpId:'GP-1',assetClassId:'AC-1',capitalTypeId:''};
+  const current={Date:new Date(Date.UTC(2026,7,1)),Counterparty_ID:'CP-000001',Asset_Class_ID:'AC-1',Capital_Type_ID:''};
+  const input={date:'2026-08-01',counterpartyId:'CP-000001',assetClassId:'AC-1',capitalTypeId:''};
   assert.equal(ksp.kspPitchbookContextMatchesRow_(current,input),true);
   assert.equal(ksp.kspPitchbookContextChanged_(current,input),false);
 });
 
 test('master normalization detects NFKC and case-insensitive duplicates', () => {
-  const rows=[{GP_ID:'GP-000001',GP_Name:'ＡＰＯＬＬＯ'}];
-  assert.equal(ksp.kspFindNormalizedMasterDuplicate_(rows,'GP','', 'apollo','').GP_ID,'GP-000001');
+  const rows=[{Counterparty_ID:'CP-000001',Counterparty_Name:'ＡＰＯＬＬＯ',Counterparty_Type:'GP'}];
+  assert.equal(ksp.kspFindNormalizedMasterDuplicate_(rows,'COUNTERPARTY','GP', 'apollo','').Counterparty_ID,'CP-000001');
   assert.equal(ksp.kspDisplayMasterName_('  KKR   Japan  '),'KKR Japan');
 });
 
 test('next stable Master IDs preserve existing maximum', () => {
-  assert.equal(ksp.kspNextGpId_([{GP_ID:'GP-000009'}]),'GP-000010');
+  assert.equal(ksp.kspNextCounterpartyId_([{Counterparty_ID:'CP-000009'}]),'CP-000010');
   assert.equal(ksp.kspNextOptionId_([{Option_ID:'OPT-AC-009',Type:'ASSET_CLASS'}],'ASSET_CLASS'),'OPT-AC-010');
 });
 

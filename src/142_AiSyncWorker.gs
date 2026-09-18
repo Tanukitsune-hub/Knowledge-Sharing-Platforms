@@ -14,7 +14,7 @@ function kspRunAiSync_(environment) {
   var storeName = store.name;
   var items = kspSelectAiWorkItems_(context.meetingRows, context.pitchbookRows, startedAt, settings);
   report.selected = items.length;
-  var maps = kspBuildAiMasterMaps_(context.gpRows, context.optionRows);
+  var maps = kspBuildAiMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
 
   items.forEach(function (item) {
     var claim = environment.claimAiSource(item.sourceType, item.sourceId, startedAt, KSP_AI_DEFAULTS.CLAIM_TTL_MILLIS);

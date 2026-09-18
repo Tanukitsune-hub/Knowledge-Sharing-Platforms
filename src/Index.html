@@ -159,9 +159,7 @@
             <div class="field"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
             <div class="field"><label for="meeting-time">時間</label><input id="meeting-time" type="time"></div>
             <div class="field"><label for="meeting-locationId">面談場所</label><select id="meeting-locationId"><option value="">未選択</option></select></div>
-            <div class="field"><label class="required" for="meeting-counterpartyType">面談先区分</label><select id="meeting-counterpartyType" required><option value="">未選択</option></select></div>
             <div class="field"><label class="required" for="meeting-counterpartyId">面談先</label><select id="meeting-counterpartyId" required><option value="">未選択</option></select><button id="meeting-quick-add-counterparty" class="small-button" type="button">未登録の面談先を追加</button></div>
-            <div class="field full"><label for="meeting-relatedGpIds">関連GP</label><select id="meeting-relatedGpIds" multiple size="5"></select><div class="hint">GP面談では面談先GPが自動的に含まれます。</div></div>
             <div class="field"><label class="required" for="meeting-assetClassId">Asset Class</label><select id="meeting-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field"><label for="meeting-capitalTypeId">Equity / Debt</label><select id="meeting-capitalTypeId"><option value="">未選択</option></select></div>
             <div class="field"><label for="meeting-teamId">Team</label><select id="meeting-teamId"><option value="">未選択</option></select></div>
@@ -186,7 +184,7 @@
       <button id="nav-relationship-explorer" type="button" hidden aria-hidden="true" tabindex="-1"></button>
           <div>
             <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
-            <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select><button id="pitchbook-quick-add-gp" class="small-button" type="button">未登録GPを追加</button></div>
+            <div class="field"><label class="required" for="pitchbook-counterpartyId">面談先</label><select id="pitchbook-counterpartyId" required><option value="">未選択</option></select></div>
             <div class="field"><label class="required" for="pitchbook-assetClassId">Asset Class</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
             <div class="field"><label for="pitchbook-fundStrategy">Fund / Strategy</label><input id="pitchbook-fundStrategy" maxlength="500"></div>
@@ -202,29 +200,26 @@
     </section>
 
     <?!= include_('MaintenancePages'); ?>
-    <?!= include_('GpWorkspacePage'); ?>
     <?!= include_('EntityWorkspacePage'); ?>
     <?!= include_('ActivityAnalyticsPage'); ?>
     <?!= include_('RelationshipExplorerPage'); ?>
     <?!= include_('KnowledgeSearchPage'); ?>
     <?!= include_('AiProviderSettingsPage'); ?>
-    <div id="gp-workspace-print" class="gp-workspace-print print-only" aria-hidden="true"></div>
     <div id="entity-workspace-print" class="entity-workspace-print print-only" aria-hidden="true"></div>
   </main>
 
   <?!= include_('ClientDateControls'); ?>
   <?!= include_('ClientCore'); ?>
-<?!= include_('ClientGpWorkspace'); ?>
 <?!= include_('ClientEntityWorkspace'); ?>
 <?!= include_('ClientKnowledgeSearch'); ?>
 <?!= include_('ClientAiProviderSettings'); ?>
 <script>
-function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,counterpartyType:el('meeting-counterpartyType').value,counterpartyId:el('meeting-counterpartyId').value,relatedGpIds:selectedOptionValues('meeting-relatedGpIds'),assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,teamId:el('meeting-teamId').value,fundStrategy:el('meeting-fundStrategy').value,meetingTypeCodes:meetingTypeValues('meeting'),relatedPitchbookIds:selectedOptionValues('meeting-relatedPitchbookIds'),followUpRequired:el('meeting-followUpRequired').checked,followUpNote:el('meeting-followUpNote').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
-function saveMeetingDraft(){const v=meetingValues();const specific={};MEETING_FIELDS.forEach(f=>specific[f]=v[f]);specific.relatedGpIds=v.relatedGpIds;specific.meetingTypeCodes=v.meetingTypeCodes;specific.relatedPitchbookIds=v.relatedPitchbookIds;specific.followUpRequired=v.followUpRequired;writeEnvelope(KSP_MEETING_DRAFT_KEY,specific);writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
-function restoreMeetingDraft(){applyShared(readEnvelope(KSP_SHARED_DRAFT_KEY));const specific=readEnvelope(KSP_MEETING_DRAFT_KEY);if(specific){MEETING_FIELDS.forEach(f=>{if(specific[f]!=null&&el('meeting-'+f))el('meeting-'+f).value=String(specific[f])});el('meeting-counterpartyType').dataset.previous=el('meeting-counterpartyType').value;refreshMeetingCounterpartyEntities(specific.counterpartyId||'');setSelectedOptionValues('meeting-relatedGpIds',specific.relatedGpIds||[]);ensurePrimaryGpRelated();setMeetingTypeValues('meeting',specific.meetingTypeCodes);el('meeting-followUpRequired').checked=Boolean(specific.followUpRequired);refreshMeetingRelatedPitchbooks(specific.relatedPitchbookIds)}const retry=readEnvelope(KSP_MEETING_RETRY_KEY);if(retry&&retry.meetingId&&retry.fingerprint){retryContext=retry;el('meeting-retry-note').classList.add('visible')}}
+function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,counterpartyId:el('meeting-counterpartyId').value,assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,teamId:el('meeting-teamId').value,fundStrategy:el('meeting-fundStrategy').value,meetingTypeCodes:meetingTypeValues('meeting'),relatedPitchbookIds:selectedOptionValues('meeting-relatedPitchbookIds'),followUpRequired:el('meeting-followUpRequired').checked,followUpNote:el('meeting-followUpNote').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}
+function saveMeetingDraft(){const v=meetingValues();const specific={};MEETING_FIELDS.forEach(f=>specific[f]=v[f]);specific.meetingTypeCodes=v.meetingTypeCodes;specific.relatedPitchbookIds=v.relatedPitchbookIds;specific.followUpRequired=v.followUpRequired;writeEnvelope(KSP_MEETING_DRAFT_KEY,specific);writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
+function restoreMeetingDraft(){applyShared(readEnvelope(KSP_SHARED_DRAFT_KEY));const specific=readEnvelope(KSP_MEETING_DRAFT_KEY);if(specific){MEETING_FIELDS.forEach(f=>{if(specific[f]!=null&&el('meeting-'+f))el('meeting-'+f).value=String(specific[f])});refreshMeetingCounterpartyEntities(specific.counterpartyId||'');setMeetingTypeValues('meeting',specific.meetingTypeCodes);el('meeting-followUpRequired').checked=Boolean(specific.followUpRequired);refreshMeetingRelatedPitchbooks(specific.relatedPitchbookIds)}const retry=readEnvelope(KSP_MEETING_RETRY_KEY);if(retry&&retry.meetingId&&retry.fingerprint){retryContext=retry;el('meeting-retry-note').classList.add('visible')}}
 function clearRetryContext(){retryContext=null;safeRemove(KSP_MEETING_RETRY_KEY);el('meeting-retry-note').classList.remove('visible')}
 function saveDraft(){saveMeetingDraft();}
-function clearMeetingSpecificDraft(){MEETING_FIELDS.forEach(field=>{if(el('meeting-'+field))el('meeting-'+field).value=''});setSelectedOptionValues('meeting-relatedGpIds',[]);setMeetingTypeValues('meeting',[]);el('meeting-followUpRequired').checked=false;refreshMeetingCounterpartyEntities('');refreshMeetingRelatedPitchbooks([]);safeStorageRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
+function clearMeetingSpecificDraft(){MEETING_FIELDS.forEach(field=>{if(el('meeting-'+field))el('meeting-'+field).value=''});setMeetingTypeValues('meeting',[]);el('meeting-followUpRequired').checked=false;refreshMeetingCounterpartyEntities('');refreshMeetingRelatedPitchbooks([]);safeStorageRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
 function safeStorageRemove(key){safeRemove(key)}
 function setMeetingBusy(busy){el('meeting-submit').disabled=busy||meetingLoading;el('meeting-clear').disabled=busy;el('meeting-submit').textContent=busy?'登録中…':'登録'}
 MEETING_FIELDS.forEach(f=>el('meeting-'+f).addEventListener('input',()=>{clearRetryContext();saveDraft()}));
@@ -235,7 +230,7 @@ async function submitMeetingWithFiles(event){
   if(readEnvelope('ksp.meeting.outcomeUnknown.v1')){showStatus('meeting-status','error','前回の親登録結果が不明です。重複防止のため停止しました。管理者による保存結果の確認が必要です。');return}
   clearStatus('meeting-status');
   const payload=meetingValues(),existingIds=payload.relatedPitchbookIds.slice();
-  if(!payload.date||!payload.counterpartyType||!payload.counterpartyId||!payload.assetClassId){showStatus('meeting-status','error','日付、面談先区分、面談先、Asset Classは必須です。');return}
+  if(!payload.date||!payload.counterpartyId||!payload.assetClassId){showStatus('meeting-status','error','日付、面談先、Asset Classは必須です。');return}
   if(selectedPitchbookFiles.length){const error=validateFiles(selectedPitchbookFiles);if(error){showStatus('meeting-status','error',error);return}}
   if(pitchbookSlots.length||pitchbookParent){showStatus('meeting-status','warning','保存済み記録の未完了操作は資料欄から再試行してください。新しい記録は「新しい記録を入力」から開始してください。');return}
   if(retryContext){payload.retryMeetingId=retryContext.meetingId;payload.retryFingerprint=retryContext.fingerprint}
@@ -258,7 +253,7 @@ async function submitMeetingWithFiles(event){
   finally{meetingFlowBusy=false;setMeetingBusy(false);if(pitchbookParent)el('meeting-submit').disabled=true}
 }
 el('meeting-form').addEventListener('submit',submitMeetingWithFiles);
-el('meeting-clear').onclick=()=>{if(pitchbookBusy||meetingFlowBusy)return;if(pitchbookPrepareUnknown||pitchbookSlots.length||pendingExistingDocumentIds.length){showStatus('meeting-status','warning','未完了資料を先に回復してください。');return}if(!confirm('面談入力と共通項目を消去しますか？'))return;pitchbookParent=null;savePitchbookSlots();setRegisteredMeetingLocked(false);el('pitchbook-submit').hidden=true;[...SHARED_FIELDS,...MEETING_FIELDS].forEach(f=>{const node=el('meeting-'+f);if(node)node.value=''});setSelectedOptionValues('meeting-relatedGpIds',[]);setMeetingTypeValues('meeting',[]);el('meeting-followUpRequired').checked=false;refreshMeetingCounterpartyEntities('');refreshMeetingRelatedPitchbooks([]);applyShared({date:'',assetClassId:'',capitalTypeId:'',fundStrategy:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();clearStatus('meeting-status')};
+el('meeting-clear').onclick=()=>{if(pitchbookBusy||meetingFlowBusy)return;if(pitchbookPrepareUnknown||pitchbookSlots.length||pendingExistingDocumentIds.length){showStatus('meeting-status','warning','未完了資料を先に回復してください。');return}if(!confirm('面談入力と共通項目を消去しますか？'))return;pitchbookParent=null;savePitchbookSlots();setRegisteredMeetingLocked(false);el('pitchbook-submit').hidden=true;[...SHARED_FIELDS,...MEETING_FIELDS].forEach(f=>{const node=el('meeting-'+f);if(node)node.value=''});setMeetingTypeValues('meeting',[]);el('meeting-followUpRequired').checked=false;refreshMeetingCounterpartyEntities('');refreshMeetingRelatedPitchbooks([]);applyShared({date:'',assetClassId:'',capitalTypeId:'',fundStrategy:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();clearStatus('meeting-status')};
 </script>
 <?!= include_('ClientPitchbookFiles'); ?>
 <?!= include_('ClientPitchbookFlow'); ?>

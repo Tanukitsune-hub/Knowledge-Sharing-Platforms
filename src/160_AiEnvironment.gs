@@ -16,7 +16,7 @@ function kspCreateAiEnvironment_() {
       settings: kspReadSettingsMapLive_(backendSpreadsheetId),
       meetingRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX),
       pitchbookRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX),
-      gpRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER),
+      counterpartyRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER),
       optionRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER)
     };
   };

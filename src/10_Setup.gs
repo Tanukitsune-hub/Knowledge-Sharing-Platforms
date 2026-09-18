@@ -11,9 +11,18 @@ function kspRunSetup_(environment) {
     var resources = kspResolveAllResources_(environment, existingState.resources || {}, config, report);
     report.resources = kspDeepClone_(resources);
 
+    var backendSpreadsheetId = resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
+    var renameResult = environment.renameSheetIfPresent(
+      backendSpreadsheetId,
+      'GP_Master',
+      KSP_SHEET_NAMES.COUNTERPARTY_MASTER
+    );
+    kspAddAction_(report, 'migration', 'GP_Master->' + KSP_SHEET_NAMES.COUNTERPARTY_MASTER,
+      renameResult.action, renameResult);
+
     kspEnsureSpreadsheetSchemas_(
       environment,
-      resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
+      backendSpreadsheetId,
       kspGetBackendSchemas_(),
       'backend',
       report
@@ -26,23 +35,23 @@ function kspRunSetup_(environment) {
       report
     );
 
-    var meetingBackfillResult = environment.backfillMeetingCounterpartyFields(
-      resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET]
-    );
-    kspAddAction_(report, 'migration', KSP_SHEET_NAMES.MEETING_INDEX + ':counterparty-entity',
-      meetingBackfillResult.updated ? 'migrated' : 'reused', meetingBackfillResult);
-
     var nowIso = environment.nowIso();
-    var gpResult = environment.insertMissingRows(
-      resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
-      KSP_SHEET_NAMES.GP_MASTER,
-      'GP_ID',
-      kspBuildGpSeedRows_(nowIso)
+    var migrationSnapshot = environment.readCounterpartyMigrationSnapshot(backendSpreadsheetId);
+    var migrationPlan = kspBuildCounterpartyMigrationPlan_(migrationSnapshot, nowIso);
+    var migrationResult = environment.applyCounterpartyMigrationPlan(backendSpreadsheetId, migrationPlan);
+    kspAddAction_(report, 'migration', 'schema7->schema8:counterparty-master',
+      kspCounterpartyMigrationMutationCount_(migrationPlan) ? 'migrated' : 'reused', migrationResult);
+
+    var counterpartyResult = environment.insertMissingRows(
+      backendSpreadsheetId,
+      KSP_SHEET_NAMES.COUNTERPARTY_MASTER,
+      'Counterparty_ID',
+      kspBuildCounterpartySeedRows_(nowIso)
     );
-    kspAddAction_(report, 'seed', KSP_SHEET_NAMES.GP_MASTER, 'upserted', gpResult);
+    kspAddAction_(report, 'seed', KSP_SHEET_NAMES.COUNTERPARTY_MASTER, 'upserted', counterpartyResult);
 
     var optionResult = environment.insertMissingRows(
-      resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
+      backendSpreadsheetId,
       KSP_SHEET_NAMES.OPTION_MASTER,
       'Option_ID',
       kspBuildOptionSeedRows_(nowIso)
@@ -353,10 +362,10 @@ function kspRunValidation_(environment) {
       report
     );
 
-    var gpIds = environment.getColumnValues(
+    var counterpartyIds = environment.getColumnValues(
       state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
-      KSP_SHEET_NAMES.GP_MASTER,
-      'GP_ID'
+      KSP_SHEET_NAMES.COUNTERPARTY_MASTER,
+      'Counterparty_ID'
     );
     var optionIds = environment.getColumnValues(
       state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET],
@@ -364,14 +373,15 @@ function kspRunValidation_(environment) {
       'Option_ID'
     );
 
-    kspGetGpSeedDefinitions_().forEach(function (seed) {
-      kspAssert_(gpIds.indexOf(seed[0]) !== -1, 'GP_SEED_MISSING', 'Missing GP seed: ' + seed[0]);
+    kspGetCounterpartySeedDefinitions_().forEach(function (seed) {
+      kspAssert_(counterpartyIds.indexOf(seed[0]) !== -1,
+        'COUNTERPARTY_SEED_MISSING', 'Missing Counterparty seed: ' + seed[0]);
     });
     kspGetOptionSeedDefinitions_().forEach(function (seed) {
       kspAssert_(optionIds.indexOf(seed[0]) !== -1, 'OPTION_SEED_MISSING', 'Missing Option seed: ' + seed[0]);
     });
     kspAddAction_(report, 'validation', 'master-seeds', 'passed', {
-      gpSeedCount: kspGetGpSeedDefinitions_().length,
+      counterpartySeedCount: kspGetCounterpartySeedDefinitions_().length,
       optionSeedCount: kspGetOptionSeedDefinitions_().length
     });
 

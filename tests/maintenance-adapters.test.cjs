@@ -58,7 +58,7 @@ function loadAdapterFixture() {
   const bootstrap=`
 var KSP_STATUS=Object.freeze({ACTIVE:'Active',INACTIVE:'Inactive'});
 var KSP_AI_INDEX_STATUS=Object.freeze({PENDING:'Pending'});
-var KSP_SHEET_NAMES=Object.freeze({GP_MASTER:'GP_Master',OPTION_MASTER:'Option_Master',MEETING_INDEX:'Meeting_Index',PITCHBOOK_INDEX:'Pitchbook_Index',AUDIT_LOG:'Audit_Log'});
+var KSP_SHEET_NAMES=Object.freeze({COUNTERPARTY_MASTER:'Counterparty_Master',OPTION_MASTER:'Option_Master',MEETING_INDEX:'Meeting_Index',PITCHBOOK_INDEX:'Pitchbook_Index',AUDIT_LOG:'Audit_Log'});
 var KSP_RESOURCE_KEYS=Object.freeze({BACKEND_SPREADSHEET:'backendSpreadsheetId',AUDIT_SPREADSHEET:'auditSpreadsheetId'});
 var KSP_DEFAULTS=Object.freeze({LOCK_TIMEOUT_MS:30000,TIMEZONE:'Asia/Tokyo'});
 function kspAssert_(condition,code,message){if(!condition){var e=new Error(message);e.code=code;throw e;}}
@@ -82,8 +82,8 @@ function kspCreateMeetingEnvironment_(){return{
 }
 
 const MEETING_HEADERS=['Meeting_ID','Date','Time','Doc_File_ID','Status','Version','Updated_At','Updated_By','AI_Index_Status','AI_Last_Error','Related_Pitchbook_IDs'];
-const PITCH_HEADERS=['Document_ID','Batch_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','File_URL','Original_Filename','Saved_Filename','Status','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Fund_Strategy'];
-const GP_HEADERS=['GP_ID','GP_Name','Status','Created_At','Updated_At','Created_By','Updated_By'];
+const PITCH_HEADERS=['Document_ID','Batch_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','File_URL','Original_Filename','Saved_Filename','Status','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Fund_Strategy','Counterparty_Type','Counterparty_ID','Related_GP_IDs'];
+const COUNTERPARTY_HEADERS=['Counterparty_ID','Counterparty_Name','Counterparty_Type','Status','Created_At','Updated_At','Created_By','Updated_By','Legacy_Source_Type','Legacy_Source_ID'];
 const OPTION_HEADERS=['Option_ID','Type','Name','Sort_Order','Status','Created_At','Updated_At','Created_By','Updated_By'];
 const AUDIT_HEADERS=['Event_Timestamp','Action'];
 
@@ -92,10 +92,10 @@ function basicFixture(){
   f.addSpreadsheet('backend',[
     new f.FakeSheet('Meeting_Index',MEETING_HEADERS,[{Meeting_ID:'MTG-000001',Doc_File_ID:'doc-1',Status:'Active',Version:1,Updated_At:'old'}]),
     new f.FakeSheet('Pitchbook_Index',PITCH_HEADERS,[
-      {Document_ID:'DOC-000001',Batch_ID:'BAT-000001',Date:'2026-01-01',GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:'',Sequence_No:1,File_ID:'file-1',Original_Filename:'source.pdf',Saved_Filename:'old.pdf',Status:'Active',Updated_At:'old',AI_Index_Status:'Indexed'},
-      {Document_ID:'DOC-000002',Date:'2026-02-01',GP_ID:'GP-2',Asset_Class_ID:'AC-2',Capital_Type_ID:'',Sequence_No:2,File_ID:'file-2',Status:'Active',Updated_At:'old2'}
+      {Document_ID:'DOC-000001',Batch_ID:'BAT-000001',Date:'2026-01-01',GP_ID:'',Counterparty_ID:'CP-000001',Asset_Class_ID:'AC-1',Capital_Type_ID:'',Sequence_No:1,File_ID:'file-1',Original_Filename:'source.pdf',Saved_Filename:'old.pdf',Status:'Active',Updated_At:'old',AI_Index_Status:'Indexed'},
+      {Document_ID:'DOC-000002',Date:'2026-02-01',GP_ID:'',Counterparty_ID:'CP-000002',Asset_Class_ID:'AC-2',Capital_Type_ID:'',Sequence_No:2,File_ID:'file-2',Status:'Active',Updated_At:'old2'}
     ]),
-    new f.FakeSheet('GP_Master',GP_HEADERS,[{GP_ID:'GP-000001',GP_Name:'Apollo',Status:'Active'}]),
+    new f.FakeSheet('Counterparty_Master',COUNTERPARTY_HEADERS,[{Counterparty_ID:'CP-000001',Counterparty_Name:'Apollo',Counterparty_Type:'GP',Status:'Active'}]),
     new f.FakeSheet('Option_Master',OPTION_HEADERS,[
       {Option_ID:'OPT-AC-001',Type:'ASSET_CLASS',Name:'PE',Sort_Order:1,Status:'Active'},
       {Option_ID:'OPT-AC-002',Type:'ASSET_CLASS',Name:'VC',Sort_Order:2,Status:'Active'}
@@ -124,10 +124,10 @@ test('commit claimed edit checks source token and clears claim',()=>{
 test('Pitchbook edit sequence reservation counts rows and active claims',()=>{
   const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
   const first=env.claimRecordEdit('Pitchbook','DOC-000001','Pitchbook_Index','Document_ID','Updated_At','old','2026-08-16T00:00:00.000Z',300000);
-  const input={documentId:'DOC-000001',date:'2026-03-01',gpId:'GP-3',assetClassId:'AC-3',capitalTypeId:''};
+  const input={documentId:'DOC-000001',date:'2026-03-01',counterpartyId:'CP-000003',assetClassId:'AC-3',capitalTypeId:''};
   assert.equal(env.reservePitchbookEditSequence(first,input),1);
   const sheet=f.spreadsheets.get('backend').getSheetByName('Pitchbook_Index');
-  sheet.values.push(PITCH_HEADERS.map(h=>({Document_ID:'DOC-000003',Date:'2026-03-01',GP_ID:'GP-3',Asset_Class_ID:'AC-3',Capital_Type_ID:'',Sequence_No:4,File_ID:'x',Status:'Active',Updated_At:'x'})[h]??''));
+  sheet.values.push(PITCH_HEADERS.map(h=>({Document_ID:'DOC-000003',Date:'2026-03-01',GP_ID:'',Counterparty_ID:'CP-000003',Asset_Class_ID:'AC-3',Capital_Type_ID:'',Sequence_No:4,File_ID:'x',Status:'Active',Updated_At:'x'})[h]??''));
   env.releaseRecordEditClaim(first);
   const second=env.claimRecordEdit('Pitchbook','DOC-000001','Pitchbook_Index','Document_ID','Updated_At','old','2026-08-16T00:00:02.000Z',300000);
   assert.equal(env.reservePitchbookEditSequence(second,input),5);
@@ -245,9 +245,9 @@ test('Option reorder returns before and after order for audit',()=>{
 
 test('Master add duplicate returns existing only for quick-add mode',()=>{
   const f=basicFixture(),env=f.context.kspCreateMaintenanceEnvironment_();
-  const existing=env.mutateMasterAtomic({entity:'GP',action:'ADD',name:'apollo',type:'',returnExistingOnDuplicate:true},'actor','now');
-  assert.equal(existing.existing,true);assert.equal(existing.after.GP_ID,'GP-000001');
-  assert.throws(()=>env.mutateMasterAtomic({entity:'GP',action:'ADD',name:'Apollo',type:'',returnExistingOnDuplicate:false},'actor','now'),error=>error.code==='MASTER_DUPLICATE_NAME');
+  const existing=env.mutateMasterAtomic({entity:'COUNTERPARTY',action:'ADD',name:'apollo',type:'GP',returnExistingOnDuplicate:true},'actor','now');
+  assert.equal(existing.existing,true);assert.equal(existing.after.Counterparty_ID,'CP-000001');
+  assert.throws(()=>env.mutateMasterAtomic({entity:'COUNTERPARTY',action:'ADD',name:'Apollo',type:'GP',returnExistingOnDuplicate:false},'actor','now'),error=>error.code==='MASTER_DUPLICATE_NAME');
 });
 
 test('audit retention deletes only rows older than cutoff',()=>{

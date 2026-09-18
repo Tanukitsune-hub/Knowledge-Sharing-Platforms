@@ -1,20 +1,20 @@
 const { test, assert, ksp, plain, baseContext, createSyncEnvironment } = require('./ai-test-helpers.cjs');
 
 function fixtures() {
-  const gps = [1, 2, 3].map(index => ({ GP_ID: `GP-${index}`, GP_Name: `GP ${index}`, Status: 'Active' }));
-  const options = [1, 2, 3, 4].map(index => ({
-    Option_ID: `LP-${index}`, Type: 'COUNTERPARTY_LP', Name: `LP ${index}`,
-    Sort_Order: index, Status: 'Active'
-  }));
+  const gps = [1, 2, 3].map(index => ({ Counterparty_ID: `CP-${String(index).padStart(6, '0')}`,
+    Counterparty_Name: `GP ${index}`, Counterparty_Type: 'GP', Status: 'Active' }))
+    .concat([1, 2, 3].map(index => ({ Counterparty_ID: `CP-${String(index + 30).padStart(6, '0')}`,
+      Counterparty_Name: `LP ${index}`, Counterparty_Type: 'LP_ASSET_OWNER', Status: 'Active' })));
+  const options = [];
   const meetings = [
-    { Meeting_ID: 'MTG-1', Date: '2026-08-01', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'LP-1',
-      Related_GP_IDs: 'GP-1,GP-2', Meeting_Type_Codes: 'ANNUAL_REVIEW,OFFICE_VISIT', Status: 'Active' },
-    { Meeting_ID: 'MTG-2', Date: '2026-08-02', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'LP-1',
-      Related_GP_IDs: 'GP-10', Meeting_Type_Codes: 'ANNUAL', Status: 'Active' },
-    { Meeting_ID: 'MTG-3', Date: '2026-08-03', Counterparty_Type: 'GP', Counterparty_ID: 'GP-1', GP_ID: 'GP-1',
-      Related_GP_IDs: 'GP-1', Meeting_Type_Codes: 'OFFICE_VISIT', Status: 'Active' },
-    { Meeting_ID: 'MTG-4', Date: '2026-08-04', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'LP-2',
-      Related_GP_IDs: 'GP-1', Meeting_Type_Codes: 'ANNUAL_REVIEW', Status: 'Inactive' }
+    { Meeting_ID: 'MTG-1', Date: '2026-08-01', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'CP-000031',
+      Related_GP_IDs: 'CP-000001,CP-000002', Meeting_Type_Codes: 'ANNUAL_REVIEW,OFFICE_VISIT', Status: 'Active' },
+    { Meeting_ID: 'MTG-2', Date: '2026-08-02', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'CP-000031',
+      Related_GP_IDs: 'CP-000010', Meeting_Type_Codes: 'ANNUAL', Status: 'Active' },
+    { Meeting_ID: 'MTG-3', Date: '2026-08-03', Counterparty_Type: 'GP', Counterparty_ID: 'CP-000001', GP_ID: '',
+      Related_GP_IDs: '', Meeting_Type_Codes: 'OFFICE_VISIT', Status: 'Active' },
+    { Meeting_ID: 'MTG-4', Date: '2026-08-04', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'CP-000032',
+      Related_GP_IDs: '', Meeting_Type_Codes: 'ANNUAL_REVIEW', Status: 'Inactive' }
   ];
   return { gps, options, meetings, pitchbooks: [] };
 }
@@ -22,7 +22,7 @@ function fixtures() {
 function request(overrides = {}) {
   return ksp.kspNormalizeCanonicalKnowledgeRequest_({
     route: 'OPENAI', mode: '比較', questionOrInstruction: '', filters: {},
-    selectedEntityKeys: ['GP:GP-1', 'LP_ASSET_OWNER:LP-1'],
+    selectedEntityKeys: ['COUNTERPARTY:CP-000001', 'COUNTERPARTY:CP-000031'],
     modelProfileId: 'openai-current-default', thinkingProfileId: 'provider-default',
     ...overrides
   });
@@ -36,24 +36,24 @@ function catalog() {
 test('explicit comparison accepts exactly 2 or 5 unique stable Entity keys', () => {
   assert.doesNotThrow(() => ksp.kspValidateCanonicalKnowledgeRequest_(request()));
   assert.doesNotThrow(() => ksp.kspValidateCanonicalKnowledgeRequest_(request({
-    selectedEntityKeys: ['GP:GP-1', 'GP:GP-2', 'LP_ASSET_OWNER:LP-1', 'LP_ASSET_OWNER:LP-2', 'LP_ASSET_OWNER:LP-3']
+    selectedEntityKeys: ['COUNTERPARTY:CP-000001', 'COUNTERPARTY:CP-000002', 'COUNTERPARTY:CP-000031', 'COUNTERPARTY:CP-000032', 'COUNTERPARTY:CP-000033']
   })));
 });
 
 test('explicit comparison rejects 1, 6, duplicates, stale IDs, and ambiguous single scope', () => {
-  assert.throws(() => ksp.kspValidateCanonicalKnowledgeRequest_(request({ selectedEntityKeys: ['GP:GP-1'] })),
+  assert.throws(() => ksp.kspValidateCanonicalKnowledgeRequest_(request({ selectedEntityKeys: ['COUNTERPARTY:CP-000001'] })),
     error => error.code === 'AI_MULTI_ENTITY_COUNT_INVALID');
   assert.throws(() => ksp.kspValidateCanonicalKnowledgeRequest_(request({
-    selectedEntityKeys: ['GP:GP-1', 'GP:GP-2', 'GP:GP-3', 'LP_ASSET_OWNER:LP-1', 'LP_ASSET_OWNER:LP-2', 'LP_ASSET_OWNER:LP-3']
+    selectedEntityKeys: ['COUNTERPARTY:CP-000001', 'COUNTERPARTY:CP-000002', 'COUNTERPARTY:CP-000003', 'COUNTERPARTY:CP-000031', 'COUNTERPARTY:CP-000032', 'COUNTERPARTY:CP-000033']
   })), error => error.code === 'AI_MULTI_ENTITY_COUNT_INVALID');
   assert.throws(() => ksp.kspValidateCanonicalKnowledgeRequest_(request({
-    selectedEntityKeys: ['GP:GP-1', 'GP:GP-1']
+    selectedEntityKeys: ['COUNTERPARTY:CP-000001', 'COUNTERPARTY:CP-000001']
   })), error => error.code === 'AI_MULTI_ENTITY_DUPLICATE');
-  const stale = request({ selectedEntityKeys: ['GP:GP-1', 'LP_ASSET_OWNER:MISSING'] });
+  const stale = request({ selectedEntityKeys: ['COUNTERPARTY:CP-000001', 'COUNTERPARTY:CP-999999'] });
   assert.throws(() => ksp.kspValidateKnowledgeFilterIds_(stale, catalog()),
     error => error.code === 'AI_ENTITY_FILTER_UNAVAILABLE');
   assert.throws(() => ksp.kspValidateCanonicalKnowledgeRequest_(request({
-    filters: { entityKey: 'GP:GP-2' }
+    filters: { entityKey: 'COUNTERPARTY:CP-000002' }
   })), error => error.code === 'AI_MULTI_ENTITY_AMBIGUOUS_SCOPE');
 });
 
@@ -64,22 +64,22 @@ test('OpenAI filter uses exact Entity OR and bounded exact source IDs only', () 
   assert.equal(built.type, 'and');
   const entityOr = built.filters.find(item => item.type === 'or' && item.filters[0].key === 'entity_key');
   const sourceOr = built.filters.find(item => item.type === 'or' && item.filters[0].key === 'source_id');
-  assert.deepEqual(entityOr.filters.map(item => item.value), ['GP:GP-1', 'LP_ASSET_OWNER:LP-1']);
+  assert.deepEqual(entityOr.filters.map(item => item.value), ['COUNTERPARTY:CP-000001', 'COUNTERPARTY:CP-000031']);
   assert.deepEqual(sourceOr.filters.map(item => item.value), ['MTG-1', 'MTG-3']);
 });
 
 test('citation attribution groups selected Entities, reports gaps, and rejects unselected Entity citations', () => {
   const citations = [
-    { sourceId: 'MTG-3', entityKey: 'GP:GP-1' },
-    { sourceId: 'MTG-1', entityKey: 'LP_ASSET_OWNER:LP-1' },
-    { sourceId: 'MTG-X', entityKey: 'LP_ASSET_OWNER:LP-2' }
+    { sourceId: 'MTG-3', entityKey: 'COUNTERPARTY:CP-000001' },
+    { sourceId: 'MTG-1', entityKey: 'COUNTERPARTY:CP-000031' },
+    { sourceId: 'MTG-X', entityKey: 'COUNTERPARTY:CP-000032' }
   ];
   const guarded = plain(ksp.kspGuardKnowledgeComparisonCitations_(request(), catalog(), citations));
   assert.deepEqual(guarded.citations.map(item => item.sourceId), ['MTG-3', 'MTG-1']);
   assert.equal(guarded.rejectedUnselected, true);
   assert.ok(guarded.warnings.some(item => item.code === 'AI_UNSELECTED_ENTITY_CITATION'));
   assert.deepEqual(guarded.entityEvidence.map(item => [item.entityKey, item.evidenceStatus, item.citationCount]), [
-    ['GP:GP-1', 'CITED', 1], ['LP_ASSET_OWNER:LP-1', 'CITED', 1]
+    ['COUNTERPARTY:CP-000001', 'CITED', 1], ['COUNTERPARTY:CP-000031', 'CITED', 1]
   ]);
   const gap = plain(ksp.kspGuardKnowledgeComparisonCitations_(request(), catalog(), [citations[0]]));
   assert.equal(gap.entityEvidence[1].evidenceStatus, 'NO_EVIDENCE');
@@ -90,7 +90,7 @@ test('Related GP and Meeting Type resolve by exact token AND without substring o
   const data = fixtures();
   const normalized = request({
     mode: '要約', selectedEntityKeys: [], filters: {
-      entityKey: 'LP_ASSET_OWNER:LP-1', relatedGpId: 'GP-1', meetingTypeCode: 'ANNUAL_REVIEW'
+      entityKey: 'COUNTERPARTY:CP-000031', relatedGpId: 'CP-000001', meetingTypeCode: 'ANNUAL_REVIEW'
     }
   });
   assert.equal(normalized.filters.sourceType, 'Meeting');
@@ -98,7 +98,7 @@ test('Related GP and Meeting Type resolve by exact token AND without substring o
   const resolved = plain(ksp.kspResolveKnowledgeAdvancedSourceIds_(normalized, data.meetings));
   assert.deepEqual(resolved.resolvedSourceIds, ['MTG-1']);
   const partialGp = plain(ksp.kspResolveKnowledgeAdvancedSourceIds_(request({
-    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'GP-1' }
+    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'CP-000001' }
   }), [data.meetings[1]]));
   assert.deepEqual(partialGp.resolvedSourceIds, []);
   const partialType = plain(ksp.kspResolveKnowledgeAdvancedSourceIds_(request({
@@ -109,19 +109,19 @@ test('Related GP and Meeting Type resolve by exact token AND without substring o
 
 test('advanced Meeting-only filters fail closed, avoid broad retrieval when empty, and enforce the source-ID bound', () => {
   assert.throws(() => ksp.kspValidateCanonicalKnowledgeRequest_(request({
-    mode: '要約', selectedEntityKeys: [], filters: { sourceType: 'Pitchbook', relatedGpId: 'GP-1' }
+    mode: '要約', selectedEntityKeys: [], filters: { sourceType: 'Pitchbook', relatedGpId: 'CP-000001' }
   })), error => error.code === 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE');
   const empty = plain(ksp.kspResolveKnowledgeAdvancedSourceIds_(request({
-    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'GP-3' }
+    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'CP-000003' }
   }), fixtures().meetings));
   assert.equal(empty.advancedFilterResolved, true);
   assert.deepEqual(empty.resolvedSourceIds, []);
   const rows = Array.from({ length: 41 }, (_, index) => ({
     Meeting_ID: `MTG-${String(index + 1).padStart(6, '0')}`, Status: 'Active',
-    Related_GP_IDs: 'GP-1', Meeting_Type_Codes: 'ANNUAL_REVIEW'
+    Related_GP_IDs: 'CP-000001', Meeting_Type_Codes: 'ANNUAL_REVIEW'
   }));
   assert.throws(() => ksp.kspResolveKnowledgeAdvancedSourceIds_(request({
-    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'GP-1' }
+    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'CP-000001' }
   }), rows), error => error.code === 'AI_ADVANCED_FILTER_TOO_BROAD');
 });
 
@@ -150,40 +150,41 @@ test('empty advanced pre-resolution returns no-evidence without invoking the pro
 test('FULL_OUTPUT independently applies common Meeting filters, not AI comparison context', () => {
   const data = fixtures();
   const meetings = data.meetings.concat([
-    { ...data.meetings[0], Meeting_ID: 'MTG-OTHER-ENTITY', Counterparty_ID: 'LP-2' },
+    { ...data.meetings[0], Meeting_ID: 'MTG-OTHER-ENTITY', Counterparty_ID: 'CP-000032' },
     { ...data.meetings[0], Meeting_ID: 'MTG-OUTSIDE-PERIOD', Date: '2026-09-01' }
   ]);
   const pitchbooks = [{ ...data.meetings[0], Meeting_ID: '', Document_ID: 'DOC-EXCLUDED' }];
   for (const mode of ['自由質問', '比較', '面談準備']) {
     // An unfinished AI comparison must neither block export nor override its primary Entity.
     const input = request({ mode, questionOrInstruction: '', modelProfileId: '', thinkingProfileId: '',
-      selectedEntityKeys: ['GP:GP-1'], filters: {
-        entityKey: 'LP_ASSET_OWNER:LP-1', sourceType: 'Pitchbook',
+      selectedEntityKeys: ['COUNTERPARTY:CP-000001'], filters: {
+        entityKey: 'COUNTERPARTY:CP-000031', sourceType: 'Pitchbook',
         dateFrom: '2026-08-01', dateTo: '2026-08-31',
-        relatedGpId: 'GP-1', meetingTypeCode: 'ANNUAL_REVIEW'
+        relatedGpId: 'CP-000001', meetingTypeCode: 'ANNUAL_REVIEW'
       } });
     const before = plain(input);
     const normalized = ksp.kspValidateKnowledgeExportFilters_(
       ksp.kspNormalizeKnowledgeFullOutputInput_(input), catalog());
     assert.deepEqual(plain(input), before);
     assert.equal(normalized.filters.sourceType, 'Meeting');
-    assert.equal(normalized.filters.entityKey, 'LP_ASSET_OWNER:LP-1');
+    assert.equal(normalized.filters.entityKey, 'COUNTERPARTY:CP-000031');
     assert.equal(normalized.questionOrInstruction, '');
     assert.deepEqual(plain(normalized.selectedEntityKeys), []);
     const sources = plain(ksp.kspResolveKnowledgeExportSources_(meetings, pitchbooks, normalized));
     assert.deepEqual(sources.map(item => [item.sourceType, item.entityKey, item.sourceId]),
-      [['Meeting', 'LP_ASSET_OWNER:LP-1', 'MTG-1']]);
+      [['Meeting', 'COUNTERPARTY:CP-000031', 'MTG-1']]);
     const body = 'Synthetic authoritative Meeting body';
     const model = plain(ksp.kspBuildKnowledgeExportRenderModel_(normalized,
       sources.map(source => ({ source, body })), [], {
         gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {},
-        counterparty: { 'GP:GP-1': 'GP 1', 'LP_ASSET_OWNER:LP-1': 'LP 1' }
+        counterparty: { 'CP-000001': 'GP 1', 'CP-000031': 'LP 1' },
+        counterpartyType: { 'CP-000001': 'GP', 'CP-000031': 'LP_ASSET_OWNER' }
       }, 'Synthetic'));
     assert.deepEqual(model.pitchbookLines, []);
     const text = ksp.kspBuildKnowledgeExportPlainText_(model);
     assert.match(text, /Meeting全文出力（非AI）/);
-    assert.match(text, /Counterparty Entity: LP 1/);
-    assert.match(text, /Related GP: GP-1, GP-2/);
+    assert.match(text, /面談先: LP 1/);
+    assert.doesNotMatch(text, /Related GP:/);
     assert.ok(text.includes(body));
     assert.doesNotMatch(text, /Selected Entity:|Evidence gap:|DOC-EXCLUDED|Pitchbooks \/ reference/);
     assert.throws(() => ksp.kspValidateKnowledgeExportFilters_(

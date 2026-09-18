@@ -10,7 +10,6 @@ const index = fs.readFileSync(path.join(root, 'src', 'Index.html'), 'utf8');
 const clientCore = fs.readFileSync(path.join(root, 'src', 'ClientCore.html'), 'utf8');
 const standalone = fs.readFileSync(path.join(root, 'src', 'KnowledgeSearch.html'), 'utf8');
 const knowledgePage = fs.readFileSync(path.join(root, 'src', 'KnowledgeSearchPage.html'), 'utf8');
-const gpWorkspacePage = fs.readFileSync(path.join(root, 'src', 'GpWorkspacePage.html'), 'utf8');
 const entityWorkspacePage = fs.readFileSync(path.join(root, 'src', 'EntityWorkspacePage.html'), 'utf8');
 const activityAnalyticsPage = fs.readFileSync(path.join(root, 'src', 'ActivityAnalyticsPage.html'), 'utf8');
 const relationshipExplorerPage = fs.readFileSync(path.join(root, 'src', 'RelationshipExplorerPage.html'), 'utf8');
@@ -46,16 +45,12 @@ test('Knowledge Search navigation is an integrated same-document showPage page',
   assert.doesNotMatch(webApp, /\.replace\(/);
 });
 
-test('GP Workspace navigation is an integrated same-document page', () => {
+test('the standalone GP Workspace is absent and the counterparty summary is canonical', () => {
   assert.doesNotMatch(sidebar,/nav-gp-workspace/);
   assertSidebarButton('nav-entity-workspace','面談先サマリー');
-  assert.match(bootstrap,/id="summary-show-gp"/);
-  assert.match(index, /include_\('GpWorkspacePage'\)/);
-  assert.match(index, /include_\('ClientGpWorkspace'\)/);
-  assert.match(clientCore, /'gp-workspace':document\.getElementById\('page-gp-workspace'\)/);
-  assert.match(gpWorkspacePage, /<section id="page-gp-workspace" class="page">/);
-  const ids = Array.from(gpWorkspacePage.matchAll(/\bid="([^"]+)"/g), match => match[1]);
-  assert.equal(new Set(ids).size, ids.length);
+  assert.doesNotMatch(bootstrap,/summary-show-gp|loadGpWorkspace/);
+  assert.doesNotMatch(index, /GpWorkspacePage|ClientGpWorkspace/);
+  assert.doesNotMatch(clientCore, /gp-workspace|page-gp-workspace/);
 });
 
 test('Activity Analytics navigation is an integrated same-document page', () => {
@@ -90,7 +85,7 @@ test('Relationship Explorer navigation is an integrated same-document read-only 
   assert.equal(new Set(ids).size, ids.length);
 });
 
-test('showPage switches Knowledge Search, GP Workspace, and Meeting without changing the document', () => {
+test('showPage switches Knowledge Search, Counterparty Summary, and Meeting without changing the document', () => {
   const script = clientCore.match(/<script>([\s\S]*?)<\/script>/);
   assert.ok(script);
   const nodes = new Map();
@@ -131,19 +126,13 @@ test('showPage switches Knowledge Search, GP Workspace, and Meeting without chan
   assert.equal(node('nav-knowledge').classList.contains('active'), true);
   assert.equal(node('nav-meeting').classList.contains('active'), false);
 
-  context.summarySwitch={};
-  const gpHandler=bootstrap.split(/\r?\n/).find(line=>line.startsWith("el('summary-show-gp').onclick="));
-  assert.ok(gpHandler);
-  vm.runInNewContext(gpHandler,context);
-  node('summary-show-gp').onclick();
-  assert.equal(node('page-gp-workspace').classList.contains('active'), true);
+  context.showPage('entity-workspace');
+  assert.equal(node('page-entity-workspace').classList.contains('active'), true);
   assert.equal(node('page-knowledge').classList.contains('active'), false);
-  assert.equal(context.document.getElementById('nav-gp-workspace'),null);
   assert.equal(node('nav-entity-workspace').classList.contains('active'),true);
-  assert.equal(node('nav-knowledge').classList.contains('active'), false);
 
   context.showPage('meeting');
-  assert.equal(node('page-gp-workspace').classList.contains('active'), false);
+  assert.equal(node('page-entity-workspace').classList.contains('active'), false);
   assert.equal(node('page-knowledge').classList.contains('active'), false);
   assert.equal(node('page-meeting').classList.contains('active'), true);
   assert.equal(node('nav-knowledge').classList.contains('active'), false);

@@ -1,26 +1,26 @@
 {
   "product": "Knowledge Share",
   "release_version": "0.1.2",
-  "schema_version": 7,
-  "source_git_commit": "c7500549715bf633ec837dfe48798ac25f84a997",
+  "schema_version": 8,
+  "source_git_commit": "a7465fa9090306dd92a35d5f52c329498aca28ec",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "5d2e8c24fb2fb3060ff08c27d7a5a91e0f9d325bcb93c9f0b71a9d9e6d66e9f9",
-  "bundle_file_sha256": "e315cc259f406658952db6690db039f569eba08cd6f7d512153f509278eb8dc8",
+  "bundle_payload_sha256": "23bde490a23cf238e1f473ffa4c38a4669985437c74bf8bc82eed116004d8e32",
+  "bundle_file_sha256": "e56108202b388bddd91ac2ee1018a4a117f32503b35fd35cf8751a8ffff768ab",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
-  "source_order_sha256": "9fec4698fed0efe128c1b8b5f39231e98951319f983c451966169407165a8281",
+  "source_order_sha256": "904d48fe07860a4940e45fc5f0519c98fbe6b07346fe06448fb860797689d130",
   "bundle_metrics": {
-    "bytes": 1171491,
-    "characters": 1130781,
-    "lines": 19080,
+    "bytes": 1156458,
+    "characters": 1116274,
+    "lines": 19291,
     "server_source_count": 60,
-    "embedded_html_count": 24
+    "embedded_html_count": 22
   },
   "server_sources": [
     {
       "file": "src/00_Core.gs",
-      "bytes": 28695,
-      "sha256": "91401edfee2876449e7e705445badcd7b73d506a91de54c6441922aabd948aeb"
+      "bytes": 29774,
+      "sha256": "861acf7e9af666d1851f8c52ac079beec60f946de0de96d5ae53676bb2a4db57"
     },
     {
       "file": "src/01_DistributionResources.gs",
@@ -33,9 +33,14 @@
       "sha256": "0405933d757519690de0faf4fa4817c5f59e80e5ec263d1fc4705694d9903b2d"
     },
     {
+      "file": "src/06_CounterpartyMigration.gs",
+      "bytes": 9118,
+      "sha256": "6e77d6161ca2c1ebe56a6ea593bba0872bb1a7db7c92c0630b6d938e7b673fa7"
+    },
+    {
       "file": "src/10_Setup.gs",
-      "bytes": 16903,
-      "sha256": "3bbe22103c3f28e63c7208b2f6b69185c96db7022b7ff779bb5a013effb0c3f5"
+      "bytes": 17498,
+      "sha256": "2c5d12360da10e57586d62d2f4e3891db1c701a36345137a5f5ecc9bebac638e"
     },
     {
       "file": "src/15_Installer.gs",
@@ -44,18 +49,18 @@
     },
     {
       "file": "src/20_LiveEnvironment.gs",
-      "bytes": 14821,
-      "sha256": "36e045ea6858d9ba1fbc24fdc81d62ccf1313c0c96f4de6563c91d01b706c6d2"
+      "bytes": 17717,
+      "sha256": "75ae03ca31d3d887dc20ba3a7a934235cc5eaed92effdddca1232a72bc54aec4"
     },
     {
       "file": "src/30_MeetingCore.gs",
-      "bytes": 28649,
-      "sha256": "2ab3acf5aa3cb8886565d7a6d47bac5d9dd3b311f242560ae39d0303851b80aa"
+      "bytes": 27815,
+      "sha256": "5f520394749b3208cda906a09b1fa9739ede818f628af26c09768cc02ef84ecc"
     },
     {
       "file": "src/40_MeetingService.gs",
-      "bytes": 7928,
-      "sha256": "8e59aa36193d6a14354cfe06edb89d649efa22c1a4ca5f15fc93b98f162cb750"
+      "bytes": 7980,
+      "sha256": "6d5e4afab12a4cc8602d0daad7e825295d77b55af4429acc7c45e78ba38568b0"
     },
     {
       "file": "src/50_MeetingLiveEnvironment.gs",
@@ -69,13 +74,13 @@
     },
     {
       "file": "src/61_PitchbookValidation.gs",
-      "bytes": 8346,
-      "sha256": "12d563331c216756060339748884521f1724f92bb38ebf3cd5ca848646854258"
+      "bytes": 8237,
+      "sha256": "5cb5c04dd4b6f9c67b4ec9a8226eb3b9063520c222597e40f67f740c49613aa6"
     },
     {
       "file": "src/62_PitchbookIdentity.gs",
-      "bytes": 5860,
-      "sha256": "e1779d783e175ba0a707895b2c6c2531a44bf0cac4617965e79f6f891ab5f770"
+      "bytes": 5853,
+      "sha256": "c45c07a2c1ef45065688208fe065f091511c3efa7ca413f71542d003c0b0fba3"
     },
     {
       "file": "src/63_PitchbookAudit.gs",
@@ -94,13 +99,13 @@
     },
     {
       "file": "src/72_PitchbookContext.gs",
-      "bytes": 1873,
-      "sha256": "34b89488112037b80f7b2d49ff37b4262c0a49c15fc0fe44fd33895be2781256"
+      "bytes": 1903,
+      "sha256": "fb867326a0fe4732a4b45e15a443ff7cf4aa80744978fbb546ecd75abd196f05"
     },
     {
       "file": "src/73_ParentRelations.gs",
-      "bytes": 6653,
-      "sha256": "ebf9d88bf4da4bce691b8f4ed7876398eb77689954b69e98d38b42119fab2f31"
+      "bytes": 6546,
+      "sha256": "44d226bf564b1ab82c7a2735d88bcf94192aefd3f8f75caf73590a70ce8ef146"
     },
     {
       "file": "src/80_PitchbookLiveEnvironment.gs",
@@ -109,8 +114,8 @@
     },
     {
       "file": "src/81_PitchbookReservationAdapters.gs",
-      "bytes": 15380,
-      "sha256": "0b333719a8b3342668468d448f47e4220896d9a93068de358258e05e73068649"
+      "bytes": 15265,
+      "sha256": "bf73eb224964e8a231950cce4205de10bb3f6f0b8555621c2be512908ad62b77"
     },
     {
       "file": "src/82_PitchbookClaimAdapters.gs",
@@ -129,8 +134,8 @@
     },
     {
       "file": "src/90_WebApp.gs",
-      "bytes": 3936,
-      "sha256": "a8988610dd2a9894c4b0b4c4fa38c61c04a22584ca2b121b3a0d005bd19df3c2"
+      "bytes": 3927,
+      "sha256": "960b8ffc564463a32a73c97efcef74e47601ef46079863d631e509574c55aba5"
     },
     {
       "file": "src/99_EntryPoints.gs",
@@ -139,43 +144,38 @@
     },
     {
       "file": "src/100_MaintenanceCore.gs",
-      "bytes": 30512,
-      "sha256": "13215051f6ffe8ae38afe6ee7c56ea21a1463266ec924d65ed3624afd769a0a6"
+      "bytes": 31206,
+      "sha256": "0426dae32ca69c4842f8d20a19802bd4a3251f4bb016e8e6fc4ebad963daf797"
     },
     {
       "file": "src/110_MaintenanceMeetingService.gs",
-      "bytes": 12211,
-      "sha256": "6911c566584ef19dd7f855e431b2ebd2edc164abdec741c2c8ba469498825286"
+      "bytes": 11795,
+      "sha256": "373f06ab530cf4d58cd49879bdded16567ae61e8ebfb2524a1e3d54fd96d3427"
     },
     {
       "file": "src/111_MaintenancePitchbookMasterService.gs",
-      "bytes": 10664,
-      "sha256": "d6c1399b7b2ff6ef50a4566cf85e500d36aede2e1c6a65171f0c91888b53ae43"
+      "bytes": 10871,
+      "sha256": "6b9392d61d358ef182f949ff4eab4ff11e0146a74a316a32c551ad3e87813049"
     },
     {
       "file": "src/112_MaintenanceServiceHelpers.gs",
-      "bytes": 5952,
-      "sha256": "051471f3d043c24e5c17bf14d133cbe1d80522e2634a3213f46f7d4a5f2acb7c"
+      "bytes": 6604,
+      "sha256": "72ec3ac2a7ac6d6c0e3522215be0424a76341e3a772198bb5756a48593b01bab"
     },
     {
       "file": "src/120_MaintenanceLiveEnvironment.gs",
-      "bytes": 22273,
-      "sha256": "6be3b2b6335c66a5f1e49cf40e5120978711e96d71ccf551db4d4f3c1fd3f367"
+      "bytes": 22537,
+      "sha256": "881413c57ee5074bb772ce860e5c157a85810af1b9da8ccc9a3b991255f60e3e"
     },
     {
       "file": "src/121_MaintenanceLiveHelpers.gs",
-      "bytes": 3649,
-      "sha256": "090dfff1b45708f8ac0a03fd51849bb3f85e06c4bb42200e646129986d537514"
-    },
-    {
-      "file": "src/125_GpWorkspaceService.gs",
-      "bytes": 4425,
-      "sha256": "b943c041da7c1b01042b78b5165fdd52f3f33c7c7dad933c895b98f8f0d30b1e"
+      "bytes": 3659,
+      "sha256": "94f2bb6389f634f23655fc69536814e5d9e3113a45db51538f7c8a8bb2aa4810"
     },
     {
       "file": "src/126_ActivityAnalyticsService.gs",
-      "bytes": 28203,
-      "sha256": "48328984773d4051b58f06946f16b41f70fadb0fab35ff0e9d1d9a3ee681856b"
+      "bytes": 28106,
+      "sha256": "66e30289d49ed3ec269e4be9f53bb16e55e0b6df21ff6f51e192a081d5ed0355"
     },
     {
       "file": "src/127_ActivityAnalyticsLiveEnvironment.gs",
@@ -184,13 +184,13 @@
     },
     {
       "file": "src/128_RelationshipExplorerService.gs",
-      "bytes": 20350,
-      "sha256": "75b771443bf456ce552165845df73753a6c27588e9e6dbf629ff8b05234ccdac"
+      "bytes": 20487,
+      "sha256": "1857f4a3d538a869ba8a4bfbedef05d70c5e356ac85cc229e1e8172c10f76acd"
     },
     {
       "file": "src/129_EntityWorkspaceService.gs",
-      "bytes": 25119,
-      "sha256": "c6f00484bb53a6da8f761d032289cbb86d829e0f4f2b2ae13e15632429cec319"
+      "bytes": 24135,
+      "sha256": "08b362c0af8938c00e1322d5a7516e38e36a35dbfd2902b71e17af0a38f3b738"
     },
     {
       "file": "src/130_AiConstants.gs",
@@ -219,8 +219,8 @@
     },
     {
       "file": "src/140_AiSourceModels.gs",
-      "bytes": 11016,
-      "sha256": "6e8c9b69f49573efcec173ebf6c21ee269a2faefd18875e2ebdc6d7612db00ed"
+      "bytes": 11017,
+      "sha256": "90350ab7c063571b05edb9a32367ea558b60993b77b932c3efb92d1a4bef2475"
     },
     {
       "file": "src/141_AiSyncHelpers.gs",
@@ -229,33 +229,33 @@
     },
     {
       "file": "src/142_AiSyncWorker.gs",
-      "bytes": 2063,
-      "sha256": "baf935374e8f0bf77b6ee348e88fa96f9c60c89aaf1d2e443c6237a5452efe32"
+      "bytes": 2085,
+      "sha256": "458eeeb29644512daf603e150f6bd46abf6ad26ca6794257362382c3d6ee7c97"
     },
     {
       "file": "src/150_KnowledgeSearchModels.gs",
-      "bytes": 28779,
-      "sha256": "b140971ee8a61790472fc313df1b172ca2c0763788559e401381813c911e7a15"
+      "bytes": 29079,
+      "sha256": "db4a393df37052bdcad5d0de217b78eb93caa5fee4adeae23a8b20d352a2fa99"
     },
     {
       "file": "src/151_KnowledgeSearchService.gs",
-      "bytes": 5125,
-      "sha256": "1cf4536ff09f5d00ca18b7754d89442501288ea1e38ee3c3e50e9b67c4ced890"
+      "bytes": 5169,
+      "sha256": "848cfbd986b4322020baab900ee4c0c5033506f78e20b378621b661553853f94"
     },
     {
       "file": "src/152_KnowledgeFilterContracts.gs",
-      "bytes": 19322,
-      "sha256": "def89c671e2964e7f756d74d9370a8e8fc9c4d44d719ff587855cd9133b643a9"
+      "bytes": 18933,
+      "sha256": "9052e96acf233c510f7ca8c278c93a999dfd9ec487adee0da2dd76736f6839bb"
     },
     {
       "file": "src/155_KnowledgeExportContracts.gs",
-      "bytes": 32324,
-      "sha256": "c37c351400098bf261a9004a9f22950087b2f1b4b851d97a09ba825e8c30d498"
+      "bytes": 31684,
+      "sha256": "0e9a6cd8260dd56c338ddd0ff0d50de8dd2e3ab95042d5f73303c8b3d1d5dc28"
     },
     {
       "file": "src/156_KnowledgeExportService.gs",
-      "bytes": 21282,
-      "sha256": "6f7b9169647be9ad986a600cac4f112abbeb77c4cb7a3872bc674ec4d652f2d4"
+      "bytes": 21436,
+      "sha256": "a9b308c950d043dd8616ec46e3cfc9fcb8e29835fb098ad00cdd3080244308b9"
     },
     {
       "file": "src/157_KnowledgeExportLiveEnvironment.gs",
@@ -264,8 +264,8 @@
     },
     {
       "file": "src/160_AiEnvironment.gs",
-      "bytes": 9980,
-      "sha256": "05158c5efbd455d074b10e477037aa354ce41890aace0e93a1333acca56f4377"
+      "bytes": 10000,
+      "sha256": "1cc6ff47c34278013ab4007190774b8996b7acf60eaba6d3d694a5ceca27bcd6"
     },
     {
       "file": "src/161_GeminiRestClient.gs",
@@ -284,13 +284,13 @@
     },
     {
       "file": "src/164_AiProviderCore.gs",
-      "bytes": 100303,
-      "sha256": "4acaf160a26743fb18f853464043047855dbf558e2863a631ac9b21b6eb9193e"
+      "bytes": 100377,
+      "sha256": "78e331fab61bcda2c145861b0d3556cbf930c4a5dc192b51f7f226650a6b0c8f"
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
-      "bytes": 130734,
-      "sha256": "148ad9f35ce8aa513d9a5a32ce65701426d1cff728ee540f36da8ab24a9445d0"
+      "bytes": 130744,
+      "sha256": "167905fc2fe9d95d07cbf039088537def258fad3e50e8d3922a1fefc9a250a83"
     },
     {
       "file": "src/170_AiEntryPoints.gs",
@@ -304,13 +304,13 @@
     },
     {
       "file": "src/181_FeatureFreezeSync.gs",
-      "bytes": 16745,
-      "sha256": "5a14582fa9b67b59076610ba42aaad1636dfca469b410c7df449e44f494e1a90"
+      "bytes": 16974,
+      "sha256": "9bb6cd27e0ad3c13fb293bf9291649e7935a8adccd9fd3edb622bb7d701fa79b"
     },
     {
       "file": "src/182_FeatureFreezeKnowledge.gs",
-      "bytes": 7352,
-      "sha256": "66d988ef142c6c5fccfa0ce8016d017ead51436a2204629168df803315d66a4c"
+      "bytes": 7396,
+      "sha256": "d688f0ab85b401b1f648b17e14cfa6d519d27e7d9b2348861ee71c5fb02c2362"
     },
     {
       "file": "src/190_FeatureFreezeDiagnostics.gs",
@@ -321,8 +321,8 @@
   "html_resources": [
     {
       "file": "src/ActivityAnalyticsPage.html",
-      "bytes": 5488,
-      "sha256": "35429538b22dd2b593acde31f51f335e35cebdf12266221dd220d1e6c99e8f4e"
+      "bytes": 5237,
+      "sha256": "ba0405f7aa42ac9ddb1a915d4adfd5e41a06c548772ed0b492551b1386a6437e"
     },
     {
       "file": "src/AiProviderSettingsPage.html",
@@ -331,8 +331,8 @@
     },
     {
       "file": "src/ClientActivityAnalytics.html",
-      "bytes": 9949,
-      "sha256": "b29ec4e186b64f9e84fb882d996eab76243f6b648a57e6d1ea4ee7e2bd5c0c73"
+      "bytes": 9750,
+      "sha256": "f8a7bc3876a82e49fd62a261a7f878c4f5228065b361c6b07de1c6e9d5b1866e"
     },
     {
       "file": "src/ClientAiProviderSettings.html",
@@ -341,13 +341,13 @@
     },
     {
       "file": "src/ClientBootstrap.html",
-      "bytes": 2955,
-      "sha256": "5b28bce35b186799562bcd1e289d637a1bfce84c7f60dd8c6771532442803d7f"
+      "bytes": 2295,
+      "sha256": "7c3b86765400ce139fa2b2ed635a506467e9f5fdbff15176066f3e807ffa5b0b"
     },
     {
       "file": "src/ClientCore.html",
-      "bytes": 9880,
-      "sha256": "b9d3110d35cd2698ce509efa95ca7ca0b4ff54e7bc6e73fa3298d712d9a8cfdd"
+      "bytes": 7685,
+      "sha256": "c54d9708a38e3d6f3df2b65a28180476a28ee50fc8b426fd088736846fbfd758"
     },
     {
       "file": "src/ClientDateControls.html",
@@ -356,28 +356,23 @@
     },
     {
       "file": "src/ClientEntityWorkspace.html",
-      "bytes": 18586,
-      "sha256": "28d272da0c1cf1e64de8abb879864b79f997052cde43100569a8a75c19887883"
-    },
-    {
-      "file": "src/ClientGpWorkspace.html",
-      "bytes": 9267,
-      "sha256": "b6ff8fcefbcb354660ce8386be42602d7146d15e53413c0e70164e697ac6a3d9"
+      "bytes": 17543,
+      "sha256": "3ef261d6584baf524734acfdd0a99e5a22f190ab6d4da8a7e9ccf97a04bfdf3d"
     },
     {
       "file": "src/ClientKnowledgeSearch.html",
-      "bytes": 33275,
-      "sha256": "b6aae49f02a36279386c3678e64aa0475c12cced91e1f7e842b635dc03877d79"
+      "bytes": 32862,
+      "sha256": "73d5b9cd4fb338eb4c4eca733212a70ca58cfa4ba1d6c078ec29968111616281"
     },
     {
       "file": "src/ClientMaintenance.html",
-      "bytes": 22510,
-      "sha256": "e0d99b18739bee23cc21b4f8c1163d59d63b038a36dad0f42679261b15ceacfa"
+      "bytes": 20772,
+      "sha256": "195305a8808145f62bbcbc62d727be5450a6546ba219d8162c81ee2932ca0564"
     },
     {
       "file": "src/ClientMaintenanceEnhancements.html",
-      "bytes": 12078,
-      "sha256": "4963c700aa283836b9138d81cc3a7468714aef42f3dbf301ff390e4d67b3e4d0"
+      "bytes": 10697,
+      "sha256": "8f1514c0d10583f2a84b96c5897b68df413d93fac8e844300451a13e84392583"
     },
     {
       "file": "src/ClientPitchbookFiles.html",
@@ -391,8 +386,8 @@
     },
     {
       "file": "src/ClientRelationshipExplorer.html",
-      "bytes": 12751,
-      "sha256": "e0fa10e5f10e1cb5e5888b574f77dd3e7792de58a3e9973f54a676ad63d227cb"
+      "bytes": 12038,
+      "sha256": "c258ec0c2976e75eb4072f6ba8e5524efc8374afe8875339a3956991929dfba4"
     },
     {
       "file": "src/DeploymentSecurityOperator.html",
@@ -401,18 +396,13 @@
     },
     {
       "file": "src/EntityWorkspacePage.html",
-      "bytes": 5138,
-      "sha256": "ac20cb0db10b06db14eac7e541c7ea5749b1988a882f9c74282c3fb1f2dab987"
-    },
-    {
-      "file": "src/GpWorkspacePage.html",
-      "bytes": 2051,
-      "sha256": "a8e853002779a9a5e9989f4786c8cbf55172695e5682c36bd16829359572a9ff"
+      "bytes": 4298,
+      "sha256": "da20220d454ba05aef348d7c60e7bdcc2f712f7ff1256aadd29d15717051af74"
     },
     {
       "file": "src/Index.html",
-      "bytes": 20440,
-      "sha256": "beaee2cb9bb4ca89efde75fd7eab17efca4e867257b0924b0a581690a798d37a"
+      "bytes": 19267,
+      "sha256": "b7458e1345ff3e5a6b2d856fa9f9af102317473c9fb154864a9b91555d8fa8d8"
     },
     {
       "file": "src/KnowledgeSearch.html",
@@ -421,18 +411,18 @@
     },
     {
       "file": "src/KnowledgeSearchPage.html",
-      "bytes": 9693,
-      "sha256": "e40a804a268ed267f43d9eb4fa464715ab70171f0d923946a9c5aab7de79c90c"
+      "bytes": 9371,
+      "sha256": "b6cccd66c306929539df908d604b8914589a32ffd47130caaae0c54949abe82e"
     },
     {
       "file": "src/MaintenancePages.html",
-      "bytes": 13848,
-      "sha256": "04494c912ea078b243f55105dd190a4c1314becb8d73efc1699d44a1164570c8"
+      "bytes": 13446,
+      "sha256": "fb69daea69efcd41b13620f35bbf999f5456baddf00ecfc90ce51b36b3468843"
     },
     {
       "file": "src/RelationshipExplorerPage.html",
-      "bytes": 4335,
-      "sha256": "e256be3eadc49e9737072722ad4c95ebc64616de97b6307dce10b9e83f9885a7"
+      "bytes": 3942,
+      "sha256": "39386d15fc53847f3c17f8be8c48352d05577b2b35a49971e398cc6bece8ca1a"
     },
     {
       "file": "src/Styles.html",

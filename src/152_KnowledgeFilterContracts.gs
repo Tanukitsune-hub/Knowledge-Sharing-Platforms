@@ -185,21 +185,17 @@ function kspValidateCanonicalKnowledgeRequest_(request) {
       'AI_SOURCE_TYPE_INVALID', 'Source Typeが不正です。');
   }
   if (filters.entityKey) {
-    kspAssert_(/^[A-Z][A-Z0-9_]*:[A-Za-z0-9_-]+$/.test(filters.entityKey),
+    kspAssert_(Boolean(kspCounterpartyIdFromEntityKey_(filters.entityKey)),
       'AI_ENTITY_FILTER_INVALID', 'Counterparty Entityが不正です。');
-    if (filters.counterpartyType) {
-      kspAssert_(filters.entityKey.indexOf(filters.counterpartyType + ':') === 0,
-        'AI_ENTITY_TYPE_CONFLICT', 'Counterparty TypeとEntityが一致しません。');
-    }
-    if (filters.gpId && filters.entityKey.indexOf('GP:') === 0) {
-      kspAssert_(filters.entityKey === 'GP:' + filters.gpId,
+    if (filters.gpId) {
+      kspAssert_(kspCounterpartyIdFromEntityKey_(filters.entityKey) === filters.gpId,
         'AI_ENTITY_GP_CONFLICT', 'Counterparty EntityとGPが一致しません。');
     }
   }
   var selectedEntityKeys = input.selectedEntityKeys || [];
   var selectedSeen = {};
   selectedEntityKeys.forEach(function (entityKey) {
-    kspAssert_(/^[A-Z][A-Z0-9_]*:[A-Za-z0-9_-]+$/.test(entityKey),
+    kspAssert_(Boolean(kspCounterpartyIdFromEntityKey_(entityKey)),
       'AI_ENTITY_FILTER_INVALID', '選択されたCounterparty Entityが不正です。');
     kspAssert_(!selectedSeen[entityKey], 'AI_MULTI_ENTITY_DUPLICATE', '同じEntityを複数回選択できません。');
     selectedSeen[entityKey] = true;
@@ -225,7 +221,7 @@ function kspValidateCanonicalKnowledgeRequest_(request) {
   if ((filters.teamId || filters.followUp || filters.relatedGpId || filters.meetingTypeCode) &&
       filters.sourceType !== KSP_AI_SOURCE_TYPES.MEETING) {
     kspAssert_(false, 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE',
-      'Team、要フォロー、Related GP、Meeting TypeはMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
+      'Team、要フォロー、Meeting TypeはMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
   }
   return input;
 }
@@ -247,15 +243,13 @@ function kspKnowledgeScopeSummary_(request) {
   var parts = [];
   if (filters.dateFrom || filters.dateTo) parts.push('Date ' + (filters.dateFrom || '…') + '–' + (filters.dateTo || '…'));
   if (filters.counterpartyType) parts.push('Type ' + filters.counterpartyType);
-  if (filters.entityKey) parts.push('Entity ' + filters.entityKey);
-  if ((input.selectedEntityKeys || []).length) parts.push('Entities ' + input.selectedEntityKeys.join(', '));
-  if (filters.gpId) parts.push('GP ' + filters.gpId);
+  if (filters.entityKey) parts.push('面談先 ' + filters.entityKey);
+  if ((input.selectedEntityKeys || []).length) parts.push('面談先 ' + input.selectedEntityKeys.join(', '));
   if (filters.assetClassId) parts.push('Asset ' + filters.assetClassId);
   if (filters.capitalTypeId) parts.push('Capital ' + filters.capitalTypeId);
   if (filters.teamId) parts.push('Team ' + filters.teamId);
   if (filters.fundStrategy) parts.push('Fund/Strategy ' + filters.fundStrategy);
   if (filters.followUp) parts.push('Follow-up ' + filters.followUp);
-  if (filters.relatedGpId) parts.push('Related GP ' + filters.relatedGpId);
   if (filters.meetingTypeCode) parts.push('Meeting Type ' + filters.meetingTypeCode);
   parts.push('Source ' + (filters.sourceType || 'Meeting+Pitchbook'));
   return parts.join(' / ');
@@ -315,7 +309,7 @@ function kspBuildKnowledgeEntityEvidence_(request, catalog, citations) {
     var entityCitations = (citations || []).filter(function (citation) { return citation.entityKey === entityKey; });
     return {
       entityKey: entityKey,
-      counterpartyType: catalogItem.type || entityKey.split(':')[0],
+      counterpartyType: catalogItem.type || '',
       displayName: catalogItem.name || entityKey,
       evidenceStatus: entityCitations.length ? 'CITED' : 'NO_EVIDENCE',
       citationCount: entityCitations.length,

@@ -234,7 +234,8 @@ function kspCreateMaintenanceEnvironment_() {
         fields.Date = updatedRow.Date;
       }
       [
-        'GP_ID', 'Asset_Class_ID', 'Capital_Type_ID', 'Fund_Strategy',
+        'GP_ID', 'Counterparty_Type', 'Counterparty_ID', 'Related_GP_IDs',
+        'Asset_Class_ID', 'Capital_Type_ID', 'Fund_Strategy',
         'Sequence_No', 'Saved_Filename'
       ].forEach(function (header) {
         if (String(found.row[header] || '') !== String(updatedRow[header] || '')) {
@@ -348,14 +349,14 @@ function kspCreateMaintenanceEnvironment_() {
     try {
       var state = environment.getInstallationState();
       var spreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
-      var sheetName = input.entity === KSP_MASTER_ENTITY.GP
-        ? KSP_SHEET_NAMES.GP_MASTER : KSP_SHEET_NAMES.OPTION_MASTER;
+      var sheetName = input.entity === KSP_MASTER_ENTITY.COUNTERPARTY
+        ? KSP_SHEET_NAMES.COUNTERPARTY_MASTER : KSP_SHEET_NAMES.OPTION_MASTER;
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
       kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Master sheetがありません。');
       var headers = kspReadHeadersFromSheet_(sheet);
       var rows = kspReadObjectsFromSheet_(sheet, headers);
-      var keyColumn = input.entity === KSP_MASTER_ENTITY.GP ? 'GP_ID' : 'Option_ID';
+      var keyColumn = input.entity === KSP_MASTER_ENTITY.COUNTERPARTY ? 'Counterparty_ID' : 'Option_ID';
       var before = null;
       var after = null;
 
@@ -367,9 +368,10 @@ function kspCreateMaintenanceEnvironment_() {
           duplicateError.code = 'MASTER_DUPLICATE_NAME';
           throw duplicateError;
         }
-        if (input.entity === KSP_MASTER_ENTITY.GP) {
+        if (input.entity === KSP_MASTER_ENTITY.COUNTERPARTY) {
           after = {
-            GP_ID: kspNextGpId_(rows), GP_Name: input.name, Status: KSP_STATUS.ACTIVE,
+            Counterparty_ID: kspNextCounterpartyId_(rows), Counterparty_Name: input.name,
+            Counterparty_Type: input.type, Status: KSP_STATUS.ACTIVE,
             Created_At: nowIso, Updated_At: nowIso, Created_By: actor, Updated_By: actor
           };
         } else {
@@ -393,10 +395,11 @@ function kspCreateMaintenanceEnvironment_() {
       after = kspDeepClone_(matches[0]);
 
       if (input.action === KSP_MASTER_MUTATION.RENAME) {
-        var renameType = input.entity === KSP_MASTER_ENTITY.GP ? '' : String(after.Type || '');
+        var renameType = input.entity === KSP_MASTER_ENTITY.COUNTERPARTY
+          ? String(after.Counterparty_Type || '') : String(after.Type || '');
         kspAssert_(!kspFindNormalizedMasterDuplicate_(rows, input.entity, renameType, input.name, input.id),
           'MASTER_DUPLICATE_NAME', '同じ名称のMasterが既に存在します。');
-        if (input.entity === KSP_MASTER_ENTITY.GP) after.GP_Name = input.name;
+        if (input.entity === KSP_MASTER_ENTITY.COUNTERPARTY) after.Counterparty_Name = input.name;
         else after.Name = input.name;
       } else if (input.action === KSP_MASTER_MUTATION.DEACTIVATE) {
         after.Status = KSP_STATUS.INACTIVE;

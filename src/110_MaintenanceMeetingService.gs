@@ -55,11 +55,9 @@ function kspGetPhase1MaintenanceBootstrap_(environment) {
       appVersion: KSP_MAINTENANCE_APP_VERSION,
       options: kspBuildMeetingBootstrapResponse_(context.catalog).options,
       statuses: [KSP_STATUS.ACTIVE, KSP_STATUS.INACTIVE, KSP_PITCHBOOK_STATUS.PENDING, KSP_PITCHBOOK_STATUS.FAILED],
-      optionTypes: [KSP_OPTION_TYPES.ASSET_CLASS, KSP_OPTION_TYPES.CAPITAL_TYPE, KSP_OPTION_TYPES.LOCATION,
-        KSP_OPTION_TYPES.TEAM, KSP_OPTION_TYPES.COUNTERPARTY_LP, KSP_OPTION_TYPES.COUNTERPARTY_NISSAY_DEPARTMENT,
-        KSP_OPTION_TYPES.COUNTERPARTY_GROUP_COMPANY, KSP_OPTION_TYPES.COUNTERPARTY_CONSULTANT_GATEKEEPER,
-        KSP_OPTION_TYPES.COUNTERPARTY_OTHER],
-      masters: kspBuildMasterResponse_(context.gpRows, context.optionRows)
+      optionTypes: [KSP_OPTION_TYPES.ASSET_CLASS, KSP_OPTION_TYPES.CAPITAL_TYPE,
+        KSP_OPTION_TYPES.LOCATION, KSP_OPTION_TYPES.TEAM],
+      masters: kspBuildMasterResponse_(kspContextCounterpartyRows_(context), context.optionRows)
     };
   } catch (error) {
     return kspMaintenanceFailure_(error);
@@ -70,7 +68,7 @@ function kspSearchMeetingRecords_(environment, rawSearch) {
   try {
     var context = kspLoadMaintenanceContext_(environment);
     var search = kspValidateRecordSearch_(kspNormalizeRecordSearch_(rawSearch));
-    var maps = kspBuildAllMasterMaps_(context.gpRows, context.optionRows);
+    var maps = kspBuildAllMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
     return {
       ok: true,
       workId: KSP_MAINTENANCE_WORK_ID,
@@ -91,7 +89,7 @@ function kspSearchPitchbookRecords_(environment, rawSearch) {
     search.meetingTypeCode = '';
     search.followUpOnly = false;
     search = kspValidateRecordSearch_(search);
-    var maps = kspBuildAllMasterMaps_(context.gpRows, context.optionRows);
+    var maps = kspBuildAllMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
     return {
       ok: true,
       workId: KSP_MAINTENANCE_WORK_ID,
@@ -110,11 +108,11 @@ function kspGetMeetingMaintenanceRecord_(environment, meetingId) {
     var row = kspRequireSingleRow_(context.meetingRows, 'Meeting_ID', meetingId, 'MEETING_NOT_FOUND');
     var text = environment.getDocumentText(String(row.Doc_File_ID || ''));
     var parsed = kspParseMeetingDocumentText_(text);
-    var maps = kspBuildAllMasterMaps_(context.gpRows, context.optionRows);
+    var maps = kspBuildAllMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
     var record = kspMapMeetingSearchResult_(row, maps);
     record.notes = parsed.notes;
     record.relatedPitchbooks = kspBuildMaintenanceRelatedPitchbookChoices_(
-      context.pitchbookRows, record.relatedGpIds, row.Asset_Class_ID, record.relatedPitchbookIds
+      context.pitchbookRows, record.counterpartyId, row.Asset_Class_ID, record.relatedPitchbookIds
     );
     return { ok: true, workId: KSP_MAINTENANCE_WORK_ID, record: record };
   } catch (error) {
@@ -141,19 +139,16 @@ function kspUpdateMeetingMaintenance_(environment, rawInput) {
     context.catalog.teams = (context.catalog.teams || []).filter(function (team) {
       return String(team.status || '') === KSP_STATUS.ACTIVE || String(team.id || '') === currentTeamId;
     });
-    var currentCounterpartyKey = kspMeetingCounterpartyType_(currentRow) + ':' + kspMeetingCounterpartyId_(currentRow);
+    var currentCounterpartyId = kspMeetingCounterpartyId_(currentRow);
     context.catalog.counterpartyEntities = (context.catalog.counterpartyEntities || []).filter(function (entity) {
-      return String(entity.status || '') === KSP_STATUS.ACTIVE || entity.entityKey === currentCounterpartyKey;
-    });
-    var currentRelatedGps = kspMaintenanceSplitCodes_(kspMeetingRelatedGpIds_(currentRow));
-    context.catalog.gps = (context.catalog.gps || []).filter(function (gp) {
-      return String(gp.status || '') === KSP_STATUS.ACTIVE || currentRelatedGps.indexOf(String(gp.id || '')) !== -1;
+      return String(entity.status || '') === KSP_STATUS.ACTIVE || String(entity.id || '') === currentCounterpartyId;
     });
     context.catalog.relatedPitchbooks = kspBuildMaintenanceRelatedPitchbookChoices_(
-      context.pitchbookRows, input.relatedGpIds, input.assetClassId,
+      context.pitchbookRows, input.counterpartyId, input.assetClassId,
       kspMaintenanceSplitCodes_(currentRow.Related_Pitchbook_IDs)
     );
     var selected = kspValidateMeetingEditInput_(input, context.catalog);
+    input.counterpartyType = selected.counterpartyEntity.type;
     kspAssert_(String(currentRow.Status || '') === KSP_STATUS.ACTIVE,
       'MEETING_NOT_ACTIVE', 'Activeな面談だけ編集できます。');
     var filename = kspBuildMeetingFilename_(input, selected, input.meetingId);

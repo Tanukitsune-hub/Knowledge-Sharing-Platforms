@@ -1,6 +1,6 @@
 <script>
 function maintenanceOptionSets(masters, activeOnly) {
-  const gps=(masters.gps||[]).filter(item=>!activeOnly||item.status==='Active');
+  const counterparties=(masters.counterparties||[]).filter(item=>!activeOnly||item.status==='Active');
   const source=masters.options||[];
   const mapType=type=>source
     .filter(item=>item.type===type&&(!activeOnly||item.status==='Active'))
@@ -12,10 +12,10 @@ function maintenanceOptionSets(masters, activeOnly) {
     {code:'CONSULTANT_GATEKEEPER',label:'Consultant / Gatekeeper',optionType:'COUNTERPARTY_CONSULTANT_GATEKEEPER'},
     {code:'OTHER',label:'その他',optionType:'COUNTERPARTY_OTHER'}
   ];
-  const counterpartyEntities=gps.map(item=>({id:item.id,type:'GP',name:item.name,status:item.status,entityKey:'GP:'+item.id}));
-  counterpartyTypes.filter(item=>item.optionType).forEach(definition=>mapType(definition.optionType).forEach(item=>counterpartyEntities.push({id:item.id,type:definition.code,name:item.name,status:item.status,entityKey:definition.code+':'+item.id})));
+  const counterpartyEntities=counterparties.map(item=>({id:item.id,type:item.type,name:item.name,status:item.status,entityKey:'COUNTERPARTY:'+item.id}));
   return {
-    gps,
+    counterparties,
+    gps:counterparties.filter(item=>item.type==='GP'),
     assetClasses:mapType('ASSET_CLASS'),
     capitalTypes:mapType('CAPITAL_TYPE'),
     locations:mapType('LOCATION'),
@@ -25,9 +25,8 @@ function maintenanceOptionSets(masters, activeOnly) {
 
 function applyMaintenanceMasterData(masters) {
   maintenanceBootstrap=maintenanceBootstrap||{};
-  maintenanceBootstrap.masters=masters||{gps:[],options:[]};
+  maintenanceBootstrap.masters=masters||{counterparties:[],options:[]};
   renderMasters(maintenanceBootstrap.masters);
-  populateGpWorkspaceOptions(maintenanceBootstrap.masters.gps||[]);
   populateMaintenanceSelects(maintenanceOptionSets(maintenanceBootstrap.masters,false));
   populateSharedOptions(maintenanceOptionSets(maintenanceBootstrap.masters,true));
 }
@@ -36,11 +35,10 @@ function bootstrapMaintenance(result) {
   if(!result||!result.ok){
     const message=result&&result.error?result.error.message:'保守機能を読み込めませんでした。';
     showStatus('masters-status','error',message);
-    showStatus('gp-workspace-status','error',message);
     return;
   }
   maintenanceBootstrap=result;
-  applyMaintenanceMasterData(result.masters||{gps:[],options:[]});
+  applyMaintenanceMasterData(result.masters||{counterparties:[],options:[]});
 }
 
 async function performMasterMutation(payload) {
@@ -51,50 +49,27 @@ async function performMasterMutation(payload) {
   showStatus('masters-status','success','Masterを更新しました。');
 }
 
-async function quickAddGpFromRegistration(page,statusId) {
-  const name=prompt('追加するGP名を入力してください。');
-  if(name===null||!name.trim())return;
-  try{
-    const result=await serverCall('quickAddGp',name.trim());
-    if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'GP追加に失敗しました。');
-    applyMaintenanceMasterData(result.masters);
-    const gpNode=el(page+'-gpId');
-    if(gpNode)gpNode.value=result.gp.id;
-    const shared=getShared(page);
-    writeEnvelope(KSP_SHARED_DRAFT_KEY,shared);
-    showStatus(statusId,'success','GPを選択しました: '+result.gp.name);
-  }catch(error){
-    showStatus(statusId,'error',error.message||String(error));
-  }
-}
-
 async function quickAddCounterpartyFromRegistration(){
-  const type=el('meeting-counterpartyType').value;
-  if(!type){showStatus('meeting-status','error','先に面談先区分を選択してください。');return}
+  const type=prompt('面談先種別を入力してください（GP / LP_ASSET_OWNER / NISSAY_INTERNAL / GROUP_COMPANY / CONSULTANT_GATEKEEPER / OTHER）','OTHER');
+  if(type===null||!type.trim())return;
   const name=prompt('追加する面談先名を入力してください。');if(name===null||!name.trim())return;
   try{
-    let result;
-    if(type==='GP')result=await serverCall('quickAddGp',name.trim());
-    else{
-      const definition=(maintenanceOptionSets({gps:[],options:[]},true).counterpartyTypes||[]).find(item=>item.code===type);
-      result=await serverCall('mutateMaster',{entity:'OPTION',action:'ADD',type:definition&&definition.optionType,name:name.trim(),returnExistingOnDuplicate:true});
-    }
+    const result=await serverCall('quickAddCounterparty',{name:name.trim(),type:type.trim().toUpperCase()});
     if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先追加に失敗しました。');
     applyMaintenanceMasterData(result.masters);
-    const id=type==='GP'?result.gp.id:(result.record&&result.record.Option_ID);
-    clearRetryContext();refreshMeetingCounterpartyEntities(id||'');ensurePrimaryGpRelated();refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();
+    const id=result.counterparty&&result.counterparty.id;
+    clearRetryContext();refreshMeetingCounterpartyEntities(id||'');refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();
     showStatus('meeting-status','success','面談先を追加して選択しました。');
   }catch(error){showStatus('meeting-status','error',error.message||String(error))}
 }
 
 el('meeting-quick-add-counterparty').onclick=quickAddCounterpartyFromRegistration;
-el('pitchbook-quick-add-gp').onclick=()=>quickAddGpFromRegistration('pitchbook','pitchbook-status');
 let meetingDetailRecord=null,meetingDetailBusy=false,meetingDetailRequest=0;
 const meetingDetailKnownDocuments=new Map();
 function renderMeetingDetail(record){
   meetingDetailRecord=record;
   el('meeting-detail-identity').textContent=record.meetingId+' / Version '+record.version+' / '+record.status;
-  const fields=[['日付',record.date],['時間',record.time],['面談場所',record.locationName],['面談先',record.counterpartyEntityName||record.gpName],['Asset Class',record.assetClassName],['Equity / Debt',record.capitalTypeName],['Team',record.teamName],['Fund / Strategy',record.fundStrategy],['Meeting Type',(record.meetingTypeLabels||[]).join(' / ')],['関連GP',(record.relatedGpNames||[]).join(', ')],['面談相手',record.counterparty],['当社側',record.internalParticipants],['要フォロー',record.followUpRequired?'あり':'なし'],['フォローメモ',record.followUpNote]];
+  const fields=[['日付',record.date],['時間',record.time],['面談場所',record.locationName],['面談先',record.counterpartyEntityName],['面談先種別',record.counterpartyType],['Asset Class',record.assetClassName],['Equity / Debt',record.capitalTypeName],['Team',record.teamName],['Fund / Strategy',record.fundStrategy],['Meeting Type',(record.meetingTypeLabels||[]).join(' / ')],['面談相手',record.counterparty],['当社側',record.internalParticipants],['要フォロー',record.followUpRequired?'あり':'なし'],['フォローメモ',record.followUpNote]];
   el('meeting-detail-attributes').innerHTML=fields.map(([label,value])=>'<div><strong>'+escapeHtml(label)+'</strong><div>'+escapeHtml(value||'—')+'</div></div>').join('');
   el('meeting-detail-body').textContent=record.notes||'（本文なし）';
   const original=kspSafeDriveUrl(record.documentUrl);el('meeting-detail-original').hidden=!original;if(original)el('meeting-detail-original').href=original;else el('meeting-detail-original').removeAttribute('href');

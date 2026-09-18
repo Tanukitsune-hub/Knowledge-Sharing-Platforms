@@ -37,7 +37,6 @@
       <div hidden>
         <select id="knowledge-route"><option value="OPENAI">ChatGPT</option><option value="GEMINI">Gemini</option></select>
         <select id="knowledge-counterpartyType"><option value="">未選択</option></select>
-        <label id="knowledge-gp-label" for="knowledge-gpId">GP</label><select id="knowledge-gpId"><option value="">未選択</option></select>
       </div>
       <span id="knowledge-config-state" class="hint">設定を確認しています…</span>
         <div id="knowledge-multi-entity-field" class="field full" hidden><label class="required" for="knowledge-entityKeys">比較Entity（2–5件）</label><select id="knowledge-entityKeys" multiple size="5" aria-describedby="knowledge-multi-entity-help"></select><span id="knowledge-multi-entity-help" class="hint">Ctrl / CommandまたはShiftで複数選択します。表示名と種別で確認し、安定キーを送信します。</span></div>
@@ -54,11 +53,10 @@
         <div class="field"><label for="knowledge-teamId">Team</label><select id="knowledge-teamId"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-fundStrategy">Fund / Strategy</label><select id="knowledge-fundStrategy"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-followUp">要フォロー</label><select id="knowledge-followUp"><option value="">未選択</option><option value="REQUIRED">必要</option><option value="NOT_REQUIRED">不要</option></select></div>
-        <div class="field"><label for="knowledge-relatedGpId">Related GP</label><select id="knowledge-relatedGpId"><option value="">未選択</option></select></div>
         <div class="field"><label for="knowledge-meetingTypeCode">Meeting Type</label><select id="knowledge-meetingTypeCode"><option value="">未選択</option></select></div>
 
         </div>
-        <p id="knowledge-source-help" class="hint">Team・要フォロー・Related GP・Meeting Typeは「面談記録のみ」で利用できます。</p>
+        <p id="knowledge-source-help" class="hint">Team・要フォロー・Meeting Typeは「面談記録のみ」で利用できます。</p>
       </details>
       <div class="actions">
         <span class="hint">新規・更新資料が検索可能になるまで最大約15分かかる想定です。</span>

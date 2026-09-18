@@ -2,7 +2,7 @@
 
 Work ID: 0003 (historical planning origin; active Work state belongs in handoffs and PRs)
 
-Current as of: 2026-08-28
+Current as of: 2026-09-18
 
 Status: Active under `docs/decisions/target-runtime-first-development.md`
 
@@ -21,6 +21,8 @@ Gemini
 ChatGPT and Gemini use independent File Search adapters. Full output uses one canonical package for Copy / Google Docs / PDF.
 
 New Work implements the shortest coherent vertical slice in the production source path, executes it in the actual target runtime with isolated data/resources, and expands only after native readback.
+
+The current entity/storage baseline is schema8: one `Counterparty_Master`, generic `CP-*` identity, and GP only as `Counterparty_Type=GP`. Meeting and Material/Pitchbook normal flows use one Counterparty selector/identity; schema7 GP and non-GP option fields are migration compatibility only.
 
 ## 2. Standard delivery flow
 

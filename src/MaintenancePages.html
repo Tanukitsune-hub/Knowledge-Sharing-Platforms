@@ -4,7 +4,6 @@
     <div class="filter-grid">
       <div class="field"><label for="meeting-past-dateFrom">Date From</label><input id="meeting-past-dateFrom" type="date"></div>
       <div class="field"><label for="meeting-past-dateTo">Date To</label><input id="meeting-past-dateTo" type="date"></div>
-      <div class="field"><label for="meeting-past-counterpartyType">面談先区分</label><select id="meeting-past-counterpartyType"><option value="">未選択</option></select></div>
       <div class="field"><label for="meeting-past-counterpartyId">面談先</label><select id="meeting-past-counterpartyId"><option value="">未選択</option></select></div>
       <div class="field"><label for="meeting-past-assetClassId">Asset Class</label><select id="meeting-past-assetClassId"><option value="">未選択</option></select></div>
       <div class="field"><label for="meeting-past-capitalTypeId">Equity / Debt</label><select id="meeting-past-capitalTypeId"><option value="">未選択</option></select></div>
@@ -37,9 +36,7 @@
         <div class="field"><label class="required" for="meeting-edit-date">日付</label><input id="meeting-edit-date" type="date" required></div>
         <div class="field"><label for="meeting-edit-time">時間</label><input id="meeting-edit-time" type="time"></div>
         <div class="field"><label for="meeting-edit-locationId">面談場所</label><select id="meeting-edit-locationId"><option value="">未選択</option></select></div>
-        <div class="field"><label class="required" for="meeting-edit-counterpartyType">面談先区分</label><select id="meeting-edit-counterpartyType" required><option value="">未選択</option></select></div>
         <div class="field"><label class="required" for="meeting-edit-counterpartyId">面談先</label><select id="meeting-edit-counterpartyId" required><option value="">未選択</option></select></div>
-        <div class="field full"><label for="meeting-edit-relatedGpIds">関連GP</label><select id="meeting-edit-relatedGpIds" multiple size="5"></select></div>
         <div class="field"><label class="required" for="meeting-edit-assetClassId">Asset Class</label><select id="meeting-edit-assetClassId" required><option value="">未選択</option></select></div>
         <div class="field"><label for="meeting-edit-capitalTypeId">Equity / Debt</label><select id="meeting-edit-capitalTypeId"><option value="">未選択</option></select></div>
         <div class="field"><label for="meeting-edit-teamId">Team</label><select id="meeting-edit-teamId"><option value="">未選択</option></select></div>
@@ -64,7 +61,7 @@
     <div class="filter-grid">
       <div class="field"><label for="pitchbook-past-dateFrom">Date From</label><input id="pitchbook-past-dateFrom" type="date"></div>
       <div class="field"><label for="pitchbook-past-dateTo">Date To</label><input id="pitchbook-past-dateTo" type="date"></div>
-      <div class="field"><label for="pitchbook-past-gpId">GP</label><select id="pitchbook-past-gpId"><option value="">未選択</option></select></div>
+      <div class="field"><label for="pitchbook-past-counterpartyId">面談先</label><select id="pitchbook-past-counterpartyId"><option value="">未選択</option></select></div>
       <div class="field"><label for="pitchbook-past-assetClassId">Asset Class</label><select id="pitchbook-past-assetClassId"><option value="">未選択</option></select></div>
       <div class="field"><label for="pitchbook-past-capitalTypeId">Equity / Debt</label><select id="pitchbook-past-capitalTypeId"><option value="">未選択</option></select></div>
       <div class="field"><label for="pitchbook-past-fundStrategy">Fund / Strategy</label><input id="pitchbook-past-fundStrategy" maxlength="500"></div>
@@ -72,7 +69,7 @@
     </div>
     <div class="actions"><span class="hint">最大100件を新しい順で表示します。</span><button id="pitchbook-past-search" class="action primary" type="button">検索</button></div>
     <div id="pitchbook-past-status" class="status" role="status" aria-live="polite"></div>
-    <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>GP</th><th>Asset Class</th><th>ファイル</th><th>Status</th><th>操作</th></tr></thead><tbody id="pitchbook-past-results"></tbody></table></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>面談先</th><th>Asset Class</th><th>ファイル</th><th>Status</th><th>操作</th></tr></thead><tbody id="pitchbook-past-results"></tbody></table></div>
   </div>
   <div id="pitchbook-edit-card" class="card maintenance-editor hidden-panel">
     <div class="section-heading"><div><h2>資料Metadataを修正</h2><p id="pitchbook-edit-id" class="hint"></p></div><button id="pitchbook-edit-close" class="small-button" type="button">閉じる</button></div>
@@ -80,7 +77,7 @@
       <input id="pitchbook-edit-documentId" type="hidden"><input id="pitchbook-edit-expectedUpdatedAt" type="hidden">
       <div class="grid">
         <div class="field"><label class="required" for="pitchbook-edit-date">日付</label><input id="pitchbook-edit-date" type="date" required></div>
-        <div class="field"><label for="pitchbook-edit-gpId">元のGP（non-GP資料は未選択）</label><select id="pitchbook-edit-gpId" disabled><option value="">未選択</option></select></div>
+        <div class="field"><label class="required" for="pitchbook-edit-counterpartyId">面談先</label><select id="pitchbook-edit-counterpartyId" required><option value="">未選択</option></select></div>
         <div class="field"><label class="required" for="pitchbook-edit-assetClassId">Asset Class</label><select id="pitchbook-edit-assetClassId" required><option value="">未選択</option></select></div>
         <div class="field"><label for="pitchbook-edit-capitalTypeId">Equity / Debt</label><select id="pitchbook-edit-capitalTypeId"><option value="">未選択</option></select></div>
         <div class="field"><label for="pitchbook-edit-fundStrategy">Fund / Strategy</label><input id="pitchbook-edit-fundStrategy" maxlength="500"></div>
@@ -95,12 +92,12 @@
   <div class="card">
     <div class="section-heading"><div><h2>マスター管理</h2><p class="hint">物理削除は行わず、Inactive / Reactivateで管理します。</p></div><button id="masters-refresh" class="small-button" type="button">再読込</button></div>
     <div class="master-layout">
-      <section><h3>GP Master</h3>
-        <form id="gp-add-form" class="inline-form"><input id="gp-add-name" maxlength="200" placeholder="GP名"><button class="action primary" type="submit">追加</button></form>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>GP</th><th>Status</th><th>操作</th></tr></thead><tbody id="gp-master-results"></tbody></table></div>
+      <section><h3>面談先マスター</h3>
+        <form id="counterparty-add-form" class="inline-form"><select id="counterparty-add-type"><option value="GP">GP / 運用会社</option><option value="LP_ASSET_OWNER">LP / Asset Owner</option><option value="NISSAY_INTERNAL">日本生命</option><option value="GROUP_COMPANY">グループ会社</option><option value="CONSULTANT_GATEKEEPER">Consultant / Gatekeeper</option><option value="OTHER">その他</option></select><input id="counterparty-add-name" maxlength="200" placeholder="面談先名"><button class="action primary" type="submit">追加</button></form>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>面談先種別</th><th>面談先</th><th>Status</th><th>操作</th></tr></thead><tbody id="counterparty-master-results"></tbody></table></div>
       </section>
       <section><h3>Option Master</h3>
-        <form id="option-add-form" class="inline-form"><select id="option-add-type"><option value="ASSET_CLASS">Asset Class</option><option value="CAPITAL_TYPE">Equity / Debt</option><option value="LOCATION">面談場所</option><option value="TEAM">Team</option><option value="COUNTERPARTY_LP">LP / Asset Owner</option><option value="COUNTERPARTY_NISSAY_DEPARTMENT">日本生命</option><option value="COUNTERPARTY_GROUP_COMPANY">グループ会社</option><option value="COUNTERPARTY_CONSULTANT_GATEKEEPER">Consultant / Gatekeeper</option><option value="COUNTERPARTY_OTHER">その他</option></select><input id="option-add-name" maxlength="200" placeholder="選択肢名"><button class="action primary" type="submit">追加</button></form>
+        <form id="option-add-form" class="inline-form"><select id="option-add-type"><option value="ASSET_CLASS">Asset Class</option><option value="CAPITAL_TYPE">Equity / Debt</option><option value="LOCATION">面談場所</option><option value="TEAM">Team</option></select><input id="option-add-name" maxlength="200" placeholder="選択肢名"><button class="action primary" type="submit">追加</button></form>
         <div class="table-wrap"><table class="data-table"><thead><tr><th>Type</th><th>名称</th><th>順序</th><th>Status</th><th>操作</th></tr></thead><tbody id="option-master-results"></tbody></table></div>
       </section>
     </div>

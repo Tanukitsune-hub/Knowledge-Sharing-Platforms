@@ -44,9 +44,10 @@ const ksp = loadAppsScript(path.resolve(__dirname, '..'));
 function catalogRows() {
   return {
     gps: [
-      { GP_ID: 'GP-000001', GP_Name: 'Apollo', Status: 'Active' },
-      { GP_ID: 'GP-000002', GP_Name: 'KKR', Status: 'Active' },
-      { GP_ID: 'GP-000003', GP_Name: 'Inactive GP', Status: 'Inactive' }
+      { Counterparty_ID: 'CP-000001', Counterparty_Name: 'Apollo', Counterparty_Type: 'GP', Status: 'Active' },
+      { Counterparty_ID: 'CP-000002', Counterparty_Name: 'KKR', Counterparty_Type: 'GP', Status: 'Active' },
+      { Counterparty_ID: 'CP-000003', Counterparty_Name: 'Inactive GP', Counterparty_Type: 'GP', Status: 'Inactive' },
+      { Counterparty_ID: 'CP-000031', Counterparty_Name: 'Synthetic Asset Owner', Counterparty_Type: 'LP_ASSET_OWNER', Status: 'Active' }
     ],
     options: [
       { Option_ID: 'OPT-AC-001', Type: 'ASSET_CLASS', Name: 'PE', Sort_Order: 1, Status: 'Active' },
@@ -65,7 +66,9 @@ function meetingRow(id, date, overrides = {}) {
     Date: date,
     Time: '10:00',
     Location_ID: '',
-    GP_ID: 'GP-000002',
+    GP_ID: '',
+    Counterparty_Type: 'GP',
+    Counterparty_ID: 'CP-000002',
     Asset_Class_ID: 'OPT-AC-002',
     Capital_Type_ID: '',
     Counterparty: 'Counterparty',
@@ -87,7 +90,9 @@ function pitchbookRow(id, date, overrides = {}) {
     Document_ID: id,
     Batch_ID: `BAT-${id}`,
     Date: date,
-    GP_ID: 'GP-000002',
+    GP_ID: '',
+    Counterparty_Type: 'GP',
+    Counterparty_ID: 'CP-000002',
     Asset_Class_ID: 'OPT-AC-002',
     Capital_Type_ID: '',
     Sequence_No: 1,
@@ -110,7 +115,7 @@ function createFakeEnvironment(options = {}) {
   ]).map((row) => ({ ...row }));
   const pitchbookRows = (options.pitchbookRows || [
     pitchbookRow('DOC-000001', '2026-08-01', { File_ID: 'file-1' }),
-    pitchbookRow('DOC-000002', '2026-08-02', { File_ID: 'file-2', GP_ID: 'GP-000001', Asset_Class_ID: 'OPT-AC-001' }),
+    pitchbookRow('DOC-000002', '2026-08-02', { File_ID: 'file-2', Counterparty_ID: 'CP-000001', Asset_Class_ID: 'OPT-AC-001' }),
     pitchbookRow('DOC-000003', '2026-08-04', { File_ID: 'file-3', Status: 'Inactive' })
   ]).map((row) => ({ ...row }));
   const documents = new Map(Object.entries(options.documents || {
@@ -254,7 +259,7 @@ test('Full Output ignores AI-only state without mutating the request or changing
   for (const mode of ['自由質問', '比較', '面談準備', 'invalid-AI-mode']) {
     const env = createFakeEnvironment();
     const input = {mode, questionOrInstruction: '', modelProfileId: '', thinkingProfileId: '', selectedEntityKeys: ['invalid'],
-      filters: {entityKey: 'GP:GP-000002', sourceType: 'Pitchbook', dateFrom: '2026-08-01', dateTo: '2026-08-03'}};
+      filters: {entityKey: 'COUNTERPARTY:CP-000002', sourceType: 'Pitchbook', dateFrom: '2026-08-01', dateTo: '2026-08-03'}};
     const before = JSON.stringify(input);
     const result = ksp.kspRunKnowledgeExportPreview_(env, input);
     assert.equal(result.ok, true, JSON.stringify(result));
@@ -262,7 +267,7 @@ test('Full Output ignores AI-only state without mutating the request or changing
     assert.equal(result.preview.meetingCount, 1);
     assert.equal(result.preview.pitchbookCount, 0);
     assert.equal(result.preview.filters.sourceType, 'Meeting');
-    assert.equal(result.preview.filters.entityKey, 'GP:GP-000002');
+    assert.equal(result.preview.filters.entityKey, 'COUNTERPARTY:CP-000002');
     assert.deepEqual(env._debug.pitchbookMetadataReads, []);
     assert.doesNotMatch(result.preview.packageText, /Mode instruction|Question \/ additional instruction|Pitchbooks \/ reference/);
     const created = ksp.kspRunKnowledgeExportCreation_(env, {...input, mode: '比較', questionOrInstruction: 'AI draft changed',
@@ -275,8 +280,8 @@ test('Full Output ignores AI-only state without mutating the request or changing
 test('Full Output rejects reversed dates and invalid common entity before authoritative body reads', () => {
   for (const [filters, code] of [
     [{dateFrom: '2026-09-01', dateTo: '2026-08-01'}, 'KNOWLEDGE_EXPORT_DATE_RANGE_INVALID'],
-    [{entityKey: 'GP:unknown'}, 'AI_ENTITY_FILTER_UNAVAILABLE'],
-    [{entityKey: 'GP:GP-000002', gpId: 'GP-000001'}, 'AI_ENTITY_GP_CONFLICT']
+    [{entityKey: 'COUNTERPARTY:unknown'}, 'AI_ENTITY_FILTER_UNAVAILABLE'],
+    [{entityKey: 'COUNTERPARTY:CP-000002', gpId: 'CP-000001'}, 'AI_ENTITY_GP_CONFLICT']
   ]) {
     const env = createFakeEnvironment();
     const result = ksp.kspRunKnowledgeExportPreview_(env, {mode: '面談準備', filters});
@@ -289,11 +294,11 @@ test('Full Output rejects reversed dates and invalid common entity before author
 
 test('Full Output applies Meeting-only detailed filters even when AI source state is Pitchbook', () => {
   const env = createFakeEnvironment({meetingRows: [meetingRow('MTG-000001', '2026-08-01', {
-    Doc_File_ID: 'doc-1', GP_ID: '', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'OPT-CPLP-001',
-    Team_ID: 'OPT-TEAM-001', Follow_Up_Required: true, Related_GP_IDs: 'GP-000002', Meeting_Type_Codes: 'ANNUAL_REVIEW'
+    Doc_File_ID: 'doc-1', GP_ID: '', Counterparty_Type: '', Counterparty_ID: 'CP-000031',
+    Team_ID: 'OPT-TEAM-001', Follow_Up_Required: true, Related_GP_IDs: '', Meeting_Type_Codes: 'ANNUAL_REVIEW'
   })]});
-  const result = ksp.kspRunKnowledgeExportPreview_(env, {filters: {entityKey: 'LP_ASSET_OWNER:OPT-CPLP-001',
-    sourceType: 'Pitchbook', teamId: 'OPT-TEAM-001', followUp: 'REQUIRED', relatedGpId: 'GP-000002', meetingTypeCode: 'ANNUAL_REVIEW'}});
+  const result = ksp.kspRunKnowledgeExportPreview_(env, {filters: {entityKey: 'COUNTERPARTY:CP-000031',
+    sourceType: 'Pitchbook', teamId: 'OPT-TEAM-001', followUp: 'REQUIRED', meetingTypeCode: 'ANNUAL_REVIEW'}});
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(result.preview.meetingCount, 1);
   assert.match(result.preview.packageText, /Synthetic Asset Owner/);
@@ -576,19 +581,19 @@ test('FULL_OUTPUT excludes all six Pitchbook formats without metadata or byte re
   assert.match(result.preview.packageText, /Authoritative Meeting body only\./);
 });
 
-test('Knowledge Export includes authoritative Meeting attributes and follow-up note but no Audit content', () => {
+test('Knowledge Export includes Counterparty-centered Meeting attributes and follow-up note but no Audit content', () => {
   const env=createFakeEnvironment({
-    meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-000002',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up'})],
+    meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',GP_ID:'',Counterparty_Type:'',Counterparty_ID:'CP-000031',Related_GP_IDs:'',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up'})],
     pitchbookRows:[pitchbookRow('DOC-000001','2026-08-01',{File_ID:'file-1',Fund_Strategy:'Fund Beta'})]
   });
   const input=baseInput();const preview=ksp.kspRunKnowledgeExportPreview_(env,input);const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
   assert.equal(result.ok,true,JSON.stringify(result));const text=ksp.kspBuildKnowledgeExportPlainText_(env._debug.artifacts[0].model);
-  assert.match(text,/Counterparty Type: LP \/ Asset Owner/);assert.match(text,/Counterparty Entity: Synthetic Asset Owner/);assert.match(text,/Related GP: KKR/);assert.match(text,/Team: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/Meeting Type: 定例年1回, 先方オフィス訪問/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);assert.match(text,/Follow-up Note: private follow-up/);
+  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/Team: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/Meeting Type: 定例年1回, 先方オフィス訪問/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);assert.match(text,/Follow-up Note: private follow-up/);
   assert.equal(JSON.stringify(env._debug.audits).includes('private follow-up'),false);
 });
 
 test('entity-only Meeting changes invalidate a Knowledge Export preview fingerprint',()=>{
-  const env=createFakeEnvironment({meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',Counterparty_Type:'GP',Counterparty_ID:'GP-000002',Related_GP_IDs:'GP-000002'})],pitchbookRows:[]});
+  const env=createFakeEnvironment({meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',Counterparty_Type:'GP',Counterparty_ID:'CP-000002',Related_GP_IDs:''})],pitchbookRows:[]});
   const input=baseInput({sourceType:'Meeting'});const preview=ksp.kspRunKnowledgeExportPreview_(env,input);
   env._debug.meetingRows[0].Related_GP_IDs='GP-000001,GP-000002';
   const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
@@ -726,7 +731,7 @@ test('all five prompts are provider-neutral and independent of Gemini state', ()
   modes.forEach((mode) => {
     const result = ksp.kspGetKnowledgeExportPrompt_(env, baseInput({
       mode,
-      gpId: mode === '面談準備' ? 'GP-000002' : '',
+      entityKey: mode === '面談準備' ? 'COUNTERPARTY:CP-000002' : '',
       questionOrInstruction: mode === '自由質問' ? '合意事項を整理してください。' : ''
     }));
     assert.equal(result.ok, true, `${mode}: ${JSON.stringify(result)}`);
@@ -741,12 +746,12 @@ test('prompt filters use readable master names alongside stable IDs', () => {
   const env = createFakeEnvironment();
   const result = ksp.kspGetKnowledgeExportPrompt_(env, baseInput({
     mode: '比較',
-    gpId: 'GP-000001',
+    entityKey: 'COUNTERPARTY:CP-000001',
     assetClassId: 'OPT-AC-002',
     capitalTypeId: 'OPT-CT-001'
   }));
   assert.equal(result.ok, true, JSON.stringify(result));
-  assert.match(result.prompt, /GP: Apollo \(GP-000001\)/);
+  assert.match(result.prompt, /面談先: Apollo \(COUNTERPARTY:CP-000001\)/);
   assert.match(result.prompt, /Asset Class: Infrastructure \(OPT-AC-002\)/);
   assert.match(result.prompt, /Equity \/ Debt: Equity \(OPT-CT-001\)/);
 });

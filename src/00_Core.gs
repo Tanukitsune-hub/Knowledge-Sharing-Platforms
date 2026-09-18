@@ -2,7 +2,7 @@ var KSP_COMPONENT_WORK_ID = '0004';
 var KSP_RELEASE_VERSION = '0.1.2';
 var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
 var KSP_APP_VERSION = KSP_RELEASE_VERSION;
-var KSP_SCHEMA_VERSION = 7;
+var KSP_SCHEMA_VERSION = 8;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
@@ -36,7 +36,7 @@ var KSP_MIME_TYPES = Object.freeze({
 });
 
 var KSP_SHEET_NAMES = Object.freeze({
-  GP_MASTER: 'GP_Master',
+  COUNTERPARTY_MASTER: 'Counterparty_Master',
   OPTION_MASTER: 'Option_Master',
   MEETING_INDEX: 'Meeting_Index',
   PITCHBOOK_INDEX: 'Pitchbook_Index',
@@ -217,14 +217,19 @@ function kspGetErrorCode_(error, fallback) {
   return error && error.code ? String(error.code) : (fallback || 'UNEXPECTED_ERROR');
 }
 
+function kspContextCounterpartyRows_(context) {
+  var source = context || {};
+  return source.counterpartyRows || source.gpRows || [];
+}
+
 var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   MEETING_DATE_REQUIRED: '日付を入力してください。',
   MEETING_COUNTERPARTY_TYPE_REQUIRED: '面談先区分を選択してください。',
   MEETING_COUNTERPARTY_TYPE_INVALID: '面談先区分を確認してください。',
   MEETING_COUNTERPARTY_ENTITY_REQUIRED: '面談先を選択してください。',
   MEETING_COUNTERPARTY_ENTITY_UNAVAILABLE: '選択された面談先を確認してください。',
-  MEETING_RELATED_GP_INVALID: '関連GPを確認してください。',
-  MEETING_RELATED_GP_DUPLICATE: '関連GPに重複があります。',
+  MEETING_RELATED_GP_INVALID: '旧形式の関連先情報を確認してください。',
+  MEETING_RELATED_GP_DUPLICATE: '旧形式の関連先情報に重複があります。',
   MEETING_GP_REQUIRED: 'GPを選択してください。',
   MEETING_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
   MEETING_DATE_INVALID: '日付の形式を確認してください。',
@@ -239,7 +244,7 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   MEETING_RETRY_CONFLICT: '同じMeeting IDに別の登録内容があります。',
   MEETING_DOCUMENT_READ_FAILED: 'Meeting原本を読み取れませんでした。',
   PITCHBOOK_DATE_REQUIRED: '日付を入力してください。',
-  PITCHBOOK_GP_REQUIRED: 'GPを選択してください。',
+  PITCHBOOK_COUNTERPARTY_REQUIRED: '面談先を選択してください。',
   PITCHBOOK_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
   PITCHBOOK_FILE_REQUIRED: 'ファイルを選択してください。',
   PITCHBOOK_FUND_STRATEGY_TOO_LONG: 'Fund / Strategyは500文字以内で入力してください。',
@@ -271,7 +276,7 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   AI_MULTI_ENTITY_DUPLICATE: '同じEntityを複数回選択できません。',
   AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
   AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '比較対象の指定が競合しています。',
-  AI_RELATED_GP_FILTER_UNAVAILABLE: '選択されたRelated GPを確認してください。',
+  AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件を確認してください。',
   AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMeeting Typeを確認してください。',
   AI_ADVANCED_FILTER_TOO_BROAD: '該当するMeetingが多すぎます。条件を絞ってください。',
   KNOWLEDGE_EXPORT_PREVIEW_REQUIRED: '先に対象資料を確認してください。',
@@ -309,7 +314,7 @@ function kspSafePublicErrorMessage_(code, category) {
     MEETING: 'Meetingを処理できませんでした。',
     PITCHBOOK: 'Pitchbookを処理できませんでした。',
     MAINTENANCE: '管理処理を完了できませんでした。',
-    WORKSPACE: 'GP Workspaceを読み込めませんでした。',
+    WORKSPACE: '面談先サマリーを読み込めませんでした。',
     SEARCH: '検索を実行できませんでした。',
     EXPORT: 'Knowledge Exportを処理できませんでした。'
   };
@@ -366,8 +371,10 @@ function kspUniqueStrings_(values) {
 function kspGetBackendSchemas_() {
   var schemas = {};
 
-  schemas[KSP_SHEET_NAMES.GP_MASTER] = [
-    'GP_ID', 'GP_Name', 'Status', 'Created_At', 'Updated_At', 'Created_By', 'Updated_By'
+  schemas[KSP_SHEET_NAMES.COUNTERPARTY_MASTER] = [
+    'Counterparty_ID', 'Counterparty_Name', 'Counterparty_Type', 'Status',
+    'Created_At', 'Updated_At', 'Created_By', 'Updated_By',
+    'Legacy_Source_Type', 'Legacy_Source_ID'
   ];
 
   schemas[KSP_SHEET_NAMES.OPTION_MASTER] = [
@@ -410,7 +417,7 @@ function kspGetAuditSchema_() {
     'Event_Timestamp', 'Actor', 'Action', 'Target_Type', 'Target_ID', 'Result',
     'Changed_Fields', 'Before_Metadata_JSON', 'After_Metadata_JSON', 'Batch_ID',
     'Error_Code', 'Error_Message', 'Search_Mode', 'Question_Or_Instruction',
-    'Date_From', 'Date_To', 'GP_Filter', 'Asset_Class_Filter',
+    'Date_From', 'Date_To', 'GP_Filter', 'Counterparty_Filter', 'Counterparty_Type_Filter', 'Asset_Class_Filter',
     'Capital_Type_Filter', 'Source_Type_Filter', 'Model_ID', 'Cited_Source_IDs'
   ];
   return schema;
@@ -451,6 +458,18 @@ function kspGetGpSeedDefinitions_() {
   ];
 }
 
+function kspGetCounterpartySeedDefinitions_() {
+  return kspGetGpSeedDefinitions_().map(function (seed, index) {
+    return [
+      'CP-' + String(index + 1).padStart(6, '0'),
+      seed[1],
+      'GP',
+      'GP_MASTER',
+      seed[0]
+    ];
+  });
+}
+
 function kspGetOptionSeedDefinitions_() {
   return [
     ['OPT-AC-001', 'ASSET_CLASS', 'PE', 1],
@@ -482,6 +501,23 @@ function kspBuildGpSeedRows_(nowIso) {
       Updated_At: nowIso,
       Created_By: 'SYSTEM',
       Updated_By: 'SYSTEM'
+    };
+  });
+}
+
+function kspBuildCounterpartySeedRows_(nowIso) {
+  return kspGetCounterpartySeedDefinitions_().map(function (seed) {
+    return {
+      Counterparty_ID: seed[0],
+      Counterparty_Name: seed[1],
+      Counterparty_Type: seed[2],
+      Status: KSP_STATUS.ACTIVE,
+      Created_At: nowIso,
+      Updated_At: nowIso,
+      Created_By: 'SYSTEM',
+      Updated_By: 'SYSTEM',
+      Legacy_Source_Type: seed[3],
+      Legacy_Source_ID: seed[4]
     };
   });
 }

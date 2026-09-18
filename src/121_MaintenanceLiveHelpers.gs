@@ -14,7 +14,7 @@ function kspMaintenanceClaimKey_(entity, recordId) {
 }
 
 function kspMaintenancePitchbookContextKey_(input) {
-  return [input.date, input.gpId, input.assetClassId, input.capitalTypeId].join('|');
+  return [input.date, input.counterpartyId, input.assetClassId, input.capitalTypeId].join('|');
 }
 
 function kspMaintenanceFindSheetRow_(spreadsheetId, sheetName, keyColumn, keyValue) {

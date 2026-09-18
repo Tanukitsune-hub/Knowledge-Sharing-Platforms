@@ -1,6 +1,6 @@
 # Product Vision
 
-Current as of: 2026-08-28
+Current as of: 2026-09-18
 
 Status: Active
 
@@ -18,7 +18,7 @@ Google Workspaceを正本・運用基盤とし、その上にOpenAI/Gemini File 
 
 1. `面談記録` — 新規登録 / 過去記録 / edit / lifecycle
 2. `Pitchbook` — 新規登録 / 過去資料 / edit / lifecycle
-3. `GP / Entity Workspace`
+3. `面談先サマリー`
 4. `Activity Analytics`
 5. `Relationship Explorer`
 6. `ナレッジ検索`
@@ -28,12 +28,11 @@ Google Workspaceを正本・運用基盤とし、その上にOpenAI/Gemini File 
 
 ## Meeting records
 
-Prospective required fields:
+Required fields:
 
 ```text
 Date
-Counterparty Type
-Counterparty Entity
+Counterparty
 Asset Class
 ```
 
@@ -48,16 +47,16 @@ Consultant / Gatekeeper
 その他
 ```
 
-The user selects a category and then an Entity.
+The user selects one Entity from `Counterparty_Master`. The option label makes its type understandable without a required type-first step.
 
-- GP entities use `GP_Master`.
-- Non-GP entities use category-specific `Option_Master` Types.
-- No Entity/Counterparty sheet is added.
+- all organizations/departments use `Counterparty_Master` and generic `CP-*` IDs;
+- GP is one `Counterparty_Type`, not a separate master/entity class;
+- `Option_Master` is not a normal Counterparty catalog source;
 - Existing free-text `Counterparty` remains `面談相手（氏名・役職）`.
-- `Related_GP_IDs` retains relevant manager context.
-- Legacy GP Meetings remain valid without changing stable IDs/Docs/files.
+- schema7 legacy fields remain migration compatibility only; normal create/edit/search does not depend on `GP_ID` or `Related_GP_IDs`.
+- Existing Meetings remain valid without changing stable IDs/Docs/files.
 
-Accepted optional fields include Time, Location, Equity/Debt, Team, Fund/Strategy, Meeting Type, Related GPs, Related Pitchbooks, follow-up/note, person/role, internal participants, and Meeting body.
+Accepted optional fields include Time, Location, Equity/Debt, Team, Fund/Strategy, Meeting Type, Related Pitchbooks, follow-up/note, person/role, internal participants, and Meeting body.
 
 Meeting body is authoritative in Google Docs and is not duplicated into `Meeting_Index`.
 
@@ -77,13 +76,13 @@ Legacy filenames are not bulk-renamed.
 
 ## Pitchbooks / source materials
 
-Pitchbook remains GP/source-material oriented in the current roadmap.
+Pitchbook/source material uses the same Counterparty identity as Meeting.
 
 Required:
 
 - file
 - Date
-- GP
+- Counterparty
 - Asset Class
 
 Optional:
@@ -103,21 +102,22 @@ Features:
 - file-granular partial success and idempotent retry.
 
 ```text
-YYYY-MM-DD_GP_AssetClass_Equity-or-Debt_Sequence.ext
+YYYY-MM-DD_Counterparty_AssetClass_Equity-or-Debt_Sequence.ext
 ```
 
-Non-GP Pitchbook ownership is reconsidered only if actual use demonstrates a material need.
+Parent-bound material inherits the parent Meeting `Counterparty_ID`; standalone material selects one Counterparty directly.
 
 ## Registration context and drafts
 
 Meeting and Pitchbook share browser state for:
 
 - Date
+- Counterparty
 - Asset Class
 - Equity / Debt
 - Fund / Strategy
 
-GP is shared only when Meeting Counterparty Type is `GP`. A non-GP Meeting does not automatically assign a Related GP to the Pitchbook form.
+Counterparty Type is a master attribute. It may be shown as secondary text or used as a filter, but is not a required first selection.
 
 Registration success keeps shared values and clears page-specific values only. Text/selection draft persists for 24h in the same browser. File handles need not survive reload/tab close.
 
@@ -129,8 +129,7 @@ Meeting filters include or evolve to include:
 
 - Date From / To
 - Counterparty Type
-- Counterparty Entity
-- Related GP
+- Counterparty
 - Asset Class
 - Equity / Debt
 - Team
@@ -143,19 +142,20 @@ Fixed Meeting ID / Document ID / Drive File ID are preserved through maintenance
 
 ## Masters
 
-### GP Master
+### Counterparty Master
 
-- immutable GP ID;
+- immutable generic `CP-*` ID;
 - mutable display name;
+- immutable entity type for a created master row;
 - Active / Inactive;
-- alphabetical display;
+- name-based display with type context;
 - normalized duplicate check / quick-add.
 
 ### Option Master
 
 Immutable Option ID, mutable display name, Sort Order, and Active / Inactive.
 
-Types include Location, Asset Class, Capital Type, Team, LP/Asset Owner, Nippon Life department, Group Company, Consultant/Gatekeeper, and Other.
+Types include Location, Asset Class, Capital Type, and Team. Historical `COUNTERPARTY_*` rows may remain as migration provenance but are not normal catalog input.
 
 Real department/entity names are not guessed as seeds.
 
@@ -171,7 +171,7 @@ Keep source folders flat.
 
 Backend remains exactly five sheets:
 
-1. `GP_Master`
+1. `Counterparty_Master`
 2. `Option_Master`
 3. `Meeting_Index`
 4. `Pitchbook_Index`
@@ -181,13 +181,13 @@ Schema evolution is append-only where practical. Audit remains a separate Restri
 
 ## Workspaces, relationships, and analytics
 
-### GP / Entity Workspace
+### 面談先サマリー
 
-GP Workspace provides a manager-centric snapshot and print brief. Entity Workspace generalizes this to all Counterparty Types and separates direct from Related GP activity.
+One Counterparty-centered summary provides the timeline, linked materials, strategy drill-down, and print brief for every type. There is no parallel GP-only primary workspace.
 
 ### Activity Analytics
 
-Monthly/quarterly/yearly/fiscal/custom/cumulative views by Counterparty, Related GP, Asset Class, Team, and Meeting Type, plus a narrow monthly administrative check.
+Monthly/quarterly/yearly/fiscal/custom/cumulative views by Counterparty, Counterparty Type, Asset Class, Team, and Meeting Type, plus a narrow monthly administrative check.
 
 ### Relationship Explorer
 
@@ -279,7 +279,7 @@ Modes:
 自由質問 | 要約 | 時系列 | 比較 | 面談準備
 ```
 
-Structured filters evolve to include Date, Counterparty Type/Entity, Related GP where exact provider behavior permits, Asset Class, Equity/Debt, Team, Fund / Strategy, Meeting Type, follow-up, and Source Type.
+Structured filters include Date, Counterparty, Counterparty Type, Asset Class, Equity/Debt, Team, Fund / Strategy, Meeting Type, follow-up, and Source Type.
 
 Comparison mode accepts 2–5 selected Entities across categories. This replaces a separate static GP comparison dashboard.
 

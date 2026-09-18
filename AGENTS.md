@@ -110,7 +110,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 
 - Shared Drive is authoritative; Gemini File Search is derived and rebuildable.
 - One organization-controlled Web App serves authorized users.
-- Backend baseline remains `GP_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `Settings`; append columns rather than adding storage layers without a new decision.
+- Backend baseline remains `Counterparty_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `Settings`; schema7 `GP_Master` is migrated in place and no sixth storage layer is added.
 - Audit uses a separate Restricted Spreadsheet; normal users do not directly edit backend/Audit/File Search.
 - `src/` is authoritative; `dist/KnowledgeShare.bundle.gs` is generated reproducibly and never hand-edited.
 - `setupKnowledgePlatform_()` and underlying helpers remain private/idempotent. Any Work 0023 editor-visible wrapper is externally invocable, must authorize the active administrator before mutation, and must reject normal/unidentified callers.
@@ -121,8 +121,8 @@ REPOSITORY_RULES_STATUS: ACTIVE
 
 ## Product and security boundaries
 
-- Meeting requires Date, GP, Asset Class; Google Doc body is authoritative and is not duplicated into Index.
-- Pitchbook requires file, Date, GP, Asset Class; sequence starts at `01`, continues from destination max, and gaps are not closed.
+- Meeting requires Date, Counterparty, Asset Class; GP is only one `Counterparty_Type`. Google Doc body is authoritative and is not duplicated into Index.
+- Pitchbook requires file, Date, Counterparty, Asset Class; parent-bound material inherits the Meeting Counterparty. Sequence starts at `01`, continues from destination max, and gaps are not closed.
 - Initial upload policy: 25MB/file, 10 files, 100MB total; lower it if actual Apps Script behavior requires, rather than adding unjustified transport architecture.
 - Normal lifecycle is Active / Inactive / Reactivate, not physical deletion.
 - Actor is best-effort: email → `TEMP_USER:<key>` → `UNIDENTIFIED`; missing persistent identity does not block normal operation.

@@ -89,9 +89,9 @@ function kspRelationshipCounterpartyTypeLabel_(code) {
   return definition ? definition.label : String(code || '');
 }
 
-function kspRelationshipBuildMaps_(gpRows, optionRows) {
-  var maps = kspBuildAllMasterMaps_(gpRows || [], optionRows || []);
-  var catalog = kspBuildMaintenanceCatalog_(gpRows || [], optionRows || []);
+function kspRelationshipBuildMaps_(counterpartyRows, optionRows) {
+  var maps = kspBuildAllMasterMaps_(counterpartyRows || [], optionRows || []);
+  var catalog = kspBuildMaintenanceCatalog_(counterpartyRows || [], optionRows || []);
   var typeLabels = {};
   (catalog.counterpartyTypes || []).forEach(function (item) {
     typeLabels[String(item.code)] = String(item.label || item.code || '');
@@ -116,20 +116,19 @@ function kspRelationshipSortOptions_(left, right) {
 
 function kspRelationshipFilterOptions_(meetings, pitchbooks, maps) {
   var sets = {
-    counterpartyTypes: {}, counterpartyEntities: {}, relatedGps: {}, pitchbookGps: {},
+    counterpartyTypes: {}, counterpartyEntities: {},
     assetClasses: {}, fundStrategies: {}, meetingStatuses: {}, pitchbookStatuses: {}
   };
   function add(set, value) { sets[set][kspRelationshipValueOrUnset_(value)] = true; }
   (meetings || []).forEach(function (meeting) {
     add('counterpartyTypes', meeting.counterpartyType);
     add('counterpartyEntities', meeting.counterpartyEntityKey);
-    (meeting.relatedGpIds || []).forEach(function (id) { add('relatedGps', id); });
     add('assetClasses', meeting.assetClassId);
     add('fundStrategies', meeting.fundStrategy);
     add('meetingStatuses', meeting.status);
   });
   (pitchbooks || []).forEach(function (pitchbook) {
-    add('pitchbookGps', pitchbook.gpId);
+    add('counterpartyEntities', pitchbook.counterpartyEntityKey);
     add('assetClasses', pitchbook.assetClassId);
     add('fundStrategies', pitchbook.fundStrategy);
     add('pitchbookStatuses', pitchbook.status);
@@ -158,8 +157,6 @@ function kspRelationshipFilterOptions_(meetings, pitchbooks, maps) {
   return {
     counterpartyTypes: options('counterpartyTypes', typeLabel),
     counterpartyEntities: options('counterpartyEntities', entityLabel),
-    relatedGps: options('relatedGps', gpLabel),
-    pitchbookGps: options('pitchbookGps', gpLabel),
     assetClasses: options('assetClasses', assetLabel),
     fundStrategies: options('fundStrategies'),
     meetingStatuses: options('meetingStatuses'),
@@ -168,10 +165,9 @@ function kspRelationshipFilterOptions_(meetings, pitchbooks, maps) {
 }
 
 function kspRelationshipMapMeeting_(row, maps) {
-  var type = kspMeetingCounterpartyType_(row);
   var counterpartyId = kspMeetingCounterpartyId_(row);
-  var relatedGpIds = kspMaintenanceSplitCodes_(kspMeetingRelatedGpIds_(row));
-  var entityKey = type && counterpartyId ? type + ':' + counterpartyId : '';
+  var type = String((maps.maps.counterpartyType || {})[counterpartyId] || kspMeetingCounterpartyType_(row));
+  var entityKey = counterpartyId ? 'COUNTERPARTY:' + counterpartyId : '';
   return {
     meetingId: String(row.Meeting_ID || ''),
     date: kspCanonicalBusinessDate_(row.Date),
@@ -180,9 +176,9 @@ function kspRelationshipMapMeeting_(row, maps) {
     counterpartyTypeLabel: maps.typeLabels[type] || kspRelationshipCounterpartyTypeLabel_(type),
     counterpartyId: counterpartyId,
     counterpartyEntityKey: entityKey,
-    counterpartyEntityName: (maps.maps.counterparty || {})[entityKey] || '',
-    relatedGpIds: relatedGpIds,
-    relatedGpNames: relatedGpIds.map(function (id) { return maps.maps.gp[id] || id; }),
+    counterpartyEntityName: (maps.maps.counterparty || {})[counterpartyId] || '',
+    relatedGpIds: [],
+    relatedGpNames: [],
     assetClassId: String(row.Asset_Class_ID || '').trim(),
     assetClassName: maps.maps.assetClass[String(row.Asset_Class_ID || '')] || '',
     teamId: String(row.Team_ID || '').trim(),
@@ -190,7 +186,7 @@ function kspRelationshipMapMeeting_(row, maps) {
     fundStrategy: String(row.Fund_Strategy || '').trim(),
     meetingTypeCodes: kspMaintenanceSplitCodes_(row.Meeting_Type_Codes),
     status: String(row.Status || '').trim(),
-    documentUrl: kspGpWorkspaceSafeLink_(row.Doc_URL, row.Doc_File_ID),
+    documentUrl: kspWorkspaceSafeDriveLink_(row.Doc_URL, row.Doc_File_ID),
     filename: String(row.Saved_Filename || ''),
     relatedPitchbookIds: kspMaintenanceSplitCodes_(row.Related_Pitchbook_IDs)
   };
@@ -198,18 +194,24 @@ function kspRelationshipMapMeeting_(row, maps) {
 
 function kspRelationshipMapPitchbook_(row, maps) {
   var documentId = String(row.Document_ID || '').trim();
+  var counterpartyId = kspMeetingCounterpartyId_(row);
+  var counterpartyType = String((maps.maps.counterpartyType || {})[counterpartyId] || kspMeetingCounterpartyType_(row));
   return {
     documentId: documentId,
     date: kspCanonicalBusinessDate_(row.Date),
-    gpId: String(row.GP_ID || '').trim(),
-    gpName: maps.maps.gp[String(row.GP_ID || '')] || '',
+    gpId: '',
+    gpName: '',
+    counterpartyId: counterpartyId,
+    counterpartyType: counterpartyType,
+    counterpartyEntityKey: counterpartyId ? 'COUNTERPARTY:' + counterpartyId : '',
+    counterpartyName: (maps.maps.counterparty || {})[counterpartyId] || '',
     assetClassId: String(row.Asset_Class_ID || '').trim(),
     assetClassName: maps.maps.assetClass[String(row.Asset_Class_ID || '')] || '',
     fundStrategy: String(row.Fund_Strategy || '').trim(),
     status: String(row.Status || '').trim(),
     savedFilename: String(row.Saved_Filename || '').trim(),
     originalFilename: String(row.Original_Filename || '').trim(),
-    fileUrl: kspGpWorkspaceSafeLink_(row.File_URL, row.File_ID)
+    fileUrl: kspWorkspaceSafeDriveLink_(row.File_URL, row.File_ID)
   };
 }
 
@@ -370,8 +372,8 @@ function kspRelationshipBuildReverse_(matchingEdges, allEdges, input) {
   };
 }
 
-function kspBuildRelationshipExplorerData_(meetingRows, pitchbookRows, gpRows, optionRows, input) {
-  var maps = kspRelationshipBuildMaps_(gpRows, optionRows);
+function kspBuildRelationshipExplorerData_(meetingRows, pitchbookRows, counterpartyRows, optionRows, input) {
+  var maps = kspRelationshipBuildMaps_(counterpartyRows, optionRows);
   var meetings = (meetingRows || []).map(function (row) { return kspRelationshipMapMeeting_(row, maps); })
     .filter(function (meeting) { return meeting.meetingId; });
   var pitchbooks = (pitchbookRows || []).map(function (row) { return kspRelationshipMapPitchbook_(row, maps); })
@@ -415,7 +417,7 @@ function kspBuildRelationshipExplorerData_(meetingRows, pitchbookRows, gpRows, o
     reverse: reverse,
     filterOptions: kspRelationshipFilterOptions_(meetings, pitchbooks, maps),
     readModel: {
-      source: ['Meeting_Index', 'Pitchbook_Index', 'GP_Master', 'Option_Master'],
+      source: ['Meeting_Index', 'Pitchbook_Index', 'Counterparty_Master', 'Option_Master'],
       relationshipField: 'Meeting_Index.Related_Pitchbook_IDs',
       documentBodyRead: false,
       pitchbookBytesRead: false,
@@ -436,7 +438,7 @@ function kspGetRelationshipExplorerData_(environment, rawInput) {
     return kspBuildRelationshipExplorerData_(
       environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX),
       environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX),
-      environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER),
+      environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER),
       environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER),
       input
     );

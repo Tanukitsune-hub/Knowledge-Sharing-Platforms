@@ -1,13 +1,24 @@
-function kspBuildMaintenanceCatalog_(gpRows, optionRows) {
-  var gps = (gpRows || []).map(function (row) {
+function kspWorkspaceSafeDriveLink_(value, fileId) {
+  var candidate = String(value || '').trim();
+  var expectedId = String(fileId || '').trim();
+  if (!expectedId || !/^https:\/\/(?:drive|docs)\.google\.com\//i.test(candidate)) return '';
+  var escapedId = expectedId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp('/d/' + escapedId + '(?:/|$)').test(candidate) ||
+    new RegExp('[?&]id=' + escapedId + '(?:&|$)').test(candidate) ? candidate : '';
+}
+
+function kspBuildMaintenanceCatalog_(counterpartyRows, optionRows) {
+  var counterparties = (counterpartyRows || []).map(function (row) {
+    var legacyGp = String(row.GP_ID || '');
     return {
-      id: String(row.GP_ID || ''),
-      name: String(row.GP_Name || ''),
+      id: String(row.Counterparty_ID || legacyGp),
+      name: String(row.Counterparty_Name || row.GP_Name || ''),
+      type: String(row.Counterparty_Type || (legacyGp ? 'GP' : '')),
       status: String(row.Status || '')
     };
-  }).filter(function (row) { return row.id && row.name; })
+  }).filter(function (row) { return row.id && row.name && row.type; })
     .sort(function (left, right) {
-      return left.name.toLocaleLowerCase('en').localeCompare(right.name.toLocaleLowerCase('en'), 'en');
+      return left.name.localeCompare(right.name, 'ja') || left.id.localeCompare(right.id);
     });
   var options = (optionRows || []).map(function (row) {
     return {
@@ -25,18 +36,13 @@ function kspBuildMaintenanceCatalog_(gpRows, optionRows) {
         return left.name.localeCompare(right.name, 'ja');
       });
   }
-  var counterpartyEntities = gps.map(function (gp) {
-    return { id: gp.id, type: 'GP', name: gp.name, status: gp.status, optionType: '', entityKey: 'GP:' + gp.id };
+  var counterpartyEntities = counterparties.map(function (counterparty) {
+    return { id: counterparty.id, type: counterparty.type, name: counterparty.name,
+      status: counterparty.status, entityKey: 'COUNTERPARTY:' + counterparty.id };
   });
-  KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(function (definition) { return definition.optionType; })
-    .forEach(function (definition) {
-      byType(definition.optionType).forEach(function (option) {
-        counterpartyEntities.push({ id: option.id, type: definition.code, name: option.name,
-          status: option.status, optionType: definition.optionType, entityKey: definition.code + ':' + option.id });
-      });
-    });
   return {
-    gps: gps,
+    counterparties: counterparties,
+    gps: counterparties.filter(function (item) { return item.type === 'GP'; }),
     assetClasses: byType(KSP_OPTION_TYPES.ASSET_CLASS),
     capitalTypes: byType(KSP_OPTION_TYPES.CAPITAL_TYPE),
     locations: byType(KSP_OPTION_TYPES.LOCATION),
@@ -55,7 +61,7 @@ function kspLoadMaintenanceContext_(environment) {
   var auditSpreadsheetId = state.resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET];
   kspAssert_(backendSpreadsheetId, 'BACKEND_SPREADSHEET_MISSING', 'Backend Spreadsheetがありません。');
   kspAssert_(auditSpreadsheetId, 'AUDIT_SPREADSHEET_MISSING', 'Audit Spreadsheetがありません。');
-  var gpRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER);
+  var counterpartyRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER);
   var optionRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER);
   return {
     state: state,
@@ -63,9 +69,9 @@ function kspLoadMaintenanceContext_(environment) {
     auditSpreadsheetId: auditSpreadsheetId,
     meetingRows: environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX),
     pitchbookRows: environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX),
-    gpRows: gpRows,
+    counterpartyRows: counterpartyRows,
     optionRows: optionRows,
-    catalog: kspBuildMaintenanceCatalog_(gpRows, optionRows)
+    catalog: kspBuildMaintenanceCatalog_(counterpartyRows, optionRows)
   };
 }
 
@@ -76,11 +82,13 @@ function kspRequireSingleRow_(rows, keyColumn, keyValue, notFoundCode) {
   return matches[0];
 }
 
-function kspBuildMasterResponse_(gpRows, optionRows) {
-  var gps = (gpRows || []).map(function (row) {
-    return { id: String(row.GP_ID || ''), name: String(row.GP_Name || ''),
-      status: String(row.Status || ''), updatedAt: kspCanonicalInstantIso_(row.Updated_At) };
-  }).sort(function (left, right) { return left.name.toLocaleLowerCase('en').localeCompare(right.name.toLocaleLowerCase('en'), 'en'); });
+function kspBuildMasterResponse_(counterpartyRows, optionRows) {
+  var counterparties = (counterpartyRows || []).map(function (row) {
+    var legacyGp = String(row.GP_ID || '');
+    return { id: String(row.Counterparty_ID || legacyGp), name: String(row.Counterparty_Name || row.GP_Name || ''),
+      type: String(row.Counterparty_Type || (legacyGp ? 'GP' : '')), status: String(row.Status || ''),
+      updatedAt: kspCanonicalInstantIso_(row.Updated_At) };
+  }).sort(function (left, right) { return left.name.localeCompare(right.name, 'ja') || left.id.localeCompare(right.id); });
   var options = (optionRows || []).map(function (row) {
     return { id: String(row.Option_ID || ''), type: String(row.Type || ''), name: String(row.Name || ''),
       sortOrder: Number(row.Sort_Order || 0), status: String(row.Status || ''), updatedAt: kspCanonicalInstantIso_(row.Updated_At) };
@@ -89,7 +97,7 @@ function kspBuildMasterResponse_(gpRows, optionRows) {
     if (left.sortOrder !== right.sortOrder) return left.sortOrder - right.sortOrder;
     return left.name.localeCompare(right.name, 'ja');
   });
-  return { gps: gps, options: options };
+  return { counterparties: counterparties, options: options };
 }
 
 function kspGetMaintenanceActorSafely_(environment, warnings) {
@@ -108,7 +116,7 @@ function kspMaintenanceFailure_(error, warnings) {
 }
 
 function kspMasterActionName_(input) {
-  var entity = input && input.entity === KSP_MASTER_ENTITY.OPTION ? 'OPTION' : 'GP';
+  var entity = input && input.entity === KSP_MASTER_ENTITY.OPTION ? 'OPTION' : 'COUNTERPARTY';
   var action = input && input.action ? input.action : 'UNKNOWN';
   return KSP_MAINTENANCE_ACTIONS[entity + '_' + action] || (entity + '_' + action);
 }

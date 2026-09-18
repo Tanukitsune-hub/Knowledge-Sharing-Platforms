@@ -39,7 +39,7 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
       kspApplyPitchbookParentContext_(input, parent);
       if (requestKey) {
         var catalog = kspBuildPitchbookCatalog_(
-          meetingEnvironment.readRows(spreadsheetId, KSP_SHEET_NAMES.GP_MASTER),
+          meetingEnvironment.readRows(spreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER),
           meetingEnvironment.readRows(spreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER));
         var validation = kspValidatePitchbookBatchInput_(input, catalog);
         selected = validation.selected;
@@ -79,8 +79,6 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
         'PITCHBOOK_PREPARE_UPLOAD_BACKLOG', '未完了の資料登録を完了してから追加してください。');
       var maxSequence = existingRows.reduce(function (maximum, row) {
         var sameContext = kspCanonicalBusinessDate_(row.Date) === kspCanonicalBusinessDate_(input.date) &&
-          String(row.GP_ID || '') === input.gpId &&
-          kspMeetingCounterpartyType_(row) === input.counterpartyType &&
           kspMeetingCounterpartyId_(row) === input.counterpartyId &&
           String(row.Asset_Class_ID || '') === input.assetClassId &&
           String(row.Capital_Type_ID || '') === input.capitalTypeId;

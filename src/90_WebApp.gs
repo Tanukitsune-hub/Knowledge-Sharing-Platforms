@@ -84,16 +84,13 @@ function mutateMaster(input) {
   return kspMutateMaster_(kspCreateMaintenanceEnvironment_(), input);
 }
 
-function quickAddGp(name) {
-  return kspQuickAddGp_(kspCreateMaintenanceEnvironment_(), name);
+function quickAddCounterparty(input) {
+  var source = input && typeof input === 'object' ? input : {};
+  return kspQuickAddCounterparty_(kspCreateMaintenanceEnvironment_(), source.name, source.type);
 }
 
 function updateMeetingRelations(input) {
   return kspUpdateMeetingRelations_(kspCreateMaintenanceEnvironment_(), input);
-}
-
-function getGpWorkspaceData(gpId) {
-  return kspGetGpWorkspaceData_(kspCreateGpWorkspaceEnvironment_(), gpId);
 }
 
 function getEntityWorkspaceData(input) {

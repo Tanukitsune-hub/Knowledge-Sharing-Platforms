@@ -21,7 +21,7 @@ ChatGPTが全体設計、GitHub、scope、Work ID、handoff、review、completio
 - `Private Assets Knowledge / Meeting Records / Pitchbooks`
 - backend Spreadsheet
 - separate Audit Spreadsheet
-- `GP_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings`
+- `Counterparty_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings` (Work 0031 schema8; schema7 `GP_Master` is migrated in place)
 - Master seeds
 - schema / Settings
 - required installable triggers

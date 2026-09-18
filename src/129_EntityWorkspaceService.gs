@@ -35,15 +35,14 @@ function kspEntityWorkspaceNormalizeInput_(rawInput) {
     var separator = entityKey.indexOf(':');
     kspAssert_(separator > 0 && separator < entityKey.length - 1,
       'ENTITY_WORKSPACE_ENTITY_INVALID', 'Entityの指定が不正です。');
-    counterpartyType = kspEntityWorkspaceTrim_(entityKey.slice(0, separator));
+    var keyType = kspEntityWorkspaceTrim_(entityKey.slice(0, separator));
     counterpartyId = kspEntityWorkspaceTrim_(entityKey.slice(separator + 1));
+    if (keyType !== 'COUNTERPARTY') counterpartyType = keyType;
   }
-  if (counterpartyType || counterpartyId) {
-    kspAssert_(counterpartyType && counterpartyId,
+  if (counterpartyId) {
+    kspAssert_(kspIsCounterpartyId_(counterpartyId),
       'ENTITY_WORKSPACE_ENTITY_INVALID', 'Entityの指定が不正です。');
-    kspAssert_(Boolean(kspCounterpartyTypeDefinition_(counterpartyType)),
-      'ENTITY_WORKSPACE_COUNTERPARTY_TYPE_INVALID', 'Counterparty Typeを確認してください。');
-    entityKey = counterpartyType + ':' + counterpartyId;
+    entityKey = 'COUNTERPARTY:' + counterpartyId;
   }
   return {
     entityKey: entityKey,
@@ -55,7 +54,7 @@ function kspEntityWorkspaceNormalizeInput_(rawInput) {
 
 function kspEntityWorkspaceReadModel_() {
   return {
-    source: ['Meeting_Index', 'Pitchbook_Index', 'GP_Master', 'Option_Master'],
+    source: ['Meeting_Index', 'Pitchbook_Index', 'Counterparty_Master', 'Option_Master'],
     relationshipField: 'Meeting_Index.Related_Pitchbook_IDs',
     documentBodyRead: false,
     pitchbookBytesRead: false,
@@ -79,14 +78,14 @@ function kspEntityWorkspaceTypeOrder_(type) {
   return index === -1 ? definitions.length : index;
 }
 
-function kspEntityWorkspaceBuildCatalog_(gpRows, optionRows, meetingRows, maps) {
-  var catalog = kspBuildMaintenanceCatalog_(gpRows || [], optionRows || []);
+function kspEntityWorkspaceBuildCatalog_(counterpartyRows, optionRows, meetingRows, maps) {
+  var catalog = kspBuildMaintenanceCatalog_(counterpartyRows || [], optionRows || []);
   var byKey = {};
   function add(item) {
     var type = kspEntityWorkspaceTrim_(item.type);
     var id = kspEntityWorkspaceTrim_(item.id);
     if (!type || !id || !kspCounterpartyTypeDefinition_(type)) return;
-    var key = type + ':' + id;
+    var key = 'COUNTERPARTY:' + id;
     if (!byKey[key]) {
       byKey[key] = {
         key: key, entityKey: key, type: type, counterpartyType: type,
@@ -102,12 +101,12 @@ function kspEntityWorkspaceBuildCatalog_(gpRows, optionRows, meetingRows, maps) 
   }
   (catalog.counterpartyEntities || []).forEach(add);
   (meetingRows || []).forEach(function (row) {
-    var type = kspMeetingCounterpartyType_(row);
     var id = kspMeetingCounterpartyId_(row);
-    var key = type && id ? type + ':' + id : '';
+    var type = String((maps.maps.counterpartyType || {})[id] || kspMeetingCounterpartyType_(row));
+    var key = id ? 'COUNTERPARTY:' + id : '';
     add({
       type: type, id: id,
-      name: (maps.maps.counterparty || {})[key] || kspEntityWorkspaceTrim_(row.Counterparty) || id,
+      name: (maps.maps.counterparty || {})[id] || kspEntityWorkspaceTrim_(row.Counterparty) || id,
       status: ''
     });
   });
@@ -146,7 +145,7 @@ function kspEntityWorkspaceMapMeeting_(row, maps) {
     meetingTypeLabels: mapped.meetingTypeLabels,
     followUpRequired: mapped.followUpRequired,
     documentId: mapped.documentId,
-    documentUrl: kspGpWorkspaceSafeLink_(mapped.documentUrl, row.Doc_File_ID),
+    documentUrl: kspWorkspaceSafeDriveLink_(mapped.documentUrl, row.Doc_File_ID),
     filename: mapped.filename,
     version: mapped.version,
     updatedAt: mapped.updatedAt
@@ -161,7 +160,7 @@ function kspEntityWorkspaceMapPitchbook_(row, maps) {
     capitalTypeId: mapped.capitalTypeId,
     capitalTypeName: mapped.capitalTypeName,
     sequenceNo: mapped.sequenceNo,
-    fileUrl: kspGpWorkspaceSafeLink_(mapped.fileUrl, row.File_ID),
+    fileUrl: kspWorkspaceSafeDriveLink_(mapped.fileUrl, row.File_ID),
     updatedAt: mapped.updatedAt
   });
 }
@@ -361,11 +360,11 @@ function kspEntityWorkspaceRelatedGps_(meetings, gpRows) {
   return Object.keys(seen).sort().map(function (id) { return seen[id]; });
 }
 
-function kspBuildEntityWorkspaceData_(rawInput, gpRows, optionRows, meetingRows, pitchbookRows, workspaceOptions) {
+function kspBuildEntityWorkspaceData_(rawInput, counterpartyRows, optionRows, meetingRows, pitchbookRows, workspaceOptions) {
   var input = kspEntityWorkspaceNormalizeInput_(rawInput);
   var meetingScope = workspaceOptions && workspaceOptions.meetingScope === 'direct' ? 'direct' : 'all';
-  var maps = kspRelationshipBuildMaps_(gpRows || [], optionRows || []);
-  var catalog = kspEntityWorkspaceBuildCatalog_(gpRows || [], optionRows || [], meetingRows || [], maps);
+  var maps = kspRelationshipBuildMaps_(counterpartyRows || [], optionRows || []);
+  var catalog = kspEntityWorkspaceBuildCatalog_(counterpartyRows || [], optionRows || [], meetingRows || [], maps);
   var baseResponse = {
     ok: true,
     workId: KSP_ENTITY_WORKSPACE_WORK_ID,
@@ -385,9 +384,7 @@ function kspBuildEntityWorkspaceData_(rawInput, gpRows, optionRows, meetingRows,
     .filter(function (pitchbook) { return pitchbook.documentId; });
   var directMeetings = allMeetings.filter(function (meeting) { return meeting.counterpartyEntityKey === input.entityKey; })
     .map(function (meeting) { return kspEntityWorkspaceScopeMeeting_(meeting, 'direct'); });
-  var relatedMeetings = entity.type === 'GP' ? allMeetings.filter(function (meeting) {
-    return meeting.counterpartyEntityKey !== input.entityKey && meeting.relatedGpIds.indexOf(entity.id) !== -1;
-  }).map(function (meeting) { return kspEntityWorkspaceScopeMeeting_(meeting, 'related'); }) : [];
+  var relatedMeetings = [];
   var visibleMeetings = (meetingScope === 'direct' ? directMeetings.slice() : directMeetings.concat(relatedMeetings))
     .sort(kspEntityWorkspaceSortMeeting_);
   var directMeetingIds = {};
@@ -398,16 +395,9 @@ function kspBuildEntityWorkspaceData_(rawInput, gpRows, optionRows, meetingRows,
     if (!pitchbookById[pitchbook.documentId]) pitchbookById[pitchbook.documentId] = [];
     pitchbookById[pitchbook.documentId].push(pitchbook);
   });
-  var selectedPitchbooks = entity.type === 'GP' ? allPitchbooks.filter(function (pitchbook) {
-    return pitchbook.gpId === entity.id;
-  }) : Object.keys(directMeetingIds).reduce(function (selected, meetingId) {
-    var meeting = directMeetings.filter(function (candidate) { return candidate.meetingId === meetingId; })[0];
-    (meeting ? meeting.relatedPitchbookIds : []).forEach(function (documentId) {
-      var candidates = pitchbookById[documentId] || [];
-      if (candidates.length === 1) selected.push(candidates[0]);
-    });
-    return selected;
-  }, []);
+  var selectedPitchbooks = allPitchbooks.filter(function (pitchbook) {
+    return pitchbook.counterpartyEntityKey === input.entityKey;
+  });
   var selectedPitchbookIds = {};
   selectedPitchbooks = selectedPitchbooks.filter(function (pitchbook) {
     if (selectedPitchbookIds[pitchbook.documentId]) return false;
@@ -445,9 +435,9 @@ function kspBuildEntityWorkspaceData_(rawInput, gpRows, optionRows, meetingRows,
       counterpartyId: entity.id,
       name: entity.name,
       status: entity.status,
-      mode: entity.type === 'GP' ? 'GP' : 'NON_GP'
+      mode: 'COUNTERPARTY'
     },
-    mode: entity.type === 'GP' ? 'GP' : 'NON_GP',
+    mode: 'COUNTERPARTY',
     summary: {
       directMeetingCount: directMeetings.length,
       directActiveMeetingCount: directMeetings.filter(function (meeting) { return meeting.status === KSP_STATUS.ACTIVE; }).length,
@@ -465,9 +455,9 @@ function kspBuildEntityWorkspaceData_(rawInput, gpRows, optionRows, meetingRows,
     },
     meetings: { direct: directList, related: relatedList, all: kspEntityWorkspaceCap_(visibleMeetings, KSP_ENTITY_WORKSPACE_LIMITS.DIRECT_MEETINGS, kspEntityWorkspaceSortMeeting_) },
     pitchbooks: pitchbookList,
-    ownedPitchbooks: entity.type === 'GP' ? pitchbookList : { totalCount: 0, records: [], omittedCount: 0 },
-    linkedPitchbooks: entity.type !== 'GP' ? pitchbookList : { totalCount: 0, records: [], omittedCount: 0 },
-    relatedGps: entity.type === 'GP' ? [] : kspEntityWorkspaceRelatedGps_(directMeetings, gpRows),
+    ownedPitchbooks: pitchbookList,
+    linkedPitchbooks: pitchbookList,
+    relatedGps: [],
     fundStrategies: {
       totalCount: fundStrategies.length,
       records: fundStrategies.slice(0, KSP_ENTITY_WORKSPACE_LIMITS.FUND_STRATEGIES),
@@ -512,7 +502,7 @@ function kspGetEntityWorkspaceData_(environment, rawInput) {
     kspAssert_(backendSpreadsheetId, 'BACKEND_SPREADSHEET_MISSING', 'Backend Spreadsheetがありません。');
     return kspBuildEntityWorkspaceData_(
       rawInput,
-      environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER),
+      environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER),
       environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER),
       environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX),
       environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX)

@@ -423,14 +423,26 @@ Detailed sources:
 - `docs/operations/company-bundle-installation.md`;
 - `docs/standards/apps-script-bundle-installer-standard.md`.
 
+## 2026-09-18 — Counterparty Master schema8 unification
+
+Status: Accepted design direction
+
+- `GP_Master` is replaced in the five-sheet Backend by `Counterparty_Master`;
+- every organization/department receives a generic stable `CP-*` identity and GP remains only `Counterparty_Type=GP`;
+- Meeting and Material/Pitchbook use `Counterparty_ID` as primary identity, one normal selector, and canonical `COUNTERPARTY:<CP-ID>` entity keys;
+- schema7 GP and non-GP option identities are migrated deterministically with provenance, stable record/file IDs, and idempotent replay;
+- GP-only master/filter/summary and user-facing Related GP behavior are superseded.
+
+Detailed source: `docs/decisions/counterparty-master-unification.md`.
+
 ## Current genuine choices
 
 - whether scale later requires caching/materialized summaries;
-- whether non-GP Pitchbook ownership is materially needed;
-- whether cross-category duplicate Entities require alias/canonical identity;
+- whether future use requires a many-to-many Related Counterparty model;
+- whether cross-type duplicate Counterparties require alias/canonical identity;
 - current OpenAI and Gemini models/credentials at Work 0020 start;
 - exact provider-state physical compatibility/mirroring after source inventory;
-- exact Related GP/Meeting Type multi-value filter strategy from actual provider behavior;
+- exact Meeting Type multi-value filter strategy from actual provider behavior;
 - observed rate limit, retry, batch size, cost, and retention guardrails per provider;
 - whether Work 0023 can safely remove the Advanced Drive service dependency or retains one simple service-enable step;
 - whether bundle files are committed under `dist/` or generated only as CI/GitHub Release assets, subject to freshness/hash enforcement;

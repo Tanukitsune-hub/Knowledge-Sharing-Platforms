@@ -1,7 +1,8 @@
-function kspBuildKnowledgeSearchCatalog_(gpRows, optionRows, meetingRows, pitchbookRows) {
-  var gps = (gpRows || []).map(function (row) {
-    return { id: String(row.GP_ID || ''), name: String(row.GP_Name || ''), status: String(row.Status || '') };
-  }).filter(function (item) { return item.id && item.name; }).sort(function (left, right) {
+function kspBuildKnowledgeSearchCatalog_(counterpartyRows, optionRows, meetingRows, pitchbookRows) {
+  var counterparties = (counterpartyRows || []).map(function (row) {
+    return { id: String(row.Counterparty_ID || row.GP_ID || ''), name: String(row.Counterparty_Name || row.GP_Name || ''),
+      type: String(row.Counterparty_Type || (row.GP_ID ? 'GP' : '')), status: String(row.Status || '') };
+  }).filter(function (item) { return item.id && item.name && item.type; }).sort(function (left, right) {
     return left.name.localeCompare(right.name, 'ja');
   });
   var options = (optionRows || []).map(function (row) {
@@ -17,28 +18,19 @@ function kspBuildKnowledgeSearchCatalog_(gpRows, optionRows, meetingRows, pitchb
       return { id: item.id, name: item.name, status: item.status, sortOrder: item.sortOrder };
     });
   }
-  var counterpartyEntities = gps.map(function (gp) {
-    return { id: 'GP:' + gp.id, entityKey: 'GP:' + gp.id, type: 'GP', name: gp.name, status: gp.status };
+  var counterpartyEntities = counterparties.map(function (counterparty) {
+    return { id: 'COUNTERPARTY:' + counterparty.id, entityKey: 'COUNTERPARTY:' + counterparty.id,
+      counterpartyId: counterparty.id, type: counterparty.type, name: counterparty.name,
+      status: counterparty.status };
   });
-  KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(function (definition) { return definition.optionType; })
-    .forEach(function (definition) {
-      byType(definition.optionType).forEach(function (option) {
-        counterpartyEntities.push({
-          id: definition.code + ':' + option.id,
-          entityKey: definition.code + ':' + option.id,
-          type: definition.code,
-          name: option.name,
-          status: option.status
-        });
-      });
-    });
   var fundStrategies = {};
   (meetingRows || []).concat(pitchbookRows || []).forEach(function (row) {
     var value = kspAiTrim_(row && row.Fund_Strategy);
     if (value) fundStrategies[value] = true;
   });
   return {
-    gps: gps,
+    counterparties: counterparties,
+    gps: counterparties.filter(function (item) { return item.type === 'GP'; }),
     assetClasses: byType(KSP_OPTION_TYPES.ASSET_CLASS),
     capitalTypes: byType(KSP_OPTION_TYPES.CAPITAL_TYPE),
     teams: byType(KSP_OPTION_TYPES.TEAM),
@@ -46,7 +38,6 @@ function kspBuildKnowledgeSearchCatalog_(gpRows, optionRows, meetingRows, pitchb
       return { id: definition.code, code: definition.code, name: definition.label, label: definition.label };
     }),
     counterpartyEntities: counterpartyEntities,
-    relatedGps: gps.slice(),
     meetingTypes: KSP_MEETING_TYPE_DEFINITIONS.map(function (definition) {
       return { id: definition.code, code: definition.code, name: definition.label, label: definition.label };
     }),
@@ -93,8 +84,16 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
       'AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE', '選択されたCounterparty Typeは利用できません。');
   }
   if (filters.entityKey) {
-    kspRequireCatalogItem_(safeCatalog.counterpartyEntities, filters.entityKey,
+    var selectedEntity = kspRequireCatalogItem_(safeCatalog.counterpartyEntities, filters.entityKey,
       'AI_ENTITY_FILTER_UNAVAILABLE', '選択されたCounterparty Entityは利用できません。');
+    if (filters.counterpartyType) {
+      kspAssert_(selectedEntity.type === filters.counterpartyType,
+        'AI_ENTITY_TYPE_CONFLICT', 'Counterparty TypeとEntityが一致しません。');
+    }
+    if (filters.gpId) {
+      kspAssert_(selectedEntity.type === 'GP' && selectedEntity.counterpartyId === filters.gpId,
+        'AI_ENTITY_GP_CONFLICT', 'Counterparty EntityとGPが一致しません。');
+    }
   }
   if (filters.fundStrategy) {
     kspRequireCatalogItem_(safeCatalog.fundStrategies, filters.fundStrategy,
@@ -102,7 +101,7 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
   }
   if (filters.relatedGpId) {
     kspRequireCatalogItem_(safeCatalog.relatedGps || safeCatalog.gps, filters.relatedGpId,
-      'AI_RELATED_GP_FILTER_UNAVAILABLE', '選択されたRelated GPは利用できません。');
+      'AI_RELATED_GP_FILTER_UNAVAILABLE', '旧形式の検索条件は利用できません。');
   }
   if (filters.meetingTypeCode) {
     kspRequireCatalogItem_(safeCatalog.meetingTypes || [], filters.meetingTypeCode,
@@ -149,7 +148,7 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
       date: kspCanonicalBusinessDate_(row.Date),
       driveUrl: String(row.Doc_URL || ''),
       savedFilename: String(row.Saved_Filename || row.Meeting_ID || ''),
-      entityKey: counterpartyType && counterpartyId ? counterpartyType + ':' + counterpartyId : '',
+      entityKey: kspCounterpartyEntityKey_(counterpartyId),
       counterpartyType: counterpartyType,
       status: String(row.Status || ''),
       aiDocumentName: String(row.AI_Document_Name || ''),

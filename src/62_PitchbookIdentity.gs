@@ -35,11 +35,12 @@ function kspBuildPitchbookPendingRow_(params) {
     Document_ID: options.documentId,
     Batch_ID: options.batchId,
     Parent_Meeting_ID: options.input.parentMeetingId || '',
-    Counterparty_Type: options.input.counterpartyType || '',
+    Counterparty_Type: options.selected && options.selected.counterpartyEntity
+      ? options.selected.counterpartyEntity.type : '',
     Counterparty_ID: options.input.counterpartyId || '',
-    Related_GP_IDs: options.input.relatedGpIds || '',
+    Related_GP_IDs: '',
     Date: options.input.date,
-    GP_ID: options.input.gpId,
+    GP_ID: '',
     Asset_Class_ID: options.input.assetClassId,
     Capital_Type_ID: options.input.capitalTypeId,
     Fund_Strategy: options.input.fundStrategy,
@@ -64,10 +65,10 @@ function kspBuildPitchbookPendingRow_(params) {
 function kspBuildPitchbookSlotFingerprint_(row, reservedFile, totalBytes) {
   var descriptor = reservedFile || {};
   var canonical = [
-    row.Batch_ID, row.Document_ID, kspCanonicalBusinessDate_(row.Date), row.GP_ID, row.Asset_Class_ID,
+    row.Batch_ID, row.Document_ID, kspCanonicalBusinessDate_(row.Date), row.Counterparty_ID, row.Asset_Class_ID,
     row.Capital_Type_ID, row.Fund_Strategy, row.Sequence_No, row.Original_Filename, row.Saved_Filename,
     descriptor.sizeBytes, descriptor.mimeType, totalBytes
-  ].concat(row.Parent_Meeting_ID ? [row.Parent_Meeting_ID, row.Counterparty_Type, row.Counterparty_ID] : [])
+  ].concat(row.Parent_Meeting_ID ? [row.Parent_Meeting_ID] : [])
     .map(function (value) { return String(value || ''); }).join('\u001f');
   return kspFnv1aHex_(canonical);
 }

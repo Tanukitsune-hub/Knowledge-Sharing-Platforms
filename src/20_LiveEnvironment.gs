@@ -109,6 +109,17 @@ function kspCreateAppsScriptEnvironment_() {
       };
     },
 
+    renameSheetIfPresent: function (spreadsheetId, fromName, toName) {
+      var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+      var fromSheet = spreadsheet.getSheetByName(fromName);
+      var toSheet = spreadsheet.getSheetByName(toName);
+      kspAssert_(!(fromSheet && toSheet), 'COUNTERPARTY_MASTER_RENAME_CONFLICT',
+        'Legacy and canonical Counterparty master sheets both exist.');
+      if (!fromSheet) return { action: toSheet ? 'reused' : 'not-found' };
+      fromSheet.setName(toName);
+      return { action: 'renamed' };
+    },
+
     ensureSheet: function (spreadsheetId, sheetName, expectedHeaders) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(sheetName);
@@ -150,6 +161,52 @@ function kspCreateAppsScriptEnvironment_() {
       sheet.setFrozenRows(1);
       return { action: created ? 'created' : 'reused', addedHeaders: [], columnCount: actualHeaders.length };
     },
+    readCounterpartyMigrationSnapshot: function (spreadsheetId) {
+      var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+      function rows(sheetName) {
+        var sheet = spreadsheet.getSheetByName(sheetName);
+        kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+        var headers = kspReadHeadersFromSheet_(sheet);
+        return kspReadObjectsFromSheet_(sheet, headers);
+      }
+      return {
+        counterpartyRows: rows(KSP_SHEET_NAMES.COUNTERPARTY_MASTER),
+        optionRows: rows(KSP_SHEET_NAMES.OPTION_MASTER),
+        meetingRows: rows(KSP_SHEET_NAMES.MEETING_INDEX),
+        pitchbookRows: rows(KSP_SHEET_NAMES.PITCHBOOK_INDEX)
+      };
+    },
+
+    applyCounterpartyMigrationPlan: function (spreadsheetId, plan) {
+      var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+      function apply(sheetName, patches) {
+        var sheet = spreadsheet.getSheetByName(sheetName);
+        kspAssert_(sheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + sheetName);
+        var headers = kspReadHeadersFromSheet_(sheet);
+        (patches || []).forEach(function (patch) {
+          Object.keys(patch.values || {}).forEach(function (header) {
+            var columnIndex = headers.indexOf(header);
+            kspAssert_(columnIndex !== -1, 'SCHEMA_COLUMNS_MISSING',
+              'Missing migration column: ' + sheetName + '.' + header);
+            sheet.getRange(Number(patch.rowIndex) + 2, columnIndex + 1).setValue(patch.values[header]);
+          });
+        });
+      }
+      apply(KSP_SHEET_NAMES.COUNTERPARTY_MASTER, plan.counterpartyPatches);
+      var masterSheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.COUNTERPARTY_MASTER);
+      var masterHeaders = kspReadHeadersFromSheet_(masterSheet);
+      kspAppendObjectsToSheet_(masterSheet, masterHeaders, plan.counterpartyAppends || []);
+      apply(KSP_SHEET_NAMES.MEETING_INDEX, plan.meetingPatches);
+      apply(KSP_SHEET_NAMES.PITCHBOOK_INDEX, plan.pitchbookPatches);
+      return {
+        counterpartyUpdated: (plan.counterpartyPatches || []).length,
+        counterpartyInserted: (plan.counterpartyAppends || []).length,
+        meetingUpdated: (plan.meetingPatches || []).length,
+        pitchbookUpdated: (plan.pitchbookPatches || []).length,
+        legacyMappingCount: Number(plan.legacyMappingCount || 0)
+      };
+    },
+
     backfillMeetingCounterpartyFields: function (spreadsheetId) {
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var sheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.MEETING_INDEX);

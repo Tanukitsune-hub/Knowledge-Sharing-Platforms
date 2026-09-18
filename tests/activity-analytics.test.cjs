@@ -21,7 +21,7 @@ function loadActivitySource() {
   for (const file of [
     '00_Core.gs', '05_TemporalContracts.gs', '61_PitchbookValidation.gs',
     '62_PitchbookIdentity.gs', '30_MeetingCore.gs', '100_MaintenanceCore.gs',
-    '112_MaintenanceServiceHelpers.gs', '125_GpWorkspaceService.gs',
+    '112_MaintenanceServiceHelpers.gs',
     '126_ActivityAnalyticsService.gs'
   ]) {
     new vm.Script(fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8'), { filename: file }).runInContext(context);
@@ -78,6 +78,14 @@ function createEnvironment(rows) {
     },
     readRows(id, sheet) {
       calls.push(`readRows:${id}:${sheet}`);
+      if (sheet === 'Counterparty_Master') {
+        return [
+          { Counterparty_ID: 'GP-1', Counterparty_Type: 'GP' },
+          { Counterparty_ID: 'GP-2', Counterparty_Type: 'GP' },
+          { Counterparty_ID: 'GP-3', Counterparty_Type: 'GP' },
+          { Counterparty_ID: 'OPT-CPLP-001', Counterparty_Type: 'LP_ASSET_OWNER' }
+        ];
+      }
       assert.equal(sheet, 'Meeting_Index');
       return rows.map(row => ({ ...row }));
     },
@@ -141,7 +149,7 @@ test('period buckets consume Tokyo canonical Business Date and include fiscal bo
   assert.deepEqual(keys(year.series), ['2026']);
   const custom = ksp.kspGetMeetingActivityAnalytics_(env, { ...range, period: 'custom' });
   assert.deepEqual(keys(custom.series), ['2026-03-31', '2026-04-01']);
-  assert.equal(env._debug.calls.filter(call => call.startsWith('readRows')).length, 5);
+  assert.equal(env._debug.calls.filter(call => call.startsWith('readRows')).length, 10);
 });
 
 test('cumulative monthly series returns running exact Meeting counts', () => {
@@ -159,13 +167,13 @@ test('cumulative monthly series returns running exact Meeting counts', () => {
 test('filters and every supported dimension preserve unset buckets', () => {
   const rows = baseRows();
   const env = createEnvironment(rows);
-  const filters = { dateFrom: '2026-01-01', dateTo: '2027-12-31', filters: { relatedGp: 'GP-2' } };
+  const filters = { dateFrom: '2026-01-01', dateTo: '2027-12-31', filters: { counterpartyType: 'LP_ASSET_OWNER' } };
   const result = ksp.kspGetMeetingActivityAnalytics_(env, { ...filters, period: 'monthly', dimension: 'counterpartyEntity' });
-  assert.equal(result.headline.meetingCount, 2);
-  assert.ok(result.breakdown.items.some(item => item.key === 'LP_ASSET_OWNER:OPT-CPLP-001'));
+  assert.equal(result.headline.meetingCount, 1);
+  assert.ok(result.breakdown.items.some(item => item.key === 'COUNTERPARTY:OPT-CPLP-001'));
   assert.ok(result.filterOptions.teams.some(item => item.value === '__UNSET__'));
 
-  for (const dimension of ['counterpartyType', 'counterpartyEntity', 'relatedGp', 'assetClass', 'team', 'meetingType', 'status']) {
+  for (const dimension of ['counterpartyType', 'counterpartyEntity', 'assetClass', 'team', 'meetingType', 'status']) {
     const dimensionResult = ksp.kspGetMeetingActivityAnalytics_(env, { period: 'calendarYear', dimension });
     assert.equal(dimensionResult.ok, true, `${dimension}: ${JSON.stringify(dimensionResult)}`);
     assert.equal(dimensionResult.breakdown.dimension, dimension);
@@ -186,7 +194,7 @@ test('full metrics precede drill and breakdown caps and no Doc body adapter is u
   assert.equal(result.breakdown.omittedCount, 1);
   assert.equal(result.readModel.source, 'Meeting_Index');
   assert.equal(result.readModel.documentBodyRead, false);
-  assert.deepEqual(env._debug.calls, ['getInstallationState', 'readRows:backend:Meeting_Index']);
+  assert.deepEqual(env._debug.calls, ['getInstallationState', 'readRows:backend:Counterparty_Master', 'readRows:backend:Meeting_Index']);
 });
 
 test('admin check is narrow, optimistic, idempotent, and metadata-only', () => {
