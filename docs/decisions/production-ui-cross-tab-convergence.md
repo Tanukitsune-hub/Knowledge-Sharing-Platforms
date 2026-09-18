@@ -40,16 +40,16 @@ Equity / Debt (`Capital_Type_ID`) はbackend/schema/historical dataとして保�
 
 ### Counterparty Type
 
-`Counterparty_Type`もbackend/schema/existing metadataとして保持するが、normal user-facing UIで選択させない。
+`Counterparty_Type`もbackend/schema/existing metadataとして保持する。検索・分析・通常filterでは選択させないが、新規面談先を登録する専用modalでは必須入力として種別を選択する。
 
 削除対象:
 - Counterparty Type filter/select
 - Activity AnalyticsのCounterparty Type filter
 - Activity Analyticsの内訳option `counterpartyType`
-- quick-add時のtype prompt
-- Counterparty Master新規追加時のtype selector
+- native browser promptによるquick-add type入力
+- Counterparty Masterのinline type selector
 
-新規Counterpartyはuser selectionなしで`OTHER`をsafe defaultとする。既存Counterparty typeは変更しない。
+新規Counterpartyは専用modalで`Counterparty_Type`を必須選択し、相手先名称と合わせて登録する。defaultで`OTHER`へ自動決定しない。既存Counterparty typeは変更しない。
 
 read-only metadata/table columnはこのWorkで必ずしも削除しない。主対象はuser selection surface。
 
@@ -58,3 +58,28 @@ read-only metadata/table columnはこのWorkで必ずしも削除しない。主
 記録を追加のlayoutをreferenceに、各tabを12-columnベースで整理する。目的は過度な空白・不揃いなcontrol width・旧30ch capを減らし、短い視線移動と一貫したdensityを作ること。
 
 Production behavior / data model / securityは変更しない。
+## New Counterparty registration modal
+
+新規面談先登録はnative `prompt()` / browser promptを使用しない。
+
+Meeting-createの`未登録の面談先を追加`、およびMaster画面からの新規面談先追加は、同一の専用modal formを再利用する。
+
+Modal fields:
+- `面談先種別` — required select
+- `面談先名` — required text input
+
+Type options:
+- `GP` — GP / 運用会社
+- `LP_ASSET_OWNER` — LP / Asset Owner
+- `NISSAY_INTERNAL` — 日本生命
+- `GROUP_COMPANY` — グループ会社
+- `CONSULTANT_GATEKEEPER` — Consultant / Gatekeeper
+- `OTHER` — その他
+
+Modal actions:
+- `キャンセル`
+- `登録`
+
+登録成功後、Meeting-create起点の場合は新規Counterpartyを面談先selectorへ即時反映・選択する。Master起点の場合はmaster一覧をrefreshする。
+
+Backdrop、Escape、Cancelで安全に閉じ、focusを起点buttonへ戻す。modal open中のbackground interactionは抑止する。
