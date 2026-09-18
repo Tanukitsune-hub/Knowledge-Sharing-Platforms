@@ -1,7 +1,7 @@
 # Work 0036 — Cross-tab production UI optimization
 
 WORK_ID: 0036
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 
 ## Primary Outcome
@@ -153,3 +153,19 @@ same existing owner-only target / same single deploymentを使用。Work0034 ver
 - Meeting-createから登録成功時は新規Counterpartyを即選択
 - Mastersから登録成功時は一覧をrefresh
 - duplicate/errorは既存service errorをmodal内statusとして表示し、page top overlayへ飛ばさない
+## Final Acceptance
+
+PR #58 merge: `9537b499ed05698ab1e981a51534fe86807d910d`
+
+Owner-only Web App version11で全7 normal tabs、2560/1440/1280/390、shared Counterparty modal、Equity/Debt preservation、analytics/maintenance flowsを認定。
+
+```text
+TARGET_RUNTIME_QUALIFICATION: PASS
+LOGIC_VALIDATION: 561/561 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+CONSOLE_MATERIAL_ERROR_WARN: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+Completion: `docs/handoffs/0036-completion-report.md`
