@@ -63,18 +63,23 @@ Update stale user-facing hints that mention Equity / Debt where the user no long
 
 `Counterparty_Type` remains backend metadata.
 
-Remove normal user selection of type, including at least:
+Remove normal filter/analytics selection of type, including at least:
 - Activity Analytics `activity-filter-counterpartyType`
 - Activity Analytics dimension option `counterpartyType` / 面談先種別
-- Counterparty quick-add type prompt
-- Counterparty Master add type selector
+- native browser prompt based Counterparty type input
+- Counterparty Master inline type selector
 - any other visible normal-user Counterparty Type filter/select discovered during implementation
+
+EXCEPTION: new Counterparty registration modal must expose a required Counterparty Type selector.
 
 Already-hidden compatibility selects may remain hidden.
 
 New Counterparty rule:
-- no type prompt/dropdown
-- safe default `OTHER`
+- no native browser `prompt()`
+- open a dedicated custom modal
+- type is REQUIRED and user-selected in that modal
+- name is REQUIRED
+- do NOT silently default to `OTHER`
 - existing type unchanged
 
 Counterparty Master existing type display column may remain read-only in this Work; do not make type editable.
@@ -196,11 +201,12 @@ Backend counterpartyType analytics support may remain unused for compatibility.
 
 Desktop main sections: 6/6.
 
-Counterparty add form:
-- no type selector
-- name field wide
-- add button compact
-- create as `OTHER`
+Counterparty add flow:
+- remove inline type selector from the Masters page
+- show a compact `新規面談先を追加` action/button
+- open the same dedicated Counterparty registration modal used by Meeting-create quick-add
+- modal contains required Type select + required Counterparty name
+- do not default to `OTHER`
 
 Option add form:
 - no `CAPITAL_TYPE` option
@@ -228,8 +234,8 @@ Add focused tests for:
 - zero visible/selectable Equity/Debt controls in normal UI
 - no `CAPITAL_TYPE` in Option Master add selector
 - hidden/preserved edit capital values survive update
-- zero visible Counterparty Type selectors/analytics option
-- new Counterparty defaults to OTHER
+- zero Counterparty Type selectors in filters/analytics; the only allowed user-selectable type surface is the new-Counterparty modal
+- new Counterparty modal requires explicit valid type selection
 - legacy existing type preserved
 - Knowledge 12-col layout
 - Past/Edit layouts
@@ -262,7 +268,8 @@ Actual owner-only Web App checks:
 - Past Meeting search/detail/edit
 - Analytics filters/result render
 - Counterparty Summary render
-- Masters add Counterparty as OTHER without type choice
+- Meeting-create quick-add opens custom modal (no native prompt), registers selected type + name, then selects the new Counterparty
+- Masters new-Counterparty action opens the same custom modal and refreshes the master list
 - Option add no Equity/Debt choice
 - Admin page layout
 - console material error/warn0
@@ -313,3 +320,94 @@ STATUS: RETURNED
 ```
 
 Only return USER/ACTION_REQUIRED if a native visual decision truly cannot be resolved from this contract.
+## B2. Dedicated New Counterparty modal — latest user instruction
+
+This latest instruction supersedes the earlier `default OTHER / no type choice` rule.
+
+Replace the current quick-add/native prompt behavior with a real in-app modal dialog.
+
+### Entry points
+
+1. Meeting-create `未登録の面談先を追加`
+2. Masters / 面談先マスター `新規面談先を追加`
+
+Both entry points should reuse the same modal component and submit flow.
+
+### Modal UI
+
+Centered dialog over a dimmed backdrop. Do not use `window.prompt`, `alert`, or browser-native prompt UI.
+
+Fields:
+- Label: `面談先種別`
+  - required `<select>`
+  - first option `選択してください` / empty value
+  - options:
+    - `GP` / `GP / 運用会社`
+    - `LP_ASSET_OWNER` / `LP / Asset Owner`
+    - `NISSAY_INTERNAL` / `日本生命`
+    - `GROUP_COMPANY` / `グループ会社`
+    - `CONSULTANT_GATEKEEPER` / `Consultant / Gatekeeper`
+    - `OTHER` / `その他`
+- Label: `面談先名`
+  - required text input
+  - existing max length / validation contract
+
+Actions:
+- secondary `キャンセル`
+- primary `登録`
+
+Validation:
+- empty type => inline modal error, no server call
+- empty/whitespace name => inline modal error, no server call
+- service duplicate/validation error => display in modal and keep entered values
+
+### Interaction / accessibility
+
+- `role="dialog"` and `aria-modal="true"`
+- focus first useful field on open
+- keep keyboard focus within modal while open
+- Escape closes without mutation
+- Cancel closes without mutation
+- backdrop click may close only if it cannot cause accidental submit
+- after close, restore focus to trigger
+- background page interaction/scroll should not interfere while open
+
+### Success behavior
+
+Meeting-create origin:
+- refresh Counterparty options
+- select the newly created Counterparty automatically
+- close modal
+- no page reload
+
+Masters origin:
+- refresh Counterparty master list/options
+- close modal
+- no page reload
+
+Type is stored exactly from the selected enum. Existing backend quick-add/master service may be reused or minimally converged; do not change schema.
+
+### Visual language
+
+Use current Light UI + restrained gold accent:
+- white/surface dialog
+- gold-accent header/border or primary emphasis
+- same 37px-ish control height
+- compact, not full-page
+- desktop comfortable width roughly 420–520px
+- mobile width within viewport with safe margins
+
+### Tests
+
+Add focused tests for:
+- no native prompt call for Counterparty registration
+- exactly one reusable modal workflow/component
+- all six type options
+- explicit type required
+- name required
+- Meeting origin auto-selects new Counterparty
+- Masters origin refreshes list
+- Escape/Cancel no mutation
+- service error remains in modal
+
+Actual runtime qualification must include opening the modal from both entry points and one synthetic creation with a non-default type.
