@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACCEPTED | PR #50 + PR #51 | Completion Latch済み。次はユーザー実機確認。Work 0030は自動開始しない |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD / USER REVIEW REOPEN) | PR #50 + #51 accepted baseline | CODEX-24でpre-rollout UI polishと「記録を追加」interaction regressionを自律修復・実機検証 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
@@ -75,7 +75,7 @@ FINAL_ADMIN_STATE: locked
 BLOCKER: NONE
 ```
 
-## Work 0028 accepted outcome
+## Work 0028 accepted baseline / user-review reopen
 
 PR #50 Light design:
 `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`
@@ -123,7 +123,7 @@ Current ball/status:
 
 ResidualsはBLOCKERではない。mobile/other-browser visual sweep、任意locale日時表示、real/company rollout、historical migration、provider transition、Dark/Systemは別scope。
 
-次工程はユーザー実機確認。Work 0030は明示的な再開判断までDEFERRED。
+ユーザー実機確認でrequired-flow contradictionとUI polish scopeが発生したためWork 0028を再オープン。active instructionは `docs/handoffs/0028-CODEX-24-pre-rollout-ui-polish-instruction.md`。Work 0030は明示的な再開判断までDEFERRED。
 
 ## Work 0030 deferred contract
 
