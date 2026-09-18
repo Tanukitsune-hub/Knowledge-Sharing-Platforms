@@ -52,13 +52,26 @@ WORK_0033_COMPLETE: NO
 
 - Direct-manipulation v2 implementation: COMPLETE
 - Implementation commit: `3a21af3`
-- Focused tests: `17/17 PASS`
-- Canonical check: `541/541 PASS`
+- Revised candidate implementation commit: `c6e15fc`
+- Current authoritative candidate: 12 columns / width100% / max1680 / left / gap14-14
+- Superseded candidate: 77% / 24 columns / NOT USED
+- Candidate parity: PASS
+- Desktop viewport placement mutation: 0
+- Focused tests: `20/20 PASS`
+- Canonical check: `544/544 PASS`
 - Production source / deployment / external calls: `0`
 - Actual Chrome `file://` qualification: USER ACTION REQUIRED
 - Report: `docs/handoffs/0033-CODEX-02-direct-manipulation-report.md`
 
-USERは`tools/ui-layout-lab/open-layout-lab.bat`からactual local surfaceを開き、report記載の13項目を確認する。全項目に問題がなければ`確認完了`、問題があれば項目番号と症状だけを返す。private JSONや画像の共有は不要。
+USERは`tools/ui-layout-lab/open-layout-lab.bat`からactual local surfaceを開き、reportの改訂13項目を確認する。特にWide → Laptop → Compact → Wideでtopologyとexport JSONが不変であることを確認する。全項目に問題がなければ`確認完了`、問題があれば項目番号と症状だけを返す。private JSONや画像の共有は不要。
+
+## Revised user-selected candidate
+
+Current authoritative candidate: `docs/handoffs/0033-user-layout-candidate-current.json`
+
+Supplement: `docs/handoffs/0033-CODEX-02-revised-layout-candidate-supplement.md`
+
+Earlier 77% / 24-column candidate is superseded. Current preferred layout uses 12 columns / width100% / max1680 and preserves identical desktop topology across Wide / Laptop / Compact.
 
 ## CODEX-01 closed evidence
 

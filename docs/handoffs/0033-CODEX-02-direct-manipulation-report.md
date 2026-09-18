@@ -18,7 +18,18 @@ MODE: BUILD
 
 ## Implementation
 
-Implementation commit: `3a21af3`。
+Implementation commits: direct-manipulation v2 `3a21af3`、revised authoritative candidate `c6e15fc`。
+
+### Revised authoritative candidate
+
+- latest `origin/main`の`docs/handoffs/0033-user-layout-candidate-current.json`を正本として取り込んだ。旧77% / 24-column candidateは`SUPERSEDED`でありpreferred stateとして使用しない。
+- 初期状態、`Compact Institutional` preset、Resetをcurrent 12-column candidateへ統一した。
+- containerはwidth 100% / max-width 1680px / left / gap 14px・14px。
+- JSON array順と視覚順を分離し、rendererは各visible fieldへexplicit `gridColumn` / `gridRow`を設定する。Row 1は必ずDate → Time → Location → Team → Asset Classとなる。
+- `meeting-capitalTypeId`はhiddenで、visible row calculationとgrid spaceを消費しない。
+- preview viewportをcanonical layout/historyから分離した。Wide / Laptop / Compact / Mobile切替はcanonical JSON、placement、dirty state、undo historyを変更しない。
+- Wide / Laptop / Compactは同じ12-column topology、MobileだけがCSSによる1-column visual projectionとなる。
+- Codex handoffへsupplement指定のresponsive intent全文を出力する。
 
 ### Direct manipulation
 
@@ -59,6 +70,10 @@ Implementation commit: `3a21af3`。
 | one gesture / history | multiple previews + single record = one undo entry PASS |
 | v2 tidy/lint | collision/bounds/gaps/tall/narrow/short/precision warnings PASS |
 | accepted baseline | four presets, stable IDs, Current v8 values, hidden/history features PASS |
+| revised candidate parity | latest `origin/main` candidateとのnormalized semantic parity PASS |
+| explicit visual topology | Row 1 visual order、Rows 2-7、intentional blanks、hidden no-slot PASS |
+| viewport non-mutation | preview stateをcanonical/historyから分離、button handler non-commit PASS |
+| responsive handoff | required responsive intent exact text PASS |
 | local-only boundary | no network-capable API/dependency, local asset references only PASS |
 
 ## Logic validation
@@ -66,8 +81,9 @@ Implementation commit: `3a21af3`。
 | Gate | Result |
 |---|---|
 | JavaScript syntax (`node --check`) | PASS |
-| focused Layout Lab tests | `17/17 PASS` |
-| `npm run check` | `541/541 PASS` |
+| focused Layout Lab tests | `20/20 PASS` |
+| authoritative candidate parity | `CANDIDATE_PARITY_PASS` |
+| `npm run check` | `544/544 PASS` |
 | `git diff --check` | PASS |
 | production `src/**` / `dist/**` diff | `0 files` |
 | Apps Script bundle regeneration | NOT RUN (forbidden / unnecessary) |
@@ -80,22 +96,22 @@ CODEX-01でChrome automationからlocal `file://` navigationがbrowser policyに
 
 CODEX-02のactual `file://`操作はまだUSER未確認である。したがってdirect drag/resize、render、browser localStorage、download/import、console状態は`ACTION_REQUIRED`であり、PASSとは記録しない。
 
-### USER checklist
+### Revised USER checklist
 
 `tools/ui-layout-lab/open-layout-lab.bat`をdouble-clickし、Chromeで次を確認する。
 
-1. fieldを別rowかつdefault以外の横startへdragでき、空きcolumnが残る。
-2. 選択fieldのEとW handleで横幅を変更できる。
-3. NとS handleで高さを変更できる。
-4. corner handle 1つで縦横を同時変更できる。
-5. 面談内容をmouseで大きく縦へ伸ばせる。
-6. 通常fieldをsafe範囲で高く／低くできる。
-7. Standard 12 → Fine 24 → Standard 12を切り替えられる。
-8. mouse操作後のorder / start / span / top gap / height / row breakがinspectorと一致する。
-9. canvas選択中のArrow / Shift+Arrow nudgeが動き、inspector入力中の矢印操作を奪わない。
-10. 各drag/resizeをundo 1回で戻し、redo 1回で復元できる。
-11. 手元のv1 JSONをimportするとv2へmigrateし、v2 export→importがexact roundtripする。
-12. 4 preset、variant save/load、hide/show、Codex handoff、reference overlayが引き続き動く。
+1. 初期表示が12 columns / width 100% / max-width 1680px / left / gap 14px・14pxである。
+2. Row 1がDate → Time → Location → Team → Asset Classで、右3 columnsが空いている。
+3. Rows 2-7がMeeting Type、面談先+Fund、面談相手、当社側、資料、面談内容の順で、Equity / Debtは非表示でspaceを使わない。
+4. JSONをcopy後、Wide → Laptop → Compact → Wideと切り替えてもrow/column topologyが変わらず、再copyしたJSONが同一である。
+5. Mobileだけ1-columnになり、Wideへ戻すと元のdesktop topologyとJSONが保たれる。
+6. `Codexに渡す`に12-column / width100% / max1680 / desktop non-reflow / Mobile-only projectionのintentが出る。
+7. E/W、N/S、corner handleで横・縦・同時resizeでき、面談内容と通常fieldの高さをsafe範囲で変更できる。
+8. fieldを別row・任意startへdragでき、ghost / row marker / guideが出て、意図した空きcolumnが残る。
+9. mouse結果とinspectorのorder / start / span / top gap / height / row breakが一致する。
+10. canvasのArrow / Shift+Arrow nudgeが動き、inspector入力中の矢印操作を奪わない。
+11. 各gestureがundo 1回 / redo 1回で戻り、Resetでcurrent authoritative candidateへ戻る。
+12. Standard 12 ⇄ Fine 24、v1 migration、v2 exact roundtrip、4 preset、variant、hide/show、handoff、overlayが動く。
 13. browser consoleのmaterial error/warnが0。
 
 private JSONや画像の共有は不要。全項目に問題がなければ`確認完了`、問題があれば項目番号と見えた症状だけを返す。
@@ -111,6 +127,12 @@ private JSONや画像の共有は不要。全項目に問題がなければ`確�
 
 ```text
 SPEC_VERSION: 2
+PREFERRED_CANDIDATE: CURRENT_12_COLUMN / PASS
+SUPERSEDED_CANDIDATE_77_PERCENT_24_COLUMN: NOT_USED
+AUTHORITATIVE_CANDIDATE_PARITY: PASS
+DESKTOP_TOPOLOGY: PRESERVED_WIDE_LAPTOP_COMPACT
+VIEWPORT_CANONICAL_JSON_MUTATION: 0
+MOBILE_PROJECTION: ONE_COLUMN_VISUAL_ONLY
 DIRECT_PLACEMENT_MODEL: PASS
 EIGHT_DIRECTION_RESIZE_MODEL: PASS
 STANDARD_FINE_CONVERSION: PASS
