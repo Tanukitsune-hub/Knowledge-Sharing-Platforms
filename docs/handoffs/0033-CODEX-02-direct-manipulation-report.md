@@ -2,8 +2,8 @@
 
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-02
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 ## Work Contract
@@ -94,27 +94,21 @@ Implementation commits: direct-manipulation v2 `3a21af3`、revised authoritative
 
 CODEX-01でChrome automationからlocal `file://` navigationがbrowser policyに拒否される`AUTOMATION_TOOLING_LIMITATION`は分類済みであり、instructionに従って別runtimeや迂回経路を作っていない。
 
-CODEX-02のactual `file://`操作はまだUSER未確認である。したがってdirect drag/resize、render、browser localStorage、download/import、console状態は`ACTION_REQUIRED`であり、PASSとは記録しない。
+2026-09-18、USERは`open-layout-lab.bat`からactual local surfaceを開き、最終提示した確認項目に対して`確認完了`を返した。この直接確認により、rendered layout、viewport behavior、主要direct-manipulation操作、handoff文言、console状態を`PASS`として受理する。deterministic testsが担うv1 migration、JSON model、collision/history semanticsと組み合わせ、CODEX-02のbrowser qualificationは完了した。
 
-### Revised USER checklist
+### Executed USER checklist
 
-`tools/ui-layout-lab/open-layout-lab.bat`をdouble-clickし、Chromeで次を確認する。
+USERがactual `file://` surfaceで確認した最終checklistは次のとおり。
 
 1. 初期表示が12 columns / width 100% / max-width 2000px / left / gap 14px・14pxである。
-2. Row 1がDate → Time → Location → Team → Asset Classで、右3 columnsが空いている。
-3. Rows 2-7がMeeting Type、面談先+Fund、面談相手、当社側、資料、面談内容の順で、Equity / Debtは非表示でspaceを使わない。
-4. JSONをcopy後、Wide → Laptop → Compact → Wideと切り替えてもrow/column topologyが変わらず、再copyしたJSONが同一である。
-5. Mobileだけ1-columnになり、Wideへ戻すと元のdesktop topologyとJSONが保たれる。
-6. `Codexに渡す`に12-column / width100% / max2000 / desktop non-reflow / Mobile-only projectionのintentが出る。
-7. E/W、N/S、corner handleで横・縦・同時resizeでき、面談内容と通常fieldの高さをsafe範囲で変更できる。
-8. fieldを別row・任意startへdragでき、ghost / row marker / guideが出て、意図した空きcolumnが残る。
-9. mouse結果とinspectorのorder / start / span / top gap / height / row breakが一致する。
-10. canvasのArrow / Shift+Arrow nudgeが動き、inspector入力中の矢印操作を奪わない。
-11. 各gestureがundo 1回 / redo 1回で戻り、Resetでcurrent authoritative candidateへ戻る。
-12. Standard 12 ⇄ Fine 24、v1 migration、v2 exact roundtrip、4 preset、variant、hide/show、handoff、overlayが動く。
-13. browser consoleのmaterial error/warnが0。
+2. Row 1がDate → Time → Location → Team → Asset Classで、hidden fieldがspaceを消費しない。
+3. Wide → Laptop → Compact → Wideで配置とexport JSONが変わらない。
+4. Mobileだけ1-columnになり、desktopへ戻すとcanonical placementが復元される。
+5. drag、8-direction resize、inspector、Standard/Fine、undo/redoが操作できる。
+6. Codex handoffにmax-width 2000px、desktop canonical placement維持、720px以下のみ1-columnのintentが出る。
+7. browser consoleのmaterial error/warnが0。
 
-private JSONや画像の共有は不要。全項目に問題がなければ`確認完了`、問題があれば項目番号と見えた症状だけを返す。
+Result: `USER_CONFIRMED_PASS`。
 
 ## Git / delivery
 
@@ -141,8 +135,8 @@ STANDARD_FINE_CONVERSION: PASS
 V1_MIGRATION: PASS
 V2_JSON_ROUNDTRIP: PASS
 ACCEPTED_CODEX01_FEATURES: PRESERVED_BY_DETERMINISTIC_TESTS
-MANUAL_BROWSER_QUALIFICATION: ACTION_REQUIRED
-CONSOLE_MATERIAL_ERROR_WARN: NOT_RUN
+MANUAL_BROWSER_QUALIFICATION: PASS / USER_CONFIRMED
+CONSOLE_MATERIAL_ERROR_WARN: 0 / USER_CONFIRMED
 PRODUCTION_SRC_MODIFICATION: 0
 APPS_SCRIPT_DEPLOYMENT: 0
 NETWORK_CALLS: 0
@@ -150,8 +144,8 @@ GOOGLE_CALLS: 0
 PROVIDER_CALLS: 0
 REAL_CONFIDENTIAL_DATA: 0
 WORK_0030: DEFERRED_BY_USER
-BLOCKER: USER_FILE_URL_QUALIFICATION_PENDING
-READY_FOR_CHATGPT_FINAL_REVIEW: NO
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
 ```
 
 ## Shared Knowledge
@@ -162,5 +156,5 @@ NEW_KNOWLEDGE_CANDIDATE: NO
 
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-02
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED

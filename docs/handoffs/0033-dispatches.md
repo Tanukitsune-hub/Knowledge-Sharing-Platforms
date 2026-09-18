@@ -3,10 +3,10 @@
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-02
 ACTIVE_DISPATCH_ID: 0033-CODEX-02
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
-PHASE: UI LAYOUT LAB / DIRECT MANIPULATION V2 / USER FILE QUALIFICATION
+PHASE: UI LAYOUT LAB / DIRECT MANIPULATION V2 / CHATGPT FINAL REVIEW
 
 ## Outcome
 
@@ -46,6 +46,7 @@ WORK_0030: DEFERRED_BY_USER
 ```text
 NEXT_UNUSED_DISPATCH: 0033-CODEX-03
 WORK_0033_COMPLETE: NO
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
 ```
 
 ## CODEX-02 transition
@@ -62,10 +63,10 @@ WORK_0033_COMPLETE: NO
 - Focused tests: `20/20 PASS`
 - Canonical check: `544/544 PASS`
 - Production source / deployment / external calls: `0`
-- Actual Chrome `file://` qualification: USER ACTION REQUIRED
+- Actual Chrome `file://` qualification: PASS / USER CONFIRMED 2026-09-18
 - Report: `docs/handoffs/0033-CODEX-02-direct-manipulation-report.md`
 
-USERは`tools/ui-layout-lab/open-layout-lab.bat`からactual local surfaceを開き、reportの改訂13項目を確認する。特にWide → Laptop → Compact → Wideでtopologyとexport JSONが不変であることを確認する。全項目に問題がなければ`確認完了`、問題があれば項目番号と症状だけを返す。private JSONや画像の共有は不要。
+USERは`tools/ui-layout-lab/open-layout-lab.bat`からactual local surfaceを開き、最終checklistを確認して`確認完了`を返した。max-width 2000px、desktop topology / export JSON不変、Mobile-only projection、主要direct-manipulation操作、handoff文言、console material error/warn 0を受理した。CODEX-02はChatGPT final reviewへRETURNする。
 
 ## Revised user-selected candidate
 
@@ -83,5 +84,5 @@ New user feedback after RETURNED required CODEX-02, which adds direct 2D placeme
 
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-02
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
