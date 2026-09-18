@@ -56,7 +56,7 @@ function fixture(failure = '') {
     {Key:'NEXT_BATCH_ID',Value:'1'}, {Key:'NEXT_DOCUMENT_ID',Value:'1'}]));
   const env = {getActor: () => actor, nowIso: () => '2026-09-08T01:00:00.000Z',
     getInstallationState: () => ({config:{},resources:{backendSpreadsheetId:'synthetic-backend',auditSpreadsheetId:'synthetic-audit',pitchbooksFolderId:'synthetic-folder'}}),
-    readRows(_id, name) {return name === 'GP_Master' ? [{GP_ID:'GP-1',GP_Name:'Synthetic GP',Status:'Active'}] :
+    readRows(_id, name) {return name === 'Counterparty_Master' ? [{GP_ID:'GP-1',GP_Name:'Synthetic GP',Status:'Active'}] :
       [{Option_ID:'AC-1',Type:'ASSET_CLASS',Name:'Synthetic Asset',Status:'Active'}]},
     findRowByKey(_id, _sheet, _key, id) {return id === parent.Meeting_ID ? {...parent} : null}};
   ksp.kspAttachPitchbookReservationAdapters_(env, props);

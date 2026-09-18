@@ -2,9 +2,13 @@ const { test, assert, ksp, plain, baseContext, createSyncEnvironment } = require
 
 function fixture(type = 'LP_ASSET_OWNER') {
   const context = baseContext();
+  context.gpRows.push(
+    { Counterparty_ID: 'CP-000031', Counterparty_Name: 'Synthetic Entity 1', Counterparty_Type: type, Status: 'Active' },
+    { Counterparty_ID: 'CP-000032', Counterparty_Name: 'Synthetic Entity 2', Counterparty_Type: type, Status: 'Active' }
+  );
   Object.assign(context.pitchbookRows[0], {
     Parent_Meeting_ID: 'MTG-000001', Counterparty_Type: type,
-    Counterparty_ID: type === 'GP' ? 'GP-1' : 'ENTITY-1', Related_GP_IDs: 'GP-1',
+    Counterparty_ID: type === 'GP' ? 'GP-1' : 'CP-000031', Related_GP_IDs: '',
     GP_ID: type === 'GP' ? 'GP-1' : '', Saved_Filename: 'unrelated-name.txt'
   });
   context.meetingRows[0].Related_Pitchbook_IDs = 'DOC-000001';
@@ -31,7 +35,7 @@ test('all six contexts reach provider metadata and strict canonical citation wit
     const source = ksp.kspBuildAiSource_(env, { sourceType: 'Pitchbook', row }, ksp.kspBuildAiMasterMaps_(c.gpRows, c.optionRows));
     const attrs = plain(ksp.kspBuildOpenAiAttributes_(source));
     const gemini = plain(ksp.kspMetadataArrayToMap_(ksp.kspBuildAiCustomMetadata_(source)));
-    assert.equal(attrs.entity_key, definition.code + ':' + row.Counterparty_ID);
+    assert.equal(attrs.entity_key, 'COUNTERPARTY:' + row.Counterparty_ID);
     assert.equal(gemini.entity_key, attrs.entity_key);
     assert.equal(attrs.counterparty_id, row.Counterparty_ID);
     assert.equal(attrs.gp_id || '', definition.code === 'GP' ? 'GP-1' : '');
@@ -55,12 +59,13 @@ test('source hash covers context while legacy content hash and shared origin con
   const c = fixture(); const row = c.pitchbookRows[0]; const env = createSyncEnvironment({ context: c });
   const maps = ksp.kspBuildAiMasterMaps_(c.gpRows, c.optionRows);
   const build = () => ksp.kspBuildAiSource_(env, { sourceType: 'Pitchbook', row }, maps);
-  const before = build(); row.Counterparty_ID = 'ENTITY-2'; assert.notEqual(build().contentHash, before.contentHash);
-  row.Counterparty_ID = 'ENTITY-1'; row.Saved_Filename = 'looks-like-GP.txt'; assert.equal(build().contentHash, before.contentHash);
+  const before = build(); row.Counterparty_ID = 'CP-000032'; assert.notEqual(build().contentHash, before.contentHash);
+  row.Counterparty_ID = 'CP-000031'; row.Saved_Filename = 'looks-like-GP.txt'; assert.equal(build().contentHash, before.contentHash);
   const ff = ksp.kspBuildFeatureFreezePitchbookSource_(row, maps, { bytes: [65] }, 'hash', ksp.kspGetAiFormatDefinition_('txt'));
-  assert.equal(ff.entityKey, 'LP_ASSET_OWNER:ENTITY-1');
+  assert.equal(ff.entityKey, 'COUNTERPARTY:CP-000031');
   row.Counterparty_ID = ''; assert.throws(build, error => error.code === 'AI_PARENT_SOURCE_CONTEXT_INVALID');
-  row.Parent_Meeting_ID = ''; row.GP_ID = 'GP-1'; assert.equal(build().entityKey, 'GP:GP-1');
+  row.Parent_Meeting_ID = ''; row.Counterparty_Type = 'GP'; row.GP_ID = 'GP-1';
+  assert.equal(build().entityKey, 'COUNTERPARTY:GP-1');
 });
 
 test('legacy and feature-freeze selectors clean orphan derived indexes without source/file mutation', () => {

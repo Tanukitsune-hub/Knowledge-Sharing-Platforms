@@ -2,7 +2,9 @@
 
 Date: 2026-08-27
 
-Status: Accepted
+Status: SUPERSEDED_BY `docs/decisions/counterparty-master-unification.md` (Work 0031)
+
+> Historical note: this decision records the schema7 composite-entity design. Do not use its GP Master, Related GP, or type-first UI rules for current implementation.
 
 ## Decision
 

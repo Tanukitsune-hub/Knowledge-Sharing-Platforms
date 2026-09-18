@@ -8,14 +8,14 @@ function kspLoadPitchbookRuntimeContext_(environment) {
   kspAssert_(backendSpreadsheetId, 'BACKEND_SPREADSHEET_MISSING', 'Backend Spreadsheet is not configured.');
   kspAssert_(auditSpreadsheetId, 'AUDIT_SPREADSHEET_MISSING', 'Audit Spreadsheet is not configured.');
   kspAssert_(pitchbooksFolderId, 'PITCHBOOK_FOLDER_MISSING', 'Pitchbooks folder is not configured.');
-  var gpRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER);
+  var counterpartyRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER);
   var optionRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER);
   return {
     state: state,
     backendSpreadsheetId: backendSpreadsheetId,
     auditSpreadsheetId: auditSpreadsheetId,
     pitchbooksFolderId: pitchbooksFolderId,
-    catalog: kspBuildPitchbookCatalog_(gpRows, optionRows)
+    catalog: kspBuildPitchbookCatalog_(counterpartyRows, optionRows)
   };
 }
 

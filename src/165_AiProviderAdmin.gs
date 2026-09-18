@@ -1265,10 +1265,10 @@ function kspRunGeminiSyntheticE2eQualification_(environment, context, profile, t
     sourceId: 'KSP-WORK0027-' + correlationHash.slice(0, 16).toUpperCase(),
     dateKey: '2026-09-04',
     gpId: 'KSP-SYNTHETIC-GP',
-    entityKey: 'GP:KSP-SYNTHETIC-GP',
+    entityKey: 'COUNTERPARTY:KSP-SYNTHETIC-GP',
     counterpartyType: 'GP',
     counterpartyId: 'KSP-SYNTHETIC-GP',
-    relatedGpIds: 'KSP-SYNTHETIC-GP',
+    relatedGpIds: '',
     assetClassId: 'KSP-SYNTHETIC-ASSET',
     capitalTypeId: 'KSP-SYNTHETIC-CAPITAL',
     displayName: 'ksp-work0027-' + correlationHash.slice(0, 12) + '.txt',
@@ -1535,10 +1535,10 @@ function kspRunGeminiStrictCitationE2eQualification_(environment, context, profi
     sourceId: 'KSP-WORK0027-' + correlationHash.slice(0, 16).toUpperCase(),
     dateKey: '2026-09-05',
     gpId: 'KSP-SYNTHETIC-GP',
-    entityKey: 'GP:KSP-SYNTHETIC-GP',
+    entityKey: 'COUNTERPARTY:KSP-SYNTHETIC-GP',
     counterpartyType: 'GP',
     counterpartyId: 'KSP-SYNTHETIC-GP',
-    relatedGpIds: 'KSP-SYNTHETIC-GP',
+    relatedGpIds: '',
     assetClassId: 'KSP-SYNTHETIC-ASSET',
     capitalTypeId: 'KSP-SYNTHETIC-CAPITAL',
     displayName: 'ksp-work0027-' + correlationHash.slice(0, 12) + '.txt',
@@ -1853,7 +1853,7 @@ function kspRunGeminiExactTupleQualification_(environment, context, settings, pr
     'AI_SYNC_SOURCE_NOT_FOUND', 'Gemini qualification source is unavailable.');
   var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.PITCHBOOK, rows[0]);
   var source = kspBuildFeatureFreezeAiSource_(environment, item,
-    kspBuildAiMasterMaps_(context.gpRows, context.optionRows));
+    kspBuildAiMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows));
   var transport = kspGeminiQualificationSafeTransport_(queryTransport);
   var config = {
     provider: KSP_AI_PROVIDERS.GEMINI,

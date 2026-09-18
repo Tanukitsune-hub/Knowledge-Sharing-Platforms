@@ -95,7 +95,7 @@ test('Past Meetings presents one counterparty concept without a related-GP filte
   const renderer = client.match(/function renderMeetingResults\(records\)\{[^\n]+/)[0];
   assert.match(renderer, /counterpartyEntityName\|\|record\.gpName/);
   assert.doesNotMatch(renderer, /関連GP|relatedGpNames/);
-  assert.match(client, /relatedGpId:el\(prefix\+'-relatedGpId'\)\?/, 'backend-compatible payload remains fail-safe');
+  assert.doesNotMatch(client, /relatedGpId:el\(prefix\+'-relatedGpId'\)\?/, 'legacy related-GP payload is absent');
 });
 
 test('user-facing forms use coherent bounded field widths and keep long fields full width', () => {

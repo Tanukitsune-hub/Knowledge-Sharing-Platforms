@@ -10,10 +10,8 @@ function kspRequirePitchbookParent_(environment, backendId, meetingId, expectedV
 }
 
 function kspApplyPitchbookParentContext_(input, parent) {
-  input.counterpartyType = kspMeetingCounterpartyType_(parent);
   input.counterpartyId = kspMeetingCounterpartyId_(parent);
-  input.gpId = input.counterpartyType === 'GP' ? input.counterpartyId : '';
-  input.relatedGpIds = kspMeetingRelatedGpIds_(parent);
+  kspAssert_(input.counterpartyId, 'PITCHBOOK_COUNTERPARTY_UNAVAILABLE', '親記録の面談先を確認してください。');
   input.date = input.date || kspCanonicalBusinessDate_(parent.Date);
   input.assetClassId = input.assetClassId || String(parent.Asset_Class_ID || '');
   input.capitalTypeId = input.capitalTypeId || String(parent.Capital_Type_ID || '');
@@ -22,7 +20,7 @@ function kspApplyPitchbookParentContext_(input, parent) {
 
 function kspRequirePitchbookCounterparty_(input, catalog) {
   var entity = (catalog.counterpartyEntities || []).filter(function (item) {
-    return item.type === input.counterpartyType && item.id === input.counterpartyId;
+    return item.id === input.counterpartyId;
   })[0];
   kspAssert_(entity, 'PITCHBOOK_COUNTERPARTY_UNAVAILABLE', '親記録の面談先を確認してください。');
   return entity;

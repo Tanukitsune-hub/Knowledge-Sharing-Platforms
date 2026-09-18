@@ -82,23 +82,15 @@ function entityWorkspaceRender(data){
   entityWorkspaceData=data;
   const entity=data.entity;
   el('entity-workspace-name').textContent=entity.name;
-  el('entity-workspace-identity').textContent=entity.counterpartyTypeLabel+' / '+entity.counterpartyId+' / '+entity.mode;
+  el('entity-workspace-identity').textContent=entity.counterpartyTypeLabel+' / '+entity.counterpartyId;
   el('entity-workspace-entity-status').className='badge '+entityWorkspaceStatusClass(entity.status);
   el('entity-workspace-entity-status').textContent=entityWorkspaceText(entity.status);
   const s=data.summary;
-  el('entity-workspace-summary').innerHTML=[['Meetings',s.meetingCount+' / Active '+s.activeMeetingCount],['Direct / Related',s.directMeetingCount+' / '+s.relatedMeetingCount],['Pitchbooks',s.pitchbookCount+' / Active '+s.pitchbookActiveCount],['要フォロー',s.openFollowUpCount],['Relationships',s.relationshipCount],['Latest',entityWorkspaceText(s.latestActivityDate)]].map(item=>'<div class="card entity-summary-card"><span>'+kspEscapeHtml(item[0])+'</span><strong>'+kspEscapeHtml(item[1])+'</strong></div>').join('');
+  el('entity-workspace-summary').innerHTML=[['Meetings',s.meetingCount+' / Active '+s.activeMeetingCount],['Pitchbooks',s.pitchbookCount+' / Active '+s.pitchbookActiveCount],['要フォロー',s.openFollowUpCount],['Relationships',s.relationshipCount],['Latest',entityWorkspaceText(s.latestActivityDate)]].map(item=>'<div class="card entity-summary-card"><span>'+kspEscapeHtml(item[0])+'</span><strong>'+kspEscapeHtml(item[1])+'</strong></div>').join('');
   entityWorkspaceRenderFunds(data);entityWorkspaceRenderMeetings(data);entityWorkspaceRenderFollowups(data);entityWorkspaceRenderMixes(data.mixes||{});entityWorkspaceRenderRelationships(data);entityWorkspaceRenderTimeline(data);entityWorkspaceRenderDrill(data.drillDown);
-  const gp=el('entity-workspace-gp-context'),nonGp=el('entity-workspace-non-gp-context');
-  gp.classList.toggle('hidden-panel',entity.mode!=='GP');nonGp.classList.toggle('hidden-panel',entity.mode==='GP');
-  if(entity.mode==='GP'){
-    const direct=data.meetings.direct.records||[],related=data.meetings.related.records||[];
-    el('entity-workspace-gp-direct-meetings').innerHTML=direct.map(entityWorkspaceMeetingCompact).join('')||'<div class="empty-cell">該当なし</div>';
-    el('entity-workspace-gp-related-meetings').innerHTML=related.map(entityWorkspaceMeetingCompact).join('')||'<div class="empty-cell">該当なし</div>';
-    el('entity-workspace-owned-pitchbooks').innerHTML=(data.ownedPitchbooks.records||[]).map(entityWorkspaceOwnedPitchbookRow).join('')||'<tr><td colspan="5" class="empty-cell">該当なし</td></tr>';
-  }else{
-    el('entity-workspace-related-gps').innerHTML=(data.relatedGps||[]).map(item=>'<span class="badge '+entityWorkspaceStatusClass(item.status)+'">Related GP: '+kspEscapeHtml(item.name)+' / '+kspEscapeHtml(item.id)+'</span>').join('')||'<span class="hint">Related GPなし</span>';
-    el('entity-workspace-linked-pitchbooks').innerHTML=(data.linkedPitchbooks.records||[]).map(entityWorkspaceLinkedPitchbookRow).join('')||'<tr><td colspan="6" class="empty-cell">明示的なリンクなし</td></tr>';
-  }
+  const direct=data.meetings.direct.records||[];
+  el('entity-workspace-gp-direct-meetings').innerHTML=direct.map(entityWorkspaceMeetingCompact).join('')||'<div class="empty-cell">該当なし</div>';
+  el('entity-workspace-owned-pitchbooks').innerHTML=(data.pitchbooks.records||[]).map(entityWorkspaceOwnedPitchbookRow).join('')||'<tr><td colspan="5" class="empty-cell">該当なし</td></tr>';
   entityWorkspaceRenderPrint(data);el('entity-workspace-content').classList.remove('hidden-panel');el('entity-workspace-print-button').disabled=false;
 }
 async function loadEntityWorkspaceCatalog(){

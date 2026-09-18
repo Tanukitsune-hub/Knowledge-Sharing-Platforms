@@ -6,7 +6,8 @@ const path = require('node:path');
 
 function fixture() {
   const c = baseContext();
-  Object.assign(c.pitchbookRows[0], { Parent_Meeting_ID: 'MTG-000001', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'LP-1', GP_ID: '' });
+  c.gpRows.push({ Counterparty_ID: 'CP-000031', Counterparty_Name: 'Synthetic LP', Counterparty_Type: 'LP_ASSET_OWNER', Status: 'Active' });
+  Object.assign(c.pitchbookRows[0], { Parent_Meeting_ID: 'MTG-000001', Counterparty_Type: '', Counterparty_ID: 'CP-000031', Related_GP_IDs: '', GP_ID: '' });
   c.meetingRows[0].Related_Pitchbook_IDs = 'DOC-000001';
   c.meetingRows[0].AI_Index_Status = 'Indexed'; c.meetingRows[0].AI_Document_Name = 'existing';
   return c;
@@ -39,10 +40,10 @@ test('large repository is bounded after authoritative common filters and compare
       question: 'synthetic', filters, ...extra
     }), c).resolvedSourceIds);
   }
-  assert.deepEqual(resolve({ sourceType: 'Pitchbook', entityKey: 'LP_ASSET_OWNER:LP-1' }), ['DOC-000001']);
-  assert.deepEqual(resolve({ sourceType: 'Meeting', dateFrom: '2026-01-01', dateTo: '2026-12-31', entityKey: 'GP:GP-1' }), ['MTG-000001']);
+  assert.deepEqual(resolve({ sourceType: 'Pitchbook', entityKey: 'COUNTERPARTY:CP-000031' }), ['DOC-000001']);
+  assert.deepEqual(resolve({ sourceType: 'Meeting', dateFrom: '2026-01-01', dateTo: '2026-12-31', entityKey: 'COUNTERPARTY:GP-1' }), ['MTG-000001']);
   assert.deepEqual(resolve({ sourceType: 'Meeting', sourceId: 'MTG-000001' }), ['MTG-000001']);
-  assert.deepEqual(resolve({}, { mode: '比較', selectedEntityKeys: ['GP:GP-1', 'LP_ASSET_OWNER:LP-1'],
+  assert.deepEqual(resolve({}, { mode: '比較', selectedEntityKeys: ['COUNTERPARTY:GP-1', 'COUNTERPARTY:CP-000031'],
     advancedFilterResolved: true, resolvedSourceIds: ['DOC-000001'] }), ['DOC-000001']);
   assert.deepEqual(resolve({ assetClassId: 'NONMATCH' }), []);
   assert.deepEqual(resolve({ capitalTypeId: 'NONMATCH' }), []);

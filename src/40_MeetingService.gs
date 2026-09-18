@@ -6,7 +6,7 @@ function kspGetMeetingBootstrapData_(environment) {
     }).map(function (row) {
       return {
         id: String(row.Document_ID || ''), date: kspMeetingCellDate_(row.Date),
-        gpId: String(row.GP_ID || ''), assetClassId: String(row.Asset_Class_ID || ''),
+        counterpartyId: String(row.Counterparty_ID || ''), assetClassId: String(row.Asset_Class_ID || ''),
         title: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
         status: String(row.Status || ''), preserved: false
       };
@@ -35,7 +35,7 @@ function kspRegisterMeeting_(environment, rawInput) {
     normalizedInput = kspNormalizeMeetingInput_(rawInput);
     context = kspLoadMeetingRuntimeContext_(environment);
     context.catalog.relatedPitchbooks = kspBuildRelatedPitchbookChoices_(
-      context.pitchbookRows, normalizedInput.relatedGpIds, normalizedInput.assetClassId, []
+      context.pitchbookRows, normalizedInput.counterpartyId, normalizedInput.assetClassId, []
     );
     selected = kspValidateMeetingInput_(normalizedInput, context.catalog);
     fingerprint = kspBuildMeetingRequestFingerprint_(normalizedInput);
@@ -127,7 +127,7 @@ function kspLoadMeetingRuntimeContext_(environment) {
   kspAssert_(auditSpreadsheetId, 'AUDIT_SPREADSHEET_MISSING', 'Audit Spreadsheet is not configured.');
   kspAssert_(meetingRecordsFolderId, 'MEETING_FOLDER_MISSING', 'Meeting Records folder is not configured.');
 
-  var gpRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.GP_MASTER);
+  var counterpartyRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER);
   var optionRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER);
   var pitchbookRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX);
   return {
@@ -136,7 +136,7 @@ function kspLoadMeetingRuntimeContext_(environment) {
     auditSpreadsheetId: auditSpreadsheetId,
     meetingRecordsFolderId: meetingRecordsFolderId,
     pitchbookRows: pitchbookRows,
-    catalog: kspBuildMeetingCatalog_(gpRows, optionRows)
+    catalog: kspBuildMeetingCatalog_(counterpartyRows, optionRows)
   };
 }
 

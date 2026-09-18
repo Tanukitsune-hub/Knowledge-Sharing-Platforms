@@ -86,17 +86,14 @@ function kspMeetingCellDate_(value) {
   return kspCanonicalBusinessDate_(value);
 }
 
-function kspBuildRelatedPitchbookChoices_(rows, relatedGpIds, assetClassId, existingIds) {
+function kspBuildRelatedPitchbookChoices_(rows, counterpartyId, assetClassId, existingIds) {
   var preserved = {};
-  var related = {};
-  (Array.isArray(relatedGpIds) ? relatedGpIds : kspSplitCanonicalIds_(relatedGpIds))
-    .forEach(function (id) { related[String(id)] = true; });
   (existingIds || []).forEach(function (id) { preserved[String(id)] = true; });
   var choices = (rows || []).filter(function (row) {
     var id = String(row.Document_ID || '');
     if (!id) return false;
     return preserved[id] || (String(row.Status || '') === KSP_STATUS.ACTIVE &&
-      related[String(row.GP_ID || '')] &&
+      String(row.Counterparty_ID || '') === String(counterpartyId || '') &&
       String(row.Asset_Class_ID || '') === String(assetClassId || ''));
   }).sort(function (left, right) {
     var rightDate = kspMeetingCellDate_(right.Date);
@@ -107,7 +104,7 @@ function kspBuildRelatedPitchbookChoices_(rows, relatedGpIds, assetClassId, exis
     return {
       id: String(row.Document_ID || ''),
       date: kspMeetingCellDate_(row.Date),
-      gpId: String(row.GP_ID || ''),
+      counterpartyId: String(row.Counterparty_ID || ''),
       assetClassId: String(row.Asset_Class_ID || ''),
       title: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),
       status: String(row.Status || ''),
@@ -117,7 +114,7 @@ function kspBuildRelatedPitchbookChoices_(rows, relatedGpIds, assetClassId, exis
   var resolved = {};
   choices.forEach(function (item) { resolved[item.id] = true; });
   Object.keys(preserved).filter(function (id) { return !resolved[id]; }).sort().forEach(function (id) {
-    choices.push({ id: id, date: '', gpId: '', assetClassId: '', title: id,
+    choices.push({ id: id, date: '', counterpartyId: '', assetClassId: '', title: id,
       status: '', preserved: true, unresolved: true });
   });
   return choices;
@@ -132,7 +129,7 @@ function kspNormalizeRelatedGpIds_(value, primaryGpId) {
   var supplied = Array.isArray(value) ? value : String(value || '').split(',');
   var seen = {};
   supplied.map(function (item) { return kspTrimMeetingField_(item); }).filter(Boolean).forEach(function (id) {
-    kspAssert_(!seen[id], 'MEETING_RELATED_GP_DUPLICATE', '関連GPに重複があります。');
+    kspAssert_(!seen[id], 'MEETING_RELATED_GP_DUPLICATE', '旧形式の関連先情報に重複があります。');
     seen[id] = true;
   });
   if (primaryGpId) seen[String(primaryGpId)] = true;
@@ -148,6 +145,16 @@ function kspMeetingCounterpartyId_(row) {
     (kspMeetingCounterpartyType_(row) === 'GP' ? String(row && row.GP_ID || '').trim() : '');
 }
 
+function kspCounterpartyEntityKey_(counterpartyId) {
+  var id = String(counterpartyId || '').trim();
+  return id ? 'COUNTERPARTY:' + id : '';
+}
+
+function kspCounterpartyIdFromEntityKey_(entityKey) {
+  var match = /^COUNTERPARTY:([A-Za-z0-9_-]+)$/.exec(String(entityKey || '').trim());
+  return match ? match[1] : '';
+}
+
 function kspMeetingRelatedGpIds_(row) {
   var stored = String(row && row.Related_GP_IDs || '').trim();
   if (stored) return kspNormalizeRelatedGpIds_(stored, '');
@@ -158,17 +165,16 @@ function kspMeetingRelatedGpIds_(row) {
 function kspNormalizeMeetingInput_(input) {
   var source = input && typeof input === 'object' ? input : {};
   var suppliedGpId = kspTrimMeetingField_(source.gpId);
-  var counterpartyType = kspTrimMeetingField_(source.counterpartyType) || (suppliedGpId ? 'GP' : '');
-  var counterpartyId = kspTrimMeetingField_(source.counterpartyId) || (counterpartyType === 'GP' ? suppliedGpId : '');
-  var primaryGpId = counterpartyType === 'GP' ? counterpartyId : '';
+  var counterpartyType = kspTrimMeetingField_(source.counterpartyType);
+  var counterpartyId = kspTrimMeetingField_(source.counterpartyId) || suppliedGpId;
   return {
     date: kspTrimMeetingField_(source.date),
     time: kspTrimMeetingField_(source.time),
     locationId: kspTrimMeetingField_(source.locationId),
-    gpId: primaryGpId,
+    gpId: suppliedGpId,
     counterpartyType: counterpartyType,
     counterpartyId: counterpartyId,
-    relatedGpIds: kspNormalizeRelatedGpIds_(source.relatedGpIds, primaryGpId),
+    relatedGpIds: kspNormalizeRelatedGpIds_(source.relatedGpIds, ''),
     assetClassId: kspTrimMeetingField_(source.assetClassId),
     capitalTypeId: kspTrimMeetingField_(source.capitalTypeId),
     teamId: kspTrimMeetingField_(source.teamId),
@@ -196,16 +202,29 @@ function kspNormalizeMeetingNotes_(value) {
   return String(value).replace(/\r\n?/g, '\n').replace(/\u0000/g, '');
 }
 
-function kspBuildMeetingCatalog_(gpRows, optionRows) {
-  var gps = (gpRows || [])
+function kspBuildMeetingCatalog_(counterpartyRows, optionRows) {
+  var counterpartyEntities = (counterpartyRows || [])
     .filter(function (row) { return String(row.Status) === KSP_STATUS.ACTIVE; })
     .map(function (row) {
-      return { id: String(row.GP_ID), name: String(row.GP_Name) };
+      var legacyGp = String(row.GP_ID || '');
+      var type = String(row.Counterparty_Type || (legacyGp ? 'GP' : ''));
+      var id = String(row.Counterparty_ID || legacyGp);
+      var definition = kspCounterpartyTypeDefinition_(type);
+      return {
+        id: id,
+        type: type,
+        typeLabel: definition ? definition.label : type,
+        name: String(row.Counterparty_Name || row.GP_Name || ''),
+        status: String(row.Status || ''),
+        entityKey: kspCounterpartyEntityKey_(id)
+      };
     })
     .filter(function (row) { return row.id && row.name; })
     .sort(function (left, right) {
-      return left.name.toLowerCase().localeCompare(right.name.toLowerCase(), 'en');
+      return left.name.localeCompare(right.name, 'ja') || left.id.localeCompare(right.id);
     });
+
+  var gps = counterpartyEntities.filter(function (row) { return row.type === 'GP'; });
 
   var options = (optionRows || [])
     .filter(function (row) { return String(row.Status) === KSP_STATUS.ACTIVE; })
@@ -233,24 +252,9 @@ function kspBuildMeetingCatalog_(gpRows, optionRows) {
       });
   }
 
-  var counterpartyEntities = gps.map(function (gp) {
-    return { id: gp.id, type: 'GP', name: gp.name, optionType: '', entityKey: 'GP:' + gp.id };
-  });
-  KSP_COUNTERPARTY_TYPE_DEFINITIONS.filter(function (definition) { return definition.optionType; })
-    .forEach(function (definition) {
-      byType(definition.optionType).forEach(function (option) {
-        counterpartyEntities.push({
-          id: option.id,
-          type: definition.code,
-          name: option.name,
-          optionType: definition.optionType,
-          entityKey: definition.code + ':' + option.id
-        });
-      });
-    });
-
   return {
     gps: gps,
+    counterparties: counterpartyEntities,
     assetClasses: byType(KSP_OPTION_TYPES.ASSET_CLASS),
     capitalTypes: byType(KSP_OPTION_TYPES.CAPITAL_TYPE),
     locations: byType(KSP_OPTION_TYPES.LOCATION),
@@ -267,9 +271,6 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
   var safeCatalog = catalog || { gps: [], assetClasses: [], capitalTypes: [], locations: [] };
 
   kspAssert_(input.date, 'MEETING_DATE_REQUIRED', '日付は必須です。');
-  kspAssert_(input.counterpartyType, 'MEETING_COUNTERPARTY_TYPE_REQUIRED', '面談先区分は必須です。');
-  var counterpartyDefinition = kspCounterpartyTypeDefinition_(input.counterpartyType);
-  kspAssert_(counterpartyDefinition, 'MEETING_COUNTERPARTY_TYPE_INVALID', '面談先区分が不正です。');
   kspAssert_(input.counterpartyId, 'MEETING_COUNTERPARTY_ENTITY_REQUIRED', '面談先は必須です。');
   kspAssert_(input.assetClassId, 'MEETING_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
   kspAssert_(kspIsValidDateKey_(input.date), 'MEETING_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
@@ -296,18 +297,16 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
   }
 
   var selectedCounterparty = (safeCatalog.counterpartyEntities || []).filter(function (item) {
-    return String(item.type) === input.counterpartyType && String(item.id) === input.counterpartyId;
+    return String(item.id) === input.counterpartyId;
   })[0];
   kspAssert_(selectedCounterparty, 'MEETING_COUNTERPARTY_ENTITY_UNAVAILABLE', '選択された面談先は利用できません。');
-  var relatedGps = kspSplitCanonicalIds_(input.relatedGpIds).map(function (id) {
-    return kspRequireCatalogItem_(safeCatalog.gps, id, 'MEETING_RELATED_GP_INVALID', '関連GPを確認してください。');
-  });
+  var counterpartyDefinition = kspCounterpartyTypeDefinition_(selectedCounterparty.type);
+  kspAssert_(counterpartyDefinition, 'MEETING_COUNTERPARTY_TYPE_INVALID', '面談先種別が不正です。');
   var selected = {
     counterpartyType: counterpartyDefinition,
     counterpartyEntity: selectedCounterparty,
-    relatedGps: relatedGps,
-    gp: input.counterpartyType === 'GP' ?
-      kspRequireCatalogItem_(safeCatalog.gps, input.counterpartyId, 'MEETING_GP_UNAVAILABLE', '選択されたGPは利用できません。') : null,
+    relatedGps: [],
+    gp: null,
     assetClass: kspRequireCatalogItem_(
       safeCatalog.assetClasses,
       input.assetClassId,
@@ -349,7 +348,7 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
   var selectablePitchbookIds = {};
   (safeCatalog.relatedPitchbooks || []).forEach(function (item) {
     if (item.preserved || (String(item.status || '') === KSP_STATUS.ACTIVE &&
-        kspSplitCanonicalIds_(input.relatedGpIds).indexOf(String(item.gpId || '')) !== -1 &&
+        String(item.counterpartyId || '') === input.counterpartyId &&
         String(item.assetClassId || '') === input.assetClassId)) {
       selectablePitchbookIds[String(item.id)] = true;
     }
@@ -388,10 +387,7 @@ function kspBuildMeetingRequestFingerprint_(input) {
     input.date,
     input.time,
     input.locationId,
-    input.gpId,
-    input.counterpartyType,
     input.counterpartyId,
-    input.relatedGpIds,
     input.assetClassId,
     input.capitalTypeId,
     input.teamId,
@@ -449,9 +445,8 @@ function kspBuildMeetingDocumentText_(input, selected) {
   var lines = ['日付: ' + input.date];
   if (input.time) lines.push('時間: ' + input.time);
   if (selected.location) lines.push('面談場所: ' + selected.location.name);
-  lines.push('面談先区分: ' + selected.counterpartyType.label);
   lines.push('面談先: ' + selected.counterpartyEntity.name);
-  if (selected.relatedGps.length) lines.push('関連GP: ' + selected.relatedGps.map(function (gp) { return gp.name; }).join(', '));
+  lines.push('面談先種別: ' + selected.counterpartyType.label);
   lines.push('Asset Class: ' + selected.assetClass.name);
   if (selected.capitalType) lines.push('Equity / Debt: ' + selected.capitalType.name);
   if (selected.team) lines.push('Team: ' + selected.team.name);
@@ -477,10 +472,10 @@ function kspBuildMeetingMetadata_(input, selected, meetingId, documentInfo, file
     Date: input.date,
     Time: input.time,
     Location_ID: input.locationId,
-    GP_ID: input.gpId,
-    Counterparty_Type: input.counterpartyType,
+    GP_ID: '',
+    Counterparty_Type: selected && selected.counterpartyEntity ? selected.counterpartyEntity.type : '',
     Counterparty_ID: input.counterpartyId,
-    Related_GP_IDs: input.relatedGpIds,
+    Related_GP_IDs: '',
     Asset_Class_ID: input.assetClassId,
     Capital_Type_ID: input.capitalTypeId,
     Team_ID: input.teamId,
@@ -493,9 +488,9 @@ function kspBuildMeetingMetadata_(input, selected, meetingId, documentInfo, file
     Doc_File_ID: documentInfo ? documentInfo.id : '',
     Doc_URL: documentInfo ? documentInfo.url : '',
     Saved_Filename: filename || '',
-    GP_Name: selected && selected.gp ? selected.gp.name : '',
+    GP_Name: '',
     Counterparty_Name: selected && selected.counterpartyEntity ? selected.counterpartyEntity.name : '',
-    Related_GP_Names: selected && selected.relatedGps ? selected.relatedGps.map(function (gp) { return gp.name; }).join(', ') : '',
+    Related_GP_Names: '',
     Asset_Class_Name: selected && selected.assetClass ? selected.assetClass.name : '',
     Capital_Type_Name: selected && selected.capitalType ? selected.capitalType.name : '',
     Location_Name: selected && selected.location ? selected.location.name : '',
@@ -509,10 +504,10 @@ function kspBuildMeetingIndexRow_(input, selected, meetingId, documentInfo, file
     Date: input.date,
     Time: input.time,
     Location_ID: input.locationId,
-    GP_ID: input.gpId,
-    Counterparty_Type: input.counterpartyType,
+    GP_ID: '',
+    Counterparty_Type: selected && selected.counterpartyEntity ? selected.counterpartyEntity.type : '',
     Counterparty_ID: input.counterpartyId,
-    Related_GP_IDs: input.relatedGpIds,
+    Related_GP_IDs: '',
     Asset_Class_ID: input.assetClassId,
     Capital_Type_ID: input.capitalTypeId,
     Team_ID: input.teamId,
@@ -545,10 +540,7 @@ function kspMeetingIndexRowMatchesRequest_(row, input, filename) {
   return kspCanonicalBusinessDate_(row.Date) === input.date &&
     kspCanonicalBusinessTime_(row.Time) === input.time &&
     String(row.Location_ID || '') === input.locationId &&
-    String(row.GP_ID || '') === input.gpId &&
-    kspMeetingCounterpartyType_(row) === input.counterpartyType &&
     kspMeetingCounterpartyId_(row) === input.counterpartyId &&
-    kspMeetingRelatedGpIds_(row) === input.relatedGpIds &&
     String(row.Asset_Class_ID || '') === input.assetClassId &&
     String(row.Capital_Type_ID || '') === input.capitalTypeId &&
     String(row.Team_ID || '') === input.teamId &&
@@ -654,6 +646,7 @@ function kspBuildMeetingBootstrapResponse_(catalog) {
     sharedContextFields: ['date', 'assetClassId', 'capitalTypeId', 'fundStrategy'],
     options: {
       gps: kspDeepClone_(catalog.gps),
+      counterparties: kspDeepClone_(catalog.counterparties || catalog.counterpartyEntities || []),
       assetClasses: kspDeepClone_(catalog.assetClasses),
       capitalTypes: kspDeepClone_(catalog.capitalTypes),
       locations: kspDeepClone_(catalog.locations),

@@ -11,7 +11,7 @@ var KSP_ACTIVITY_ANALYTICS_PERIODS = Object.freeze({
 });
 
 var KSP_ACTIVITY_ANALYTICS_DIMENSIONS = Object.freeze([
-  'counterpartyType', 'counterpartyEntity', 'relatedGp', 'assetClass',
+  'counterpartyType', 'counterpartyEntity', 'assetClass',
   'team', 'meetingType', 'status'
 ]);
 
@@ -131,7 +131,7 @@ function kspActivityNormalizeInput_(rawInput) {
 }
 
 function kspActivityRowCounterpartyType_(row) {
-  return String(kspMeetingCounterpartyType_(row) || '').trim();
+  return String(row && row.__Counterparty_Type || kspMeetingCounterpartyType_(row) || '').trim();
 }
 
 function kspActivityRowCounterpartyId_(row) {
@@ -139,9 +139,8 @@ function kspActivityRowCounterpartyId_(row) {
 }
 
 function kspActivityRowCounterpartyKey_(row) {
-  var type = kspActivityRowCounterpartyType_(row);
   var id = kspActivityRowCounterpartyId_(row);
-  return type && id ? type + ':' + id : '';
+  return id ? 'COUNTERPARTY:' + id : '';
 }
 
 function kspActivityRowRelatedGpIds_(row) {
@@ -360,10 +359,6 @@ function kspActivityApplyCumulativeSeries_(series, rows) {
 function kspActivityDimensionValues_(row, dimension) {
   if (dimension === 'counterpartyType') return [kspActivityRowCounterpartyType_(row) || KSP_ACTIVITY_ANALYTICS_UNSET];
   if (dimension === 'counterpartyEntity') return [kspActivityRowCounterpartyKey_(row) || KSP_ACTIVITY_ANALYTICS_UNSET];
-  if (dimension === 'relatedGp') {
-    var relatedGpIds = kspActivityRowRelatedGpIds_(row);
-    return relatedGpIds.length ? relatedGpIds : [KSP_ACTIVITY_ANALYTICS_UNSET];
-  }
   if (dimension === 'assetClass') return [String(row.Asset_Class_ID || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET];
   if (dimension === 'team') return [String(row.Team_ID || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET];
   if (dimension === 'meetingType') {
@@ -409,16 +404,14 @@ function kspActivityBuildFilterOption_(value) {
 
 function kspActivityBuildFilterOptions_(rows) {
   var sets = {
-    counterpartyTypes: {}, counterpartyEntities: {}, relatedGps: {},
+    counterpartyTypes: {}, counterpartyEntities: {},
     assetClasses: {}, teams: {}, meetingTypes: {}, statuses: {}
   };
   (rows || []).forEach(function (row) {
     var type = kspActivityRowCounterpartyType_(row) || KSP_ACTIVITY_ANALYTICS_UNSET;
     var entity = kspActivityRowCounterpartyKey_(row) || KSP_ACTIVITY_ANALYTICS_UNSET;
-    var related = kspActivityRowRelatedGpIds_(row);
     sets.counterpartyTypes[type] = true;
     sets.counterpartyEntities[entity] = true;
-    (related.length ? related : [KSP_ACTIVITY_ANALYTICS_UNSET]).forEach(function (value) { sets.relatedGps[value] = true; });
     sets.assetClasses[String(row.Asset_Class_ID || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET] = true;
     sets.teams[String(row.Team_ID || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET] = true;
     var meetingTypes = kspMaintenanceSplitCodes_(row.Meeting_Type_Codes);
@@ -435,7 +428,6 @@ function kspActivityBuildFilterOptions_(rows) {
   return {
     counterpartyTypes: mapSet(sets.counterpartyTypes),
     counterpartyEntities: mapSet(sets.counterpartyEntities),
-    relatedGps: mapSet(sets.relatedGps),
     assetClasses: mapSet(sets.assetClasses),
     teams: mapSet(sets.teams),
     meetingTypes: mapSet(sets.meetingTypes),
@@ -444,11 +436,10 @@ function kspActivityBuildFilterOptions_(rows) {
 }
 
 function kspActivityMapMeeting_(row) {
-  var relatedGpIds = kspActivityRowRelatedGpIds_(row);
   var meetingTypeCodes = kspMaintenanceSplitCodes_(row.Meeting_Type_Codes);
   var documentUrl = '';
-  if (typeof kspGpWorkspaceSafeLink_ === 'function') {
-    documentUrl = kspGpWorkspaceSafeLink_(row.Doc_URL, row.Doc_File_ID);
+  if (typeof kspWorkspaceSafeDriveLink_ === 'function') {
+    documentUrl = kspWorkspaceSafeDriveLink_(row.Doc_URL, row.Doc_File_ID);
   }
   return {
     meetingId: String(row.Meeting_ID || ''),
@@ -457,7 +448,6 @@ function kspActivityMapMeeting_(row) {
     counterpartyType: kspActivityRowCounterpartyType_(row),
     counterpartyId: kspActivityRowCounterpartyId_(row),
     counterpartyEntityKey: kspActivityRowCounterpartyKey_(row),
-    relatedGpIds: relatedGpIds,
     assetClassId: String(row.Asset_Class_ID || ''),
     teamId: String(row.Team_ID || ''),
     meetingTypeCodes: meetingTypeCodes,
@@ -502,7 +492,11 @@ function kspGetMeetingActivityAnalytics_(environment, rawInput) {
   try {
     var context = kspActivityLoadContext_(environment, false);
     var input = kspActivityNormalizeInput_(rawInput);
-    var rows = environment.readRows(context.backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX) || [];
+    var typeById = {};
+    (environment.readRows(context.backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER) || [])
+      .forEach(function (row) { typeById[String(row.Counterparty_ID || '')] = String(row.Counterparty_Type || ''); });
+    var rows = (environment.readRows(context.backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX) || [])
+      .map(function (row) { var copy = Object.assign({}, row); copy.__Counterparty_Type = typeById[kspMeetingCounterpartyId_(row)] || kspMeetingCounterpartyType_(row); return copy; });
     var filterRows = rows.filter(function (row) { return kspActivityRowMatchesFilters_(row, input, false); });
     var bounds = kspActivityResolveBounds_(filterRows, input);
     var matchingRows = filterRows.filter(function (row) {

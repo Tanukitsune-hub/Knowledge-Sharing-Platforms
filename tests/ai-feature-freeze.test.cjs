@@ -168,7 +168,7 @@ test('all six format sources hash the exact provider payload and preserve canoni
     assert.equal(built.sourceId,'DOC-000001',extension);
     assert.equal(built.dateKey,'2026-08-01',extension);
     assert.equal(built.gpId,'GP-1',extension);
-    assert.equal(built.entityKey,'GP:GP-1',extension);
+    assert.equal(built.entityKey,'COUNTERPARTY:GP-1',extension);
     assert.equal(built.assetClassId,'AC-1',extension);
     assert.equal(built.capitalTypeId,'CT-1',extension);
     assert.equal(built.fundStrategy,'CODEX-04 Six Format Matrix',extension);
@@ -180,7 +180,7 @@ test('all six format sources hash the exact provider payload and preserve canoni
       capital_type_id:attributes.capital_type_id,fund_strategy:attributes.fund_strategy,
       content_hash:attributes.content_hash
     },{
-      source_type:'Pitchbook',source_id:'DOC-000001',date_key:'2026-08-01',entity_key:'GP:GP-1',
+      source_type:'Pitchbook',source_id:'DOC-000001',date_key:'2026-08-01',entity_key:'COUNTERPARTY:GP-1',
       gp_id:'GP-1',asset_class_id:'AC-1',capital_type_id:'CT-1',
       fund_strategy:'CODEX-04 Six Format Matrix',content_hash:expectedHash
     },extension);

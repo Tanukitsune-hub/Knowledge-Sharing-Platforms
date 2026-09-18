@@ -2,17 +2,21 @@ function kspBuildFeatureFreezePitchbookSource_(row, maps, payload, contentHash, 
   kspAssert_(row && row.Document_ID, 'AI_PITCHBOOK_ROW_INVALID', 'Pitchbook row is invalid.');
   kspAssert_(row.File_ID, 'AI_PITCHBOOK_FILE_MISSING', 'Pitchbook source file is missing.');
   var definition = formatDefinition || kspGetAiFormatDefinition_(kspGetPitchbookExtensionForAi_(row));
+  var counterpartyId = kspMeetingCounterpartyId_(row) || String(row.GP_ID || '');
+  var counterpartyType = String((maps.counterpartyTypes || {})[counterpartyId] ||
+    kspMeetingCounterpartyType_(row));
+  var gpId = counterpartyType === 'GP' ? counterpartyId : '';
   var source = {
     sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
     sourceId: String(row.Document_ID),
     dateKey: kspCanonicalBusinessDate_(row.Date),
-    gpId: String(row.GP_ID || ''),
-    gpName: maps.gps[String(row.GP_ID || '')] || String(row.GP_ID || ''),
-    entityKey: 'GP:' + String(row.GP_ID || ''),
-    counterpartyType: 'GP',
-    counterpartyId: String(row.GP_ID || ''),
-    counterpartyName: maps.gps[String(row.GP_ID || '')] || String(row.GP_ID || ''),
-    relatedGpIds: String(row.GP_ID || ''),
+    gpId: gpId,
+    gpName: gpId ? (maps.gps[gpId] || gpId) : '',
+    entityKey: kspCounterpartyEntityKey_(counterpartyId),
+    counterpartyType: counterpartyType,
+    counterpartyId: counterpartyId,
+    counterpartyName: maps.counterparties[counterpartyId] || counterpartyId,
+    relatedGpIds: '',
     assetClassId: String(row.Asset_Class_ID || ''),
     assetClassName: maps.assetClasses[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
     capitalTypeId: String(row.Capital_Type_ID || ''),
@@ -244,7 +248,7 @@ function kspRunFeatureFreezeAiSync_(environment) {
   var store = environment.ensureFileSearchStore(settings, KSP_AI_DEFAULTS.STORE_DISPLAY_NAME);
   var items = kspFfSelectAiWorkItems_(context.meetingRows, context.pitchbookRows, startedAt, settings);
   report.selected = items.length;
-  var maps = kspBuildAiMasterMaps_(context.gpRows, context.optionRows);
+  var maps = kspBuildAiMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
   items.forEach(function (item) {
     var claim = environment.claimAiSource(item.sourceType, item.sourceId, startedAt, KSP_AI_DEFAULTS.CLAIM_TTL_MILLIS);
     if (!claim) {

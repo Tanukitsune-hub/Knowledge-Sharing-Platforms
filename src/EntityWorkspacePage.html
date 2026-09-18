@@ -1,12 +1,12 @@
 <section id="page-entity-workspace" class="page">
   <div class="card">
     <div class="section-heading">
-      <div><h2>Entity Workspace</h2><p class="hint">Counterparty Entityを起点に、Meeting・Pitchbook・明示的な関係を読み取り専用で確認します。</p></div>
+      <div><h2>面談先サマリー</h2><p class="hint">Counterparty_Masterの面談先を起点に、Meeting・資料・明示的な関係を読み取り専用で確認します。</p></div>
       <button id="entity-workspace-print-button" class="action secondary" type="button" disabled>印刷 / PDF</button>
     </div>
     <div class="filter-grid entity-workspace-selector-grid">
-      <div class="field"><label for="entity-workspace-type">Counterparty Type</label><select id="entity-workspace-type"><option value="">未選択</option></select></div>
-      <div class="field"><label for="entity-workspace-entity">Entity</label><select id="entity-workspace-entity"><option value="">未選択</option></select></div>
+      <div class="field"><label for="entity-workspace-type">面談先種別</label><select id="entity-workspace-type"><option value="">未選択</option></select></div>
+      <div class="field"><label for="entity-workspace-entity">面談先</label><select id="entity-workspace-entity"><option value="">未選択</option></select></div>
     </div>
     <div id="entity-workspace-status" class="status" role="status" aria-live="polite"></div>
   </div>
@@ -17,9 +17,7 @@
 
     <section class="card"><div class="section-heading"><div><h3>Fund / Strategy</h3><p class="hint">値はtrim後の完全一致で集計します。行を選ぶと同じread facadeで詳細を読み込みます。</p></div></div><div class="field entity-workspace-fund-selector"><label for="entity-workspace-fund">詳細対象</label><select id="entity-workspace-fund"><option value="">未選択</option></select></div><div class="table-wrap"><table class="data-table entity-workspace-table"><caption class="sr-only">Fund / Strategy集計</caption><thead><tr><th>Fund / Strategy</th><th>Meeting</th><th>Pitchbook</th><th>Direct / Related</th><th>最新日付</th><th>要フォロー</th><th>関係</th></tr></thead><tbody id="entity-workspace-funds"></tbody></table></div><div id="entity-workspace-funds-more"></div><div id="entity-workspace-drill" class="entity-workspace-drill" role="region" aria-live="polite"></div></section>
 
-    <section id="entity-workspace-gp-context" class="card hidden-panel"><div class="section-heading"><div><h3>GP context</h3><p class="hint">Direct Meeting、Related（非直接）Meeting、GP所有Pitchbookを分けて表示します。</p></div></div><div class="entity-workspace-grid"><div><h4>Direct Meetings</h4><div id="entity-workspace-gp-direct-meetings" class="entity-compact-list"></div></div><div><h4>Related Meetings</h4><div id="entity-workspace-gp-related-meetings" class="entity-compact-list"></div></div></div><div class="table-wrap"><table class="data-table entity-workspace-table"><caption class="sr-only">GP所有Pitchbook</caption><thead><tr><th>日付</th><th>Document ID</th><th>Fund / Strategy</th><th>Status</th><th>原本</th></tr></thead><tbody id="entity-workspace-owned-pitchbooks"></tbody></table></div></section>
-
-    <section id="entity-workspace-non-gp-context" class="card hidden-panel"><div class="section-heading"><div><h3>Non-GP context</h3><p class="hint">Related GPは直接Meetingの記録から、Pitchbookは明示的なDocument_ID関係からのみ表示します。</p></div></div><div id="entity-workspace-related-gps" class="entity-related-gps"></div><div class="table-wrap"><table class="data-table entity-workspace-table"><caption class="sr-only">明示的にリンクされたPitchbook</caption><thead><tr><th>日付</th><th>Document ID</th><th>Pitchbook GP</th><th>Fund / Strategy</th><th>Status</th><th>原本</th></tr></thead><tbody id="entity-workspace-linked-pitchbooks"></tbody></table></div></section>
+    <section id="entity-workspace-counterparty-context" class="card"><div class="section-heading"><div><h3>面談先の記録と資料</h3><p class="hint">Counterparty_IDの一致でMeetingと資料を表示します。</p></div></div><div class="entity-workspace-grid"><div><h4>Meetings</h4><div id="entity-workspace-gp-direct-meetings" class="entity-compact-list"></div></div></div><div class="table-wrap"><table class="data-table entity-workspace-table"><caption class="sr-only">面談先の資料</caption><thead><tr><th>日付</th><th>Document ID</th><th>Fund / Strategy</th><th>Status</th><th>原本</th></tr></thead><tbody id="entity-workspace-owned-pitchbooks"></tbody></table></div></section>
 
     <div class="entity-workspace-grid">
       <section class="card"><h3>Meetings</h3><div class="table-wrap"><table class="data-table entity-workspace-table"><caption class="sr-only">EntityのMeetings</caption><thead><tr><th>日付</th><th>Scope</th><th>Counterparty</th><th>Team / Fund</th><th>Status</th><th>原本</th></tr></thead><tbody id="entity-workspace-meetings"></tbody></table></div><div id="entity-workspace-meetings-more"></div></section>

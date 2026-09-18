@@ -34,9 +34,9 @@ if(fs.existsSync(path.join(sourceDir,'Index.html'))){
     'id="meeting-form"','id="meeting-file-panel"','id="meeting-file-home"','pitchbook-drop-zone','preparePitchbookBatch','uploadPitchbookFile',
     'parentMeetingId','expectedParentVersion','updateMeetingRelations','id="meeting-detail-card"','id="meeting-detail-files"',
     '25*1024*1024','KSP_PITCHBOOK_SLOT_KEY','id="page-meeting-past"','id="page-pitchbook-past"','id="page-masters"',
-    'meeting-quick-add-counterparty','meeting-counterpartyType','meeting-counterpartyId','meeting-relatedGpIds',
-    'pitchbook-quick-add-gp','searchMeetingRecords','updateMeetingMaintenance',
-    'mutateMaster','quickAddGp','getPhase1MaintenanceBootstrapData','include_'
+    'meeting-quick-add-counterparty','meeting-counterpartyId','quickAddCounterparty',
+    'searchMeetingRecords','updateMeetingMaintenance',
+    'mutateMaster','getPhase1MaintenanceBootstrapData','include_'
   ])if(!allSource.includes(token))throw new Error(`Source surface missing token: ${token}`);
   const index=fs.readFileSync(path.join(sourceDir,'Index.html'),'utf8');
   if(/id="(?:pitchbook-form|page-pitchbook)"/.test(index))throw new Error('Standalone Pitchbook registration is forbidden; use the parent Meeting attachment panel.');

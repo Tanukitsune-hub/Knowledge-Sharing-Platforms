@@ -1,6 +1,6 @@
 # Target Architecture
 
-Current as of: 2026-08-28
+Current as of: 2026-09-18
 
 Status: Active
 
@@ -22,7 +22,7 @@ Authorized users
 Apps Script HTML Service Web App
   ├─ Meeting: New / Past
   ├─ Pitchbook: New / Past
-  ├─ GP / Entity Workspace
+  ├─ Counterparty Summary
   ├─ Activity Analytics
   ├─ Relationship Explorer
   ├─ Knowledge Search
@@ -48,7 +48,7 @@ Google Apps Script V8
    |                               |                          |
    v                               v                          v
 Backend Spreadsheet            Shared Drive          Derived AI/Export layer
-  ├─ GP_Master                   ├─ Meeting Records     ├─ OpenAI Vector Store
+  ├─ Counterparty_Master         ├─ Meeting Records     ├─ OpenAI Vector Store
   ├─ Option_Master               └─ Pitchbooks          ├─ Gemini File Search Store
   ├─ Meeting_Index                                      └─ Knowledge Export artifacts
   ├─ Pitchbook_Index
@@ -104,7 +104,7 @@ Private Assets Knowledge
 
 ### Five-sheet Backend
 
-1. `GP_Master`
+1. `Counterparty_Master`
 2. `Option_Master`
 3. `Meeting_Index`
 4. `Pitchbook_Index`
@@ -149,10 +149,9 @@ Detailed decision:
 
 `docs/decisions/counterparty-entity-classification.md`
 
-Meeting identity:
+Authoritative Counterparty identity:
 
 ```text
-Counterparty_Type
 Counterparty_ID
 ```
 
@@ -167,39 +166,29 @@ CONSULTANT_GATEKEEPER
 OTHER
 ```
 
-Storage:
-
-- GP entities: existing `GP_Master`;
-- non-GP entities: category-specific `Option_Master` Types;
-- composite stable identity: `Counterparty_Type + ':' + Counterparty_ID`.
-
-No Entity/Counterparty sheet is introduced.
+Storage is the single `Counterparty_Master`. IDs are generic `CP-000001` values and type is a master attribute. GP is only the `GP` type. `Option_Master` counterparty rows and schema7 `GP_Master` are migration sources, not normal catalogs.
 
 Meeting schema includes:
 
 ```text
 Counterparty_Type
 Counterparty_ID
-Related_GP_IDs
 ```
 
-Existing `GP_ID` remains for compatibility.
+Existing `GP_ID`, `Related_GP_IDs`, and row-level `Counterparty_Type` may remain for lossless migration compatibility, but normal behavior resolves name/type from `Counterparty_Master` and writes no GP relationship fields.
 
-- GP Meeting: Counterparty ID and GP_ID mirror the same GP.
-- non-GP Meeting: GP_ID may be blank; Related GP context is held in `Related_GP_IDs`.
 - existing `Counterparty` free text remains personal-name/role information.
-- legacy GP rows are backfilled only when new fields are blank.
+- schema7 references are rewritten deterministically to generic CP IDs while stable Meeting/Doc/File identities are preserved.
 
 Prospective required fields:
 
 ```text
 Date
-Counterparty Type
-Counterparty Entity
+Counterparty
 Asset Class
 ```
 
-Optional fields include Time, Location, Equity/Debt, Team, Fund/Strategy, Meeting Types, Related GPs, Related Pitchbooks, Follow-up, person/role text, internal participants, and body notes.
+Optional fields include Time, Location, Equity/Debt, Team, Fund/Strategy, Meeting Types, Related Pitchbooks, Follow-up, person/role text, internal participants, and body notes.
 
 Filename:
 
@@ -211,14 +200,14 @@ Migration does not bulk-rename or rewrite existing Docs/files.
 
 ## 6. Pitchbook architecture
 
-Pitchbook remains GP-oriented in the selected roadmap.
+Pitchbook/material identity is Counterparty-centered.
 
 Required:
 
 ```text
 file
 Date
-GP
+Counterparty
 Asset Class
 ```
 
@@ -226,7 +215,7 @@ Optional: Equity/Debt and Fund/Strategy.
 
 Stable Document ID, Batch ID, File ID, persistent sequence, partial success, retry, and filename rules remain accepted.
 
-Non-GP Pitchbook ownership requires a later explicit decision if actual use proves it necessary.
+Parent-bound material inherits the parent Meeting Counterparty; standalone material selects one Counterparty.
 
 ## 7. Relationship architecture
 
@@ -236,11 +225,7 @@ Canonical relationship:
 Meeting_Index.Related_Pitchbook_IDs
 ```
 
-Related Pitchbook choices use:
-
-- matching Asset Class;
-- Pitchbook GP present in Meeting `Related_GP_IDs`;
-- Active for new selection.
+Related Pitchbook choices use matching Counterparty, matching Asset Class, and Active status for new selection.
 
 Existing Inactive, unresolved, or now-out-of-scope links remain visible and preserved.
 
@@ -248,30 +233,20 @@ Work 0018 provides forward/reverse traversal by scanning/indexing this field. No
 
 ## 8. Masters and maintenance
 
-### GP Master
+### Counterparty Master
 
-Immutable GP ID, mutable display name, Active/Inactive, normalized duplicate check, quick-add.
+Immutable generic CP ID, mutable display name, Counterparty Type, Active/Inactive, type-scoped normalized duplicate check, quick-add.
 
 ### Option Master
 
-Existing Types include Location, Asset Class, Capital Type, Team and:
-
-```text
-COUNTERPARTY_LP
-COUNTERPARTY_NISSAY_DEPARTMENT
-COUNTERPARTY_GROUP_COMPANY
-COUNTERPARTY_CONSULTANT_GATEKEEPER
-COUNTERPARTY_OTHER
-```
-
-All use stable Option ID, display name, Sort Order, Active/Inactive, and accepted Audit rules. Real department/entity seeds are not guessed.
+Normal Types include Location, Asset Class, Capital Type, and Team. Historical `COUNTERPARTY_*` rows may remain as lossless migration provenance only.
 
 ## 9. Workspaces and analytics
 
-- Work 0015: GP Workspace / print brief.
+- Counterparty Summary absorbs the historical GP Workspace and Entity Workspace into one primary experience.
 - Work 0017: activity analytics and narrow monthly administrative check.
 - Work 0018: bidirectional Relationship Explorer.
-- Work 0019: Entity Workspace, direct versus Related GP activity, unified timeline, exact Fund/Strategy drill-down.
+- Work 0019 supplied the unified timeline and exact Fund/Strategy drill-down now used by Counterparty Summary.
 
 Analytics reads `Meeting_Index`, not Meeting Doc bodies. Follow-up stays an informational flag/note; task owners/deadlines/completion/reminders are outside this platform.
 
@@ -286,7 +261,7 @@ Equity / Debt
 Fund / Strategy
 ```
 
-GP is shared only for a GP-counterparty Meeting. A non-GP Meeting does not infer Pitchbook GP from Related GPs.
+Counterparty is shared across Meeting/Pitchbook flows. A parent-bound material always inherits its parent Meeting Counterparty.
 
 Drafts persist 24h in one browser. Normal lifecycle is Active/Inactive/Reactivate. Stable IDs and optimistic locking remain durable.
 
@@ -314,25 +289,24 @@ No automatic cross-provider failover. A disabled/unconfigured provider returns a
 
 ### Canonical AI Source
 
-Meeting metadata includes:
+Meeting and Pitchbook metadata include:
 
 ```text
 entity_key
 counterparty_type
 counterparty_id
 counterparty_name
-related_gp_ids
 ```
 
-Pitchbook derives:
+Canonical identity is:
 
 ```text
-counterparty_type = GP
-counterparty_id = GP_ID
-entity_key = GP:<GP_ID>
+counterparty_id = CP-xxxxxx
+counterparty_type = value resolved from Counterparty_Master
+entity_key = COUNTERPARTY:<Counterparty_ID>
 ```
 
-Existing metadata—source ID/type, date, GP, Asset Class, Capital Type, Team, Fund/Strategy, Meeting Type, Follow-up, Drive URL, filename, and content hash—remains.
+Existing metadata—source ID/type, date, Counterparty, Asset Class, Capital Type, Team, Fund/Strategy, Meeting Type, Follow-up, Drive URL, filename, and content hash—remains.
 
 ### Canonical Knowledge Request
 
@@ -430,8 +404,7 @@ Planned filters:
 ```text
 Date From / To
 Counterparty Type
-Counterparty Entity
-Related GP where exact behavior permits
+Counterparty
 Asset Class
 Equity / Debt
 Team
@@ -533,7 +506,7 @@ Target-runtime qualification covers actual Apps Script, Workspace object shapes,
 
 ## 20. Work sequence
 
-Work 0014 structured Meeting context foundation is the accepted foundation for the sequence below.
+The sequence below is historical delivery order. Work 0031 supersedes its GP-specific normal-product assumptions with the Counterparty Master architecture above.
 
 ```text
 0015 GP Workspace

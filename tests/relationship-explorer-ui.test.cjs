@@ -82,21 +82,21 @@ test('Relationship Explorer page exposes accessible filters and both tabular dir
   assert.match(page, /id="page-relationship-explorer" class="page"/);
   for (const id of [
     'relationship-date-from', 'relationship-date-to', 'relationship-counterparty-type',
-    'relationship-counterparty-entity', 'relationship-related-gp', 'relationship-pitchbook-gp',
+    'relationship-counterparty-entity',
     'relationship-asset-class', 'relationship-fund-strategy', 'relationship-meeting-status',
     'relationship-pitchbook-status', 'relationship-forward-results', 'relationship-reverse-results',
     'relationship-forward-detail', 'relationship-reverse-detail'
   ]) assert.match(page, new RegExp(`id="${id}"`));
   assert.match(page, /<caption class="sr-only">MeetingからPitchbookへの明示的関係<\/caption>/);
   assert.match(page, /<caption class="sr-only">PitchbookからMeetingへの逆引き関係<\/caption>/);
-  assert.match(page, /Meeting Counterparty/);
-  assert.match(page, /Pitchbook GP/);
+  assert.match(page, /面談先/);
+  assert.doesNotMatch(page, /Related GP|Pitchbook GP/);
   assert.match(client, /serverCall\('getRelationshipExplorerData'/);
   assert.equal((client.match(/serverCall\('getRelationshipExplorerData'/g) || []).length, 1);
   assert.doesNotMatch(client, /registerMeeting|updateMeetingMaintenance|changeMeetingStatus|createKnowledgeExport|DocumentApp|DriveApp|appendRow|Audit/);
 });
 
-test('Relationship Explorer client loads read-only data and renders distinct counterparty/GP details', async () => {
+test('Relationship Explorer client loads read-only data and renders counterparty details', async () => {
   const calls = [];
   const runtime = executeClient(async (method, payload) => {
     calls.push([method, payload]);
@@ -112,15 +112,15 @@ test('Relationship Explorer client loads read-only data and renders distinct cou
   runtime.node('relationship-forward-results')._listener_click({
     target: { closest() { return { dataset: { relationshipMeeting: 'MTG-000001' } }; } }
   });
-  assert.match(runtime.node('relationship-forward-detail').innerHTML, /Meeting Counterparty/);
-  assert.match(runtime.node('relationship-forward-detail').innerHTML, /Pitchbook GP/);
+  assert.match(runtime.node('relationship-forward-detail').innerHTML, /面談先/);
+  assert.doesNotMatch(runtime.node('relationship-forward-detail').innerHTML, /Related GP|Pitchbook GP/);
   assert.match(runtime.node('relationship-forward-detail').innerHTML, /既存の面談保守で開く/);
   assert.equal(runtime.node('relationship-forward-detail').innerHTML.includes('must never escape'), false);
 
   runtime.node('relationship-reverse-results')._listener_click({
     target: { closest() { return { dataset: { relationshipPitchbook: 'DOC-1' } }; } }
   });
-  assert.match(runtime.node('relationship-reverse-detail').innerHTML, /Pitchbook GP/);
-  assert.match(runtime.node('relationship-reverse-detail').innerHTML, /Meeting Counterparty/);
+  assert.match(runtime.node('relationship-reverse-detail').innerHTML, /面談先/);
+  assert.doesNotMatch(runtime.node('relationship-reverse-detail').innerHTML, /Related GP|Pitchbook GP/);
   assert.equal(calls.length, 1, 'selecting a detail does not issue another RPC or write');
 });

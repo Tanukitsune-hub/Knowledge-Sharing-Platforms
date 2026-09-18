@@ -21,11 +21,10 @@ function kspUpdatePitchbookMaintenance_(environment, rawInput) {
     var input = kspNormalizePitchbookEditInput_(rawInput);
     var storedContext = kspRequireSingleRow_(context.pitchbookRows, 'Document_ID', input.documentId, 'PITCHBOOK_NOT_FOUND');
     if (storedContext.Parent_Meeting_ID) {
-      input.gpId = String(storedContext.GP_ID || '');
-      input.counterpartyType = kspMeetingCounterpartyType_(storedContext);
       input.counterpartyId = kspMeetingCounterpartyId_(storedContext);
     }
     var selected = kspValidatePitchbookEditInput_(input, context.catalog);
+    input.counterpartyType = selected.counterpartyEntity.type;
     claim = environment.claimRecordEdit(
       'Pitchbook', input.documentId, KSP_SHEET_NAMES.PITCHBOOK_INDEX,
       'Document_ID', 'Updated_At', input.expectedUpdatedAt, environment.nowIso(), KSP_MAINTENANCE_LIMITS.EDIT_CLAIM_TTL_MS
@@ -138,8 +137,8 @@ function kspMutateMaster_(environment, rawInput) {
     }
     kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
       timestamp: environment.nowIso(), actor: actor, action: action,
-      targetType: input.entity === KSP_MASTER_ENTITY.GP ? 'GP_Master' : 'Option_Master',
-      targetId: input.entity === KSP_MASTER_ENTITY.GP ? result.after.GP_ID : result.after.Option_ID,
+      targetType: input.entity === KSP_MASTER_ENTITY.COUNTERPARTY ? 'Counterparty_Master' : 'Option_Master',
+      targetId: input.entity === KSP_MASTER_ENTITY.COUNTERPARTY ? result.after.Counterparty_ID : result.after.Option_ID,
       result: KSP_AUDIT_RESULTS.SUCCESS,
       before: beforeAudit,
       after: afterAudit,
@@ -147,7 +146,7 @@ function kspMutateMaster_(environment, rawInput) {
     }, warnings);
     var refreshed = kspLoadMaintenanceContext_(environment);
     return { ok: true, workId: KSP_MAINTENANCE_WORK_ID,
-      record: result.after, masters: kspBuildMasterResponse_(refreshed.gpRows, refreshed.optionRows), warnings: warnings };
+      record: result.after, masters: kspBuildMasterResponse_(refreshed.counterpartyRows, refreshed.optionRows), warnings: warnings };
   } catch (error) {
     if (context) kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
       timestamp: environment.nowIso(), actor: actor,
@@ -159,10 +158,16 @@ function kspMutateMaster_(environment, rawInput) {
   }
 }
 
-function kspQuickAddGp_(environment, name) {
-  var result = kspMutateMaster_(environment, { entity: KSP_MASTER_ENTITY.GP, action: KSP_MASTER_MUTATION.ADD, name: name, returnExistingOnDuplicate: true });
-  if (result.ok) result.gp = { id: result.record.GP_ID, name: result.record.GP_Name, status: result.record.Status };
+function kspQuickAddCounterparty_(environment, name, type) {
+  var result = kspMutateMaster_(environment, { entity: KSP_MASTER_ENTITY.COUNTERPARTY,
+    action: KSP_MASTER_MUTATION.ADD, name: name, type: type, returnExistingOnDuplicate: true });
+  if (result.ok) result.counterparty = { id: result.record.Counterparty_ID,
+    name: result.record.Counterparty_Name, type: result.record.Counterparty_Type, status: result.record.Status };
   return result;
+}
+
+function kspQuickAddGp_(environment, name) {
+  return kspQuickAddCounterparty_(environment, name, 'GP');
 }
 
 function kspRunAuditRetentionCleanup_(environment) {

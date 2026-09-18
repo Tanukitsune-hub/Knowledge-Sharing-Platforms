@@ -153,12 +153,12 @@ test('Meeting retry, search mapping, AI metadata, and export revision use the sa
 
 test('Pitchbook context and fingerprints are representation-independent while true date changes remain visible', () => {
   const current = {
-    Date: new Date('2026-08-12T15:00:00.000Z'), GP_ID: 'GP-1',
+    Date: new Date('2026-08-12T15:00:00.000Z'), GP_ID: '', Counterparty_Type: 'GP', Counterparty_ID: 'CP-000001',
     Asset_Class_ID: 'AC-1', Capital_Type_ID: '', Batch_ID: 'BAT-000001',
     Document_ID: 'DOC-000001', Sequence_No: 1, Original_Filename: 'source.txt',
     Saved_Filename: 'saved.txt'
   };
-  const input = { date: '2026-08-13', gpId: 'GP-1', assetClassId: 'AC-1', capitalTypeId: '' };
+  const input = { date: '2026-08-13', counterpartyId: 'CP-000001', assetClassId: 'AC-1', capitalTypeId: '' };
   assert.equal(ksp.kspPitchbookContextMatchesRow_(current, input), true);
   assert.equal(ksp.kspPitchbookContextChanged_(current, input), false);
   assert.notEqual(ksp.kspCanonicalBusinessDate_('2026-08-14'), ksp.kspCanonicalBusinessDate_(current.Date));

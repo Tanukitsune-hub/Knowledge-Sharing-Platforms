@@ -24,7 +24,7 @@ function loadSource() {
   for (const file of [
     '00_Core.gs', '05_TemporalContracts.gs', '61_PitchbookValidation.gs',
     '62_PitchbookIdentity.gs', '30_MeetingCore.gs', '100_MaintenanceCore.gs',
-    '112_MaintenanceServiceHelpers.gs', '125_GpWorkspaceService.gs',
+    '112_MaintenanceServiceHelpers.gs',
     '128_RelationshipExplorerService.gs'
   ]) {
     new vm.Script(fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8'), { filename: file })
@@ -100,7 +100,7 @@ function createEnvironment(rows, pitchbooks) {
       const data = {
         Meeting_Index: rows,
         Pitchbook_Index: pitchbooks,
-        GP_Master: gps,
+        Counterparty_Master: gps,
         Option_Master: options
       }[sheet];
       assert.ok(data, `unexpected read ${sheet}`);
@@ -131,10 +131,10 @@ test('forward resolution uses explicit Document_ID and reverse lookup preserves 
   assert.deepEqual(JSON.parse(JSON.stringify(result.forward.records.map(item => item.meetingId))), ['MTG-2', 'MTG-1', 'MTG-4']);
   const nonGp = result.forward.records.find(item => item.meetingId === 'MTG-2');
   assert.equal(nonGp.counterpartyType, 'LP_ASSET_OWNER');
-  assert.equal(nonGp.counterpartyEntityKey, 'LP_ASSET_OWNER:LP-1');
+  assert.equal(nonGp.counterpartyEntityKey, 'COUNTERPARTY:LP-1');
   assert.equal(nonGp.relatedPitchbooks[0].resolutionState, 'resolved');
   assert.equal(nonGp.relatedPitchbooks[0].documentId, 'DOC-1');
-  assert.equal(nonGp.relatedPitchbooks[0].gpId, 'GP-2');
+  assert.equal(nonGp.relatedPitchbooks[0].counterpartyId, 'GP-2');
   assert.equal(nonGp.relatedPitchbooks[0].status, 'Inactive');
   assert.match(nonGp.relatedPitchbooks[0].fileUrl, /drive\.google\.com/);
   assert.equal(result.reverse.records.length, 1);
@@ -154,7 +154,7 @@ test('forward resolution uses explicit Document_ID and reverse lookup preserves 
     'getInstallationState',
     'read:backend:Meeting_Index',
     'read:backend:Pitchbook_Index',
-    'read:backend:GP_Master',
+    'read:backend:Counterparty_Master',
     'read:backend:Option_Master'
   ]);
   assert.equal(result.sideEffects.writes, 0);
@@ -176,8 +176,7 @@ test('filters apply to the correct side and use exact values', () => {
     dateFrom: '2026-08-21', dateTo: '2026-08-21',
     filters: {
       counterpartyType: 'LP_ASSET_OWNER',
-      counterpartyEntity: 'LP_ASSET_OWNER:LP-1',
-      relatedGp: 'GP-2', pitchbookGp: 'GP-2', assetClass: 'AC-1',
+      counterpartyEntity: 'COUNTERPARTY:LP-1', assetClass: 'AC-1',
       fundStrategy: 'Pitchbook Fund', meetingStatus: 'Active', pitchbookStatus: 'Inactive'
     }
   });
@@ -197,11 +196,11 @@ test('filters apply to the correct side and use exact values', () => {
   });
   assert.equal(caseChangedText.summary.relationships, 0, 'Fund / Strategy matching is not case-folded');
 
-  const pitchbookOnly = ksp.kspGetRelationshipExplorerData_(environment, {
-    filters: { pitchbookGp: 'GP-1' }
+  const counterpartyOnly = ksp.kspGetRelationshipExplorerData_(environment, {
+    filters: { counterpartyEntity: 'COUNTERPARTY:GP-1' }
   });
-  assert.deepEqual(pitchbookOnly.forward.records.map(item => item.meetingId), ['MTG-GP']);
-  assert.equal(pitchbookOnly.summary.unresolved, 0);
+  assert.deepEqual(counterpartyOnly.forward.records.map(item => item.meetingId), ['MTG-GP']);
+  assert.equal(counterpartyOnly.summary.unresolved, 0);
 
   const meetingOnlyUnresolved = ksp.kspGetRelationshipExplorerData_(environment, {
     filters: { counterpartyType: 'GP', meetingStatus: 'Inactive' }

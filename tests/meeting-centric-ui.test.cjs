@@ -30,10 +30,10 @@ function harness(respond){
   }}}};
   const run=text=>vm.runInContext(text,context);
   run('meetingLoading=false;pitchbookLoading=false');
-  for(const [field,value] of Object.entries({date:'2026-09-08',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'LP-1',assetClassId:'AC-1'}))nodes.get('meeting-'+field).value=value;
+  for(const [field,value] of Object.entries({date:'2026-09-08',counterpartyId:'CP-000031',assetClassId:'AC-1'}))nodes.get('meeting-'+field).value=value;
   return{nodes,calls,run,storage};
 }
-function parent(version=1,ids=[]){return{meetingId:'MTG-1',version,status:'Active',relatedPitchbookIds:ids,relatedPitchbooks:[],notes:'Synthetic body',counterpartyType:'LP_ASSET_OWNER'}}
+function parent(version=1,ids=[]){return{meetingId:'MTG-1',version,status:'Active',relatedPitchbookIds:ids,relatedPitchbooks:[],notes:'Synthetic body',counterpartyType:'LP_ASSET_OWNER',counterpartyId:'CP-000031'}}
 function fileSetup(h){h.run("selectedPitchbookFiles=[{name:'Synthetic.pdf',size:1,type:'application/pdf'}]")}
 
 test('production shell retains seven accepted sidebar entries and real includes',()=>{

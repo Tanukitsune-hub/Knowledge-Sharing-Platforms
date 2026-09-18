@@ -109,6 +109,20 @@ function createFakeEnvironment(options = {}) {
       addResource(resource);
       return { ...resource };
     },
+    renameSheetIfPresent(spreadsheetId, fromName, toName) {
+      const spreadsheet = spreadsheets.get(spreadsheetId);
+      const fromSheet = spreadsheet.sheets.get(fromName);
+      const toSheet = spreadsheet.sheets.get(toName);
+      if (fromSheet && toSheet) {
+        const error = new Error('Legacy and canonical Counterparty master sheets both exist.');
+        error.code = 'COUNTERPARTY_MASTER_RENAME_CONFLICT';
+        throw error;
+      }
+      if (!fromSheet) return { action: toSheet ? 'reused' : 'not-found' };
+      spreadsheet.sheets.delete(fromName);
+      spreadsheet.sheets.set(toName, fromSheet);
+      return { action: 'renamed' };
+    },
     ensureSheet(spreadsheetId, sheetName, expectedHeaders) {
       const spreadsheet = spreadsheets.get(spreadsheetId);
       if (!spreadsheet) throw new Error(`Spreadsheet not found: ${spreadsheetId}`);
@@ -123,6 +137,34 @@ function createFakeEnvironment(options = {}) {
         return { action: 'migrated', addedHeaders: missing, columnCount: existing.headers.length };
       }
       return { action: 'reused', addedHeaders: [], columnCount: existing.headers.length };
+    },
+    readCounterpartyMigrationSnapshot(spreadsheetId) {
+      const sheets = spreadsheets.get(spreadsheetId).sheets;
+      const rows = (name) => (sheets.get(name)?.rows || []).map((row) => ({ ...row }));
+      return {
+        counterpartyRows: rows('Counterparty_Master'),
+        optionRows: rows('Option_Master'),
+        meetingRows: rows('Meeting_Index'),
+        pitchbookRows: rows('Pitchbook_Index')
+      };
+    },
+    applyCounterpartyMigrationPlan(spreadsheetId, plan) {
+      const sheets = spreadsheets.get(spreadsheetId).sheets;
+      const apply = (name, patches) => {
+        const rows = sheets.get(name).rows;
+        for (const patch of patches || []) Object.assign(rows[patch.rowIndex], patch.values);
+      };
+      apply('Counterparty_Master', plan.counterpartyPatches);
+      sheets.get('Counterparty_Master').rows.push(...(plan.counterpartyAppends || []).map((row) => ({ ...row })));
+      apply('Meeting_Index', plan.meetingPatches);
+      apply('Pitchbook_Index', plan.pitchbookPatches);
+      return {
+        counterpartyUpdated: (plan.counterpartyPatches || []).length,
+        counterpartyInserted: (plan.counterpartyAppends || []).length,
+        meetingUpdated: (plan.meetingPatches || []).length,
+        pitchbookUpdated: (plan.pitchbookPatches || []).length,
+        legacyMappingCount: Number(plan.legacyMappingCount || 0)
+      };
     },
     backfillMeetingCounterpartyFields(spreadsheetId) {
       const sheet = spreadsheets.get(spreadsheetId).sheets.get('Meeting_Index');
@@ -241,7 +283,12 @@ test('returns a safe bootstrap template without credentials', () => {
 test('defines exactly five baseline backend sheets', () => {
   const schemas = ksp.kspGetBackendSchemas_();
   assert.deepEqual(Object.keys(schemas).sort(), [
-    'GP_Master', 'Meeting_Index', 'Option_Master', 'Pitchbook_Index', 'Settings'
+    'Counterparty_Master', 'Meeting_Index', 'Option_Master', 'Pitchbook_Index', 'Settings'
+  ]);
+  assert.deepEqual(Array.from(schemas.Counterparty_Master), [
+    'Counterparty_ID', 'Counterparty_Name', 'Counterparty_Type', 'Status',
+    'Created_At', 'Updated_At', 'Created_By', 'Updated_By',
+    'Legacy_Source_Type', 'Legacy_Source_ID'
   ]);
   assert.ok(schemas.Meeting_Index.includes('AI_Index_Status'));
   assert.ok(schemas.Pitchbook_Index.includes('Original_Filename'));
@@ -257,12 +304,13 @@ test('defines a separate audit log schema', () => {
   assert.ok(audit.Audit_Log.includes('Cited_Source_IDs'));
 });
 
-test('master seed IDs are stable and unique', () => {
-  const gpIds = ksp.kspGetGpSeedDefinitions_().map((seed) => seed[0]);
+test('master seed IDs are stable, generic, and unique', () => {
+  const counterpartyIds = ksp.kspGetCounterpartySeedDefinitions_().map((seed) => seed[0]);
   const optionIds = ksp.kspGetOptionSeedDefinitions_().map((seed) => seed[0]);
-  assert.equal(new Set(gpIds).size, gpIds.length);
+  assert.equal(new Set(counterpartyIds).size, counterpartyIds.length);
   assert.equal(new Set(optionIds).size, optionIds.length);
-  assert.ok(gpIds.includes('GP-000019'));
+  assert.ok(counterpartyIds.includes('CP-000019'));
+  assert.equal(counterpartyIds.every((id) => /^CP-\d{6}$/.test(id)), true);
   assert.ok(optionIds.includes('OPT-AC-003'));
   assert.ok(optionIds.includes('OPT-TEAM-001'));
   assert.ok(optionIds.includes('OPT-TEAM-002'));
@@ -289,7 +337,7 @@ test('forward migration appends missing columns and preserves existing columns',
   assert.deepEqual(env.getSheetHeaders(backend.id, 'Settings'), ['Key', 'Value', 'Description', 'Updated_At']);
 });
 
-const GP_HEADERS = ['GP_ID', 'GP_Name', 'Status'];
+const COUNTERPARTY_HEADERS = ['Counterparty_ID', 'Counterparty_Name', 'Counterparty_Type', 'Status'];
 
 test('CODEX12 append-only Pitchbook schema migration preserves legacy orphans and is idempotent',()=>{
  const env=createFakeEnvironment();const backend=env.createSpreadsheet('control','Backend');const headers=Array.from(ksp.kspGetBackendSchemas_().Pitchbook_Index);
@@ -302,20 +350,20 @@ test('CODEX12 append-only Pitchbook schema migration preserves legacy orphans an
 test('seed insertion does not overwrite mutable existing master values', () => {
   const env = createFakeEnvironment();
   const backend = env.createSpreadsheet('control', 'Backend');
-  env.ensureSheet(backend.id, 'GP_Master', GP_HEADERS);
-  env.insertMissingRows(backend.id, 'GP_Master', 'GP_ID', [
-    { GP_ID: 'GP-000001', GP_Name: 'User Renamed GP', Status: 'Inactive' }
+  env.ensureSheet(backend.id, 'Counterparty_Master', COUNTERPARTY_HEADERS);
+  env.insertMissingRows(backend.id, 'Counterparty_Master', 'Counterparty_ID', [
+    { Counterparty_ID: 'CP-000001', Counterparty_Name: 'User Renamed Counterparty', Counterparty_Type: 'GP', Status: 'Inactive' }
   ]);
 
-  const result = env.insertMissingRows(backend.id, 'GP_Master', 'GP_ID', [
-    { GP_ID: 'GP-000001', GP_Name: 'Advent International', Status: 'Active' },
-    { GP_ID: 'GP-000002', GP_Name: 'Apollo', Status: 'Active' }
+  const result = env.insertMissingRows(backend.id, 'Counterparty_Master', 'Counterparty_ID', [
+    { Counterparty_ID: 'CP-000001', Counterparty_Name: 'Advent International', Counterparty_Type: 'GP', Status: 'Active' },
+    { Counterparty_ID: 'CP-000002', Counterparty_Name: 'Apollo', Counterparty_Type: 'GP', Status: 'Active' }
   ]);
 
   assert.deepEqual(result, { inserted: 1, skipped: 1 });
-  const rows = env._debug.spreadsheets.get(backend.id).sheets.get('GP_Master').rows;
-  assert.equal(rows.find((row) => row.GP_ID === 'GP-000001').GP_Name, 'User Renamed GP');
-  assert.equal(rows.find((row) => row.GP_ID === 'GP-000001').Status, 'Inactive');
+  const rows = env._debug.spreadsheets.get(backend.id).sheets.get('Counterparty_Master').rows;
+  assert.equal(rows.find((row) => row.Counterparty_ID === 'CP-000001').Counterparty_Name, 'User Renamed Counterparty');
+  assert.equal(rows.find((row) => row.Counterparty_ID === 'CP-000001').Status, 'Inactive');
 });
 
 test('Work 0017 Meeting migration appends admin-check fields without rewriting legacy rows', () => {
@@ -393,10 +441,10 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const exportsFolder = env._debug.resources.get(state.resources.knowledgeExportsFolderId);
   assert.equal(exportsFolder.name, 'Knowledge Exports');
   assert.deepEqual(exportsFolder.parents, ['knowledge-parent']);
-  assert.equal(state.schemaVersion, 7);
+  assert.equal(state.schemaVersion, 8);
   assert.equal(backend.sheets.size, 5);
   assert.equal(audit.sheets.size, 1);
-  assert.equal(backend.sheets.get('GP_Master').rows.length, 30);
+  assert.equal(backend.sheets.get('Counterparty_Master').rows.length, 30);
   assert.equal(backend.sheets.get('Option_Master').rows.length, 16);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'AUDIT_LOG_SPREADSHEET_ID').Value, state.resources.auditSpreadsheetId);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'KNOWLEDGE_EXPORTS_FOLDER_ID').Value, state.resources.knowledgeExportsFolderId);
@@ -415,7 +463,7 @@ test('second setup reuses all resources and does not duplicate seeds', () => {
 
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
   const backend = env._debug.spreadsheets.get(state.resources.backendSpreadsheetId);
-  assert.equal(backend.sheets.get('GP_Master').rows.length, 30);
+  assert.equal(backend.sheets.get('Counterparty_Master').rows.length, 30);
   assert.equal(backend.sheets.get('Option_Master').rows.length, 16);
 });
 

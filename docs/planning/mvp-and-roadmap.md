@@ -1,6 +1,6 @@
 # Planning Baseline and Roadmap
 
-Current as of: 2026-08-29
+Current as of: 2026-09-18
 
 Status: Active product/roadmap baseline
 
@@ -14,9 +14,9 @@ Knowledge Sharing Platforms provides or is implementing:
 
 - Meeting registration, search, edit, Active/Inactive/Reactivate, and structured context;
 - Pitchbook/source registration, search, metadata maintenance, file-granular retry, and stable links;
-- GP / Option Masters and append-only structured fields;
-- read-only GP/Entity Workspaces with bounded browser-native print/PDF briefs;
-- hierarchical Counterparty Type -> Entity Meeting classification;
+- one Counterparty Master plus generic Option Master and append-only compatibility fields;
+- one read-only Counterparty Summary with bounded browser-native print/PDF brief;
+- single-selector Counterparty Meeting classification with type as an attribute;
 - repository-wide Business Date / Business Time / Instant temporal contract;
 - Activity Analytics with period/dimension breakdowns, exact drill lists, and the binary `月次管理反映済み` administrative check;
 - read-only Relationship Explorer with explicit Meeting -> Pitchbook and Pitchbook -> Meeting traversal;
@@ -37,7 +37,7 @@ Work IDs and application release versions are separate. Historical Works remain 
 
 - one Web App for authorized users;
 - Shared Drive authoritative `Meeting Records / Pitchbooks`;
-- five-sheet Backend: `GP_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings`;
+- five-sheet Backend: `Counterparty_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings`;
 - separate Restricted Audit Spreadsheet;
 - stable IDs rather than row numbers;
 - Google Doc is authoritative for Meeting body;

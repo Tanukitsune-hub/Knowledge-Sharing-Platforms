@@ -82,7 +82,7 @@ test('representative accepted facades delegate identically in bundle mode withou
     ['registerMeeting', 'kspRegisterMeeting_', 'kspCreateMeetingEnvironment_', [{ Date: '2026-01-01' }]],
     ['uploadPitchbookFile', 'kspUploadPitchbookFile_', 'kspCreatePitchbookEnvironment_', [{ name: 'synthetic.txt' }]],
     ['searchMeetingRecords', 'kspSearchMeetingRecords_', 'kspCreateMaintenanceEnvironment_', [{}]],
-    ['getGpWorkspaceData', 'kspGetGpWorkspaceData_', 'kspCreateGpWorkspaceEnvironment_', ['GP-TEST']],
+    ['quickAddCounterparty', 'kspQuickAddCounterparty_', 'kspCreateMaintenanceEnvironment_', [{ name: 'Synthetic', type: 'OTHER' }]],
     ['getEntityWorkspaceData', 'kspGetEntityWorkspaceData_', 'kspCreateEntityWorkspaceEnvironment_', [{}]],
     ['getMeetingActivityAnalytics', 'kspGetMeetingActivityAnalytics_', 'kspCreateActivityAnalyticsEnvironment_', [{}]],
     ['getRelationshipExplorerData', 'kspGetRelationshipExplorerData_', 'kspCreateRelationshipExplorerEnvironment_', [{}]],
