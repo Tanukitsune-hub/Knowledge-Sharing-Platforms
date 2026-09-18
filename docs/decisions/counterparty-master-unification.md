@@ -1,6 +1,6 @@
 # 面談先マスター統合 — GP中心モデルの廃止
 
-Status: ACCEPTED_DESIGN_DIRECTION
+Status: IMPLEMENTED_ACCEPTED
 Work ID: 0031
 Date: 2026-09-18
 
@@ -142,3 +142,16 @@ schema7 -> schema8のidempotent migrationを用意する。
 - CRM化。
 - company rollout。
 - Azure provider transition。
+## Implementation Result
+
+Implemented and accepted in PR #53.
+
+```text
+MERGE: ed47161bc6380c3289f1554d1d7419c575497f53
+SCHEMA: 8
+SERVED_VERSION: 7
+COUNTERPARTY_MASTER: ACTIVE
+GP_MASTER: MIGRATION_SOURCE_ONLY
+R1_R10: PASS
+BLOCKER: NONE
+```
