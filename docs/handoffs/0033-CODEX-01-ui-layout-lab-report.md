@@ -2,8 +2,8 @@
 
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-01
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 ## Work Contract
@@ -62,9 +62,9 @@ Implementation commit: `bc8f459`。
 - 同policyは別browser surface、間接起動、raw browser command等による迂回を禁止しているため、evidence boundaryを守って停止した。
 - これはLayout Labのload/runtime/application failureではなく、`AUTOMATION_TOOLING_LIMITATION`である。
 
-### Required user verification
+### User-assisted target-runtime evidence
 
-`tools/ui-layout-lab/open-layout-lab.bat`をdouble-clickし、次を1 bounded passで確認する。
+Chrome automation limitationを回避する実装変更やalternate runtimeは使わず、ユーザーが`tools/ui-layout-lab/open-layout-lab.bat`からactual local `file://` surfaceを開いた。前回returnで次のexact checklistを提示し、ユーザーから`確認完了`を受領した。
 
 1. 4 presetを順に適用できる。
 2. 3 field以上をdragし、順序が変わる。
@@ -77,7 +77,7 @@ Implementation commit: `bc8f459`。
 9. 任意の非機密local画像をoverlayし、opacityを変えて外せる。
 10. browser consoleのmaterial error/warnが0。
 
-確認結果は、全項目に問題がなければ`確認完了`、問題があれば最初の不具合と操作だけを返せばよい。private画像やJSONの共有は不要。
+この返答は、全項目に問題がない場合だけ`確認完了`と返すpredeclared evidence contractに対する直接回答である。したがって4 preset、3 field以上のdrag、2 field以上の横resize、notes縦resize、hide/show、undo/redo、variant save/load、JSON exact roundtrip、Codex handoff、desktop/mobile preview、local overlay、console material error/warn 0を`PASS (USER_CONFIRMED)`として受け入れた。private画像やJSONの共有は受けていない。
 
 ## Git / delivery
 
@@ -88,19 +88,20 @@ Implementation commit: `bc8f459`。
 ## Side-effect state / readiness
 
 ```text
-LAYOUT_LAB: IMPLEMENTED
-PRESETS_LOGIC: 4_PASS
-DRAG_RESIZE_LOGIC: PASS
-HIDE_SHOW_LOGIC: PASS
-VIEWPORT_PREVIEW_LOGIC: PASS
+LAYOUT_LAB: USABLE
+PRESETS: 4_PASS
+DRAG_RESIZE: PASS
+HIDE_SHOW: PASS
+VIEWPORT_PREVIEW: PASS
 AUTO_TIDY_LINT: PASS
 UNDO_REDO: PASS
-LOCAL_VARIANTS_LOGIC: PASS
+LOCAL_VARIANTS: PASS
 JSON_ROUNDTRIP: PASS
 CODEX_HANDOFF: PASS
-REFERENCE_IMAGE_IMPLEMENTATION: LOCAL_ONLY
-MANUAL_BROWSER_QUALIFICATION: ACTION_REQUIRED
-AUTOMATION_LIMITATION: FILE_URL_BLOCKED_BY_BROWSER_POLICY
+REFERENCE_IMAGE_LOCAL_ONLY: PASS
+MANUAL_BROWSER_QUALIFICATION: PASS (USER_CONFIRMED)
+CONSOLE_MATERIAL_ERROR_WARN: 0 (USER_CONFIRMED)
+AUTOMATION_LIMITATION: FILE_URL_BLOCKED_BY_BROWSER_POLICY / SUPERSEDED_BY_USER_EVIDENCE
 NETWORK_CALLS: 0
 GOOGLE_CALLS: 0
 PROVIDER_CALLS: 0
@@ -108,8 +109,8 @@ CONFIDENTIAL_DATA: 0
 PRODUCTION_SOURCE_CHANGES: 0
 APPS_SCRIPT_DEPLOYMENT: 0
 WORK_0030: DEFERRED_BY_USER
-BLOCKER: USER_MANUAL_FILE_URL_QUALIFICATION
-READY_FOR_CHATGPT_FINAL_REVIEW: NO
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
 ```
 
 ## Shared Knowledge
@@ -120,5 +121,5 @@ NEW_KNOWLEDGE_CANDIDATE: NO
 
 WORK_ID: 0033
 DISPATCH_ID: 0033-CODEX-01
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
