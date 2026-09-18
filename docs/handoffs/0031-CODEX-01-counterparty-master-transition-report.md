@@ -2,8 +2,8 @@
 
 WORK_ID: 0031
 DISPATCH_ID: 0031-CODEX-01
-BALL: CODEX
-STATUS: IN_PROGRESS
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 
 ## Work Contract
@@ -42,15 +42,113 @@ Inventoryから、storageだけのrenameでは不足し、storage→Meeting→Ma
 
 ## Implementation / validation / runtime
 
-実行後に追記する。
+### Implementation outcome
+
+- schemaを`7`から`8`へ更新し、exact five Backend sheetsを`Counterparty_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `Settings`へ確定した。
+- `src/06_CounterpartyMigration.gs`にschema7 -> schema8のidempotent migrationを実装した。旧`GP_Master` 30件と旧non-GP option 1件をprovenance付きgeneric `CP-*`へ移行し、Meeting/Pitchbook referenceを同じmappingでrewriteする。name inferenceは使用しない。
+- seed ID rangeを予約し、既存migration IDと将来seedが衝突しないようにした。migration再実行はsame CP IDs / duplicate0 / extra mutation0。
+- Meetingのprimary selectorを単一`面談先`へ統合し、new writeの`GP_ID` / `Related_GP_IDs`依存を除去した。GPは`Counterparty_Type = GP`としてのみ扱う。
+- Material/Pitchbookのreservation、fingerprint、filename、metadata、search/editを`Counterparty_ID`中心へ変更した。parent-bound資料はauthoritative parent MeetingのCPを継承する。
+- Search、Meeting-only Full Output、Relationship Explorer、Activity Analytics、面談先サマリーをCounterparty中心へ統一し、normal user-facing `関連GP`と独立GP Workspaceを除去した。
+- `src/`を正本としてbundle/manifestをcanonical regenerationした。generated bundleを手編集していない。
+- current architecture/product/plan/AGENTS wordingをschema8 Counterparty contractへ更新した。historical Work recordsは書換えていない。
+
+Final served application sourceはimplementation commit `0774b30f3521b840a74a5e0fcffe5fef389662f8`と一致する。report-only final commitはapplication source/bundleを変更しない。
+
+### Deterministic validation
+
+| Gate | Result |
+|---|---|
+| focused Meeting/Material/maintenance tests | `65/65 PASS` |
+| `npm run check` | `519/519 PASS` |
+| `npm run check:bundle` | `30/30 PASS` |
+| Apps Script inventory | `60` GS / `22` HTML / manifest validated |
+| public facade inventory | normal `31` / guarded operator `3` / private `795` |
+| bundle parity | modular source / bundle public surface and embedded resources PASS |
+| `git diff --check` | PASS |
+
+Provider transport testsはlocal deterministic executionであり、live provider callではない。Direct OpenAI / Gemini / Azure OpenAI callはすべて`0`。
+
+### Migration and deployment
+
+Read-only pre-migration baseline:
+
+- same existing isolated target / same single owner-only `WEB_APP`
+- schema `7`
+- exact five sheets: `GP_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `Settings`
+- legacy GP rows `30`、legacy non-GP option rows `1`、Meeting `3`、Pitchbook `2`
+- AI sync `FALSE`、trigger `0`
+- baseline Meeting ID / Document ID / Drive File ID / Docsをprivate evidenceとして固定
+
+Execution/readback:
+
+- source/manifest sync `1`
+- initial installer/migration `1`
+- installer/migration idempotency rerun `1`
+- immutable version `1`件（current version `6`）
+- same existing deployment update `1`
+- new target `0`、second deployment `0`
+- authoritative deployment metadata: `WEB_APP / USER_DEPLOYING / MYSELF`
+- saved source / immutable version / served deployment parity: exact match
+- post-migration: schema `8`、exact five sheets、`Counterparty_Master` present、`GP_Master` absent、AI sync `FALSE`
+- legacy GP migration `30/30`、legacy non-GP migration `1/1`、generic CP duplicate `0`、unresolved Meeting/Pitchbook reference `0`
+- baseline Meeting ID / Document ID / File ID / Docs IDはすべてpreserved
+- idempotency rerun前後でsheet/row/CP ID/resource stateは同一、duplicate delta `0`
+
+### Actual owner-only Web App qualification
+
+| Gate | Result | Direct evidence |
+|---|---|---|
+| R1 | PASS | schema8、exactly5、`Counterparty_Master` present、`GP_Master` absent、AI disabled |
+| R2 | PASS | legacy GP `30/30` + non-GP `1/1`、stable generic CP mapping、rerun duplicate0、unresolved ref0 |
+| R3 | PASS | normal UIの同じ単一selectorでsynthetic GP typeとOTHER typeのMeetingを各1件作成。new rowsはgeneric CPでlegacy GP fields blank |
+| R4 | PASS | 両Meetingをsearch/detail/readbackし、`面談先`とtype attributeを確認。Fund/Strategy edit後Version `2`、user-facing `関連GP`なし |
+| R5 | PASS | actual UIでOTHER parent Meetingへsynthetic TXTを追加し、parent CP継承、new stable Document/File identity、Pitchbook activeをauthoritative readback。deployed Counterparty catalogはgeneric GP/OTHER CPを含み、standalone classification/edit production pathはstable Document/File IDを保つdeterministic testでPASS。accepted record-centric architectureに従いstandalone file-only create routeは追加していない |
+| R6 | PASS | same Document IDをrelation-only unlink -> readback -> relink。解除中もPitchbook `Active`、File ID、parent/CP contextを維持。最終relation ID setを復元し、Meeting Docs bodyは前後byte-level exact equality。Date/Time readback維持、physical delete0 |
+| R7 | PASS | generic Counterparty searchで両synthetic Meetingを確認。OTHER CounterpartyのMeeting-only non-AI Full OutputはMeeting `3`件 / `931`文字、Related GP business lineなし、provider calls0 |
+| R8 | PASS | 面談先マスター/サマリーは32 entities（GP type `31` / OTHER `1`）。AnalyticsはMeeting `5` / Active `5` / Counterparty `3`、type breakdown OTHER `3` / GP `2`。GP専用primary experienceなし |
+| R9 | PASS | same single owner-only deployment、permission broadening0、AI sync disabled、provider credential/store状態は未設定、trigger0、confidential0、physical delete0 |
+| R10 | PASS | final saved/immutable/served source parity exact、same target、same deployment、version6、canonical logic/bundle gates PASS |
+
+R5のstandalone evidenceは、既存のaccepted single-record UI contractを変更しないよう、deployed catalog readbackとproduction-source service mutation testを組み合わせた。standalone file-only create UIを実行したという主張はしていない。
+
+### Final state / side effects
+
+```text
+R1_R10: PASS
+TARGET_SCHEMA: 8
+BACKEND_SHEETS: EXACTLY_5
+PRIMARY_MASTER: Counterparty_Master
+GENERIC_ID: CP-*
+GP_ROLE: Counterparty_Type only
+LOGIC_VALIDATION: PASS (519/519)
+BUNDLE_VALIDATION: PASS (30/30)
+TARGET_RUNTIME_QUALIFICATION: PASS
+SOURCE_SYNCS: 1
+IMMUTABLE_VERSIONS: 1
+DEPLOYMENT_UPDATES: 1
+COHERENT_CYCLES: 1/3
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+PERMISSION_BROADENING: 0
+NEW_TARGET: 0
+SECOND_DEPLOYMENT: 0
+WORK_0030: DEFERRED_BY_USER
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+```
+
+Draft PR: `#53`。mergeしていない。final review / merge / Work Completion LatchはChatGPTへ返す。
 
 ## Shared Knowledge
 
 KNOWLEDGE_RETRIEVAL: RULE-0001, RULE-0002, PAT-0004, OBS-0016
 KNOWLEDGE_APPLIED: RULE-0001, RULE-0002, PAT-0004, OBS-0016
-NEW_KNOWLEDGE_CANDIDATE: PENDING
+NEW_KNOWLEDGE_CANDIDATE: YES
 
 WORK_ID: 0031
 DISPATCH_ID: 0031-CODEX-01
-BALL: CODEX
-STATUS: IN_PROGRESS
+BALL: CHATGPT
+STATUS: RETURNED
