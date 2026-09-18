@@ -70,6 +70,7 @@
     "ClientAiProviderSettings.html",
     "ClientBootstrap.html",
     "ClientCore.html",
+    "ClientDateControls.html",
     "ClientEntityWorkspace.html",
     "ClientGpWorkspace.html",
     "ClientKnowledgeSearch.html",

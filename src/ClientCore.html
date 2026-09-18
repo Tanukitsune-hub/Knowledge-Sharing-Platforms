@@ -25,7 +25,7 @@ const pages={
 };
 let retryContext=null,meetingLoading=true,pitchbookLoading=true,selectedPitchbookFiles=[],pitchbookSlots=[];
 function el(id){return document.getElementById(id)}
-function showPage(name){if(name==='pitchbook'||name==='pitchbook-past'||name==='relationship-explorer')name='meeting-past';Object.keys(pages).forEach(key=>{if(pages[key])pages[key].classList.toggle('active',key===name);const button=el('nav-'+key);if(button)button.classList.toggle('active',key===name)});}
+function showPage(name){if(name==='pitchbook'||name==='pitchbook-past'||name==='relationship-explorer')name='meeting-past';Object.keys(pages).forEach(key=>{if(pages[key])pages[key].classList.toggle('active',key===name);const button=el('nav-'+key);if(button)button.classList.toggle('active',key===name)});if(typeof window!=='undefined'&&typeof window.scrollTo==='function')window.scrollTo({top:0,behavior:'auto'})}
 Object.keys(pages).forEach(name=>{const button=el('nav-'+name);if(button)button.onclick=()=>showPage(name)});
 function kspSafeDriveUrl(value){const candidate=String(value==null?'':value).trim();return /^https:\/\/(?:drive|docs)\.google\.com\//.test(candidate)?candidate:''}
 function kspEscapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}

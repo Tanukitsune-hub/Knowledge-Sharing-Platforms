@@ -87,5 +87,5 @@ async function completeParentAttachments(){
 el('pitchbook-submit').onclick=completeParentAttachments;
 el('pitchbook-retry').onclick=completeParentAttachments;
 el('pitchbook-clear').onclick=()=>{if(pitchbookSlots.length||pendingExistingDocumentIds.length){showStatus('pitchbook-status','warning','未完了IDは破棄できません。再試行または親記録で状態を確認してください。');return}selectedPitchbookFiles=[];fileInput.value='';renderPitchbookFiles()};
-function setRegisteredMeetingLocked(locked){el('meeting-form').querySelectorAll('input,select,textarea,button').forEach(node=>{if(!el('meeting-file-panel').contains(node))node.disabled=locked});el('meeting-clear').disabled=false;el('meeting-clear').textContent=locked?'新しい記録を入力':'下書きをクリア'}
+function setRegisteredMeetingLocked(locked){el('meeting-form').querySelectorAll('input,select,textarea,button').forEach(node=>{if(!el('meeting-file-panel').contains(node))node.disabled=locked});el('meeting-clear').disabled=false;el('meeting-clear').textContent=locked?'新しい記録を入力':'下書きをクリア';el('meeting-entry-actions').classList.toggle('registered-parent',locked);el('meeting-entry-hint').textContent=locked?'前回保存済みの記録を表示しています。新しい記録を登録するには、ここから入力を切り替えてください。':'下書きや入力内容を消去して、新しい記録を開始できます。'}
 </script>

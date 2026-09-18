@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const page = fs.readFileSync(path.join(__dirname, '../src/KnowledgeSearchPage.html'), 'utf8');
 const client = fs.readFileSync(path.join(__dirname, '../src/ClientKnowledgeSearch.html'), 'utf8');
+const dateControls = fs.readFileSync(path.join(__dirname, '../src/ClientDateControls.html'), 'utf8');
 const plain = value => JSON.parse(JSON.stringify(value));
 
 // DOM and google.script.run are external boundaries. All request construction,
@@ -13,7 +14,7 @@ function harness() {
   const nodes = new Map();
   function node() {
     const classes = new Set();
-    return {value: '', textContent: '', disabled: false, hidden: false, checked: false,
+    return {value: '', textContent: '', disabled: false, hidden: false, checked: false, dataset: {},
       readOnly: false, options: [], selectedOptions: [], listeners: {}, style: {},
       classList: {add: x => classes.add(x), remove: x => classes.delete(x),
         toggle(x, force) {if (force) classes.add(x); else classes.delete(x)}, contains: x => classes.has(x)},
@@ -32,9 +33,11 @@ function harness() {
     get(_target, method) {return payload => {if (method === 'getKnowledgeSearchBootstrapData') return;
       calls.push({method, payload: plain(payload)});success(response)}}
   })}}}};
-  const context = vm.createContext({document: {getElementById: id => nodes.get(id) || null, createElement: node},
+  const context = vm.createContext({document: {getElementById: id => nodes.get(id) || null, createElement: node,
+    querySelectorAll: selector => selector === 'input[type="date"]' ? [nodes.get('knowledge-dateFrom'), nodes.get('knowledge-dateTo')] : []},
     google: {script: {run: runner}}, console, Intl, Date, Set, Object, Promise,
     setTimeout: () => 1, clearTimeout() {}});
+  new vm.Script(dateControls.match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
   new vm.Script(client.match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
   return {context, nodes, calls, setResponse: value => {response = value}};
 }
