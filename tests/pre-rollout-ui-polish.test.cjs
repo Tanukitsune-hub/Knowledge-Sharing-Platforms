@@ -106,6 +106,6 @@ test('user-facing forms use coherent bounded field widths and keep long fields f
   assert.match(styles, /\.table-wrap\{max-width:100%\}/);
   assert.match(styles, /record-entry-actions/);
   const knowledge = source('KnowledgeSearchPage.html');
-  assert.match(knowledge, /minmax\(180px,30ch\)/);
-  assert.match(knowledge, /repeat\(2,minmax\(220px,30ch\)\)/);
+  assert.match(knowledge, /grid-template-columns:repeat\(12,minmax\(0,1fr\)\)/);
+  assert.match(knowledge, /knowledge-counterparty-field\{grid-column:1\/span 4\}/);
 });

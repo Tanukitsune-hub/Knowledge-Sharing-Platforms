@@ -49,21 +49,57 @@ async function performMasterMutation(payload) {
   showStatus('masters-status','success','Masterを更新しました。');
 }
 
-async function quickAddCounterpartyFromRegistration(){
-  const type=prompt('面談先種別を入力してください（GP / LP_ASSET_OWNER / NISSAY_INTERNAL / GROUP_COMPANY / CONSULTANT_GATEKEEPER / OTHER）','OTHER');
-  if(type===null||!type.trim())return;
-  const name=prompt('追加する面談先名を入力してください。');if(name===null||!name.trim())return;
+const KSP_COUNTERPARTY_MODAL_TYPES=['GP','LP_ASSET_OWNER','NISSAY_INTERNAL','GROUP_COMPANY','CONSULTANT_GATEKEEPER','OTHER'];
+const counterpartyModalState={origin:'',trigger:null,busy:false};
+function counterpartyModalStatus(kind,message){const box=el('counterparty-modal-status');box.className=message?'status visible '+kind:'status';box.textContent=message||''}
+function counterpartyModalFocusable(){return[...el('counterparty-modal').querySelectorAll('button:not([disabled]),select:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden)}
+function openCounterpartyModal(origin,trigger){
+  counterpartyModalState.origin=origin;counterpartyModalState.trigger=trigger||document.activeElement;counterpartyModalState.busy=false;
+  el('counterparty-modal-type').value='';el('counterparty-modal-name').value='';counterpartyModalStatus('','');
+  el('counterparty-modal-submit').disabled=false;el('counterparty-modal-backdrop').hidden=false;
+  document.querySelector('main').setAttribute('inert','');document.body.classList.add('modal-open');
+  setTimeout(()=>el('counterparty-modal-type').focus(),0);
+}
+function closeCounterpartyModal(){
+  if(counterpartyModalState.busy)return;
+  el('counterparty-modal-backdrop').hidden=true;document.querySelector('main').removeAttribute('inert');document.body.classList.remove('modal-open');
+  const trigger=counterpartyModalState.trigger;counterpartyModalState.origin='';counterpartyModalState.trigger=null;counterpartyModalStatus('','');
+  if(trigger&&typeof trigger.focus==='function')trigger.focus();
+}
+async function submitCounterpartyModal(event){
+  event.preventDefault();if(counterpartyModalState.busy)return;
+  const type=el('counterparty-modal-type').value,name=el('counterparty-modal-name').value.trim();
+  if(!KSP_COUNTERPARTY_MODAL_TYPES.includes(type)){counterpartyModalStatus('error','面談先種別を選択してください。');el('counterparty-modal-type').focus();return}
+  if(!name){counterpartyModalStatus('error','面談先名を入力してください。');el('counterparty-modal-name').focus();return}
+  counterpartyModalState.busy=true;el('counterparty-modal-submit').disabled=true;counterpartyModalStatus('info','登録しています…');
   try{
-    const result=await serverCall('quickAddCounterparty',{name:name.trim(),type:type.trim().toUpperCase()});
+    const result=await serverCall('quickAddCounterparty',{name,type});
     if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先追加に失敗しました。');
     applyMaintenanceMasterData(result.masters);
-    const id=result.counterparty&&result.counterparty.id;
-    clearRetryContext();refreshMeetingCounterpartyEntities(id||'');refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();
-    showStatus('meeting-status','success','面談先を追加して選択しました。');
-  }catch(error){showStatus('meeting-status','error',error.message||String(error))}
+    if(counterpartyModalState.origin==='meeting'){
+      const id=result.counterparty&&result.counterparty.id;
+      clearRetryContext();refreshMeetingCounterpartyEntities(id||'');refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();
+      showStatus('meeting-status','success','面談先を追加して選択しました。');
+    }else{
+      showStatus('masters-status','success','面談先マスターを更新しました。');
+    }
+    counterpartyModalState.busy=false;closeCounterpartyModal();
+  }catch(error){counterpartyModalState.busy=false;el('counterparty-modal-submit').disabled=false;counterpartyModalStatus('error',error.message||String(error))}
 }
-
-el('meeting-quick-add-counterparty').onclick=quickAddCounterpartyFromRegistration;
+function counterpartyModalKeydown(event){
+  if(event.key==='Escape'){event.preventDefault();closeCounterpartyModal();return}
+  if(event.key!=='Tab')return;
+  const focusable=counterpartyModalFocusable();if(!focusable.length){event.preventDefault();return}
+  const first=focusable[0],last=focusable[focusable.length-1];
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+}
+el('counterparty-modal-form').addEventListener('submit',submitCounterpartyModal);
+el('counterparty-modal-cancel').onclick=closeCounterpartyModal;el('counterparty-modal-close').onclick=closeCounterpartyModal;
+el('counterparty-modal').addEventListener('keydown',counterpartyModalKeydown);
+el('counterparty-modal-backdrop').addEventListener('click',event=>{if(event.target===el('counterparty-modal-backdrop'))closeCounterpartyModal()});
+el('meeting-quick-add-counterparty').onclick=event=>openCounterpartyModal('meeting',event.currentTarget);
+el('masters-add-counterparty').onclick=event=>openCounterpartyModal('masters',event.currentTarget);
 let meetingDetailRecord=null,meetingDetailBusy=false,meetingDetailRequest=0;
 const meetingDetailKnownDocuments=new Map();
 function renderMeetingDetail(record){
