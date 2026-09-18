@@ -1,6 +1,6 @@
 # Production UI simplification and cross-tab layout convergence
 
-Status: ACCEPTED_DESIGN_DIRECTION
+Status: IMPLEMENTED_ACCEPTED
 Work ID: 0036
 Date: 2026-09-19
 
@@ -83,3 +83,17 @@ Modal actions:
 登録成功後、Meeting-create起点の場合は新規Counterpartyを面談先selectorへ即時反映・選択する。Master起点の場合はmaster一覧をrefreshする。
 
 Backdrop、Escape、Cancelで安全に閉じ、focusを起点buttonへ戻す。modal open中のbackground interactionは抑止する。
+## Implementation Result
+
+Implemented and accepted in PR #58.
+
+```text
+MERGE: 9537b499ed05698ab1e981a51534fe86807d910d
+FINAL_SERVED_VERSION: 11
+CROSS_TAB_UI_CONVERGENCE: PASS
+NEW_COUNTERPARTY_MODAL: PASS
+TARGET_RUNTIME_QUALIFICATION: PASS
+BLOCKER: NONE
+```
+
+Equity / Debtはnormal user selectionから除去し既存backend値を保持。Counterparty Typeは新規面談先登録modalだけをuser-selectable exceptionとして維持する。
