@@ -23,7 +23,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACCEPTED | Work 0028 version5 accepted baseline | PR #53 / schema8 / version7 accepted。Completion Latch済み。次は会社PC移行準備 |
 | 9 | 0032 | 記録追加 / 過去の記録の最終UI polish | ACCEPTED | Work 0031 schema8 / version7 | PR #54 / version8 accepted。Completion Latch済み |
-| 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACTIVE (BUILD) | Work 0032 version8 accepted UI baseline | CODEX-01 baseline accepted。CODEX-02でdirect 2D placement / 8-direction resize / spec v2を実装 |
+| 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACCEPTED | Work 0032 version8 accepted UI baseline | PR #55 / Layout Lab v2 accepted。Meeting-create candidateをproduction反映する次Workへ |
 | 11 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 12 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 13 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -223,7 +223,7 @@ UI Layout Lab is a local-only static design sandbox.
 
 ```text
 WORK_ID: 0033
-STATUS: ACTIVE
+STATUS: ACCEPTED
 PRODUCTION_SOURCE_MODIFICATION: 0
 APPS_SCRIPT_DEPLOYMENT: 0
 NETWORK_CALLS: 0
@@ -235,3 +235,24 @@ Decision: `docs/decisions/ui-layout-lab.md`
 Plan: `docs/planning/work0033-ui-layout-lab.md`
 Dispatch: `docs/handoffs/0033-dispatches.md`
 Active instruction: `docs/handoffs/0033-CODEX-02-direct-manipulation-enhancement-instruction.md`
+## Work 0033 accepted outcome
+
+PR #55 merge: `24c8e78b0a446eddf0f1540885eb10db0bc865fa`
+
+```text
+LAYOUT_LAB: USABLE
+SPEC_VERSION: 2
+CURRENT_CANDIDATE: 12 columns / width100% / max2000
+DIRECT_2D_PLACEMENT: PASS
+EIGHT_DIRECTION_RESIZE: PASS
+STANDARD_FINE_12_24: PASS
+V1_TO_V2_MIGRATION: PASS
+USER_BROWSER_QUALIFICATION: PASS
+PRODUCTION_SRC_MODIFICATION: 0
+APPS_SCRIPT_DEPLOYMENT: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+Completion: `docs/handoffs/0033-completion-report.md`
+Current candidate: `docs/handoffs/0033-user-layout-candidate-current.json`
