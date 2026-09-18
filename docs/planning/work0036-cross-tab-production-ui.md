@@ -107,9 +107,12 @@ charts/tablesはfull width。headline/stat cardsのspacing/heightを揃える。
 2-panel desktop layoutは6/6を基本。
 
 Counterparty add:
-- type selectorを表示しない
-- new counterparty default type=`OTHER`
-- name input + add buttonを簡潔に配置
+- inline type selectorは表示しない
+- `新規面談先を追加` actionから専用modalを開く
+- modal内で`面談先種別`をrequired select、`面談先名`をrequired textとして入力
+- typeはGP / LP_ASSET_OWNER / NISSAY_INTERNAL / GROUP_COMPANY / CONSULTANT_GATEKEEPER / OTHERから選択
+- default OTHERへ自動決定しない
+- Meeting-createのquick-addと同じmodal component / workflowを再利用
 
 Option add:
 - `CAPITAL_TYPE`を選択肢から外す
@@ -139,4 +142,14 @@ same existing owner-only target / same single deploymentを使用。Work0034 ver
 
 ## Completion
 
-全normal tabがMeeting-createと同じlayout languageで一貫し、Equity/Debt / Counterparty Typeをnormal userが選択するsurfaceが0、主要flowがactual runtimeでPASSした状態。
+全normal tabがMeeting-createと同じlayout languageで一貫し、Equity/Debt selectionは0、Counterparty Typeは新規面談先登録modalだけに限定され、主要flowがactual runtimeでPASSした状態。
+## New Counterparty modal acceptance
+
+- native `prompt()`を使わない
+- centered modal + backdrop
+- required type select + required name input
+- Cancel / Escape / backdrop close
+- keyboard focusをmodal内に保ち、close後triggerへ戻す
+- Meeting-createから登録成功時は新規Counterpartyを即選択
+- Mastersから登録成功時は一覧をrefresh
+- duplicate/errorは既存service errorをmodal内statusとして表示し、page top overlayへ飛ばさない
