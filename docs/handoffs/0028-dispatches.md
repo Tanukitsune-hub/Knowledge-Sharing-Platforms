@@ -1,140 +1,138 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-22
-ACTIVE_DISPATCH_ID: 0028-CODEX-22
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0028-CODEX-23
+ACTIVE_DISPATCH_ID: 0028-CODEX-23
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: B1.1 / PRODUCTION CONTRACT BUILD + TARGET RUNTIME QUALIFICATION
+PHASE: B2 / EVIDENCE-LED TEMPORAL RECOVERY / AUTONOMOUS COMPLETION
 
-## Current state
+## 現在地
 
-CODEX-22返却: version2でR1/R2/R3 initial attachment PASS、relation追加前後のDocs本文/Date/Time不変。検索UIのtemporal mismatchに対しSheets read adapterを最小修正、focused23/canonical523/bundle30 PASS。sync1/version3作成1/same owner-only deployment update1後も同じfailureが再発し、日付も前日表示となった。same failure class連続2回でSTOP。version3は既知不具合あり・未認定、R4/R5/R7およびR6/R8残項目NOT RUN、READY NO。物理セルとDocsはread-onlyで不変確認。詳細: `0028-CODEX-22-autonomous-completion-report.md`。追加repair/deployment/rollbackなし、ChatGPTのStrategy Resetへ返す。以下USER checkpointは履歴。
+PR #50のLight designはaccepted/merged。PR #51はDraft/未merge。
 
-CODEX-22再開時訂正: file-URL permissionはユーザー確認により既に有効。設定変更要求を撤回。文書化された通常click/filechooser待受でもsetFiles前にtimeoutし、native file選択のみUSER actionとして依頼。application repairではなくbrowser tooling limitation、Cycle1継続。既存non-GP親と本文baselineは保持。
+```text
+CODEX22_RETURN_HEAD: 7c18e6dc5184209882c807db08365bd12007f0bc
+BRANCH: codex/0028-production-contract-build
+CURRENT_SERVED_VERSION: 3
+CURRENT_VERSION_QUALIFICATION: KNOWN_DEFECT / NOT_QUALIFIED
+R1: PASS_VERSION2
+R2: PASS_VERSION2 / GP_AND_NON_GP_PARENT_FIRST
+R3: PASS_VERSION2 / INITIAL_ATTACHMENT
+R4_R5_R7: NOT_RUN
+R6: PARTIAL / INITIAL_RELATION_ADD_PRESERVATION_PASS
+R8: PARTIAL / RESTRICTED_METADATA_CONFIRMED
+TEMPORAL_READBACK: FAIL / RECURRED_AFTER_ONE_REPAIR
+CANONICAL: 523/523 PASS / LOGIC_ONLY
+BUNDLE: 30/30 PASS / LOGIC_ONLY
+ORIGINAL_DATE_TIME_AND_DOCS: UNCHANGED_AT_CODEX22_STOP
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED
+READY: NO
+```
 
-CODEX-22中間checkpoint: Cycle1でR1/R2 PASS。既存version2 owner-only targetにsynthetic GP/non-GP Meeting各1、non-GP master1を作成。R6本文baseline取得済み。R3のbrowser file chooser取得timeout、upload設定確認先がbrowser policyでblockedのためUSER native file-upload設定待ち。uploaded files0、source repair/sync/version/update0。R3から同Dispatchを再開、親再作成不要。詳細: `0028-CODEX-22-autonomous-completion-report.md`。CODEX-21のversioned security readinessはmain controller reviewでACCEPTED、editor-context readinessを再gateにしない。
+CODEX-22は旧契約のsame failure class連続2回で停止。初回観測と1回の修正後再発を数えた結果、使用cycleは1/3。停止判断と実機証拠は受理するが、日時修正やversion3は受入しない。
 
-CODEX-21返却: 最小unlinked operator confirmation surfaceを追加、522 tests/bundle30 tests PASS。同じtargetへ同期1、version2作成1、同じsingle owner-only deployment更新1。通常UI confirmation1でREADY/NONE、独立attestation対authoritative exec比較MATCH。その後native editorからreadiness1を実行しACTION_REQUIRED/DEPLOYMENT_SECURITY_ATTESTATION_STALEとなったためSTOP。versioned-context readinessは未実行であり、MATCH再発失敗とは扱わない。R1-R8 NOT RUN、追加repair/sync/version/update/confirmationなし。詳細: `0028-CODEX-21-versioned-admin-confirmation-surface-report.md`。final review/merge/Completion LatchはChatGPTへ委ねる。
+Controller review / Strategy Reset:
+`docs/handoffs/0028-CODEX-22-controller-review.md`
 
-CODEX-20返却: existing target / single owner-only version1 / saved and immutable source parityをread-only確認。browser harnessのpage evaluationはread-onlyであり、書き込みを伴うgoogle.script.run confirmationを実行できる許可された経路がないためAUTOMATION_TOOLING_LIMITATIONでSTOP。confirmation0、exec render/hash再比較/post-readiness/R1-R8はNOT RUN。MISMATCH再発やapplication failureではない。source/sync/version/deployment mutation0。詳細: `0028-CODEX-20-versioned-runtime-attestation-qualification-report.md`。mainとのcontrol-doc収束はChatGPTへ委ねる。
+## Accepted Evidence / Closed Conclusions
 
-CODEX-19返却: stage分離修正・518 tests・bundle30 tests PASS。既存targetへの同期1、installer/I2 rerun1でREADY_FOR_DEPLOYMENT、duplicate0、Backend5 sheets/schema7/AI sync FALSE/trigger0。owner-only version1 WEB_APPを1件作成しauthoritative metadataを確認。pre-attestation readinessは期待どおりACTION_REQUIRED。confirmation1回後、保存attestationと実versioned execのprivate hash比較がMISMATCHとなり即STOP。post-readinessとR1-R8はNOT RUN。詳細: `0028-CODEX-19-installer-deployment-stage-repair-report.md`。source再修正・second deploymentなし。mainとのcontrol-doc最終収束はChatGPTへ委ねる。
+反証がない限り維持する。
 
-CODEX-18返却: minimum scope/safe log修正、517 tests、bundle/parity 29 tests、既存CODEX-17 bound targetへの1回同期とremote exact readbackを完了。OAuth後にrepaired I1は自動継続して1回完了。identity/setupは通過したが `ACTION_REQUIRED / DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED` でREADY_FOR_DEPLOYMENT未達のためSTOP。versioned deployment 0、I2/R1-R8 NOT RUN、追加repair/retryなし。Backend5 sheets/schema7、AI sync FALSE、trigger0。詳細: `0028-CODEX-18-installer-identity-scope-repair-report.md`。以下の旧branch記録は履歴として保持し、mainのcontroller履歴との最終収束はChatGPTへ委ねる。
+- Light-onlyのaccepted UI方向、provider-independent production contract。
+- installer identity scope、安全なoutcome log、pre/post-deployment stage分離。
+- installer/I2 PASS・duplicate0、schema7・Backend exactly5。
+- single restricted WEB_APP / USER_DEPLOYING / MYSELF。
+- CODEX-21のversioned UI confirmation READY/NONEと独立attestation MATCH。editor-context STALEをproduction readinessの証拠に混ぜない。
+- CODEX-22のversion2上で作成したGP/non-GP親各1件、initial tiny fileとparent relation。
+- 初回relation追加前後のDocs body/tab content・Date/Time・無関係business fields不変。
+- AI disabled、provider0、historical75 scope外、Work0030 deferred。
 
-CODEX-12はproduction sourceとgenerated bundleを返却。`npm run check` 512/512、bundle 27/27、local browser renderingはPASS。runtime preflightの自動選択条件がHEAD/旧版を含む複数WEB_APPで停止し、stop-on-first-failureを適用。既取得metadataではversion 75のWEB_APP + `/exec`は一意だが、remote source/browser identity以降はNOT RUN。source push・version/deployment mutationは0。詳細: `0028-CODEX-12-production-contract-build-report.md`。Workは未完了、source凍結、次はChatGPT reviewとbounded runtime qualification。
+部分PASSにはversion/refを付けて保持する。final candidateで変更影響のあるreadbackは再検証する。既存親や初回添付を重複作成して全試験を始め直さない。
 
-ユーザーがPR #50のLight案を現時点のproduction baselineとして受け入れ、細部は後続で詰める方針を明示した。PR #50はmainへsquash merge済み。
+## Primary Outcome / Active Hypothesis
 
-- merged PR: #50
-- merge commit: `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`
-- design acceptance / Strategy Reset: `docs/handoffs/0028-design-acceptance-and-build-reset.md`
-- CODEX-12 instruction: `docs/handoffs/0028-CODEX-12-production-contract-build-instruction.md`
-- prepared branch: `codex/0028-production-contract-build`
+accepted Light UI + production contractを既存isolated targetでend-to-end成立させ、ユーザー実機確認へ渡せる状態にする。
 
-INVESTIGATION/design-only phaseは受入れ済みとして閉じ、production codeへ反映して裏側contractをtarget runtimeで検証するBUILDへ移行する。
+Active Hypothesisは保存値→adapter→canonical/mapping→browser表示の経路でBusiness Date/Timeが誤解釈されていること。原因箇所は未確定。workbook timezoneだけの変換修正は実機で解消しなかった。
 
-## Primary Outcome
+最初に実際のfixture値・型と変換前後を調べ、最初の不一致を特定する。固定offset補正や元データ/timezoneの変更は指示しない。診断方法・最小修正・検証順序はCodexへ委譲する。
 
-確定Light UIの主要フローが、既存データを破壊せず次のend-to-end契約で動くこと。
+## Active instruction / Autonomous authority
 
-1. Meeting commit後にauthoritative `Meeting_ID`を発行。
-2. 保存済みActive Meetingだけをparentとして資料登録。
-3. GP以外のCounterpartyでも資料registration / metadata / retrieval / citation contextを保持。
-4. file保存とrelationship確定を分離し、部分失敗を同じIDで安全に回復。
-5. 既存Meetingへ後日資料追加、`削除`はunlink。
-6. relation-only mutationでMeeting Google Docs本文を変更しない。
-7. Knowledge Searchとdedicated Meeting-only / non-AI `全文出力`を新UI contractへ整合。
-8. Work 0027 Gemini hidden/qualified-disabledとWork 0029 shared-adminを保持。
+`docs/handoffs/0028-CODEX-23-temporal-recovery-autonomous-completion-instruction.md`
 
-## Accepted design conclusions
+同一PR / 同一target / 同一single deployment内で、日時修復から残りR1-R8まで自律継続する。通常のbug/test failure/runtime mismatchごとに返却しない。
 
-- Light only。Dark/System/theme selectorなし。
-- sidebar 7、`#182124`、active `#E1001F` left strip、metallic gold、紗綾形。
-- `記録を追加`: 単一Meeting form。資料tab / record type / Data Receipt専用UI / standalone資料登録なし。
-- `過去の記録`: 単一Meeting list/detail。本文・属性・原本・編集・記録削除/復元・関連資料操作を集約。
-- related file `削除`はcurrent Meetingからのunlink。Pitchbook全体Inactive/physical deleteとは別。
-- Knowledge Search: `面談先 / 情報ソース / 開始日 / 終了日 / 全期間` -> `検索モード / AIモデル` -> wide `質問`。
-- `情報ソース`: `面談記録・資料 / 面談記録のみ / 資料のみ`。
-- `全文出力`: dedicated action、Meeting-only / non-AI、Docs全文 + Meeting business attributes。
-- 面談実績の承認済み9列、面談先サマリーのGP/Entity read facade、admin preset/shared-adminを保持。
+```text
+MODE: BUILD
+ADDITIONAL_REPAIR_RUNTIME_CYCLES: MAX_3
+SOURCE_SYNCS: MAX_4 / INCLUDES_OPTIONAL_DIAGNOSTIC_SYNC_1
+NEW_IMMUTABLE_VERSIONS: MAX_3
+SAME_DEPLOYMENT_VERSION_UPDATES: MAX_3
+NEW_TARGETS: 0
+SECOND_PARALLEL_DEPLOYMENTS: 0
+```
 
-## BUILD authorization boundary
+初回観測はrepair失敗回数に含めない。修正後再発時は影響matrixを停止し、同run内でStrategy Resetする。新たな直接証拠を得て次cycleへ進む。同一問題への修正後実機検証が2cycles連続不合格、または3cyclesで未達なら返却する。これはCODEX-23からの規則であり過去の停止を変更しない。
 
-許可:
-- production `src/**`
-- required tests
-- exact-source regenerated `dist/**`
-- required docs/report
-- synthetic/anonymized isolated target-runtime qualification
+データ破損/証拠汚染、target identity不明、安全な実行手段不在、scope・権限・費用・architecture変更が必要なら返却。ユーザーnative操作が必要なら同DispatchでUSER/ACTION_REQUIRED。tool policyを迂回しない。
 
-未許可:
-- real confidential data
-- broad user rollout / access expansion
-- destructive migration / physical delete
-- secret rotation
-- Gemini enablement
-- Dark/System
-- new DB/sheet/relationship model
-- historical orphan bulk migration/auto-parent inference
+## 変更・データ境界
 
-Apps Script version/deploymentが必要な場合は`docs/operations/apps-script-web-app-deployment.md`に従う。identity chainを先に固定し、既存deploymentの`WEB_APP` + `/exec`をpositive proofする。ambiguous/Libraryへmutationしない。deployment mutationは本dispatch最大1回、stop-on-first-failure。
+元の2件のDate/Time・business fields・Docs baselineを保持。source修復は通常commitでレビュー可能にし、失敗修正の置換/局所revertも根拠があれば許可する。git reset/force push、main merge/rebase、control docs上書きは禁止。
 
-## Evidence hierarchy
+```text
+REAL_CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+DESTRUCTIVE_MIGRATION: 0
+BROAD_OR_COMPANY_ROLLOUT: 0
+HISTORICAL_VERSION75_MUTATION: 0
+DIRECT_OPENAI_CALLS: 0
+GEMINI_CALLS: 0
+AZURE_OPENAI_CALLS: 0
+AI_SYNC: DISABLED
+WORK_0030: DEFERRED_BY_USER
+```
 
-1. target Apps Script / Workspace authoritative readback
-2. versioned Web App actual browser behavior
-3. exact remote source / bundle parity
-4. repository deterministic tests
-5. inference
-
-## Bounds / reset
-
-- implementation + focused repair: maximum 2 rounds
-- deployment mutation: maximum 1
-- same failure repeat / identity mismatch / architecture or migration expansion / data-integrity contradiction -> Strategy Reset
-- only BLOCKER stops completion
+private URL/ID/account/hash値・秘密はGitHub/chatへ保存しない。既存synthetic証拠を保持し、新しいfixtureは残matrixに必要な最小限にする。
 
 ## Dispatch history
 
 | Dispatch | Disposition |
 |---|---|
-| 0028-CODEX-01 / 02 | Historical tombstone; never reuse |
-| 0028-CODEX-03 | PR #40 / RETURNED PARTIAL |
-| 0028-CODEX-04 | PR #41 / RETURNED |
-| 0028-CODEX-05 | PR #42 / RETURNED |
-| 0028-CODEX-06 | PR #43 / RETURNED |
-| 0028-CODEX-07 | PR #44 / RETURNED |
-| 0028-CODEX-08 | PR #45 / RETURNED / controller PASS |
-| 0028-CODEX-09 | PR #46 / RETURNED / controller PASS |
-| 0028-CODEX-10 | PR #47/#48/#49返却履歴。consumed |
-| 0028-CODEX-11 | PR #50 / RETURNED -> controller scoped repair -> user accepted -> merged |
-| 0028-CODEX-12 | Draft PR #51 / RETURNED PARTIAL / deterministic PASS・runtime BLOCKED |
+| 0028-CODEX-01 / 02 | historical tombstone; never reuse |
+| 0028-CODEX-03..09 | Light design iterations |
+| 0028-CODEX-10 | PR #47/#48/#49 consumed history |
+| 0028-CODEX-11 | PR #50 accepted/merged Light baseline |
+| 0028-CODEX-12 | PR #51 production BUILD / deterministic PASS / runtime incomplete |
+| 0028-CODEX-13 | prepare lifecycle blocker CLOSED / Execution API 403 |
+| 0028-CODEX-14 | saved source parity / standalone mismatch |
+| 0028-CODEX-15 | historical standalone strategy superseded |
+| 0028-CODEX-16 | interrupted / no durable return |
+| 0028-CODEX-17 | recovery + fresh target + initial identity-gate failure / stop accepted |
+| 0028-CODEX-18 | identity scope repair + resources established / accepted evidence |
+| 0028-CODEX-19 | stage repair + I2 PASS + version1 / editor-context mismatch |
+| 0028-CODEX-20 | browser tooling limitation / stop accepted |
+| 0028-CODEX-21 | operator surface + versioned attestation MATCH / accepted evidence |
+| 0028-CODEX-22 | version2 R1/R2/R3 PASS / temporal修正後version3で再発 / stop accepted・修正未受入 |
+| 0028-CODEX-23 | 実測優先の日時修復と残R1-R8自律完了 / READY |
 
-## Next gate
+## Completion gate
 
-CODEX-12がproduction implementation、tests、bundle parity、target-runtime synthetic evidenceをDraft PRとreportで返す。ChatGPTがfinal diff/runtime evidenceをreviewする。主要acceptance達成後にCompletion Latchを適用する。Broad deployment/rolloutは別gate。
+日時の実機一致、データ保全、最終source/versionに紐づく必要十分なR1-R8証拠、logic tests、BLOCKER NONEが必要。source非影響の受入証拠は根拠付きで継承し、未実行をPASSにしない。
+
+Codexはreportとユーザー実機確認の導線を準備してPR #51をDraft/未mergeで返す。ChatGPTが最終diff/evidence確認、PR収束・merge、Completion Latchを行う。受入後は開発を停止しユーザー実機確認へ。Work0030は自動開始しない。
 
 ```text
-THEME_SCOPE: LIGHT_ONLY
-DESIGN_BASELINE: PR_50_MERGED
-DESIGN_MERGE_SHA: 98bd1f233a5a462c55a9a3f9e4bc0dda6c705067
-USER_LIGHT_ACCEPTANCE: ACCEPTED_WITH_FOLLOW_UP_POLISH
-MODE: BUILD
-ACTIVE_DISPATCH: 0028-CODEX-12
-BALL: CHATGPT
-STATUS: RETURNED
-PRODUCTION_IMPLEMENTATION_AUTHORIZED: YES
-TARGET_RUNTIME_SYNTHETIC_QUALIFICATION_AUTHORIZED: YES
-REAL_DATA_ROLLOUT_AUTHORIZED: NO
-BROAD_DEPLOYMENT_AUTHORIZED: NO
-NEXT_UNUSED_DISPATCH: 0028-CODEX-13
+ACTIVE_BLOCKER: REPEATED_TEMPORAL_READBACK_MISMATCH_AND_REMAINING_R1_R8
+NEXT_UNUSED_DISPATCH: 0028-CODEX-24
 WORK_0028_COMPLETE: NO
 ```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-12
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0028-CODEX-23
+BALL: CODEX
+STATUS: READY

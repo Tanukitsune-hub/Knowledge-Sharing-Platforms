@@ -1,11 +1,11 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-07
+Current as of: 2026-09-18
 Status: Active planning source of truth
 
 ## Purpose and identity rules
 
-Work IDs identify stable outcomes, not execution order. Never renumber or reuse an issued ID. Keep the same Work through implementation, qualification, repair and PR convergence while its outcome remains unchanged. Give each new Codex execution a new Dispatch ID. Current ball is authoritative in `docs/handoffs/<WORK_ID>-dispatches.md`.
+Work IDs identify stable outcomes, not execution order. Never renumber or reuse an issued ID. Keep the same Work through implementation, validation, repair and PR stabilization while its outcome remains unchanged. Give each new Codex execution a new Dispatch ID. Current ball is authoritative in `docs/handoffs/<WORK_ID>-dispatches.md`.
 
 Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 
@@ -19,33 +19,43 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD / runtime未認定) | Accepted design PR #50 + Work 0027/0029 | CODEX-12返却: deterministic/bundle/local render PASS。ChatGPT review後に残るruntime identityとsynthetic qualification |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD) | Accepted PR #50 + PR #51 source/runtime | CODEX-23が日時readbackを実測・修復し、同targetで残りR1-R8まで自律完了。version3は既知不具合あり・未認定 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
-| 8 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 9 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 10 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 10 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 11 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
 ### Work 0021
 
-PR #34 merge `533c849bd1229827ec77cd5ad6506312ea286940`; private version 66. Core filters/five modes, multi-Entity/advanced filters, OpenAI six-format matrix 6/6 and FULL_OUTPUT parity accepted.
+PR #34 merge `533c849bd1229827ec77cd5ad6506312ea286940`; private version66. Core filters/five modes, multi-Entity/advanced filters, OpenAI six-format matrix and FULL_OUTPUT parity accepted.
 
 ### Work 0023
 
-PR #35 merge `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`. Deterministic bundle/installer, owner latch, deployment attestation, source parity and idempotent install evidence accepted.
+PR #35 merge `8b0a2ccde4746b061c232f45b6d1d59c7cc5a54f`.
+
+Accepted installation architecture:
+
+```text
+new Google Spreadsheet
+-> container-bound Apps Script
+-> exact generated bundle
+-> installKnowledgeShare()
+-> owner-restricted WEB_APP deployment
+-> readiness/security confirmation
+-> Web App
+```
+
+Installer uses the bound Spreadsheet parent as safe installation boundary. Deployment security remains fail-closed and administrator-attested.
 
 ### Work 0027
 
-PR #37 merge `9cd5d2984d0d584ed05c447ed09d2ddf0e1e2366`; final branch head `497ecff400624330f1d5041de166f6c6e3485220`.
+PR #37 merge `9cd5d2984d0d584ed05c447ed09d2ddf0e1e2366`.
 
 ```text
-PRIVATE_WEB_APP_VERSION: 73
-MODEL: gemini-3.7-flash / explicit low / 2048 / Interactions + File Search
 TERMINAL_OUTCOME: QUALIFIED_DISABLED
-LOGIC_VALIDATION: PASS / 448 of 448
-BUNDLE_VALIDATION: PASS / 27 of 27
-SOURCE_READBACK: PASS / 82 of 82
 TARGET_RUNTIME_QUALIFICATION: PASS
 AUTHORITATIVE_CITATION: PASS
 GEMINI_ENABLED: false
@@ -55,80 +65,144 @@ BLOCKER: NONE
 
 ### Work 0029
 
-PR #39 merge `872dbec83d17e6dfe1f33d8260006c2124d38a6c`; final branch head `b29ee3e538e72c4641f8d825e304fea1c186a265`.
+PR #39 merge `872dbec83d17e6dfe1f33d8260006c2124d38a6c`.
 
 ```text
 PRIVATE_WEB_APP_VERSION: 75
-FOCUSED_TESTS: PASS / 59 of 59
-LOGIC_VALIDATION: PASS / 456 of 456
-BUNDLE_VALIDATION: PASS / 27 of 27
-SOURCE_READBACK: PASS / 82 of 82
 TARGET_RUNTIME_QUALIFICATION: PASS
 SHARED_ADMIN_CREDENTIAL: configured
 FINAL_ADMIN_STATE: locked
-ACCOUNT_INDEPENDENT_ADMIN_SESSION: PASS
-SESSIONSTORAGE_RELOAD_AND_SERVER_REVALIDATION: PASS
-EXPLICIT_LOGOUT: PASS
-PROVIDER_DATA_MUTATIONS: 0
 BLOCKER: NONE
 ```
 
 ## Work 0028 current contract
 
-CODEX-12はproduction実装とbundleを返却した。canonical 512/512・bundle 27/27 PASS。runtimeはread-only preflightの自動選択条件で停止し、source push / version / deployment mutation 0。version 75のWEB_APP + `/exec`は既取得metadataで一意だが、remote source/browser account以降は未検証。`docs/handoffs/0028-CODEX-12-production-contract-build-report.md`を参照。WorkのCompletion Latchは未達。
+### Accepted design
 
-### Design phase accepted
-
-PR #50 was accepted by the user as the current Light production baseline with minor polish deferred, then squash-merged:
-
-- PR #50 merge: `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`
-- design/controller review: `docs/handoffs/0028-CODEX-11-controller-review.md`
-- acceptance / Strategy Reset: `docs/handoffs/0028-design-acceptance-and-build-reset.md`
+PR #50 squash merge `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`.
 
 Closed UI direction:
 
-- Light-only, sidebar 7, `#182124`, active `#E1001F` left strip, metallic gold, 紗綾形.
-- `記録を追加`: single Meeting form with optional new files + existing Document link; no Meeting/資料 tab, record-type selector, Data Receipt surface, standalone Pitchbook route.
-- `過去の記録`: single Meeting list/detail; original, edit, Meeting delete/reactivate, related files, add/unlink/relink, classification edit in parent context.
-- related-file visible `削除` means unlink from current Meeting, not Pitchbook-wide Inactive or physical delete.
-- Knowledge Search: Row1 `面談先 / 情報ソース / 開始日 / 終了日 / 全期間`; Row2 `検索モード / AIモデル`; Row3 wide `質問`.
-- source options: `面談記録・資料 / 面談記録のみ / 資料のみ`.
-- `全文出力` is a dedicated Meeting-only / non-AI action, not a model option.
-- analytics approved 9-column Meeting list, GP/Entity summary read facades, admin preset/shared-admin behavior are preserved.
+- Light-only, sidebar7, accepted dark sidebar/gold material family.
+- `記録を追加`: single Meeting form + optional new/existing related files.
+- `過去の記録`: single Meeting list/detail with related file add/unlink/relink.
+- visible file `削除` = unlink from current Meeting, not physical delete.
+- Knowledge Search: 面談先 / 情報ソース / period -> 検索モード / AIモデル -> 質問.
+- dedicated `全文出力`: Meeting-only / non-AI.
+- analytics 9-column Meeting list, summary/admin contracts preserved.
 
-### BUILD phase
+### PR #51 production implementation / runtime
 
-Mode changed from INVESTIGATION to BUILD because the accepted UI requires production contract changes before the backend can satisfy it.
+Branch: `codex/0028-production-contract-build`
 
-CODEX-12 must implement and qualify the smallest coherent production delta for:
+Current returned HEAD: `7c18e6dc5184209882c807db08365bd12007f0bc`
 
-- saved Active parent Meeting binding before new Pitchbook registration;
-- safe file/link partial-failure recovery with stable IDs and no duplicates;
-- non-GP validation/naming/metadata/provider attributes/citation context;
-- relation-only add/unlink/relink with Lock/CAS and Google Docs body preservation;
-- retrieval eligibility based on active parent relation for new parent-bound sources;
-- independent Meeting-only Knowledge Export validator/action;
-- accepted Light production UI wiring for core flows;
-- deterministic tests, generated bundle parity and target-runtime synthetic evidence.
+PR #51はDraft/未merge。現在のserved version3は既知日時不具合あり・未認定。
 
-Preserve 5-sheet backend, stable IDs, Shared Drive authoritative source, no physical delete, no provider auto-failover, Work 0027 Gemini hidden and Work 0029 shared-admin.
+Accepted production scope:
 
-Historical orphan Pitchbook bulk migration, new relationship table/Record_Index, Data Receipt schema, broad rollout, real confidential data, Dark/System are non-goals.
+- parent-first Meeting before file registration;
+- partial-failure stable-ID recovery;
+- non-GP parent/counterparty context;
+- relation-only add/unlink/relink without Meeting Docs regeneration;
+- parent-bound retrieval/citation revalidation;
+- Meeting-only non-AI Full Output;
+- accepted Light production UI;
+- schema7 / Pitchbook_Index append columns;
+- installer identity scope + safe outcome logging;
+- installer pre/post-deployment stage separation;
+- durable unlinked deployment-security operator page.
+
+これらは実装方向の受入であり、未実行のruntime項目のPASSを意味しない。
+
+Accepted deterministic/runtime evidence:
+
+```text
+installer/idempotency: PASS / duplicate0
+Backend: exactly5 sheets / schema7
+AI sync: FALSE
+triggers: accepted0 / no trigger enable action
+provider calls: 0
+CODEX21 operator/source validation: 522/522 PASS
+CODEX22 source validation: 523/523 PASS / LOGIC_ONLY
+bundle: 30/30 PASS / LOGIC_ONLY
+single restricted WEB_APP: USER_DEPLOYING / MYSELF
+CODEX21 versioned confirmation: READY / NONE
+CODEX21 attestation vs authoritative versioned /exec: MATCH
+deployment-security readiness: ACCEPTED_EVIDENCE_RETAINED
+CODEX22 R1_R2_R3: PASS_VERSION2 / INITIAL_ATTACHMENT_ONLY
+CODEX22 R6: PARTIAL / INITIAL_ADD_BODY_AND_BUSINESS_FIELDS_UNCHANGED
+CURRENT_VERSION3_TEMPORAL_READBACK: FAIL
+FINAL_R1_R8: INCOMPLETE
+```
+
+Native editorの `DEPLOYMENT_SECURITY_ATTESTATION_STALE` はeditor/head context-specific evidenceであり、actual versioned Web App readinessを反証しない。production readiness gateにeditor-context checkを再利用しない。
+
+### CODEX-22 return / Strategy Reset
+
+version2でGP/non-GP親2件と初回tiny fileの登録、parent metadata、初回relation追加前後のDocs本文・Date/Time・business fields保持を確認した。
+
+その後、入力/元セルの10:30・11:15が検索UIで19:30・20:15となる不整合を観測。共通read adapterにworkbook timezoneでformatする修正を加え、logic tests通過後に同deploymentをversion3へ更新したが、今度は日付が前日・時刻が02:30・03:15となった。元セルとDocsは不変。
+
+CODEX-22は旧契約のsame failure class連続2回に該当して1/3cycleで停止。停止判断・保全証拠は受理するが、この修正のruntime成功は受け入れない。R4/R5/R7およびR6/R8残項目は未実行。
+
+Controller review:
+`docs/handoffs/0028-CODEX-22-controller-review.md`
+
+### CODEX-23 active autonomous completion
+
+Goalは、日時の正しいreadbackと残りR1-R8を完成し、ユーザー実機確認へ引き渡すこと。ModeはBUILD。
+
+まず現在のsynthetic 2件の保存値・readback型・変換前後を実測する。Node mockの想定値/formatterを実Apps Scriptの証拠と混同しない。固定offset、元データ/timezone書換え等の修正方法は指定せず、Codex自身が根拠に基づき最小修正を選ぶ。
+
+同一PR / 同一target / 同一single owner-only deployment内で診断・修正・tests・sync/version更新・runtime確認を追加最大3cycles許可。初回観測はrepair失敗回数に含めない。修正後再発時は同runでStrategy Resetし、新たな直接証拠を得て続行。同一問題の修正後実機検証が2cycles連続不合格、または3cyclesで未達なら返却する。権限・データ・証拠保全等のSTOP境界は維持する。
+
+完了済み親/初回添付を再作成しない。過去PASSはversion/refを付けて保持し、final sourceが影響する項目を必要十分に再検証する。
 
 Active instruction:
-`docs/handoffs/0028-CODEX-12-production-contract-build-instruction.md`
+`docs/handoffs/0028-CODEX-23-temporal-recovery-autonomous-completion-instruction.md`
 
 Current BALL/STATUS:
 `docs/handoffs/0028-dispatches.md`
 
-## Next gate
+Autonomy strategy（基本方針。本Dispatchの具体的予算はactive instructionが優先）:
+`docs/handoffs/0028-autonomous-completion-strategy-reset.md`
 
-CODEX-12 returns a Draft PR with production implementation, focused/canonical tests, source/bundle parity and target-runtime synthetic evidence. ChatGPT reviews final diff and runtime evidence. Only BLOCKER prevents acceptance. Broad deployment/company rollout remains separately authorized.
+### Work 0028 completion gate
 
-## Work 0029 collision recovery and dispatch tombstones
+R1-R8と今回修復する日時経路:
 
-Historical `0028-CODEX-01` and `0028-CODEX-02` remain consumed identifiers and are never reused. Work 0029 remains the canonical accepted shared-admin implementation.
+- 元の入力/authoritative値とactual UIの日時が一致し、元セル・business fields・Docsが保持される;
+- schema7 / exactly 5 Backend sheets / AI disabled;
+- GP + non-GP parent-first Meeting;
+- parent-bound tiny file + follow-up file;
+- unlink/relink with stable IDs and physical delete0;
+- exact Meeting Docs body/tab content preservation across relation-only mutation;
+- dedicated Meeting-only non-AI Full Output;
+- single restricted deployment / provider calls0 / confidential data0;
+- 必要なlogic testsと、final source/served versionに紐づくruntime evidence。
+
+CodexがBLOCKER NONEで返したら、ChatGPTがfinal diff/report/tests/runtimeを確認し、PR #51を収束・mergeしてCompletion Latchを適用する。その後は開発を止め、ユーザー実機確認へ移る。現時点ではWork未完了。
+
+Non-goals: real confidential data, broad/company rollout, historical orphan migration, new relation table, Dark/System, physical delete, provider qualification, unrelated timezone/browser coverage or refactoring.
+
+## Work 0030 deferred contract
+
+User decision 2026-09-17: Azure OpenAI transition is on hold.
+
+```text
+WORK_ID: 0030
+STATUS: DEFERRED
+ACTIVE_DISPATCH: NONE
+REACTIVATION: explicit later user decision required
+```
+
+No Azure implementation, credential setup, synthetic qualification, Vector Store creation, provider code change, or dispatch starts automatically after Work 0028.
+
+Decision: `docs/decisions/company-azure-openai-provider.md`
+
+Plan: `docs/planning/work0030-azure-openai-provider-transition.md`
 
 ## Scope discipline
 
-Only normal primary-flow failure, source/data integrity, credentials/authorization, authoritative citations, material irreversible side effects or required runtime evidence may block delivery. Cosmetic work, broad benchmarks and unrelated hardening remain FOLLOW_UP/OPTIONAL.
+Only primary-flow failure, source/data integrity, credentials/authorization, material irreversible side effects, required target-runtime evidence, or evidence contamination may block delivery. Cosmetic work, broad benchmarks, provider migration and unrelated hardening remain FOLLOW_UP/OPTIONAL.
