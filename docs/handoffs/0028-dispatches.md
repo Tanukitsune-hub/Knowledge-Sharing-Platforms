@@ -1,101 +1,72 @@
 # Work 0028 dispatch control
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-23
-ACTIVE_DISPATCH_ID: NONE
-BALL: NONE
-STATUS: ACCEPTED
+DISPATCH_ID: 0028-CODEX-24
+ACTIVE_DISPATCH_ID: 0028-CODEX-24
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: COMPLETION_LATCH
+PHASE: USER HANDS-ON REOPEN / PRE-ROLLOUT UI POLISH
 
-## Final outcome
+## Reopen
 
-PR #50のLight designとPR #51のproduction implementation/runtime qualificationを統合し、Work 0028をend-to-endで受入完了した。
+Work 0028はversion4 / PR #51で一度Completion Latch済みだったが、会社PC移行前のユーザー実機確認でrequired-flow contradictionと追加UI polishが確認されたため再オープンした。
 
-Final merge:
+Reopen review:
+`docs/handoffs/0028-user-review-reopen.md`
 
-```text
-PR: #51
-MERGE: 89a2e94c9fc845157744c011333e16d9a32ffd34
-FINAL_SERVED_VERSION: 4
-R1_R8: PASS
-TARGET_RUNTIME_QUALIFICATION: PASS
-LOGIC_VALIDATION: 524/524 PASS
-BUNDLE_VALIDATION: 30/30 PASS
-BLOCKER: NONE
-```
+## Accepted evidence retained
 
-## Accepted evidence / Closed Conclusions
+反証がない限り保持:
 
-反証がない限り以下を再び開かない。
+- PR #50 + #51 accepted implementation direction。
+- schema7 / Backend exactly5。
+- parent-first Meeting/file relation architecture。
+- stable IDs / unlink-relink / physical delete0。
+- Business Date/Time version4 readback contract。
+- Meeting Docs preservation。
+- Meeting-only non-AI Full Output。
+- owner-only deployment security。
+- provider calls0 / AI sync disabled。
+- Work0030 DEFERRED_BY_USER。
 
-- Light-only single-record UI direction。
-- parent-first Meeting before file registration。
-- GP / non-GP parent flow。
-- stable Meeting_ID / Document_ID、partial-failure recovery。
-- follow-up file add to existing Meeting。
-- visible delete = unlink only、physical delete 0。
-- unlink/relinkでsame Document_ID / File_ID保持。
-- relation-only mutation前後でMeeting Docs body/tab content exact equality。
-- original Date/Time cells and unrelated business fields preserved。
-- Business Date/Time readbackはfinal version4でinput/authoritative valueとsearch/detail表示が一致。
-- dedicated Meeting-only non-AI Full Output。
-- Backend exactly 5 sheets / schema7。
-- installer idempotency / duplicate0。
-- single restricted WEB_APP / USER_DEPLOYING / MYSELF。
-- versioned deployment-security confirmation READY/NONE + authoritative attestation MATCH。
-- AI sync disabled / provider calls0 / trigger0。
-- confidential data0 / physical delete0。
-- historical version75 strategy SUPERSEDED。
-- Work 0030 DEFERRED_BY_USER。
+## CODEX-24 required outcome
 
-Final runtime report:
-`docs/handoffs/0028-CODEX-23-temporal-recovery-autonomous-completion-report.md`
+1. native date picker interactionを実用化。
+2. From/Toを3年前応当日→今日でpreset。
+3. 「記録を追加」選択不能をactual runtimeで修復しsynthetic登録まで確認。
+4. wide desktopでinput/selectの過剰stretchを抑え、概ね30ch基準の自然なresponsive layout。
+5. Past Meetingsを面談先中心にし、user-facing関連GP filter/sublineを除去。GP/non-GPを統一表示。
 
-## Temporal repair conclusion
+Active instruction:
+`docs/handoffs/0028-CODEX-24-pre-rollout-ui-polish-instruction.md`
 
-Google SheetsのBusiness Date/Timeは「瞬間」ではなく壁時計値として扱う。実Apps Script観測ではnative `Date` とtimezone getterの組合せだけではセル表示値を安全に復元できなかったため、final adapterはDate/Time列に限ってsupported `getDisplayValues()` を厳格にcanonical化する。
-
-- Date: `yyyy-mm-dd`
-- Time: `h:mm` / `HH:mm`
-- locale依存の曖昧形式、AM/PM、不正日付はfail-closed。
-- Instant列やその他列はraw型を保持。
-- 元セルやSpreadsheet timezoneを書き換えない。
-
-API間timezone getter差の内部要因は未確定だが、required user outcomeとdata integrityを変えないためFOLLOW_UPでありBLOCKERではない。
-
-## Residual / Follow-up
-
-- mobile / other-browserの見た目は今回のcompletion gate外。desktop actual runtimeはPASS。
-- arbitrary locale Date/Time display supportは未実装。supported format外はfail-closed。
-- real/confidential data rollout、provider migration、historical migration、Dark/Systemは別Work。
-
-## User hands-on verification
-
-次は開発を停止し、同じowner-only version4でユーザー実機確認へ移る。
-
-1. 「過去の記録」でsynthetic2件の日付2026-09-17、時刻10:30 / 11:15を確認。
-2. non-GP詳細で元本文と関連資料2件を確認。編集・削除は不要。
-3. 「ナレッジ検索」でsynthetic面談先 / 面談記録のみ / 全期間を選び「全文出力」。質問・AIモデル不要で本文を確認。
-
-実データ投入、AI sync有効化、provider設定/呼出しは行わない。
-
-## Completion Latch
+## Boundaries
 
 ```text
-WORK_0028_COMPLETE: YES
-COMPLETION_LATCH: APPLIED
-ACTIVE_BLOCKER: NONE
-ACTIVE_DISPATCH: NONE
-BALL: NONE
-STATUS: ACCEPTED
-NEXT_UNUSED_DISPATCH: 0028-CODEX-24
+REAL_CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+NEW_TARGET: 0
+SECOND_PARALLEL_DEPLOYMENT: 0
+DIRECT_OPENAI/GEMINI/AZURE: 0
+AI_SYNC: DISABLED
 WORK_0030: DEFERRED_BY_USER
 ```
 
-新しい反証、ユーザー実機でのrequired-flow failure、または明示的なscope変更がない限りWork 0028を再開しない。
+Codexは最大3cyclesまで自律修正・実機検証。通常bugごとに返却しない。
+
+## Completion gate
+
+CODEX-24の5項目がactual owner-only runtimeでPASSし、必要logic/bundle checks PASS、BLOCKER NONE。ChatGPT final review/merge後にCompletion Latchを再適用し、会社PC移行準備へ進む。
+
+```text
+WORK_0028_COMPLETE: REOPENED
+COMPLETION_LATCH: RELEASED_BY_USER_CONTRADICTION_AND_SCOPE
+ACTIVE_DISPATCH: 0028-CODEX-24
+NEXT_UNUSED_DISPATCH: 0028-CODEX-25
+```
 
 WORK_ID: 0028
-DISPATCH_ID: 0028-CODEX-23
-BALL: NONE
-STATUS: ACCEPTED
+DISPATCH_ID: 0028-CODEX-24
+BALL: CODEX
+STATUS: READY
