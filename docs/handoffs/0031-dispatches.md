@@ -1,12 +1,12 @@
 # Work 0031 dispatch control
 
 WORK_ID: 0031
-DISPATCH_ID: 0031-CODEX-01
-ACTIVE_DISPATCH_ID: 0031-CODEX-01
+DISPATCH_ID: 0031-CODEX-02
+ACTIVE_DISPATCH_ID: 0031-CODEX-02
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
-PHASE: COUNTERPARTY MASTER / SCHEMA8 / AUTONOMOUS COMPLETION
+PHASE: FINAL UI WORDING CONVERGENCE
 
 ## Primary Outcome
 
@@ -14,7 +14,7 @@ GP中心のbusiness modelを廃止し、すべての面談先・資料主体をC
 
 ## Active instruction
 
-`docs/handoffs/0031-CODEX-01-counterparty-master-transition-instruction.md`
+`docs/handoffs/0031-CODEX-02-user-facing-wording-convergence-instruction.md`
 
 ## Accepted design
 
@@ -66,11 +66,17 @@ AI_SYNC: DISABLED
 schema8 migration/fresh install/idempotency、Counterparty-centered UI/data/search/material/master/analytics、actual R1-R10、logic/bundle、BLOCKER NONE。
 
 ```text
-NEXT_UNUSED_DISPATCH: 0031-CODEX-02
+NEXT_UNUSED_DISPATCH: 0031-CODEX-03
 WORK_0031_COMPLETE: NO
 ```
 
 WORK_ID: 0031
-DISPATCH_ID: 0031-CODEX-01
+DISPATCH_ID: 0031-CODEX-02
 BALL: CODEX
 STATUS: READY
+
+## CODEX-01 return review
+
+R1-R10 / schema8 / migration / version6はaccepted evidenceとして閉じた。残BLOCKERはnormal user-facing Master headingが `Counterparty Master` であり、accepted label `面談先マスター` と一致しない1点のみ。R5 standalone evidenceはrecord-centric architectureの範囲で受入。
+
+CODEX-02はwording-only convergence。schema/modelを再度開かない。
