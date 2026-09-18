@@ -18,6 +18,8 @@ Windowsでは`open-layout-lab.bat`をdouble-clickします。`index.html`をChro
 
 Mobile previewではfieldを1-column表示しますが、desktop用の`colSpan`は変更しません。reference画像はbrowser tab内だけで表示し、localStorage、repository、外部serviceへ保存・送信しません。
 
+初期状態とResetは、current authoritative candidate（12 columns / width 100% / max-width 1680px / left / gap 14px）です。Wide / Laptop / Compactのpreview切替はcanonical placementとexport JSONを変更せず、Mobileだけを1-column visual projectionとして表示します。
+
 ## Boundary
 
 - specVersion2の12/24-column snap gridが正本です。absolute positioningはexportしません。

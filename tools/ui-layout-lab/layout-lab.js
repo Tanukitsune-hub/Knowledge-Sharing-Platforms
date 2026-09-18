@@ -7,7 +7,8 @@
   const RESIZE_DIRECTIONS = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 
   const elements = {};
-  let history = model.createHistory(presets.getPreset('current-v8'), 50);
+  let history = model.createHistory(presets.getPreset('compact-institutional'), 50);
+  let previewViewportId = 'wide';
   let selectedId = 'meeting-date';
   let savedSnapshot = model.stableStringify(history.current());
   let draggedId = null;
@@ -56,17 +57,19 @@
   }
 
   function renderViewportButtons() {
-    const layout = current();
     elements['viewport-buttons'].innerHTML = '';
     Object.keys(presets.VIEWPORTS).forEach(function (id) {
       const viewport = presets.VIEWPORTS[id];
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = layout.viewport.id === id ? 'active' : '';
+      button.className = previewViewportId === id ? 'active' : '';
       button.textContent = viewport.label.replace(' desktop', '') + ' ' + viewport.widthPx;
       button.dataset.viewport = id;
       button.addEventListener('click', function () {
-        commit(model.setViewport(current(), id), viewport.label + ' previewへ切り替えました。');
+        previewViewportId = id;
+        renderViewportButtons();
+        renderCanvas();
+        setStatus(viewport.label + ' previewへ切り替えました。canonical placement / JSONは変更していません。');
       });
       elements['viewport-buttons'].appendChild(button);
     });
@@ -106,7 +109,6 @@
       button.append(name, description);
       button.addEventListener('click', function () {
         const next = presets.getPreset(id);
-        next.viewport = layout.viewport;
         if (layout.container.gridColumns === 24) Object.assign(next, model.convertGrid(next, 24));
         selectedId = next.fields[0].id;
         commit(next, preset.name + 'をv2 editable stateとして適用しました。');
@@ -475,9 +477,9 @@
     };
   }
 
-  function estimatedPreviewHeight(layout) {
+  function estimatedPreviewHeight(layout, viewportId) {
     const visible = layout.fields.filter(function (field) { return field.visible; });
-    if (layout.viewport.id === 'mobile') {
+    if (viewportId === 'mobile') {
       return 360 + visible.reduce(function (sum, field) { return sum + field.heightPx + field.topGapPx + 58 + layout.container.rowGapPx; }, 0);
     }
     const placements = model.getFieldRows(layout);
@@ -491,10 +493,10 @@
 
   function updatePreviewScale() {
     const layout = current();
-    const viewportWidth = layout.viewport.widthPx;
+    const viewportWidth = presets.VIEWPORTS[previewViewportId].widthPx;
     const available = Math.max(260, elements['canvas-scroll'].clientWidth - 38);
     const scale = Math.min(1, available / viewportWidth);
-    const previewHeight = estimatedPreviewHeight(layout);
+    const previewHeight = estimatedPreviewHeight(layout, previewViewportId);
     elements['preview-viewport'].style.width = viewportWidth + 'px';
     elements['preview-viewport'].style.height = previewHeight + 'px';
     elements['preview-viewport'].style.transform = 'scale(' + scale + ')';
@@ -504,7 +506,7 @@
 
   function renderCanvas() {
     const layout = current();
-    const viewport = presets.VIEWPORTS[layout.viewport.id];
+    const viewport = presets.VIEWPORTS[previewViewportId];
     const container = layout.container;
     const placementById = Object.fromEntries(model.getFieldRows(layout).map(function (placement) { return [placement.id, placement]; }));
     elements['viewport-caption'].textContent = viewport.label.toUpperCase() + ' / ' + viewport.widthPx + ' PX / ' + container.gridColumns + ' COLUMNS';
@@ -651,6 +653,7 @@
     try {
       const layout = model.parseLayoutJson(variants[name]);
       history.reset(layout);
+      previewViewportId = layout.viewport.id;
       selectedId = layout.fields[0].id;
       savedSnapshot = model.stableStringify(layout);
       elements['variant-name'].value = name;
@@ -714,6 +717,7 @@
     try {
       const parsed = model.parseLayoutJson(elements['json-text'].value);
       history.record(parsed);
+      previewViewportId = parsed.viewport.id;
       selectedId = parsed.fields[0].id;
       elements['json-text'].value = model.stableStringify(parsed);
       renderAll();
@@ -806,12 +810,13 @@
     elements['redo-button'].addEventListener('click', function () { history.redo(); renderAll(); setStatus('gestureをやり直しました。'); });
     elements['tidy-button'].addEventListener('click', function () { commit(model.tidyLayout(current()), 'v2 placementをdeterministic heuristicで整えました。'); });
     elements['reset-button'].addEventListener('click', function () {
-      const baseline = presets.getPreset('current-v8');
+      const baseline = presets.getPreset('compact-institutional');
       history.reset(baseline);
+      previewViewportId = 'wide';
       selectedId = 'meeting-date';
       savedSnapshot = model.stableStringify(baseline);
       renderAll();
-      setStatus('Current v8 spec v2 baselineへresetしました。');
+      setStatus('current authoritative 12-column candidateへresetしました。');
     });
     elements['json-button'].addEventListener('click', function () { showDialog('json'); });
     elements['handoff-button'].addEventListener('click', function () { showDialog('handoff'); });
@@ -847,6 +852,7 @@
     window.LayoutLabApp = {
       getLayoutJson: function () { return model.stableStringify(current()); },
       getSelectedId: function () { return selectedId; },
+      getPreviewViewportId: function () { return previewViewportId; },
       isReferenceLoaded: function () { return referenceLoaded; }
     };
   }

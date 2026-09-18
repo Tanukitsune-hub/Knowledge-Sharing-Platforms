@@ -101,6 +101,72 @@ test('Current v8 preset preserves the accepted Work 0032 visual baseline in v2 f
   assert.equal(byId(layout, 'meeting-notes').heightPx, 384);
 });
 
+test('current authoritative candidate matches the revised 12-column layout exactly', () => {
+  const layout = presets.getPreset('compact-institutional');
+  assert.equal(layout.specVersion, 2);
+  assert.equal(layout.presetOrigin, 'compact-institutional');
+  assert.deepEqual(layout.viewport, { id: 'wide', widthPx: 2560 });
+  assert.deepEqual(layout.container, {
+    gridColumns: 12,
+    widthPercent: 100,
+    maxWidthPx: 1680,
+    align: 'left',
+    columnGapPx: 14,
+    rowGapPx: 14,
+    showGrid: true
+  });
+  assert.deepEqual(layout.fields.map((field) => field.id), [
+    'meeting-date', 'meeting-assetClassId', 'meeting-teamId', 'meeting-locationId', 'meeting-time',
+    'meeting-capitalTypeId', 'meeting-types', 'meeting-counterpartyId', 'meeting-fundStrategy',
+    'meeting-counterparty', 'meeting-internalParticipants', 'attachment-section', 'meeting-notes'
+  ]);
+  const expected = {
+    'meeting-date': [true, 1, 2, false, 37],
+    'meeting-assetClassId': [true, 8, 2, false, 37],
+    'meeting-teamId': [true, 6, 2, false, 37],
+    'meeting-locationId': [true, 4, 2, false, 37],
+    'meeting-time': [true, 3, 1, false, 37],
+    'meeting-capitalTypeId': [false, 5, 2, false, 37],
+    'meeting-types': [true, 1, 12, true, 48],
+    'meeting-counterpartyId': [true, 1, 6, true, 37],
+    'meeting-fundStrategy': [true, 7, 4, false, 37],
+    'meeting-counterparty': [true, 1, 6, true, 37],
+    'meeting-internalParticipants': [true, 1, 6, true, 37],
+    'attachment-section': [true, 1, 12, true, 130],
+    'meeting-notes': [true, 1, 12, true, 480]
+  };
+  for (const field of layout.fields) {
+    assert.deepEqual(
+      [field.visible, field.colStart, field.colSpan, field.breakBefore, field.heightPx],
+      expected[field.id],
+      field.id
+    );
+    assert.equal(field.topGapPx, 0);
+  }
+  assert.equal(model.validateLayout(layout).valid, true);
+});
+
+test('explicit placement makes visual order independent from JSON array order and hidden fields consume no row slot', () => {
+  const layout = presets.getPreset('compact-institutional');
+  const placements = model.getFieldRows(layout);
+  assert.equal(placements.some((item) => item.id === 'meeting-capitalTypeId'), false);
+  const rowOne = placements.filter((item) => item.row === 1).sort((a, b) => a.colStart - b.colStart);
+  assert.deepEqual(rowOne.map((item) => item.id), [
+    'meeting-date', 'meeting-time', 'meeting-locationId', 'meeting-teamId', 'meeting-assetClassId'
+  ]);
+  assert.deepEqual(rowOne.map((item) => [item.colStart, item.colSpan]), [[1, 2], [3, 1], [4, 2], [6, 2], [8, 2]]);
+  const rowById = Object.fromEntries(placements.map((item) => [item.id, item.row]));
+  assert.deepEqual({
+    types: rowById['meeting-types'],
+    counterparty: rowById['meeting-counterpartyId'],
+    fund: rowById['meeting-fundStrategy'],
+    external: rowById['meeting-counterparty'],
+    internal: rowById['meeting-internalParticipants'],
+    attachment: rowById['attachment-section'],
+    notes: rowById['meeting-notes']
+  }, { types: 2, counterparty: 3, fund: 3, external: 4, internal: 5, attachment: 6, notes: 7 });
+});
+
 test('v1 import migrates deterministically to v2 without losing fields or legacy variants', () => {
   const v1 = asV1(presets.getPreset('balanced-professional'));
   assert.equal(model.validateV1(v1).valid, true);
@@ -297,11 +363,19 @@ test('Codex handoff includes v2 precision and direct placement properties', () =
   assert.match(handoff, /work0032-version8/);
   assert.match(handoff, /version 2 \/ 24 columns/);
   assert.match(handoff, /meeting-notes.*start .*span 24\/24, height 500px, top gap 0px, break yes/);
-  assert.match(handoff, /720px以下は全fieldを1-column表示/);
+  assert.match(handoff, /720px以下のみ1-column visual projectionとし、desktop specは保持する/);
   assert.match(handoff, /visual\/layout変更のみに限定/);
   assert.match(handoff, /"specVersion": 2/);
   assert.match(handoff, /"colStart":/);
   assert.match(handoff, /"breakBefore":/);
+});
+
+test('preferred candidate handoff states the exact revised responsive intent', () => {
+  const handoff = model.createHandoff(presets.getPreset('compact-institutional'));
+  assert.match(handoff, /Desktop \(Wide\/Laptop\/Compact\)では12-column canonical placementを維持する。/);
+  assert.match(handoff, /containerはavailable application content areaの100%を使用し、max-width 1680px。/);
+  assert.match(handoff, /desktop viewport変更ではfield placementをreflow\/reorderしない。/);
+  assert.match(handoff, /720px以下のみ1-column visual projectionとし、desktop specは保持する。/);
 });
 
 test('static runtime has local assets only and no network-capable dependency', () => {
@@ -336,6 +410,14 @@ test('browser surface exposes v2 controls, eight handles, and guarded keyboard m
   assert.match(ui, /ArrowLeft/);
   assert.match(ui, /input,select,textarea,button/);
   assert.match(ui, /localStorage/);
+  assert.match(ui, /card\.style\.gridColumn = field\.colStart/);
+  assert.match(ui, /card\.style\.gridRow = String\(row\)/);
+  assert.match(ui, /previewViewportId/);
+  assert.doesNotMatch(ui, /model\.setViewport/);
+  const viewportBlock = ui.match(/function renderViewportButtons\(\) \{[\s\S]*?\n  \}/)[0];
+  assert.doesNotMatch(viewportBlock, /commit\(|history\./);
+  assert.match(ui, /model\.createHistory\(presets\.getPreset\('compact-institutional'\)/);
+  assert.match(ui, /const baseline = presets\.getPreset\('compact-institutional'\)/);
   const cacheBlock = ui.match(/function cacheElements\(\) \{[\s\S]*?\]\.forEach/)[0];
   const cachedIds = [...cacheBlock.matchAll(/'([^']+)'/g)].map((match) => match[1]);
   for (const id of cachedIds) assert.match(html, new RegExp(`id="${id}"`), `missing cached element: ${id}`);

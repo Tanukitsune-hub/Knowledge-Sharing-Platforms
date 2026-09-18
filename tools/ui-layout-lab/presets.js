@@ -94,6 +94,36 @@
     };
   }
 
+  function explicitField(id, visible, colStart, colSpan, breakBefore, heightPx) {
+    return {
+      id: id,
+      visible: visible,
+      colStart: colStart,
+      colSpan: colSpan,
+      breakBefore: breakBefore,
+      topGapPx: 0,
+      heightPx: heightPx,
+      role: fieldDefinitionById[id].role
+    };
+  }
+
+  function explicitLayout(presetOrigin, viewportId, container, fields) {
+    return {
+      specVersion: SPEC_VERSION,
+      screen: SCREEN,
+      baseline: BASELINE,
+      presetOrigin: presetOrigin,
+      viewport: {
+        id: viewportId,
+        widthPx: VIEWPORTS[viewportId].widthPx
+      },
+      container: Object.assign({}, container),
+      fields: fields.map(function (item, index) {
+        return Object.assign({ order: index + 1 }, item);
+      })
+    };
+  }
+
   const PRESETS = Object.freeze({
     'current-v8': Object.freeze({
       id: 'current-v8',
@@ -117,20 +147,29 @@
     'compact-institutional': Object.freeze({
       id: 'compact-institutional',
       name: 'Compact Institutional',
-      description: '情報密度を高め、視線移動を短くした機関投資家向け配置。',
-      layout: layout('compact-institutional', 'wide', {
+      description: 'ユーザー選択済みの12-column preferred layout。',
+      layout: explicitLayout('compact-institutional', 'wide', {
         gridColumns: 12,
-        widthPercent: 65,
+        widthPercent: 100,
         maxWidthPx: 1680,
         align: 'left',
         columnGapPx: 14,
         rowGapPx: 14,
         showGrid: true
       }, [
-        field('meeting-date', 2), field('meeting-time', 2), field('meeting-locationId', 2), field('meeting-counterpartyId', 6),
-        field('meeting-assetClassId', 3), field('meeting-capitalTypeId', 3), field('meeting-teamId', 2), field('meeting-fundStrategy', 4),
-        field('meeting-counterparty', 6), field('meeting-internalParticipants', 6), field('meeting-types', 12),
-        field('meeting-notes', 12, 400), field('attachment-section', 12, 170)
+        explicitField('meeting-date', true, 1, 2, false, 37),
+        explicitField('meeting-assetClassId', true, 8, 2, false, 37),
+        explicitField('meeting-teamId', true, 6, 2, false, 37),
+        explicitField('meeting-locationId', true, 4, 2, false, 37),
+        explicitField('meeting-time', true, 3, 1, false, 37),
+        explicitField('meeting-capitalTypeId', false, 5, 2, false, 37),
+        explicitField('meeting-types', true, 1, 12, true, 48),
+        explicitField('meeting-counterpartyId', true, 1, 6, true, 37),
+        explicitField('meeting-fundStrategy', true, 7, 4, false, 37),
+        explicitField('meeting-counterparty', true, 1, 6, true, 37),
+        explicitField('meeting-internalParticipants', true, 1, 6, true, 37),
+        explicitField('attachment-section', true, 1, 12, true, 130),
+        explicitField('meeting-notes', true, 1, 12, true, 480)
       ])
     }),
     'balanced-professional': Object.freeze({

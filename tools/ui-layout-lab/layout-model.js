@@ -375,13 +375,6 @@
     return resolveCollisions(structuralNormalizeV2(next));
   }
 
-  function setViewport(layout, viewportId) {
-    if (!presets.VIEWPORTS[viewportId]) throw new Error('Unknown viewport: ' + viewportId);
-    const next = normalizeLayout(layout);
-    next.viewport = { id: viewportId, widthPx: presets.VIEWPORTS[viewportId].widthPx };
-    return structuralNormalizeV2(next);
-  }
-
   function calculateResizePatch(field, direction, deltaColumns, deltaYPx, gridColumns) {
     const dir = String(direction || '').toLowerCase();
     const patch = {
@@ -554,7 +547,7 @@
       '- Spec: `version ' + spec.specVersion + ' / ' + spec.container.gridColumns + ' columns`',
       '- Preset origin: `' + spec.presetOrigin + '`',
       '- Container: width ' + spec.container.widthPercent + '%, max ' + (spec.container.maxWidthPx === null ? 'none' : spec.container.maxWidthPx + 'px') + ', ' + spec.container.align + ', gap ' + spec.container.columnGapPx + 'px / ' + spec.container.rowGapPx + 'px',
-      '- Responsive intent: desktopはcanonical grid placement、720px以下は全fieldを1-column表示。desktop spec自体は保持する。',
+      '- Responsive intent: Desktop (Wide/Laptop/Compact)では12-column canonical placementを維持する。containerはavailable application content areaの100%を使用し、max-width 1680px。desktop viewport変更ではfield placementをreflow/reorderしない。720px以下のみ1-column visual projectionとし、desktop specは保持する。',
       '', '## Field placement', ''
     ];
     visible.forEach(function (field) {
@@ -598,7 +591,6 @@
     placeField: placeField,
     updateField: updateField,
     updateContainer: updateContainer,
-    setViewport: setViewport,
     convertGrid: convertGrid,
     gridConversionLosesFidelity: gridConversionLosesFidelity,
     calculateResizePatch: calculateResizePatch,
