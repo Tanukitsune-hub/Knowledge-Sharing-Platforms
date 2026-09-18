@@ -1,0 +1,627 @@
+{
+  "classification": "SYNTHETIC_RENDER_ONLY",
+  "targetRuntimeQualification": "NOT RUN",
+  "result": "PASS",
+  "browser": "151.0.7922.34",
+  "viewports": [
+    [
+      2560,
+      1100
+    ],
+    [
+      1440,
+      1000
+    ],
+    [
+      1280,
+      900
+    ],
+    [
+      1366,
+      900
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "checks": [
+    "identity / nav7 / default Knowledge Search",
+    "Work 0033 candidate topology / 2560, 1440, 1280, 390",
+    "single non-GP form / parent-first file RPC wiring",
+    "single past list / detail body / non-GP classification wiring",
+    "Past Meetings 12-column layout / hidden legacy filters / none-single-multi OR payload",
+    "Counterparty Summary one selector / active count-only cards / no type identity",
+    "empty question / no AI model / independent Full Output",
+    "all seven sidebar buttons switch exactly one production page",
+    "390px / register, past, knowledge / no page horizontal overflow"
+  ],
+  "layoutEvidence": [
+    {
+      "placements": {
+        "meeting-date": {
+          "columnStart": "1",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 289,
+          "y": 174,
+          "width": 313.328125,
+          "height": 66
+        },
+        "meeting-time": {
+          "columnStart": "3",
+          "columnEnd": "span 1",
+          "rowStart": "1",
+          "x": 616.328125,
+          "y": 174,
+          "width": 149.671875,
+          "height": 66
+        },
+        "meeting-locationId": {
+          "columnStart": "4",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 780,
+          "y": 174,
+          "width": 313.328125,
+          "height": 66
+        },
+        "meeting-teamId": {
+          "columnStart": "6",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 1107.328125,
+          "y": 174,
+          "width": 313.328125,
+          "height": 66
+        },
+        "meeting-assetClassId": {
+          "columnStart": "8",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 1434.65625,
+          "y": 174,
+          "width": 313.34375,
+          "height": 66
+        },
+        "meeting-types": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "2",
+          "x": 289,
+          "y": 254,
+          "width": 1950,
+          "height": 66
+        },
+        "meeting-counterpartyId": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "3",
+          "x": 289,
+          "y": 334,
+          "width": 968,
+          "height": 103
+        },
+        "meeting-fundStrategy": {
+          "columnStart": "7",
+          "columnEnd": "span 4",
+          "rowStart": "3",
+          "x": 1271,
+          "y": 334,
+          "width": 640.65625,
+          "height": 64
+        },
+        "meeting-counterparty": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "4",
+          "x": 289,
+          "y": 451,
+          "width": 968,
+          "height": 64
+        },
+        "meeting-internalParticipants": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "5",
+          "x": 289,
+          "y": 529,
+          "width": 968,
+          "height": 64
+        },
+        "attachment-section": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "6",
+          "x": 289,
+          "y": 607,
+          "width": 1950,
+          "height": 247
+        },
+        "meeting-notes": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "7",
+          "x": 289,
+          "y": 868,
+          "width": 1950,
+          "height": 528
+        }
+      },
+      "gridColumns": 12,
+      "columnGap": "14px",
+      "rowGap": "14px",
+      "pageWidth": 2000,
+      "notesHeight": 480,
+      "capital": {
+        "display": "none",
+        "width": 0,
+        "height": 0
+      },
+      "overflow": false,
+      "sidebar": {
+        "backgroundImage": "radial-gradient(circle at 18% 8%, rgba(90, 67, 28, 0.5) 0px, rgba(0, 0, 0, 0) 31%), linear-gradient(112deg, rgb(17, 23, 25) 0%, rgb(37, 36, 30) 48%, rgb(20, 26, 27) 100%)",
+        "borderRightColor": "rgb(199, 154, 56)",
+        "activeBackground": "linear-gradient(145deg, rgb(255, 240, 166) 0%, rgb(225, 184, 70) 31%, rgb(157, 106, 23) 68%, rgb(233, 199, 95) 100%)",
+        "activeShadow": "rgba(255, 240, 175, 0.08) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px -1px 0px 0px inset, rgba(7, 10, 11, 0.22) 0px 2px 4px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "iconFilter": "drop-shadow(rgb(74, 46, 8) 0px 1px 0px) drop-shadow(rgba(239, 200, 92, 0.26) 0px 0px 3px)",
+        "motifDisplay": "block",
+        "motifOpacity": "0.72",
+        "clientWidth": 235,
+        "scrollWidth": 235
+      }
+    },
+    {
+      "placements": {
+        "meeting-date": {
+          "columnStart": "1",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 289,
+          "y": 174,
+          "width": 171.328125,
+          "height": 66
+        },
+        "meeting-time": {
+          "columnStart": "3",
+          "columnEnd": "span 1",
+          "rowStart": "1",
+          "x": 474.328125,
+          "y": 174,
+          "width": 78.65625,
+          "height": 66
+        },
+        "meeting-locationId": {
+          "columnStart": "4",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 566.984375,
+          "y": 174,
+          "width": 171.34375,
+          "height": 66
+        },
+        "meeting-teamId": {
+          "columnStart": "6",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 752.328125,
+          "y": 174,
+          "width": 171.328125,
+          "height": 66
+        },
+        "meeting-assetClassId": {
+          "columnStart": "8",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 937.65625,
+          "y": 174,
+          "width": 171.328125,
+          "height": 66
+        },
+        "meeting-types": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "2",
+          "x": 289,
+          "y": 254,
+          "width": 1097.984375,
+          "height": 66
+        },
+        "meeting-counterpartyId": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "3",
+          "x": 289,
+          "y": 334,
+          "width": 541.984375,
+          "height": 103
+        },
+        "meeting-fundStrategy": {
+          "columnStart": "7",
+          "columnEnd": "span 4",
+          "rowStart": "3",
+          "x": 844.984375,
+          "y": 334,
+          "width": 356.671875,
+          "height": 64
+        },
+        "meeting-counterparty": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "4",
+          "x": 289,
+          "y": 451,
+          "width": 541.984375,
+          "height": 64
+        },
+        "meeting-internalParticipants": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "5",
+          "x": 289,
+          "y": 529,
+          "width": 541.984375,
+          "height": 64
+        },
+        "attachment-section": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "6",
+          "x": 289,
+          "y": 607,
+          "width": 1097.984375,
+          "height": 247
+        },
+        "meeting-notes": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "7",
+          "x": 289,
+          "y": 868,
+          "width": 1097.984375,
+          "height": 528
+        }
+      },
+      "gridColumns": 12,
+      "columnGap": "14px",
+      "rowGap": "14px",
+      "pageWidth": 1148,
+      "notesHeight": 480,
+      "capital": {
+        "display": "none",
+        "width": 0,
+        "height": 0
+      },
+      "overflow": false,
+      "sidebar": {
+        "backgroundImage": "radial-gradient(circle at 18% 8%, rgba(90, 67, 28, 0.5) 0px, rgba(0, 0, 0, 0) 31%), linear-gradient(112deg, rgb(17, 23, 25) 0%, rgb(37, 36, 30) 48%, rgb(20, 26, 27) 100%)",
+        "borderRightColor": "rgb(199, 154, 56)",
+        "activeBackground": "linear-gradient(145deg, rgb(255, 240, 166) 0%, rgb(225, 184, 70) 31%, rgb(157, 106, 23) 68%, rgb(233, 199, 95) 100%)",
+        "activeShadow": "rgba(255, 251, 225, 0.8) 0px 1px 0px 0px inset, rgba(104, 66, 11, 0.5) 0px -3px 0px 0px inset, rgba(5, 7, 7, 0.55) 0px 7px 14px 0px, rgba(215, 170, 58, 0.22) 0px 0px 10px 0px",
+        "iconFilter": "drop-shadow(rgba(255, 240, 168, 0.66) 0px 1px 0px) drop-shadow(rgba(107, 71, 13, 0.45) 0px -1px 0px)",
+        "motifDisplay": "block",
+        "motifOpacity": "0.72",
+        "clientWidth": 235,
+        "scrollWidth": 235
+      }
+    },
+    {
+      "placements": {
+        "meeting-date": {
+          "columnStart": "1",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 289,
+          "y": 174,
+          "width": 144.65625,
+          "height": 66
+        },
+        "meeting-time": {
+          "columnStart": "3",
+          "columnEnd": "span 1",
+          "rowStart": "1",
+          "x": 447.65625,
+          "y": 174,
+          "width": 65.34375,
+          "height": 66
+        },
+        "meeting-locationId": {
+          "columnStart": "4",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 527,
+          "y": 174,
+          "width": 144.65625,
+          "height": 66
+        },
+        "meeting-teamId": {
+          "columnStart": "6",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 685.65625,
+          "y": 174,
+          "width": 144.671875,
+          "height": 66
+        },
+        "meeting-assetClassId": {
+          "columnStart": "8",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "x": 844.328125,
+          "y": 174,
+          "width": 144.671875,
+          "height": 66
+        },
+        "meeting-types": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "2",
+          "x": 289,
+          "y": 254,
+          "width": 938,
+          "height": 66
+        },
+        "meeting-counterpartyId": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "3",
+          "x": 289,
+          "y": 334,
+          "width": 462,
+          "height": 103
+        },
+        "meeting-fundStrategy": {
+          "columnStart": "7",
+          "columnEnd": "span 4",
+          "rowStart": "3",
+          "x": 765,
+          "y": 334,
+          "width": 303.328125,
+          "height": 64
+        },
+        "meeting-counterparty": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "4",
+          "x": 289,
+          "y": 451,
+          "width": 462,
+          "height": 64
+        },
+        "meeting-internalParticipants": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "5",
+          "x": 289,
+          "y": 529,
+          "width": 462,
+          "height": 64
+        },
+        "attachment-section": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "6",
+          "x": 289,
+          "y": 607,
+          "width": 938,
+          "height": 247
+        },
+        "meeting-notes": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "7",
+          "x": 289,
+          "y": 868,
+          "width": 938,
+          "height": 528
+        }
+      },
+      "gridColumns": 12,
+      "columnGap": "14px",
+      "rowGap": "14px",
+      "pageWidth": 988,
+      "notesHeight": 480,
+      "capital": {
+        "display": "none",
+        "width": 0,
+        "height": 0
+      },
+      "overflow": false,
+      "sidebar": {
+        "backgroundImage": "radial-gradient(circle at 18% 8%, rgba(90, 67, 28, 0.5) 0px, rgba(0, 0, 0, 0) 31%), linear-gradient(112deg, rgb(17, 23, 25) 0%, rgb(37, 36, 30) 48%, rgb(20, 26, 27) 100%)",
+        "borderRightColor": "rgb(199, 154, 56)",
+        "activeBackground": "linear-gradient(145deg, rgb(255, 240, 166) 0%, rgb(225, 184, 70) 31%, rgb(157, 106, 23) 68%, rgb(233, 199, 95) 100%)",
+        "activeShadow": "rgba(255, 251, 225, 0.8) 0px 1px 0px 0px inset, rgba(104, 66, 11, 0.5) 0px -3px 0px 0px inset, rgba(5, 7, 7, 0.55) 0px 7px 14px 0px, rgba(215, 170, 58, 0.22) 0px 0px 10px 0px",
+        "iconFilter": "drop-shadow(rgba(255, 240, 168, 0.66) 0px 1px 0px) drop-shadow(rgba(107, 71, 13, 0.45) 0px -1px 0px)",
+        "motifDisplay": "block",
+        "motifOpacity": "0.72",
+        "clientWidth": 235,
+        "scrollWidth": 235
+      }
+    },
+    {
+      "placements": {
+        "meeting-date": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 438.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-time": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 518.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-locationId": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 598.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-teamId": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 678.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-assetClassId": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 758.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-types": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 838.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-counterpartyId": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 918.5,
+          "width": 336,
+          "height": 103
+        },
+        "meeting-fundStrategy": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 1035.5,
+          "width": 336,
+          "height": 64
+        },
+        "meeting-counterparty": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 1113.5,
+          "width": 336,
+          "height": 64
+        },
+        "meeting-internalParticipants": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 1191.5,
+          "width": 336,
+          "height": 64
+        },
+        "attachment-section": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 1269.5,
+          "width": 336,
+          "height": 266
+        },
+        "meeting-notes": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "x": 27,
+          "y": 1549.5,
+          "width": 336,
+          "height": 546
+        }
+      },
+      "gridColumns": 1,
+      "columnGap": "14px",
+      "rowGap": "14px",
+      "pageWidth": 370,
+      "notesHeight": 480,
+      "capital": {
+        "display": "none",
+        "width": 0,
+        "height": 0
+      },
+      "overflow": false,
+      "sidebar": {
+        "backgroundImage": "radial-gradient(circle at 18% 8%, rgba(90, 67, 28, 0.5) 0px, rgba(0, 0, 0, 0) 31%), linear-gradient(112deg, rgb(17, 23, 25) 0%, rgb(37, 36, 30) 48%, rgb(20, 26, 27) 100%)",
+        "borderRightColor": "rgb(199, 154, 56)",
+        "activeBackground": "linear-gradient(145deg, rgb(255, 240, 166) 0%, rgb(225, 184, 70) 31%, rgb(157, 106, 23) 68%, rgb(233, 199, 95) 100%)",
+        "activeShadow": "rgba(255, 251, 225, 0.8) 0px 1px 0px 0px inset, rgba(104, 66, 11, 0.5) 0px -3px 0px 0px inset, rgba(5, 7, 7, 0.55) 0px 7px 14px 0px, rgba(215, 170, 58, 0.22) 0px 0px 10px 0px",
+        "iconFilter": "drop-shadow(rgba(255, 240, 168, 0.66) 0px 1px 0px) drop-shadow(rgba(107, 71, 13, 0.45) 0px -1px 0px)",
+        "motifDisplay": "none",
+        "motifOpacity": "0.72",
+        "clientWidth": 389,
+        "scrollWidth": 389
+      }
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "blockedRequests": [],
+  "sourceHashes": {
+    "Index.html": "595bde6d3d3645f981ae939d0be56679953f85eb5d0a9d1e3fe7bec3623903f0",
+    "Styles.html": "97ae2b6ceeab0c5ca4a0e001b61902c464ed0ced07e0c603581def998d12163c",
+    "MaintenancePages.html": "871f23c939c7db9d3171a6d45705b257ff3bfb1fa2c86193f24cdacfae823785",
+    "EntityWorkspacePage.html": "6ba4c5921f37f06442fe809878eff9d609c9719b30d04603e5de6fe81a67736d",
+    "ActivityAnalyticsPage.html": "ba0405f7aa42ac9ddb1a915d4adfd5e41a06c548772ed0b492551b1386a6437e",
+    "RelationshipExplorerPage.html": "39386d15fc53847f3c17f8be8c48352d05577b2b35a49971e398cc6bece8ca1a",
+    "KnowledgeSearchPage.html": "b6cccd66c306929539df908d604b8914589a32ffd47130caaae0c54949abe82e",
+    "AiProviderSettingsPage.html": "c790d089e13890318e11cb1f72b067e8e90e91d3deeb2aced4611b45456f9f9f",
+    "ClientDateControls.html": "acad33ef32da05cbe376a04a9816a42b316668cbba4fcce3384710d80b5a3706",
+    "ClientCore.html": "c54d9708a38e3d6f3df2b65a28180476a28ee50fc8b426fd088736846fbfd758",
+    "ClientEntityWorkspace.html": "17e17898341f184c93657311153feec79cb1df6868f7dab7cd64701609662e54",
+    "ClientKnowledgeSearch.html": "73d5b9cd4fb338eb4c4eca733212a70ca58cfa4ba1d6c078ec29968111616281",
+    "ClientAiProviderSettings.html": "ff65bad6d2e679a3ad1fa116849c92786359cc900486da38415cde8bd110003f",
+    "ClientPitchbookFiles.html": "0c6ac82f47b16c9e1169267e0dbdfdb9f4a06b0b9792d5bbf1d78483733faaba",
+    "ClientPitchbookFlow.html": "a4faae3ee0ee26fd2d0e4216248a7f37d0856e69ba374d2f861f7bfb0d521252",
+    "ClientMaintenance.html": "5ef7ca19b34dbe3eb75febbb8e14985c11b0928e224cb3e8434dffbfde7e6a54",
+    "ClientMaintenanceEnhancements.html": "a2c64f5b8b19becc2bf8375e000461ab53d31c9b61343ba2ebbbb982458f4b03",
+    "ClientActivityAnalytics.html": "8da0a01dc6c8be64c51b2655e55e8153b7ddb28d2362a5b8f0c549b306b487e4",
+    "ClientRelationshipExplorer.html": "c258ec0c2976e75eb4072f6ba8e5524efc8374afe8875339a3956991929dfba4",
+    "ClientBootstrap.html": "45a89489aacd08c523fca653bbf7d4298f1a18032ec6e4e3ac245371c36ed95c"
+  },
+  "rpcNames": [
+    "getKnowledgeSearchBootstrapData",
+    "getMeetingBootstrapData",
+    "getPitchbookBootstrapData",
+    "getPhase1MaintenanceBootstrapData",
+    "registerMeeting",
+    "getMeetingMaintenanceRecord",
+    "getPitchbookBootstrapData",
+    "preparePitchbookBatch",
+    "getMeetingMaintenanceRecord",
+    "uploadPitchbookFile",
+    "searchMeetingRecords",
+    "getMeetingMaintenanceRecord",
+    "getPitchbookMaintenanceRecord",
+    "updatePitchbookMaintenance",
+    "getMeetingMaintenanceRecord",
+    "searchMeetingRecords",
+    "searchMeetingRecords",
+    "searchMeetingRecords",
+    "getEntityWorkspaceData",
+    "getEntityWorkspaceData",
+    "previewKnowledgeExport",
+    "getMeetingActivityAnalytics",
+    "getAiProviderAdminData"
+  ]
+}

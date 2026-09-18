@@ -24,7 +24,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACCEPTED | Work 0028 version5 accepted baseline | PR #53 / schema8 / version7 accepted。Completion Latch済み。次は会社PC移行準備 |
 | 9 | 0032 | 記録追加 / 過去の記録の最終UI polish | ACCEPTED | Work 0031 schema8 / version7 | PR #54 / version8 accepted。Completion Latch済み |
 | 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACCEPTED | Work 0032 version8 accepted UI baseline | PR #55 / Layout Lab v2 accepted。Meeting-create candidateをproduction反映する次Workへ |
-| 11 | 0034 | accepted Meeting-create candidateのproduction反映とshared sidebar gold/3D refresh | ACTIVE | Work 0033 accepted candidate / Work 0032 version8 runtime | CODEX-01 implementation・same target runtime qualification |
+| 11 | 0034 | Meeting-create production反映・shared sidebar refresh・adjacent UI convergence | ACTIVE (FINAL REVIEW) | Work 0033 accepted candidate / Work0032 baseline | CODEX-02 version10 runtime qualification完了。PR #56 final review待ち |
 | 12 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 13 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 14 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -264,14 +264,17 @@ Current candidate: `docs/handoffs/0033-user-layout-candidate-current.json`
 WORK_ID: 0034
 STATUS: ACTIVE
 MODE: BUILD
-BASELINE: Work0032 version8 + Work0033 accepted Meeting-create candidate
+CURRENT_ACCEPTED_RUNTIME_EVIDENCE: version10 / CODEX-02
+ACTIVE_DISPATCH: 0034-CODEX-02
+PR: #56
 TARGET_RUNTIME: same existing owner-only versioned Web App
-CURRENT_SERVED_VERSION: 9
+UI_CONVERGENCE: PASS
 MEETING_CREATE_LAYOUT: PASS
-SIDEBAR_GOLD_3D_ORNAMENT: PASS
-FIELD_REGISTRATION_READBACK: PASS
+PAST_MEETING_NONE_SINGLE_MULTI_OR: PASS
+COUNTERPARTY_SUMMARY_SIMPLIFICATION: PASS
 TARGET_RUNTIME_QUALIFICATION: PASS
 PROVIDER_CALLS: 0
+AI_SYNC: DISABLED / UNCHANGED
 CONFIDENTIAL_DATA: 0
 PHYSICAL_DELETE: 0
 WORK_0030: DEFERRED_BY_USER
@@ -281,6 +284,6 @@ READY_FOR_CHATGPT_FINAL_REVIEW: YES
 
 Dispatch: `docs/handoffs/0034-dispatches.md`
 
-Active instruction: `docs/handoffs/0034-CODEX-01-production-layout-sidebar-refresh-instruction.md`
+Active instruction: `docs/handoffs/0034-CODEX-02-ui-convergence-instruction.md`
 
-Report: `docs/handoffs/0034-CODEX-01-production-layout-sidebar-refresh-report.md`
+Report: `docs/handoffs/0034-CODEX-02-ui-convergence-report.md`
