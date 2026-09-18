@@ -60,17 +60,30 @@ function kspNormalizeKnowledgeExportInput_(input) {
   return output;
 }
 
+// Full Output intentionally ignores AI mode, prompt, profiles and comparison context.
+// Build a new request; never mutate caller-owned UI/search state.
+function kspNormalizeKnowledgeFullOutputInput_(input) {
+  var source = input && typeof input === 'object' ? input : {};
+  var filters = kspKnowledgeRequestFilters_(source);
+  filters.sourceType = KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.MEETING;
+  filters.sourceId = '';
+  return kspNormalizeKnowledgeExportInput_({
+    route: KSP_AI_ROUTES.FULL_EXPORT,
+    mode: KSP_KNOWLEDGE_SEARCH_MODES.SUMMARY,
+    questionOrInstruction: '',
+    selectedEntityKeys: [],
+    filters: filters,
+    previewFingerprint: source.previewFingerprint,
+    outputType: source.outputType
+  });
+}
+
 function kspKnowledgeExportPublicFilters_(input) {
   return kspKnowledgeRequestFilters_(input);
 }
 
 function kspValidateKnowledgeExportFilters_(input, catalog) {
   var value = input || kspNormalizeKnowledgeExportInput_({});
-  var definition = kspGetKnowledgeExportModeDefinition_(value.mode);
-  if (definition.targetRequired) {
-    kspAssert_(value.gpId || value.entityKey, 'KNOWLEDGE_EXPORT_GP_REQUIRED',
-      '面談準備ではCounterparty EntityまたはGPを選択してください。');
-  }
   if (value.dateFrom) kspAssert_(kspIsValidDateKey_(value.dateFrom), 'KNOWLEDGE_EXPORT_DATE_FROM_INVALID', 'Date Fromが不正です。');
   if (value.dateTo) kspAssert_(kspIsValidDateKey_(value.dateTo), 'KNOWLEDGE_EXPORT_DATE_TO_INVALID', 'Date Toが不正です。');
   if (value.dateFrom && value.dateTo) {
@@ -81,14 +94,24 @@ function kspValidateKnowledgeExportFilters_(input, catalog) {
       value.sourceType === KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.PITCHBOOK,
       'KNOWLEDGE_EXPORT_SOURCE_TYPE_INVALID', 'Source Typeが不正です。');
   }
-  kspValidateCanonicalKnowledgeRequest_(value);
-  kspValidateKnowledgeFilterIds_(value, catalog || kspBuildKnowledgeSearchCatalog_([], []));
+  var filters = kspKnowledgeRequestFilters_(value);
+  if (filters.entityKey) {
+    kspAssert_(/^[A-Z][A-Z0-9_]*:[A-Za-z0-9_-]+$/.test(filters.entityKey),
+      'AI_ENTITY_FILTER_INVALID', 'Counterparty Entityが不正です。');
+    if (filters.counterpartyType) kspAssert_(filters.entityKey.indexOf(filters.counterpartyType + ':') === 0,
+      'AI_ENTITY_TYPE_CONFLICT', 'Counterparty TypeとEntityが一致しません。');
+    if (filters.gpId) kspAssert_(filters.entityKey === 'GP:' + filters.gpId,
+      'AI_ENTITY_GP_CONFLICT', 'Counterparty EntityとGPが一致しません。');
+  }
+  kspValidateKnowledgeFilterIds_({ filters: filters }, catalog || kspBuildKnowledgeSearchCatalog_([], []));
   return value;
 }
 
 function kspValidateKnowledgeExportPromptInput_(input, catalog) {
   var value = kspValidateKnowledgeExportFilters_(input, catalog);
   var definition = kspGetKnowledgeExportModeDefinition_(value.mode);
+  kspValidateCanonicalKnowledgeRequest_(value);
+  kspValidateKnowledgeFilterIds_(value, catalog || kspBuildKnowledgeSearchCatalog_([], []));
   kspAssert_(value.questionOrInstruction.length <= KSP_KNOWLEDGE_EXPORT_LIMITS.MAX_PROMPT_LENGTH,
     'KNOWLEDGE_EXPORT_PROMPT_TOO_LONG', '質問または追加指示は5,000文字以内で入力してください。');
   if (definition.inputRequired) {
@@ -283,6 +306,7 @@ function kspBuildKnowledgeExportSource_(sourceType, row) {
     String(row.Fund_Strategy || ''),
     String(row.Meeting_Type_Codes || ''),
     String(row.Related_Pitchbook_IDs || ''),
+    String(row.Follow_Up_Note || ''),
     String(kspToBoolean_(row.Follow_Up_Required, false))
   ].join('\u001f');
   return {
@@ -300,23 +324,12 @@ function kspBuildKnowledgeExportSource_(sourceType, row) {
 
 function kspResolveKnowledgeExportSources_(meetingRows, pitchbookRows, input) {
   var sources = [];
-  var includeMeetings = !input.sourceType || input.sourceType === KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.MEETING;
-  var includePitchbooks = !input.sourceType || input.sourceType === KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.PITCHBOOK;
-
-  if (includeMeetings) {
-    (meetingRows || []).forEach(function (row) {
-      if (kspKnowledgeExportRowMatches_(row, input)) {
-        sources.push(kspBuildKnowledgeExportSource_(KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.MEETING, row));
-      }
-    });
-  }
-  if (includePitchbooks) {
-    (pitchbookRows || []).forEach(function (row) {
-      if (kspKnowledgeExportRowMatches_(row, input)) {
-        sources.push(kspBuildKnowledgeExportSource_(KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.PITCHBOOK, row));
-      }
-    });
-  }
+  // Keep the existing function signature; Pitchbook rows are deliberately ignored.
+  (meetingRows || []).forEach(function (row) {
+    if (kspKnowledgeExportRowMatches_(row, input)) {
+      sources.push(kspBuildKnowledgeExportSource_(KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.MEETING, row));
+    }
+  });
 
   var entityOrder = {};
   (input.selectedEntityKeys || []).forEach(function (entityKey, index) { entityOrder[entityKey] = index; });
@@ -442,7 +455,7 @@ function kspBuildKnowledgeExportFilename_(input, nowIso, outputType) {
 
 function kspBuildKnowledgeExportPackageTitle_(input) {
   var value = input || {};
-  var parts = ['Knowledge Export', String(value.mode || '自由質問')];
+  var parts = ['Meeting全文出力'];
   var filters = kspKnowledgeExportPublicFilters_(value);
   [filters.counterpartyType, filters.entityKey, (input.selectedEntityKeys || []).join('+'), filters.gpId, filters.assetClassId,
     filters.capitalTypeId, filters.teamId, filters.fundStrategy, filters.followUp, filters.sourceType,
@@ -481,6 +494,7 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
     var meetingTypes = kspMeetingTypeLabels_(row.Meeting_Type_Codes);
     if (meetingTypes.length) lines.push('Meeting Type: ' + meetingTypes.join(', '));
     if (kspToBoolean_(row.Follow_Up_Required, false)) lines.push('要フォロー: はい');
+    if (row.Follow_Up_Note) lines.push('Follow-up Note: ' + String(row.Follow_Up_Note));
     if (row.Related_Pitchbook_IDs) lines.push('Related Pitchbook IDs: ' + String(row.Related_Pitchbook_IDs));
     lines.push('Authoritative Google Doc: ' + String(item.source.canonicalUrl || row.Doc_URL || ''));
     return {
@@ -491,43 +505,12 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
       body: item.body
     };
   });
-  var pitchbookLines = (pitchbooks || []).map(function (item) {
-    var row = item.source.row;
-    var filename = String(row.Saved_Filename || row.Original_Filename || '');
-    var entityKey = item.source.entityKey || (row.GP_ID ? 'GP:' + String(row.GP_ID) : '');
-    return [
-      entityKey ? 'Entity: ' + ((safeMaps.counterparty || {})[entityKey] || (safeMaps.gp || {})[String(row.GP_ID || '')] || entityKey) + ' (' + entityKey + ')' : '',
-      'Document ID: ' + item.source.sourceId,
-      'Date: ' + item.source.date,
-      'GP: ' + (safeMaps.gp[String(row.GP_ID || '')] || String(row.GP_ID || '')),
-      'Asset Class: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || '')),
-      row.Capital_Type_ID ? 'Equity / Debt: ' + (safeMaps.capitalType[String(row.Capital_Type_ID)] || String(row.Capital_Type_ID)) : '',
-      row.Fund_Strategy ? 'Fund / Strategy: ' + String(row.Fund_Strategy) : '',
-      'Saved filename: ' + filename,
-      'File extension: ' + kspKnowledgeExportExtension_(filename),
-      'Authoritative Drive link: ' + String(item.source.canonicalUrl || row.File_URL || '')
-    ].filter(function (line) { return line; }).join('\n');
-  });
-  var selectedEntityLines = (input.selectedEntityKeys || []).map(function (entityKey) {
-    return 'Selected Entity: ' + ((safeMaps.counterparty || {})[entityKey] || entityKey) + ' (' + entityKey + ')';
-  });
-  var presentEntities = {};
-  (meetings || []).concat(pitchbooks || []).forEach(function (item) {
-    if (item.source && item.source.entityKey) presentEntities[item.source.entityKey] = true;
-  });
-  var gapLines = (input.selectedEntityKeys || []).filter(function (entityKey) { return !presentEntities[entityKey]; })
-    .map(function (entityKey) { return 'Evidence gap: ' + ((safeMaps.counterparty || {})[entityKey] || entityKey) + ' (' + entityKey + ')'; });
   return {
     title: title || kspBuildKnowledgeExportPackageTitle_(input),
-    headerLines: [
-      'Mode: ' + kspGetKnowledgeModeDefinition_(input.mode).mode,
-      'Scope: ' + kspKnowledgeScopeSummary_(input),
-      'Mode instruction: ' + kspGetKnowledgeModeDefinition_(input.mode).instruction
-    ].concat(selectedEntityLines, gapLines,
-      input.questionOrInstruction ? ['Question / additional instruction: ' + input.questionOrInstruction] : []),
+    headerLines: ['Meeting全文出力（非AI）', 'Scope: ' + kspKnowledgeScopeSummary_(input)],
     meetingSections: meetingSections,
-    pitchbookLines: pitchbookLines,
-    pitchbookReferencesOnly: true
+    pitchbookLines: [],
+    pitchbookReferencesOnly: false
   };
 }
 
@@ -544,10 +527,6 @@ function kspBuildKnowledgeExportPlainText_(model) {
     lines = lines.concat(section.metadataLines || []);
     lines.push('', section.body || '');
   });
-  if ((model.pitchbookLines || []).length) {
-    lines.push('', 'Pitchbooks / reference metadata and authoritative links only', '');
-    lines = lines.concat(model.pitchbookLines);
-  }
   return lines.join('\n');
 }
 
@@ -585,8 +564,8 @@ function kspBuildKnowledgeExportPrompt_(input, catalog) {
     'Source Type: ' + sourceType,
     '',
     definition.instruction,
-    'Meeting sectionは権威あるGoogle Docsの完全な原文を含みます。Pitchbook sectionは参照metadataと権威あるDrive linkのみを含み、Pitchbook本文は含みません。',
-    'この全文出力はPitchbook本文を含みません。Pitchbook本文の分析が必要な場合は、許可された資料検索ルートで別途アップロードされた原資料を参照してください。'
+    'Meeting sectionは権威あるGoogle Docsの完全な原文と業務属性を含みます。Pitchbook本文・参照リンクsectionは含みません。',
+    'この全文出力にPitchbook本文は含みません。Pitchbook本文の分析が必要な場合は、許可された資料検索ルートで別途アップロードされた原資料を参照してください。'
   ];
   if (input.questionOrInstruction) lines.push('', '質問または追加指示:', input.questionOrInstruction);
   return lines.join('\n');

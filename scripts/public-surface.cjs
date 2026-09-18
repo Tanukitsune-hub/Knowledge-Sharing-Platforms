@@ -13,6 +13,7 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
   'getMeetingMaintenanceRecord',
   'updateMeetingMaintenance',
   'changeMeetingStatus',
+  'updateMeetingRelations',
   'searchPitchbookRecords',
   'getPitchbookMaintenanceRecord',
   'updatePitchbookMaintenance',

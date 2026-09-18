@@ -1,0 +1,70 @@
+{
+  "classification": "SYNTHETIC_RENDER_ONLY",
+  "targetRuntimeQualification": "NOT RUN",
+  "result": "PASS",
+  "browser": "151.0.7922.34",
+  "viewports": [
+    [
+      1366,
+      900
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "checks": [
+    "identity / nav7 / default Knowledge Search",
+    "single non-GP form / parent-first file RPC wiring",
+    "single past list / detail body / non-GP classification wiring",
+    "empty question / no AI model / independent Full Output",
+    "all seven sidebar buttons switch exactly one production page",
+    "390px / register, past, knowledge / no page horizontal overflow"
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "blockedRequests": [],
+  "sourceHashes": {
+    "Index.html": "38a8a2104f32510dc0cc151fae2ab88a19a05ce459704113cb41d56c3e25def9",
+    "Styles.html": "89590d347354dc10f2efcc93449168be1199ceda10492b1aa60e76a362cd5bde",
+    "MaintenancePages.html": "eff7dbb607a314ff3a522e649f1261fa97eab46884f10670c7deda61ee8790dc",
+    "GpWorkspacePage.html": "a8e853002779a9a5e9989f4786c8cbf55172695e5682c36bd16829359572a9ff",
+    "EntityWorkspacePage.html": "ac20cb0db10b06db14eac7e541c7ea5749b1988a882f9c74282c3fb1f2dab987",
+    "ActivityAnalyticsPage.html": "35429538b22dd2b593acde31f51f335e35cebdf12266221dd220d1e6c99e8f4e",
+    "RelationshipExplorerPage.html": "e256be3eadc49e9737072722ad4c95ebc64616de97b6307dce10b9e83f9885a7",
+    "KnowledgeSearchPage.html": "061105636a8fdaa0676c47d62917195efe08c42950362f7528c5e3beb3f49401",
+    "AiProviderSettingsPage.html": "c790d089e13890318e11cb1f72b067e8e90e91d3deeb2aced4611b45456f9f9f",
+    "ClientCore.html": "91fb198ddd0f9334875dc9e975b627ad82ac791cbedbaab17c8c1ca2b39c4bec",
+    "ClientGpWorkspace.html": "b6ff8fcefbcb354660ce8386be42602d7146d15e53413c0e70164e697ac6a3d9",
+    "ClientEntityWorkspace.html": "28d272da0c1cf1e64de8abb879864b79f997052cde43100569a8a75c19887883",
+    "ClientKnowledgeSearch.html": "0f7e6ec43616c644563a649f0ebc43cecb498d39b4618cf7019fc9515fae1526",
+    "ClientAiProviderSettings.html": "ff65bad6d2e679a3ad1fa116849c92786359cc900486da38415cde8bd110003f",
+    "ClientPitchbookFiles.html": "0c6ac82f47b16c9e1169267e0dbdfdb9f4a06b0b9792d5bbf1d78483733faaba",
+    "ClientPitchbookFlow.html": "e0e1343e853c10e218a9d0a9b185c744da792e7cdd19b9aac442704a30bb8ebb",
+    "ClientMaintenance.html": "2309063c3914b9e7cc9f26ed96a051033e3aa8b9a9f3594ee7c3325e25646707",
+    "ClientMaintenanceEnhancements.html": "398534a99b044787a66432f2ae3662c2358ce03634db6ec383c39ed73afa0c36",
+    "ClientActivityAnalytics.html": "737d2dce48a0f4966bf0df8a57a730072a93351149a4cd12fd9dbe0a7884aea4",
+    "ClientRelationshipExplorer.html": "28a3dc27f9b4754087949ff069b8f279909ed988732e939c34c7af8837109d2d",
+    "ClientBootstrap.html": "5869b9fdfb10841de24bb09d94addff1c40a287a77cce78bc49b511615fe640e"
+  },
+  "rpcNames": [
+    "getKnowledgeSearchBootstrapData",
+    "getMeetingBootstrapData",
+    "getPitchbookBootstrapData",
+    "getPhase1MaintenanceBootstrapData",
+    "registerMeeting",
+    "getMeetingMaintenanceRecord",
+    "preparePitchbookBatch",
+    "getMeetingMaintenanceRecord",
+    "uploadPitchbookFile",
+    "searchMeetingRecords",
+    "getMeetingMaintenanceRecord",
+    "getPitchbookMaintenanceRecord",
+    "updatePitchbookMaintenance",
+    "getMeetingMaintenanceRecord",
+    "previewKnowledgeExport",
+    "getEntityWorkspaceData",
+    "getMeetingActivityAnalytics",
+    "getAiProviderAdminData"
+  ]
+}

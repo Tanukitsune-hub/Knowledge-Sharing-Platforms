@@ -2,6 +2,18 @@ var KSP_TEMPORAL_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 var KSP_TEMPORAL_TIME_RE = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 var KSP_TEMPORAL_ISO_RE = /^(\d{4})-(\d{2})-(\d{2})T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:0\d|1\d|2[0-3]):[0-5]\d)$/;
 
+function kspCanonicalSheetBusinessDisplay_(value, field) {
+  var text = String(value || '').trim();
+  // Sheets' h:mm number format omits a leading zero. No locale-dependent
+  // date parsing, AM/PM inference, or timezone arithmetic is permitted here.
+  if (field === 'Time' && /^[0-9]:[0-5]\d$/.test(text)) text = '0' + text;
+  var valid = field === 'Date' ? kspTemporalIsValidDateKey_(text) :
+    field === 'Time' && kspTemporalIsValidTimeKey_(text);
+  kspAssert_(valid, 'BUSINESS_CELL_DISPLAY_UNSUPPORTED',
+    'Date/Timeセルの表示形式を確認してください（yyyy-mm-dd / h:mm）。');
+  return field === 'Date' ? kspCanonicalBusinessDate_(text) : kspCanonicalBusinessTime_(text);
+}
+
 function kspTemporalIsValidDateKey_(value) {
   var match = KSP_TEMPORAL_DATE_RE.exec(String(value || ''));
   if (!match) return false;

@@ -5,9 +5,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function loadInstaller() {
-  const context = vm.createContext({ console });
-  for (const file of ['00_Core.gs', '01_DistributionResources.gs', '15_Installer.gs']) {
+function loadInstaller(logger = console) {
+  const context = vm.createContext({ console: logger });
+  for (const file of ['00_Core.gs', '01_DistributionResources.gs', '15_Installer.gs', '99_EntryPoints.gs']) {
     new vm.Script(fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8'), { filename: file }).runInContext(context);
   }
   return context;
@@ -93,6 +93,42 @@ function ownerLatch(ownerEmail = 'admin@example.com') {
 const DEPLOYMENT_A = 'https://script.google.com/macros/s/qualification-a/exec';
 const DEPLOYMENT_B = 'https://script.google.com/macros/s/qualification-b/exec';
 const DEVELOPMENT_A = 'https://script.google.com/macros/s/qualification-a/dev';
+
+test('editor installer logs only safe outcomes and preserves fail-closed identity semantics', () => {
+  for (const options of [
+    { active: '', expected: 'INSTALLER_ACTIVE_USER_REQUIRED' },
+    { effective: 'other@example.com', expected: 'INSTALLER_IDENTITY_AMBIGUOUS' },
+    { expected: 'NONE' }
+  ]) {
+    const logs = [];
+    const context = loadInstaller({ log: (line) => logs.push(line) });
+    const environment = createEnvironment(options);
+    const counters = { setup: 0, resourceCreates: 0 };
+    installSetupStub(context, counters);
+    context.kspCreateInstallerEnvironment_ = () => environment;
+    const result = context.installKnowledgeShare();
+    assert.deepEqual(logs.map(JSON.parse), [{ state: result.state, code: options.expected }]);
+    if (options.expected !== 'NONE') {
+      assert.equal(result.state, 'ACTION_REQUIRED');
+      assert.equal(counters.setup, 0);
+      assert.deepEqual(environment._debug.mutations, []);
+    } else {
+      assert.equal(result.state, 'READY_FOR_DEPLOYMENT');
+      assert.equal(counters.setup, 1);
+    }
+    assert.equal(logs.join('').includes('@'), false);
+  }
+});
+
+test('outcome logging rejects arbitrary state/code and omits all private payload fields', () => {
+  const logs = [];
+  const context = loadInstaller({ log: (line) => logs.push(line) });
+  context.kspLogInstallerOutcome_({
+    state: 'private@example.com', error: { code: 'PRIVATE_IDENTIFIER', message: 'raw secret' },
+    resourceSummary: 'https://private.invalid/id', ownerEmail: 'owner@example.com'
+  });
+  assert.deepEqual(logs, ['{"state":"FAILED","code":"INSTALLER_FAILED"}']);
+});
 
 test('blank and ambiguous first-run identities fail before mutation', () => {
   for (const options of [
@@ -277,7 +313,8 @@ test('deployment URL requires matching guarded administrator attestation before 
   const counters = { setup: 0, resourceCreates: 0 };
   installSetupStub(context, counters);
 
-  const beforeAttestation = context.kspRunInstaller_(environment);
+  assert.equal(context.kspRunInstaller_(environment).state, 'READY_FOR_DEPLOYMENT');
+  const beforeAttestation = context.kspCheckInstallerReadiness_(environment);
   assert.equal(beforeAttestation.state, 'ACTION_REQUIRED');
   assert.equal(beforeAttestation.error.code, 'DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED');
   assert.doesNotMatch(beforeAttestation.nextAction, /共有できます/);
@@ -291,12 +328,21 @@ test('deployment URL requires matching guarded administrator attestation before 
   assert.equal(context.kspCheckInstallerReadiness_(environment).state, 'READY');
 });
 
-test('development-mode service URL is canonicalized to the matching versioned deployment identity', () => {
+test('HEAD test surface does not block installation or its idempotent rerun; readiness still requires attestation', () => {
   const context = loadInstaller();
   const environment = createEnvironment({ deploymentUrl: DEVELOPMENT_A });
-  installSetupStub(context, { setup: 0, resourceCreates: 0 });
-
-  const beforeAttestation = context.kspRunInstaller_(environment);
+  const counters = { setup: 0, resourceCreates: 0 };
+  installSetupStub(context, counters);
+  for (let run = 0; run < 2; run += 1) {
+    const result = context.kspRunInstaller_(environment);
+    assert.equal(result.state, 'READY_FOR_DEPLOYMENT');
+    assert.equal(result.error, null);
+    assert.equal(environment._debug.statuses.at(-1).state, 'READY_FOR_DEPLOYMENT');
+    assert.equal(environment._debug.properties.has('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'), false);
+  }
+  assert.equal(counters.setup, 2);
+  assert.equal(counters.resourceCreates, 6);
+  const beforeAttestation = context.kspCheckInstallerReadiness_(environment);
   assert.equal(beforeAttestation.state, 'ACTION_REQUIRED');
   assert.equal(beforeAttestation.error.code, 'DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED');
 
@@ -305,6 +351,14 @@ test('development-mode service URL is canonicalized to the matching versioned de
   assert.equal(attestation.deploymentIdentitySha256,
     crypto.createHash('sha256').update(DEPLOYMENT_A).digest('hex'));
   assert.equal(context.kspCheckInstallerReadiness_(environment).state, 'READY');
+});
+
+test('installer stage never queries deployment identity', () => {
+  const context = loadInstaller();
+  const environment = createEnvironment();
+  environment.getWebAppDeploymentIdentity = () => { throw new Error('must not be queried before deployment'); };
+  installSetupStub(context, { setup: 0, resourceCreates: 0 });
+  assert.equal(context.kspRunInstaller_(environment).state, 'READY_FOR_DEPLOYMENT');
 });
 
 test('changed deployment identity invalidates prior attestation', () => {
@@ -356,6 +410,8 @@ test('missing deployment remains READY_FOR_DEPLOYMENT and malformed URL cannot b
   });
   assert.equal(context.kspConfirmInstallerDeploymentSecurity_(malformed).error.code,
     'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
+  assert.equal(context.kspCheckInstallerReadiness_(malformed).error.code,
+    'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
   assert.equal(malformed._debug.properties.has('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'), false);
 
   for (const deploymentUrl of [
@@ -370,13 +426,15 @@ test('missing deployment remains READY_FOR_DEPLOYMENT and malformed URL cannot b
     });
     assert.equal(context.kspConfirmInstallerDeploymentSecurity_(invalid).error.code,
       'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
+    assert.equal(context.kspCheckInstallerReadiness_(invalid).error.code,
+      'WEB_APP_DEPLOYMENT_IDENTITY_INVALID');
     assert.equal(invalid._debug.properties.has('KSP_DEPLOYMENT_SECURITY_ATTESTATION_JSON'), false);
   }
 });
 
 test('normal HTML never references guarded installer entrypoints', () => {
   const sourceDir = path.join(__dirname, '..', 'src');
-  const html = fs.readdirSync(sourceDir).filter((name) => name.endsWith('.html'))
+  const html = fs.readdirSync(sourceDir).filter((name) => name.endsWith('.html') && name !== 'DeploymentSecurityOperator.html')
     .map((name) => fs.readFileSync(path.join(sourceDir, name), 'utf8')).join('\n');
   assert.doesNotMatch(html,
     /installKnowledgeShare|checkKnowledgeShareReadiness|confirmKnowledgeShareDeploymentSecurity/);

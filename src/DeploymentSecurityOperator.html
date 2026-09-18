@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>デプロイ設定の確認</title>
+  <style>
+    body { font-family: sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1.25rem; color: #172b3a; background: #fff; }
+    button { padding: .75rem 1.25rem; font: inherit; cursor: pointer; }
+    button:disabled { cursor: default; }
+    #result { white-space: pre-wrap; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>デプロイ設定の確認</h1>
+    <p>管理者専用の操作です。実行ユーザーとアクセス範囲が承認済みの設定であることを、Apps Scriptのデプロイ設定で確認してから実行してください。</p>
+    <p>ページを開くだけでは設定を変更しません。権限はサーバー側で確認します。</p>
+    <button id="confirm-deployment" type="button">承認済みのデプロイ設定を確認する</button>
+    <p id="result" role="status" aria-live="polite">未実行</p>
+  </main>
+  <script>
+    (function () {
+      'use strict';
+      var button = document.getElementById('confirm-deployment');
+      var result = document.getElementById('result');
+      var submitted = false;
+      var states = ['READY', 'READY_FOR_DEPLOYMENT', 'ACTION_REQUIRED', 'FAILED'];
+      var codes = [
+        'INSTALLER_BOUND_SPREADSHEET_REQUIRED', 'INSTALLER_PARENT_AMBIGUOUS',
+        'INSTALLER_ACTIVE_USER_REQUIRED', 'INSTALLER_ADMIN_REQUIRED',
+        'INSTALLER_OWNER_LATCH_INVALID', 'INSTALLER_OWNER_CONFIG_CONFLICT',
+        'INSTALLATION_STATE_MISSING', 'SETUP_LOCK_TIMEOUT',
+        'WEB_APP_DEPLOYMENT_REQUIRED', 'WEB_APP_DEPLOYMENT_IDENTITY_INVALID',
+        'DEPLOYMENT_SECURITY_ATTESTATION_REQUIRED', 'DEPLOYMENT_SECURITY_ATTESTATION_INVALID',
+        'DEPLOYMENT_SECURITY_ATTESTATION_STALE'
+      ];
+      function failed() {
+        result.textContent = 'FAILED / INSTALLER_FAILED\n管理者が導入状態を確認してください。';
+      }
+      button.addEventListener('click', function () {
+        if (submitted) return;
+        submitted = true;
+        button.disabled = true;
+        result.textContent = '確認中';
+        try {
+          google.script.run.withSuccessHandler(function (status) {
+            var state = status && states.indexOf(status.state) !== -1 ? status.state : 'FAILED';
+            var code = status && status.error ?
+              (codes.indexOf(status.error.code) !== -1 ? status.error.code : 'INSTALLER_FAILED') :
+              (state === 'READY' ? 'NONE' : 'INSTALLER_FAILED');
+            result.textContent = state + ' / ' + code;
+          }).withFailureHandler(failed).confirmKnowledgeShareDeploymentSecurity();
+        } catch (ignored) {
+          failed();
+        }
+      });
+    }());
+  </script>
+</body>
+</html>

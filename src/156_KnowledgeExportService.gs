@@ -187,7 +187,7 @@ function kspBuildKnowledgeExportPreviewFromMaterials_(input, sources, materials,
     previewFingerprint: previewFingerprint,
     packageFingerprint: previewFingerprint,
     packageText: packageText,
-    pitchbookReferencesOnly: true
+    pitchbookReferencesOnly: false
   };
 }
 
@@ -209,7 +209,7 @@ function kspKnowledgeExportErrorResponse_(error, warnings, preview) {
 function kspRunKnowledgeExportPreview_(environment, rawInput) {
   var warnings = [];
   var actor = kspGetKnowledgeExportActorSafely_(environment, warnings);
-  var input = kspNormalizeKnowledgeExportInput_(rawInput);
+  var input = kspNormalizeKnowledgeFullOutputInput_(rawInput);
   var context = null;
   var auditSpreadsheetId = '';
   var preview = null;
@@ -223,7 +223,7 @@ function kspRunKnowledgeExportPreview_(environment, rawInput) {
     auditSpreadsheetId = context.auditSpreadsheetId || '';
     var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
       context.meetingRows, context.pitchbookRows);
-    input = kspValidateKnowledgeExportPromptInput_(input, catalog);
+    input = kspValidateKnowledgeExportFilters_(input, catalog);
     sources = kspResolveKnowledgeExportSources_(context.meetingRows, context.pitchbookRows, input);
     var indexCounts = kspKnowledgeExportIndexCounts_(sources);
     var indexLimits = kspBuildKnowledgeExportLimitState_(indexCounts.meetingCount, 0, indexCounts.pitchbookCount);
@@ -270,7 +270,7 @@ function kspRunKnowledgeExportPreview_(environment, rawInput) {
 function kspRunKnowledgeExportCreation_(environment, rawInput) {
   var warnings = [];
   var actor = kspGetKnowledgeExportActorSafely_(environment, warnings);
-  var input = kspNormalizeKnowledgeExportInput_(rawInput);
+  var input = kspNormalizeKnowledgeFullOutputInput_(rawInput);
   var context = null;
   var auditSpreadsheetId = '';
   var preview = null;
@@ -282,7 +282,7 @@ function kspRunKnowledgeExportCreation_(environment, rawInput) {
     auditSpreadsheetId = context.auditSpreadsheetId || '';
     var catalog = kspBuildKnowledgeSearchCatalog_(context.gpRows, context.optionRows,
       context.meetingRows, context.pitchbookRows);
-    input = kspValidateKnowledgeExportPromptInput_(input, catalog);
+    input = kspValidateKnowledgeExportFilters_(input, catalog);
     input.outputType = kspValidateKnowledgeExportOutputType_(input.outputType);
     kspAssert_(input.previewFingerprint, 'KNOWLEDGE_EXPORT_PREVIEW_REQUIRED', '先に対象資料を確認してください。');
     idempotencyKey = kspBuildPublicOperationCacheKey_('KNOWLEDGE_EXPORT_CREATE', actor,

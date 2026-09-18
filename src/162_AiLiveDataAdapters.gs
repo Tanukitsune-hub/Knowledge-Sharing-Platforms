@@ -27,7 +27,7 @@ function kspWriteSettingLive_(spreadsheetId, key, value, nowIso) {
   if (setting.updatedAtIndex !== -1) setting.sheet.getRange(setting.rowIndex, setting.updatedAtIndex + 1).setValue(nowIso);
 }
 
-function kspUpdateRowPatchLive_(spreadsheetId, sheetName, keyColumn, keyValue, patch) {
+function kspUpdateRowPatchLive_(spreadsheetId, sheetName, keyColumn, keyValue, patch, expected) {
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS)) {
     var error = new Error('Could not acquire AI row update lock.');
@@ -48,13 +48,33 @@ function kspUpdateRowPatchLive_(spreadsheetId, sheetName, keyColumn, keyValue, p
       }
     });
     kspAssert_(index !== -1, 'AI_SOURCE_ROW_NOT_FOUND', 'AI source rowが見つかりません。');
+    if (expected) {
+      var meetingSheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.MEETING_INDEX);
+      var meetingRows = kspReadObjectsFromSheet_(meetingSheet, kspReadHeadersFromSheet_(meetingSheet));
+      kspAssertAiSyncExpected_(rows[index], meetingRows, expected);
+      var claimKey = KSP_AI_PROPERTY_KEYS.SOURCE_CLAIM_PREFIX + kspAiSourceKey_(expected.sourceType, expected.sourceId);
+      var claim = kspSafeParseJson_(PropertiesService.getScriptProperties().getProperty(claimKey), claimKey);
+      kspAssert_(claim && expected.claimToken && claim.token === expected.claimToken,
+        'AI_SYNC_CLAIM_CONFLICT', '同期claimが失効しました。');
+      var claimedAt = new Date(kspCanonicalInstantIso_(claim.claimedAt)).getTime();
+      kspAssert_(Number.isFinite(claimedAt) && Date.now() - claimedAt >= 0 &&
+        Date.now() - claimedAt < KSP_AI_DEFAULTS.CLAIM_TTL_MILLIS,
+        'AI_SYNC_CLAIM_CONFLICT', '同期claimが失効しました。');
+    }
+    if (typeof patch === 'function') patch = patch(rows[index]);
     var updated = kspDeepClone_(rows[index]);
     Object.keys(patch || {}).forEach(function (key) { updated[key] = patch[key]; });
     var values = headers.map(function (header) {
       var value = updated[header];
       return value === undefined || value === null ? '' : value;
     });
-    sheet.getRange(index + 2, 1, 1, headers.length).setValues([values]);
+    Object.keys(patch || {}).forEach(function (key) {
+      var column = headers.indexOf(key);
+      kspAssert_(column !== -1, 'AI_PATCH_COLUMN_MISSING', '同期列がありません。');
+    });
+    Object.keys(patch || {}).forEach(function (key) {
+      sheet.getRange(index + 2, headers.indexOf(key) + 1).setValue(values[headers.indexOf(key)]);
+    });
     return updated;
   } finally {
     lock.releaseLock();

@@ -39,7 +39,7 @@ function kspBuildFeatureFreezePitchbookSource_(row, maps, payload, contentHash, 
     source.bytes = kspNormalizeAiByteArray_(payload.bytes || []);
     source.byteLength = source.bytes.length;
   }
-  return source;
+  return kspApplyPitchbookAiContext_(source, row, maps);
 }
 
 function kspFfIsAiWorkEligible_(item, nowIso, settings) {
@@ -67,6 +67,11 @@ function kspFfSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
   });
   (pitchbookRows || []).forEach(function (row) {
     var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.PITCHBOOK, row);
+    item.retrievalEligible = kspIsParentBoundPitchbookEligible_(row, meetingRows);
+    if (!item.retrievalEligible && String(row.Status) === KSP_STATUS.ACTIVE) {
+      if (row.AI_Document_Name || row.AI_Content_Hash) items.push(item);
+      return;
+    }
     if (kspFfIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
   });
   items.sort(function (left, right) {
@@ -109,20 +114,20 @@ function kspBuildFeatureFreezeAiSource_(environment, item, maps) {
   if (definition.readStrategy === KSP_AI_READ_STRATEGIES.EML_NORMALIZED_TEXT) {
     var rawEml = environment.decodeSourceText(driveSource.bytes, 'UTF-8');
     var normalizedEml = kspNormalizeEmlText_(rawEml);
-    return kspBuildFeatureFreezePitchbookSource_(
+    return kspParentBoundSourceHash_(environment, kspBuildFeatureFreezePitchbookSource_(
       row, maps, { text: normalizedEml }, environment.hashText(normalizedEml), definition
-    );
+    ));
   }
   if (definition.readStrategy === KSP_AI_READ_STRATEGIES.XLSX_NORMALIZED_TEXT) {
     var normalizedXlsx = environment.normalizeXlsxText(driveSource.bytes);
-    return kspBuildFeatureFreezePitchbookSource_(
+    return kspParentBoundSourceHash_(environment, kspBuildFeatureFreezePitchbookSource_(
       row, maps, { text: normalizedXlsx }, environment.hashText(normalizedXlsx), definition
-    );
+    ));
   }
   var bytes = kspNormalizeAiByteArray_(driveSource.bytes);
-  return kspBuildFeatureFreezePitchbookSource_(
+  return kspParentBoundSourceHash_(environment, kspBuildFeatureFreezePitchbookSource_(
     row, maps, { bytes: bytes }, environment.hashBytes(bytes), definition
-  );
+  ));
 }
 
 function kspFfBuildSyncReport_(nowIso, settings) {
@@ -248,7 +253,7 @@ function kspRunFeatureFreezeAiSync_(environment) {
       return;
     }
     try {
-      if (String(item.row.Status) === KSP_STATUS.INACTIVE) kspFfProcessInactive_(environment, store.name, item, report);
+      if (String(item.row.Status) === KSP_STATUS.INACTIVE || item.retrievalEligible === false) kspFfProcessInactive_(environment, store.name, item, report);
       else kspFfProcessActive_(environment, store.name, item, maps, report, environment.nowIso());
     } catch (error) {
       try { kspFfRecordFailure_(environment, item, error, settings, environment.nowIso(), report); }

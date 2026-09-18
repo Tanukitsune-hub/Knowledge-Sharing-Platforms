@@ -253,6 +253,11 @@ function kspMapPitchbookSearchResult_(row, maps) {
   return {
     documentId: String(row.Document_ID || ''),
     batchId: String(row.Batch_ID || ''),
+    parentMeetingId: String(row.Parent_Meeting_ID || ''),
+    counterpartyType: kspMeetingCounterpartyType_(row),
+    counterpartyId: kspMeetingCounterpartyId_(row),
+    counterpartyName: (maps.counterparty || {})[kspMeetingCounterpartyType_(row) + ':' + kspMeetingCounterpartyId_(row)] || maps.gp[String(row.GP_ID || '')] || '',
+    relatedGpIds: kspMeetingRelatedGpIds_(row),
     date: kspMaintenanceCellText_(row.Date, 'date'),
     gpId: String(row.GP_ID || ''),
     gpName: maps.gp[String(row.GP_ID || '')] || '',
@@ -376,14 +381,16 @@ function kspNormalizePitchbookEditInput_(input) {
 }
 
 function kspValidatePitchbookEditInput_(input, catalog) {
+  kspAssert_(input.counterpartyId || input.gpId, 'PITCHBOOK_COUNTERPARTY_REQUIRED', '面談先を確認してください。');
   kspParseDocumentId_(input.documentId);
   kspAssert_(input.expectedUpdatedAt, 'PITCHBOOK_EXPECTED_UPDATED_AT_REQUIRED', '更新トークンがありません。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付が不正です。');
   kspAssert_(String(input.fundStrategy || '').length <= 500,
     'PITCHBOOK_FUND_STRATEGY_TOO_LONG', 'Fund / Strategyは500文字以内で入力してください。');
   var selected = {
-    gp: kspRequireCatalogItem_(catalog.gps, input.gpId,
-      'PITCHBOOK_GP_UNAVAILABLE', '選択されたGPは利用できません。'),
+    gp: input.gpId ? kspRequireCatalogItem_(catalog.gps, input.gpId,
+      'PITCHBOOK_GP_UNAVAILABLE', '選択されたGPは利用できません。') : null,
+    counterpartyEntity: input.counterpartyId ? kspRequirePitchbookCounterparty_(input, catalog) : null,
     assetClass: kspRequireCatalogItem_(catalog.assetClasses, input.assetClassId,
       'PITCHBOOK_ASSET_CLASS_UNAVAILABLE', '選択されたAsset Classは利用できません。'),
     capitalType: null
@@ -401,6 +408,7 @@ function kspPitchbookContextChanged_(currentRow, input) {
 
 function kspPitchbookContextMatchesRow_(row, input) {
   return kspCanonicalBusinessDate_(row.Date) === kspCanonicalBusinessDate_(input.date) &&
+    (!input.counterpartyId || (kspMeetingCounterpartyType_(row) === input.counterpartyType && kspMeetingCounterpartyId_(row) === input.counterpartyId)) &&
     String(row.GP_ID || '') === input.gpId &&
     String(row.Asset_Class_ID || '') === input.assetClassId &&
     String(row.Capital_Type_ID || '') === input.capitalTypeId;

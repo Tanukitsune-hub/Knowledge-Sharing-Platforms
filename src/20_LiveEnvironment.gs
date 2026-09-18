@@ -362,10 +362,21 @@ function kspReadObjectsFromSheet_(sheet, headers) {
   if (lastRow < 2 || headers.length === 0) {
     return [];
   }
-  return sheet.getRange(2, 1, lastRow - 1, headers.length).getValues().map(function (values) {
+  var range = sheet.getRange(2, 1, lastRow - 1, headers.length);
+  var displayed;
+  return range.getValues().map(function (values, rowIndex) {
     var objectValue = {};
     headers.forEach(function (header, index) {
-      objectValue[header] = values[index];
+      var value = values[index];
+      // Business cells are wall-clock values, not instants. Native getValues()
+      // and getSpreadsheetTimeZone() can disagree with the cell representation.
+      // Accept only unambiguous supported display shapes, never guess a zone or
+      // a locale. Other columns (including true instants) retain their raw type.
+      if (value instanceof Date && (header === 'Date' || header === 'Time')) {
+        if (!displayed) displayed = range.getDisplayValues();
+        value = kspCanonicalSheetBusinessDisplay_(displayed[rowIndex][index], header);
+      }
+      objectValue[header] = value;
     });
     return objectValue;
   });

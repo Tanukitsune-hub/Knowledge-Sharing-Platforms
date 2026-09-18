@@ -30,7 +30,9 @@ function getBootstrapConfigTemplate_() {
 }
 
 function installKnowledgeShare() {
-  return kspRunInstaller_(kspCreateInstallerEnvironment_());
+  var status = kspRunInstaller_(kspCreateInstallerEnvironment_());
+  kspLogInstallerOutcome_(status);
+  return status;
 }
 
 function checkKnowledgeShareReadiness() {

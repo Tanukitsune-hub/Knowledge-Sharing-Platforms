@@ -211,6 +211,13 @@ function createFakeEnvironment(options = {}) {
   return environment;
 }
 
+// Exercise retained private identity safeguards directly; the public Full Output
+// endpoint deliberately no longer resolves Pitchbooks.
+function materializePitchbooks(env) {
+  return ksp.kspMaterializeKnowledgeExportSources_(env,
+    env._debug.pitchbookRows.map(row => ksp.kspBuildKnowledgeExportSource_('Pitchbook', row)));
+}
+
 function baseInput(overrides = {}) {
   return {
     mode: '自由質問',
@@ -231,7 +238,7 @@ test('Active source resolution applies filters and deterministic date/ID orderin
     env._debug.meetingRows, env._debug.pitchbookRows, input
   );
   assert.deepEqual(Array.from(sources, (source) => source.sourceId), [
-    'DOC-000001', 'MTG-000001', 'DOC-000002'
+    'MTG-000001'
   ]);
   assert.equal(sources.some((source) => source.sourceId === 'MTG-000002'), false);
   assert.deepEqual(
@@ -241,6 +248,69 @@ test('Active source resolution applies filters and deterministic date/ID orderin
     ), (source) => source.sourceId),
     ['MTG-000001']
   );
+});
+
+test('Full Output ignores AI-only state without mutating the request or changing the primary entity scope', () => {
+  for (const mode of ['自由質問', '比較', '面談準備', 'invalid-AI-mode']) {
+    const env = createFakeEnvironment();
+    const input = {mode, questionOrInstruction: '', modelProfileId: '', thinkingProfileId: '', selectedEntityKeys: ['invalid'],
+      filters: {entityKey: 'GP:GP-000002', sourceType: 'Pitchbook', dateFrom: '2026-08-01', dateTo: '2026-08-03'}};
+    const before = JSON.stringify(input);
+    const result = ksp.kspRunKnowledgeExportPreview_(env, input);
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(JSON.stringify(input), before);
+    assert.equal(result.preview.meetingCount, 1);
+    assert.equal(result.preview.pitchbookCount, 0);
+    assert.equal(result.preview.filters.sourceType, 'Meeting');
+    assert.equal(result.preview.filters.entityKey, 'GP:GP-000002');
+    assert.deepEqual(env._debug.pitchbookMetadataReads, []);
+    assert.doesNotMatch(result.preview.packageText, /Mode instruction|Question \/ additional instruction|Pitchbooks \/ reference/);
+    const created = ksp.kspRunKnowledgeExportCreation_(env, {...input, mode: '比較', questionOrInstruction: 'AI draft changed',
+      previewFingerprint: result.preview.previewFingerprint, outputType: 'GOOGLE_DOCS'});
+    assert.equal(created.ok, true, JSON.stringify(created));
+    assert.equal(created.packageText, result.preview.packageText);
+  }
+});
+
+test('Full Output rejects reversed dates and invalid common entity before authoritative body reads', () => {
+  for (const [filters, code] of [
+    [{dateFrom: '2026-09-01', dateTo: '2026-08-01'}, 'KNOWLEDGE_EXPORT_DATE_RANGE_INVALID'],
+    [{entityKey: 'GP:unknown'}, 'AI_ENTITY_FILTER_UNAVAILABLE'],
+    [{entityKey: 'GP:GP-000002', gpId: 'GP-000001'}, 'AI_ENTITY_GP_CONFLICT']
+  ]) {
+    const env = createFakeEnvironment();
+    const result = ksp.kspRunKnowledgeExportPreview_(env, {mode: '面談準備', filters});
+    assert.equal(result.ok, false);
+    assert.equal(result.error.code, code);
+    assert.deepEqual(env._debug.reads, []);
+    assert.deepEqual(env._debug.artifacts, []);
+  }
+});
+
+test('Full Output applies Meeting-only detailed filters even when AI source state is Pitchbook', () => {
+  const env = createFakeEnvironment({meetingRows: [meetingRow('MTG-000001', '2026-08-01', {
+    Doc_File_ID: 'doc-1', GP_ID: '', Counterparty_Type: 'LP_ASSET_OWNER', Counterparty_ID: 'OPT-CPLP-001',
+    Team_ID: 'OPT-TEAM-001', Follow_Up_Required: true, Related_GP_IDs: 'GP-000002', Meeting_Type_Codes: 'ANNUAL_REVIEW'
+  })]});
+  const result = ksp.kspRunKnowledgeExportPreview_(env, {filters: {entityKey: 'LP_ASSET_OWNER:OPT-CPLP-001',
+    sourceType: 'Pitchbook', teamId: 'OPT-TEAM-001', followUp: 'REQUIRED', relatedGpId: 'GP-000002', meetingTypeCode: 'ANNUAL_REVIEW'}});
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.preview.meetingCount, 1);
+  assert.match(result.preview.packageText, /Synthetic Asset Owner/);
+});
+
+test('Full Output time budget and attribute fingerprints remain fail closed', () => {
+  const env = createFakeEnvironment();
+  assert.throws(() => ksp.kspMaterializeKnowledgeExportSources_(env,
+    [ksp.kspBuildKnowledgeExportSource_('Meeting', env._debug.meetingRows[0])],
+    {startedAt: Date.now() - ksp.KSP_KNOWLEDGE_EXPORT_LIMITS.MAX_PREVIEW_MILLIS - 1, meetingReads: 0}),
+    {code: 'KNOWLEDGE_EXPORT_PREVIEW_BUDGET_EXCEEDED'});
+  assert.deepEqual(env._debug.reads, []);
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, {});
+  env._debug.meetingRows[0].Follow_Up_Note = 'changed privately';
+  const created = ksp.kspRunKnowledgeExportCreation_(env, {previewFingerprint: preview.preview.previewFingerprint, outputType: 'PDF'});
+  assert.equal(created.error.code, 'KNOWLEDGE_EXPORT_PREVIEW_STALE');
+  assert.deepEqual(env._debug.artifacts, []);
 });
 
 test('preview counts exact Meeting text and records metadata-only audit', () => {
@@ -300,7 +370,7 @@ test('creation rejects a changed filter or Index revision even when the source s
   assert.equal(revisionChanged.error.code, 'KNOWLEDGE_EXPORT_PREVIEW_STALE');
 });
 
-test('creation preserves Meeting bodies and exports Pitchbook metadata and links only', () => {
+test('creation preserves Meeting bodies and excludes Pitchbook metadata and links', () => {
   const env = createFakeEnvironment();
   const sourceRowsBefore = JSON.stringify({ meetings: env._debug.meetingRows, pitchbooks: env._debug.pitchbookRows });
   const input = baseInput({ mode: '要約', sourceType: '' });
@@ -316,17 +386,15 @@ test('creation preserves Meeting bodies and exports Pitchbook metadata and links
   assert.equal(env._debug.artifacts.length, 1);
   const model = env._debug.artifacts[0].model;
   assert.equal(model.meetingSections[0].body, env._debug.documents.get('doc-1').text);
-  assert.match(model.pitchbookLines.join('\n'), /DOC-000001/);
-  assert.match(model.pitchbookLines.join('\n'), /https:\/\/drive\.google\.com\/open\?id=file-1/);
-  assert.doesNotMatch(model.pitchbookLines.join('\n'), /Pitchbook body/);
+  assert.equal(model.pitchbookLines.length, 0);
   assert.deepEqual(env._debug.reads, ['doc-1', 'doc-1']);
-  assert.deepEqual(env._debug.pitchbookMetadataReads, ['file-1', 'file-2', 'file-1', 'file-2']);
+  assert.deepEqual(env._debug.pitchbookMetadataReads, []);
   assert.deepEqual(env._debug.pitchbookByteReads, []);
   assert.equal(env._debug.audits.at(-1).Question_Or_Instruction, '');
   assert.doesNotMatch(JSON.stringify(env._debug.audits), /Meeting body: synthetic/);
   assert.equal(JSON.stringify({ meetings: env._debug.meetingRows, pitchbooks: env._debug.pitchbookRows }), sourceRowsBefore);
   assert.equal(result.preview.meetingPreviewText, undefined);
-  assert.match(result.preview.packageText, /Pitchbooks \/ reference metadata and authoritative links only/);
+  assert.doesNotMatch(result.preview.packageText, /Pitchbooks \/ reference metadata and authoritative links only/);
 });
 
 test('Pitchbook-only FULL_EXPORT is a no-result hard stop and cannot create a reference-only artifact', () => {
@@ -338,7 +406,7 @@ test('Pitchbook-only FULL_EXPORT is a no-result hard stop and cannot create a re
   const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
   assert.equal(preview.ok, true, JSON.stringify(preview));
   assert.equal(preview.preview.meetingCount, 0);
-  assert.equal(preview.preview.pitchbookCount, 1);
+  assert.equal(preview.preview.pitchbookCount, 0);
   assert.equal(preview.preview.noResults, true);
   const result = ksp.kspRunKnowledgeExportCreation_(env, {
     ...input,
@@ -348,11 +416,11 @@ test('Pitchbook-only FULL_EXPORT is a no-result hard stop and cannot create a re
   assert.equal(result.ok, false);
   assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_NO_RESULTS');
   assert.equal(env._debug.artifacts.length, 0);
-  assert.deepEqual(env._debug.pitchbookMetadataReads, ['file-1', 'file-1']);
+  assert.deepEqual(env._debug.pitchbookMetadataReads, []);
   assert.deepEqual(env._debug.pitchbookByteReads, []);
 });
 
-test('Pitchbook reference metadata validates identity and boundary without reading body bytes', () => {
+test('Private materializer still validates Pitchbook reference metadata identity and boundary without reading body bytes', () => {
   const invalidMetadataCases = [
     { id: 'file-other' },
     { mimeType: 'application/vnd.google-apps.folder' },
@@ -365,9 +433,7 @@ test('Pitchbook reference metadata validates identity and boundary without readi
       pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: 'file-1' })],
       driveMetadata
     });
-    const result = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: 'Pitchbook' }));
-    assert.equal(result.ok, false, JSON.stringify(result));
-    assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID');
+    assert.throws(() => materializePitchbooks(env), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID' });
     assert.deepEqual(env._debug.pitchbookMetadataReads, ['file-1']);
     assert.deepEqual(env._debug.pitchbookByteReads, []);
     assert.deepEqual(env._debug.artifacts, []);
@@ -404,7 +470,7 @@ test('Knowledge Export URL parser accepts exact Google editor and Drive shapes o
   });
 });
 
-test('FULL_OUTPUT accepts matching Presentation and Spreadsheets webView links as reference-only', () => {
+test('Private materializer preserves exact Presentation and Spreadsheets identity checks', () => {
   const cases = [
     {
       extension: 'pptx',
@@ -431,14 +497,12 @@ test('FULL_OUTPUT accepts matching Presentation and Spreadsheets webView links a
       driveMetadata: { id: fileId, mimeType, trashed: false, webViewLink: editorUrl },
       documents: { 'doc-1': { text: 'Authoritative Meeting body only.' } }
     });
-    const result = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: '' }));
-    assert.equal(result.ok, true, JSON.stringify(result));
-    assert.equal(result.preview.pitchbookCount, 1);
+    const materials = materializePitchbooks(env);
+    assert.equal(materials.pitchbooks.length, 1);
+    assert.equal(materials.pitchbooks[0].source.canonicalUrl, 'https://drive.google.com/open?id=' + fileId);
     assert.deepEqual(env._debug.pitchbookMetadataReads, [fileId]);
     assert.deepEqual(env._debug.pitchbookByteReads, []);
     assert.deepEqual(env._debug.artifacts, []);
-    assert.match(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}\\.${extension}`));
-    assert.match(result.preview.packageText, /Authoritative Meeting body only\./);
   });
 });
 
@@ -457,9 +521,7 @@ test('Presentation and Spreadsheets URL, row, and Drive metadata ID mismatches f
         File_URL: `https://docs.google.com/${editorType}/d/other-file/edit`
       })]
     });
-    const rowResult = ksp.kspRunKnowledgeExportPreview_(rowMismatch, baseInput({ sourceType: 'Pitchbook' }));
-    assert.equal(rowResult.ok, false);
-    assert.equal(rowResult.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH');
+    assert.throws(() => materializePitchbooks(rowMismatch), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH' });
     assert.deepEqual(rowMismatch._debug.pitchbookMetadataReads, []);
 
     const metadataIdMismatch = createFakeEnvironment({
@@ -467,9 +529,7 @@ test('Presentation and Spreadsheets URL, row, and Drive metadata ID mismatches f
       pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: fileId, File_URL: matchingUrl })],
       driveMetadata: { id: 'other-file', mimeType, trashed: false, webViewLink: matchingUrl }
     });
-    const metadataIdResult = ksp.kspRunKnowledgeExportPreview_(metadataIdMismatch, baseInput({ sourceType: 'Pitchbook' }));
-    assert.equal(metadataIdResult.ok, false);
-    assert.equal(metadataIdResult.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID');
+    assert.throws(() => materializePitchbooks(metadataIdMismatch), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID' });
 
     const metadataUrlMismatch = createFakeEnvironment({
       meetingRows: [],
@@ -481,15 +541,13 @@ test('Presentation and Spreadsheets URL, row, and Drive metadata ID mismatches f
         webViewLink: `https://docs.google.com/${editorType}/d/other-file/edit`
       }
     });
-    const metadataUrlResult = ksp.kspRunKnowledgeExportPreview_(metadataUrlMismatch, baseInput({ sourceType: 'Pitchbook' }));
-    assert.equal(metadataUrlResult.ok, false);
-    assert.equal(metadataUrlResult.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID');
+    assert.throws(() => materializePitchbooks(metadataUrlMismatch), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID' });
     assert.deepEqual(metadataUrlMismatch._debug.pitchbookByteReads, []);
     assert.deepEqual(metadataUrlMismatch._debug.artifacts, []);
   });
 });
 
-test('FULL_OUTPUT keeps all six Pitchbook formats reference-only without reading source bytes', () => {
+test('FULL_OUTPUT excludes all six Pitchbook formats without metadata or byte reads', () => {
   const extensions = ['pdf', 'pptx', 'xlsx', 'docx', 'txt', 'eml'];
   const pitchbookRows = extensions.map((extension, index) => pitchbookRow(
     `DOC-${String(index + 1).padStart(6, '0')}`,
@@ -507,24 +565,25 @@ test('FULL_OUTPUT keeps all six Pitchbook formats reference-only without reading
   });
   const result = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: '' }));
   assert.equal(result.ok, true);
-  assert.equal(result.preview.pitchbookCount, 6);
+  assert.equal(result.preview.pitchbookCount, 0);
+  assert.deepEqual(env._debug.pitchbookMetadataReads, []);
   assert.deepEqual(env._debug.pitchbookByteReads, []);
-  assert.match(result.preview.packageText, /Pitchbooks \/ reference metadata and authoritative links only/);
+  assert.doesNotMatch(result.preview.packageText, /Pitchbooks \/ reference metadata and authoritative links only/);
   for (const extension of extensions) {
-    assert.match(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}\\.${extension}`));
+    assert.doesNotMatch(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}\\.${extension}`));
     assert.doesNotMatch(result.preview.packageText, new RegExp(`KSP-CODEX04-${extension.toUpperCase()}-BODY`));
   }
   assert.match(result.preview.packageText, /Authoritative Meeting body only\./);
 });
 
-test('Knowledge Export includes structured Meeting and Pitchbook metadata but not follow-up note Audit content', () => {
+test('Knowledge Export includes authoritative Meeting attributes and follow-up note but no Audit content', () => {
   const env=createFakeEnvironment({
     meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-000002',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up'})],
     pitchbookRows:[pitchbookRow('DOC-000001','2026-08-01',{File_ID:'file-1',Fund_Strategy:'Fund Beta'})]
   });
   const input=baseInput();const preview=ksp.kspRunKnowledgeExportPreview_(env,input);const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
   assert.equal(result.ok,true,JSON.stringify(result));const text=ksp.kspBuildKnowledgeExportPlainText_(env._debug.artifacts[0].model);
-  assert.match(text,/Counterparty Type: LP \/ Asset Owner/);assert.match(text,/Counterparty Entity: Synthetic Asset Owner/);assert.match(text,/Related GP: KKR/);assert.match(text,/Team: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/Meeting Type: 定例年1回, 先方オフィス訪問/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.match(text,/Fund \/ Strategy: Fund Beta/);
+  assert.match(text,/Counterparty Type: LP \/ Asset Owner/);assert.match(text,/Counterparty Entity: Synthetic Asset Owner/);assert.match(text,/Related GP: KKR/);assert.match(text,/Team: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/Meeting Type: 定例年1回, 先方オフィス訪問/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);assert.match(text,/Follow-up Note: private follow-up/);
   assert.equal(JSON.stringify(env._debug.audits).includes('private follow-up'),false);
 });
 
@@ -638,10 +697,8 @@ test('source link identity mismatches fail closed before reading or creating art
       File_URL: 'https://drive.google.com/file/d/file-other/view'
     })]
   });
-  const pitchbookResult = ksp.kspRunKnowledgeExportPreview_(pitchbookEnv, baseInput({ sourceType: 'Pitchbook' }));
-  assert.equal(pitchbookResult.ok, false);
-  assert.equal(pitchbookResult.error.code, 'KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH');
-  assert.deepEqual(pitchbookEnv._debug.artifacts, []);
+  assert.throws(() => materializePitchbooks(pitchbookEnv), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH' });
+  assert.deepEqual(pitchbookEnv._debug.pitchbookMetadataReads, []);
 });
 
 test('zero-result preview is explicit and cannot create an artifact', () => {
@@ -841,7 +898,11 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
 
   const model = {
     title: 'Knowledge Export synthetic',
-    meetingSections: [{ heading: 'Meeting MTG-000001', metadataLines: ['Meeting ID: MTG-000001'], body: 'SECRET_MEETING_BODY' }],
+    headerLines: ['Scope: Meeting / common filters'],
+    meetingSections: [
+      { heading: 'Meeting MTG-000001', metadataLines: ['Meeting ID: MTG-000001', 'Authoritative Google Doc: https://docs.google.com/document/d/meeting-original/edit'], body: 'SECRET_MEETING_BODY' },
+      { heading: 'Meeting MTG-000002', metadataLines: ['Meeting ID: MTG-000002'], body: 'SECOND_SYNTHETIC_BODY' }
+    ],
     pitchbookLines: ['Document ID: DOC-000001\nAuthoritative Drive link: https://drive.google.com/file/d/synthetic/view']
   };
   try {
@@ -866,7 +927,10 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
     assert.equal(calls.fetches[0].options.muteHttpExceptions, true);
     assert.deepEqual(calls.trashed, ['adapter-2']);
     assert.ok(calls.paragraphs.includes('SECRET_MEETING_BODY'));
-    assert.ok(calls.links.some((link) => link.url === 'https://drive.google.com/file/d/synthetic/view'));
+    assert.ok(calls.paragraphs.includes('Scope: Meeting / common filters'));
+    assert.ok(calls.links.some((link) => link.url === 'https://docs.google.com/document/d/meeting-original/edit'));
+    assert.equal(calls.links.some((link) => link.url === 'https://drive.google.com/file/d/synthetic/view'), false);
+    assert.equal(calls.paragraphs.some((text) => text.includes('DOC-000001')), false);
     assert.ok(calls.pageBreaks >= 1);
     assert.ok(calls.creates.every((file) => file.parents.includes('exports-synthetic')));
   } finally {

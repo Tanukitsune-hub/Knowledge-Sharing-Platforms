@@ -10,7 +10,7 @@ const page = fs.readFileSync(path.join(root, 'src', 'ActivityAnalyticsPage.html'
 const client = fs.readFileSync(path.join(root, 'src', 'ClientActivityAnalytics.html'), 'utf8');
 
 test('Activity Analytics is an integrated page with dependency-free chart and accessible tables', () => {
-  assert.match(index, /id="nav-activity-analytics"[^>]*>Activity Analytics<\/button>/);
+  assert.match(index, /id="nav-activity-analytics"[^>]*>[\s\S]*?面談実績の集計<\/button>/);
   assert.match(index, /include_\('ActivityAnalyticsPage'\)/);
   assert.match(index, /include_\('ClientActivityAnalytics'\)/);
   assert.match(core, /'activity-analytics':document\.getElementById\('page-activity-analytics'\)/);

@@ -13,7 +13,6 @@ let meetingRelatedPitchbookCatalog=[];
 let meetingCounterpartyEntities=[];
 const pages={
   meeting:document.getElementById('page-meeting'),
-  pitchbook:document.getElementById('page-pitchbook'),
   knowledge:document.getElementById('page-knowledge'),
   'gp-workspace':document.getElementById('page-gp-workspace'),
   'entity-workspace':document.getElementById('page-entity-workspace'),
@@ -26,7 +25,7 @@ const pages={
 };
 let retryContext=null,meetingLoading=true,pitchbookLoading=true,selectedPitchbookFiles=[],pitchbookSlots=[];
 function el(id){return document.getElementById(id)}
-function showPage(name){Object.keys(pages).forEach(key=>{if(pages[key])pages[key].classList.toggle('active',key===name);const button=el('nav-'+key);if(button)button.classList.toggle('active',key===name)});}
+function showPage(name){if(name==='pitchbook'||name==='pitchbook-past'||name==='relationship-explorer')name='meeting-past';Object.keys(pages).forEach(key=>{if(pages[key])pages[key].classList.toggle('active',key===name);const button=el('nav-'+key);if(button)button.classList.toggle('active',key===name)});}
 Object.keys(pages).forEach(name=>{const button=el('nav-'+name);if(button)button.onclick=()=>showPage(name)});
 function kspSafeDriveUrl(value){const candidate=String(value==null?'':value).trim();return /^https:\/\/(?:drive|docs)\.google\.com\//.test(candidate)?candidate:''}
 function kspEscapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
@@ -47,7 +46,7 @@ function selectedOptionValues(id){const node=el(id);return node?[...node.options
 function setSelectedOptionValues(id,values){const selected=new Set((values||[]).map(String));const node=el(id);if(node)[...node.options].forEach(option=>option.selected=selected.has(option.value))}
 function meetingTypeValues(prefix){return[...document.querySelectorAll('[data-meeting-type="'+prefix+'"]:checked')].map(node=>node.value)}
 function setMeetingTypeValues(prefix,values){const selected=new Set((values||[]).map(String));document.querySelectorAll('[data-meeting-type="'+prefix+'"]').forEach(node=>node.checked=selected.has(node.value))}
-function refreshMeetingRelatedPitchbooks(previousSelection){const node=el('meeting-relatedPitchbookIds');if(!node)return;const selected=new Set((previousSelection||selectedOptionValues('meeting-relatedPitchbookIds')).map(String));const gps=new Set(selectedOptionValues('meeting-relatedGpIds')),asset=el('meeting-assetClassId').value;const choices=meetingRelatedPitchbookCatalog.filter(item=>item.status==='Active'&&gps.has(item.gpId)&&item.assetClassId===asset);node.innerHTML='';choices.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.date+' / '+item.id+' / '+item.title;option.selected=selected.has(item.id);node.appendChild(option)})}
+function refreshMeetingRelatedPitchbooks(previousSelection){const node=el('meeting-relatedPitchbookIds');if(!node)return;const selected=new Set((previousSelection||selectedOptionValues('meeting-relatedPitchbookIds')).map(String));const gps=new Set(selectedOptionValues('meeting-relatedGpIds')),asset=el('meeting-assetClassId').value;const choices=meetingRelatedPitchbookCatalog.filter(item=>(item.status==='Active'||item.status==='Inactive'));node.innerHTML='';choices.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.date+' / '+item.id+' / '+item.title;option.selected=selected.has(item.id);node.appendChild(option)})}
 SHARED_FIELDS.forEach(field=>['meeting','pitchbook'].forEach(page=>el(sharedId(page,field)).addEventListener('change',()=>syncShared(page))));
 el('meeting-counterpartyType').addEventListener('change',()=>{const node=el('meeting-counterpartyType'),entity=el('meeting-counterpartyId').value;if(entity&&!confirm('面談先区分を変更すると現在の面談先を解除します。続けますか？')){node.value=node.dataset.previous||'';return}node.dataset.previous=node.value;refreshMeetingCounterpartyEntities('');ensurePrimaryGpRelated();refreshMeetingRelatedPitchbooks([])});
 el('meeting-counterpartyId').addEventListener('change',()=>{ensurePrimaryGpRelated();if(el('meeting-counterpartyType').value==='GP')el('pitchbook-gpId').value=el('meeting-counterpartyId').value;refreshMeetingRelatedPitchbooks([])});

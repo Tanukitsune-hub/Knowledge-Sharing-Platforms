@@ -24,7 +24,7 @@ function kspRunAiSync_(environment) {
       return;
     }
     try {
-      if (String(item.row.Status) === KSP_STATUS.INACTIVE) {
+      if (String(item.row.Status) === KSP_STATUS.INACTIVE || item.retrievalEligible === false) {
         kspProcessInactiveAiItem_(environment, storeName, item, report);
       } else {
         kspProcessActiveAiItem_(environment, storeName, item, maps, report, environment.nowIso());

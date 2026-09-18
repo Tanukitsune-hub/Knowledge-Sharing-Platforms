@@ -15,8 +15,16 @@ const entityWorkspacePage = fs.readFileSync(path.join(root, 'src', 'EntityWorksp
 const activityAnalyticsPage = fs.readFileSync(path.join(root, 'src', 'ActivityAnalyticsPage.html'), 'utf8');
 const relationshipExplorerPage = fs.readFileSync(path.join(root, 'src', 'RelationshipExplorerPage.html'), 'utf8');
 
+const bootstrap=fs.readFileSync(path.join(root,'src','ClientBootstrap.html'),'utf8');
+const sidebar=index.match(/<nav\b[\s\S]*?<\/nav>/)[0];
+function assertSidebarButton(id,label){
+  const button=sidebar.match(new RegExp('<button id="'+id+'"[^>]*>([\\s\\S]*?)<\\/button>'));
+  assert.ok(button, id+' remains in the sidebar');
+  assert.equal(button[1].replace(/<[^>]*>/g,'').trim(),label);
+}
+
 test('Knowledge Search navigation is an integrated same-document showPage page', () => {
-  assert.match(index, /<button id="nav-knowledge"[^>]*type="button">ナレッジ検索<\/button>/);
+  assertSidebarButton('nav-knowledge','ナレッジ検索');
   assert.equal((index.match(/id="nav-knowledge"/g) || []).length, 1);
   assert.doesNotMatch(index, /\?page=knowledge/);
   assert.doesNotMatch(index, /knowledge-back/);
@@ -39,7 +47,9 @@ test('Knowledge Search navigation is an integrated same-document showPage page',
 });
 
 test('GP Workspace navigation is an integrated same-document page', () => {
-  assert.match(index, /<button id="nav-gp-workspace"[^>]*type="button">GP Workspace<\/button>/);
+  assert.doesNotMatch(sidebar,/nav-gp-workspace/);
+  assertSidebarButton('nav-entity-workspace','面談先サマリー');
+  assert.match(bootstrap,/id="summary-show-gp"/);
   assert.match(index, /include_\('GpWorkspacePage'\)/);
   assert.match(index, /include_\('ClientGpWorkspace'\)/);
   assert.match(clientCore, /'gp-workspace':document\.getElementById\('page-gp-workspace'\)/);
@@ -49,7 +59,7 @@ test('GP Workspace navigation is an integrated same-document page', () => {
 });
 
 test('Activity Analytics navigation is an integrated same-document page', () => {
-  assert.match(index, /<button id="nav-activity-analytics"[^>]*type="button">Activity Analytics<\/button>/);
+  assertSidebarButton('nav-activity-analytics','面談実績の集計');
   assert.match(index, /include_\('ActivityAnalyticsPage'\)/);
   assert.match(index, /include_\('ClientActivityAnalytics'\)/);
   assert.match(clientCore, /'activity-analytics':document\.getElementById\('page-activity-analytics'\)/);
@@ -59,7 +69,7 @@ test('Activity Analytics navigation is an integrated same-document page', () => 
 });
 
 test('Entity Workspace navigation is an integrated same-document read-only page', () => {
-  assert.match(index, /<button id="nav-entity-workspace"[^>]*type="button">Entity Workspace<\/button>/);
+  assertSidebarButton('nav-entity-workspace','面談先サマリー');
   assert.match(index, /include_\('EntityWorkspacePage'\)/);
   assert.match(index, /include_\('ClientEntityWorkspace'\)/);
   assert.match(clientCore, /'entity-workspace':document\.getElementById\('page-entity-workspace'\)/);
@@ -69,7 +79,9 @@ test('Entity Workspace navigation is an integrated same-document read-only page'
 });
 
 test('Relationship Explorer navigation is an integrated same-document read-only page', () => {
-  assert.match(index, /<button id="nav-relationship-explorer"[^>]*type="button">Relationship Explorer<\/button>/);
+  assert.doesNotMatch(sidebar,/nav-relationship-explorer/);
+  assert.match(index,/<button id="nav-relationship-explorer"[^>]*hidden[^>]*tabindex="-1"/);
+  assertSidebarButton('nav-meeting-past','過去の記録');
   assert.match(index, /include_\('RelationshipExplorerPage'\)/);
   assert.match(index, /include_\('ClientRelationshipExplorer'\)/);
   assert.match(clientCore, /'relationship-explorer':document\.getElementById\('page-relationship-explorer'\)/);
@@ -82,6 +94,8 @@ test('showPage switches Knowledge Search, GP Workspace, and Meeting without chan
   const script = clientCore.match(/<script>([\s\S]*?)<\/script>/);
   assert.ok(script);
   const nodes = new Map();
+  const markup=fs.readdirSync(path.join(root,'src')).filter(name=>name.endsWith('.html')).map(name=>fs.readFileSync(path.join(root,'src',name),'utf8')).join('\n');
+  const actualIds=new Set(Array.from(markup.matchAll(/\bid="([^"]+)"/g),match=>match[1]));
   function node(id) {
     if (!nodes.has(id)) {
       const state = { active: false };
@@ -91,6 +105,7 @@ test('showPage switches Knowledge Search, GP Workspace, and Meeting without chan
         disabled: false,
         textContent: '',
         classList: {
+          add(name) {if(name==='active')state.active=true;},
           toggle(name, enabled) {
             if (name === 'active') state.active = Boolean(enabled);
           },
@@ -98,14 +113,14 @@ test('showPage switches Knowledge Search, GP Workspace, and Meeting without chan
             return name === 'active' && state.active;
           }
         },
-        addEventListener() {},
+        addEventListener() {},prepend() {},
         _state: state
       });
     }
     return nodes.get(id);
   }
   const context = {
-    document: { getElementById: node },
+    document: { getElementById: id=>actualIds.has(id)?node(id):null },
     localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} }
   };
   vm.runInNewContext(script[1], context, { filename: 'ClientCore.js' });
@@ -116,10 +131,15 @@ test('showPage switches Knowledge Search, GP Workspace, and Meeting without chan
   assert.equal(node('nav-knowledge').classList.contains('active'), true);
   assert.equal(node('nav-meeting').classList.contains('active'), false);
 
-  context.showPage('gp-workspace');
+  context.summarySwitch={};
+  const gpHandler=bootstrap.split(/\r?\n/).find(line=>line.startsWith("el('summary-show-gp').onclick="));
+  assert.ok(gpHandler);
+  vm.runInNewContext(gpHandler,context);
+  node('summary-show-gp').onclick();
   assert.equal(node('page-gp-workspace').classList.contains('active'), true);
   assert.equal(node('page-knowledge').classList.contains('active'), false);
-  assert.equal(node('nav-gp-workspace').classList.contains('active'), true);
+  assert.equal(context.document.getElementById('nav-gp-workspace'),null);
+  assert.equal(node('nav-entity-workspace').classList.contains('active'),true);
   assert.equal(node('nav-knowledge').classList.contains('active'), false);
 
   context.showPage('meeting');
@@ -143,8 +163,12 @@ test('showPage switches Knowledge Search, GP Workspace, and Meeting without chan
   assert.equal(node('page-activity-analytics').classList.contains('active'), false);
   assert.equal(node('nav-entity-workspace').classList.contains('active'), true);
 
-  context.showPage('relationship-explorer');
-  assert.equal(node('page-relationship-explorer').classList.contains('active'), true);
-  assert.equal(node('page-activity-analytics').classList.contains('active'), false);
-  assert.equal(node('nav-relationship-explorer').classList.contains('active'), true);
+  for(const legacy of ['relationship-explorer','pitchbook','pitchbook-past']){
+    context.showPage(legacy);
+    assert.equal(node('page-meeting-past').classList.contains('active'),true);
+    assert.equal(node('nav-meeting-past').classList.contains('active'),true);
+    assert.equal(node('page-relationship-explorer').classList.contains('active'),false);
+    assert.equal(node('page-pitchbook-past').classList.contains('active'),false);
+    assert.equal(node('nav-relationship-explorer').classList.contains('active'),false);
+  }
 });

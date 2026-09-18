@@ -10,24 +10,149 @@
 <body>
   <main class="app-shell">
     <header class="page-header">
-      <div><h1>Knowledge Sharing Platforms</h1><p>面談記録とPitchbookを蓄積し、過去記録とマスターを同じWeb Appで管理します。</p></div>
+      <div class="brand"><h1>Knowledge Share</h1><p>PRIVATE ASSETS KNOWLEDGE</p></div>
       <nav class="nav" aria-label="ページ切替">
-        <button id="nav-meeting" class="active" type="button">面談記録</button>
-        <button id="nav-pitchbook" type="button">Pitchbook</button>
-        <button id="nav-meeting-past" type="button">過去面談</button>
-        <button id="nav-pitchbook-past" type="button">過去資料</button>
-        <button id="nav-gp-workspace" type="button">GP Workspace</button>
-        <button id="nav-entity-workspace" type="button">Entity Workspace</button>
-        <button id="nav-activity-analytics" type="button">Activity Analytics</button>
-        <button id="nav-relationship-explorer" type="button">Relationship Explorer</button>
-        <button id="nav-masters" type="button">マスター管理</button>
-        <button id="nav-knowledge" type="button">ナレッジ検索</button>
-        <button id="nav-ai-provider-settings" type="button">AIプロバイダ設定</button>
+        <button id="nav-knowledge" class="active" type="button"><svg class="nav-icon" aria-hidden="true"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m21 21-4.34-4.34" />
+  <circle cx="11" cy="11" r="8" />
+</svg>ナレッジ検索</button>
+        <button id="nav-meeting" type="button"><svg class="nav-icon" aria-hidden="true"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" />
+  <path d="M2 6h4" />
+  <path d="M2 10h4" />
+  <path d="M2 14h4" />
+  <path d="M2 18h4" />
+  <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+</svg>記録を追加</button>
+        <button id="nav-meeting-past" type="button"><svg class="nav-icon" aria-hidden="true"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M2 6h4" />
+  <path d="M2 10h4" />
+  <path d="M2 14h4" />
+  <path d="M2 18h4" />
+  <rect width="16" height="20" x="4" y="2" rx="2" />
+  <path d="M9.5 8h5" />
+  <path d="M9.5 12H16" />
+  <path d="M9.5 16H14" />
+</svg>過去の記録</button>
+        <button id="nav-entity-workspace" type="button"><svg class="nav-icon" aria-hidden="true"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+  <path d="M16 3.128a4 4 0 0 1 0 7.744" />
+  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+  <circle cx="9" cy="7" r="4" />
+</svg>面談先サマリー</button>
+        <button id="nav-activity-analytics" type="button"><svg class="nav-icon" aria-hidden="true"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+  <path d="M18 17V9" />
+  <path d="M13 17V5" />
+  <path d="M8 17v-3" />
+</svg>面談実績の集計</button>
+        <hr>
+        <button id="nav-masters" type="button"><svg class="nav-icon" aria-hidden="true"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <ellipse cx="12" cy="5" rx="9" ry="3" />
+  <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+  <path d="M3 12A9 3 0 0 0 21 12" />
+</svg>プルダウンの管理</button>
+        <button id="nav-ai-provider-settings" type="button"><svg class="nav-icon" aria-hidden="true"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M14 17H5" />
+  <path d="M19 7h-9" />
+  <circle cx="17" cy="17" r="3" />
+  <circle cx="7" cy="7" r="3" />
+</svg>管理者ページ</button>
       </nav>
+<svg class="sidebar-motif" aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <g fill="none" stroke="#a68a50" stroke-width="2">
+    <polygon points="501.6,301.2 551.1,251.7 500.8,201.4 451.3,250.9 300.9,100.5 350.4,51 300.1,.7 250.6,50.2 201.1,.7 150.3,51.5 500.3,401.5 551.1,350.7"/>
+    <polygon points="600.9,199.9 551.6,150.7 601.2,101 550.7,50.4 501,100.1 450.4,150.7 400.8,200.3 451.3,250.9 501,201.2 550.3,250.5"/>
+    <polyline points="600,0 400.8,200.3 351,150.5 501.5,0"/>
+    <polygon points="349.9,452.9 300.4,502.4 250.1,452.1 299.6,402.6 149.2,252.2 99.7,301.7 49.4,251.4 98.9,201.9 49.4,152.4 100.2,101.6 450.2,451.6 399.4,502.4"/>
+    <polygon points="248.7,552.1 199.4,502.9 149.7,552.5 99.2,501.9 148.8,452.3 199.4,401.7 249,352.1 299.6,402.6 250,452.3 299.2,501.6"/>
+    <polygon points="-.9,302.6 48.4,351.9 -1.2,401.5 49.3,452.1 99,402.5 149.6,351.9 199.2,302.2 148.7,251.7 99,301.3 49.7,252"/>
+    <rect x="86.2" y="284.6" width="70.5" height="290.4" transform="matrix(-.7071 -.7071 .7071 -.7071 -96.6059 819.6381)"/>
+    <polyline points="551.1,350.7 501.6,301.2 551.1,251.7 600.6,301.2"/>
+    <polyline points="49.4,152.4 99.4,202.4 49.7,252 -.2,202.1"/>
+    <polyline points="399.4,502.4 349.4,452.4 299.8,502.1 349.7,552.1 299.2,602.6"/>
+    <line x1="600.4" y1="400" x2="398.7" y2="600.7"/>
+    <line x1="99.4" y1="0" x2=".4" y2="101.6"/>
+    <line x1="600" y1="502.4" x2="499.6" y2="600"/>
+    <line x1="43.7" y1="557.4" x2=".4" y2="600.7"/>
+    <line x1="149.7" y1="552.5" x2="99" y2="600.7"/>
+  </g>
+</svg>
     </header>
 
-    <section id="page-meeting" class="page active">
+    <section id="page-meeting" class="page">
       <div class="card">
+        <h2>記録を追加</h2>
         <form id="meeting-form" novalidate>
           <div class="grid">
             <div class="field"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
@@ -41,13 +166,14 @@
             <div class="field"><label for="meeting-teamId">Team</label><select id="meeting-teamId"><option value="">未選択</option></select></div>
             <div class="field"><label for="meeting-fundStrategy">Fund / Strategy</label><input id="meeting-fundStrategy" maxlength="500"></div>
             <div class="field full"><label>Meeting Type</label><div class="checkbox-row"><label><input type="checkbox" data-meeting-type="meeting" value="ANNUAL_REVIEW"> 定例年1回</label><label><input type="checkbox" data-meeting-type="meeting" value="OFFICE_VISIT"> 先方オフィス訪問</label><label><input type="checkbox" data-meeting-type="meeting" value="ANNUAL_GENERAL_MEETING"> 年次総会</label></div></div>
-            <div class="field full"><label for="meeting-relatedPitchbookIds">関連Pitchbook</label><select id="meeting-relatedPitchbookIds" multiple size="5"></select><div class="hint">関連GPのいずれか + Asset Classに一致するActive資料</div></div>
+            <div class="field full"><label for="meeting-relatedPitchbookIds">既存資料を関連付ける（任意）</label><select id="meeting-relatedPitchbookIds" multiple size="4"></select><div class="hint">親記録の保存後に関連付けます。資料のStatusは変更しません。</div></div>
             <div class="field"><label><input id="meeting-followUpRequired" type="checkbox"> 要フォロー</label></div>
             <div class="field full"><label for="meeting-followUpNote">フォローアップメモ</label><textarea id="meeting-followUpNote" maxlength="2000"></textarea></div>
             <div class="field"><label for="meeting-counterparty">面談相手（氏名・役職）</label><input id="meeting-counterparty" maxlength="500"></div>
             <div class="field"><label for="meeting-internalParticipants">当社側</label><input id="meeting-internalParticipants" maxlength="500"></div>
             <div class="field full"><label for="meeting-notes">面談内容</label><textarea id="meeting-notes" maxlength="20000" placeholder="自由に記載してください。改行は保存されます。"></textarea><div class="hint">本文はGoogle Docsだけに保存し、Indexや監査ログへ全文を複製しません。</div></div>
           </div>
+          <div id="meeting-file-home"></div>
           <div id="meeting-retry-note" class="retry-note">前回の途中失敗から、同じMeeting IDで再試行します。入力変更時は解除されます。</div>
           <div class="actions"><div class="hint">成功後も日付・Asset Class・Equity / Debt・Fund / Strategyは保持されます。</div><div class="action-group"><button id="meeting-clear" class="action secondary" type="button">下書きをクリア</button><button id="meeting-submit" class="action primary" type="submit" disabled>登録</button></div></div>
         </form>
@@ -55,21 +181,23 @@
       </div>
     </section>
 
-    <section id="page-pitchbook" class="page">
-      <div class="card">
-        <form id="pitchbook-form" novalidate>
-          <div class="grid">
+    <div id="pitchbook-compatibility" hidden>
+      <button id="nav-relationship-explorer" type="button" hidden aria-hidden="true" tabindex="-1"></button>
+          <div>
             <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
             <div class="field"><label class="required" for="pitchbook-gpId">GP</label><select id="pitchbook-gpId" required><option value="">未選択</option></select><button id="pitchbook-quick-add-gp" class="small-button" type="button">未登録GPを追加</button></div>
             <div class="field"><label class="required" for="pitchbook-assetClassId">Asset Class</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
             <div class="field"><label for="pitchbook-fundStrategy">Fund / Strategy</label><input id="pitchbook-fundStrategy" maxlength="500"></div>
-            <div class="field full"><label class="required">ファイル</label><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0">ここへファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div><input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"><div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div></div>
           </div>
-          <div class="actions"><div class="hint">登録はファイル単位。失敗しても成功済みファイルは維持されます。</div><div class="action-group"><button id="pitchbook-clear" class="action secondary" type="button">ファイル下書きをクリア</button><button id="pitchbook-retry" class="action warning" type="button" disabled>失敗分を再試行</button><button id="pitchbook-submit" class="action primary" type="submit" disabled>登録</button></div></div>
-        </form>
-        <div id="pitchbook-status" class="status" role="status" aria-live="polite"></div>
-      </div>
+    </div>
+    <section id="meeting-file-panel" class="attachment-panel">
+      <h3>資料を添付（任意）</h3><p id="pitchbook-parent-label" class="hint">記録保存 → ファイル保存 → 関連付けの順に処理します。</p>
+      <div id="pitchbook-drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="添付資料を選択">ファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div>
+      <input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml">
+      <div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div>
+      <div class="actions"><button id="pitchbook-clear" class="action secondary" type="button">選択をクリア</button><button id="pitchbook-retry" class="action warning" type="button" disabled>未完了分を再試行</button><button id="pitchbook-submit" class="action primary" type="button" hidden disabled>この記録へ資料を追加</button></div>
+      <div id="pitchbook-status" class="status" role="status" aria-live="polite"></div>
     </section>
 
     <?!= include_('MaintenancePages'); ?>
@@ -99,8 +227,36 @@ function safeStorageRemove(key){safeRemove(key)}
 function setMeetingBusy(busy){el('meeting-submit').disabled=busy||meetingLoading;el('meeting-clear').disabled=busy;el('meeting-submit').textContent=busy?'登録中…':'登録'}
 MEETING_FIELDS.forEach(f=>el('meeting-'+f).addEventListener('input',()=>{clearRetryContext();saveDraft()}));
 document.querySelectorAll('[data-meeting-type="meeting"],#meeting-relatedPitchbookIds,#meeting-followUpRequired').forEach(node=>node.addEventListener('change',()=>{clearRetryContext();saveDraft()}));
-el('meeting-form').addEventListener('submit',async event=>{event.preventDefault();clearStatus('meeting-status');const payload=meetingValues();if(!payload.date||!payload.counterpartyType||!payload.counterpartyId||!payload.assetClassId){showStatus('meeting-status','error','日付、面談先区分、面談先、Asset Classは必須です。');return}if(retryContext){payload.retryMeetingId=retryContext.meetingId;payload.retryFingerprint=retryContext.fingerprint}setMeetingBusy(true);try{const result=await serverCall('registerMeeting',payload);setMeetingBusy(false);if(result&&result.ok){clearMeetingSpecificDraft();const meeting=result.meeting||{};const url=String(meeting.documentUrl||'').replace(/"/g,'&quot;');showStatus('meeting-status','success','登録しました: '+meeting.id+(url?'<br><a class="result-link" target="_blank" rel="noopener" href="'+url+'">Google Docsを開く</a>':''),true)}else{if(result&&result.retry){retryContext=result.retry;writeEnvelope(KSP_MEETING_RETRY_KEY,retryContext);el('meeting-retry-note').classList.add('visible')}saveMeetingDraft();showStatus('meeting-status','error',(result&&result.error?result.error.message:'登録に失敗しました。')+' 入力内容は保持されています。')}}catch(error){setMeetingBusy(false);saveMeetingDraft();showStatus('meeting-status','error',(error&&error.message?error.message:String(error))+' 入力内容は保持されています。')}});
-el('meeting-clear').onclick=()=>{if(!confirm('面談入力と共通項目を消去しますか？'))return;[...SHARED_FIELDS,...MEETING_FIELDS].forEach(f=>{const node=el('meeting-'+f);if(node)node.value=''});setSelectedOptionValues('meeting-relatedGpIds',[]);setMeetingTypeValues('meeting',[]);el('meeting-followUpRequired').checked=false;refreshMeetingCounterpartyEntities('');refreshMeetingRelatedPitchbooks([]);applyShared({date:'',assetClassId:'',capitalTypeId:'',fundStrategy:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();clearStatus('meeting-status')};
+async function submitMeetingWithFiles(event){
+  event.preventDefault();
+  if(meetingFlowBusy)return;
+  if(readEnvelope('ksp.meeting.outcomeUnknown.v1')){showStatus('meeting-status','error','前回の親登録結果が不明です。重複防止のため停止しました。管理者による保存結果の確認が必要です。');return}
+  clearStatus('meeting-status');
+  const payload=meetingValues(),existingIds=payload.relatedPitchbookIds.slice();
+  if(!payload.date||!payload.counterpartyType||!payload.counterpartyId||!payload.assetClassId){showStatus('meeting-status','error','日付、面談先区分、面談先、Asset Classは必須です。');return}
+  if(selectedPitchbookFiles.length){const error=validateFiles(selectedPitchbookFiles);if(error){showStatus('meeting-status','error',error);return}}
+  if(pitchbookSlots.length||pitchbookParent){showStatus('meeting-status','warning','保存済み記録の未完了操作は資料欄から再試行してください。新しい記録は「新しい記録を入力」から開始してください。');return}
+  if(retryContext){payload.retryMeetingId=retryContext.meetingId;payload.retryFingerprint=retryContext.fingerprint}
+  // Relationships use the limited relation-only facade after the parent commit.
+  payload.relatedPitchbookIds=[];
+  meetingFlowBusy=true;setMeetingBusy(true);
+  try{
+    writeEnvelope('ksp.meeting.outcomeUnknown.v1',{pending:true});
+    const result=await serverCall('registerMeeting',payload);
+    safeRemove('ksp.meeting.outcomeUnknown.v1');
+    if(!result||!result.ok){if(result&&result.retry){retryContext=result.retry;writeEnvelope(KSP_MEETING_RETRY_KEY,retryContext);el('meeting-retry-note').classList.add('visible')}throw new Error(result&&result.error?result.error.message:'記録を保存できませんでした。')}
+    const meeting=result.meeting||{};
+    bindPitchbookParent({meetingId:meeting.id,version:meeting.version,status:meeting.status},false);
+    clearRetryContext();
+    showStatus('meeting-status','success','記録を保存しました: '+meeting.id+'。資料処理を開始します。');
+    pendingExistingDocumentIds=existingIds;savePitchbookSlots();
+    setRegisteredMeetingLocked(true);
+    await completeParentAttachments();
+  }catch(error){saveMeetingDraft();showStatus('meeting-status','error',(error.message||String(error))+' 入力と保存済みIDは保持されています。')}
+  finally{meetingFlowBusy=false;setMeetingBusy(false);if(pitchbookParent)el('meeting-submit').disabled=true}
+}
+el('meeting-form').addEventListener('submit',submitMeetingWithFiles);
+el('meeting-clear').onclick=()=>{if(pitchbookBusy||meetingFlowBusy)return;if(pitchbookPrepareUnknown||pitchbookSlots.length||pendingExistingDocumentIds.length){showStatus('meeting-status','warning','未完了資料を先に回復してください。');return}if(!confirm('面談入力と共通項目を消去しますか？'))return;pitchbookParent=null;savePitchbookSlots();setRegisteredMeetingLocked(false);el('pitchbook-submit').hidden=true;[...SHARED_FIELDS,...MEETING_FIELDS].forEach(f=>{const node=el('meeting-'+f);if(node)node.value=''});setSelectedOptionValues('meeting-relatedGpIds',[]);setMeetingTypeValues('meeting',[]);el('meeting-followUpRequired').checked=false;refreshMeetingCounterpartyEntities('');refreshMeetingRelatedPitchbooks([]);applyShared({date:'',assetClassId:'',capitalTypeId:'',fundStrategy:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();clearStatus('meeting-status')};
 </script>
 <?!= include_('ClientPitchbookFiles'); ?>
 <?!= include_('ClientPitchbookFlow'); ?>

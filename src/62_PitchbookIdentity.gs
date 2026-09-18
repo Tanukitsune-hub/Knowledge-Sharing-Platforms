@@ -20,7 +20,7 @@ function kspFormatSixDigitSequence_(sequenceNumber, label) {
 }
 
 function kspBuildPitchbookFilename_(input, selected, sequenceNo, extension) {
-  var segments = [input.date, selected.gp.name, selected.assetClass.name];
+  var segments = [input.date, (selected.counterpartyEntity || selected.gp).name, selected.assetClass.name];
   if (selected.capitalType) segments.push(selected.capitalType.name);
   segments.push(String(Number(sequenceNo)).padStart(2, '0'));
   var normalized = segments.map(kspNormalizeGeneratedNameSegment_);
@@ -34,6 +34,10 @@ function kspBuildPitchbookPendingRow_(params) {
   return {
     Document_ID: options.documentId,
     Batch_ID: options.batchId,
+    Parent_Meeting_ID: options.input.parentMeetingId || '',
+    Counterparty_Type: options.input.counterpartyType || '',
+    Counterparty_ID: options.input.counterpartyId || '',
+    Related_GP_IDs: options.input.relatedGpIds || '',
     Date: options.input.date,
     GP_ID: options.input.gpId,
     Asset_Class_ID: options.input.assetClassId,
@@ -63,7 +67,8 @@ function kspBuildPitchbookSlotFingerprint_(row, reservedFile, totalBytes) {
     row.Batch_ID, row.Document_ID, kspCanonicalBusinessDate_(row.Date), row.GP_ID, row.Asset_Class_ID,
     row.Capital_Type_ID, row.Fund_Strategy, row.Sequence_No, row.Original_Filename, row.Saved_Filename,
     descriptor.sizeBytes, descriptor.mimeType, totalBytes
-  ].map(function (value) { return String(value || ''); }).join('\u001f');
+  ].concat(row.Parent_Meeting_ID ? [row.Parent_Meeting_ID, row.Counterparty_Type, row.Counterparty_ID] : [])
+    .map(function (value) { return String(value || ''); }).join('\u001f');
   return kspFnv1aHex_(canonical);
 }
 
@@ -93,6 +98,7 @@ function kspFnv1aHex_(text) {
 function kspPitchbookSlotFromRow_(row, reservedFile, totalBytes) {
   var descriptor = reservedFile || {};
   var slot = {
+    parentMeetingId: String(row.Parent_Meeting_ID || ''),
     batchId: String(row.Batch_ID || ''),
     documentId: String(row.Document_ID || ''),
     sequenceNo: Number(row.Sequence_No || 0),
@@ -112,6 +118,8 @@ function kspPitchbookSlotFromRow_(row, reservedFile, totalBytes) {
 function kspBuildPitchbookReservation_(batchId, input, rows, totalBytes) {
   return {
     batchId: batchId,
+    parentMeetingId: input.parentMeetingId || '',
+    parentVersion: input.expectedParentVersion,
     totalBytes: Number(totalBytes || 0),
     createdAt: '',
     files: rows.map(function (row, index) {

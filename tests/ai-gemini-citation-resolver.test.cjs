@@ -289,6 +289,7 @@ test('CODEX-05 qualification and normal completion share strict mapping without 
   };
   const environment = {
     ...resolverEnvironment([document], document),
+    loadAiContext: () => ({ meetingRows: [], pitchbookRows: [row], gpRows: [], optionRows: [], auditSpreadsheetId: 'audit-fixture' }),
     nowIso: () => '2026-09-05T00:00:00.000Z',
     appendAuditRow(id, auditRow) { this.audit = plain(auditRow); }
   };
