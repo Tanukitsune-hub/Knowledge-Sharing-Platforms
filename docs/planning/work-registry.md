@@ -266,12 +266,21 @@ STATUS: ACTIVE
 MODE: BUILD
 BASELINE: Work0032 version8 + Work0033 accepted Meeting-create candidate
 TARGET_RUNTIME: same existing owner-only versioned Web App
+CURRENT_SERVED_VERSION: 9
+MEETING_CREATE_LAYOUT: PASS
+SIDEBAR_GOLD_3D_ORNAMENT: PASS
+FIELD_REGISTRATION_READBACK: PASS
+TARGET_RUNTIME_QUALIFICATION: PASS
 PROVIDER_CALLS: 0
 CONFIDENTIAL_DATA: 0
 PHYSICAL_DELETE: 0
 WORK_0030: DEFERRED_BY_USER
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
 ```
 
 Dispatch: `docs/handoffs/0034-dispatches.md`
 
 Active instruction: `docs/handoffs/0034-CODEX-01-production-layout-sidebar-refresh-instruction.md`
+
+Report: `docs/handoffs/0034-CODEX-01-production-layout-sidebar-refresh-report.md`
