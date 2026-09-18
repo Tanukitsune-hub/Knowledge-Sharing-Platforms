@@ -19,7 +19,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 3 | 0023 | Deterministic single-file bundle and installer | ACCEPTED | 0021 | Preserve PR #35 / installer security |
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
-| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACTIVE (BUILD / USER REVIEW REOPEN) | PR #50 + #51 accepted baseline | CODEX-24でpre-rollout UI polishと「記録を追加」interaction regressionを自律修復・実機検証 |
+| 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACCEPTED | PR #50 + #51 + #52 | version5でpre-rollout UI/interaction再認定。Completion Latch再適用。次は会社PC移行準備 |
 | 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
 | 8 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Work 0028 accepted provider-neutral baseline | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 9 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
@@ -75,7 +75,7 @@ FINAL_ADMIN_STATE: locked
 BLOCKER: NONE
 ```
 
-## Work 0028 accepted baseline / user-review reopen
+## Work 0028 accepted outcome / pre-rollout version5
 
 PR #50 Light design:
 `98bd1f233a5a462c55a9a3f9e4bc0dda6c705067`
@@ -83,13 +83,17 @@ PR #50 Light design:
 PR #51 production implementation / runtime:
 `89a2e94c9fc845157744c011333e16d9a32ffd34`
 
+PR #52 pre-rollout UI polish / runtime:
+`60927ab9a1ef3f705a2451fe70a662112a3cfd5e`
+
 Final target-runtime state:
 
 ```text
-FINAL_SERVED_VERSION: 4
-R1_R8: PASS
+FINAL_SERVED_VERSION: 5
+UI_POLISH_5: PASS
+R1_R8_BASELINE: PASS
 TARGET_RUNTIME_QUALIFICATION: PASS
-LOGIC_VALIDATION: 524/524 PASS
+LOGIC_VALIDATION: 529/529 PASS
 BUNDLE_VALIDATION: 30/30 PASS
 BACKEND: exactly5 sheets / schema7
 AI_SYNC: FALSE
@@ -98,7 +102,7 @@ PROVIDER_CALLS: 0
 CONFIDENTIAL_DATA: 0
 PHYSICAL_DELETE: 0
 BLOCKER: NONE
-COMPLETION_LATCH: APPLIED
+COMPLETION_LATCH: REAPPLIED
 ```
 
 Accepted production behavior:
@@ -115,15 +119,16 @@ Accepted production behavior:
 - deployment-security confirmation READY/NONE + authoritative attestation MATCH。
 - provider-independent baseline。AI sync disabled。
 
-Final report:
-`docs/handoffs/0028-CODEX-23-temporal-recovery-autonomous-completion-report.md`
+Final reports:
+- `docs/handoffs/0028-CODEX-23-temporal-recovery-autonomous-completion-report.md`
+- `docs/handoffs/0028-CODEX-24-pre-rollout-ui-polish-report.md`
 
 Current ball/status:
 `docs/handoffs/0028-dispatches.md`
 
 ResidualsはBLOCKERではない。mobile/other-browser visual sweep、任意locale日時表示、real/company rollout、historical migration、provider transition、Dark/Systemは別scope。
 
-ユーザー実機確認でrequired-flow contradictionとUI polish scopeが発生したためWork 0028を再オープン。active instructionは `docs/handoffs/0028-CODEX-24-pre-rollout-ui-polish-instruction.md`。Work 0030は明示的な再開判断までDEFERRED。
+ユーザー実機確認で再オープン後、PR #52 / version5で5件のpre-rollout UI/interaction課題をactual owner-only runtimeでPASS。Completion Latch再適用済み。Work 0030は明示的な再開判断までDEFERRED。
 
 ## Work 0030 deferred contract
 
