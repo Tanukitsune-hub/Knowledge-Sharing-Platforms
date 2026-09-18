@@ -176,3 +176,6 @@ Codex側の実装はspecをCSS/HTMLへ反映し、production business logicを�
 ## Success condition
 
 ユーザーがLayout Labをbrowserで開き、presetを切替し、fieldをdrag/resizeし、layoutを保存/exportし、Codex handoffを生成できること。production appへ副作用0。
+## Desktop shape preservation
+
+Wide/Laptop/Compactのpreviewではcanonical grid placementを維持し、viewport変更だけでfield order/row/colを自動再構成しない。containerはavailable content widthへfluidに広がってよい。720px以下だけsingle-column表示する。
