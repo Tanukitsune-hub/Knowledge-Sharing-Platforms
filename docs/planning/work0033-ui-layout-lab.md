@@ -129,3 +129,9 @@ Done when user can run the lab locally and produce a stable layout spec / Codex 
 ## User feedback enhancement
 
 Initial implementation review requested more direct manipulation. CODEX-01 continues with 8-direction mouse resize, row/column direct placement, 12/24-column precision, and specVersion2 backward-compatible export. Supplement: `docs/handoffs/0033-CODEX-01-direct-manipulation-supplement.md`.
+
+## Selected layout candidate
+
+Current user candidate: `docs/handoffs/0033-user-layout-candidate-v1.json`.
+
+Wide 2560 / Laptop 1440 / Compact 1280は同じgrid topologyを保持し、720px以下だけsingle-column。Responsive details: `docs/handoffs/0033-CODEX-02-responsive-shape-lock-supplement.md`.
