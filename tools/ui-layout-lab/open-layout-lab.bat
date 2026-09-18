@@ -1,2 +1,2 @@
 @echo off
-start "UI Layout Lab" "%~dp0index.html"
+start "Multi-screen UI Studio" "%~dp0index.html"
