@@ -116,7 +116,7 @@ Mobile 390 may render a one-column visual projection, but must not mutate the de
 
 ```text
 Desktop (Wide/Laptop/Compact)では12-column canonical placementを維持する。
-containerはavailable application content areaの100%を使用し、max-width 1680px。
+containerはavailable application content areaの100%を使用し、max-width 2000px。
 desktop viewport変更ではfield placementをreflow/reorderしない。
 720px以下のみ1-column visual projectionとし、desktop specは保持する。
 ```
@@ -125,3 +125,8 @@ desktop viewport変更ではfield placementをreflow/reorderしない。
 
 This supplement updates Layout Lab preview/spec/handoff fidelity only.
 Do not modify production src or deploy Apps Script in Work0033.
+## Source reconciliation note
+
+The latest user handoff contained one stale sentence in `Responsive intent` saying `max-width 1680px`, while both the header and canonical JSON specify `max 2000px` / `maxWidthPx: 2000`.
+
+For this Work contract, `2000px` is treated as the current intended max width. This reconciliation is explicit and must not be silently changed back to 1680px.
