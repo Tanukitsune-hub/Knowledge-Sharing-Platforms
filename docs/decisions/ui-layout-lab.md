@@ -33,12 +33,13 @@ Repository内の`tools/ui-layout-lab/`に置き、普通のbrowserで開けるst
 
 ## Interaction model
 
-完全なabsolute freeform配置ではなく、production responsive CSSへ安全に移植できる`12-column snap grid`をauthoritative editing modelとする。
+完全なabsolute freeform配置ではなく、production responsive CSSへ安全に移植できるgrid-based direct manipulationをauthoritative editing modelとする。標準は12-column、精密調整は24-columnを選択できる。
 
 User can:
-- drag to reorder fields
-- resize width in grid columns
-- resize textarea/large control height
+- drag to reorder / row-column placement
+- direct edge/corner resize for width and height
+- Standard 12-column / Fine 24-column precision
+- explicit colStart / breakBefore / topGap fine placement
 - hide/show fields
 - change form max width / percentage
 - left / center alignment
@@ -51,7 +52,7 @@ User can:
 - export/import layout JSON
 - generate Codex handoff text
 
-自由度は高くするが、export時は必ずresponsive grid specへ正規化する。
+自由度は高くするが、export時は必ずresponsive grid specへ正規化する。specVersion2では`gridColumns`, `colStart`, `colSpan`, `breakBefore`, `topGapPx`, `heightPx`を保持し、旧specVersion1をdeterministicにmigrateする。
 
 ## Initial screens
 
