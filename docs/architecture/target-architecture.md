@@ -506,7 +506,7 @@ Target-runtime qualification covers actual Apps Script, Workspace object shapes,
 
 ## 20. Work sequence
 
-The sequence below is historical delivery order. Work 0031 supersedes its GP-specific normal-product assumptions with the Counterparty Master architecture above.
+Work 0014 remains the historical structured Meeting foundation. The sequence below is historical delivery order; Work 0031 supersedes its GP-specific normal-product assumptions with the Counterparty Master architecture above.
 
 ```text
 0015 GP Workspace
