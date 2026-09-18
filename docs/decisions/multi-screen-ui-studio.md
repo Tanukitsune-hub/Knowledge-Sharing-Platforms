@@ -1,6 +1,6 @@
 # Multi-screen UI Studio — all tabs / fine positioning
 
-Status: ACCEPTED_DESIGN_DIRECTION
+Status: SUPERSEDED_BY_USER
 Work ID: 0035
 Date: 2026-09-19
 
@@ -211,3 +211,6 @@ numeric design scoreは出さない。
 ## Success condition
 
 ユーザーが1つのUI Studioから全7タブを切り替え、記録を追加を含む各screenをdrag/resize/micro-nudgeし、project全体を保存/exportできること。production side effect0。
+## Superseded decision
+
+2026-09-19: editor機能の拡張よりproduction UI改善を優先するため、本decisionは実装前にsupersedeされた。Work0036が後継。
