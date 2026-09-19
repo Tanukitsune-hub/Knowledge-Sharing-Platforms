@@ -28,10 +28,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 12 | 0035 | Multi-screen UI Studio — 全7タブ一括design + fine positioning | SUPERSEDED | Work0034 version10 / Work0033 Layout Lab | User strategy reset 2026-09-19。UI Studio追加開発は停止、Work0036へ |
 | 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | ACCEPTED | Work0034 version10 | PR #58 / version11 accepted。Completion Latch済み |
 | 14 | 0037 | Post-version11 UI refinement — six-screen convergence + admin password gate removal | ACCEPTED | Work0036 version11 | PR #59 / version13 accepted。Completion Latch済み |
-| 15 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 16 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 17 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 18 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACTIVE | Work0037 version13 | Requirements intake中。non-AI Full Output位置の確認待ち |
+| 16 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 17 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 18 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 19 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -429,3 +430,17 @@ COMPLETION_LATCH: APPLIED
 ```
 
 Current admin behavior: in-app shared-password gateは撤去済み。security boundaryはsame owner-only authenticated Web App deployment。Work0029はhistorical evidenceとして保持する。
+## Work 0038 active intake
+
+```text
+WORK_ID: 0038
+STATUS: ACTIVE
+PHASE: REQUIREMENTS_INTAKE
+BASELINE: Work0037 version13
+ACTIVE_DISPATCH: NONE
+BALL: USER
+OPEN_DECISION: Knowledge Search non-AI Full Output exact placement
+```
+
+Requirements: `docs/handoffs/0038-ui-refinement-requirements.md`
+Dispatch: `docs/handoffs/0038-dispatches.md`
