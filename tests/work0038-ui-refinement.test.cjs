@@ -23,6 +23,7 @@ test('Meeting Create header keeps heading, draft clear, and one compact status i
   assert.ok(headerEnd < index.indexOf('id="meeting-form"'), 'header must precede form');
   assert.equal((index.match(/id="meeting-status"/g) || []).length, 1);
   assert.doesNotMatch(index, /meeting-entry-hint|下書きや入力内容を消去して、新しい記録を開始できます。/);
+  assert.doesNotMatch(index, /成功後も日付・Asset Class・Fund \/ Strategyは保持されます。/);
   assert.match(styles, /\.meeting-entry-header\{[^}]*display:flex[^}]*flex-wrap:wrap/);
   assert.match(styles, /\.meeting-entry-header \.status\{[^}]*width:auto[^}]*margin:0/);
   assert.match(styles, /@media\(max-width:720px\)[\s\S]*\.meeting-entry-header\{[^}]*align-items:flex-start/);
