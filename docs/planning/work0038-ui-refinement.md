@@ -80,3 +80,11 @@ After actual UI evidence + tests pass, ChatGPT reviews PR and applies Completion
 - Remove attachment help text `記録保存 → ファイル保存 → 関連付けの順に処理します。`.
 - Shorten drop zone vertically.
 - Move `資料選択をクリア` / `未完了分を再試行` directly below drop zone; no right-side action column.
+## Latest geometry override — 2026-09-20 (2)
+
+- Meeting participant region widens to 7/12.
+- Attachment region narrows to 5/12 and remains row3/span2.
+- Register sits row5 left.
+- Clear/Retry sit row5 right, outside attachment block.
+- Drop zone uses full attachment width.
+- Attachment help remains removed; vertical size remains equal to two participant fields.
