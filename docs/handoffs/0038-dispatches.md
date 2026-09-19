@@ -12,13 +12,12 @@ PHASE: REQUIREMENTS_INTAKE
 
 Work0037/version13を基準に、Knowledge SearchとMeeting-createの追加UI refinementを収束する。
 
-## Current open decision
+## Closed layout decision
 
-Knowledge Search non-AI Full Outputの配置がuser instruction内で重複:
-- AIモデル右 + gap
-- AI検索モード直後
+Knowledge Search Row 3は次で確定:
+`AI検索モード → AIモデル → 少し間を空けて → 非AI出力`
 
-この1点をuser confirmationで閉じるまでCodex Dispatchは発行しない。
+要件上の曖昧点は解消済み。ただしユーザーから実装開始指示が出るまではCodex Dispatchを発行しない。
 
 ## Authoritative intake
 
