@@ -9,6 +9,32 @@ const index = read('Index.html');
 const knowledge = read('KnowledgeSearchPage.html');
 const knowledgeClient = read('ClientKnowledgeSearch.html');
 const styles = read('Styles.html');
+const bootstrap = read('ClientBootstrap.html');
+const pitchbookFlow = read('ClientPitchbookFlow.html');
+
+test('Meeting Create header keeps heading, draft clear, and one compact status in semantic order', () => {
+  const headerStart = index.indexOf('<div id="meeting-entry-actions" class="meeting-entry-header">');
+  const headerEnd = index.indexOf('</div>', headerStart) + '</div>'.length;
+  const header = index.slice(headerStart, headerEnd);
+  const heading = header.indexOf('<h2>記録を追加</h2>');
+  const clear = header.indexOf('id="meeting-clear"');
+  const status = header.indexOf('id="meeting-status"');
+  assert.ok(headerStart >= 0 && heading >= 0 && heading < clear && clear < status, 'heading -> clear -> status');
+  assert.ok(headerEnd < index.indexOf('id="meeting-form"'), 'header must precede form');
+  assert.equal((index.match(/id="meeting-status"/g) || []).length, 1);
+  assert.doesNotMatch(index, /meeting-entry-hint|下書きや入力内容を消去して、新しい記録を開始できます。/);
+  assert.match(styles, /\.meeting-entry-header\{[^}]*display:flex[^}]*flex-wrap:wrap/);
+  assert.match(styles, /\.meeting-entry-header \.status\{[^}]*width:auto[^}]*margin:0/);
+  assert.match(styles, /@media\(max-width:720px\)[\s\S]*\.meeting-entry-header\{[^}]*align-items:flex-start/);
+  assert.match(bootstrap, /showStatus\('meeting-status','info','面談入力の準備ができました。'\)/);
+  assert.equal((bootstrap.match(/面談入力の準備ができました。/g) || []).length, 1);
+  assert.match(bootstrap, /showStatus\('meeting-status','error',result&&result\.error\?result\.error\.message:'初期データを読み込めませんでした。'\)/);
+  assert.match(bootstrap, /withFailureHandler\(error=>\{meetingLoading=false;setMeetingBusy\(false\);showStatus\('meeting-status','error'/);
+  assert.match(index, /showStatus\('meeting-status','error','日付、面談先、Asset Classは必須です。'\)/);
+  assert.match(index, /showStatus\('meeting-status','success','記録を保存しました:/);
+  assert.doesNotMatch(pitchbookFlow, /meeting-entry-hint/);
+  assert.match(pitchbookFlow, /showStatus\('meeting-status','info','前回保存済みの記録を表示しています。/);
+});
 
 test('Knowledge Search row three uses the frozen AI controls order and placement', () => {
   assert.match(knowledge, /<label for="knowledge-mode">AI検索モード<\/label>/);
