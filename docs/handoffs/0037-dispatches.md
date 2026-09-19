@@ -42,3 +42,13 @@ STATUS: PREPARING
 - ナレッジ検索
 
 Codex Dispatchはまだ発行しない。
+## Intake update
+
+`面談実績の集計`の修正要件を追加済み。
+
+現在の収集済みscreen:
+- 過去の記録
+- ナレッジ検索
+- 面談実績の集計
+
+Codex Dispatchはまだ発行しない。
