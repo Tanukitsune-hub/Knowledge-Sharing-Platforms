@@ -1,7 +1,7 @@
 # Work 0039 — 月次面談確認フロー復元計画
 
 WORK_ID: 0039
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
 
 ## Primary Outcome
@@ -134,11 +134,11 @@ legacy`activity-admin-check-card`はnormal presentationから削除または恒�
 
 ## Dependency
 
-Before implementation dispatch, finish/reconcile Work0038 PR #60 so main and served baseline are aligned.
+Dependency closed: Work0038 PR #60 merged at `27fb5ca200cdb4d26f7111555cde33c8c2956892`, accepted served baseline version18.
 
 ## Dispatch
 
-No Codex Dispatch yet. User review/approval of this repair plan first.
+Active implementation dispatch: `0039-CODEX-01`.
 ## User approval — 2026-09-20
 
 User approved the restoration direction.
@@ -154,3 +154,12 @@ Implementation contract is now fixed subject only to baseline sequencing after W
 - no schema/migration/new storage
 
 Work0039 implementation must start only after Work0038 PR #60 is merged and served baseline is reconciled.
+## Implementation baseline
+
+```text
+APPLICATION_BASELINE_MERGE: 27fb5ca200cdb4d26f7111555cde33c8c2956892
+SERVED_BASELINE_VERSION: 18
+ACTIVE_DISPATCH: 0039-CODEX-01
+BALL: CODEX
+STATUS: READY
+```
