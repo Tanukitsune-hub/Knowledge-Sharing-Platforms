@@ -152,3 +152,70 @@ WORK_0030: DEFERRED_BY_USER
 - 集計ロジック・period aggregation semantics・backend service contractは変更しない。
 - label / default date / layout / section orderのUI refinementとして扱う。
 - existing owner-only analytics behaviorを維持する。
+## Screen: プルダウンの管理
+
+### Page structure
+
+- 現在は面談先・Asset Class・面談場所・Team等が同じ画面内で一括表示されているが、ページ内tabへ分割する。
+- tabを切り替えると、その区分の追加・一覧・編集操作だけを表示する。
+
+### Initial tabs
+
+少なくとも以下のtabを設ける。
+
+1. `面談先`
+2. `Asset Class`
+3. `面談場所`
+4. `Team`
+
+- Work0036 accepted policyどおり、`Equity / Debt` / `CAPITAL_TYPE` は管理tabとして出さない。
+- backend上の既存CAPITAL_TYPE dataは保持し、削除・migrationはしない。
+
+### Tab: 面談先
+
+- 面談先マスターだけを表示する。
+- `新規面談先を追加`buttonを表示する。
+- 追加時はWork0036で導入済みのshared modalを使用し、modal内で`面談先種別` + `面談先名`を入力する。
+- 一覧では既存の面談先、Status、名称変更、無効化/再有効化を管理できる。
+- 面談先種別は既存metadataとしてread-only表示してよいが、一覧上で直接編集するselectにはしない。
+
+### Tab: Asset Class
+
+- Asset ClassのOption Master rowsだけを表示する。
+- 追加formではType selectorを出さず、入力欄は名称 + 追加buttonにする。
+- 一覧で名称変更、順序変更、無効化/再有効化を維持する。
+
+### Tab: 面談場所
+
+- LOCATIONのOption Master rowsだけを表示する。
+- 追加formではType selectorを出さず、名称 + 追加button。
+- 一覧で名称変更、順序変更、無効化/再有効化を維持する。
+
+### Tab: Team
+
+- TEAMのOption Master rowsだけを表示する。
+- 追加formではType selectorを出さず、名称 + 追加button。
+- 一覧で名称変更、順序変更、無効化/再有効化を維持する。
+
+### Interaction
+
+- tab切替はpage reloadなし。
+- 初期tabは`面談先`。
+- active tabが明確に分かるvisual stateを付ける。
+- tab切替で各区分の入力中stateを誤って別区分へsubmitしない。
+- `再読込`は現在選択中tabを維持したまま全master dataをrefreshしてよい。
+
+### Layout
+
+- 1つの区分だけを表示するため、現在の左右2分割master-layoutは廃止してよい。
+- 各tabのcontentはfull widthを基本とし、追加formは左寄せでcompactにする。
+- tableはpage widthを有効活用し、操作列だけ必要幅にする。
+- Work0036/version11のLight UI / max-width2000 / 14px rhythmを維持。
+- mobileではtab barを横scrollまたはsafe wrapし、contentは1-column。
+
+### Compatibility intent
+
+- master mutation service / schema / option type codesは変更しない。
+- UIで現在選択中tabに対応するtype codeを内部的に固定して送信する。
+- userがType codeを手入力・選択する必要をなくす。
+- existing inactive rowsやsort order contractは維持する。
