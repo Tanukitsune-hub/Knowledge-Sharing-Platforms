@@ -86,9 +86,9 @@ WORK_0030: DEFERRED_BY_USER
 
 #### Row 4 — 指示
 
-- 現在のlabel `質問`を`指示入力欄`へ変更する。
+- 現在のlabel `質問`を`AI検索 指示入力欄`へ変更する。
 - textareaはfull widthを基本とする。
-- 現在のread-only/help文言は、名称変更に合わせて必要なら自然な日本語へ調整する。
+- 現在のread-only/help文言は、`AI検索 指示入力欄`という名称に合わせて必要なら自然な日本語へ調整する。
 
 #### Row 5 — Actions
 
