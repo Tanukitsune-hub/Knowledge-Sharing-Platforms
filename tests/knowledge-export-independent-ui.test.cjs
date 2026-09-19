@@ -119,15 +119,18 @@ test('Meeting-only AI filters reject incompatible source without silently changi
 test('read-only mode instruction and free draft are preserved; all-period restores prior dates', () => {
   const h = harness();
   vm.runInContext("knowledgeState.modeDefinitions['要約']={instruction:'Approved bootstrap instruction',inputRequired:false}", h.context);
+  vm.runInContext("knowledgeState.modeDefinitions['自由質問']={instruction:'',inputRequired:true}", h.context);
   h.nodes.get('knowledge-instruction').value = 'User free draft';
   h.nodes.get('knowledge-mode').value = '要約';
   h.context.kApplyMode();
   assert.equal(h.nodes.get('knowledge-instruction').readOnly, true);
   assert.equal(h.nodes.get('knowledge-instruction').value, 'Approved bootstrap instruction');
+  assert.equal(h.nodes.get('knowledge-mode-help').textContent, '表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。');
   h.nodes.get('knowledge-mode').value = '自由質問';
   h.context.kApplyMode();
   assert.equal(h.nodes.get('knowledge-instruction').readOnly, false);
   assert.equal(h.nodes.get('knowledge-instruction').value, 'User free draft');
+  assert.equal(h.nodes.get('knowledge-mode-help').textContent, 'このモードでは質問が必須です。Citationから原資料へ戻れます。');
   h.nodes.get('knowledge-dateFrom').value = '2026-01-02';
   h.nodes.get('knowledge-dateTo').value = '2026-02-03';
   h.nodes.get('knowledge-all-period').checked = true;
