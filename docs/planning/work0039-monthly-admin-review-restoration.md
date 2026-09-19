@@ -139,3 +139,18 @@ Before implementation dispatch, finish/reconcile Work0038 PR #60 so main and ser
 ## Dispatch
 
 No Codex Dispatch yet. User review/approval of this repair plan first.
+## User approval — 2026-09-20
+
+User approved the restoration direction.
+
+Implementation contract is now fixed subject only to baseline sequencing after Work0038:
+- inline Meeting Type canonical labels in `該当Meeting`
+- dedicated `原本` column
+- rightmost `確認済み` checkbox on each Meeting row
+- checkbox auto-save through existing `updateMeetingAdminCheck`
+- existing optimistic concurrency + metadata-only Audit preserved
+- checkbox visible regardless of one-year / one-month analytics range
+- legacy separate admin-check card removed from normal UI
+- no schema/migration/new storage
+
+Work0039 implementation must start only after Work0038 PR #60 is merged and served baseline is reconciled.
