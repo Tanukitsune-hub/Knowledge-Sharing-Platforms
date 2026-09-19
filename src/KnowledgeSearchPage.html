@@ -5,7 +5,7 @@
     #page-knowledge .knowledge-mode-row{margin:14px 0}
     #page-knowledge .knowledge-date-from-field{grid-column:1/span 2}.knowledge-date-to-field{grid-column:3/span 2}.knowledge-all-period-field{grid-column:5/span 2}
     #page-knowledge .knowledge-counterparty-field{grid-column:1/span 6}.knowledge-asset-field{grid-column:7/span 2}.knowledge-team-field{grid-column:9/span 2}.knowledge-source-field{grid-column:11/span 2}
-    #page-knowledge .knowledge-mode-field{grid-column:1/span 3}.knowledge-full-output-field{grid-column:4/span 2}.knowledge-model-field{grid-column:6/span 3}
+    #page-knowledge .knowledge-mode-field{grid-column:1/span 3}.knowledge-model-field{grid-column:4/span 3}.knowledge-full-output-field{grid-column:8/span 2}
     #page-knowledge .knowledge-instruction-field{margin-top:14px}
     #page-knowledge .knowledge-actions{justify-content:flex-start}
     #page-knowledge .knowledge-actions .action-group{order:-1}
@@ -27,7 +27,7 @@
       </div>
       <div class="knowledge-mode-row">
       <div class="field mode-field knowledge-mode-field">
-        <label for="knowledge-mode">検索モード</label>
+        <label for="knowledge-mode">AI検索モード</label>
         <select id="knowledge-mode">
           <option value="自由質問">自由質問</option>
           <option value="要約" selected>要約</option>
@@ -37,14 +37,14 @@
         </select>
       </div>
 
-        <div class="field knowledge-full-output-field">
-          <span class="field-label">非AI出力</span>
-          <button id="knowledge-full-output" class="action secondary" type="button">全文出力</button>
-        </div>
-
         <div id="knowledge-model-controls" class="field knowledge-model-field">
           <label for="knowledge-model-profile">AIモデル</label><select id="knowledge-model-profile" disabled></select>
           <div hidden><label for="knowledge-thinking-profile">Thinking</label><select id="knowledge-thinking-profile" disabled></select></div>
+        </div>
+
+        <div class="field knowledge-full-output-field">
+          <span class="field-label">非AI出力</span>
+          <button id="knowledge-full-output" class="action secondary" type="button">全文出力</button>
         </div>
       </div>
       <div hidden>

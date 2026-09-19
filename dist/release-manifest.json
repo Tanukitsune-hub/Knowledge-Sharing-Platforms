@@ -2,16 +2,16 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "d1310034b2fe6b6ff5a847108fdae22d2f8f79c7",
+  "source_git_commit": "9130aa38e9fd5c1253c2efe29286d6d9c8554273",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "71074793445751bc201531ce80112261ca891c65d8536b5fb1c80ae28fe60d4b",
-  "bundle_file_sha256": "e8a12bbe14307e52a2d1a1dbf115276c5ab13653c817eff6c599c4021d0305d3",
+  "bundle_payload_sha256": "8b9a26c4ca121ab0418ab73e4d2d9471b1f27ccf5597757f80ffdf2221ad9ba2",
+  "bundle_file_sha256": "4b81d5d9e87a37d75bb631b9b857bf8988fea3d4512d0043093d44ba9f568f56",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "904d48fe07860a4940e45fc5f0519c98fbe6b07346fe06448fb860797689d130",
   "bundle_metrics": {
-    "bytes": 1174834,
-    "characters": 1135083,
+    "bytes": 1174894,
+    "characters": 1135139,
     "lines": 19293,
     "server_source_count": 60,
     "embedded_html_count": 22
@@ -401,8 +401,8 @@
     },
     {
       "file": "src/Index.html",
-      "bytes": 22253,
-      "sha256": "9449014e7430fe24515c243483ec58dab271ee673c84be5510a524f58d54c67c"
+      "bytes": 22259,
+      "sha256": "7114e174292aefba10d90bbd550cd5a54f6debfc9315c7089bf654665faa31a0"
     },
     {
       "file": "src/KnowledgeSearch.html",
@@ -411,8 +411,8 @@
     },
     {
       "file": "src/KnowledgeSearchPage.html",
-      "bytes": 9888,
-      "sha256": "ca0d534144e0d8f43ed4ed2c04b62c91b623c2fe43c30e58287cc6066e10c700"
+      "bytes": 9890,
+      "sha256": "148419b89c70cc458559bf55110eb54085850996a8d3586acaa07433a352fcd8"
     },
     {
       "file": "src/MaintenancePages.html",
@@ -426,8 +426,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 34131,
-      "sha256": "c3721f65c0015eb6386cafe2ab386f480a3dbe4c1fa66484cadbf8a60d5ea05d"
+      "bytes": 34183,
+      "sha256": "055fadf3bc0db56436df400570ff134f2e4e5d8a3682250259816f6d56810f2d"
     }
   ]
 }

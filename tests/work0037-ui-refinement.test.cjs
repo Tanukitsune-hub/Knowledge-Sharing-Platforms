@@ -85,14 +85,14 @@ test('Admin has no shared password gate while provider controls and legacy prope
   assert.match(read('165_AiProviderAdmin.gs'), /KSP_SHARED_ADMIN_PASSWORD_SALT/);
 });
 
-test('Meeting Create places Meeting Type in row one, submit beside internal participants, and attachment actions at right', () => {
+test('Meeting Create places Meeting Type in row one, submit below internal participants, and attachment at right', () => {
   assert.match(styles, /meeting-field-types\{grid-column:10\/span 3;grid-row:1/);
   assert.match(styles, /meeting-field-internal-participants\{grid-column:1\/span 6;grid-row:4/);
-  assert.match(styles, /meeting-field-submit\{grid-column:7\/span 3;grid-row:4/);
+  assert.match(styles, /meeting-field-submit\{grid-column:1\/span 3;grid-row:5/);
   const grid = index.slice(index.indexOf('<div class="grid">'), index.indexOf('</div>\n          <div id="meeting-retry-note"'));
   assert.ok(grid.indexOf('meeting-internalParticipants') < grid.indexOf('meeting-submit'));
   assert.match(index, /attachment-workspace[\s\S]*attachment-drop-column[\s\S]*attachment-action-column[\s\S]*pitchbook-clear[\s\S]*pitchbook-retry/);
-  assert.match(styles, /attachment-workspace\{display:grid;grid-template-columns:minmax\(0,5fr\) minmax\(150px,1fr\)/);
+  assert.match(styles, /attachment-workspace\{display:grid;grid-template-columns:minmax\(0,7fr\) minmax\(150px,3fr\)/);
   assert.match(styles, /@media\(max-width:720px\)[\s\S]*attachment-workspace\{grid-template-columns:1fr\}/);
 });
 

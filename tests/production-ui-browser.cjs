@@ -6,7 +6,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const os=require('node:os');
 const root=path.resolve(__dirname,'..');
-const out=process.env.KSP_UI_EVIDENCE_DIR?path.resolve(process.env.KSP_UI_EVIDENCE_DIR):path.join(os.tmpdir(),'ksp-work0037-ui-evidence');
+const out=process.env.KSP_UI_EVIDENCE_DIR?path.resolve(process.env.KSP_UI_EVIDENCE_DIR):path.join(os.tmpdir(),'ksp-work0038-ui-evidence');
 const playwrightPath=process.env.KSP_PLAYWRIGHT_PATH||path.join(process.env.USERPROFILE,'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const {chromium}=require(playwrightPath);
 const included=new Map();
@@ -64,23 +64,33 @@ async function captureMeetingLayout(page,width,height,label,out){
   const evidence=await page.evaluate(()=>{
     const wrapper=id=>id==='meeting-types'||id==='attachment-section'?document.getElementById(id):id==='meeting-submit'?document.getElementById(id).closest('.meeting-field-submit'):document.getElementById(id).closest('.field');
     const ids=['meeting-date','meeting-time','meeting-locationId','meeting-teamId','meeting-assetClassId','meeting-types','meeting-counterpartyId','meeting-fundStrategy','meeting-counterparty','meeting-internalParticipants','meeting-submit','attachment-section','meeting-notes'];
-    const placements=Object.fromEntries(ids.map(id=>{const node=wrapper(id),style=getComputedStyle(node),rect=node.getBoundingClientRect();return[id,{columnStart:style.gridColumnStart,columnEnd:style.gridColumnEnd,rowStart:style.gridRowStart,x:rect.x,y:rect.y,width:rect.width,height:rect.height}]}));
+    const placements=Object.fromEntries(ids.map(id=>{const node=wrapper(id),style=getComputedStyle(node),rect=node.getBoundingClientRect();return[id,{columnStart:style.gridColumnStart,columnEnd:style.gridColumnEnd,rowStart:style.gridRowStart,rowEnd:style.gridRowEnd,x:rect.x,y:rect.y,width:rect.width,height:rect.height}]}));
     const grid=document.querySelector('#meeting-form>.grid'),gridStyle=getComputedStyle(grid),pageRect=document.getElementById('page-meeting').getBoundingClientRect();
     const capital=document.getElementById('meeting-capitalTypeId'),capitalRect=capital.getBoundingClientRect();
     const sidebarNode=document.querySelector('.page-header'),sidebar=getComputedStyle(sidebarNode),active=getComputedStyle(document.querySelector('.nav button.active')),icon=getComputedStyle(document.querySelector('.nav button.active .nav-icon')),motif=getComputedStyle(document.querySelector('.sidebar-motif'));
-    return{placements,gridColumns:gridStyle.gridTemplateColumns.split(' ').length,columnGap:gridStyle.columnGap,rowGap:gridStyle.rowGap,pageWidth:pageRect.width,notesHeight:document.getElementById('meeting-notes').getBoundingClientRect().height,capital:{display:getComputedStyle(capital.closest('.field')).display,width:capitalRect.width,height:capitalRect.height},overflow:document.documentElement.scrollWidth>innerWidth,sidebar:{backgroundImage:sidebar.backgroundImage,borderRightColor:sidebar.borderRightColor,activeBackground:active.backgroundImage,activeShadow:active.boxShadow,iconFilter:icon.filter,motifDisplay:motif.display,motifOpacity:motif.opacity,clientWidth:sidebarNode.clientWidth,scrollWidth:sidebarNode.scrollWidth}};
+    const attachment=document.querySelector('.attachment-workspace'),drop=document.querySelector('.attachment-drop-column'),actions=document.querySelector('.attachment-action-column');
+    return{placements,gridColumns:gridStyle.gridTemplateColumns.split(' ').length,columnGap:gridStyle.columnGap,rowGap:gridStyle.rowGap,pageWidth:pageRect.width,notesHeight:document.getElementById('meeting-notes').getBoundingClientRect().height,attachment:{columns:getComputedStyle(attachment).gridTemplateColumns.split(' ').length,dropWidth:drop.getBoundingClientRect().width,actionWidth:actions.getBoundingClientRect().width,clearLabel:document.getElementById('pitchbook-clear').textContent.trim()},capital:{display:getComputedStyle(capital.closest('.field')).display,width:capitalRect.width,height:capitalRect.height},overflow:document.documentElement.scrollWidth>innerWidth,sidebar:{backgroundImage:sidebar.backgroundImage,borderRightColor:sidebar.borderRightColor,activeBackground:active.backgroundImage,activeShadow:active.boxShadow,iconFilter:icon.filter,motifDisplay:motif.display,motifOpacity:motif.opacity,clientWidth:sidebarNode.clientWidth,scrollWidth:sidebarNode.scrollWidth}};
   });
   assert.equal(evidence.overflow,false,label+' overflow');
   if(width>720){
     assert.equal(evidence.gridColumns,12,label+' columns');assert.equal(evidence.columnGap,'14px');assert.equal(evidence.rowGap,'14px');assert.ok(evidence.pageWidth<=2000.5,label+' max width');
-    const expected={'meeting-date':['1','span 2','1'],'meeting-time':['3','span 1','1'],'meeting-locationId':['4','span 2','1'],'meeting-teamId':['6','span 2','1'],'meeting-assetClassId':['8','span 2','1'],'meeting-types':['10','span 3','1'],'meeting-counterpartyId':['1','span 6','2'],'meeting-fundStrategy':['7','span 4','2'],'meeting-counterparty':['1','span 6','3'],'meeting-internalParticipants':['1','span 6','4'],'meeting-submit':['7','span 3','4'],'attachment-section':['1','span 12','5'],'meeting-notes':['1','span 12','6']};
+    const expected={'meeting-date':['1','span 2','1'],'meeting-time':['3','span 1','1'],'meeting-locationId':['4','span 2','1'],'meeting-teamId':['6','span 2','1'],'meeting-assetClassId':['8','span 2','1'],'meeting-types':['10','span 3','1'],'meeting-counterpartyId':['1','span 6','2'],'meeting-fundStrategy':['7','span 4','2'],'meeting-counterparty':['1','span 6','3'],'meeting-internalParticipants':['1','span 6','4'],'meeting-submit':['1','span 3','5'],'attachment-section':['7','span 6','3'],'meeting-notes':['1','span 12','6']};
     for(const[id,placement]of Object.entries(expected))assert.deepEqual([evidence.placements[id].columnStart,evidence.placements[id].columnEnd,evidence.placements[id].rowStart],placement,label+' '+id);
+    assert.equal(evidence.placements['attachment-section'].rowEnd,'span 3');assert.equal(evidence.attachment.columns,2);assert.ok(evidence.attachment.dropWidth>evidence.attachment.actionWidth*1.8,label+' attachment 70/30 split');
     assert.equal(evidence.sidebar.motifDisplay,'block');assert.equal(evidence.sidebar.motifOpacity,'0.72');assert.notEqual(evidence.sidebar.activeShadow,'none');assert.notEqual(evidence.sidebar.iconFilter,'none');assert.ok(evidence.sidebar.scrollWidth<=evidence.sidebar.clientWidth+1,label+' sidebar horizontal overflow');
   }else{
-    assert.equal(evidence.gridColumns,1,label+' columns');for(const placement of Object.values(evidence.placements))assert.equal(placement.columnStart,'1');assert.equal(evidence.sidebar.motifDisplay,'none');
+    assert.equal(evidence.gridColumns,1,label+' columns');for(const placement of Object.values(evidence.placements))assert.equal(placement.columnStart,'1');assert.equal(evidence.attachment.columns,1);assert.equal(evidence.sidebar.motifDisplay,'none');
   }
-  assert.deepEqual(evidence.capital,{display:'none',width:0,height:0});assert.ok(evidence.notesHeight>=480,label+' notes height');
+  assert.equal(evidence.attachment.clearLabel,'資料選択をクリア');assert.deepEqual(evidence.capital,{display:'none',width:0,height:0});assert.ok(evidence.notesHeight>=480,label+' notes height');
   await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:path.join(out,'layout-'+label+'.png'),fullPage:false});
+  return evidence;
+}
+async function captureKnowledgeLayout(page,width,height,label){
+  await page.setViewportSize({width,height});await page.locator('#nav-knowledge').click();
+  const evidence=await page.evaluate(()=>{const row=document.querySelector('.knowledge-mode-row'),read=selector=>{const node=document.querySelector(selector),style=getComputedStyle(node),rect=node.getBoundingClientRect();return{columnStart:style.gridColumnStart,columnEnd:style.gridColumnEnd,x:rect.x,y:rect.y}};return{columns:getComputedStyle(row).gridTemplateColumns.split(' ').length,mode:read('.knowledge-mode-field'),model:read('.knowledge-model-field'),output:read('.knowledge-full-output-field'),label:document.querySelector('label[for="knowledge-mode"]').textContent.trim(),overflow:document.documentElement.scrollWidth>innerWidth}});
+  assert.equal(evidence.overflow,false,label+' knowledge overflow');assert.equal(evidence.label,'AI検索モード');
+  if(width>720){assert.equal(evidence.columns,12);assert.deepEqual([evidence.mode.columnStart,evidence.mode.columnEnd],['1','span 3']);assert.deepEqual([evidence.model.columnStart,evidence.model.columnEnd],['4','span 3']);assert.deepEqual([evidence.output.columnStart,evidence.output.columnEnd],['8','span 2']);assert.ok(evidence.mode.x<evidence.model.x&&evidence.model.x<evidence.output.x)}
+  else{assert.equal(evidence.columns,1);assert.ok(evidence.mode.y<evidence.model.y&&evidence.model.y<evidence.output.y)}
   return evidence;
 }
 async function captureCrossTabLayout(page,width,height,label){
@@ -109,7 +119,7 @@ async function main(){
     assert.match(await page.title(),/Knowledge Sharing Platforms/);assert.equal(page.url(),url);
     assert.equal(await page.locator('.nav button').count(),7);assert.equal(await page.locator('.nav button.active').count(),1);
     assert.equal(await page.locator('#page-knowledge').isVisible(),true);assert.equal(await page.locator('#knowledge-mode').inputValue(),'要約');checks.push('identity / nav7 / default Knowledge Search summary');
-    const layoutEvidence=[];for(const viewport of [[2560,1100,'wide-2560'],[1440,1000,'laptop-1440'],[1280,900,'compact-1280'],[390,844,'mobile-390']])layoutEvidence.push(await captureMeetingLayout(page,viewport[0],viewport[1],viewport[2],out));checks.push('Work 0033 candidate topology / 2560, 1440, 1280, 390');
+    const layoutEvidence=[];const knowledgeLayoutEvidence=[];for(const viewport of [[2560,1100,'wide-2560'],[1440,1000,'laptop-1440'],[1280,900,'compact-1280'],[390,844,'mobile-390']]){layoutEvidence.push(await captureMeetingLayout(page,viewport[0],viewport[1],viewport[2],out));knowledgeLayoutEvidence.push(await captureKnowledgeLayout(page,viewport[0],viewport[1],viewport[2]))}checks.push('Work 0038 Meeting and Knowledge topology / 2560, 1440, 1280, 390');
     const crossTabLayoutEvidence=[];for(const viewport of [[2560,1100,'wide-2560'],[1440,1000,'laptop-1440'],[1280,900,'compact-1280'],[390,844,'mobile-390']])crossTabLayoutEvidence.push({label:viewport[2],screens:await captureCrossTabLayout(page,viewport[0],viewport[1],viewport[2])});checks.push('all seven screens / 12-column desktop / one-column mobile / no page overflow');
     await page.setViewportSize({width:1366,height:900});await page.locator('#nav-meeting').click();
     const quickBefore=calls.filter(call=>call.name==='quickAddCounterparty').length;await page.locator('#meeting-quick-add-counterparty').click();
@@ -154,7 +164,7 @@ async function main(){
     assert.equal(await page.locator('.nav button').count(),7);await page.evaluate(()=>window.scrollTo(0,0));
     await page.screenshot({path:path.join(out,'04-narrow-390.png'),fullPage:true});checks.push('390px / register, past, knowledge / no page horizontal overflow');
     assert.deepEqual(pageErrors,[]);assert.deepEqual(consoleErrors,[]);assert.deepEqual(blockedRequests,[]);
-    const evidence={classification:'SYNTHETIC_RENDER_ONLY',targetRuntimeQualification:'NOT RUN',result:'PASS',browser:await browser.version(),viewports:[[2560,1100],[1440,1000],[1280,900],[1366,900],[390,844]],checks,layoutEvidence,crossTabLayoutEvidence,pageErrors,consoleErrors,blockedRequests,sourceHashes:Object.fromEntries(included),rpcNames:calls.map(x=>x.name)};
+    const evidence={classification:'SYNTHETIC_RENDER_ONLY',targetRuntimeQualification:'NOT RUN',result:'PASS',browser:await browser.version(),viewports:[[2560,1100],[1440,1000],[1280,900],[1366,900],[390,844]],checks,layoutEvidence,knowledgeLayoutEvidence,crossTabLayoutEvidence,pageErrors,consoleErrors,blockedRequests,sourceHashes:Object.fromEntries(included),rpcNames:calls.map(x=>x.name)};
     fs.writeFileSync(path.join(out,'validation.json'),JSON.stringify(evidence,null,2)+'\n');console.log(JSON.stringify(evidence,null,2));
   }catch(error){await page.screenshot({path:path.join(out,'failed-render.png'),fullPage:true});const evidence={classification:'SYNTHETIC_RENDER_ONLY',targetRuntimeQualification:'NOT RUN',result:'FAIL',error:error.message,checks,pageErrors,consoleErrors,rpcNames:calls.map(x=>x.name)};fs.writeFileSync(path.join(out,'validation.json'),JSON.stringify(evidence,null,2)+'\n');console.error(JSON.stringify(evidence,null,2));process.exitCode=1}
   finally{await browser.close();await new Promise(resolve=>server.close(resolve))}

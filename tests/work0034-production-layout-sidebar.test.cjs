@@ -39,7 +39,7 @@ test('production Meeting fields retain explicit desktop placement after the Work
     'meeting-fundStrategy': ['meeting-field-fund', 7, 4, 2],
     'meeting-counterparty': ['meeting-field-counterparty-person', 1, 6, 3],
     'meeting-internalParticipants': ['meeting-field-internal-participants', 1, 6, 4],
-    'attachment-section': ['#attachment-section', 1, 12, 5],
+    'attachment-section': ['#attachment-section', 7, 6, 3],
     'meeting-notes': ['meeting-field-notes', 1, 12, 6]
   };
   for (const [id, [selector, start, span, row]] of Object.entries(expected)) {
