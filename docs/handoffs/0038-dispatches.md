@@ -1,38 +1,29 @@
 # Work 0038 dispatch control
 
 WORK_ID: 0038
-DISPATCH_ID: 0038-CODEX-02
-ACTIVE_DISPATCH_ID: 0038-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0038-CODEX-03
+ACTIVE_DISPATCH_ID: 0038-CODEX-03
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: FINAL REVIEW
+PHASE: KNOWLEDGE HELP-LINE FINAL REFINEMENT
 
 ## Primary Outcome
 
-CODEX-01で認定済みのversion15 geometryを保持し、Meeting-create冒頭を`記録を追加 → 下書きをクリア → compact ready status`の1段へ収束する。
+PR #60の既存Work0038変更を保持し、Knowledge Searchの2つのhelp文をdesktopで1行に統合する。
 
-## Previous Dispatch
+## Prior dispatch evidence
 
-```text
-0038-CODEX-01: RETURNED
-PR: #60 / Draft / unmerged
-HEAD: 1b67faf31722529d270bf3d93691394fe65520f4
-REPORTED_SERVED_VERSION: 15
-BLOCKER: NONE
-```
+- CODEX-01: geometry / version15 / RETURNED
+- CODEX-02: Meeting header/status / reported version17 / RETURNED
 
 ## Active instruction
 
-`docs/handoffs/0038-CODEX-02-meeting-header-status-instruction.md`
+`docs/handoffs/0038-CODEX-03-knowledge-help-line-instruction.md`
 
-## Closed decisions
+## Exact visible default text
 
-- draft explanatory sentence: REMOVE
-- initial ready message: MOVE TO TOP ROW
-- initial ready status width: COMPACT / CONTENT WIDTH
-- operational status behavior: PRESERVE
-- PR #60: CONTINUE / DO NOT MERGE
+`表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。 Teamは「面談記録のみ」で利用できます。`
 
 ## Safety
 
@@ -51,7 +42,7 @@ WORK_0030: DEFERRED_BY_USER
 ```
 
 ```text
-NEXT_UNUSED_DISPATCH: 0038-CODEX-03
+NEXT_UNUSED_DISPATCH: 0038-CODEX-04
 WORK_0038_COMPLETE: NO
 COMPLETION_LATCH: NOT_APPLIED
 ```
@@ -64,6 +55,6 @@ COMPLETION_LATCH: NOT_APPLIED
 | 0038-CODEX-02 | Meeting-create冒頭をheading → clear → compact statusへ収束し、追加指示の登録button横保持説明も削除。focused 15/15 + follow-up 6/6、canonical 573/573、bundle 30/30、same deployment version17、4 viewport / required validation / 7-page smoke / console0をPASSし、Draft PR #60で返却。 |
 
 WORK_ID: 0038
-DISPATCH_ID: 0038-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0038-CODEX-03
+BALL: CODEX
+STATUS: READY
