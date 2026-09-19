@@ -160,8 +160,7 @@
 
     <section id="page-meeting" class="page">
       <div class="card">
-        <h2>記録を追加</h2>
-        <div id="meeting-entry-actions" class="record-entry-actions"><button id="meeting-clear" class="action secondary" type="button">下書きをクリア</button><span id="meeting-entry-hint" class="hint">下書きや入力内容を消去して、新しい記録を開始できます。</span></div>
+        <div id="meeting-entry-actions" class="meeting-entry-header"><h2>記録を追加</h2><button id="meeting-clear" class="action secondary" type="button">下書きをクリア</button><div id="meeting-status" class="status" role="status" aria-live="polite"></div></div>
         <form id="meeting-form" novalidate>
           <div class="grid">
             <div class="field meeting-field-date"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
@@ -178,13 +177,13 @@
             <div class="field full meeting-field-backend-only" hidden aria-hidden="true"><label for="meeting-followUpNote">フォローアップメモ</label><textarea id="meeting-followUpNote" maxlength="2000"></textarea></div>
             <div class="field meeting-field-participant meeting-field-counterparty-person"><label for="meeting-counterparty">面談相手（氏名・役職）</label><input id="meeting-counterparty" maxlength="500"></div>
             <div class="field meeting-field-participant meeting-field-internal-participants"><label for="meeting-internalParticipants">当社側</label><input id="meeting-internalParticipants" maxlength="500"></div>
-            <div class="meeting-field-submit"><button id="meeting-submit" class="action primary" type="submit" disabled>登録</button><span class="hint">成功後も日付・Asset Class・Fund / Strategyは保持されます。</span></div>
+            <div class="meeting-field-submit"><button id="meeting-submit" class="action primary" type="submit" disabled>登録</button></div>
             <div id="attachment-section" class="meeting-field-attachment"><div id="meeting-file-home"></div></div>
+            <div id="meeting-file-actions-home" class="meeting-field-attachment-actions"></div>
             <div class="field full meeting-field-notes"><label for="meeting-notes">面談内容</label><textarea id="meeting-notes" maxlength="20000" placeholder="自由に記載してください。改行は保存されます。"></textarea><div class="hint">本文はGoogle Docsだけに保存し、Indexや監査ログへ全文を複製しません。</div></div>
           </div>
           <div id="meeting-retry-note" class="retry-note">前回の途中失敗から、同じMeeting IDで再試行します。入力変更時は解除されます。</div>
         </form>
-        <div id="meeting-status" class="status" role="status" aria-live="polite"></div>
       </div>
     </section>
 
@@ -199,13 +198,13 @@
           </div>
     </div>
     <section id="meeting-file-panel" class="attachment-panel">
-      <h3>資料を添付（任意）</h3><p id="pitchbook-parent-label" class="hint">記録保存 → ファイル保存 → 関連付けの順に処理します。</p>
+      <h3>資料を添付（任意）</h3><p id="pitchbook-parent-label" class="hint"></p>
       <div class="attachment-workspace"><div class="attachment-drop-column"><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="添付資料を選択">ファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div>
-      <input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"></div>
-      <div class="attachment-action-column"><button id="pitchbook-clear" class="action secondary" type="button">選択をクリア</button><button id="pitchbook-retry" class="action warning" type="button" disabled>未完了分を再試行</button><button id="pitchbook-submit" class="action primary" type="button" hidden disabled>この記録へ資料を追加</button></div></div>
+      <input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"></div></div>
       <div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div>
       <div id="pitchbook-status" class="status" role="status" aria-live="polite"></div>
     </section>
+    <div id="meeting-file-actions" class="attachment-action-column"><button id="pitchbook-clear" class="action secondary" type="button">資料選択をクリア</button><button id="pitchbook-retry" class="action warning" type="button" disabled>未完了分を再試行</button><button id="pitchbook-submit" class="action primary" type="button" hidden disabled>この記録へ資料を追加</button></div>
 
     <?!= include_('MaintenancePages'); ?>
     <?!= include_('EntityWorkspacePage'); ?>

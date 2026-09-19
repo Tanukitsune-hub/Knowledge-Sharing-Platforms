@@ -33,11 +33,12 @@ test('Meeting create uses a compact left-aligned bounded grid with expanded prim
   assert.match(index, /class="field full meeting-field-notes"[\s\S]*?id="meeting-notes"/);
 });
 
-test('draft clear control leads its hint and remains a large left-aligned action', () => {
-  const actions = index.match(/<div id="meeting-entry-actions"[\s\S]*?<\/div>/)?.[0] || '';
-  assert.ok(actions.indexOf('id="meeting-clear"') < actions.indexOf('id="meeting-entry-hint"'));
-  assert.match(styles, /\.record-entry-actions\{[^}]*justify-content:flex-start/);
-  assert.match(styles, /\.record-entry-actions \.action\{[^}]*min-height:42px/);
+test('draft clear control follows the heading and precedes the compact status', () => {
+  const actions = index.match(/<div id="meeting-entry-actions" class="meeting-entry-header">[\s\S]*?<\/div>/)?.[0] || '';
+  assert.ok(actions.indexOf('<h2>記録を追加<\/h2>') < actions.indexOf('id="meeting-clear"'));
+  assert.ok(actions.indexOf('id="meeting-clear"') < actions.indexOf('id="meeting-status"'));
+  assert.match(styles, /\.meeting-entry-header\{[^}]*justify-content:flex-start/);
+  assert.match(styles, /\.meeting-entry-header \.action\{[^}]*min-height:38px/);
 });
 
 test('Past Meetings preserves the Fund Strategy contract while Work 0037 hides the filter', () => {
