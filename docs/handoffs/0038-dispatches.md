@@ -59,3 +59,13 @@ STATUS: READY
 - Move clear/retry buttons directly below drop zone; remove right-side action-column layout.
 
 Same `0038-CODEX-01` continues. No new Dispatch.
+## Latest user refinement — authoritative override (2)
+
+- Participant fields: col1/span7.
+- Attachment block: col8/span5, row3/span2.
+- Register: row5 left.
+- Clear/Retry: row5 right, same row as Register, outside attachment block.
+- Attachment drop zone uses full narrowed block width.
+- Prior instruction `buttons directly below drop zone inside attachment` is SUPERSEDED.
+
+Same `0038-CODEX-01` continues. No new Dispatch.
