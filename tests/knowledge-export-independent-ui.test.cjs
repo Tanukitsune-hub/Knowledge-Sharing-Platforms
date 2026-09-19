@@ -42,9 +42,10 @@ function harness() {
   return {context, nodes, calls, setResponse: value => {response = value}};
 }
 
-test('production layout has accepted row order and a dedicated non-submit Full Output action', () => {
-  const order = ['knowledge-entityKey', 'knowledge-sourceType', 'knowledge-dateFrom', 'knowledge-dateTo',
-    'knowledge-all-period', 'knowledge-mode', 'knowledge-model-profile', 'knowledge-instruction'];
+test('production layout has the Work 0037 row order and a dedicated non-submit Full Output action', () => {
+  const order = ['knowledge-dateFrom', 'knowledge-dateTo', 'knowledge-all-period', 'knowledge-entityKey',
+    'knowledge-assetClassId', 'knowledge-teamId', 'knowledge-sourceType', 'knowledge-mode',
+    'knowledge-full-output', 'knowledge-model-profile', 'knowledge-instruction'];
   let previous = -1;
   for (const id of order) {const position = page.indexOf('id="' + id + '"');assert.ok(position > previous, id);previous = position}
   assert.match(page, /id="knowledge-full-output"[^>]*type="button">全文出力/);

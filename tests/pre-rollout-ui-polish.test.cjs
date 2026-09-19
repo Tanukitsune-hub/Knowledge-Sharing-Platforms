@@ -48,9 +48,9 @@ test('Tokyo default period is shared and preserves the Feb 29 anniversary rule',
     ['knowledge-dateFrom', 'knowledge-dateTo'],
     ['meeting-past-dateFrom', 'meeting-past-dateTo'],
     ['pitchbook-past-dateFrom', 'pitchbook-past-dateTo'],
-    ['activity-date-from', 'activity-date-to'],
     ['relationship-date-from', 'relationship-date-to']
   ]) assert.ok(combined.includes(`kspSetDefaultDateRange('${pair[0]}','${pair[1]}')`), pair.join(' / '));
+  assert.ok(combined.includes("kspSetOneYearDateRange('activity-date-from','activity-date-to')"));
 });
 
 test('all date controls retain native date type and supported pickers open safely once per interaction', () => {
@@ -107,5 +107,5 @@ test('user-facing forms use coherent bounded field widths and keep long fields f
   assert.match(styles, /record-entry-actions/);
   const knowledge = source('KnowledgeSearchPage.html');
   assert.match(knowledge, /grid-template-columns:repeat\(12,minmax\(0,1fr\)\)/);
-  assert.match(knowledge, /knowledge-counterparty-field\{grid-column:1\/span 4\}/);
+  assert.match(knowledge, /knowledge-counterparty-field\{grid-column:1\/span 6\}/);
 });

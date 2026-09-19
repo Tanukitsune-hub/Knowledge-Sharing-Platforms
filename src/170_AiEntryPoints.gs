@@ -19,10 +19,6 @@ function getAiProviderAdminData(input) {
   return kspGetAiProviderAdminData_(kspCreateProviderNeutralAiEnvironment_(), input || {});
 }
 
-function manageAiProviderAdminSession(input) {
-  return kspManageSharedAdminSession_(kspCreateProviderNeutralAiEnvironment_(), input || {});
-}
-
 function mutateAiProviderSettings(input) {
   return kspMutateAiProviderSettings_(kspCreateProviderNeutralAiEnvironment_(), input || {});
 }

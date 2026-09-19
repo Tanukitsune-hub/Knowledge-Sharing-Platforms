@@ -40,8 +40,8 @@ test('draft clear control leads its hint and remains a large left-aligned action
   assert.match(styles, /\.record-entry-actions \.action\{[^}]*min-height:42px/);
 });
 
-test('Past Meetings keeps the widened Fund Strategy field and a one-column mobile fallback', () => {
-  assert.match(maintenance, /class="field meeting-past-fund-field"[\s\S]*?id="meeting-past-fundStrategy"/);
-  assert.match(styles, /\.meeting-past-fund-field\{grid-column:1\/span 6;grid-row:2\}/);
+test('Past Meetings preserves the Fund Strategy contract while Work 0037 hides the filter', () => {
+  assert.match(maintenance, /<input id="meeting-past-fundStrategy" type="hidden" value="">/);
+  assert.doesNotMatch(maintenance, /class="field meeting-past-fund-field"/);
   assert.match(styles, /\.meeting-past-filter-grid>\.field\{grid-column:1;grid-row:auto;width:100%\}/);
 });

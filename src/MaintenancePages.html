@@ -2,18 +2,19 @@
   <div class="card">
     <div class="section-heading"><div><h2>過去の記録</h2><p class="hint">記録の詳細から原本・関連資料・編集を開けます。</p></div></div>
     <div class="filter-grid meeting-past-filter-grid">
-      <div class="field meeting-past-date-from-field"><label for="meeting-past-dateFrom">Date From</label><input id="meeting-past-dateFrom" type="date"></div>
-      <div class="field meeting-past-date-to-field"><label for="meeting-past-dateTo">Date To</label><input id="meeting-past-dateTo" type="date"></div>
+      <div class="meeting-past-period-label">対象期間</div>
+      <div class="field meeting-past-date-from-field"><label for="meeting-past-dateFrom">開始日</label><input id="meeting-past-dateFrom" type="date"></div>
+      <div class="field meeting-past-date-to-field"><label for="meeting-past-dateTo">終了日</label><input id="meeting-past-dateTo" type="date"></div>
       <div class="field meeting-past-counterparty-field"><label for="meeting-past-counterpartyId">面談先</label><select id="meeting-past-counterpartyId"><option value="">未選択</option></select></div>
       <div class="field meeting-past-asset-field"><label for="meeting-past-assetClassId">Asset Class</label><select id="meeting-past-assetClassId"><option value="">未選択</option></select></div>
       <div class="field meeting-past-team-field"><label for="meeting-past-teamId">Team</label><select id="meeting-past-teamId"><option value="">未選択</option></select></div>
-      <div class="field meeting-past-fund-field"><label for="meeting-past-fundStrategy">Fund / Strategy</label><input id="meeting-past-fundStrategy" maxlength="500"></div>
+      <input id="meeting-past-fundStrategy" type="hidden" value="">
       <div class="field meeting-past-types-field"><span class="field-label">Meeting Type</span><div class="checkbox-row"><label><input type="checkbox" data-meeting-type-filter="meeting-past" value="ANNUAL_REVIEW"> 定例年1回</label><label><input type="checkbox" data-meeting-type-filter="meeting-past" value="OFFICE_VISIT"> 先方オフィス訪問</label><label><input type="checkbox" data-meeting-type-filter="meeting-past" value="ANNUAL_GENERAL_MEETING"> 年次総会</label></div></div>
-      <div class="field meeting-past-status-field"><label for="meeting-past-filterStatus">Status</label><select id="meeting-past-filterStatus"><option value="">未選択</option><option>Active</option><option>Inactive</option></select></div>
+      <input id="meeting-past-filterStatus" type="hidden" value="Active">
       <div class="field maintenance-backend-filter" hidden aria-hidden="true"><label for="meeting-past-capitalTypeId">Equity / Debt</label><select id="meeting-past-capitalTypeId"><option value="">未選択</option></select></div>
       <div class="field maintenance-backend-filter" hidden aria-hidden="true"><label><input id="meeting-past-followUpOnly" type="checkbox"> 要フォローのみ</label></div>
     </div>
-    <div class="actions"><span class="hint">最大100件を新しい順で表示します。</span><button id="meeting-past-search" class="action primary" type="button">検索</button></div>
+    <div class="actions meeting-past-actions"><div class="action-group"><button id="meeting-past-search" class="action primary" type="button">検索</button><button id="meeting-past-clear" class="action secondary" type="button">条件クリア</button></div><span class="hint">Activeの記録を最大100件、新しい順で表示します。</span></div>
     <div id="meeting-past-status" class="status" role="status" aria-live="polite"></div>
     <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>面談先</th><th>Asset Class</th><th>Status</th><th>Version</th><th>操作</th></tr></thead><tbody id="meeting-past-results"></tbody></table></div>
   </div>
@@ -91,14 +92,20 @@
 <section id="page-masters" class="page">
   <div class="card">
     <div class="section-heading"><div><h2>マスター管理</h2><p class="hint">物理削除は行わず、Inactive / Reactivateで管理します。</p></div><button id="masters-refresh" class="small-button" type="button">再読込</button></div>
+    <div class="master-tabs" role="tablist" aria-label="マスター種別">
+      <button class="master-tab active" type="button" role="tab" aria-selected="true" data-master-tab="COUNTERPARTY">面談先</button>
+      <button class="master-tab" type="button" role="tab" aria-selected="false" data-master-tab="ASSET_CLASS">Asset Class</button>
+      <button class="master-tab" type="button" role="tab" aria-selected="false" data-master-tab="LOCATION">面談場所</button>
+      <button class="master-tab" type="button" role="tab" aria-selected="false" data-master-tab="TEAM">Team</button>
+    </div>
     <div class="master-layout">
-      <section><h3>面談先マスター</h3>
+      <section id="counterparty-master-panel" class="master-panel"><h3>面談先マスター</h3>
         <button id="masters-add-counterparty" class="action primary compact-master-action" type="button">新規面談先を追加</button>
         <div class="table-wrap"><table class="data-table"><thead><tr><th>面談先種別</th><th>面談先</th><th>Status</th><th>操作</th></tr></thead><tbody id="counterparty-master-results"></tbody></table></div>
       </section>
-      <section><h3>Option Master</h3>
-        <form id="option-add-form" class="inline-form"><select id="option-add-type"><option value="ASSET_CLASS">Asset Class</option><option value="LOCATION">面談場所</option><option value="TEAM">Team</option></select><input id="option-add-name" maxlength="200" placeholder="選択肢名"><button class="action primary" type="submit">追加</button></form>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>Type</th><th>名称</th><th>順序</th><th>Status</th><th>操作</th></tr></thead><tbody id="option-master-results"></tbody></table></div>
+      <section id="option-master-panel" class="master-panel" hidden><h3 id="option-master-heading">Asset Class</h3>
+        <form id="option-add-form" class="inline-form"><input id="option-add-name" maxlength="200" placeholder="選択肢名"><button class="action primary" type="submit">追加</button></form>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>名称</th><th>順序</th><th>Status</th><th>操作</th></tr></thead><tbody id="option-master-results"></tbody></table></div>
       </section>
     </div>
     <div id="masters-status" class="status" role="status" aria-live="polite"></div>
