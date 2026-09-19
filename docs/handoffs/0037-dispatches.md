@@ -33,3 +33,12 @@ WORK_ID: 0037
 DISPATCH_ID: N/A
 BALL: USER
 STATUS: PREPARING
+## Intake update
+
+`ナレッジ検索`の修正要件を追加済み。
+
+現在の収集済みscreen:
+- 過去の記録
+- ナレッジ検索
+
+Codex Dispatchはまだ発行しない。
