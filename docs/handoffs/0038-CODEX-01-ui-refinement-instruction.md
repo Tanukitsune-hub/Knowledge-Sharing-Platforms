@@ -43,21 +43,22 @@ Do not change mode values or semantics.
 ### Row 3 exact desktop order
 
 Use source/DOM order and visual order:
-`AI検索モード → AIモデル → intentional gap → 非AI出力`
+`AI検索モード → AIモデル → 非AI出力`
 
 12-column target:
 - AI検索モード: columns 1-3
 - AIモデル: columns 4-6
-- column 7: intentionally blank / visual separation
-- 非AI出力: columns 8-9
+- 非AI出力: columns 7-8
 
-Do not send non-AI output to far right edge. It should remain visually near the AI controls but clearly separated from them.
+`AIモデル` must sit immediately beside `AI検索モード`; do not leave an intentional blank column between them.
+
+`非AI出力` must align horizontally with the `Asset Class` field one row above. In the accepted version13 Knowledge filter row, Asset Class starts at column7, so non-AI output also starts at column7. This supersedes the prior column8 target.
 
 Keep visible non-AI presentation:
 - field label `非AI出力`
 - button `全文出力`
 
-Do not rename `全文出力` unless required by existing exact source contract.
+Do not rename `全文出力`.
 
 On mobile <=720px stack in the same semantic order:
 1. AI検索モード
@@ -82,43 +83,44 @@ Re-layout desktop as:
 left columns 1-6                    right columns 7-12
 Row 3: 面談相手                     資料を添付（任意）
 Row 4: 当社側                       資料を添付（任意）
-Row 5: 登録                         資料を添付（任意）
+Row 5: 登録
 Row 6: 面談内容 full width
 ```
 
 Concrete grid intent:
 - `.meeting-field-counterparty-person`: col1/span6 row3
 - `.meeting-field-internal-participants`: col1/span6 row4
-- `.meeting-field-submit`: col1/span3 (or fit-content inside left half) row5
-- `#attachment-section`: col7/span6; grid-row:3/span3
+- `.meeting-field-submit`: col1/span3 (or compact inside left half) row5
+- `#attachment-section`: col7/span6; grid-row:3/span2
 - `.meeting-field-notes`: col1/span12 row6
 
 `登録` must be immediately below the 当社側 input, left aligned and compact.
 
-Do not place Register to the right of 当社側 anymore.
+Attachment block height must visually equal the combined height of the left-side 面談相手 + 当社側 fields. It must end with row4 and must NOT extend into the Register row5.
 
 ### Attachment block
 
-`資料を添付（任意）` must occupy the right side of the participant region with enough vertical space.
+Remove the user-facing help text exactly represented by:
+`記録保存 → ファイル保存 → 関連付けの順に処理します。`
 
-Version13 inner workspace was roughly 83/17. Make the drop area narrower.
+Do not leave an empty spacer in its place.
 
-Target inner split:
-- drop area approximately 70%
-- action column approximately 30%
+Make the drop zone vertically shorter than version13.
 
-Use a safe minimum action-column width so these labels do not clip:
+Place action buttons immediately BELOW the drop zone, not to its right.
+
+Desktop attachment internal structure:
+1. heading `資料を添付（任意）`
+2. compact drop zone
+3. compact action row directly below drop zone
+
+Action row:
 - `資料選択をクリア`
 - `未完了分を再試行`
 
-Actions remain vertically stacked, clear first then retry.
+Prefer horizontal side-by-side buttons on desktop with a normal gap. If width becomes unsafe, allow wrapping without clipping. Do not create a dedicated right-side action column.
 
-Rename button exact text:
-`選択をクリア` -> `資料選択をクリア`
-
-Do not change clear behavior.
-
-Attachment panel should stretch vertically across rows 3-5 and visually align with the participant/register region. Avoid a cramped short box.
+Preserve file summary/list/status below as needed without making the visible empty-state panel exceed the two-field vertical target. When files/status are actually present, content may naturally expand below; the alignment requirement applies to the normal empty/default state.
 
 ### Mobile
 
@@ -147,13 +149,17 @@ Attachment inner workspace may become one column on mobile.
 Add/update tests for at least:
 - exact `AI検索モード` label
 - Knowledge Row3 DOM order = mode / model / full output
-- desktop columns 1-3 / 4-6 / gap7 / output8-9
+- desktop columns 1-3 / 4-6 / output7-8
+- non-AI output horizontal start matches Asset Class start
 - mobile stack order
 - non-AI Full Output provider-independent behavior preserved
 - Meeting participant/register/attachment grid coordinates
-- attachment row span / vertical sizing contract
-- inner attachment split materially narrower than version13 (~70/30)
+- attachment grid-row = 3/span2, not spanning Register row
+- default attachment block visual height contract matches the two participant fields
+- attachment help text removed
+- drop zone vertical size reduced from version13
 - exact `資料選択をクリア` text
+- clear/retry buttons below drop zone, no right action column
 - existing clear/retry behavior unchanged
 - mobile stack
 - Work0037 Masters state repair regression
@@ -184,11 +190,11 @@ Then shortest mutation path:
 Actual browser checks:
 1. Knowledge Search 2560 / 1440 / 1280 / 390
 2. exact `AI検索モード` label
-3. desktop Row3 mode -> model -> gap -> non-AI output
+3. desktop Row3 mode -> model immediately adjacent -> non-AI output aligned with Asset Class
 4. non-AI Full Output works without provider call
-5. Meeting-create participant/register/attachment geometry at 2560 / 1440 / 1280
+5. Meeting-create participant/register/attachment geometry at 2560 / 1440 / 1280, including attachment height matching participant+internal fields
 6. mobile safe stack at 390
-7. exact `資料選択をクリア` label
+7. attachment help text absent; exact `資料選択をクリア` label; clear/retry directly under drop zone
 8. file clear/retry controls remain operable
 9. Register button remains operable/validated
 10. all 7 nav pages remain nonblank
@@ -232,3 +238,64 @@ STATUS: RETURNED
 ```
 
 Ordinary CSS/HTML/JS/test defects are owned and repaired autonomously. Maximum 2 coherent repair/runtime cycles.
+## Latest authoritative override — 2026-09-20 (2)
+
+This section supersedes any earlier instruction that placed clear/retry directly below the drop zone inside the attachment block.
+
+### Final Meeting-create desktop geometry
+
+Use the 12-column grid as:
+
+```text
+left columns 1-7                         right columns 8-12
+Row 3: 面談相手                           資料を添付（任意）
+Row 4: 当社側                             資料を添付（任意）
+Row 5: 登録                               資料選択をクリア / 未完了分を再試行
+Row 6: 面談内容 full width
+```
+
+Exact intent:
+- `.meeting-field-counterparty-person`: col1/span7 row3
+- `.meeting-field-internal-participants`: col1/span7 row4
+- `.meeting-field-submit`: col1/span3 (or compact fit-content within the left region) row5
+- `#attachment-section`: col8/span5; grid-row:3/span2
+- attachment actions: row5, col8/span5, outside `#attachment-section` visual box
+- `.meeting-field-notes`: col1/span12 row6
+
+Do not keep the participant fields at span6. The freed width from the old attachment action area belongs to 面談相手 / 当社側.
+
+### Attachment block
+
+- Narrow the overall attachment block to 5/12 columns.
+- Drop zone should use the full available width of the attachment block; there is no internal side action column.
+- Keep the drop zone slightly shorter vertically than version13.
+- Normal empty/default attachment panel height should match exactly the combined visual height of the two left-side fields (面談相手 + 当社側), excluding row5.
+- Keep the processing-order help text removed.
+
+### Attachment actions
+
+Move these controls OUTSIDE the attachment block and onto the same row as Register:
+- `資料選択をクリア`
+- `未完了分を再試行`
+
+Place them in the right-side row5 area under the attachment block. Prefer left-aligned within col8/span5 with a normal gap. Side-by-side is preferred when labels fit; safe wrap is allowed at narrower desktop widths.
+
+Do not place these controls inside or directly below the drop zone within the attachment panel.
+
+### Mobile
+
+At <=720px safe stack the controls without overflow. Preserve logical grouping and exact labels; desktop grid positions do not need to persist.
+
+### Focused test updates
+
+Replace prior attachment-action expectations with:
+- participant fields span7
+- attachment starts col8/span5
+- attachment row3/span2
+- register row5 left
+- clear/retry row5 right, outside attachment visual block
+- no attachment-internal action column / action row
+- drop zone occupies attachment width
+- default attachment height matches participant+internal combined height
+- exact `資料選択をクリア` text
+- behavior of clear/retry unchanged

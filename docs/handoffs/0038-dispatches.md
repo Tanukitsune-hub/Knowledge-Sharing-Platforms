@@ -3,10 +3,10 @@
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-01
 ACTIVE_DISPATCH_ID: 0038-CODEX-01
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: FINAL REVIEW
+PHASE: IMPLEMENTATION / TARGET RUNTIME QUALIFICATION
 
 ## Primary Outcome
 
@@ -46,13 +46,26 @@ WORK_0038_COMPLETE: NO
 COMPLETION_LATCH: NOT_APPLIED
 ```
 
-## Dispatch result
-
-| Dispatch | Result |
-|---|---|
-| 0038-CODEX-01 | frozen 2-screen refinement、logic/bundle validation、same deployment version14 actual runtime qualificationをPASS。Draft PRで返却。 |
-
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-01
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: CODEX
+STATUS: READY
+## Latest user refinement — authoritative override
+
+- Knowledge: AI model immediately beside AI mode; non-AI output start7 aligned with Asset Class.
+- Meeting: attachment col7/span6 row3/span2; same default height as 面談相手+当社側 combined.
+- Remove attachment processing-order help text.
+- Shorten drop zone height.
+- Move clear/retry buttons directly below drop zone; remove right-side action-column layout.
+
+Same `0038-CODEX-01` continues. No new Dispatch.
+## Latest user refinement — authoritative override (2)
+
+- Participant fields: col1/span7.
+- Attachment block: col8/span5, row3/span2.
+- Register: row5 left.
+- Clear/Retry: row5 right, same row as Register, outside attachment block.
+- Attachment drop zone uses full narrowed block width.
+- Prior instruction `buttons directly below drop zone inside attachment` is SUPERSEDED.
+
+Same `0038-CODEX-01` continues. No new Dispatch.

@@ -80,13 +80,16 @@ Requirements frozen. Active implementation dispatch: `0038-CODEX-01`.
 ### Knowledge Search Row 3
 
 Desktop canonical order:
-`AI検索モード → AIモデル → 1-column程度のvisual gap → 非AI出力`
+`AI検索モード → AIモデル → 非AI出力`
 
-Suggested 12-column placement:
+12-column placement:
 - AI検索モード: start1 span3
 - AIモデル: start4 span3
-- column7: intentional blank
-- 非AI出力: start8 span2
+- 非AI出力: start7 span2
+
+`AIモデル`は`AI検索モード`のすぐ横に配置し、間にintentional blank columnを置かない。
+
+`非AI出力`は一段上の`Asset Class`と同じhorizontal start位置に揃える。Work0037/version13のAsset Classはstart7なので、non-AI outputもstart7とする。前案start8より1 column左へ移動。
 
 HTML/source orderも`AI検索モード → AIモデル → 非AI出力`に揃え、mobile stackでも同じ順序を維持する。
 
@@ -95,12 +98,56 @@ HTML/source orderも`AI検索モード → AIモデル → 非AI出力`に揃え
 Desktop canonical placement:
 - 面談相手: start1 span6, row3
 - 当社側: start1 span6, row4
-- 登録: start1 span3程度, row5（当社側の直下）
-- 資料を添付（任意）: start7 span6, row3からrow5を縦にspan
-- 面談内容: full width, attachment regionの次row
+- 登録: start1 span3程度, row5（当社側のすぐ下）
+- 資料を添付（任意）: start7 span6, row3からrow4の2行分のみ
+- 面談内容: full width, row6
 
-Attachment internal workspace:
-- drop area: 約70%
-- action column: 約30%（最低幅を確保）
-- actions: `資料選択をクリア` → `未完了分を再試行`の順に縦配置
-- mobile <=720px: participants → register → attachment → notesへsafe stack
+Attachment vertical sizing:
+- attachment関連エリア全体の縦の長さは、左側の`面談相手` + `当社側`の2 field分の合計高さと揃える。
+- attachment blockはrow3/span2で完結させ、登録buttonのrow5までは伸ばさない。
+- 左右の上端・下端が視覚的に揃うことを優先する。
+
+Attachment content:
+- `資料を添付（任意）`直下にあった`記録保存 → ファイル保存 → 関連付けの順に処理します。`help textは削除する。
+- drop areaはversion13より縦方向を縮小する。
+- `資料選択をクリア`と`未完了分を再試行`はdrop areaのすぐ下に配置する。
+- buttonsはdrop area下のcompact action rowに置く。desktopでは横並びを基本とし、labelが切れる場合のみ安全にwrap可能。
+- action buttonsをdrop area右横の専用columnへ置かない。
+- `資料選択をクリア`labelは維持する。
+
+Mobile:
+- <=720px: 面談相手 → 当社側 → 登録 → 資料を添付 → 面談内容の順でsafe stack。
+- attachment内はdrop area → action buttonsの順。
+
+### Preserve
+
+- file drop / click selection / retry / clear semanticsは維持。
+- notes height、Counterparty modal、Equity/Debt policy、Meeting Type behaviorは変更しない。
+
+## Latest superseding decision
+
+2026-09-20 user refinement:
+- Knowledge non-AI output start8案はSUPERSEDED。start7へ移動しAsset Classとhorizontal alignment。
+- Attachment row3/span3 + side action column案はSUPERSEDED。row3/span2でparticipants 2行と同高にし、buttonsはdrop area直下へ。
+- attachment help textは削除。
+## Latest superseding decision — 2026-09-20 (2)
+
+Previous `clear/retry immediately below drop zone` geometry is SUPERSEDED.
+
+Final desktop geometry:
+- left participant area is widened from 6/12 to 7/12.
+- right attachment area is narrowed from 6/12 to 5/12.
+- 面談相手: start1 span7, row3.
+- 当社側: start1 span7, row4.
+- attachment block: start8 span5, row3/span2.
+- 登録: row5 left, compact.
+- `資料選択をクリア` and `未完了分を再試行` move OUTSIDE the attachment block and are placed on row5, same horizontal band as the Register button, aligned under the attachment area.
+- drop zone uses essentially the full width of the narrower attachment block; no internal action column and no action row inside the attachment panel.
+- attachment default vertical height still equals the combined height of 面談相手 + 当社側 only (row3/span2).
+- attachment help text remains removed.
+- drop zone remains slightly shorter vertically than version13.
+- mobile safe stack may place register, then clear/retry, then attachment or attachment then actions as long as semantic grouping is clear and no horizontal overflow; desktop geometry above is canonical.
+
+Rationale:
+- width previously consumed by attachment actions is reallocated to participant fields.
+- the attachment panel itself becomes narrower, while the drop zone gains usable internal width because the action controls no longer share its box.

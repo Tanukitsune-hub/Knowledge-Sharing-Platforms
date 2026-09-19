@@ -73,3 +73,18 @@ Maximum 2 coherent repair/runtime cycles.
 ### Completion
 
 After actual UI evidence + tests pass, ChatGPT reviews PR and applies Completion Latch.
+## Latest frozen refinement — 2026-09-20
+
+- Knowledge Row3: AI mode col1-3, AI model col4-6, non-AI output col7-8. Non-AI output aligns with Asset Class start7.
+- Meeting attachment: right half row3/span2 only, height aligned to 面談相手+当社側; Register remains row5 left.
+- Remove attachment help text `記録保存 → ファイル保存 → 関連付けの順に処理します。`.
+- Shorten drop zone vertically.
+- Move `資料選択をクリア` / `未完了分を再試行` directly below drop zone; no right-side action column.
+## Latest geometry override — 2026-09-20 (2)
+
+- Meeting participant region widens to 7/12.
+- Attachment region narrows to 5/12 and remains row3/span2.
+- Register sits row5 left.
+- Clear/Retry sit row5 right, outside attachment block.
+- Drop zone uses full attachment width.
+- Attachment help remains removed; vertical size remains equal to two participant fields.
