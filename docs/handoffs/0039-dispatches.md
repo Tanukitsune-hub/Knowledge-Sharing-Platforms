@@ -2,11 +2,11 @@
 
 WORK_ID: 0039
 DISPATCH_ID: 0039-CODEX-01
-ACTIVE_DISPATCH_ID: NONE
-BALL: CHATGPT
-STATUS: PREPARING
+ACTIVE_DISPATCH_ID: 0039-CODEX-01
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: IMPLEMENTATION_CONTRACT_READY / WAITING_FOR_WORK0038_BASELINE
+PHASE: IMPLEMENTATION / TARGET RUNTIME QUALIFICATION
 
 ## Primary Outcome
 
@@ -22,7 +22,10 @@ Restoration direction approved 2026-09-20.
 
 ## Dependency gate
 
-Work0038 PR #60 must be merged/accepted first. Do not run CODEX-01 until ChatGPT changes this dispatch to READY and records exact accepted baseline.
+Dependency closed:
+- Work0038 PR #60 merged: `27fb5ca200cdb4d26f7111555cde33c8c2956892`
+- accepted served baseline: version18
+- Work0038 Completion Latch applied.
 
 ## Closed conclusions
 
@@ -42,3 +45,10 @@ WORK_ID: 0039
 DISPATCH_ID: 0039-CODEX-01
 BALL: CHATGPT
 STATUS: PREPARING
+## Accepted implementation baseline
+
+```text
+APPLICATION_BASELINE_MERGE: 27fb5ca200cdb4d26f7111555cde33c8c2956892
+SERVED_BASELINE_VERSION: 18
+WORK_0038: ACCEPTED
+```
