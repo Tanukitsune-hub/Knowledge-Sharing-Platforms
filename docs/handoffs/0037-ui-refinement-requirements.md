@@ -117,3 +117,38 @@ WORK_0030: DEFERRED_BY_USER
 - date controlsやcheckboxは過度に横へ伸ばさず、左詰めで短い視線移動にする。
 - selector/inputのheightは他画面と同じ約37px。
 - 1440/1280でも同じrow構造を維持し、<=720pxは安全にstackする。
+## Screen: 面談実績の集計
+
+### Top filter area
+
+- 1段目のcontrol間に空きすぎる余白があるため、全体を左へ詰めてcompactに配置する。
+- `集計`buttonも右端ではなく左寄せにする。
+- controlsは必要以上に横へ引き伸ばさず、Work0036の12-column / 14px gap languageを維持しつつ短い視線移動にする。
+
+### Label
+
+- 現在の`期間`labelを`期間粒度`へ変更する。
+
+### Target period default
+
+- `開始日`の初期値は、`終了日`の初期値から1 calendar year前の同月同日とする。
+- 例: 終了日が`2026/09/19`なら開始日は`2025/09/19`。
+- leap day等で同日が存在しない場合は、その月の最終有効日へsafe clampする。
+- ユーザーが明示的に日付を変更した後は、その入力を勝手に再計算しない。
+
+### Result section ordering
+
+現在の表示順を変更し、上から以下の順にする。
+
+1. `選択した内訳`
+2. `該当Meeting`
+3. `集計サマリー`
+
+- `集計サマリー`は最下段へ移動する。
+- section内部のchart/table/content contractは原則維持し、まずは表示順だけを変更する。
+
+### Compatibility intent
+
+- 集計ロジック・period aggregation semantics・backend service contractは変更しない。
+- label / default date / layout / section orderのUI refinementとして扱う。
+- existing owner-only analytics behaviorを維持する。
