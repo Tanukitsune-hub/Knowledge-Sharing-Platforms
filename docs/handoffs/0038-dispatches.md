@@ -1,34 +1,52 @@
 # Work 0038 dispatch control
 
 WORK_ID: 0038
-DISPATCH_ID: N/A
-ACTIVE_DISPATCH_ID: NONE
-BALL: USER
-STATUS: PREPARING
+DISPATCH_ID: 0038-CODEX-01
+ACTIVE_DISPATCH_ID: 0038-CODEX-01
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
+PHASE: IMPLEMENTATION / TARGET RUNTIME QUALIFICATION
 
-## Outcome
+## Primary Outcome
 
-Work0037/version13を基準に、Knowledge SearchとMeeting-createの追加UI refinementを収束する。
+Work0037/version13をbaselineに、Knowledge Search Row3とMeeting-create participant/register/attachment regionをfrozen requirementsどおり収束する。
 
-## Closed layout decision
+## Authoritative sources
 
-Knowledge Search Row 3は次で確定:
-`AI検索モード → AIモデル → 少し間を空けて → 非AI出力`
+- `docs/handoffs/0038-ui-refinement-requirements.md`
+- `docs/planning/work0038-ui-refinement.md`
+- `docs/handoffs/0038-CODEX-01-ui-refinement-instruction.md`
 
-要件上の曖昧点は解消済み。ただしユーザーから実装開始指示が出るまではCodex Dispatchを発行しない。
+## Closed decisions
 
-## Authoritative intake
+- Knowledge Row3: `AI検索モード → AIモデル → gap → 非AI出力`
+- Meeting: left participant/internal/register; right attachment; notes below
+- attachment clear label: `資料選択をクリア`
 
-`docs/handoffs/0038-ui-refinement-requirements.md`
+## Safety
 
 ```text
-NEXT_UNUSED_DISPATCH: 0038-CODEX-01
+NEW_TARGET: 0
+SECOND_DEPLOYMENT: 0
+PERMISSION_BROADENING: 0
+PUBLIC_EXPOSURE: 0
+SCHEMA_CHANGE: 0
+MIGRATION_CHANGE: 0
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED / UNCHANGED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+```text
+NEXT_UNUSED_DISPATCH: 0038-CODEX-02
 WORK_0038_COMPLETE: NO
+COMPLETION_LATCH: NOT_APPLIED
 ```
 
 WORK_ID: 0038
-DISPATCH_ID: N/A
-BALL: USER
-STATUS: PREPARING
+DISPATCH_ID: 0038-CODEX-01
+BALL: CODEX
+STATUS: READY
