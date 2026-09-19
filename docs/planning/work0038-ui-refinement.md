@@ -88,3 +88,10 @@ After actual UI evidence + tests pass, ChatGPT reviews PR and applies Completion
 - Clear/Retry sit row5 right, outside attachment block.
 - Drop zone uses full attachment width.
 - Attachment help remains removed; vertical size remains equal to two participant fields.
+## CODEX-02 additive refinement
+
+- Meeting-create top rowへheading / draft clear / compact initial-ready statusを統合。
+- draft explanatory help textを削除。
+- bottom initial-ready full-width statusを廃止し、top rowへ移動。
+- operational validation/success/error status behaviorは維持。
+- PR #60を継続し、新PRは作らない。

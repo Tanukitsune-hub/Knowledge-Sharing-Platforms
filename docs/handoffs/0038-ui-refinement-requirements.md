@@ -151,3 +151,34 @@ Final desktop geometry:
 Rationale:
 - width previously consumed by attachment actions is reallocated to participant fields.
 - the attachment panel itself becomes narrower, while the drop zone gains usable internal width because the action controls no longer share its box.
+## Latest user refinement — Meeting-create header / status
+
+2026-09-20 user instruction. This is additional scope after CODEX-01 RETURNED and is implemented under `0038-CODEX-02`.
+
+### Header row
+
+- `記録を追加` heading、`下書きをクリア`button、initial ready statusを同じ冒頭1段目に配置する。
+- visual order: `記録を追加` → `下書きをクリア` → `面談入力の準備ができました。`
+- `下書きをクリア`はheadingのすぐ右。過度に離さない。
+- `下書きや入力内容を消去して、新しい記録を開始できます。` help textは削除する。
+- 旧`record-entry-actions`のfull-width information barとしては表示しない。
+
+### Initial ready status
+
+- bootstrap success message `面談入力の準備ができました。`をページ最下部から冒頭1段目へ移動する。
+- initial ready statusはcontent幅に応じたcompact inline status。full-widthにしない。
+- heading/clear buttonと同じheader row内に置く。
+
+### Status behavior preservation
+
+- initial ready messageだけtop rowのcompact statusへ表示する。
+- validation error、submit success/error、retry state等の既存`meeting-status` behaviorを失わない。
+- implementationはsingle status nodeをtop rowへ移動して再利用しても、initial-ready専用inline node + operational status nodeを分けてもよい。
+- ただし同じmessageが上下に二重表示されないこと。
+- error/success statusが必要な時は読みやすい幅を確保し、compact化のためにmessageをclipしない。
+
+### Responsive
+
+- desktop: heading + clear + initial statusを1 row。
+- narrow/mobile: safe wrapを許容。順序はheading → clear → status。
+- horizontal overflow 0。
