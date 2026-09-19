@@ -2,11 +2,21 @@
 
 WORK_ID: 0039
 DISPATCH_ID: 0039-CODEX-01
-BALL: CHATGPT
-STATUS: PREPARING
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
 
-IMPORTANT: Do not execute until Work0038 PR #60 is merged and ChatGPT updates this dispatch to READY with the accepted baseline SHA/version.
+## Accepted baseline
+
+Work0038 is accepted and completion-latched.
+
+```text
+APPLICATION_BASELINE_MERGE: 27fb5ca200cdb4d26f7111555cde33c8c2956892
+SERVED_BASELINE_VERSION: 18
+OWNER_ONLY_DEPLOYMENT: preserve
+WORK_0038: ACCEPTED
+WORK_0030: DEFERRED_BY_USER
+```
 
 ## Primary Outcome
 
