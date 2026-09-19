@@ -26,7 +26,8 @@
 
   <div class="card">
     <div class="section-heading"><div><h2>該当Meeting</h2><p id="activity-drill-summary" class="hint"></p></div></div>
-    <div class="table-wrap"><table class="data-table analytics-table"><caption class="sr-only">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>Team / Type</th><th>Status</th><th>月次管理</th></tr></thead><tbody id="activity-drill-results"></tbody></table></div>
+    <div class="table-wrap"><table class="data-table analytics-table activity-drill-table"><caption class="sr-only">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>Team</th><th>Meeting Type</th><th>Status</th><th>原本</th><th>確認済み</th></tr></thead><tbody id="activity-drill-results"></tbody></table></div>
+    <div id="activity-admin-check-status" class="status" role="status" aria-live="polite"></div>
   </div>
 
   <div class="card">
@@ -36,9 +37,4 @@
     <div class="table-wrap"><table class="data-table analytics-table"><caption class="sr-only">Meeting件数の期間別集計</caption><thead><tr><th>期間</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id="activity-series-results"></tbody></table></div>
   </div>
 
-  <div id="activity-admin-check-card" class="card hidden-panel">
-    <div class="section-heading"><div><h2>月次管理反映済み</h2><p class="hint">選択した1か月のMeetingについて、管理反映済み状態だけを更新します。</p></div></div>
-    <div class="table-wrap"><table class="data-table analytics-table"><caption class="sr-only">月次管理反映状態</caption><thead><tr><th>Meeting</th><th>日付</th><th>Counterparty</th><th>状態</th><th>操作</th></tr></thead><tbody id="activity-admin-check-results"></tbody></table></div>
-    <div id="activity-admin-check-status" class="status" role="status" aria-live="polite"></div>
-  </div>
 </section>

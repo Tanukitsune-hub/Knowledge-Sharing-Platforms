@@ -16,9 +16,10 @@ test('Activity Analytics is an integrated page with dependency-free chart and ac
   assert.match(core, /'activity-analytics':document\.getElementById\('page-activity-analytics'\)/);
   assert.match(page, /id="activity-period"/);
   assert.match(page, /id="activity-dimension"/);
-  assert.match(page, /月次管理反映済み/);
+  assert.doesNotMatch(page, /id="activity-admin-check-card"|月次管理反映済み/);
+  assert.match(page, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>Team<\/th><th>Meeting Type<\/th><th>Status<\/th><th>原本<\/th><th>確認済み<\/th>/);
   assert.match(page, /<table class="data-table analytics-table">/);
-  assert.equal((page.match(/<caption class="sr-only">/g) || []).length, 4);
+  assert.equal((page.match(/<caption class="sr-only">/g) || []).length, 3);
   assert.match(client, /serverCall\('getMeetingActivityAnalytics'/);
   assert.match(client, /serverCall\('updateMeetingAdminCheck'/);
   assert.match(client, /<svg class="analytics-svg"/);
@@ -31,6 +32,8 @@ test('Activity Analytics client keeps stale read responses from replacing newer 
   assert.match(client, /data\.drill&&data\.drill\.omittedCount/);
   assert.match(client, /breakdown\.omittedCount/);
   assert.match(client, /data-activity-admin-meeting/);
+  assert.match(client, /activityAnalyticsData\.drill\.records/);
+  assert.doesNotMatch(client, /activityAnalyticsData\.adminChecks/);
 });
 
 test('Activity Analytics filter option keys match the server response contract', () => {

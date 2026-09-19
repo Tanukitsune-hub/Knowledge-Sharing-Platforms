@@ -451,6 +451,7 @@ function kspActivityMapMeeting_(row) {
     assetClassId: String(row.Asset_Class_ID || ''),
     teamId: String(row.Team_ID || ''),
     meetingTypeCodes: meetingTypeCodes,
+    meetingTypeLabels: kspMeetingTypeLabels_(meetingTypeCodes.join(',')),
     followUpRequired: kspToBoolean_(row.Follow_Up_Required, false),
     status: String(row.Status || ''),
     version: Number(row.Version || 0),
