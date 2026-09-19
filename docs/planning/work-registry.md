@@ -20,14 +20,14 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 4 | 0026 | Current Gemini API requalification and fail-closed safety | ACCEPTED | 0023 | Preserve PR #36 historical boundary |
 | 5 | 0027 | Personal-DEV Gemini File Search baseline and citation integrity | ACCEPTED | 0026 | Preserve PR #37 / version-73 qualified-disabled evidence |
 | 6 | 0028 | 単一記録Light UIとproduction contractのend-to-end実装・検証 | ACCEPTED | PR #50 + #51 + #52 | version5でpre-rollout UI/interaction再認定。Completion Latch再適用。次は会社PC移行準備 |
-| 7 | 0029 | Portable shared-password administrator mode | ACCEPTED | Work 0028 preserved | Preserve PR #39 / version-75 evidence |
+| 7 | 0029 | Portable shared-password administrator mode | ACCEPTED (HISTORICAL) | Work 0028 preserved | PR #39 / version75 evidenceを履歴として保持。current productのshared-password behaviorはWork0037で明示的にsupersede |
 | 8 | 0031 | GP中心モデルを廃止しCounterparty Masterへ統合 | ACCEPTED | Work 0028 version5 accepted baseline | PR #53 / schema8 / version7 accepted。Completion Latch済み。次は会社PC移行準備 |
 | 9 | 0032 | 記録追加 / 過去の記録の最終UI polish | ACCEPTED | Work 0031 schema8 / version7 | PR #54 / version8 accepted。Completion Latch済み |
 | 10 | 0033 | UI Layout Lab — drag/resize/presetで配置を決めるlocal sandbox | ACCEPTED | Work 0032 version8 accepted UI baseline | PR #55 / Layout Lab v2 accepted。Meeting-create candidateをproduction反映する次Workへ |
 | 11 | 0034 | Meeting-create production反映・shared sidebar refresh・adjacent UI convergence | ACCEPTED | Work 0033 accepted candidate / Work0032 baseline | PR #56 / version10 accepted。Completion Latch済み。次は他タブを1画面ずつLayout Labで調整 |
 | 12 | 0035 | Multi-screen UI Studio — 全7タブ一括design + fine positioning | SUPERSEDED | Work0034 version10 / Work0033 Layout Lab | User strategy reset 2026-09-19。UI Studio追加開発は停止、Work0036へ |
 | 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | ACCEPTED | Work0034 version10 | PR #58 / version11 accepted。Completion Latch済み |
-| 14 | 0037 | Post-version11 UI refinement — six-screen convergence + admin password gate removal | ACTIVE (BUILD) | Work0036 version11 | CODEX-01 implementation / same owner-only runtime qualification |
+| 14 | 0037 | Post-version11 UI refinement — six-screen convergence + admin password gate removal | ACCEPTED | Work0036 version11 | PR #59 / version13 accepted。Completion Latch済み |
 | 15 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 16 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 17 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -388,18 +388,44 @@ Current ball/status: `docs/handoffs/0036-dispatches.md`
 
 ```text
 WORK_ID: 0037
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: IMPLEMENTATION
-BASELINE: Work0036 version11
-ACTIVE_DISPATCH: 0037-CODEX-01
-BALL: CODEX
-ADMIN_SHARED_PASSWORD_GATE: REMOVE
-OWNER_ONLY_DEPLOYMENT: PRESERVE
+FINAL_SERVED_VERSION: 13
+PR: #59
+MERGE: 6e9fc1d1d6a3578fc101fa2eef5849b62e0cd255
+TARGET_RUNTIME_QUALIFICATION: PASS
+MASTER_TAB_DRAFT_OWNERSHIP: CLOSED
+COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
 ```
 
 Requirements: `docs/handoffs/0037-ui-refinement-requirements.md`
 Plan: `docs/planning/work0037-ui-refinement.md`
 Dispatch: `docs/handoffs/0037-dispatches.md`
-Instruction: `docs/handoffs/0037-CODEX-01-ui-refinement-instruction.md`
+Reports: `docs/handoffs/0037-CODEX-01-ui-refinement-report.md`, `docs/handoffs/0037-CODEX-02-master-tab-state-repair-report.md`
+Completion: `docs/handoffs/0037-completion-report.md`
+## Work 0037 accepted outcome
+
+PR #59 merge: `6e9fc1d1d6a3578fc101fa2eef5849b62e0cd255`
+
+```text
+FINAL_SERVED_VERSION: 13
+NORMAL_NAVIGATION: 7/7 PASS
+VIEWPORTS: 2560 / 1440 / 1280 / 390 PASS
+MASTER_TAB_DRAFT_OWNERSHIP: CLOSED
+LOGIC_VALIDATION: 567/567 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+CONSOLE_MATERIAL_ERROR_WARN: 0
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED / UNCHANGED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+PERMISSION_BROADENING: 0
+PUBLIC_EXPOSURE: 0
+SCHEMA_CHANGE: 0
+MIGRATION_CHANGE: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+Current admin behavior: in-app shared-password gateは撤去済み。security boundaryはsame owner-only authenticated Web App deployment。Work0029はhistorical evidenceとして保持する。
