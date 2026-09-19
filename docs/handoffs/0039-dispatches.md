@@ -1,36 +1,44 @@
 # Work 0039 dispatch control
 
 WORK_ID: 0039
-DISPATCH_ID: N/A
+DISPATCH_ID: 0039-CODEX-01
 ACTIVE_DISPATCH_ID: NONE
-BALL: USER
+BALL: CHATGPT
 STATUS: PREPARING
-MODE: INVESTIGATION
-PHASE: ROOT_CAUSE_COMPLETE / REPAIR_PLAN_READY
+MODE: BUILD
+PHASE: IMPLEMENTATION_CONTRACT_READY / WAITING_FOR_WORK0038_BASELINE
 
-## Outcome
+## Primary Outcome
 
-Monthly admin review capability is present in backend but user-facing workflow regressed. Root cause documented and repair plan prepared.
+`面談実績の集計 > 該当Meeting`へMeeting Type日本語labelとautosave `確認済み` checkboxを復元する。
 
-## Closed Conclusions
+## User decision
 
-- Work0017 backend/admin-check persistence remains intact.
-- Work0028 Light design intended inline checkbox in Meeting list.
-- production Work0028 did not port that Activity Analytics presentation.
-- Work0037 one-year default makes legacy single-month card hidden by default.
-- schema/migration not required.
-- next implementation should restore inline Meeting Type labels + autosaving checkbox in drill list.
+Restoration direction approved 2026-09-20.
 
-## Dependency
+## Prepared instruction
 
-Work0038 PR #60 remains Draft/unmerged. Reconcile Work0038 before Work0039 implementation.
+`docs/handoffs/0039-CODEX-01-monthly-admin-review-restoration-instruction.md`
+
+## Dependency gate
+
+Work0038 PR #60 must be merged/accepted first. Do not run CODEX-01 until ChatGPT changes this dispatch to READY and records exact accepted baseline.
+
+## Closed conclusions
+
+- backend persistence exists
+- schema/migration unnecessary
+- inline checkbox is canonical UI
+- checkbox visible for any analytics range
+- existing optimistic concurrency / Audit reused
+- legacy separate admin-check card removed from normal UI
 
 ```text
-NEXT_UNUSED_DISPATCH: 0039-CODEX-01
+NEXT_UNUSED_DISPATCH: 0039-CODEX-02
 WORK_0039_COMPLETE: NO
 ```
 
 WORK_ID: 0039
-DISPATCH_ID: N/A
-BALL: USER
+DISPATCH_ID: 0039-CODEX-01
+BALL: CHATGPT
 STATUS: PREPARING
