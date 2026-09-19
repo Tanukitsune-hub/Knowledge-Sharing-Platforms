@@ -52,3 +52,14 @@ Codex Dispatchはまだ発行しない。
 - 面談実績の集計
 
 Codex Dispatchはまだ発行しない。
+## Intake update
+
+`プルダウンの管理`の修正要件を追加済み。
+
+現在の収集済みscreen:
+- 過去の記録
+- ナレッジ検索
+- 面談実績の集計
+- プルダウンの管理
+
+Codex Dispatchはまだ発行しない。
