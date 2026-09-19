@@ -145,7 +145,7 @@ el('meeting-detail-lifecycle').onclick=async()=>{
 };
 el('meeting-detail-add-files').onclick=()=>{
   if(pitchbookBusy||meetingDetailBusy||!meetingDetailRecord)return;
-  try{bindPitchbookParent(meetingDetailRecord,true);el('meeting-detail-file-home').appendChild(el('meeting-file-panel'));setPitchbookBusy(false);el('meeting-file-panel').scrollIntoView({behavior:'smooth',block:'start'})}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}
+  try{bindPitchbookParent(meetingDetailRecord,true);el('meeting-detail-file-home').appendChild(el('meeting-file-panel'));el('meeting-detail-file-home').appendChild(el('meeting-file-actions'));setPitchbookBusy(false);el('meeting-file-panel').scrollIntoView({behavior:'smooth',block:'start'})}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}
 };
 el('meeting-detail-link').onclick=()=>changeDetailRelation(el('meeting-detail-documentId').value.trim(),'add');
 el('meeting-detail-files').addEventListener('click',async event=>{

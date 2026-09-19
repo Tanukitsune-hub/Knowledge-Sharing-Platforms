@@ -37,9 +37,9 @@ test('production Meeting fields retain explicit desktop placement after the Work
     'meeting-types': ['meeting-field-types', 10, 3, 1],
     'meeting-counterpartyId': ['meeting-field-counterparty', 1, 6, 2],
     'meeting-fundStrategy': ['meeting-field-fund', 7, 4, 2],
-    'meeting-counterparty': ['meeting-field-counterparty-person', 1, 6, 3],
-    'meeting-internalParticipants': ['meeting-field-internal-participants', 1, 6, 4],
-    'attachment-section': ['#attachment-section', 7, 6, 3],
+    'meeting-counterparty': ['meeting-field-counterparty-person', 1, 7, 3],
+    'meeting-internalParticipants': ['meeting-field-internal-participants', 1, 7, 4],
+    'attachment-section': ['#attachment-section', 8, 5, 3],
     'meeting-notes': ['meeting-field-notes', 1, 12, 6]
   };
   for (const [id, [selector, start, span, row]] of Object.entries(expected)) {
@@ -59,7 +59,7 @@ test('source order supports the canonical visual and mobile order', () => {
     'id="meeting-date"', 'id="meeting-time"', 'id="meeting-locationId"', 'id="meeting-teamId"',
     'id="meeting-assetClassId"', 'id="meeting-capitalTypeId"', 'id="meeting-types"',
     'id="meeting-counterpartyId"', 'id="meeting-fundStrategy"', 'id="meeting-counterparty"',
-    'id="meeting-internalParticipants"', 'id="meeting-submit"', 'id="attachment-section"', 'id="meeting-notes"'
+    'id="meeting-internalParticipants"', 'id="meeting-submit"', 'id="attachment-section"', 'id="meeting-file-actions-home"', 'id="meeting-notes"'
   ];
   let previous = -1;
   for (const token of tokens) {
@@ -88,6 +88,7 @@ test('only the <=720px projection collapses Meeting fields to one column', () =>
     'meeting-field-counterparty-person', 'meeting-field-internal-participants', 'meeting-field-submit', 'meeting-field-notes'
   ]) assert.ok(mobile.includes(`#meeting-form>.grid>.${selector}`), selector);
   assert.ok(mobile.includes('#meeting-form>.grid>#attachment-section'));
+  assert.ok(mobile.includes('#meeting-form>.grid>.meeting-field-attachment-actions'));
   assert.match(mobile, /\{grid-column:1;grid-row:auto;width:100%\}/);
   assert.doesNotMatch(styles.slice(styles.indexOf('@media(max-width:1000px)'), styles.indexOf('@media(max-width:720px)')), /meeting-field-date|meeting-field-time|meeting-field-types/);
 });

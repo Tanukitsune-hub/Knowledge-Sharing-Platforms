@@ -19,7 +19,8 @@ test('Knowledge Search row three uses the frozen AI controls order and placement
   assert.ok(mode >= 0 && mode < model && model < fullOutput, 'mode -> model -> non-AI output source order');
   assert.match(knowledge, /\.knowledge-mode-field\{grid-column:1\/span 3\}/);
   assert.match(knowledge, /\.knowledge-model-field\{grid-column:4\/span 3\}/);
-  assert.match(knowledge, /\.knowledge-full-output-field\{grid-column:8\/span 2\}/);
+  assert.match(knowledge, /\.knowledge-full-output-field\{grid-column:7\/span 2\}/);
+  assert.match(knowledge, /\.knowledge-asset-field\{grid-column:7\/span 2\}/);
   assert.match(knowledge, /@media\(max-width:720px\)[\s\S]*\.knowledge-mode-row>\.field\{grid-column:1\}/);
 });
 
@@ -31,24 +32,37 @@ test('non-AI Full Output remains provider independent', () => {
 });
 
 test('Meeting Create uses frozen left registration and right attachment geometry', () => {
-  assert.match(styles, /meeting-field-counterparty-person\{grid-column:1\/span 6;grid-row:3\}/);
-  assert.match(styles, /meeting-field-internal-participants\{grid-column:1\/span 6;grid-row:4\}/);
+  assert.match(styles, /meeting-field-counterparty-person\{grid-column:1\/span 7;grid-row:3\}/);
+  assert.match(styles, /meeting-field-internal-participants\{grid-column:1\/span 7;grid-row:4\}/);
   assert.match(styles, /meeting-field-submit\{grid-column:1\/span 3;grid-row:5/);
-  assert.match(styles, /#attachment-section\{grid-column:7\/span 6;grid-row:3\/span 3/);
+  assert.match(styles, /#attachment-section\{grid-column:8\/span 5;grid-row:3\/span 2/);
+  assert.match(styles, /meeting-field-attachment-actions\{grid-column:8\/span 5;grid-row:5/);
   assert.match(styles, /meeting-field-notes\{grid-column:1\/span 12;grid-row:6\}/);
-  assert.match(styles, /attachment-workspace\{display:grid;grid-template-columns:minmax\(0,7fr\) minmax\(150px,3fr\)/);
+  assert.match(styles, /attachment-workspace\{display:block/);
+  assert.match(styles, /attachment-drop-column \.drop-zone\{[^}]*min-height:10[0-9]px/);
+  assert.doesNotMatch(styles, /attachment-drop-column \.drop-zone\{[^}]*min-height:(?:11[8-9]|1[2-9][0-9]|[2-9][0-9]{2,})px/);
 });
 
 test('Meeting attachment actions keep clear and retry behavior with the frozen label', () => {
   assert.match(index, /id="pitchbook-clear"[^>]*>資料選択をクリア<\/button>/);
-  assert.match(index, /attachment-workspace[\s\S]*attachment-drop-column[\s\S]*attachment-action-column[\s\S]*pitchbook-clear[\s\S]*pitchbook-retry/);
+  assert.match(index, /id="meeting-file-actions-home" class="meeting-field-attachment-actions"/);
+  assert.match(index, /id="meeting-file-panel"[\s\S]*attachment-workspace[\s\S]*attachment-drop-column[\s\S]*<\/section>[\s\S]*id="meeting-file-actions"[\s\S]*pitchbook-clear[\s\S]*pitchbook-retry/);
+  const panelStart = index.indexOf('<section id="meeting-file-panel"');
+  const panel = index.slice(panelStart, index.indexOf('</section>', panelStart) + '</section>'.length);
+  assert.doesNotMatch(panel, /attachment-action-column/);
+  assert.doesNotMatch(index, /記録保存 → ファイル保存 → 関連付けの順に処理します。/);
   const pitchbookClient = read('ClientPitchbookFiles.html') + read('ClientPitchbookFlow.html');
+  const bootstrap = read('ClientBootstrap.html');
+  const maintenance = read('ClientMaintenanceEnhancements.html');
   assert.match(pitchbookClient, /pitchbook-clear/);
   assert.match(pitchbookClient, /pitchbook-retry/);
+  assert.match(bootstrap, /meeting-file-actions-home'\)\.appendChild\(el\('meeting-file-actions'\)\)/);
+  assert.match(maintenance, /meeting-detail-file-home'\)\.appendChild\(el\('meeting-file-actions'\)\)/);
+  assert.match(pitchbookClient, /!el\('meeting-file-panel'\)\.contains\(node\)&&!el\('meeting-file-actions'\)\.contains\(node\)/);
 });
 
 test('Meeting mobile source and CSS order safely stack participants, registration, attachment, and notes', () => {
-  const tokens = ['id="meeting-counterparty"', 'id="meeting-internalParticipants"', 'id="meeting-submit"', 'id="attachment-section"', 'id="meeting-notes"'];
+  const tokens = ['id="meeting-counterparty"', 'id="meeting-internalParticipants"', 'id="meeting-submit"', 'id="attachment-section"', 'id="meeting-file-actions-home"', 'id="meeting-notes"'];
   let previous = -1;
   for (const token of tokens) {
     const next = index.indexOf(token);
@@ -60,5 +74,6 @@ test('Meeting mobile source and CSS order safely stack participants, registratio
     assert.ok(mobile.includes(`#meeting-form>.grid>.${selector}`), selector);
   }
   assert.ok(mobile.includes('#meeting-form>.grid>#attachment-section'));
-  assert.match(mobile, /attachment-workspace\{grid-template-columns:1fr\}/);
+  assert.ok(mobile.includes('#meeting-form>.grid>.meeting-field-attachment-actions'));
+  assert.match(mobile, /attachment-action-column\{[^}]*grid-template-columns:1fr 1fr/);
 });
