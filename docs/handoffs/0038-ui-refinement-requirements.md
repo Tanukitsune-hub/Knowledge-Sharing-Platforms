@@ -30,10 +30,12 @@ WORK_0030: DEFERRED_BY_USER
 ### Non-AI output control
 
 - 既存のnon-AI Full Output / `全文出力` behavior自体は維持する。
-- user instructionでは配置が2通り記載されており、exact placementはPENDING:
-  - `AIモデルの右側に配置し、少し間を空ける`
-  - `検索モードのすぐ右に配置する`
-- Codex instruction発行前にユーザー確認で1つに確定する。
+- exact placementは次で確定:
+  - `AI検索モード`
+  - そのすぐ右に`AIモデル`
+  - その右に少し間を空けて`非AI出力` / `全文出力`button
+- AI controlsとnon-AI outputの間には通常のfield gapより少し大きいvisual separationを持たせ、別系統の操作であることを示す。
+- buttonは同じrow内に置き、desktopでは右端へ飛ばさずAIモデルの隣接領域に配置する。
 
 ### Preserve
 
@@ -66,9 +68,9 @@ WORK_0030: DEFERRED_BY_USER
 - file drop / click selection / retry / clear semanticsは維持。
 - notes height、Counterparty modal、Equity/Debt policy、Meeting Type behaviorは本要件で変更しない。
 
-## Open decision
+## Closed decision
 
-ナレッジ検索のnon-AI Full Output buttonのexact horizontal placementのみ未確定。
+ナレッジ検索のnon-AI Full Output placementは`AI検索モード → AIモデル → 少し間を空けて → 非AI出力`で確定。
 
 ## Dispatch state
 
