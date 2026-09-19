@@ -2,17 +2,17 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "84eae0bf15b0d5b2144c94b08a33aa4c5c035574",
+  "source_git_commit": "93e0cbf752649992dfd8b35815118b42f23fb87a",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "2589f06e0dea4d9cd97b0e315f7aef6770e0c48d5a982bc3ac5c8c26f660d6f2",
-  "bundle_file_sha256": "83d77202a1ce7112de696c6bb6c0595f7c128bc9d704199e8de343ba3d74de12",
+  "bundle_payload_sha256": "487cdf05e7004da5c0060f9b55cd8f66891f9fd886e5a2aabbf4e262de1b3e83",
+  "bundle_file_sha256": "0bf0192a341656ed0b0ce1e7ead85933e1713b784e3fe489ef8f8bd855eea39d",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "904d48fe07860a4940e45fc5f0519c98fbe6b07346fe06448fb860797689d130",
   "bundle_metrics": {
-    "bytes": 1175594,
-    "characters": 1136001,
-    "lines": 19293,
+    "bytes": 1175322,
+    "characters": 1135801,
+    "lines": 19294,
     "server_source_count": 60,
     "embedded_html_count": 22
   },
@@ -174,8 +174,8 @@
     },
     {
       "file": "src/126_ActivityAnalyticsService.gs",
-      "bytes": 28106,
-      "sha256": "66e30289d49ed3ec269e4be9f53bb16e55e0b6df21ff6f51e192a081d5ed0355"
+      "bytes": 28180,
+      "sha256": "0427b42c11e0296d1cebf150bbb599bdfc96583dabdddb69b1e1ef505ef413ab"
     },
     {
       "file": "src/127_ActivityAnalyticsLiveEnvironment.gs",
@@ -321,8 +321,8 @@
   "html_resources": [
     {
       "file": "src/ActivityAnalyticsPage.html",
-      "bytes": 5215,
-      "sha256": "dc2c14adc06eb276de6e712ecc23ad6d768a4b629041c92270a064bcf7070523"
+      "bytes": 4693,
+      "sha256": "3f91c22a6f67b57e7f407f9439f808918aaff566d59202e4676d18d80100413d"
     },
     {
       "file": "src/AiProviderSettingsPage.html",
@@ -331,8 +331,8 @@
     },
     {
       "file": "src/ClientActivityAnalytics.html",
-      "bytes": 9613,
-      "sha256": "8b65213a79cac80adfcbdd68c8dcc8267ec4b3132cc3dac028ba84668c1dbe88"
+      "bytes": 9652,
+      "sha256": "75f92f976563a769bc3ecf7df8d1425519c070630bb3a204a8a6c1f1b1b4437c"
     },
     {
       "file": "src/ClientAiProviderSettings.html",
@@ -426,8 +426,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 34725,
-      "sha256": "9eadf944775ed5f78a965e53e2e7d6be2edd62bfbaeab41641d22549a015354e"
+      "bytes": 34886,
+      "sha256": "5884680ef646b6b77dfb519b3f8f18183065b9522dbd40edf2dedc7e78df62c2"
     }
   ]
 }

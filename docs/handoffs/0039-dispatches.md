@@ -3,10 +3,10 @@
 WORK_ID: 0039
 DISPATCH_ID: 0039-CODEX-01
 ACTIVE_DISPATCH_ID: 0039-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
-PHASE: IMPLEMENTATION / TARGET RUNTIME QUALIFICATION
+PHASE: FINAL REVIEW
 
 ## Primary Outcome
 
@@ -19,6 +19,14 @@ Restoration direction approved 2026-09-20.
 ## Prepared instruction
 
 `docs/handoffs/0039-CODEX-01-monthly-admin-review-restoration-instruction.md`
+
+## CODEX-01 return
+
+- 8-column drill table、canonical Meeting Type label、dedicated `原本`、inline autosave `確認済み`を実装した。
+- focused 13/13、canonical 579/579、bundle 30/30、local browser harness、diff hygieneをPASSした。
+- same existing target / same single owner-only deploymentをversion18からversion19へ1回だけ更新した。
+- actual owner-only runtimeで`false -> true -> reload -> true -> false`、Audit exactly 2、business fields不変、4 viewport、console material error/warn 0を確認した。
+- report: `docs/handoffs/0039-CODEX-01-monthly-admin-review-restoration-report.md`
 
 ## Dependency gate
 
@@ -44,7 +52,7 @@ WORK_0039_COMPLETE: NO
 WORK_ID: 0039
 DISPATCH_ID: 0039-CODEX-01
 BALL: CHATGPT
-STATUS: PREPARING
+STATUS: RETURNED
 ## Accepted implementation baseline
 
 ```text
