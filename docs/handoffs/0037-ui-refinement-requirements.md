@@ -3,7 +3,7 @@
 WORK_ID: 0037
 STATUS: ACTIVE
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
+PHASE: REQUIREMENTS_FROZEN
 
 ## Purpose
 
@@ -44,9 +44,9 @@ WORK_0030: DEFERRED_BY_USER
 - Status hidden化後のsearch payloadは常に`Active`を送る。
 - Fund / Strategy hidden化後はfilter値を空として扱い、historical data/schemaを変更しない。
 
-## Pending
+## Requirements freeze
 
-他画面の修正要件をこの文書へ追記予定。現時点ではCodex promptを作成しない。
+2026-09-19: ユーザー確認により、この文書に記載した要件をCODEX-01の実装scopeとしてfreezeする。追加要件は新しい明示指示がある場合のみ扱う。
 ## Screen: ナレッジ検索
 
 ### Visibility
@@ -309,3 +309,10 @@ Work0036/version11のaccepted Meeting-create layoutをbaselineとし、fieldの�
 - Meeting Typeのrow削減、attachment action row削減、登録buttonのbottom row削減により、画面全体をよりcompactにする。
 - `面談内容`textareaの高さは現状accepted値を維持し、単に上部の無駄な縦spaceを減らす。
 - success/status messageの表示領域は維持し、submit resultが見えなくならないようにする。
+## Closed interpretation
+
+- ナレッジ検索の`情報ソース`はユーザーから削除指示がないため機能を維持する。Row 2の右端にcompactに残し、`面談先 / Asset Class / Team`の優先配置を壊さない。
+- 過去の記録のMeeting Type filterは維持する。Fund / StrategyとStatusだけを指示どおり非表示化する。
+- 管理者ページのshared password撤去はApps Script deploymentのowner-only / authenticated boundaryを変更しない。
+- legacy shared-password Script Propertiesが存在してもWork0037では物理削除しない。active gate/UI/code pathから外してinertにする。
+- Work0030はDEFERRED_BY_USERのまま。
