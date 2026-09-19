@@ -28,8 +28,8 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 12 | 0035 | Multi-screen UI Studio — 全7タブ一括design + fine positioning | SUPERSEDED | Work0034 version10 / Work0033 Layout Lab | User strategy reset 2026-09-19。UI Studio追加開発は停止、Work0036へ |
 | 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | ACCEPTED | Work0034 version10 | PR #58 / version11 accepted。Completion Latch済み |
 | 14 | 0037 | Post-version11 UI refinement — six-screen convergence + admin password gate removal | ACCEPTED | Work0036 version11 | PR #59 / version13 accepted。Completion Latch済み |
-| 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACTIVE (BUILD) | Work0037 version13 | CODEX-02 Meeting header/status refinement on PR #60 |
-| 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | PLANNED | Work0017 capability / Work0037 current UI | Root cause complete。Work0038収束後にimplementation dispatch検討 |
+| 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACTIVE (BUILD) | Work0037 version13 | CODEX-03 Knowledge help-line final refinement on PR #60 |
+| 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | PREPARING | Work0017 capability / Work0038 accepted baseline | Contract ready; activate CODEX-01 after PR #60 acceptance |
 | 17 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 18 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 19 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -439,7 +439,7 @@ STATUS: ACTIVE
 MODE: BUILD
 PHASE: IMPLEMENTATION
 BASELINE: Work0037 version13
-ACTIVE_DISPATCH: 0038-CODEX-02
+ACTIVE_DISPATCH: 0038-CODEX-03
 BALL: CODEX
 WORK_0030: DEFERRED_BY_USER
 ```
@@ -447,20 +447,22 @@ WORK_0030: DEFERRED_BY_USER
 Requirements: `docs/handoffs/0038-ui-refinement-requirements.md`
 Plan: `docs/planning/work0038-ui-refinement.md`
 Dispatch: `docs/handoffs/0038-dispatches.md`
-Instruction: `docs/handoffs/0038-CODEX-02-meeting-header-status-instruction.md`
+Instruction: `docs/handoffs/0038-CODEX-03-knowledge-help-line-instruction.md`
 ## Work 0039 planned contract
 
 ```text
 WORK_ID: 0039
-STATUS: PLANNED
-MODE: INVESTIGATION -> BUILD after approval
+STATUS: PREPARING
+MODE: BUILD
 ROOT_CAUSE: CONFIRMED
 BACKEND_ADMIN_CHECK_CAPABILITY: PRESERVED
 PRIMARY_REPAIR: INLINE_MEETING_TYPE_LABELS + AUTOSAVE_CHECKBOX
 SCHEMA_CHANGE: 0
 MIGRATION_CHANGE: 0
 ACTIVE_DISPATCH: NONE
-BALL: USER
+PREPARED_DISPATCH: 0039-CODEX-01
+DEPENDENCY: Work0038 PR #60 accepted baseline
+BALL: CHATGPT
 ```
 
 Investigation: `docs/investigations/work0039-monthly-admin-review-regression.md`
