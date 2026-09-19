@@ -3,10 +3,10 @@
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-02
 ACTIVE_DISPATCH_ID: 0038-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
-PHASE: MEETING HEADER / STATUS REFINEMENT
+PHASE: FINAL REVIEW
 
 ## Primary Outcome
 
@@ -61,9 +61,9 @@ COMPLETION_LATCH: NOT_APPLIED
 | Dispatch | Result |
 |---|---|
 | 0038-CODEX-01 | latest frozen 2-screen geometry、572/572、bundle 30/30、same deployment version15、4 viewport x 7 pages actual runtime qualificationをPASS。Draft PR #60で返却。 |
-| 0038-CODEX-02 | ACTIVE — Meeting-create header/status refinement。 |
+| 0038-CODEX-02 | Meeting-create冒頭をheading → clear → compact statusへ収束。focused 15/15、canonical 573/573、bundle 30/30、same deployment version16、4 viewport / required validation / 7-page smoke / console0をPASSし、Draft PR #60で返却。 |
 
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
