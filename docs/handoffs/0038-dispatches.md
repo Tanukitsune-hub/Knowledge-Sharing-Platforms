@@ -2,60 +2,69 @@
 
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-03
-ACTIVE_DISPATCH_ID: 0038-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: NONE
+BALL: NONE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: FINAL REVIEW
+PHASE: COMPLETION_LATCH
 
-## Primary Outcome
+## Final Outcome
 
-PR #60の既存Work0038変更を保持し、Knowledge Searchの2つのhelp文をdesktopで1行に統合する。
-
-## Prior dispatch evidence
-
-- CODEX-01: geometry / version15 / RETURNED
-- CODEX-02: Meeting header/status / reported version17 / RETURNED
-
-## Active instruction
-
-`docs/handoffs/0038-CODEX-03-knowledge-help-line-instruction.md`
-
-## Exact visible default text
-
-`表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。 Teamは「面談記録のみ」で利用できます。`
-
-## Safety
+Work0037/version13をbaselineに、Knowledge SearchとMeeting-createの追加UI refinementを3 dispatchで収束し、same owner-only Web App version18で最終受入。
 
 ```text
-NEW_TARGET: 0
-SECOND_DEPLOYMENT: 0
+PR: #60
+MERGE: 27fb5ca200cdb4d26f7111555cde33c8c2956892
+FINAL_SERVED_VERSION: 18
+TARGET_RUNTIME_QUALIFICATION: PASS
+LOGIC_VALIDATION: 574/574 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+NORMAL_NAVIGATION: 7/7 NONBLANK
+CONSOLE_MATERIAL_ERROR_WARN: 0
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED / UNCHANGED
+RECORD_FILE_MUTATION: 0
 PERMISSION_BROADENING: 0
 PUBLIC_EXPOSURE: 0
 SCHEMA_CHANGE: 0
 MIGRATION_CHANGE: 0
-PROVIDER_CALLS: 0
-AI_SYNC: DISABLED / UNCHANGED
-CONFIDENTIAL_DATA: 0
-PHYSICAL_DELETE: 0
-WORK_0030: DEFERRED_BY_USER
+BLOCKER: NONE
 ```
 
-```text
-NEXT_UNUSED_DISPATCH: 0038-CODEX-04
-WORK_0038_COMPLETE: NO
-COMPLETION_LATCH: NOT_APPLIED
-```
+## Accepted current-product behavior
+
+- Knowledge Search: `AI検索モード → AIモデル → 非AI出力`、non-AI outputはAsset Classとhorizontal alignment。
+- `AI検索 指示入力欄` helpはdesktop1行、mobile natural wrap。
+- Meeting-create header: `記録を追加 → 下書きをクリア → compact status`。
+- participant fields span7 / attachment span5 row3/span2。
+- Register row5 left / file actions row5 right。
+- attachment processing-order help removed。
+- `資料選択をクリア` label。
+- Work0037 Masters repair、Counterparty modal、Equity/Debt policy、owner-only deploymentを保持。
 
 ## Dispatch history
 
 | Dispatch | Result |
 |---|---|
-| 0038-CODEX-01 | latest frozen 2-screen geometry、572/572、bundle 30/30、same deployment version15、4 viewport x 7 pages actual runtime qualificationをPASS。Draft PR #60で返却。 |
-| 0038-CODEX-02 | Meeting-create冒頭をheading → clear → compact statusへ収束し、追加指示の登録button横保持説明も削除。focused 15/15 + follow-up 6/6、canonical 573/573、bundle 30/30、same deployment version17、4 viewport / required validation / 7-page smoke / console0をPASSし、Draft PR #60で返却。 |
-| 0038-CODEX-03 | Knowledge Searchのmode/source helpを単一inline containerへ統合。focused 12/12、canonical 574/574、bundle 30/30、same deployment version18、desktop 3 viewport one-line / mobile natural wrap / 7-page smoke / console0をPASSし、Draft PR #60で返却。 |
+| 0038-CODEX-01 | frozen 2-screen geometryをversion15でruntime qualification。 |
+| 0038-CODEX-02 | Meeting-create header/statusを収束しversion17でruntime qualification。 |
+| 0038-CODEX-03 | Knowledge help-lineを収束しversion18でruntime qualification。 |
+
+## Completion Latch
+
+```text
+WORK_0038_COMPLETE: YES
+COMPLETION_LATCH: APPLIED
+ACTIVE_BLOCKER: NONE
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+STATUS: ACCEPTED
+NEXT_UNUSED_DISPATCH: 0038-CODEX-04
+```
+
+新しいmaterial contradictory evidenceまたは明示scope変更がない限りWork0038を再開しない。
 
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: NONE
+STATUS: ACCEPTED
