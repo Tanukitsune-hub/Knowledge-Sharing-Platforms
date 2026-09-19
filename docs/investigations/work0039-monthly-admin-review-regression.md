@@ -1,8 +1,8 @@
 # Work 0039 — 月次面談確認フローの回帰調査
 
 WORK_ID: 0039
-STATUS: INVESTIGATION_COMPLETE
-MODE: INVESTIGATION
+STATUS: RESOLVED
+MODE: INVESTIGATION / RESOLVED
 DATE: 2026-09-20
 
 ## Primary Outcome
@@ -115,3 +115,17 @@ checkboxは描画していない。
 - `updateMeetingAdminCheck` / optimistic concurrency / Audit semanticsは再利用する。
 - 直すべき主対象はActivity Analyticsのfrontend presentationとread-model label整形。
 - Work0038とは別theme。PR #60のUI refinementとは分離する。
+## Resolution
+
+PR #61 merged at `4fe28048e90df1a264dea836e8909d80ada0be57`.
+
+Root cause was repaired by restoring the intended inline administrative workflow in the drill list:
+- canonical Meeting Type labels
+- dedicated 原本 column
+- autosave 確認済み checkbox
+- all-range visibility
+- legacy separate card removal
+
+Accepted served version: 19.
+
+Completion: `docs/handoffs/0039-completion-report.md`
