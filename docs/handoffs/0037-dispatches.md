@@ -1,87 +1,26 @@
 # Work 0037 dispatch control
 
 WORK_ID: 0037
-DISPATCH_ID: N/A
-ACTIVE_DISPATCH_ID: NONE
-BALL: USER
-STATUS: PREPARING
+DISPATCH_ID: 0037-CODEX-01
+ACTIVE_DISPATCH_ID: 0037-CODEX-01
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
+PHASE: IMPLEMENTATION / TARGET RUNTIME QUALIFICATION
 
-## Outcome
+## Primary Outcome
 
-Work0036/version11を基準に、各ページの追加UI修正をユーザー実機確認から順次収集し、一括して安全に実装できるscopeへ収束する。
+Work0036/version11をbaselineに、frozen UI requirementsを一括実装し、同じowner-only Web Appでactual runtime認定する。
 
-## Current state
+## Authoritative sources
 
-- Codex Dispatchはまだ発行しない。
-- ユーザーが複数チャットで画面ごとの修正点を追加する。
-- 要件の正本は `docs/handoffs/0037-ui-refinement-requirements.md`。
+- `docs/handoffs/0037-ui-refinement-requirements.md`
+- `docs/planning/work0037-ui-refinement.md`
+- `docs/handoffs/0037-CODEX-01-ui-refinement-instruction.md`
 
-## Fixed closed conclusions
+## Scope
 
-- Work0036/version11はaccepted baseline。
-- Work0035 UI Studioは再開しない。
-- Work0030はDEFERRED_BY_USER。
-
-```text
-NEXT_UNUSED_DISPATCH: 0037-CODEX-01
-WORK_0037_COMPLETE: NO
-```
-
-WORK_ID: 0037
-DISPATCH_ID: N/A
-BALL: USER
-STATUS: PREPARING
-## Intake update
-
-`ナレッジ検索`の修正要件を追加済み。
-
-現在の収集済みscreen:
-- 過去の記録
-- ナレッジ検索
-
-Codex Dispatchはまだ発行しない。
-## Intake update
-
-`面談実績の集計`の修正要件を追加済み。
-
-現在の収集済みscreen:
-- 過去の記録
-- ナレッジ検索
-- 面談実績の集計
-
-Codex Dispatchはまだ発行しない。
-## Intake update
-
-`プルダウンの管理`の修正要件を追加済み。
-
-現在の収集済みscreen:
-- 過去の記録
-- ナレッジ検索
-- 面談実績の集計
-- プルダウンの管理
-
-Codex Dispatchはまだ発行しない。
-## Intake update
-
-`管理者ページ`の修正要件を追加済み。
-
-現在の収集済みscreen:
-- 過去の記録
-- ナレッジ検索
-- 面談実績の集計
-- プルダウンの管理
-- 管理者ページ
-
-管理者ページはapp内shared password gateを撤去。ただしowner-only Web App deployment securityは維持する。
-
-Codex Dispatchはまだ発行しない。
-## Intake update
-
-`記録を追加`の省スペース修正要件を追加済み。
-
-現在の収集済みscreen:
+Changed screens:
 - 過去の記録
 - ナレッジ検索
 - 面談実績の集計
@@ -89,4 +28,38 @@ Codex Dispatchはまだ発行しない。
 - 管理者ページ
 - 記録を追加
 
-Codex Dispatchはまだ発行しない。
+Important current-product change:
+- in-app shared admin password gateを撤去
+- owner-only Web App deployment boundaryは維持
+
+## Closed Conclusions
+
+- baseline Work0036/version11 accepted
+- Work0035 remains SUPERSEDED
+- Work0030 remains DEFERRED_BY_USER
+- Counterparty shared modal preserved
+- Equity/Debt selection hidden policy preserved
+
+## Safety boundary
+
+```text
+NEW_TARGET: 0
+SECOND_DEPLOYMENT: 0
+PERMISSION_BROADENING: 0
+PUBLIC_EXPOSURE: 0
+SCHEMA_CHANGE: 0
+MIGRATION_CHANGE: 0
+PROVIDER_TRANSITION: 0
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+```
+
+```text
+NEXT_UNUSED_DISPATCH: 0037-CODEX-02
+WORK_0037_COMPLETE: NO
+```
+
+WORK_ID: 0037
+DISPATCH_ID: 0037-CODEX-01
+BALL: CODEX
+STATUS: READY
