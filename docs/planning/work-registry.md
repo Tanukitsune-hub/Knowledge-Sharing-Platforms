@@ -28,7 +28,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 12 | 0035 | Multi-screen UI Studio — 全7タブ一括design + fine positioning | SUPERSEDED | Work0034 version10 / Work0033 Layout Lab | User strategy reset 2026-09-19。UI Studio追加開発は停止、Work0036へ |
 | 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | ACCEPTED | Work0034 version10 | PR #58 / version11 accepted。Completion Latch済み |
 | 14 | 0037 | Post-version11 UI refinement — six-screen convergence + admin password gate removal | ACCEPTED | Work0036 version11 | PR #59 / version13 accepted。Completion Latch済み |
-| 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACTIVE (BUILD) | Work0037 version13 | CODEX-01 implementation / same owner-only runtime qualification |
+| 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACTIVE (BUILD) | Work0037 version13 | CODEX-02 Meeting header/status refinement on PR #60 |
 | 16 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 17 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 18 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -438,7 +438,7 @@ STATUS: ACTIVE
 MODE: BUILD
 PHASE: IMPLEMENTATION
 BASELINE: Work0037 version13
-ACTIVE_DISPATCH: 0038-CODEX-01
+ACTIVE_DISPATCH: 0038-CODEX-02
 BALL: CODEX
 WORK_0030: DEFERRED_BY_USER
 ```
@@ -446,4 +446,4 @@ WORK_0030: DEFERRED_BY_USER
 Requirements: `docs/handoffs/0038-ui-refinement-requirements.md`
 Plan: `docs/planning/work0038-ui-refinement.md`
 Dispatch: `docs/handoffs/0038-dispatches.md`
-Instruction: `docs/handoffs/0038-CODEX-01-ui-refinement-instruction.md`
+Instruction: `docs/handoffs/0038-CODEX-02-meeting-header-status-instruction.md`
