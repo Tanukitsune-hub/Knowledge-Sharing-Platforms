@@ -2,16 +2,16 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "e5d0a75baa04598289ab11ac16d74da42c536f67",
+  "source_git_commit": "d1310034b2fe6b6ff5a847108fdae22d2f8f79c7",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "7b4abe1c9ed9951435cb5ab435541df4a374c4c100faa09aa7885ff8b7862b21",
-  "bundle_file_sha256": "08a4192198769b98cba90a214185f9a623d757a6fba2684d46a214577d53388e",
+  "bundle_payload_sha256": "71074793445751bc201531ce80112261ca891c65d8536b5fb1c80ae28fe60d4b",
+  "bundle_file_sha256": "e8a12bbe14307e52a2d1a1dbf115276c5ab13653c817eff6c599c4021d0305d3",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "904d48fe07860a4940e45fc5f0519c98fbe6b07346fe06448fb860797689d130",
   "bundle_metrics": {
-    "bytes": 1172984,
-    "characters": 1133343,
+    "bytes": 1174834,
+    "characters": 1135083,
     "lines": 19293,
     "server_source_count": 60,
     "embedded_html_count": 22
@@ -366,8 +366,8 @@
     },
     {
       "file": "src/ClientMaintenance.html",
-      "bytes": 22478,
-      "sha256": "96bfc78fc26afb374d6f2af7726484d92c77dd327735dc83681d2ec502888b43"
+      "bytes": 24319,
+      "sha256": "86c5200a602c0668726e1f7fb76f2b674b1f848c65d2146846ad257f8a185a53"
     },
     {
       "file": "src/ClientMaintenanceEnhancements.html",

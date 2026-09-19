@@ -65,11 +65,13 @@ test('Activity Analytics defaults to a leap-safe one calendar year and keeps use
   assert.deepEqual(nodes, { from: { value: '2025-01-15' }, to: { value: '2026-01-20' } });
 });
 
-test('Masters exposes four in-page tabs and fixed active-tab option mutations', () => {
+test('Masters exposes four in-page tabs and snapshots only allowlisted option mutations', () => {
   const tabs = Array.from(pages.matchAll(/data-master-tab="([A-Z_]+)"/g), match => match[1]);
   assert.deepEqual(tabs, ['COUNTERPARTY', 'ASSET_CLASS', 'LOCATION', 'TEAM']);
   assert.doesNotMatch(pages, /id="option-add-type"|value="CAPITAL_TYPE"/);
-  assert.match(maintenance, /type:activeMasterTab/);
+  assert.match(maintenance, /MASTER_OPTION_TAB_TYPES=Object\.freeze\(\['ASSET_CLASS','LOCATION','TEAM'\]\)/);
+  assert.match(maintenance, /masterOptionDrafts=\{ASSET_CLASS:'',LOCATION:'',TEAM:''\}/);
+  assert.match(maintenance, /type:request\.type,name:request\.name/);
   assert.match(maintenance, /\.filter\(row=>row\.type===activeMasterTab\)/);
   assert.match(maintenance, /let activeMasterTab='COUNTERPARTY'/);
   assert.match(styles, /\.master-layout\{display:block\}/);
