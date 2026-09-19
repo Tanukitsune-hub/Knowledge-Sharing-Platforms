@@ -1,9 +1,9 @@
 # Work 0038 — Post-version13 UI refinement intake
 
 WORK_ID: 0038
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: REQUIREMENTS_FROZEN
+PHASE: IMPLEMENTED_ACCEPTED
 
 ## Purpose
 
@@ -74,7 +74,7 @@ WORK_0030: DEFERRED_BY_USER
 
 ## Dispatch state
 
-Requirements frozen. Active implementation dispatch: `0038-CODEX-01`.
+Requirements implemented and accepted in PR #60 / version18.
 ## Frozen implementation geometry
 
 ### Knowledge Search Row 3
@@ -203,3 +203,15 @@ Requirements:
 - source-help sentenceは削除しない。
 - mobile/narrowではhorizontal overflowを避けるため自然wrap可。explicit `<br>`やblock separationは作らない。
 - AI検索 behavior / validation / filtersは変更しない。
+## Implementation result
+
+PR #60 merged: `27fb5ca200cdb4d26f7111555cde33c8c2956892`
+
+```text
+FINAL_SERVED_VERSION: 18
+TARGET_RUNTIME_QUALIFICATION: PASS
+LOGIC_VALIDATION: 574/574 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
