@@ -8,11 +8,12 @@ MODE: BUILD
 
 ## Outcome
 
-Work0037/version13をbaselineに、frozen requirementsで指定されたKnowledge SearchとMeeting-createの2画面だけを修正した。同じexisting target / 同じ単一owner-only Web Appをversion14へ更新し、production sourceの決定論的検証とactual browser qualificationを完了した。
+最新`origin/main`のfrozen requirementsを正として、Knowledge SearchとMeeting-createの2画面だけを最終geometryへ収束した。先行version14実装を最新版で再評価し、SUPERSEDEDされた配置を同じDispatchの第2 coherent cycleで修正した。同じexisting target / 同じ単一owner-only Web Appをversion15へ更新し、logic/bundle validationとactual browser qualificationを完了した。
 
 ```text
 OUTCOME: PASS
-FINAL_SERVED_VERSION: 14
+FINAL_SOURCE_REF: 90d641dfba96ecf8d7ce8db1da1c64de79f3f054
+FINAL_SERVED_VERSION: 15
 READY_FOR_CHATGPT_FINAL_REVIEW: YES
 BLOCKER: NONE
 ```
@@ -21,37 +22,43 @@ BLOCKER: NONE
 
 ### Knowledge Search
 
-- `検索モード`を`AI検索モード`へ変更。
-- Row3のsource/DOM・visual orderを`AI検索モード → AIモデル → intentional gap → 非AI出力`へ統一。
-- desktop 12-columnでmode `1/span 3`、model `4/span 3`、column 7 blank、non-AI output `8/span 2`を明示。
-- 720px以下は同じsemantic orderの1-column stackを維持。
-- `要約` default、AI検索、非AI Full Outputの既存service behaviorは変更していない。
+- labelは`AI検索モード`。
+- Row3のsource/DOM・visual orderは`AI検索モード → AIモデル → 非AI出力`。
+- desktop 12-columnはmode `1/span3`、model `4/span3`、non-AI output `7/span2`。
+- non-AI outputのhorizontal startを一段上のAsset Class `start7`と一致させた。
+- 720px以下は同じsemantic orderの1-column stack。
+- 初期`要約`、AI検索、provider-independent Full Outputのservice behaviorは変更していない。
 
 ### Meeting-create
 
-- 面談相手をleft `1/span 6` row3、当社側をleft row4、登録をleft `1/span 3` row5へ配置。
-- attachmentをright `7/span 6`、`row 3/span 3`へ配置し、面談内容をfull-width row6に維持。
-- attachment inner workspaceを7:3へ変更し、action columnに150pxのsafe minimumを設定。
-- `選択をクリア`を`資料選択をクリア`へ変更。clear/retry handlerは変更していない。
-- 720px以下は`面談相手 → 当社側 → 登録 → attachment → 面談内容`の1-column stack。
+- 面談相手 `1/span7 row3`、当社側 `1/span7 row4`。
+- attachment `8/span5 row3/span2`。通常empty stateの高さは左2 field合計と一致。
+- 登録はrow5 left、`資料選択をクリア` / `未完了分を再試行`はattachment box外のrow5 right。
+- drop zoneはattachmentの内部幅をほぼ全て使用し、高さ104pxとしてversion13の118pxより縮小。
+- processing-order help textを削除し、空spacerも残していない。
+- 面談内容はfull-width row6。
+- 720px以下はparticipant / internal / register / attachment / attachment actions / notesをoverflowなしでstack。
+
+shared file controllerをMeeting-createと過去記録detailの双方で再利用できるよう、panelとaction controlsを個別のhomeへ移動する構成に限定変更した。登録後lockはpanelだけでなくaction controlsも正しく除外し、clear/retry semanticsを維持した。
 
 schema、migration、data model、security、provider、他画面のbusiness behaviorは変更していない。
 
 ## Reproduction and logic validation
 
-新規focused testはproduction sourceを直接読み、修正前に次を再現した。
+最新版のfocused expectationsをproduction sourceに先行適用し、version14の不一致を再現した。
 
 ```text
-PRE_FIX_FOCUSED_TESTS: 2/5 PASS / 3 FAIL
-KNOWLEDGE_LABEL_AND_ORDER: FAIL / REPRODUCED
-MEETING_GRID_AND_ATTACHMENT_SPLIT: FAIL / REPRODUCED
-ATTACHMENT_CLEAR_LABEL: FAIL / REPRODUCED
+PRE_FIX_FOCUSED_TESTS: 10/18 PASS / 8 FAIL
+KNOWLEDGE_OUTPUT_START7: FAIL / REPRODUCED
+MEETING_PARTICIPANT_SPAN7: FAIL / REPRODUCED
+ATTACHMENT_COL8_SPAN5_ROW3_SPAN2: FAIL / REPRODUCED
+ATTACHMENT_ACTIONS_OUTSIDE_ROW5: FAIL / REPRODUCED
 ```
 
 修正後:
 
 ```text
-FOCUSED_TESTS: 23/23 PASS
+FOCUSED_TESTS: 18/18 PASS
 LOCAL_PRODUCTION_BROWSER_HARNESS: PASS
 NPM_RUN_CHECK: 572/572 PASS
 CANONICAL_BUNDLE_REGENERATION: PASS
@@ -59,16 +66,16 @@ NPM_RUN_CHECK_BUNDLE: 30/30 PASS
 GIT_DIFF_CHECK: PASS
 ```
 
-local production browser harnessは2560 / 1440 / 1280 / 390で両画面のcomputed placement、全7画面、既存Counterparty modal、Meeting registration/file RPC wiring、Work0037 Masters state repair、console error/warn0を再検証した。これは`SYNTHETIC_RENDER_ONLY`であり、次節のtarget-runtime evidenceとは分離している。
+local production browser harnessは2560 / 1440 / 1280 / 390でcomputed placement、全7画面、Counterparty modal、Meeting registration/file RPC wiring、Work0037 Masters state repair、console error/warn0を再検証した。これは`SYNTHETIC_RENDER_ONLY`であり、次節のtarget-runtime evidenceとは分離している。
 
 ## Target runtime preflight and release
 
-mutation前のread-only preflight:
+current cycleのmutation前read-only preflight:
 
 ```text
 SAME_EXISTING_TARGET: PASS
 SAME_SINGLE_DEPLOYMENT: PASS
-BASELINE_VERSION: 13
+BASELINE_VERSION: 14
 BASELINE_SAVED_SOURCE_PARITY: PASS
 BASELINE_IMMUTABLE_SOURCE_PARITY: PASS
 DEPLOYMENT_TYPE: WEB_APP
@@ -76,65 +83,75 @@ EXECUTE_AS: USER_DEPLOYING
 ACCESS: MYSELF
 ```
 
-実施したmutationと最終readback:
+combined Dispatch budgetと最終readback:
 
 ```text
-REPAIR_RUNTIME_CYCLES: 1/2
-SOURCE_SYNCS: 1
-IMMUTABLE_VERSION_CREATES: 1
-SAME_DEPLOYMENT_UPDATES: 1
-FINAL_SERVED_VERSION: 14
+TOTAL_COHERENT_RUNTIME_CYCLES: 2/2
+TOTAL_SOURCE_SYNCS: 2
+TOTAL_IMMUTABLE_VERSION_CREATES: 2
+TOTAL_SAME_DEPLOYMENT_UPDATES: 2
+CURRENT_FINAL_REFINEMENT_CYCLE: sync1 / version1 / update1
+FINAL_SERVED_VERSION: 15
 FINAL_SAVED_SOURCE_PARITY: PASS
 FINAL_IMMUTABLE_SOURCE_PARITY: PASS
 NEW_TARGET: 0
 SECOND_DEPLOYMENT: 0
 ```
 
-deployment update直後のreadbackは旧versionを返したため、updateは再送しなかった。12秒後のread-only metadata照合でversion14への収束を確認し、その後のfinal parityをPASSした。private URL、deployment ID、Script ID、account等は記録していない。
+current cycleのdeployment update直後readbackは`DEPLOYMENT_UPDATE_PENDING`だった。updateは再送せず、read-only metadata照合でversion15への収束を確認してfinal parityをPASSした。private URL、deployment ID、Script ID、account等はGitHubへ記録していない。
 
 ## Actual browser qualification
 
-deploying ownerとしてsame versioned Web Appを通常browser UIで確認した。
+deploying ownerとしてsame versioned Web App version15を通常browser UIで確認した。
 
 ### Knowledge Search
 
 ```text
-VIEWPORT_2560: 12-column / mode 1-3 / model 4-6 / gap 7 / output 8-9 / PASS
+VIEWPORT_2560: 12-column / mode 1-3 / model 4-6 / output 7-8 / PASS
 VIEWPORT_1440: SAME TOPOLOGY / PASS
 VIEWPORT_1280: SAME TOPOLOGY / PASS
 VIEWPORT_390: mode -> model -> non-AI output / 1-column / PASS
-LABEL_AI_SEARCH_MODE: PASS
+OUTPUT_START_EQUALS_ASSET_START: PASS
+SOURCE_DOM_ORDER: mode -> model -> output / PASS
+DEFAULT_MODE: 要約 / PASS
 HORIZONTAL_OVERFLOW: 0
 ```
 
-synthetic対象だけを選び、`全文出力`を通常UIから1回実行した。preview本文がnon-emptyとなり、AI modeは`要約`、AI model selectionはblankのまま保持された。provider routeは呼ばれていない。
+最初に選んだsynthetic候補はActive Meeting 0件としてexpected no-resultsとなった。選択を解除したbounded read-only再確認では、AI model blank・`要約`のままMeeting 6件、preview 4223文字を返し、hard stopなし・successとなった。AI検索buttonは実行していない。
 
 ```text
 NON_AI_FULL_OUTPUT: PASS
-AI_STATE_UNCHANGED: PASS
-PROVIDER_CALLS: 0
+AI_MODEL: BLANK
+AI_PROVIDER_CALLS: 0
 CONFIDENTIAL_DATA: 0
 ```
 
 ### Meeting-create
 
 ```text
-VIEWPORT_2560: LEFT participant/internal/register + RIGHT row3-span3 attachment / PASS
+VIEWPORT_2560: participant/internal span7 + attachment start8/span5 + row5 actions / PASS
 VIEWPORT_1440: SAME TOPOLOGY / PASS
 VIEWPORT_1280: SAME TOPOLOGY / PASS
-ATTACHMENT_DROP_ACTION_SPLIT: APPROXIMATELY_70_30_WITH_SAFE_MINIMUM / PASS
-VIEWPORT_390: participant -> internal -> register -> attachment -> notes / PASS
-ATTACHMENT_MOBILE_COLUMNS: 1 / PASS
+ATTACHMENT_HEIGHT: 142px / LEFT_TWO_FIELD_STACK: 142px / MATCH
+DROP_ZONE_HEIGHT: 104px / VERSION13: 118px / REDUCED
+DROP_ZONE_FULL_ATTACHMENT_WIDTH: PASS
+ATTACHMENT_ACTIONS_OUTSIDE_BOX: PASS
+ROW5_REGISTER_AND_ACTION_START_Y: MATCH
+VIEWPORT_390: SAFE 1-column stack / PASS
 CLEAR_LABEL: 資料選択をクリア / PASS
+HELP_TEXT_ABSENT: PASS
 HORIZONTAL_OVERFLOW: 0
 ```
 
-添付選択が空の状態で`資料選択をクリア`を1回操作し、選択空・retry disabled・errorなしを確認した。登録はrequired fieldsが空の状態で1回操作し、`日付、面談先、Asset Classは必須です。`としてfail-closedすることを確認した。record/file mutationは行っていない。
+添付空状態（file input blank / file rows 0 / retry disabled）を確認して`資料選択をクリア`を1回操作し、空状態を維持した。required date / Asset Classが空の状態で登録を1回操作し、required-field validationがerror表示となるfail-closedを確認した。record/file mutationは0。
 
-### Regression smoke
+### Navigation / console
 
 ```text
-NORMAL_NAVIGATION: 7/7 NONBLANK
+NORMAL_NAVIGATION_2560: 7/7 NONBLANK / active page exactly1 / overflow0
+NORMAL_NAVIGATION_1440: 7/7 NONBLANK / active page exactly1 / overflow0
+NORMAL_NAVIGATION_1280: 7/7 NONBLANK / active page exactly1 / overflow0
+NORMAL_NAVIGATION_390: 7/7 NONBLANK / active page exactly1 / overflow0
 CONSOLE_MATERIAL_ERROR_WARN: 0
 COUNTERPARTY_MODAL: PRESERVED BY LOGIC/HARNESS EVIDENCE
 WORK0037_MASTER_STATE_REPAIR: PASS

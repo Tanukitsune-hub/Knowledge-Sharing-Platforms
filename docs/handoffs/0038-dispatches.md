@@ -3,10 +3,10 @@
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-01
 ACTIVE_DISPATCH_ID: 0038-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
-PHASE: IMPLEMENTATION / TARGET RUNTIME QUALIFICATION
+PHASE: FINAL REVIEW
 
 ## Primary Outcome
 
@@ -48,8 +48,8 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 ## Latest user refinement — authoritative override
 
 - Knowledge: AI model immediately beside AI mode; non-AI output start7 aligned with Asset Class.
@@ -69,3 +69,14 @@ Same `0038-CODEX-01` continues. No new Dispatch.
 - Prior instruction `buttons directly below drop zone inside attachment` is SUPERSEDED.
 
 Same `0038-CODEX-01` continues. No new Dispatch.
+
+## Dispatch result
+
+| Dispatch | Result |
+|---|---|
+| 0038-CODEX-01 | latest frozen 2-screen geometry、572/572、bundle 30/30、same deployment version15、4 viewport x 7 pages actual runtime qualificationをPASS。Draft PR #60で返却。 |
+
+WORK_ID: 0038
+DISPATCH_ID: 0038-CODEX-01
+BALL: CHATGPT
+STATUS: RETURNED
