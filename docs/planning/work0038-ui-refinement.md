@@ -1,9 +1,9 @@
 # Work 0038 — Post-version13 UI refinement
 
 WORK_ID: 0038
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: READY_FOR_CODEX
+PHASE: COMPLETION_LATCH
 
 ## Primary Outcome
 
@@ -95,3 +95,18 @@ After actual UI evidence + tests pass, ChatGPT reviews PR and applies Completion
 - bottom initial-ready full-width statusを廃止し、top rowへ移動。
 - operational validation/success/error status behaviorは維持。
 - PR #60を継続し、新PRは作らない。
+## Final Acceptance
+
+PR #60 merge: `27fb5ca200cdb4d26f7111555cde33c8c2956892`
+
+```text
+FINAL_SERVED_VERSION: 18
+TARGET_RUNTIME_QUALIFICATION: PASS
+LOGIC_VALIDATION: 574/574 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+CONSOLE_MATERIAL_ERROR_WARN: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+Completion: `docs/handoffs/0038-completion-report.md`
