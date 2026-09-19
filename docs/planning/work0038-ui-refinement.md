@@ -1,0 +1,75 @@
+# Work 0038 — Post-version13 UI refinement
+
+WORK_ID: 0038
+STATUS: ACTIVE
+MODE: BUILD
+PHASE: READY_FOR_CODEX
+
+## Primary Outcome
+
+Work0037/version13をaccepted baselineとして、Knowledge SearchとMeeting-createの追加UI refinementを最小変更でproductionへ反映し、same owner-only Web Appでactual runtime認定する。
+
+Authoritative requirements:
+`docs/handoffs/0038-ui-refinement-requirements.md`
+
+## Work Contract
+
+### Acceptance Evidence
+
+Evidence hierarchy:
+1. actual owner-only Web App rendered UI / interaction / console
+2. target/deployment/source parity
+3. focused deterministic tests + canonical check/bundle
+4. source inspection
+
+Required actual evidence:
+- 2560 / 1440 / 1280 / 390
+- Knowledge Search Row3 exact order/spacing and label
+- non-AI Full Output still provider-independent
+- Meeting-create participant/register/attachment geometry
+- attachment clear label exact text
+- Meeting submit/file interactions regression-free
+- console material error/warn0
+
+### Fastest Safe Decisive Action
+
+1. latest main/version13 parity確認
+2. 2画面だけsource/CSSを変更
+3. focused tests + canonical validation
+4. same targetにsource sync1 / immutable version1 / same deployment update1
+5. actual browser qualification
+
+### Required Scope
+
+- Knowledge Search mode label/order/spacing
+- Meeting-create register placement
+- Meeting-create attachment placement/inner width
+- attachment clear label rename
+- necessary tests/bundle
+
+### Non-Goals
+
+- schema/migration
+- search/provider/business logic redesign
+- other tabs
+- sidebar/theme redesign
+- Work0030
+- Work0035 UI Studio
+
+### Closed Conclusions
+
+- baseline: Work0037/version13
+- Knowledge Search initial mode remains 要約
+- non-AI Full Output behavior unchanged
+- Meeting-create Meeting Type behavior unchanged
+- Counterparty modal unchanged
+- Equity/Debt policy unchanged
+- admin owner-only boundary unchanged
+
+### Retry cap
+
+Maximum 2 coherent repair/runtime cycles.
+
+### Completion
+
+After actual UI evidence + tests pass, ChatGPT reviews PR and applies Completion Latch.
