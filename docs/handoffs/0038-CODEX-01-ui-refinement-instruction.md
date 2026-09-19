@@ -238,3 +238,64 @@ STATUS: RETURNED
 ```
 
 Ordinary CSS/HTML/JS/test defects are owned and repaired autonomously. Maximum 2 coherent repair/runtime cycles.
+## Latest authoritative override — 2026-09-20 (2)
+
+This section supersedes any earlier instruction that placed clear/retry directly below the drop zone inside the attachment block.
+
+### Final Meeting-create desktop geometry
+
+Use the 12-column grid as:
+
+```text
+left columns 1-7                         right columns 8-12
+Row 3: 面談相手                           資料を添付（任意）
+Row 4: 当社側                             資料を添付（任意）
+Row 5: 登録                               資料選択をクリア / 未完了分を再試行
+Row 6: 面談内容 full width
+```
+
+Exact intent:
+- `.meeting-field-counterparty-person`: col1/span7 row3
+- `.meeting-field-internal-participants`: col1/span7 row4
+- `.meeting-field-submit`: col1/span3 (or compact fit-content within the left region) row5
+- `#attachment-section`: col8/span5; grid-row:3/span2
+- attachment actions: row5, col8/span5, outside `#attachment-section` visual box
+- `.meeting-field-notes`: col1/span12 row6
+
+Do not keep the participant fields at span6. The freed width from the old attachment action area belongs to 面談相手 / 当社側.
+
+### Attachment block
+
+- Narrow the overall attachment block to 5/12 columns.
+- Drop zone should use the full available width of the attachment block; there is no internal side action column.
+- Keep the drop zone slightly shorter vertically than version13.
+- Normal empty/default attachment panel height should match exactly the combined visual height of the two left-side fields (面談相手 + 当社側), excluding row5.
+- Keep the processing-order help text removed.
+
+### Attachment actions
+
+Move these controls OUTSIDE the attachment block and onto the same row as Register:
+- `資料選択をクリア`
+- `未完了分を再試行`
+
+Place them in the right-side row5 area under the attachment block. Prefer left-aligned within col8/span5 with a normal gap. Side-by-side is preferred when labels fit; safe wrap is allowed at narrower desktop widths.
+
+Do not place these controls inside or directly below the drop zone within the attachment panel.
+
+### Mobile
+
+At <=720px safe stack the controls without overflow. Preserve logical grouping and exact labels; desktop grid positions do not need to persist.
+
+### Focused test updates
+
+Replace prior attachment-action expectations with:
+- participant fields span7
+- attachment starts col8/span5
+- attachment row3/span2
+- register row5 left
+- clear/retry row5 right, outside attachment visual block
+- no attachment-internal action column / action row
+- drop zone occupies attachment width
+- default attachment height matches participant+internal combined height
+- exact `資料選択をクリア` text
+- behavior of clear/retry unchanged
