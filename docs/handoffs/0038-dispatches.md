@@ -50,3 +50,12 @@ WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-01
 BALL: CODEX
 STATUS: READY
+## Latest user refinement — authoritative override
+
+- Knowledge: AI model immediately beside AI mode; non-AI output start7 aligned with Asset Class.
+- Meeting: attachment col7/span6 row3/span2; same default height as 面談相手+当社側 combined.
+- Remove attachment processing-order help text.
+- Shorten drop zone height.
+- Move clear/retry buttons directly below drop zone; remove right-side action-column layout.
+
+Same `0038-CODEX-01` continues. No new Dispatch.
