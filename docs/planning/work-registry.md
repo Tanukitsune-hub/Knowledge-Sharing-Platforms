@@ -27,10 +27,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 11 | 0034 | Meeting-create production反映・shared sidebar refresh・adjacent UI convergence | ACCEPTED | Work 0033 accepted candidate / Work0032 baseline | PR #56 / version10 accepted。Completion Latch済み。次は他タブを1画面ずつLayout Labで調整 |
 | 12 | 0035 | Multi-screen UI Studio — 全7タブ一括design + fine positioning | SUPERSEDED | Work0034 version10 / Work0033 Layout Lab | User strategy reset 2026-09-19。UI Studio追加開発は停止、Work0036へ |
 | 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | ACCEPTED | Work0034 version10 | PR #58 / version11 accepted。Completion Latch済み |
-| 14 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 15 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 16 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 17 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 14 | 0037 | Post-version11 UI refinement — screen-by-screen verbal requirements | ACTIVE | Work0036 version11 | Requirements intake中。Codex Dispatchはまだ発行しない |
+| 15 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 16 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 17 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 18 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -383,3 +384,16 @@ Selection policy:
 
 Completion: `docs/handoffs/0036-completion-report.md`
 Current ball/status: `docs/handoffs/0036-dispatches.md`
+## Work 0037 active intake
+
+```text
+WORK_ID: 0037
+STATUS: ACTIVE
+PHASE: REQUIREMENTS_INTAKE
+BASELINE: Work0036 version11
+ACTIVE_DISPATCH: NONE
+BALL: USER
+```
+
+Requirements: `docs/handoffs/0037-ui-refinement-requirements.md`
+Dispatch control: `docs/handoffs/0037-dispatches.md`
