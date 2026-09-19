@@ -219,3 +219,47 @@ WORK_0030: DEFERRED_BY_USER
 - UIで現在選択中tabに対応するtype codeを内部的に固定して送信する。
 - userがType codeを手入力・選択する必要をなくす。
 - existing inactive rowsやsort order contractは維持する。
+## Screen: 管理者ページ
+
+### Authentication simplification
+
+- 現時点ではアプリ内の共有管理者パスワードを設定しない。
+- `共有管理者パスワード`の初期設定、確認入力、管理者モード開始、管理者モード終了、パスワード変更などの一連のUIを撤去する。
+- 管理者ページを開いた時点で、そのページ内の設定操作をそのまま利用可能にする。
+- `ロック中 / 管理者モード`というアプリ内状態概念もnormal UIから撤去する。
+
+### Security boundary
+
+- これはWeb App自体をpublic化する指示ではない。
+- Work0036/version11でacceptedなApps Script deployment securityを維持する。
+- same owner-only / authenticated deployment boundaryを維持し、permission broadeningは行わない。
+- 追加の“第2パスワード”だけを撤去する。
+
+### UI cleanup
+
+- 画面上部の`管理者モード`card / password関連formを削除する。
+- `状態は閲覧できます。変更には管理者モードのロック解除が必要です。`等のpassword前提help文言を削除・更新する。
+- OpenAI / Gemini / model policy等の各設定cardは直接操作可能な状態を基本とする。
+- disabled状態がshared-password gate由来の場合は解除する。
+- provider未設定・qualification未達・feature policy等、password以外の理由によるdisabled状態は維持する。
+
+### Code / state cleanup intent
+
+- shared admin passwordのactive code path、unlock/lock session state、password initialize/change flowを削除する。
+- password hash/secret値をnormal UIへ表示しない。
+- legacy password-related Script Properties等が存在する場合は、既存deploymentのsecurityを壊さない範囲で未使用化する。不要な値の物理削除はimplementation時に安全性を確認して判断する。
+- password mechanismを将来再導入しやすくするために残骸UIを残すのではなく、現行product surfaceからは明確に撤去する。
+
+### Acceptance intent
+
+- owner-only Web Appへアクセスできるユーザーは、管理者ページを開いてそのまま設定変更操作に入れる。
+- password入力要求0。
+- unlock/lock button0。
+- shared admin password initialize/change UI0。
+- provider/security behavior自体は変更しない。
+- permission broadening0。
+
+### Future note
+
+- 将来会社展開時に追加認証が必要と判断した場合は、別Workとして再設計する。
+- Work0037では“パスワード無し”をcurrent product behaviorとして扱う。
