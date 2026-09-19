@@ -263,3 +263,49 @@ WORK_0030: DEFERRED_BY_USER
 
 - 将来会社展開時に追加認証が必要と判断した場合は、別Workとして再設計する。
 - Work0037では“パスワード無し”をcurrent product behaviorとして扱う。
+## Screen: 記録を追加
+
+### Space-saving refinement
+
+Work0036/version11のaccepted Meeting-create layoutをbaselineとし、fieldの意味・backend contractは変えず、未使用の右側spaceを活用して縦方向の占有を減らす。
+
+### Row 1 — Meeting Typeを右側へ
+
+- 現在別rowを使っている`Meeting Type` checkbox groupを、1段目の右側へ移動する。
+- Date / Time / 面談場所 / Team / Asset Classの右側に残るspaceを使う。
+- 12-column基準では、既存Row 1がcolumns 1–9を使用しているため、Meeting Typeは原則columns 10–12を使用する。
+- 3 checkboxは可能なら同一row内にcompactに並べる。
+- 1440/1280で窮屈な場合はMeeting Type block内だけsafe wrapしてよいが、別のfull-width rowへ戻さない。
+- mobile <=720pxは通常stackでよい。
+
+### Internal Participants + 登録button
+
+- `登録`buttonをform最下部から移動する。
+- `当社側`入力欄の右側に配置する。
+- `当社側`fieldは現状の左側spanを維持し、その右隣の空きgrid spaceへcompactな登録actionを置く。
+- buttonは入力欄と同じrowで、control bottom lineに揃える。
+- 12-column基準では`当社側`がstart1 span6なので、登録buttonはstart7側から自然に配置する。
+- button自体を不要に横長にせず、labelに必要なfit-content程度とする。
+- submit semantics、disabled/busy state、validation、retry behaviorは変更しない。
+- 現在最下部にある登録button用action rowは、button移動後に不要なら撤去する。
+
+### Attachment section
+
+- `資料を添付（任意）`のfile drop areaを現状より少し短くする。
+- drop areaの右側にaction columnを作る。
+- `選択をクリア`と`未完了分を再試行`を、その右側spaceに縦並びで配置する。
+- 2つのbuttonのためだけに独立した横1段を使わない。
+- desktopではdrop area + right action columnを同一rowにする。
+- 目安としてdrop areaは横幅の約80–85%、action columnは残り15–20%程度。実装時はbutton labelが切れないことを優先して調整可。
+- right action column内は上から:
+  1. `選択をクリア`
+  2. `未完了分を再試行`
+- button幅はcolumn内で揃える。
+- mobile <=720pxではdrop areaの下にbuttonsをstackしてよい。
+- file drop / click selection / retry / clearの既存behaviorは変更しない。
+
+### Vertical rhythm
+
+- Meeting Typeのrow削減、attachment action row削減、登録buttonのbottom row削減により、画面全体をよりcompactにする。
+- `面談内容`textareaの高さは現状accepted値を維持し、単に上部の無駄な縦spaceを減らす。
+- success/status messageの表示領域は維持し、submit resultが見えなくならないようにする。
