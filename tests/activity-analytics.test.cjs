@@ -197,6 +197,22 @@ test('full metrics precede drill and breakdown caps and no Doc body adapter is u
   assert.deepEqual(env._debug.calls, ['getInstallationState', 'readRows:backend:Counterparty_Master', 'readRows:backend:Meeting_Index']);
 });
 
+test('Meeting drill uses the canonical Meeting Type definitions for all three labels', () => {
+  const rows = [meeting('MTG-000010', '2026-08-20', {
+    Meeting_Type_Codes: 'ANNUAL_REVIEW,OFFICE_VISIT,ANNUAL_GENERAL_MEETING'
+  })];
+  const result = ksp.kspGetMeetingActivityAnalytics_(createEnvironment(rows), {
+    period: 'monthly', dateFrom: '2026-08-01', dateTo: '2026-08-31', dimension: 'meetingType'
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.deepEqual(Array.from(result.drill.records[0].meetingTypeLabels), [
+    '定例年1回', '先方オフィス訪問', '年次総会'
+  ]);
+  assert.deepEqual(Array.from(result.drill.records[0].meetingTypeCodes), [
+    'ANNUAL_REVIEW', 'OFFICE_VISIT', 'ANNUAL_GENERAL_MEETING'
+  ]);
+});
+
 test('admin check is narrow, optimistic, idempotent, and metadata-only', () => {
   const rows = baseRows();
   const target = rows[0];
@@ -215,6 +231,12 @@ test('admin check is narrow, optimistic, idempotent, and metadata-only', () => {
   assert.doesNotMatch(env._debug.audits[0].Before_Metadata_JSON + env._debug.audits[0].After_Metadata_JSON, /Follow_Up_Note|Doc_File_ID|Version|AI_/);
   assert.deepEqual({ Version: rows[0].Version, Updated_At: rows[0].Updated_At, Updated_By: rows[0].Updated_By, Doc_File_ID: rows[0].Doc_File_ID, Follow_Up_Note: rows[0].Follow_Up_Note, AI_Index_Status: rows[0].AI_Index_Status }, beforeNormal);
 
+  const reloaded = ksp.kspGetMeetingActivityAnalytics_(env, {
+    period: 'calendarYear', dateFrom: '2026-01-01', dateTo: '2026-12-31', dimension: 'team'
+  });
+  assert.equal(reloaded.ok, true, JSON.stringify(reloaded));
+  assert.equal(reloaded.drill.records.find(item => item.meetingId === target.Meeting_ID).adminCheckCompleted, true);
+
   const idempotent = ksp.kspUpdateMeetingAdminCheck_(env, {
     meetingId: target.Meeting_ID, desiredCompleted: true,
     expectedAdminCheckCompleted: true, expectedAdminCheckUpdatedAt: first.adminCheck.updatedAt
@@ -223,11 +245,21 @@ test('admin check is narrow, optimistic, idempotent, and metadata-only', () => {
   assert.equal(idempotent.changed, false);
   assert.equal(env._debug.audits.length, 1);
 
-  const stale = ksp.kspUpdateMeetingAdminCheck_(env, {
+  const second = ksp.kspUpdateMeetingAdminCheck_(env, {
     meetingId: target.Meeting_ID, desiredCompleted: false,
-    expectedAdminCheckCompleted: false, expectedAdminCheckUpdatedAt: ''
+    expectedAdminCheckCompleted: true, expectedAdminCheckUpdatedAt: first.adminCheck.updatedAt
+  });
+  assert.equal(second.ok, true, JSON.stringify(second));
+  assert.equal(second.changed, true);
+  assert.equal(rows[0].Admin_Check_Completed, false);
+  assert.equal(env._debug.audits.length, 2);
+  assert.deepEqual({ Version: rows[0].Version, Updated_At: rows[0].Updated_At, Updated_By: rows[0].Updated_By, Doc_File_ID: rows[0].Doc_File_ID, Follow_Up_Note: rows[0].Follow_Up_Note, AI_Index_Status: rows[0].AI_Index_Status }, beforeNormal);
+
+  const stale = ksp.kspUpdateMeetingAdminCheck_(env, {
+    meetingId: target.Meeting_ID, desiredCompleted: true,
+    expectedAdminCheckCompleted: true, expectedAdminCheckUpdatedAt: first.adminCheck.updatedAt
   });
   assert.equal(stale.ok, false);
   assert.equal(stale.error.code, 'ADMIN_CHECK_STALE');
-  assert.equal(env._debug.audits.length, 1);
+  assert.equal(env._debug.audits.length, 2);
 });
