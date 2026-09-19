@@ -77,3 +77,16 @@ Codex Dispatchはまだ発行しない。
 管理者ページはapp内shared password gateを撤去。ただしowner-only Web App deployment securityは維持する。
 
 Codex Dispatchはまだ発行しない。
+## Intake update
+
+`記録を追加`の省スペース修正要件を追加済み。
+
+現在の収集済みscreen:
+- 過去の記録
+- ナレッジ検索
+- 面談実績の集計
+- プルダウンの管理
+- 管理者ページ
+- 記録を追加
+
+Codex Dispatchはまだ発行しない。
