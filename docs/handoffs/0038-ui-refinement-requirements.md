@@ -3,7 +3,7 @@
 WORK_ID: 0038
 STATUS: ACTIVE
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
+PHASE: REQUIREMENTS_FROZEN
 
 ## Purpose
 
@@ -74,4 +74,33 @@ WORK_0030: DEFERRED_BY_USER
 
 ## Dispatch state
 
-Codex Dispatchはまだ発行しない。
+Requirements frozen. Active implementation dispatch: `0038-CODEX-01`.
+## Frozen implementation geometry
+
+### Knowledge Search Row 3
+
+Desktop canonical order:
+`AI検索モード → AIモデル → 1-column程度のvisual gap → 非AI出力`
+
+Suggested 12-column placement:
+- AI検索モード: start1 span3
+- AIモデル: start4 span3
+- column7: intentional blank
+- 非AI出力: start8 span2
+
+HTML/source orderも`AI検索モード → AIモデル → 非AI出力`に揃え、mobile stackでも同じ順序を維持する。
+
+### Meeting-create participant / attachment region
+
+Desktop canonical placement:
+- 面談相手: start1 span6, row3
+- 当社側: start1 span6, row4
+- 登録: start1 span3程度, row5（当社側の直下）
+- 資料を添付（任意）: start7 span6, row3からrow5を縦にspan
+- 面談内容: full width, attachment regionの次row
+
+Attachment internal workspace:
+- drop area: 約70%
+- action column: 約30%（最低幅を確保）
+- actions: `資料選択をクリア` → `未完了分を再試行`の順に縦配置
+- mobile <=720px: participants → register → attachment → notesへsafe stack
