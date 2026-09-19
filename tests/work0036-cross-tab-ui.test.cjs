@@ -18,7 +18,7 @@ const styles = read('Styles.html');
 test('Equity and Debt remains hidden and preserved, not selectable in normal UI', () => {
   assert.match(index, /meeting-field-backend-only" hidden aria-hidden="true"><label for="meeting-capitalTypeId">Equity \/ Debt/);
   assert.match(index, /meeting-field-backend-only" hidden aria-hidden="true"><label for="pitchbook-capitalTypeId">Equity \/ Debt/);
-  assert.match(knowledge, /maintenance-backend-filter" hidden aria-hidden="true"><label for="knowledge-capitalTypeId">Equity \/ Debt/);
+  assert.match(knowledge, /<div hidden>[\s\S]*id="knowledge-capitalTypeId"/);
   for (const id of ['meeting-past-capitalTypeId', 'meeting-edit-capitalTypeId', 'pitchbook-past-capitalTypeId', 'pitchbook-edit-capitalTypeId']) {
     assert.match(pages, new RegExp(`hidden aria-hidden="true"><label for="${id}">Equity \/ Debt`), id);
   }
@@ -42,19 +42,19 @@ test('Counterparty Type is selectable only in the shared registration modal', ()
 });
 
 test('cross-tab grids use the accepted 12-column and 14px production language', () => {
-  assert.match(knowledge, /knowledge-primary-row[^}]*grid-template-columns:repeat\(12,minmax\(0,1fr\)\)[^}]*column-gap:14px[^}]*row-gap:14px/);
-  assert.match(knowledge, /knowledge-counterparty-field\{grid-column:1\/span 4\}/);
-  assert.match(knowledge, /knowledge-source-field\{grid-column:5\/span 2\}/);
-  assert.match(knowledge, /knowledge-date-from-field\{grid-column:7\/span 2\}/);
-  assert.match(knowledge, /knowledge-date-to-field\{grid-column:9\/span 2\}/);
-  assert.match(knowledge, /knowledge-all-period-field\{grid-column:11\/span 2\}/);
+  assert.match(knowledge, /knowledge-period-row[^}]*grid-template-columns:repeat\(12,minmax\(0,1fr\)\)[^}]*column-gap:14px[^}]*row-gap:14px/);
+  assert.match(knowledge, /knowledge-counterparty-field\{grid-column:1\/span 6\}/);
+  assert.match(knowledge, /knowledge-source-field\{grid-column:11\/span 2\}/);
+  assert.match(knowledge, /knowledge-date-from-field\{grid-column:1\/span 2\}/);
+  assert.match(knowledge, /knowledge-date-to-field\{grid-column:3\/span 2\}/);
+  assert.match(knowledge, /knowledge-all-period-field\{grid-column:5\/span 2\}/);
   assert.match(styles, /meeting-edit-grid[^}]*grid-template-columns:repeat\(12,minmax\(0,1fr\)\)[^}]*column-gap:14px[^}]*row-gap:14px/);
   assert.match(styles, /meeting-edit-date-field\{grid-column:1\/span 2;grid-row:1\}/);
   assert.match(styles, /meeting-edit-counterparty-field\{grid-column:1\/span 6;grid-row:2\}/);
   assert.match(styles, /meeting-edit-fund-field\{grid-column:7\/span 4;grid-row:2\}/);
-  assert.match(styles, /analytics-controls \.activity-counterparty-field\{grid-column:9\/span 4\}/);
+  assert.match(styles, /analytics-controls \.activity-counterparty-field\{grid-column:1\/span 4;grid-row:2\}/);
   assert.match(styles, /entity-workspace-selector-grid>\.field\{grid-column:1\/span 6/);
-  assert.match(styles, /master-layout>section\{grid-column:span 6/);
+  assert.match(styles, /\.master-layout\{display:block\}/);
   assert.match(styles, /@media\(max-width:720px\)[^{]*\{[^}]*meeting-edit-grid[^}]*grid-template-columns:1fr/);
 });
 

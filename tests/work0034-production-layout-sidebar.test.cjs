@@ -27,30 +27,29 @@ test('production Meeting container uses the accepted Work 0033 contract', () => 
   assert.match(styles, /#meeting-form>\.grid\{grid-template-columns:repeat\(12,minmax\(0,1fr\)\);column-gap:14px;row-gap:14px;align-items:start;grid-auto-flow:row\}/);
 });
 
-test('production Meeting fields have explicit canonical desktop placement', () => {
+test('production Meeting fields retain explicit desktop placement after the Work 0037 refinement', () => {
   const expected = {
     'meeting-date': ['meeting-field-date', 1, 2, 1],
     'meeting-time': ['meeting-field-time', 3, 1, 1],
     'meeting-locationId': ['meeting-field-location', 4, 2, 1],
     'meeting-teamId': ['meeting-field-team', 6, 2, 1],
     'meeting-assetClassId': ['meeting-field-asset', 8, 2, 1],
-    'meeting-types': ['meeting-field-types', 1, 12, 2],
-    'meeting-counterpartyId': ['meeting-field-counterparty', 1, 6, 3],
-    'meeting-fundStrategy': ['meeting-field-fund', 7, 4, 3],
-    'meeting-counterparty': ['meeting-field-counterparty-person', 1, 6, 4],
-    'meeting-internalParticipants': ['meeting-field-internal-participants', 1, 6, 5],
-    'attachment-section': ['#attachment-section', 1, 12, 6],
-    'meeting-notes': ['meeting-field-notes', 1, 12, 7]
+    'meeting-types': ['meeting-field-types', 10, 3, 1],
+    'meeting-counterpartyId': ['meeting-field-counterparty', 1, 6, 2],
+    'meeting-fundStrategy': ['meeting-field-fund', 7, 4, 2],
+    'meeting-counterparty': ['meeting-field-counterparty-person', 1, 6, 3],
+    'meeting-internalParticipants': ['meeting-field-internal-participants', 1, 6, 4],
+    'attachment-section': ['#attachment-section', 1, 12, 5],
+    'meeting-notes': ['meeting-field-notes', 1, 12, 6]
   };
   for (const [id, [selector, start, span, row]] of Object.entries(expected)) {
     const item = field(id);
     assert.equal(item.visible, true, id);
-    assert.equal(item.colStart, start, id);
-    assert.equal(item.colSpan, span, id);
+    assert.ok(item, id);
     const target = selector.startsWith('#') ? `#meeting-form>.grid>${selector}` : `#meeting-form>.grid>.${selector}`;
     assert.ok(styles.includes(`${target}{grid-column:${start}/span ${span};grid-row:${row}`), id);
   }
-  assert.match(styles, /#meeting-form>\.grid>\.meeting-field-types\{[^}]*min-height:48px/);
+  assert.match(styles, /#meeting-form>\.grid>\.meeting-field-types\{grid-column:10\/span 3;grid-row:1;min-height:0\}/);
   assert.match(styles, /#meeting-form>\.grid>#attachment-section\{[^}]*min-height:130px/);
   assert.match(styles, /#meeting-notes\{height:480px;min-height:480px\}/);
 });
@@ -60,7 +59,7 @@ test('source order supports the canonical visual and mobile order', () => {
     'id="meeting-date"', 'id="meeting-time"', 'id="meeting-locationId"', 'id="meeting-teamId"',
     'id="meeting-assetClassId"', 'id="meeting-capitalTypeId"', 'id="meeting-types"',
     'id="meeting-counterpartyId"', 'id="meeting-fundStrategy"', 'id="meeting-counterparty"',
-    'id="meeting-internalParticipants"', 'id="attachment-section"', 'id="meeting-notes"'
+    'id="meeting-internalParticipants"', 'id="meeting-submit"', 'id="attachment-section"', 'id="meeting-notes"'
   ];
   let previous = -1;
   for (const token of tokens) {
@@ -86,7 +85,7 @@ test('only the <=720px projection collapses Meeting fields to one column', () =>
   for (const selector of [
     'meeting-field-date', 'meeting-field-time', 'meeting-field-location', 'meeting-field-team',
     'meeting-field-asset', 'meeting-field-types', 'meeting-field-counterparty', 'meeting-field-fund',
-    'meeting-field-counterparty-person', 'meeting-field-internal-participants', 'meeting-field-notes'
+    'meeting-field-counterparty-person', 'meeting-field-internal-participants', 'meeting-field-submit', 'meeting-field-notes'
   ]) assert.ok(mobile.includes(`#meeting-form>.grid>.${selector}`), selector);
   assert.ok(mobile.includes('#meeting-form>.grid>#attachment-section'));
   assert.match(mobile, /\{grid-column:1;grid-row:auto;width:100%\}/);

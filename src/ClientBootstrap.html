@@ -3,7 +3,7 @@
 el('meeting-file-home').appendChild(el('meeting-file-panel'));
 kspSetDefaultDateRange('meeting-past-dateFrom','meeting-past-dateTo');
 kspSetDefaultDateRange('pitchbook-past-dateFrom','pitchbook-past-dateTo');
-kspSetDefaultDateRange('activity-date-from','activity-date-to');
+kspSetOneYearDateRange('activity-date-from','activity-date-to');
 kspSetDefaultDateRange('relationship-date-from','relationship-date-to');
 showPage('knowledge');
 el('nav-meeting').addEventListener('click',()=>{el('meeting-file-home').appendChild(el('meeting-file-panel'));el('pitchbook-submit').hidden=!(pitchbookParent&&pitchbookParent.existing)});

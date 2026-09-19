@@ -2093,9 +2093,6 @@ function kspAiProviderAdminSafeSyncSummary_(report) {
 function kspGetAiProviderAdminData_(environment, input) {
   try {
     var context = environment.loadAiContext();
-    var adminCredential = kspSharedAdminReadCredential_(environment);
-    var adminUnlocked = kspSharedAdminTryValidateToken_(environment,
-      input && input.adminSessionToken, adminCredential);
     var settings = kspNormalizeAiSettings_(context.settings);
     var keyConfigured = kspAiProviderAdminCredentialConfigured_(environment);
     var storeReady = Boolean(settings.openaiVectorStoreId);
@@ -2119,12 +2116,7 @@ function kspGetAiProviderAdminData_(environment, input) {
     return {
       ok: true,
       workId: '0029',
-      canMutate: adminUnlocked,
-      adminAuth: {
-        credentialConfigured: Boolean(adminCredential.configured),
-        canBootstrap: !adminCredential.configured && kspIsAiProviderAdministrator_(environment, context),
-        unlocked: adminUnlocked
-      },
+      canMutate: true,
       openai: {
         keyConfigured: keyConfigured,
         vectorStoreReady: storeReady,
@@ -2145,8 +2137,7 @@ function kspGetAiProviderAdminData_(environment, input) {
     };
   } catch (error) {
     var code = kspGetErrorCode_(error, 'OPENAI_ACTIVATION_FAILED');
-    return kspAiProviderAdminFailure_(String(code).indexOf('SHARED_ADMIN_') === 0
-      ? code : 'OPENAI_ACTIVATION_FAILED');
+    return kspAiProviderAdminFailure_('OPENAI_ACTIVATION_FAILED');
   }
 }
 
@@ -2259,7 +2250,6 @@ function kspMutateAiProviderSettings_(environment, input) {
   var authorized = false;
   try {
     context = environment.loadAiContext();
-    kspSharedAdminValidateToken_(environment, input && input.adminSessionToken);
     authorized = true;
     if (action === 'CONNECT_OPENAI') return kspEnableOpenAiProvider_(environment, context, input);
     if (action === 'CONNECT_GEMINI') return kspConnectGeminiProvider_(environment, context, input);

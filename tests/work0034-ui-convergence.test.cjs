@@ -33,17 +33,18 @@ test('Past Meetings exposes the clean 12-column filter and sends safe backend de
   assert.match(pages, /class="field maintenance-backend-filter" hidden aria-hidden="true"><label><input id="meeting-past-followUpOnly"/);
   assert.doesNotMatch(pages, /id="meeting-past-meetingTypeCode"/);
   assert.equal((pages.match(/data-meeting-type-filter="meeting-past"/g)||[]).length,3);
-  assert.match(styles, /meeting-past-date-from-field\{grid-column:1\/span 2;grid-row:1\}/);
-  assert.match(styles, /meeting-past-date-to-field\{grid-column:3\/span 2;grid-row:1\}/);
-  assert.match(styles, /meeting-past-counterparty-field\{grid-column:5\/span 4;grid-row:1\}/);
-  assert.match(styles, /meeting-past-asset-field\{grid-column:9\/span 2;grid-row:1\}/);
-  assert.match(styles, /meeting-past-team-field\{grid-column:11\/span 2;grid-row:1\}/);
-  assert.match(styles, /meeting-past-fund-field\{grid-column:1\/span 6;grid-row:2\}/);
-  assert.match(styles, /meeting-past-types-field\{grid-column:7\/span 6;grid-row:2\}/);
-  assert.match(styles, /meeting-past-status-field\{grid-column:1\/span 2;grid-row:3\}/);
+  assert.match(styles, /meeting-past-date-from-field\{grid-column:1\/span 2;grid-row:2\}/);
+  assert.match(styles, /meeting-past-date-to-field\{grid-column:3\/span 2;grid-row:2\}/);
+  assert.match(styles, /meeting-past-counterparty-field\{grid-column:1\/span 4;grid-row:3\}/);
+  assert.match(styles, /meeting-past-asset-field\{grid-column:5\/span 2;grid-row:2\}/);
+  assert.match(styles, /meeting-past-team-field\{grid-column:7\/span 2;grid-row:2\}/);
+  assert.match(pages, /id="meeting-past-fundStrategy" type="hidden"/);
+  assert.match(styles, /meeting-past-types-field\{grid-column:5\/span 6;grid-row:3\}/);
+  assert.match(pages, /id="meeting-past-filterStatus" type="hidden" value="Active"/);
   assert.match(maintenance, /meetingTypeCode:meetingTypeCodes\.length===1\?meetingTypeCodes\[0\]:''/);
   assert.match(maintenance, /meetingTypeCodes,followUpOnly:followUpNode\?followUpNode\.checked:false/);
   assert.match(maintenance, /capitalTypeId:capitalTypeNode\?capitalTypeNode\.value:''/);
+  assert.match(maintenance, /status:meetingPast\?'Active'/);
 });
 
 test('Counterparty Summary uses one selector and count-only active summary without type identity', () => {

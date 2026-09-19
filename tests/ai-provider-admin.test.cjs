@@ -1,9 +1,7 @@
 const { test, assert, fs, path, ksp, plain, baseContext, attachSharedAdminAuth } = require('./ai-test-helpers.cjs');
 
 function mutateAdmin(environment, input) {
-  return ksp.kspMutateAiProviderSettings_(environment, {
-    ...(input || {}), adminSessionToken: environment._debug.adminSessionToken
-  });
+  return ksp.kspMutateAiProviderSettings_(environment, input || {});
 }
 
 function makeAdminEnvironment(options = {}) {
@@ -265,15 +263,15 @@ test('OpenAI key absence fails safely and leaves the provider disabled', () => {
   assert.doesNotMatch(JSON.stringify(result), /vs-synthetic|KSP_OPENAI_API_KEY|secret/i);
 });
 
-test('Gemini credential and Store administration is boolean-only and administrator-guarded', () => {
-  const denied = makeAdminEnvironment({ admin: false, geminiKey: false,
+test('Gemini credential and Store administration is boolean-only inside the owner-only deployment', () => {
+  const ownerOnly = makeAdminEnvironment({ admin: false, geminiKey: false,
     geminiStore: 'fileSearchStores/private-store' });
-  const deniedResult = plain(ksp.kspMutateAiProviderSettings_(denied, {
+  const directResult = plain(ksp.kspMutateAiProviderSettings_(ownerOnly, {
     action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
   }));
-  assert.equal(deniedResult.ok, false);
-  assert.equal(deniedResult.error.code, 'SHARED_ADMIN_SESSION_INVALID');
-  assert.equal(denied._debug.savedGeminiKeys.length, 0);
+  assert.equal(directResult.ok, true);
+  assert.equal(ownerOnly._debug.savedGeminiKeys.length, 1);
+  assert.doesNotMatch(JSON.stringify(directResult), /gemini-secret-synthetic|private-store/);
 
   const env = makeAdminEnvironment({ geminiKey: false, geminiStore: 'fileSearchStores/private-store' });
   const connected = plain(mutateAdmin(env, {
@@ -869,23 +867,19 @@ test('administrator SYNC safe summary excludes source, store, and provider docum
   }
 });
 
-test('legacy account identity alone cannot mutate after shared auth and status contains no private identifiers', () => {
+test('owner-only admin surface does not depend on legacy account identity and reveals no private identifiers', () => {
   const env = makeAdminEnvironment({ admin: false, storeId: 'vs-private', key: true });
   const status = plain(ksp.kspGetAiProviderAdminData_(env));
   assert.equal(status.ok, true);
-  assert.equal(status.canMutate, false);
+  assert.equal(status.canMutate, true);
   assert.equal(status.openai.vectorStoreReady, true);
   assert.equal(status.openai.status, 'DISABLED');
-  const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'ENABLE_OPENAI' }));
-  assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'SHARED_ADMIN_SESSION_INVALID');
-  assert.equal(env._debug.writes.length, 0);
+  const result = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'DISABLE_OPENAI' }));
+  assert.equal(result.ok, true);
+  assert.equal(result.action, 'DISABLE_OPENAI');
+  assert.equal(env._debug.writes.length, 2);
   assert.equal(env._debug.created.length, 0);
   assert.doesNotMatch(JSON.stringify(status) + JSON.stringify(result), /vs-private|KSP_OPENAI_API_KEY/);
-  const sync = plain(ksp.kspMutateAiProviderSettings_(env, { action: 'SYNC', sourceType: 'Meeting' }));
-  assert.equal(sync.ok, false);
-  assert.equal(sync.error.code, 'SHARED_ADMIN_SESSION_INVALID');
-  assert.equal(env._debug.syncCalls.length, 0);
 });
 
 test('admin provider surface exposes policy-safe exact model fields without credentials or provider resource IDs', () => {
