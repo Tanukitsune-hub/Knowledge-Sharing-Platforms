@@ -182,3 +182,24 @@ Rationale:
 - desktop: heading + clear + initial statusを1 row。
 - narrow/mobile: safe wrapを許容。順序はheading → clear → status。
 - horizontal overflow 0。
+## Latest user refinement — Knowledge Search help line
+
+2026-09-20 user instruction. Implement under `0038-CODEX-03` on the same Draft PR #60.
+
+### AI検索 指示入力欄 help
+
+現在は次の2文が別blockで上下2段に表示される:
+1. `表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。`
+2. `Teamは「面談記録のみ」で利用できます。`
+
+修正後は同じhelp line内で連続表示する:
+
+`表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。 Teamは「面談記録のみ」で利用できます。`
+
+Requirements:
+- desktopでは意図的な改行を入れず1行表示。
+- `knowledge-mode-help`のdynamic文言はmodeに応じて従来どおり変化可能だが、`knowledge-source-help`と同じinline help containerに並べる。
+- user指定の通常`要約`modeでは上記exact 2文が同一行。
+- source-help sentenceは削除しない。
+- mobile/narrowではhorizontal overflowを避けるため自然wrap可。explicit `<br>`やblock separationは作らない。
+- AI検索 behavior / validation / filtersは変更しない。
