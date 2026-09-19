@@ -130,3 +130,24 @@ Mobile:
 - Knowledge non-AI output start8案はSUPERSEDED。start7へ移動しAsset Classとhorizontal alignment。
 - Attachment row3/span3 + side action column案はSUPERSEDED。row3/span2でparticipants 2行と同高にし、buttonsはdrop area直下へ。
 - attachment help textは削除。
+## Latest superseding decision — 2026-09-20 (2)
+
+Previous `clear/retry immediately below drop zone` geometry is SUPERSEDED.
+
+Final desktop geometry:
+- left participant area is widened from 6/12 to 7/12.
+- right attachment area is narrowed from 6/12 to 5/12.
+- 面談相手: start1 span7, row3.
+- 当社側: start1 span7, row4.
+- attachment block: start8 span5, row3/span2.
+- 登録: row5 left, compact.
+- `資料選択をクリア` and `未完了分を再試行` move OUTSIDE the attachment block and are placed on row5, same horizontal band as the Register button, aligned under the attachment area.
+- drop zone uses essentially the full width of the narrower attachment block; no internal action column and no action row inside the attachment panel.
+- attachment default vertical height still equals the combined height of 面談相手 + 当社側 only (row3/span2).
+- attachment help text remains removed.
+- drop zone remains slightly shorter vertically than version13.
+- mobile safe stack may place register, then clear/retry, then attachment or attachment then actions as long as semantic grouping is clear and no horizontal overflow; desktop geometry above is canonical.
+
+Rationale:
+- width previously consumed by attachment actions is reallocated to participant fields.
+- the attachment panel itself becomes narrower, while the drop zone gains usable internal width because the action controls no longer share its box.
