@@ -8,13 +8,13 @@ MODE: BUILD
 
 ## Outcome
 
-CODEX-01で認定済みの2画面geometryとbehaviorを維持し、Meeting-create冒頭を`記録を追加 → 下書きをクリア → 面談入力の準備ができました。`のcompact headerへ収束した。同じexisting target / 同じ単一owner-only Web Appをversion16へ更新し、deterministic validationとactual browser qualificationを完了した。
+CODEX-01で認定済みの2画面geometryとbehaviorを維持し、Meeting-create冒頭を`記録を追加 → 下書きをクリア → 面談入力の準備ができました。`のcompact headerへ収束した。初回RETURN後のユーザー追加指示により、登録button横の`成功後も日付・Asset Class・Fund / Strategyは保持されます。`もvisible UIから削除した。同じexisting target / 同じ単一owner-only Web Appをversion17へ更新し、deterministic validationとactual browser qualificationを完了した。
 
 ```text
 OUTCOME: PASS
-FINAL_SOURCE_REF: a25da677990585a405cbd5029d12f0355fecfa72
-FINAL_BUNDLE_REF: 5a14a7d6b8dc4a2936b4d51a7ba619d1dd34d609
-FINAL_SERVED_VERSION: 16
+FINAL_SOURCE_REF: 7fccd826706de2ef7337eed34af8e4260a551d8f
+FINAL_BUNDLE_REF: 7ee0e98082f3ab78ba71f546c3359e4986a1a949
+FINAL_SERVED_VERSION: 17
 READY_FOR_CHATGPT_FINAL_REVIEW: YES
 BLOCKER: NONE
 ```
@@ -27,6 +27,7 @@ BLOCKER: NONE
 - longer validation / success / error / retry messageは同じstatus nodeでwrapできるcontent-width stylingにした。
 - registered Meeting lock表示も同じstatus nodeを再利用し、既存のoperational stateを保持した。
 - 720px以下ではheading → clear → statusのsemantic orderを保ったsafe wrapとした。
+- 登録button横の保持説明文を削除した。成功後に日付・Asset Class・Fund / Strategyを保持する既存behavior自体は変更していない。
 
 Knowledge Search geometry、participant span7、attachment span5 row3/span2、row5 controls、drop zone、Meeting Type、Counterparty modal、Equity/Debt policy、Work0037 Masters state repair、schema、migration、security、provider behaviorは変更していない。
 
@@ -50,6 +51,7 @@ NPM_RUN_CHECK: 573/573 PASS
 CANONICAL_BUNDLE_REGENERATION: PASS
 NPM_RUN_CHECK_BUNDLE: 30/30 PASS
 GIT_DIFF_CHECK: PASS
+POST_RETURN_COPY_REMOVAL_FOCUSED: 6/6 PASS
 ```
 
 local production browser harnessは2560 / 1440 / 1280 / 390でheader order、compact status、ready message count1、explanatory copy absence、required validation、horizontal overflow0、CODEX-01 geometry、全7ページ、console error/warn0を確認した。これは`SYNTHETIC_RENDER_ONLY`であり、次節のtarget-runtime evidenceとは分離している。
@@ -72,22 +74,22 @@ ACCESS: MYSELF
 bounded releaseと最終readback:
 
 ```text
-COHERENT_REPAIR_RUNTIME_CYCLES: 1/2
-SOURCE_SYNCS: 1
-IMMUTABLE_VERSION_CREATES: 1
-SAME_DEPLOYMENT_UPDATES: 1
-FINAL_SERVED_VERSION: 16
+COHERENT_REPAIR_RUNTIME_CYCLES: 2/2
+SOURCE_SYNCS: 2
+IMMUTABLE_VERSION_CREATES: 2
+SAME_DEPLOYMENT_UPDATES: 2
+FINAL_SERVED_VERSION: 17
 FINAL_SAVED_SOURCE_PARITY: PASS
 FINAL_IMMUTABLE_SOURCE_PARITY: PASS
 NEW_TARGET: 0
 SECOND_DEPLOYMENT: 0
 ```
 
-deployment update直後のreadbackは`DEPLOYMENT_UPDATE_PENDING`だった。updateは再送せず、read-only metadata照合でversion16への収束を確認してfinal parityをPASSした。private URL、deployment ID、Script ID、account等はGitHubへ記録していない。
+初回deployment update直後のreadbackは`DEPLOYMENT_UPDATE_PENDING`だった。updateは再送せず、read-only metadata照合でversion16への収束を確認した。追加文言削除ではversion16のtarget identity / deployment identity / saved source / immutable source parityをread-onlyで再確認し、source sync 1回、immutable version 17作成1回、同じdeployment update 1回だけを実施した。version17のfinal parityはPASS。private URL、deployment ID、Script ID、account等はGitHubへ記録していない。
 
 ## Actual browser qualification
 
-deploying ownerとしてsame owner-only versioned Web App version16を通常browser UIで確認した。
+deploying ownerとしてsame owner-only versioned Web Appの初回version16を通常browser UIで確認した。
 
 ### Meeting-create header
 
@@ -114,6 +116,22 @@ READY_MESSAGE_DURING_ERROR: 0
 
 ```text
 NORMAL_NAVIGATION: 7/7 NONBLANK
+CONSOLE_MATERIAL_ERROR_WARN: 0
+RECORD_MUTATION: 0
+FILE_MUTATION: 0
+```
+
+### Post-return copy removal
+
+version17を通常browserでreloadし、Meeting-createを開いて次を直接確認した。
+
+```text
+RETENTION_HINT_VISIBLE_COUNT: 0
+SUBMIT_HINT_NODE_COUNT: 0
+REGISTER_BUTTON_VISIBLE: PASS
+READY_STATUS: 面談入力の準備ができました。
+HORIZONTAL_OVERFLOW: 0
+PAGE_IDENTITY / NONBLANK / FRAMEWORK_OVERLAY_ABSENT: PASS
 CONSOLE_MATERIAL_ERROR_WARN: 0
 RECORD_MUTATION: 0
 FILE_MUTATION: 0
