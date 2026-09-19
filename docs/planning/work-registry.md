@@ -29,7 +29,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 13 | 0036 | Cross-tab production UI convergence — selection simplification + layout optimization | ACCEPTED | Work0034 version10 | PR #58 / version11 accepted。Completion Latch済み |
 | 14 | 0037 | Post-version11 UI refinement — six-screen convergence + admin password gate removal | ACCEPTED | Work0036 version11 | PR #59 / version13 accepted。Completion Latch済み |
 | 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACCEPTED | Work0037 version13 | PR #60 / version18 accepted。Completion Latch済み |
-| 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACTIVE (BUILD) | Work0017 capability / Work0038 version18 | CODEX-01 implementation / same owner-only runtime qualification |
+| 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
 | 17 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 18 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 19 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -454,17 +454,18 @@ Completion: `docs/handoffs/0038-completion-report.md`
 
 ```text
 WORK_ID: 0039
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
-ROOT_CAUSE: CONFIRMED
+ROOT_CAUSE: RESOLVED
 BACKEND_ADMIN_CHECK_CAPABILITY: PRESERVED
 PRIMARY_REPAIR: INLINE_MEETING_TYPE_LABELS + AUTOSAVE_CHECKBOX
 SCHEMA_CHANGE: 0
 MIGRATION_CHANGE: 0
-ACTIVE_DISPATCH: 0039-CODEX-01
-BASELINE_MERGE: 27fb5ca200cdb4d26f7111555cde33c8c2956892
-SERVED_BASELINE_VERSION: 18
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+MERGE: 4fe28048e90df1a264dea836e8909d80ada0be57
+FINAL_SERVED_VERSION: 19
+COMPLETION_LATCH: APPLIED
+BALL: NONE
 ```
 
 Investigation: `docs/investigations/work0039-monthly-admin-review-regression.md`
@@ -484,3 +485,25 @@ CONSOLE_MATERIAL_ERROR_WARN: 0
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 ```
+## Work 0039 accepted outcome
+
+PR #61 merge: `4fe28048e90df1a264dea836e8909d80ada0be57`
+
+```text
+FINAL_SERVED_VERSION: 19
+TARGET_RUNTIME_QUALIFICATION: PASS
+LOGIC_VALIDATION: 579/579 PASS
+BUNDLE_VALIDATION: 30/30 PASS
+CHECK_SEQUENCE: false -> true -> reload -> true -> false PASS
+AUDIT_EVENTS: EXACTLY_2
+MEETING_BUSINESS_FIELDS_UNCHANGED: PASS
+VIEWPORTS: 2560 / 1440 / 1280 / 390 PASS
+CONSOLE_MATERIAL_ERROR_WARN: 0
+PROVIDER_CALLS: 0
+SCHEMA_CHANGE: 0
+MIGRATION_CHANGE: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+Completion: `docs/handoffs/0039-completion-report.md`
