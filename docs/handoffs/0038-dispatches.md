@@ -3,10 +3,10 @@
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-03
 ACTIVE_DISPATCH_ID: 0038-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
-PHASE: KNOWLEDGE HELP-LINE FINAL REFINEMENT
+PHASE: FINAL REVIEW
 
 ## Primary Outcome
 
@@ -53,8 +53,9 @@ COMPLETION_LATCH: NOT_APPLIED
 |---|---|
 | 0038-CODEX-01 | latest frozen 2-screen geometry、572/572、bundle 30/30、same deployment version15、4 viewport x 7 pages actual runtime qualificationをPASS。Draft PR #60で返却。 |
 | 0038-CODEX-02 | Meeting-create冒頭をheading → clear → compact statusへ収束し、追加指示の登録button横保持説明も削除。focused 15/15 + follow-up 6/6、canonical 573/573、bundle 30/30、same deployment version17、4 viewport / required validation / 7-page smoke / console0をPASSし、Draft PR #60で返却。 |
+| 0038-CODEX-03 | Knowledge Searchのmode/source helpを単一inline containerへ統合。focused 12/12、canonical 574/574、bundle 30/30、same deployment version18、desktop 3 viewport one-line / mobile natural wrap / 7-page smoke / console0をPASSし、Draft PR #60で返却。 |
 
 WORK_ID: 0038
 DISPATCH_ID: 0038-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
