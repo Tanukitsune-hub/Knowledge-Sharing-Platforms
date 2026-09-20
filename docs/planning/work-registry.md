@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-19
+Current as of: 2026-09-20
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -31,10 +31,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACCEPTED | Work0037 version13 | PR #60 / version18 accepted。Completion Latch済み |
 | 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
 | 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACTIVE (BUILD) | Work0039 version19 | CODEX-02 actual runtime legacy preservation evidence closure / PR #62 |
-| 18 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 19 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 20 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 21 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | PLANNED | Work0040 accepted baseline | Work0040 Completion Latch後にCODEX-01を発行 |
+| 19 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 20 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 21 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 22 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -528,3 +529,28 @@ Plan: `docs/planning/work0040-past-meeting-edit-cleanup.md`
 Instruction: `docs/handoffs/0040-CODEX-01-past-meeting-edit-cleanup-instruction.md`
 Runtime evidence closure: `docs/handoffs/0040-CODEX-02-runtime-legacy-preservation-qualification-instruction.md`
 Draft PR: #62
+## Work 0041 planned contract
+
+```text
+WORK_ID: 0041
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0040 ACCEPTED / Completion Latch
+ACTIVE_DISPATCH: NONE
+PRIMARY_SCOPE: Past Meeting persistent empty-states + loading UX + table alignment + user-facing delete + admin 削除記録の管理 / restore
+PHYSICAL_DELETE: 0
+SCHEMA_CHANGE: 0
+MIGRATION_CHANGE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0041-past-meeting-usability-and-delete-record-management-requirements.md`
+Plan: `docs/planning/work0041-past-meeting-usability-and-delete-record-management.md`
+
+Closed user decision 2026-09-20:
+- 管理者section名は`削除記録の管理`。
+- normal Past Meetingには復元workflowを混在させない。
+- detail / related / editは未選択empty-stateを含め初期から見せる。
+- async operationsにはvisible busy/loading stateを付与。
+- list action labelは`無効化`ではなく`削除`。
+- restoreはexisting Active/Inactive status semanticsを再利用する。
