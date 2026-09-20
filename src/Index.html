@@ -233,6 +233,19 @@
     </section>
   </div>
 
+  <div id="meeting-material-modal-backdrop" class="modal-backdrop" hidden>
+    <section id="meeting-material-modal" class="counterparty-modal meeting-material-modal" role="dialog" aria-modal="true" aria-labelledby="meeting-material-modal-title" aria-describedby="meeting-material-modal-help" tabindex="-1">
+      <div class="counterparty-modal-heading">
+        <div><p class="counterparty-modal-kicker">RELATED MATERIAL</p><h2 id="meeting-material-modal-title">既存資料を関連付ける</h2></div>
+        <button id="meeting-material-modal-close" class="modal-close" type="button" aria-label="閉じる">×</button>
+      </div>
+      <p id="meeting-material-modal-help" class="hint">この面談先とAsset Classに一致するActive資料を表示します。</p>
+      <div id="meeting-material-modal-status" class="status" role="status" aria-live="polite"></div>
+      <div id="meeting-material-modal-results" class="meeting-material-modal-results" role="list"></div>
+      <div class="counterparty-modal-actions"><button id="meeting-material-modal-cancel" class="action secondary" type="button">キャンセル</button></div>
+    </section>
+  </div>
+
   <?!= include_('ClientDateControls'); ?>
   <?!= include_('ClientCore'); ?>
 <?!= include_('ClientEntityWorkspace'); ?>
