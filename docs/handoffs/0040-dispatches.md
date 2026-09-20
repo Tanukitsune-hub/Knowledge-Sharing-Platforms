@@ -2,11 +2,11 @@
 
 WORK_ID: 0040
 DISPATCH_ID: 0040-CODEX-02
-ACTIVE_DISPATCH_ID: 0040-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: NONE
+BALL: NONE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: FINAL REVIEW
+PHASE: COMPLETE
 
 ## Primary Outcome
 
@@ -16,21 +16,23 @@ Past Meeting detail/edit UIからunused/internal controlsを除去し、legacy v
 
 - `docs/handoffs/0040-past-meeting-edit-cleanup-requirements.md`
 - `docs/planning/work0040-past-meeting-edit-cleanup.md`
-- `docs/handoffs/0040-CODEX-01-past-meeting-edit-cleanup-instruction.md`
 - `docs/handoffs/0040-CODEX-01-past-meeting-edit-cleanup-report.md`
 - `docs/handoffs/0040-CODEX-02-runtime-legacy-preservation-qualification-report.md`
+- `docs/handoffs/0040-completion-report.md`
 
-## Closed decisions
+## Accepted state
 
-- follow-up edit UI hidden
-- detail follow-up attributes hidden
-- related edit selector hidden robustly
-- legacy values preserved
-- primary/detail actions left aligned
-- raw Document_ID hidden
-- existing-link button retained via human-readable picker
-- add-files preserved
-- actual owner-only version20でnon-empty legacy follow-up valuesと3件のexisting relationを持つisolated synthetic Meetingをunrelated edit/saveし、authoritative pre/post readbackのexact preservationを確認済み
+```text
+PR: #62
+MERGE: f4283c6b57c6413178d6a2c4173d4970604ee751
+FINAL_SERVED_VERSION: 20
+TARGET_RUNTIME_QUALIFICATION: PASS
+LEGACY_FOLLOW_UP_PRESERVATION: PASS
+RELATED_PITCHBOOK_IDS_PRESERVATION: PASS
+BLOCKER: NONE
+WORK_0040_COMPLETE: YES
+COMPLETION_LATCH: APPLIED
+```
 
 ## Safety
 
@@ -48,13 +50,7 @@ PHYSICAL_DELETE: 0
 WORK_0030: DEFERRED_BY_USER
 ```
 
-```text
-NEXT_UNUSED_DISPATCH: 0040-CODEX-03
-WORK_0040_COMPLETE: NO
-COMPLETION_LATCH: NOT_APPLIED
-```
-
 WORK_ID: 0040
 DISPATCH_ID: 0040-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: NONE
+STATUS: ACCEPTED
