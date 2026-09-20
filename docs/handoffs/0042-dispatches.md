@@ -24,6 +24,11 @@ Sidebarを維持し、右ペイン全体をselected record-detail designへ統�
   - left: AIプロバイダ設定
   - right: 削除記録の管理
   - default: AIプロバイダ設定
+- user-facing terminology:
+  - Team -> チーム
+  - Asset Class -> アセットクラス
+  - Meeting Type -> MTG種別
+  - internal identifiers unchanged
 - existing behavior / data semantics preserved
 - Work0030 remains DEFERRED_BY_USER
 
