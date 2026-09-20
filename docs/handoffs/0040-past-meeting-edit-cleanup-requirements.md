@@ -64,6 +64,52 @@ Implementation may keep compatibility controls hidden in DOM or preserve values 
 - normal Meeting edit fields remain available。
 - schema/migration/provider/security changes 0。
 
+## Additional confirmed scope — Detail screen
+
+### Primary action row
+
+`記録の詳細`のaction rowを左寄せに統一する。
+
+Desktop order:
+`Google Docs原本` → `記録を編集` → `記録を削除（Inactive）`
+
+- 3 controlsを同じrowで左から詰めて配置。
+- current `.actions`の`justify-content:space-between`により中央/右端へ離れる状態を解消する。
+- mobileではsafe wrap可。
+
+### Related-material action area
+
+`関連資料`sectionの操作も左寄せcompact rowへ統一する。
+
+Current UI:
+- `既存Document_ID` label/input
+- `既存資料を関連付ける` button
+- `資料を追加` button
+
+User instruction:
+- `既存Document_ID`はinternal identifierでありnormal userが管理するものではないため、user-facing UIから非表示化する。
+- 資料関連actionは左寄せで近接配置する。
+
+### Important dependency
+
+current implementationでは`既存資料を関連付ける`が`meeting-detail-documentId`の入力値を直接読み、`changeDetailRelation(documentId,'add')`を実行する。
+
+したがってraw Document_ID inputだけをhiddenにすると、existing-link buttonは操作不能になる。
+
+Implementation前に次のどちらかを確定する:
+
+A. `既存Document_ID`と`既存資料を関連付ける`をnormal UIから両方削除し、`資料を追加`のみ残す。既存資料とのrelation操作は現在関連済みの資料list上のlink/unlinkに限定する。
+
+B. raw Document_ID inputは隠し、`既存資料を関連付ける`は人間向けexisting-material picker/selectへ置換する。これは新しいUI workflowを追加するためscopeが大きい。
+
+Recommendation: A。利用者がDocument_IDを管理しないという今回の意図に最も一致し、最小・安全。
+
+## Detail read-only follow-up presentation
+
+`記録の詳細`には現在`要フォロー` / `フォローメモ`もread-only attributeとして表示されている。
+
+今回のuser intent（follow-up項目は使用予定なし）に合わせ、normal detail presentationからも非表示化する。backend/historical valuesは保持する。
+
 ## Pending
 
-User message ended with `また、同じく` and appears incomplete. Do not dispatch Codex until any continuation is captured or user confirms no additional requirement.
+`既存資料を関連付ける`の扱いのみA/B user decision待ち。その他要件はfreeze可能。
