@@ -32,10 +32,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
 | 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACCEPTED | Work0039 version19 | PR #62 / version20 accepted。Completion Latch済み |
 | 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | ACCEPTED | Work0040 version20 accepted baseline | PR #63 / version21 accepted。Completion Latch済み |
-| 19 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 20 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 21 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 22 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACTIVE (REQUIREMENTS) | Work0041 version21 | Continue user-led requirements intake; no Codex dispatch yet |
+| 20 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 21 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 22 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 23 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -570,3 +571,31 @@ Closed user decision 2026-09-20:
 - async operationsにはvisible busy/loading stateを付与。
 - list action labelは`無効化`ではなく`削除`。
 - restoreはexisting Active/Inactive status semanticsを再利用する。
+
+
+## Work 0042 active requirements intake
+
+```text
+WORK_ID: 0042
+STATUS: ACTIVE
+MODE: BUILD
+PHASE: REQUIREMENTS_INTAKE
+BASELINE: Work0041 version21
+ACTIVE_DISPATCH: NONE
+BALL: CHATGPT
+SIDEBAR_REDESIGN: 0
+PRIMARY_SCOPE: right-pane visual unification + admin tabs
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0042-right-pane-design-unification-requirements.md`
+Plan: `docs/planning/work0042-right-pane-design-unification.md`
+Dispatch: `docs/handoffs/0042-dispatches.md`
+
+Closed user decisions 2026-09-20:
+- selected record-detail mockupをright-pane全体のcanonical visual directionとする。
+- sidebarは変更しない。
+- 管理者ページはtab化。
+- 左tab: `AIプロバイダ設定`。
+- 右tab: `削除記録の管理`。
+- default active tabは`AIプロバイダ設定`。
