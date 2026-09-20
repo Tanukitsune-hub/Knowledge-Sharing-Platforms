@@ -603,3 +603,4 @@ Closed user decisions 2026-09-20:
 - Asset Class / 面談場所 / Teamの並び替えはnumeric Sort Order入力を廃止し、drag handleによるclick & drag操作へ変更する。
 - drag中はinsertion targetを明示し、neighbor rowsを短いanimationでshiftさせる。
 - existing `OPTION_REORDER` / `Option_Order` semanticsを再利用し、schema/storageは変更しない。
+- user-facing labelを日本語へ統一: `Team -> チーム`、`Asset Class -> アセットクラス`、`Meeting Type -> MTG種別`。internal identifiersは変更しない。
