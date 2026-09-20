@@ -45,8 +45,13 @@ WORK_0030: DEFERRED_BY_USER
 - `docs/planning/work-registry.md`
 - `docs/handoffs/0041-completion-report.md`
 - `docs/handoffs/0040-completion-report.md`
+- `docs/design/0042/right-pane-reference.css`
+- `docs/design/0042/right-pane-reference.html`
+- `docs/design/0042/README.md`
 
-Selected visual directionはrequirements内のcanonical visual descriptionを正とする。会話上選定されたmockupの意図は、flatで境界が曖昧なpresentationを避け、white / very-light-blue、明確なcard boundary、薄いheader band、subtle border/radius/shadow、読みやすいlabel/value、dedicated inset body、明確なaction hierarchyを右ペイン全体に適用すること。
+Selected visual directionはrequirementsと `docs/design/0042/right-pane-reference.css` / `.html`を正とする。文章の雰囲気だけで再解釈せず、referenceのcomponent hierarchyを既存production componentへ翻訳する。配色は既存sidebarの格式あるblack/gold designと調和するivory/champagne + restrained goldを基準とし、genericなblue SaaS lookへ寄せない。sidebar自体は変更しない。
+
+Reference CSSを丸ごとcopyするのではなく、既存DOM / responsive behavior / component contractへ統合する。
 
 ## Critical pre-implementation step — Reachable UI Surface Inventory
 
