@@ -32,7 +32,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
 | 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACCEPTED | Work0039 version19 | PR #62 / version20 accepted。Completion Latch済み |
 | 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | ACCEPTED | Work0040 version20 accepted baseline | PR #63 / version21 accepted。Completion Latch済み |
-| 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACTIVE (REQUIREMENTS) | Work0041 version21 | Continue user-led requirements intake; no Codex dispatch yet |
+| 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACTIVE (BUILD) | Work0041 version21 | CODEX-01 implementation + exhaustive reachable-state runtime qualification |
 | 20 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 21 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 22 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -579,10 +579,10 @@ Closed user decision 2026-09-20:
 WORK_ID: 0042
 STATUS: ACTIVE
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
+PHASE: IMPLEMENTATION / EXHAUSTIVE UI QUALIFICATION
 BASELINE: Work0041 version21
-ACTIVE_DISPATCH: NONE
-BALL: CHATGPT
+ACTIVE_DISPATCH: 0042-CODEX-01
+BALL: CODEX
 SIDEBAR_REDESIGN: 0
 PRIMARY_SCOPE: right-pane visual unification + master drag reorder + admin tabs
 WORK_0030: DEFERRED_BY_USER
@@ -591,6 +591,7 @@ WORK_0030: DEFERRED_BY_USER
 Requirements: `docs/handoffs/0042-right-pane-design-unification-requirements.md`
 Plan: `docs/planning/work0042-right-pane-design-unification.md`
 Dispatch: `docs/handoffs/0042-dispatches.md`
+Instruction: `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`
 
 Closed user decisions 2026-09-20:
 - selected record-detail mockupをright-pane全体のcanonical visual directionとする。
