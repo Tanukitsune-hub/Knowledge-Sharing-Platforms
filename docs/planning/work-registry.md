@@ -32,7 +32,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
 | 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACCEPTED | Work0039 version19 | PR #62 / version20 accepted。Completion Latch済み |
 | 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | ACCEPTED | Work0040 version20 accepted baseline | PR #63 / version21 accepted。Completion Latch済み |
-| 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACTIVE (BUILD) | Work0041 version21 | CODEX-02 serve repaired terminology + targeted runtime closure / PR #64 |
+| 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACCEPTED | Work0041 version21 | PR #64 / version23 accepted。Completion Latch済み |
 | 20 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 21 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 22 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -573,52 +573,36 @@ Closed user decision 2026-09-20:
 - restoreはexisting Active/Inactive status semanticsを再利用する。
 
 
-## Work 0042 active implementation
+## Work 0042 accepted outcome
 
 ```text
 WORK_ID: 0042
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: IMPLEMENTATION / EXHAUSTIVE UI QUALIFICATION
 BASELINE: Work0041 version21
-ACTIVE_DISPATCH: 0042-CODEX-02
-BALL: CODEX
-SIDEBAR_REDESIGN: 0
-PRIMARY_SCOPE: right-pane visual unification + master drag reorder + admin tabs
+FINAL_SERVED_VERSION: 23
+PR: #64
+MERGE: d8f3e2f78ebfb799d5e56e6f436764a2efd9a570
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+TARGET_RUNTIME_QUALIFICATION: PASS
+RIGHT_PANE_DESIGN_CONVERGENCE: PASS
+REACHABLE_UI_STATE_WALK: PASS
+MASTER_DRAG_REORDER: PASS
+ADMIN_TABS: PASS
+REPAIRED_TERMINOLOGY_SERVED: PASS
+NORMAL_NAVIGATION: 7/7 PASS
+VIEWPORTS: 2560 / 1440 / 1280 / 390 PASS
+CONSOLE_MATERIAL_ERROR_WARN: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
 ```
 
 Requirements: `docs/handoffs/0042-right-pane-design-unification-requirements.md`
 Plan: `docs/planning/work0042-right-pane-design-unification.md`
 Dispatch: `docs/handoffs/0042-dispatches.md`
-Instruction: `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`
-Runtime closure: `docs/handoffs/0042-CODEX-02-serve-terminology-repair-instruction.md`
-Draft PR: #64
+Reports: `docs/handoffs/0042-CODEX-01-right-pane-design-unification-report.md`, `docs/handoffs/0042-CODEX-02-serve-terminology-repair-report.md`
+Completion: `docs/handoffs/0042-completion-report.md`
 Visual reference: `docs/design/0042/right-pane-reference.css`, `docs/design/0042/right-pane-reference.html`, `docs/design/0042/README.md`
 
-Closed user decisions 2026-09-20:
-- selected record-detail mockupをright-pane全体のcanonical visual directionとする。
-- right-pane配色は既存sidebarと調和するivory/champagne + restrained gold。generic blue基調にはしない。
-- sidebarは変更しない。
-- 管理者ページはtab化。
-- 左tab: `AIプロバイダ設定`。
-- 右tab: `削除記録の管理`。
-- default active tabは`AIプロバイダ設定`。
-- sidebar label `プルダウンの管理`を`マスター管理`へ変更する（visual designは不変）。
-- Asset Class / 面談場所 / Teamの並び替えはnumeric Sort Order入力を廃止し、drag handleによるclick & drag操作へ変更する。
-- drag中はinsertion targetを明示し、neighbor rowsを短いanimationでshiftさせる。
-- existing `OPTION_REORDER` / `Option_Order` semanticsを再利用し、schema/storageは変更しない。
-- user-facing labelを日本語へ統一: `Team -> チーム`、`Asset Class -> アセットクラス`、`Meeting Type -> MTG種別`。internal identifiersは変更しない。
-
-
-### Work 0042 Strategy Reset — CODEX-02
-
-CODEX-01 served version22 and passed design / reachable-state qualification, but actual provider-independent Full Output revealed old user-facing generated labels. Repair is already committed and deterministic checks pass; only the repaired runtime evidence remains open.
-
-```text
-ACTIVE_DISPATCH: 0042-CODEX-02
-SERVED_VERSION: 22
-REPAIRED_APPLICATION_COMMIT: 811c60858edf61147355c7a8d4a36116a1582be9
-BLOCKER: REPAIRED_TERMINOLOGY_NOT_SERVED
-EXPECTED_NEXT_SERVED_VERSION: 23
-```
