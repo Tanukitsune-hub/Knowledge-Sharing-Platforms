@@ -121,6 +121,31 @@ Desktop order:
 - `削除記録の管理`の既存filter / restore semanticsはWork0041 accepted behaviorをそのまま維持する。
 - `AIプロバイダ設定`のprovider/model behavior・権限・保存semanticsは変更しない。
 
+## Closed decision — user-facing Japanese labels
+
+利用者向けの表面表示では英語labelを減らし、次の表記へ統一する。
+
+- `Team` -> `チーム`
+- `Asset Class` -> `アセットクラス`
+- `Meeting Type` -> `MTG種別`
+
+適用範囲:
+- 記録を追加
+- 過去の記録
+- 記録の詳細
+- 面談記録を修正
+- 面談先サマリー
+- 面談実績の集計
+- マスター管理
+- 管理者ページ
+- table header / filter label / form label / detail attribute / tab label / empty-stateや補助文で同じ概念を示す箇所
+
+Boundary:
+- user-facing textのみ変更する。
+- code identifier / object field / API / schema / enum / stored value / test fixture key等のinternal namesは変更しない。
+- `ASSET_CLASS` / `TEAM` / `Meeting_Type_Codes` 等のcanonical internal identifiersは維持する。
+- `MTG種別`は表示labelであり、stored Meeting Type codesは変更しない。
+
 ## Preserve
 
 - sidebar / navigation IA
@@ -179,7 +204,13 @@ Non-Goals:
 - failure時rollback。
 - Counterparty tab regression 0。
 
-4. Regression
+4. User-facing labels
+- normal UIで`Team`表示が残らず`チーム`へ統一。
+- normal UIで`Asset Class`表示が残らず`アセットクラス`へ統一。
+- normal UIで`Meeting Type`表示が残らず`MTG種別`へ統一。
+- internal identifiers / stored values / API semanticsは不変。
+
+5. Regression
 - Work0041 delete -> restore E2E維持。
 - provider settings behavior unchanged。
 - normal navigation 7/7 nonblank。
