@@ -1,6 +1,6 @@
 // GENERATED FILE. DO NOT EDIT.
 // Authoritative source: src/ and scripts/bundle-source-order.json
-var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":8,"sourceCommit":"e518df9ebf1a5ae8de04bd396b0dbc83e0c0aaa5","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"38248485700accc7119f377cc3af4def66fc5b7b3ffd8929bad8bebb0ca4d2a7"});
+var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":8,"sourceCommit":"420b871bbe60315092517421350da5b871ed1f2e","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"812cb338934f25fd82f3d9673b4375575329daf2f5e4dfaf678517af1fa18ebe"});
 var KSP_BUNDLED_HTML_RESOURCES = Object.freeze({
   "ActivityAnalyticsPage": "<section id=\"page-activity-analytics\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>Activity Analytics</h2><p class=\"hint\">Meeting_Indexの構造化メタデータだけを集計します。Meeting本文は読みません。</p></div>\n    </div>\n    <div class=\"filter-grid analytics-controls\">\n      <div class=\"field activity-period-field\"><label for=\"activity-period\">期間粒度</label><select id=\"activity-period\"><option value=\"monthly\">月次</option><option value=\"quarter\">暦年四半期</option><option value=\"calendarYear\">暦年</option><option value=\"fiscalYear\">会計年度（4月-3月）</option><option value=\"custom\">カスタム（日次）</option><option value=\"cumulative\">累積（月次）</option></select></div>\n      <div class=\"field activity-date-from-field\"><label for=\"activity-date-from\">開始日</label><input id=\"activity-date-from\" type=\"date\"></div>\n      <div class=\"field activity-date-to-field\"><label for=\"activity-date-to\">終了日</label><input id=\"activity-date-to\" type=\"date\"></div>\n      <div class=\"field activity-dimension-field\"><label for=\"activity-dimension\">内訳</label><select id=\"activity-dimension\"><option value=\"counterpartyEntity\">面談先</option><option value=\"assetClass\">アセットクラス</option><option value=\"team\">チーム</option><option value=\"meetingType\">MTG種別</option><option value=\"status\">Status</option></select></div>\n      <div class=\"field activity-counterparty-field\"><label for=\"activity-filter-counterpartyEntity\">面談先</label><select id=\"activity-filter-counterpartyEntity\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-asset-field\"><label for=\"activity-filter-assetClass\">アセットクラス</label><select id=\"activity-filter-assetClass\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-team-field\"><label for=\"activity-filter-team\">チーム</label><select id=\"activity-filter-team\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-meeting-type-field\"><label for=\"activity-filter-meetingType\">MTG種別</label><select id=\"activity-filter-meetingType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-status-field\"><label for=\"activity-filter-status\">Status</label><select id=\"activity-filter-status\"><option value=\"\">未選択</option></select></div>\n    </div>\n    <div class=\"actions analytics-actions\"><button id=\"activity-analytics-refresh\" class=\"action primary\" type=\"button\">集計</button><span class=\"hint\">件数は全一致行から計算し、表示上限による省略件数を明示します。</span></div>\n    <div id=\"activity-analytics-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>選択した内訳</h2><p id=\"activity-breakdown-summary\" class=\"hint\"></p></div></div>\n    <div id=\"activity-breakdown-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"選択した内訳別Meeting件数\"></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">選択した内訳別集計</caption><thead><tr><th>値</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id=\"activity-breakdown-results\"></tbody></table></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>該当Meeting</h2><p id=\"activity-drill-summary\" class=\"hint\"></p></div></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table activity-drill-table\"><caption class=\"sr-only\">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>チーム</th><th>MTG種別</th><th>Status</th><th>原本</th><th>確認済み</th></tr></thead><tbody id=\"activity-drill-results\"></tbody></table></div>\n    <div id=\"activity-admin-check-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n\n  <div class=\"card\">\n    <div class=\"section-heading\"><div><h2>集計サマリー</h2><p id=\"activity-period-summary\" class=\"hint\"></p></div></div>\n    <div id=\"activity-headline\" class=\"analytics-headline\" aria-live=\"polite\"></div>\n    <div id=\"activity-series-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"Meeting件数の期間推移\"></div>\n    <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">Meeting件数の期間別集計</caption><thead><tr><th>期間</th><th>Meeting</th><th>Active</th><th>Counterparty</th><th>要フォロー</th></tr></thead><tbody id=\"activity-series-results\"></tbody></table></div>\n  </div>\n\n</section>\n",
   "AiProviderSettingsPage": "<section id=\"page-ai-provider-settings\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading admin-page-heading\">\n      <div><h2>管理者ページ</h2><p class=\"hint\">AIプロバイダ設定と削除記録の管理を切り替えて確認します。</p></div>\n    </div>\n    <div class=\"admin-tabs\" role=\"tablist\" aria-label=\"管理者機能\">\n      <button id=\"admin-tab-provider\" class=\"admin-tab active\" type=\"button\" role=\"tab\" aria-selected=\"true\" aria-controls=\"admin-panel-provider\" tabindex=\"0\" data-admin-tab=\"provider\">AIプロバイダ設定</button>\n      <button id=\"admin-tab-deleted\" class=\"admin-tab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"admin-panel-deleted\" tabindex=\"-1\" data-admin-tab=\"deleted\">削除記録の管理</button>\n    </div>\n    <section id=\"admin-panel-deleted\" class=\"admin-tab-panel\" role=\"tabpanel\" aria-labelledby=\"admin-tab-deleted\" hidden>\n    <section id=\"admin-deleted-meetings\" class=\"admin-deleted-meetings\" aria-busy=\"false\">\n      <div class=\"section-heading\">\n        <div><h2>削除記録の管理</h2><p class=\"hint\">削除済みの面談記録を検索し、必要な記録だけを復元します。</p></div>\n      </div>\n      <div class=\"filter-grid admin-deleted-filter-grid\">\n        <div class=\"field\"><label for=\"admin-deleted-date-from\">開始日</label><input id=\"admin-deleted-date-from\" type=\"date\"></div>\n        <div class=\"field\"><label for=\"admin-deleted-date-to\">終了日</label><input id=\"admin-deleted-date-to\" type=\"date\"></div>\n        <div class=\"field\"><label for=\"admin-deleted-counterparty-id\">面談先</label><select id=\"admin-deleted-counterparty-id\"><option value=\"\">未選択</option></select></div>\n        <div class=\"field\"><label for=\"admin-deleted-asset-class-id\">アセットクラス</label><select id=\"admin-deleted-asset-class-id\"><option value=\"\">未選択</option></select></div>\n        <div class=\"field\"><label for=\"admin-deleted-status-filter\">Status</label><select id=\"admin-deleted-status-filter\"><option value=\"Inactive\" selected>削除済み</option><option value=\"Active\">有効</option><option value=\"\">すべて</option></select></div>\n      </div>\n      <div class=\"actions admin-deleted-actions\"><button id=\"admin-deleted-search\" class=\"action primary\" type=\"button\">検索</button><span class=\"hint\">最大100件を新しい順で表示します。</span></div>\n      <div id=\"admin-deleted-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n      <div class=\"table-wrap\"><table class=\"data-table admin-deleted-table\"><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>アセットクラス</th><th>チーム</th><th>Status</th><th>Version</th><th>操作</th></tr></thead><tbody id=\"admin-deleted-results\"><tr><td colspan=\"8\" class=\"empty-cell\">検索すると記録が表示されます。</td></tr></tbody></table></div>\n    </section>\n    </section>\n    <section id=\"admin-panel-provider\" class=\"admin-tab-panel\" role=\"tabpanel\" aria-labelledby=\"admin-tab-provider\">\n    <div class=\"section-heading\">\n      <div><h2>AIプロバイダ設定</h2><p class=\"hint\">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>\n    </div>\n    <div id=\"ai-provider-admin-notice\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-openai-heading\">\n      <h3 id=\"ai-provider-openai-heading\">ChatGPT / OpenAI</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-openai-key\">確認中…</dd>\n        <dt>Vector Store</dt><dd id=\"ai-provider-openai-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-openai-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\">\n        <div class=\"action-group\">\n          <label for=\"ai-provider-openai-key-input\">OpenAI APIキー</label>\n          <input id=\"ai-provider-openai-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n          <label for=\"ai-provider-sync-source\">同期対象</label>\n          <select id=\"ai-provider-sync-source\" disabled>\n            <option value=\"\">All</option>\n            <option value=\"Meeting\">Meeting</option>\n            <option value=\"Pitchbook\">Pitchbook</option>\n          </select>\n          <label for=\"ai-provider-sync-source-id\">Source ID（個別同期・任意）</label>\n          <input id=\"ai-provider-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n          <button id=\"ai-provider-openai-enable\" class=\"action primary\" type=\"button\" disabled>APIキーを保存して接続確認</button>\n          <button id=\"ai-provider-openai-disable\" class=\"action secondary\" type=\"button\" disabled>OpenAIを無効化</button>\n          <button id=\"ai-provider-openai-sync\" class=\"action secondary\" type=\"button\" disabled>資料を同期して利用開始</button>\n        </div>\n      </div>\n      <p id=\"ai-provider-openai-readonly\" class=\"hint ai-provider-readonly\"></p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-gemini-heading\">\n      <h3 id=\"ai-provider-gemini-heading\">Gemini</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-gemini-key\">確認中…</dd>\n        <dt>File Search Store</dt><dd id=\"ai-provider-gemini-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-gemini-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <label for=\"ai-provider-gemini-key-input\">Gemini APIキー</label>\n        <input id=\"ai-provider-gemini-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n        <label for=\"ai-provider-gemini-sync-source\">個別同期対象</label>\n        <select id=\"ai-provider-gemini-sync-source\" disabled><option value=\"Pitchbook\">Pitchbook</option><option value=\"Meeting\">Meeting</option></select>\n        <label for=\"ai-provider-gemini-sync-source-id\">Source ID（必須）</label>\n        <input id=\"ai-provider-gemini-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n        <button id=\"ai-provider-gemini-connect\" class=\"action primary\" type=\"button\" disabled>APIキーを保存してStore確認</button>\n        <button id=\"ai-provider-gemini-enable\" class=\"action secondary\" type=\"button\" disabled>資格済みGeminiを有効化</button>\n        <button id=\"ai-provider-gemini-disable\" class=\"action secondary\" type=\"button\" disabled>Geminiを無効化</button>\n        <button id=\"ai-provider-gemini-sync\" class=\"action secondary\" type=\"button\" disabled>選択資料を個別同期</button>\n      </div></div>\n      <p class=\"hint\">有効化には、Store確認・個別同期・モデル/ThinkingのFile Search資格確認が必要です。</p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-model-policy-heading\">\n      <h3 id=\"ai-model-policy-heading\">モデル / Thinking ポリシー</h3>\n      <p class=\"hint\">利用者に表示する組み合わせだけを登録します。プロバイダが返す新しいモデルは自動で有効化されません。</p>\n      <div class=\"field full\">\n        <label for=\"ai-model-profile-select\">登録済みプロファイル</label>\n        <select id=\"ai-model-profile-select\" disabled><option value=\"\">新規作成</option></select>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-profile-id\">Profile ID</label><input id=\"ai-model-profile-id\" type=\"text\" autocomplete=\"off\" placeholder=\"openai-approved-model\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-provider\">Provider</label><select id=\"ai-model-provider\" disabled><option value=\"OPENAI\">OpenAI</option><option value=\"GEMINI\">Gemini</option></select></div>\n        <div class=\"field\"><label for=\"ai-model-id\">Exact Model ID</label><input id=\"ai-model-id\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-display-name\">表示名</label><input id=\"ai-model-display-name\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-family\">Family</label><input id=\"ai-model-family\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-max-output\">Output上限（任意）</label><input id=\"ai-model-max-output\" type=\"number\" min=\"1\" max=\"65536\" disabled></div>\n      </div>\n      <div class=\"field full\">\n        <label for=\"ai-model-thinking-profiles\">Thinking profiles（1行: ID | 表示名 | provider value。value空欄はプロバイダ標準）</label>\n        <textarea id=\"ai-model-thinking-profiles\" placeholder=\"provider-default | プロバイダ標準 |&#10;low | Low | low\" disabled></textarea>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-default-thinking\">既定Thinking Profile ID</label><input id=\"ai-model-default-thinking\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <label class=\"field\"><span>状態</span><span><input id=\"ai-model-enabled\" type=\"checkbox\" disabled> 有効</span></label>\n        <label class=\"field\"><span>利用者表示</span><span><input id=\"ai-model-user-visible\" type=\"checkbox\" disabled> 表示</span></label>\n        <label class=\"field\"><span>Provider既定</span><span><input id=\"ai-model-provider-default\" type=\"checkbox\" disabled> 既定</span></label>\n      </div>\n      <dl class=\"ai-provider-state\">\n        <dt>API access</dt><dd id=\"ai-model-access-state\">未確認</dd>\n        <dt>File Search qualification</dt><dd id=\"ai-model-qualification-state\">未確認</dd>\n        <dt>Thinking qualification</dt><dd id=\"ai-model-thinking-qualification-state\">未確認</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <button id=\"ai-model-policy-migrate\" class=\"action secondary\" type=\"button\" disabled>現行設定から初期化</button>\n        <button id=\"ai-model-profile-save\" class=\"action primary\" type=\"button\" disabled>プロファイルを保存</button>\n        <button id=\"ai-model-profile-qualify\" class=\"action secondary\" type=\"button\" disabled>接続・File Search確認</button>\n      </div></div>\n    </section>\n    </section>\n  </div>\n</section>\n",
@@ -260,11 +260,11 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   MEETING_RELATED_GP_INVALID: '旧形式の関連先情報を確認してください。',
   MEETING_RELATED_GP_DUPLICATE: '旧形式の関連先情報に重複があります。',
   MEETING_GP_REQUIRED: 'GPを選択してください。',
-  MEETING_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
+  MEETING_ASSET_CLASS_REQUIRED: 'アセットクラスを選択してください。',
   MEETING_DATE_INVALID: '日付の形式を確認してください。',
   MEETING_TIME_INVALID: '時刻の形式を確認してください。',
-  MEETING_TYPE_CODE_INVALID: 'Meeting Typeを確認してください。',
-  MEETING_TEAM_UNAVAILABLE: '選択されたTeamを確認してください。',
+  MEETING_TYPE_CODE_INVALID: 'MTG種別を確認してください。',
+  MEETING_TEAM_UNAVAILABLE: '選択されたチームを確認してください。',
   MEETING_RELATED_PITCHBOOK_UNAVAILABLE: '選択された関連Pitchbookを確認してください。',
   MEETING_FUND_STRATEGY_TOO_LONG: 'Fund / Strategyは500文字以内で入力してください。',
   MEETING_FOLLOW_UP_NOTE_TOO_LONG: 'フォローアップメモは2,000文字以内で入力してください。',
@@ -274,7 +274,7 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   MEETING_DOCUMENT_READ_FAILED: 'Meeting原本を読み取れませんでした。',
   PITCHBOOK_DATE_REQUIRED: '日付を入力してください。',
   PITCHBOOK_COUNTERPARTY_REQUIRED: '面談先を選択してください。',
-  PITCHBOOK_ASSET_CLASS_REQUIRED: 'Asset Classを選択してください。',
+  PITCHBOOK_ASSET_CLASS_REQUIRED: 'アセットクラスを選択してください。',
   PITCHBOOK_FILE_REQUIRED: 'ファイルを選択してください。',
   PITCHBOOK_FUND_STRATEGY_TOO_LONG: 'Fund / Strategyは500文字以内で入力してください。',
   PITCHBOOK_BATCH_INVALID: 'Pitchbook登録内容を確認してください。',
@@ -306,7 +306,7 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
   AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '比較対象の指定が競合しています。',
   AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件を確認してください。',
-  AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMeeting Typeを確認してください。',
+  AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMTG種別を確認してください。',
   AI_ADVANCED_FILTER_TOO_BROAD: '該当するMeetingが多すぎます。条件を絞ってください。',
   KNOWLEDGE_EXPORT_PREVIEW_REQUIRED: '先に対象資料を確認してください。',
   KNOWLEDGE_EXPORT_PREVIEW_STALE: 'プレビューが古くなっています。再度プレビューを実行してください。',
@@ -327,7 +327,7 @@ var KSP_SAFE_ERROR_MESSAGES = Object.freeze({
   ACTIVITY_ANALYTICS_DATE_INVALID: '分析対象の日付を確認してください。',
   ACTIVITY_ANALYTICS_DATE_RANGE_INVALID: '分析対象の日付範囲を確認してください。',
   ACTIVITY_ANALYTICS_LIMIT_INVALID: '分析件数上限を確認してください。',
-  ACTIVITY_ANALYTICS_MEETING_TYPE_INVALID: '分析Meeting Typeを確認してください。',
+  ACTIVITY_ANALYTICS_MEETING_TYPE_INVALID: '分析MTG種別を確認してください。',
   ADMIN_CHECK_MEETING_ID_REQUIRED: 'Meeting IDを確認してください。',
   ADMIN_CHECK_STATE_REQUIRED: '月次管理状態を確認してください。',
   ADMIN_CHECK_STATE_INVALID: '月次管理状態を確認してください。',
@@ -2686,7 +2686,7 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
 
   kspAssert_(input.date, 'MEETING_DATE_REQUIRED', '日付は必須です。');
   kspAssert_(input.counterpartyId, 'MEETING_COUNTERPARTY_ENTITY_REQUIRED', '面談先は必須です。');
-  kspAssert_(input.assetClassId, 'MEETING_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
+  kspAssert_(input.assetClassId, 'MEETING_ASSET_CLASS_REQUIRED', 'アセットクラスは必須です。');
   kspAssert_(kspIsValidDateKey_(input.date), 'MEETING_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
   kspAssert_(!input.time || kspIsValidTimeValue_(input.time), 'MEETING_TIME_INVALID', '時間はHH:MM形式で入力してください。');
   kspAssert_(input.counterparty.length <= KSP_MEETING_LIMITS.SHORT_TEXT,
@@ -2725,7 +2725,7 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
       safeCatalog.assetClasses,
       input.assetClassId,
       'MEETING_ASSET_CLASS_UNAVAILABLE',
-      '選択されたAsset Classは利用できません。'
+      '選択されたアセットクラスは利用できません。'
     ),
     capitalType: null,
     location: null,
@@ -2755,7 +2755,7 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
       safeCatalog.teams,
       input.teamId,
       'MEETING_TEAM_UNAVAILABLE',
-      '選択されたTeamは利用できません。'
+      '選択されたチームは利用できません。'
     );
   }
 
@@ -3481,7 +3481,7 @@ function kspValidatePitchbookBatchInput_(input, catalog) {
   var safeCatalog = catalog || { counterparties: [], assetClasses: [], capitalTypes: [] };
   kspAssert_(input.date, 'PITCHBOOK_DATE_REQUIRED', '日付は必須です。');
   kspAssert_(input.counterpartyId, 'PITCHBOOK_COUNTERPARTY_REQUIRED', '面談先は必須です。');
-  kspAssert_(input.assetClassId, 'PITCHBOOK_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
+  kspAssert_(input.assetClassId, 'PITCHBOOK_ASSET_CLASS_REQUIRED', 'アセットクラスは必須です。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
   kspAssert_(String(input.fundStrategy || '').length <= KSP_PITCHBOOK_FUND_STRATEGY_MAX_LENGTH,
     'PITCHBOOK_FUND_STRATEGY_TOO_LONG', 'Fund / Strategyは500文字以内で入力してください。');
@@ -3504,7 +3504,7 @@ function kspValidatePitchbookBatchInput_(input, catalog) {
       safeCatalog.assetClasses,
       input.assetClassId,
       'PITCHBOOK_ASSET_CLASS_UNAVAILABLE',
-      '選択されたAsset Classは利用できません。'
+      '選択されたアセットクラスは利用できません。'
     ),
     capitalType: null
   };
@@ -5236,7 +5236,7 @@ function kspValidatePitchbookEditInput_(input, catalog) {
   var selected = {
     counterpartyEntity: kspRequirePitchbookCounterparty_(input, catalog),
     assetClass: kspRequireCatalogItem_(catalog.assetClasses, input.assetClassId,
-      'PITCHBOOK_ASSET_CLASS_UNAVAILABLE', '選択されたAsset Classは利用できません。'),
+      'PITCHBOOK_ASSET_CLASS_UNAVAILABLE', '選択されたアセットクラスは利用できません。'),
     capitalType: null
   };
   if (input.capitalTypeId) {
@@ -9913,7 +9913,7 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
       safeCatalog.assetClasses,
       filters.assetClassId,
       'AI_ASSET_CLASS_FILTER_UNAVAILABLE',
-      '選択されたAsset Classは利用できません。'
+      '選択されたアセットクラスは利用できません。'
     );
   }
   if (filters.capitalTypeId) {
@@ -9926,7 +9926,7 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
   }
   if (filters.teamId) {
     kspRequireCatalogItem_(safeCatalog.teams, filters.teamId,
-      'AI_TEAM_FILTER_UNAVAILABLE', '選択されたTeamは利用できません。');
+      'AI_TEAM_FILTER_UNAVAILABLE', '選択されたチームは利用できません。');
   }
   if (filters.counterpartyType) {
     kspRequireCatalogItem_(safeCatalog.counterpartyTypes, filters.counterpartyType,
@@ -9954,7 +9954,7 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
   }
   if (filters.meetingTypeCode) {
     kspRequireCatalogItem_(safeCatalog.meetingTypes || [], filters.meetingTypeCode,
-      'AI_MEETING_TYPE_FILTER_UNAVAILABLE', '選択されたMeeting Typeは利用できません。');
+      'AI_MEETING_TYPE_FILTER_UNAVAILABLE', '選択されたMTG種別は利用できません。');
   }
   (input && input.selectedEntityKeys || []).forEach(function (entityKey) {
     kspRequireCatalogItem_(safeCatalog.counterpartyEntities, entityKey,
@@ -10819,7 +10819,7 @@ function kspValidateCanonicalKnowledgeRequest_(request) {
   if ((filters.teamId || filters.followUp || filters.relatedGpId || filters.meetingTypeCode) &&
       filters.sourceType !== KSP_AI_SOURCE_TYPES.MEETING) {
     kspAssert_(false, 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE',
-      'Team、要フォロー、Meeting TypeはMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
+      'チーム、要フォロー、MTG種別はMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
   }
   return input;
 }
@@ -10845,10 +10845,10 @@ function kspKnowledgeScopeSummary_(request) {
   if ((input.selectedEntityKeys || []).length) parts.push('面談先 ' + input.selectedEntityKeys.join(', '));
   if (filters.assetClassId) parts.push('Asset ' + filters.assetClassId);
   if (filters.capitalTypeId) parts.push('Capital ' + filters.capitalTypeId);
-  if (filters.teamId) parts.push('Team ' + filters.teamId);
+  if (filters.teamId) parts.push('チーム ' + filters.teamId);
   if (filters.fundStrategy) parts.push('Fund/Strategy ' + filters.fundStrategy);
   if (filters.followUp) parts.push('Follow-up ' + filters.followUp);
-  if (filters.meetingTypeCode) parts.push('Meeting Type ' + filters.meetingTypeCode);
+  if (filters.meetingTypeCode) parts.push('MTG種別 ' + filters.meetingTypeCode);
   parts.push('Source ' + (filters.sourceType || 'Meeting+Pitchbook'));
   return parts.join(' / ');
 }
@@ -11128,9 +11128,9 @@ function kspKnowledgeExportSafeMessage_(code, error) {
     KNOWLEDGE_EXPORT_DATE_RANGE_INVALID: 'Date FromはDate To以前にしてください。',
     KNOWLEDGE_EXPORT_SOURCE_TYPE_INVALID: 'Source Typeが不正です。',
     AI_GP_FILTER_UNAVAILABLE: '選択されたGPは利用できません。',
-    AI_ASSET_CLASS_FILTER_UNAVAILABLE: '選択されたAsset Classは利用できません。',
+    AI_ASSET_CLASS_FILTER_UNAVAILABLE: '選択されたアセットクラスは利用できません。',
     AI_CAPITAL_TYPE_FILTER_UNAVAILABLE: '選択されたEquity / Debtは利用できません。',
-    AI_TEAM_FILTER_UNAVAILABLE: '選択されたTeamは利用できません。',
+    AI_TEAM_FILTER_UNAVAILABLE: '選択されたチームは利用できません。',
     AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE: '選択されたCounterparty Typeは利用できません。',
     AI_ENTITY_FILTER_UNAVAILABLE: '選択されたCounterparty Entityは利用できません。',
     AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
@@ -11141,8 +11141,8 @@ function kspKnowledgeExportSafeMessage_(code, error) {
     AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
     AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
     AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件は利用できません。',
-    AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMeeting Typeは利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Team、要フォロー、Meeting TypeはMeetingにのみ適用できます。',
+    AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMTG種別は利用できません。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、要フォロー、MTG種別はMeetingにのみ適用できます。',
     KNOWLEDGE_EXPORT_PROMPT_REQUIRED: '自由質問では質問を入力してください。',
     KNOWLEDGE_EXPORT_PROMPT_TOO_LONG: '質問または追加指示は5,000文字以内で入力してください。',
     KNOWLEDGE_EXPORT_COPY_NOT_CONFIRMED: 'コピー成功の確認がないため、監査記録を作成できません。',
@@ -11419,17 +11419,17 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
       'Date: ' + item.source.date,
       '面談先区分: ' + (definition ? definition.label : counterpartyType),
       '面談先: ' + ((safeMaps.counterparty || {})[counterpartyId] || counterpartyId),
-      'Asset Class: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''))
+      'アセットクラス: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''))
     ];
     if (row.Time) lines.push('Time: ' + kspCanonicalBusinessTime_(row.Time));
     if (row.Capital_Type_ID) lines.push('Equity / Debt: ' + (safeMaps.capitalType[String(row.Capital_Type_ID)] || String(row.Capital_Type_ID)));
     if (row.Location_ID) lines.push('Location: ' + (safeMaps.location[String(row.Location_ID)] || String(row.Location_ID)));
     if (row.Counterparty) lines.push('Counterparty: ' + String(row.Counterparty));
     if (row.Internal_Participants) lines.push('Internal Participants: ' + String(row.Internal_Participants));
-    if (row.Team_ID) lines.push('Team: ' + (safeMaps.team[String(row.Team_ID)] || String(row.Team_ID)));
+    if (row.Team_ID) lines.push('チーム: ' + (safeMaps.team[String(row.Team_ID)] || String(row.Team_ID)));
     if (row.Fund_Strategy) lines.push('Fund / Strategy: ' + String(row.Fund_Strategy));
     var meetingTypes = kspMeetingTypeLabels_(row.Meeting_Type_Codes);
-    if (meetingTypes.length) lines.push('Meeting Type: ' + meetingTypes.join(', '));
+    if (meetingTypes.length) lines.push('MTG種別: ' + meetingTypes.join(', '));
     if (kspToBoolean_(row.Follow_Up_Required, false)) lines.push('要フォロー: はい');
     if (row.Follow_Up_Note) lines.push('Follow-up Note: ' + String(row.Follow_Up_Note));
     if (row.Related_Pitchbook_IDs) lines.push('Related Pitchbook IDs: ' + String(row.Related_Pitchbook_IDs));
@@ -11493,12 +11493,12 @@ function kspBuildKnowledgeExportPrompt_(input, catalog) {
       ? input.selectedEntityKeys.map(function (entityKey) {
         return kspKnowledgeExportPromptLabel_(safeCatalog.counterpartyEntities, entityKey);
       }).join(', ') : '未選択'),
-    'Asset Class: ' + kspKnowledgeExportPromptLabel_(safeCatalog.assetClasses, filters.assetClassId),
+    'アセットクラス: ' + kspKnowledgeExportPromptLabel_(safeCatalog.assetClasses, filters.assetClassId),
     'Equity / Debt: ' + kspKnowledgeExportPromptLabel_(safeCatalog.capitalTypes, filters.capitalTypeId),
-    'Team: ' + kspKnowledgeExportPromptLabel_(safeCatalog.teams, filters.teamId),
+    'チーム: ' + kspKnowledgeExportPromptLabel_(safeCatalog.teams, filters.teamId),
     'Fund / Strategy: ' + (filters.fundStrategy || '未選択'),
     '要フォロー: ' + (filters.followUp || '未選択'),
-    'Meeting Type: ' + (filters.meetingTypeCode || '未選択'),
+    'MTG種別: ' + (filters.meetingTypeCode || '未選択'),
     'Source Type: ' + sourceType,
     '',
     definition.instruction,
@@ -14566,16 +14566,16 @@ function kspProviderSafeMessage_(code) {
     AI_ENTITY_FILTER_UNAVAILABLE: '選択されたCounterparty Entityは利用できません。',
     AI_ENTITY_TYPE_CONFLICT: 'Counterparty TypeとEntityが一致しません。',
     AI_ENTITY_GP_CONFLICT: 'Counterparty EntityとGPが一致しません。',
-    AI_TEAM_FILTER_UNAVAILABLE: '選択されたTeamは利用できません。',
+    AI_TEAM_FILTER_UNAVAILABLE: '選択されたチームは利用できません。',
     AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Team、要フォロー、Meeting TypeはMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、要フォロー、MTG種別はMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
     AI_FILTER_UNSUPPORTED_PROVIDER: '選択された構造化フィルターはこのプロバイダでは利用できません。',
     AI_MULTI_ENTITY_COUNT_INVALID: '比較するEntityは2–5件で選択してください。',
     AI_MULTI_ENTITY_DUPLICATE: '同じEntityを複数回選択できません。',
     AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
     AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
     AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件は利用できません。',
-    AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMeeting Typeは利用できません。',
+    AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMTG種別は利用できません。',
     AI_ADVANCED_FILTER_TOO_BROAD: '該当するMeetingが多すぎます。条件を絞ってください。',
     AI_MEETING_PREP_TARGET_REQUIRED: '面談準備ではCounterparty EntityまたはGPを選択してください。',
     AI_MODEL_POLICY_INVALID: 'モデル設定を確認できませんでした。',

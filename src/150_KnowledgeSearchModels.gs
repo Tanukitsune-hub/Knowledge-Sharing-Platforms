@@ -64,7 +64,7 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
       safeCatalog.assetClasses,
       filters.assetClassId,
       'AI_ASSET_CLASS_FILTER_UNAVAILABLE',
-      '選択されたAsset Classは利用できません。'
+      '選択されたアセットクラスは利用できません。'
     );
   }
   if (filters.capitalTypeId) {
@@ -77,7 +77,7 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
   }
   if (filters.teamId) {
     kspRequireCatalogItem_(safeCatalog.teams, filters.teamId,
-      'AI_TEAM_FILTER_UNAVAILABLE', '選択されたTeamは利用できません。');
+      'AI_TEAM_FILTER_UNAVAILABLE', '選択されたチームは利用できません。');
   }
   if (filters.counterpartyType) {
     kspRequireCatalogItem_(safeCatalog.counterpartyTypes, filters.counterpartyType,
@@ -105,7 +105,7 @@ function kspValidateKnowledgeFilterIds_(input, catalog) {
   }
   if (filters.meetingTypeCode) {
     kspRequireCatalogItem_(safeCatalog.meetingTypes || [], filters.meetingTypeCode,
-      'AI_MEETING_TYPE_FILTER_UNAVAILABLE', '選択されたMeeting Typeは利用できません。');
+      'AI_MEETING_TYPE_FILTER_UNAVAILABLE', '選択されたMTG種別は利用できません。');
   }
   (input && input.selectedEntityKeys || []).forEach(function (entityKey) {
     kspRequireCatalogItem_(safeCatalog.counterpartyEntities, entityKey,

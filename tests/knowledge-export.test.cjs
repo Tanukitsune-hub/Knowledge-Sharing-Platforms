@@ -588,7 +588,7 @@ test('Knowledge Export includes Counterparty-centered Meeting attributes and fol
   });
   const input=baseInput();const preview=ksp.kspRunKnowledgeExportPreview_(env,input);const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
   assert.equal(result.ok,true,JSON.stringify(result));const text=ksp.kspBuildKnowledgeExportPlainText_(env._debug.artifacts[0].model);
-  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/Team: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/Meeting Type: 定例年1回, 先方オフィス訪問/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);assert.match(text,/Follow-up Note: private follow-up/);
+  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/アセットクラス: Infrastructure/);assert.match(text,/チーム: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/MTG種別: 定例年1回, 先方オフィス訪問/);assert.doesNotMatch(text,/(?:Asset Class|Team|Meeting Type):/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);assert.match(text,/Follow-up Note: private follow-up/);
   assert.equal(JSON.stringify(env._debug.audits).includes('private follow-up'),false);
 });
 
@@ -752,7 +752,10 @@ test('prompt filters use readable master names alongside stable IDs', () => {
   }));
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.match(result.prompt, /面談先: Apollo \(COUNTERPARTY:CP-000001\)/);
-  assert.match(result.prompt, /Asset Class: Infrastructure \(OPT-AC-002\)/);
+  assert.match(result.prompt, /アセットクラス: Infrastructure \(OPT-AC-002\)/);
+  assert.match(result.prompt, /チーム:/);
+  assert.match(result.prompt, /MTG種別:/);
+  assert.doesNotMatch(result.prompt, /(?:Asset Class|Team|Meeting Type):/);
   assert.match(result.prompt, /Equity \/ Debt: Equity \(OPT-CT-001\)/);
 });
 

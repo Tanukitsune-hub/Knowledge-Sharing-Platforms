@@ -2,16 +2,16 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "e518df9ebf1a5ae8de04bd396b0dbc83e0c0aaa5",
+  "source_git_commit": "420b871bbe60315092517421350da5b871ed1f2e",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "38248485700accc7119f377cc3af4def66fc5b7b3ffd8929bad8bebb0ca4d2a7",
-  "bundle_file_sha256": "f055b57c19b62be3fa5c9a52bfcc9f717c31781511d624d45df08740af396ce2",
+  "bundle_payload_sha256": "812cb338934f25fd82f3d9673b4375575329daf2f5e4dfaf678517af1fa18ebe",
+  "bundle_file_sha256": "6c5ff7dfdd411ba918ff98e51c0234f6ad1781341ca1cc4ac5dc036d07eaf14b",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "904d48fe07860a4940e45fc5f0519c98fbe6b07346fe06448fb860797689d130",
   "bundle_metrics": {
-    "bytes": 1213612,
-    "characters": 1172444,
+    "bytes": 1213741,
+    "characters": 1172305,
     "lines": 19294,
     "server_source_count": 60,
     "embedded_html_count": 22
@@ -19,8 +19,8 @@
   "server_sources": [
     {
       "file": "src/00_Core.gs",
-      "bytes": 29774,
-      "sha256": "861acf7e9af666d1851f8c52ac079beec60f946de0de96d5ae53676bb2a4db57"
+      "bytes": 29790,
+      "sha256": "6cd440983e6886b6dc12d32a531428088f9762027bc6b13886e7f25b35f7091a"
     },
     {
       "file": "src/01_DistributionResources.gs",
@@ -54,8 +54,8 @@
     },
     {
       "file": "src/30_MeetingCore.gs",
-      "bytes": 27815,
-      "sha256": "5f520394749b3208cda906a09b1fa9739ede818f628af26c09768cc02ef84ecc"
+      "bytes": 27840,
+      "sha256": "8cff8b39b10dced72429416b61ac624a0ea361c63c815ab81ee899b3fed65f2a"
     },
     {
       "file": "src/40_MeetingService.gs",
@@ -74,8 +74,8 @@
     },
     {
       "file": "src/61_PitchbookValidation.gs",
-      "bytes": 8237,
-      "sha256": "5cb5c04dd4b6f9c67b4ec9a8226eb3b9063520c222597e40f67f740c49613aa6"
+      "bytes": 8257,
+      "sha256": "07dcab6beb9c3bbf72b730091a6e061b9ed026ec64079a074204ca3437f5f900"
     },
     {
       "file": "src/62_PitchbookIdentity.gs",
@@ -144,8 +144,8 @@
     },
     {
       "file": "src/100_MaintenanceCore.gs",
-      "bytes": 31947,
-      "sha256": "989660121cb8f5df046cfb78222de1fa124ab35f10e91e34010c149849d46079"
+      "bytes": 31957,
+      "sha256": "1a51917dc7119246f5fc353d84b3805402808df484bd58cc14833db087855669"
     },
     {
       "file": "src/110_MaintenanceMeetingService.gs",
@@ -234,8 +234,8 @@
     },
     {
       "file": "src/150_KnowledgeSearchModels.gs",
-      "bytes": 29079,
-      "sha256": "db4a393df37052bdcad5d0de217b78eb93caa5fee4adeae23a8b20d352a2fa99"
+      "bytes": 29091,
+      "sha256": "9ef28d0a3440ab643606f39f9a83e774be65ff85e966df3110787b7acbcfeafe"
     },
     {
       "file": "src/151_KnowledgeSearchService.gs",
@@ -244,13 +244,13 @@
     },
     {
       "file": "src/152_KnowledgeFilterContracts.gs",
-      "bytes": 18933,
-      "sha256": "9052e96acf233c510f7ca8c278c93a999dfd9ec487adee0da2dd76736f6839bb"
+      "bytes": 18937,
+      "sha256": "f5e3e0816c55a2a4aec5011b6da2deb60dbca4f0313dce25eea78011145828cf"
     },
     {
       "file": "src/155_KnowledgeExportContracts.gs",
-      "bytes": 31684,
-      "sha256": "0e9a6cd8260dd56c338ddd0ff0d50de8dd2e3ab95042d5f73303c8b3d1d5dc28"
+      "bytes": 31722,
+      "sha256": "fa0fca42be622b0f46d822030f0dee49c5d1bff3c8545e3c2b26d3c8a62f2be1"
     },
     {
       "file": "src/156_KnowledgeExportService.gs",
@@ -284,8 +284,8 @@
     },
     {
       "file": "src/164_AiProviderCore.gs",
-      "bytes": 100377,
-      "sha256": "78e331fab61bcda2c145861b0d3556cbf930c4a5dc192b51f7f226650a6b0c8f"
+      "bytes": 100381,
+      "sha256": "542ef6cac4a656470165de39be53e7a7dc06f6043d71757df5f4e80211bccf2e"
     },
     {
       "file": "src/165_AiProviderAdmin.gs",

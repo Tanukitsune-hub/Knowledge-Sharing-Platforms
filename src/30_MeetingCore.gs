@@ -272,7 +272,7 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
 
   kspAssert_(input.date, 'MEETING_DATE_REQUIRED', '日付は必須です。');
   kspAssert_(input.counterpartyId, 'MEETING_COUNTERPARTY_ENTITY_REQUIRED', '面談先は必須です。');
-  kspAssert_(input.assetClassId, 'MEETING_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
+  kspAssert_(input.assetClassId, 'MEETING_ASSET_CLASS_REQUIRED', 'アセットクラスは必須です。');
   kspAssert_(kspIsValidDateKey_(input.date), 'MEETING_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
   kspAssert_(!input.time || kspIsValidTimeValue_(input.time), 'MEETING_TIME_INVALID', '時間はHH:MM形式で入力してください。');
   kspAssert_(input.counterparty.length <= KSP_MEETING_LIMITS.SHORT_TEXT,
@@ -311,7 +311,7 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
       safeCatalog.assetClasses,
       input.assetClassId,
       'MEETING_ASSET_CLASS_UNAVAILABLE',
-      '選択されたAsset Classは利用できません。'
+      '選択されたアセットクラスは利用できません。'
     ),
     capitalType: null,
     location: null,
@@ -341,7 +341,7 @@ function kspValidateMeetingInput_(normalizedInput, catalog) {
       safeCatalog.teams,
       input.teamId,
       'MEETING_TEAM_UNAVAILABLE',
-      '選択されたTeamは利用できません。'
+      '選択されたチームは利用できません。'
     );
   }
 
