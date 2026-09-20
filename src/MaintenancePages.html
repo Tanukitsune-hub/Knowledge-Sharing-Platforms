@@ -1,5 +1,5 @@
 <section id="page-meeting-past" class="page">
-  <div class="card">
+  <div id="meeting-past-search-area" class="card" aria-busy="false">
     <div class="section-heading"><div><h2>過去の記録</h2><p class="hint">記録の詳細から原本・関連資料・編集を開けます。</p></div></div>
     <div class="filter-grid meeting-past-filter-grid">
       <div class="meeting-past-period-label">対象期間</div>
@@ -18,20 +18,29 @@
     <div id="meeting-past-status" class="status" role="status" aria-live="polite"></div>
     <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>面談先</th><th>Asset Class</th><th>Status</th><th>Version</th><th>操作</th></tr></thead><tbody id="meeting-past-results"></tbody></table></div>
   </div>
-  <section id="meeting-detail-card" class="card hidden-panel">
-    <div class="section-heading"><div><h2>記録の詳細</h2><p id="meeting-detail-identity" class="hint"></p></div><button id="meeting-detail-close" class="small-button" type="button">閉じる</button></div>
-    <div id="meeting-detail-attributes" class="grid"></div>
-    <h3>面談内容</h3><div id="meeting-detail-body" class="record-body"></div>
-    <div class="actions meeting-detail-primary-actions"><a id="meeting-detail-original" class="small-link" target="_blank" rel="noopener">Google Docs原本</a><button id="meeting-detail-edit" class="small-button" type="button">記録を編集</button><button id="meeting-detail-lifecycle" class="small-button" type="button">記録を削除</button></div>
-    <h3>関連資料</h3><p class="hint">資料の「削除」はこの記録との関連解除です。資料本体・他の記録との関係・資料のStatusは変更しません。</p>
-    <div id="meeting-detail-files" class="file-list"></div>
-    <div class="actions meeting-detail-related-actions"><button id="meeting-detail-link" class="small-button" type="button">既存資料を関連付ける</button><button id="meeting-detail-add-files" class="small-button" type="button">資料を追加</button></div>
-    <div id="meeting-detail-file-home"></div><div id="meeting-detail-classification-home"></div>
+  <section id="meeting-detail-card" class="card" aria-busy="false">
+    <div class="section-heading"><div><h2>記録の詳細</h2><p id="meeting-detail-identity" class="hint"></p></div><button id="meeting-detail-close" class="small-button" type="button" disabled>選択解除</button></div>
+    <p id="meeting-detail-empty" class="maintenance-empty-state">上の一覧から「詳細」を選択すると、ここに記録内容が表示されます。</p>
+    <div id="meeting-detail-content" hidden>
+      <div id="meeting-detail-attributes" class="grid"></div>
+      <h3>面談内容</h3><div id="meeting-detail-body" class="record-body"></div>
+      <div class="actions meeting-detail-primary-actions"><a id="meeting-detail-original" class="small-link" target="_blank" rel="noopener">Google Docs原本</a><button id="meeting-detail-edit" class="small-button" type="button">記録を編集</button><button id="meeting-detail-lifecycle" class="small-button" type="button">記録を削除</button></div>
+    </div>
+    <h3>関連資料</h3>
+    <p id="meeting-detail-related-empty" class="maintenance-empty-state">記録を選択すると、関連資料の確認・追加・関連付けができます。</p>
+    <div id="meeting-detail-related-content" hidden>
+      <p class="hint">資料の「削除」はこの記録との関連解除です。資料本体・他の記録との関係・資料のStatusは変更しません。</p>
+      <div id="meeting-detail-files" class="file-list"></div>
+      <div class="actions meeting-detail-related-actions"><button id="meeting-detail-link" class="small-button" type="button">既存資料を関連付ける</button><button id="meeting-detail-add-files" class="small-button" type="button">資料を追加</button></div>
+      <div id="meeting-detail-file-home"></div><div id="meeting-detail-classification-home"></div>
+    </div>
     <div id="meeting-detail-status" class="status" role="status" aria-live="polite"></div>
   </section>
-  <div id="meeting-edit-card" class="card maintenance-editor hidden-panel">
-    <div class="section-heading"><div><h2>面談記録を修正</h2><p id="meeting-edit-id" class="hint"></p></div><button id="meeting-edit-close" class="small-button" type="button">閉じる</button></div>
+  <div id="meeting-edit-card" class="card maintenance-editor" aria-busy="false">
+    <div class="section-heading"><div><h2>面談記録を修正</h2><p id="meeting-edit-id" class="hint"></p></div><button id="meeting-edit-close" class="small-button" type="button" disabled>編集を終了</button></div>
+    <p id="meeting-edit-empty" class="maintenance-empty-state">記録の詳細から「記録を編集」を選択すると編集できます。</p>
     <form id="meeting-edit-form" novalidate>
+      <fieldset id="meeting-edit-fieldset" disabled>
       <input id="meeting-edit-meetingId" type="hidden"><input id="meeting-edit-expectedVersion" type="hidden">
       <div class="grid meeting-edit-grid">
         <div class="field meeting-edit-date-field"><label class="required" for="meeting-edit-date">日付</label><input id="meeting-edit-date" type="date" required></div>
@@ -51,6 +60,7 @@
         <div class="field full meeting-edit-notes-field"><label for="meeting-edit-notes">面談内容</label><textarea id="meeting-edit-notes" maxlength="20000"></textarea></div>
       </div>
       <div class="actions"><span class="hint">同じMeeting IDとGoogle Docを維持します。</span><button class="action primary" type="submit">変更を保存</button></div>
+      </fieldset>
     </form>
     <div id="meeting-edit-status" class="status" role="status" aria-live="polite"></div>
   </div>

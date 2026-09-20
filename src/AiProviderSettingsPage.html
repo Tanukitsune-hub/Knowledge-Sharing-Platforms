@@ -1,5 +1,21 @@
 <section id="page-ai-provider-settings" class="page">
   <div class="card">
+    <section id="admin-deleted-meetings" class="admin-deleted-meetings" aria-busy="false">
+      <div class="section-heading">
+        <div><h2>削除記録の管理</h2><p class="hint">削除済みの面談記録を検索し、必要な記録だけを復元します。</p></div>
+      </div>
+      <div class="filter-grid admin-deleted-filter-grid">
+        <div class="field"><label for="admin-deleted-date-from">開始日</label><input id="admin-deleted-date-from" type="date"></div>
+        <div class="field"><label for="admin-deleted-date-to">終了日</label><input id="admin-deleted-date-to" type="date"></div>
+        <div class="field"><label for="admin-deleted-counterparty-id">面談先</label><select id="admin-deleted-counterparty-id"><option value="">未選択</option></select></div>
+        <div class="field"><label for="admin-deleted-asset-class-id">Asset Class</label><select id="admin-deleted-asset-class-id"><option value="">未選択</option></select></div>
+        <div class="field"><label for="admin-deleted-status-filter">Status</label><select id="admin-deleted-status-filter"><option value="Inactive" selected>削除済み</option><option value="Active">有効</option><option value="">すべて</option></select></div>
+      </div>
+      <div class="actions admin-deleted-actions"><button id="admin-deleted-search" class="action primary" type="button">検索</button><span class="hint">最大100件を新しい順で表示します。</span></div>
+      <div id="admin-deleted-status" class="status" role="status" aria-live="polite"></div>
+      <div class="table-wrap"><table class="data-table admin-deleted-table"><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>Asset Class</th><th>Team</th><th>Status</th><th>Version</th><th>操作</th></tr></thead><tbody id="admin-deleted-results"><tr><td colspan="8" class="empty-cell">検索すると記録が表示されます。</td></tr></tbody></table></div>
+    </section>
+    <hr class="admin-section-divider">
     <div class="section-heading">
       <div><h2>AIプロバイダ設定</h2><p class="hint">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>
     </div>

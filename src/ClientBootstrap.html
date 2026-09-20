@@ -6,6 +6,7 @@ kspSetDefaultDateRange('meeting-past-dateFrom','meeting-past-dateTo');
 kspSetDefaultDateRange('pitchbook-past-dateFrom','pitchbook-past-dateTo');
 kspSetOneYearDateRange('activity-date-from','activity-date-to');
 kspSetDefaultDateRange('relationship-date-from','relationship-date-to');
+kspSetOneYearDateRange('admin-deleted-date-from','admin-deleted-date-to');
 showPage('knowledge');
 el('nav-meeting').addEventListener('click',()=>{el('meeting-file-home').appendChild(el('meeting-file-panel'));el('meeting-file-actions-home').appendChild(el('meeting-file-actions'));el('pitchbook-submit').hidden=!(pitchbookParent&&pitchbookParent.existing)});
 function bootstrapMeeting(result){if(!result||!result.ok){meetingLoading=false;setMeetingBusy(false);showStatus('meeting-status','error',result&&result.error?result.error.message:'初期データを読み込めませんでした。');return}populateSharedOptions(result.options);restoreMeetingDraft();refreshMeetingRelatedPitchbooks(selectedOptionValues('meeting-relatedPitchbookIds'));meetingLoading=false;setMeetingBusy(false);showStatus('meeting-status','info','面談入力の準備ができました。')}
