@@ -584,7 +584,7 @@ BASELINE: Work0041 version21
 ACTIVE_DISPATCH: NONE
 BALL: CHATGPT
 SIDEBAR_REDESIGN: 0
-PRIMARY_SCOPE: right-pane visual unification + admin tabs
+PRIMARY_SCOPE: right-pane visual unification + master drag reorder + admin tabs
 WORK_0030: DEFERRED_BY_USER
 ```
 
@@ -599,3 +599,7 @@ Closed user decisions 2026-09-20:
 - 左tab: `AIプロバイダ設定`。
 - 右tab: `削除記録の管理`。
 - default active tabは`AIプロバイダ設定`。
+- sidebar label `プルダウンの管理`を`マスター管理`へ変更する（visual designは不変）。
+- Asset Class / 面談場所 / Teamの並び替えはnumeric Sort Order入力を廃止し、drag handleによるclick & drag操作へ変更する。
+- drag中はinsertion targetを明示し、neighbor rowsを短いanimationでshiftさせる。
+- existing `OPTION_REORDER` / `Option_Order` semanticsを再利用し、schema/storageは変更しない。
