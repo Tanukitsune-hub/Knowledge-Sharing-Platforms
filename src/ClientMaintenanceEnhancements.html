@@ -100,12 +100,70 @@ el('counterparty-modal').addEventListener('keydown',counterpartyModalKeydown);
 el('counterparty-modal-backdrop').addEventListener('click',event=>{if(event.target===el('counterparty-modal-backdrop'))closeCounterpartyModal()});
 el('meeting-quick-add-counterparty').onclick=event=>openCounterpartyModal('meeting',event.currentTarget);
 el('masters-add-counterparty').onclick=event=>openCounterpartyModal('masters',event.currentTarget);
+const meetingMaterialPickerState={open:false,busy:false,request:0,trigger:null,candidates:[]};
+function meetingMaterialPickerStatus(kind,message){const box=el('meeting-material-modal-status');box.className=message?'status visible '+kind:'status';box.textContent=message||''}
+function meetingMaterialPickerFocusable(){return[...el('meeting-material-modal').querySelectorAll('button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden)}
+function meetingMaterialCandidateLabel(record){
+  const title=record.savedFilename||record.originalFilename||'名称未設定';
+  return [record.date||'日付未設定',title,record.fundStrategy?'Fund / Strategy: '+record.fundStrategy:'',record.assetClassName?'Asset Class: '+record.assetClassName:''].filter(Boolean).join(' / ');
+}
+function meetingMaterialCandidates(records,linkedIds){
+  const linked=new Set((linkedIds||[]).map(String));
+  return (records||[]).filter(record=>record&&record.documentId&&record.status==='Active'&&!linked.has(String(record.documentId))).slice(0,100);
+}
+function renderMeetingMaterialCandidates(){
+  const candidates=meetingMaterialPickerState.candidates.filter(item=>item);
+  el('meeting-material-modal-results').innerHTML=candidates.map((record,index)=>'<div class="meeting-material-candidate" role="listitem"><div class="meeting-material-candidate-label">'+escapeHtml(meetingMaterialCandidateLabel(record))+'</div><button class="small-button" type="button" data-meeting-material-index="'+index+'"'+(meetingMaterialPickerState.busy?' disabled':'')+'>この資料を関連付ける</button></div>').join('')||'<div class="meeting-material-empty">一致する未関連のActive資料はありません。</div>';
+}
+function closeMeetingMaterialPicker(){
+  if(meetingMaterialPickerState.busy)return;
+  meetingMaterialPickerState.open=false;meetingMaterialPickerState.request+=1;meetingMaterialPickerState.candidates=[];
+  el('meeting-material-modal-backdrop').hidden=true;document.querySelector('main').removeAttribute('inert');document.body.classList.remove('modal-open');
+  el('meeting-material-modal-results').innerHTML='';meetingMaterialPickerStatus('','');
+  const trigger=meetingMaterialPickerState.trigger;meetingMaterialPickerState.trigger=null;if(trigger&&typeof trigger.focus==='function')trigger.focus();
+}
+async function openMeetingMaterialPicker(trigger){
+  if(meetingMaterialPickerState.busy||!meetingDetailRecord||meetingDetailRecord.status!=='Active')return;
+  const record=meetingDetailRecord,request=++meetingMaterialPickerState.request;
+  meetingMaterialPickerState.open=true;meetingMaterialPickerState.trigger=trigger||document.activeElement;meetingMaterialPickerState.candidates=[];
+  el('meeting-material-modal-results').innerHTML='';meetingMaterialPickerStatus('info','候補を読み込んでいます…');
+  el('meeting-material-modal-backdrop').hidden=false;document.querySelector('main').setAttribute('inert','');document.body.classList.add('modal-open');
+  setTimeout(()=>el('meeting-material-modal').focus(),0);
+  try{
+    const result=await serverCall('searchPitchbookRecords',{counterpartyId:record.counterpartyId,assetClassId:record.assetClassId,status:'Active',limit:100});
+    if(!meetingMaterialPickerState.open||request!==meetingMaterialPickerState.request)return;
+    if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'資料候補を読み込めません。');
+    meetingMaterialPickerState.candidates=meetingMaterialCandidates(result.records||[],record.relatedPitchbookIds||[]);
+    meetingMaterialPickerStatus('info',meetingMaterialPickerState.candidates.length+'件の候補を表示しています。');renderMeetingMaterialCandidates();
+  }catch(error){if(meetingMaterialPickerState.open&&request===meetingMaterialPickerState.request){meetingMaterialPickerStatus('error',error.message||String(error));renderMeetingMaterialCandidates()}}
+}
+async function selectMeetingMaterialCandidate(index){
+  if(meetingMaterialPickerState.busy||!meetingMaterialPickerState.open)return;
+  const candidate=meetingMaterialPickerState.candidates[Number(index)];if(!candidate)return;
+  meetingMaterialPickerState.busy=true;meetingMaterialPickerStatus('info','関連付けています…');renderMeetingMaterialCandidates();
+  const linked=await changeDetailRelation(candidate.documentId,'add');
+  meetingMaterialPickerState.busy=false;
+  if(linked){closeMeetingMaterialPicker();return}
+  meetingMaterialPickerStatus('error','関連付けを完了できませんでした。現在の詳細を確認してください。');renderMeetingMaterialCandidates();
+}
+function meetingMaterialPickerKeydown(event){
+  if(event.key==='Escape'){event.preventDefault();closeMeetingMaterialPicker();return}
+  if(event.key!=='Tab')return;
+  const focusable=meetingMaterialPickerFocusable();if(!focusable.length){event.preventDefault();return}
+  const first=focusable[0],last=focusable[focusable.length-1];
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+}
+el('meeting-material-modal-close').onclick=closeMeetingMaterialPicker;el('meeting-material-modal-cancel').onclick=closeMeetingMaterialPicker;
+el('meeting-material-modal').addEventListener('keydown',meetingMaterialPickerKeydown);
+el('meeting-material-modal-backdrop').addEventListener('click',event=>{if(event.target===el('meeting-material-modal-backdrop'))closeMeetingMaterialPicker()});
+el('meeting-material-modal-results').addEventListener('click',event=>{const button=event.target.closest('[data-meeting-material-index]');if(button)selectMeetingMaterialCandidate(button.dataset.meetingMaterialIndex)});
 let meetingDetailRecord=null,meetingDetailBusy=false,meetingDetailRequest=0;
 const meetingDetailKnownDocuments=new Map();
 function renderMeetingDetail(record){
   meetingDetailRecord=record;
   el('meeting-detail-identity').textContent=record.meetingId+' / Version '+record.version+' / '+record.status;
-  const fields=[['日付',record.date],['時間',record.time],['面談場所',record.locationName],['面談先',record.counterpartyEntityName],['面談先種別',record.counterpartyType],['Asset Class',record.assetClassName],['Equity / Debt',record.capitalTypeName],['Team',record.teamName],['Fund / Strategy',record.fundStrategy],['Meeting Type',(record.meetingTypeLabels||[]).join(' / ')],['面談相手',record.counterparty],['当社側',record.internalParticipants],['要フォロー',record.followUpRequired?'あり':'なし'],['フォローメモ',record.followUpNote]];
+  const fields=[['日付',record.date],['時間',record.time],['面談場所',record.locationName],['面談先',record.counterpartyEntityName],['面談先種別',record.counterpartyType],['Asset Class',record.assetClassName],['Equity / Debt',record.capitalTypeName],['Team',record.teamName],['Fund / Strategy',record.fundStrategy],['Meeting Type',(record.meetingTypeLabels||[]).join(' / ')],['面談相手',record.counterparty],['当社側',record.internalParticipants]];
   el('meeting-detail-attributes').innerHTML=fields.map(([label,value])=>'<div><strong>'+escapeHtml(label)+'</strong><div>'+escapeHtml(value||'—')+'</div></div>').join('');
   el('meeting-detail-body').textContent=record.notes||'（本文なし）';
   const original=kspSafeDriveUrl(record.documentUrl);el('meeting-detail-original').hidden=!original;if(original)el('meeting-detail-original').href=original;else el('meeting-detail-original').removeAttribute('href');
@@ -124,14 +182,15 @@ async function openMeetingDetail(meetingId){
   try{const result=await serverCall('getMeetingMaintenanceRecord',meetingId);if(request!==meetingDetailRequest)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'記録を読み込めません。');renderMeetingDetail(result.record);el('meeting-detail-card').scrollIntoView({behavior:'smooth',block:'start'})}catch(error){showStatus('meeting-past-status','error',error.message||String(error))}
 }
 async function changeDetailRelation(documentId,operation){
-  if(meetingDetailBusy||pitchbookBusy||!meetingDetailRecord||!documentId)return;
+  if(meetingDetailBusy||pitchbookBusy||!meetingDetailRecord||!documentId)return false;
   meetingDetailBusy=true;
   try{
     bindPitchbookParent(meetingDetailRecord,true);
     await linkParentDocument(documentId,operation);
     await openMeetingDetail(meetingDetailRecord.meetingId);
     showStatus('meeting-detail-status','success',operation==='remove'?'この記録との関連のみ解除しました。原本と他の関連は維持されます。':'関連付けました。資料のStatusは変更していません。');
-  }catch(error){showStatus('meeting-detail-status','error',(error.message||String(error))+' 再試行時に現在の関係を照合します。')}
+    return true;
+  }catch(error){showStatus('meeting-detail-status','error',(error.message||String(error))+' 再試行時に現在の関係を照合します。');return false}
   finally{meetingDetailBusy=false}
 }
 el('meeting-past-results').addEventListener('click',event=>{const button=event.target.closest('[data-meeting-detail]');if(button)openMeetingDetail(button.dataset.meetingDetail)});
@@ -147,7 +206,7 @@ el('meeting-detail-add-files').onclick=()=>{
   if(pitchbookBusy||meetingDetailBusy||!meetingDetailRecord)return;
   try{bindPitchbookParent(meetingDetailRecord,true);el('meeting-detail-file-home').appendChild(el('meeting-file-panel'));el('meeting-detail-file-home').appendChild(el('meeting-file-actions'));setPitchbookBusy(false);el('meeting-file-panel').scrollIntoView({behavior:'smooth',block:'start'})}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}
 };
-el('meeting-detail-link').onclick=()=>changeDetailRelation(el('meeting-detail-documentId').value.trim(),'add');
+el('meeting-detail-link').onclick=event=>openMeetingMaterialPicker(event.currentTarget);
 el('meeting-detail-files').addEventListener('click',async event=>{
   const relation=event.target.closest('[data-detail-relation]'),classify=event.target.closest('[data-detail-classify]'),open=event.target.closest('[data-detail-file-open]');
   if(relation){await changeDetailRelation(relation.dataset.detailRelation,relation.dataset.operation);return}

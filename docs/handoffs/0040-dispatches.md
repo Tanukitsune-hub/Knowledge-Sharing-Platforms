@@ -3,10 +3,10 @@
 WORK_ID: 0040
 DISPATCH_ID: 0040-CODEX-02
 ACTIVE_DISPATCH_ID: 0040-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
-PHASE: TARGET RUNTIME EVIDENCE CLOSURE
+PHASE: FINAL REVIEW
 
 ## Primary Outcome
 
@@ -18,15 +18,7 @@ Past Meeting detail/edit UIからunused/internal controlsを除去し、legacy v
 - `docs/planning/work0040-past-meeting-edit-cleanup.md`
 - `docs/handoffs/0040-CODEX-01-past-meeting-edit-cleanup-instruction.md`
 - `docs/handoffs/0040-CODEX-01-past-meeting-edit-cleanup-report.md`
-- `docs/handoffs/0040-CODEX-02-runtime-legacy-preservation-qualification-instruction.md`
-
-## ChatGPT review gate
-
-CODEX-01 implementation / tests / version20 runtime evidenceはreview済み。merge前に残るblockerは1件のみ:
-
-- non-empty legacy `followUpRequired` / `followUpNote`を持つsynthetic Meetingのactual deployed UI unrelated edit/save後に、legacy valuesと`relatedPitchbookIds`がauthoritative readbackで不変であることの直接runtime evidence。
-
-CODEX-02はこのevidence closureのみを行う。PASSなら実装・bundle・deployment変更は不要。
+- `docs/handoffs/0040-CODEX-02-runtime-legacy-preservation-qualification-report.md`
 
 ## Closed decisions
 
@@ -38,6 +30,7 @@ CODEX-02はこのevidence closureのみを行う。PASSなら実装・bundle・d
 - raw Document_ID hidden
 - existing-link button retained via human-readable picker
 - add-files preserved
+- actual owner-only version20でnon-empty legacy follow-up valuesと3件のexisting relationを持つisolated synthetic Meetingをunrelated edit/saveし、authoritative pre/post readbackのexact preservationを確認済み
 
 ## Safety
 
@@ -63,5 +56,5 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0040
 DISPATCH_ID: 0040-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
