@@ -46,7 +46,7 @@ test('normal Past Meeting uses table-cell action wrappers and delete-only wordin
 test('admin deleted-record management defaults to Inactive and reuses optimistic status mutation', () => {
   assert.match(adminPage, /<h2>削除記録の管理<\/h2>/);
   assert.match(adminPage, /id="admin-deleted-status-filter"[\s\S]*value="Inactive" selected>削除済み/);
-  assert.match(adminPage, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>Asset Class<\/th><th>Team<\/th><th>Status<\/th><th>Version<\/th><th>操作<\/th>/);
+  assert.match(adminPage, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>アセットクラス<\/th><th>チーム<\/th><th>Status<\/th><th>Version<\/th><th>操作<\/th>/);
   assert.match(adminClient, /serverCall\('searchMeetingRecords',adminDeletedMeetingPayload\(\)\)/);
   assert.match(adminClient, /serverCall\('changeMeetingStatus',\{meetingId:record\.meetingId,expectedVersion:record\.version,targetStatus:'Active'\}\)/);
   assert.match(adminClient, />復元<\/button>/);

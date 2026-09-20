@@ -39,7 +39,7 @@ function fileSetup(h){h.run("selectedPitchbookFiles=[{name:'Synthetic.pdf',size:
 test('production shell retains seven accepted sidebar entries and real includes',()=>{
   const index=source('Index.html'),nav=index.match(/<nav[\s\S]*?<\/nav>/)[0];
   assert.equal((nav.match(/<button /g)||[]).length,7);
-  for(const label of ['ナレッジ検索','記録を追加','過去の記録','面談先サマリー','面談実績の集計','プルダウンの管理','管理者ページ'])assert.ok(nav.includes(label));
+  for(const label of ['ナレッジ検索','記録を追加','過去の記録','面談先サマリー','面談実績の集計','マスター管理','管理者ページ'])assert.ok(nav.includes(label));
   assert.doesNotMatch(nav,/nav-pitchbook|nav-relationship-explorer|nav-gp-workspace/);
   assert.doesNotMatch(index,/id="pitchbook-form"|id="page-pitchbook"/);
   for(const name of ['ClientPitchbookFiles','ClientPitchbookFlow','ClientMaintenance'])assert.ok(index.includes("include_('"+name+"')"));

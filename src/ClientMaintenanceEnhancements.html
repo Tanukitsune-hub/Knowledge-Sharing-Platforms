@@ -105,7 +105,7 @@ function meetingMaterialPickerStatus(kind,message){const box=el('meeting-materia
 function meetingMaterialPickerFocusable(){return[...el('meeting-material-modal').querySelectorAll('button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden)}
 function meetingMaterialCandidateLabel(record){
   const title=record.savedFilename||record.originalFilename||'名称未設定';
-  return [record.date||'日付未設定',title,record.fundStrategy?'Fund / Strategy: '+record.fundStrategy:'',record.assetClassName?'Asset Class: '+record.assetClassName:''].filter(Boolean).join(' / ');
+  return [record.date||'日付未設定',title,record.fundStrategy?'Fund / Strategy: '+record.fundStrategy:'',record.assetClassName?'アセットクラス: '+record.assetClassName:''].filter(Boolean).join(' / ');
 }
 function meetingMaterialCandidates(records,linkedIds){
   const linked=new Set((linkedIds||[]).map(String));
@@ -166,7 +166,7 @@ const meetingDetailKnownDocuments=new Map();
 function renderMeetingDetail(record){
   meetingDetailRecord=record;
   el('meeting-detail-identity').textContent=record.meetingId+' / Version '+record.version+' / '+record.status;
-  const fields=[['日付',record.date],['時間',record.time],['面談場所',record.locationName],['面談先',record.counterpartyEntityName],['面談先種別',record.counterpartyType],['Asset Class',record.assetClassName],['Equity / Debt',record.capitalTypeName],['Team',record.teamName],['Fund / Strategy',record.fundStrategy],['Meeting Type',(record.meetingTypeLabels||[]).join(' / ')],['面談相手',record.counterparty],['当社側',record.internalParticipants]];
+  const fields=[['日付',record.date],['時間',record.time],['面談場所',record.locationName],['面談先',record.counterpartyEntityName],['面談先種別',record.counterpartyType],['アセットクラス',record.assetClassName],['Equity / Debt',record.capitalTypeName],['チーム',record.teamName],['Fund / Strategy',record.fundStrategy],['MTG種別',(record.meetingTypeLabels||[]).join(' / ')],['面談相手',record.counterparty],['当社側',record.internalParticipants]];
   el('meeting-detail-attributes').innerHTML=fields.map(([label,value])=>'<div><strong>'+escapeHtml(label)+'</strong><div>'+escapeHtml(value||'—')+'</div></div>').join('');
   el('meeting-detail-body').textContent=record.notes||'（本文なし）';
   const original=kspSafeDriveUrl(record.documentUrl);el('meeting-detail-original').hidden=!original;if(original)el('meeting-detail-original').href=original;else el('meeting-detail-original').removeAttribute('href');

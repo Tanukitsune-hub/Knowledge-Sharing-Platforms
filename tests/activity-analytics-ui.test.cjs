@@ -17,7 +17,7 @@ test('Activity Analytics is an integrated page with dependency-free chart and ac
   assert.match(page, /id="activity-period"/);
   assert.match(page, /id="activity-dimension"/);
   assert.doesNotMatch(page, /id="activity-admin-check-card"|月次管理反映済み/);
-  assert.match(page, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>Team<\/th><th>Meeting Type<\/th><th>Status<\/th><th>原本<\/th><th>確認済み<\/th>/);
+  assert.match(page, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>チーム<\/th><th>MTG種別<\/th><th>Status<\/th><th>原本<\/th><th>確認済み<\/th>/);
   assert.match(page, /<table class="data-table analytics-table">/);
   assert.equal((page.match(/<caption class="sr-only">/g) || []).length, 3);
   assert.match(client, /serverCall\('getMeetingActivityAnalytics'/);

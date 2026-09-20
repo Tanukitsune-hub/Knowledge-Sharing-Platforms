@@ -31,7 +31,7 @@ test('Meeting Create header keeps heading, draft clear, and one compact status i
   assert.equal((bootstrap.match(/面談入力の準備ができました。/g) || []).length, 1);
   assert.match(bootstrap, /showStatus\('meeting-status','error',result&&result\.error\?result\.error\.message:'初期データを読み込めませんでした。'\)/);
   assert.match(bootstrap, /withFailureHandler\(error=>\{meetingLoading=false;setMeetingBusy\(false\);showStatus\('meeting-status','error'/);
-  assert.match(index, /showStatus\('meeting-status','error','日付、面談先、Asset Classは必須です。'\)/);
+  assert.match(index, /showStatus\('meeting-status','error','日付、面談先、アセットクラスは必須です。'\)/);
   assert.match(index, /showStatus\('meeting-status','success','記録を保存しました:/);
   assert.doesNotMatch(pitchbookFlow, /meeting-entry-hint/);
   assert.match(pitchbookFlow, /showStatus\('meeting-status','info','前回保存済みの記録を表示しています。/);
@@ -57,9 +57,9 @@ test('Knowledge Search renders dynamic mode help and Team source help in one inl
   const sourceHelp = line.indexOf('id="knowledge-source-help"');
   assert.ok(modeHelp >= 0 && modeHelp < sourceHelp, 'mode help -> source help');
   assert.match(line, /<span id="knowledge-mode-help">/);
-  assert.match(line, /<span id="knowledge-source-help">Teamは「面談記録のみ」で利用できます。<\/span>/);
+  assert.match(line, /<span id="knowledge-source-help">チームは「面談記録のみ」で利用できます。<\/span>/);
   assert.doesNotMatch(line, /<br\b|<p\b/);
-  assert.equal((knowledge.match(/Teamは「面談記録のみ」で利用できます。/g) || []).length, 1);
+  assert.equal((knowledge.match(/チームは「面談記録のみ」で利用できます。/g) || []).length, 1);
   assert.match(knowledgeClient, /'表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。'/);
 });
 
@@ -108,7 +108,7 @@ test('Meeting mobile source and CSS order safely stack participants, registratio
     assert.ok(next > previous, token);
     previous = next;
   }
-  const mobile = styles.slice(styles.lastIndexOf('@media(max-width:720px)'));
+  const mobile = styles.slice(styles.indexOf('@media(max-width:720px){#meeting-form'));
   for (const selector of ['meeting-field-counterparty-person', 'meeting-field-internal-participants', 'meeting-field-submit', 'meeting-field-notes']) {
     assert.ok(mobile.includes(`#meeting-form>.grid>.${selector}`), selector);
   }

@@ -410,7 +410,7 @@ function kspValidatePitchbookEditInput_(input, catalog) {
   var selected = {
     counterpartyEntity: kspRequirePitchbookCounterparty_(input, catalog),
     assetClass: kspRequireCatalogItem_(catalog.assetClasses, input.assetClassId,
-      'PITCHBOOK_ASSET_CLASS_UNAVAILABLE', '選択されたAsset Classは利用できません。'),
+      'PITCHBOOK_ASSET_CLASS_UNAVAILABLE', '選択されたアセットクラスは利用できません。'),
     capitalType: null
   };
   if (input.capitalTypeId) {

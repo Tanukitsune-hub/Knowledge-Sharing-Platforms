@@ -73,7 +73,7 @@ function createHarness(responder) {
 }
 
 test('drill table has the eight required columns and no legacy admin-check card', () => {
-  assert.match(page, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>Team<\/th><th>Meeting Type<\/th><th>Status<\/th><th>原本<\/th><th>確認済み<\/th>/);
+  assert.match(page, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>チーム<\/th><th>MTG種別<\/th><th>Status<\/th><th>原本<\/th><th>確認済み<\/th>/);
   assert.doesNotMatch(page, /activity-admin-check-card|activity-admin-check-results|月次管理反映済み/);
   assert.match(page, /id="activity-admin-check-status"/);
 });

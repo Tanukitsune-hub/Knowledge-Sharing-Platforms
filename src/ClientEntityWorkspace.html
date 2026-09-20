@@ -46,7 +46,7 @@ function entityWorkspaceRenderMeetings(data){
   el('entity-workspace-meetings-more').innerHTML=entityWorkspaceMore(meetings.omittedCount);
 }
 function entityWorkspaceRenderMixes(mixes){
-  const groups=[['Team',mixes.teams],['Asset Class',mixes.assetClasses],['Meeting Type',mixes.meetingTypes]];
+  const groups=[['チーム',mixes.teams],['アセットクラス',mixes.assetClasses],['MTG種別',mixes.meetingTypes]];
   el('entity-workspace-mixes').innerHTML=groups.map(group=>'<div class="entity-mix-group"><strong>'+group[0]+'</strong><span>'+((group[1]||[]).map(item=>kspEscapeHtml(item.label)+' '+kspEscapeHtml(item.count)).join(' / ')||'未設定')+'</span></div>').join('');
 }
 function entityWorkspaceRenderFollowups(data){

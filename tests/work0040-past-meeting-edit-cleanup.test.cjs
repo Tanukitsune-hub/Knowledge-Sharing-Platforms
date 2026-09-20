@@ -81,7 +81,7 @@ test('existing-material picker excludes linked or inactive records and renders h
   const candidates = context.meetingMaterialCandidates(records, ['DOC-LINKED']);
   assert.deepEqual(JSON.parse(JSON.stringify(candidates)), [records[2]]);
   const label = context.meetingMaterialCandidateLabel(candidates[0]);
-  assert.equal(label, '2026-09-03 / candidate.pdf / Fund / Strategy: Fund Alpha / Asset Class: Infrastructure');
+  assert.equal(label, '2026-09-03 / candidate.pdf / Fund / Strategy: Fund Alpha / アセットクラス: Infrastructure');
   assert.doesNotMatch(label, /DOC-CANDIDATE/);
 });
 

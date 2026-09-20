@@ -183,9 +183,9 @@ function kspKnowledgeExportSafeMessage_(code, error) {
     KNOWLEDGE_EXPORT_DATE_RANGE_INVALID: 'Date FromはDate To以前にしてください。',
     KNOWLEDGE_EXPORT_SOURCE_TYPE_INVALID: 'Source Typeが不正です。',
     AI_GP_FILTER_UNAVAILABLE: '選択されたGPは利用できません。',
-    AI_ASSET_CLASS_FILTER_UNAVAILABLE: '選択されたAsset Classは利用できません。',
+    AI_ASSET_CLASS_FILTER_UNAVAILABLE: '選択されたアセットクラスは利用できません。',
     AI_CAPITAL_TYPE_FILTER_UNAVAILABLE: '選択されたEquity / Debtは利用できません。',
-    AI_TEAM_FILTER_UNAVAILABLE: '選択されたTeamは利用できません。',
+    AI_TEAM_FILTER_UNAVAILABLE: '選択されたチームは利用できません。',
     AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE: '選択されたCounterparty Typeは利用できません。',
     AI_ENTITY_FILTER_UNAVAILABLE: '選択されたCounterparty Entityは利用できません。',
     AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
@@ -196,8 +196,8 @@ function kspKnowledgeExportSafeMessage_(code, error) {
     AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
     AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
     AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件は利用できません。',
-    AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMeeting Typeは利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'Team、要フォロー、Meeting TypeはMeetingにのみ適用できます。',
+    AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMTG種別は利用できません。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、要フォロー、MTG種別はMeetingにのみ適用できます。',
     KNOWLEDGE_EXPORT_PROMPT_REQUIRED: '自由質問では質問を入力してください。',
     KNOWLEDGE_EXPORT_PROMPT_TOO_LONG: '質問または追加指示は5,000文字以内で入力してください。',
     KNOWLEDGE_EXPORT_COPY_NOT_CONFIRMED: 'コピー成功の確認がないため、監査記録を作成できません。',
@@ -474,17 +474,17 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
       'Date: ' + item.source.date,
       '面談先区分: ' + (definition ? definition.label : counterpartyType),
       '面談先: ' + ((safeMaps.counterparty || {})[counterpartyId] || counterpartyId),
-      'Asset Class: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''))
+      'アセットクラス: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''))
     ];
     if (row.Time) lines.push('Time: ' + kspCanonicalBusinessTime_(row.Time));
     if (row.Capital_Type_ID) lines.push('Equity / Debt: ' + (safeMaps.capitalType[String(row.Capital_Type_ID)] || String(row.Capital_Type_ID)));
     if (row.Location_ID) lines.push('Location: ' + (safeMaps.location[String(row.Location_ID)] || String(row.Location_ID)));
     if (row.Counterparty) lines.push('Counterparty: ' + String(row.Counterparty));
     if (row.Internal_Participants) lines.push('Internal Participants: ' + String(row.Internal_Participants));
-    if (row.Team_ID) lines.push('Team: ' + (safeMaps.team[String(row.Team_ID)] || String(row.Team_ID)));
+    if (row.Team_ID) lines.push('チーム: ' + (safeMaps.team[String(row.Team_ID)] || String(row.Team_ID)));
     if (row.Fund_Strategy) lines.push('Fund / Strategy: ' + String(row.Fund_Strategy));
     var meetingTypes = kspMeetingTypeLabels_(row.Meeting_Type_Codes);
-    if (meetingTypes.length) lines.push('Meeting Type: ' + meetingTypes.join(', '));
+    if (meetingTypes.length) lines.push('MTG種別: ' + meetingTypes.join(', '));
     if (kspToBoolean_(row.Follow_Up_Required, false)) lines.push('要フォロー: はい');
     if (row.Follow_Up_Note) lines.push('Follow-up Note: ' + String(row.Follow_Up_Note));
     if (row.Related_Pitchbook_IDs) lines.push('Related Pitchbook IDs: ' + String(row.Related_Pitchbook_IDs));
@@ -548,12 +548,12 @@ function kspBuildKnowledgeExportPrompt_(input, catalog) {
       ? input.selectedEntityKeys.map(function (entityKey) {
         return kspKnowledgeExportPromptLabel_(safeCatalog.counterpartyEntities, entityKey);
       }).join(', ') : '未選択'),
-    'Asset Class: ' + kspKnowledgeExportPromptLabel_(safeCatalog.assetClasses, filters.assetClassId),
+    'アセットクラス: ' + kspKnowledgeExportPromptLabel_(safeCatalog.assetClasses, filters.assetClassId),
     'Equity / Debt: ' + kspKnowledgeExportPromptLabel_(safeCatalog.capitalTypes, filters.capitalTypeId),
-    'Team: ' + kspKnowledgeExportPromptLabel_(safeCatalog.teams, filters.teamId),
+    'チーム: ' + kspKnowledgeExportPromptLabel_(safeCatalog.teams, filters.teamId),
     'Fund / Strategy: ' + (filters.fundStrategy || '未選択'),
     '要フォロー: ' + (filters.followUp || '未選択'),
-    'Meeting Type: ' + (filters.meetingTypeCode || '未選択'),
+    'MTG種別: ' + (filters.meetingTypeCode || '未選択'),
     'Source Type: ' + sourceType,
     '',
     definition.instruction,

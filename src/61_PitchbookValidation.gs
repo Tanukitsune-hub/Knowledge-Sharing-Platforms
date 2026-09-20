@@ -57,7 +57,7 @@ function kspValidatePitchbookBatchInput_(input, catalog) {
   var safeCatalog = catalog || { counterparties: [], assetClasses: [], capitalTypes: [] };
   kspAssert_(input.date, 'PITCHBOOK_DATE_REQUIRED', '日付は必須です。');
   kspAssert_(input.counterpartyId, 'PITCHBOOK_COUNTERPARTY_REQUIRED', '面談先は必須です。');
-  kspAssert_(input.assetClassId, 'PITCHBOOK_ASSET_CLASS_REQUIRED', 'Asset Classは必須です。');
+  kspAssert_(input.assetClassId, 'PITCHBOOK_ASSET_CLASS_REQUIRED', 'アセットクラスは必須です。');
   kspAssert_(kspIsValidDateKey_(input.date), 'PITCHBOOK_DATE_INVALID', '日付はYYYY-MM-DD形式で入力してください。');
   kspAssert_(String(input.fundStrategy || '').length <= KSP_PITCHBOOK_FUND_STRATEGY_MAX_LENGTH,
     'PITCHBOOK_FUND_STRATEGY_TOO_LONG', 'Fund / Strategyは500文字以内で入力してください。');
@@ -80,7 +80,7 @@ function kspValidatePitchbookBatchInput_(input, catalog) {
       safeCatalog.assetClasses,
       input.assetClassId,
       'PITCHBOOK_ASSET_CLASS_UNAVAILABLE',
-      '選択されたAsset Classは利用できません。'
+      '選択されたアセットクラスは利用できません。'
     ),
     capitalType: null
   };
