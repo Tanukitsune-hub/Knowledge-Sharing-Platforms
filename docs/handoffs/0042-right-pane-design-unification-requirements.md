@@ -46,10 +46,60 @@ WORK_0030: DEFERRED_BY_USER
 - 過去の記録
 - 面談先サマリー
 - 面談実績の集計
-- プルダウンの管理
+- マスター管理
 - 管理者ページ
 
 必要に応じてmodal / detail / editor / result listも同一component languageへ寄せる。
+
+## Closed decision — マスター管理の名称 / drag reorder
+
+### 名称
+
+- sidebarのuser-facing label `プルダウンの管理`を`マスター管理`へ変更する。
+- page headingは既存の`マスター管理`を維持する。
+- sidebarのvisual design / size / placement / icon styleは変更しない。今回のsidebar変更はlabel textのみ。
+
+### Asset Class / 面談場所 / Team の並び替え
+
+対象tab:
+- `Asset Class`
+- `面談場所`
+- `Team`
+
+通常利用者向けの数値`Sort Order`手入力 / prompt操作を廃止し、click & dragによるdirect manipulationへ置換する。
+
+Interaction:
+- 各row左端にdrag handleを表示する。
+- row全体ではなくdrag handleを掴んで移動することで、名称変更 / Status操作との誤操作を避ける。
+- drag開始時、対象rowを少し浮かせるvisual（shadow / slight scale / opacity等）を出す。
+- pointer移動中、drop先が分かるinsertion line / placeholderを明示する。
+- 他rowはdestinationに応じて滑らかにshiftし、短いtransition animationで挿入位置を視覚化する。
+- drop時はclient側で新しい順序を即時表示し、`並び順を保存中…`等のbusy stateを出す。
+- 保存成功後はserver authoritative orderで再描画する。
+- 保存失敗時はdrag前のauthoritative orderへrollbackし、errorを表示する。
+- 保存中のduplicate dragを防止する。
+
+Data semantics:
+- existing `OPTION_REORDER` / `Option_Order` mutation semanticsを再利用する。
+- clientはdrop位置から既存reorder mutationに必要なtarget position / sort orderを導出する。
+- schema / storage / Audit modelを変更しない。
+- current category内だけでreorderし、tabを跨ぐmoveは行わない。
+- Statusはreorderによって変更しない。
+- Inactive itemを含むcurrent categoryのauthoritative ordering semanticsを維持する。
+
+Normal UI:
+- raw numeric sort orderの手入力UIを表示しない。
+- `順序`button / numeric promptを撤去する。
+- raw sort-order numberを利用者のprimary visible conceptにしない。
+- primary operationはdrag-and-dropとする。
+- Counterparty（面談先）tabのordering behaviorは今回変更しない。
+
+### Animation quality
+
+- animationは短く控えめにし、業務UIとして邪魔にならない。
+- drag中に「どこへ入るか」が一目で分かることを優先する。
+- reduced-motion preferenceが利用可能な場合はanimationを抑制する。
+- desktop mouse操作をAcceptanceの主対象とする。mobile layoutを壊さない。
 
 ## Closed decision — 管理者ページ tabs
 
@@ -120,7 +170,16 @@ Non-Goals:
 - tab switchで状態保持。
 - accessibility semantics PASS。
 
-3. Regression
+3. Master management
+- sidebar labelが`マスター管理`。
+- Asset Class / 面談場所 / Teamでnumeric promptなし。
+- drag handleからreorderできる。
+- drag中にinsertion targetが明示され、neighbor rowsが短いanimationでshiftする。
+- drop後にexisting OPTION_REORDER pathで保存され、authoritative refresh後もorder一致。
+- failure時rollback。
+- Counterparty tab regression 0。
+
+4. Regression
 - Work0041 delete -> restore E2E維持。
 - provider settings behavior unchanged。
 - normal navigation 7/7 nonblank。
