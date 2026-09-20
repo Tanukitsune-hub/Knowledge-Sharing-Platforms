@@ -15,6 +15,7 @@ Sidebarを維持し、右ペイン全体をselected record-detail designへ統�
 ## Authoritative instruction
 
 - `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`
+- `docs/handoffs/0042-CODEX-02-serve-terminology-repair-instruction.md`
 
 ## Concrete visual reference
 
@@ -73,3 +74,19 @@ WORK_ID: 0042
 DISPATCH_ID: 0042-CODEX-02
 BALL: CHATGPT
 STATUS: RETURNED
+
+
+## Strategy Reset — CODEX-02
+
+CODEX-01 version22 actual runtimeでgenerated Full Output terminology driftを検出し、修正版はdeterministic checks PASSだが未配備だったため、1回限定の追加version / same deployment updateを許可した。
+
+CODEX-02でversion23へ配備し、generated metadata / copyable AI prompt / validation messageをactual owner-only runtimeで再確認した。
+
+```text
+SERVED_VERSION: 23
+REPAIRED_APPLICATION_COMMIT: 811c60858edf61147355c7a8d4a36116a1582be9
+TARGET_RUNTIME_QUALIFICATION: PASS
+REPAIRED_TERMINOLOGY_SERVED: PASS
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+```
