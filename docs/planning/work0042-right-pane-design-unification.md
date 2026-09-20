@@ -34,6 +34,11 @@ requirements intakeを先に完了する。
 - default tab: AIプロバイダ設定。
 - tab switchingはclient-side、state-preserving。
 - Work0041 / Work0040 accepted behaviorはpreserve。
+- user-facing terminology:
+  - Team -> チーム
+  - Asset Class -> アセットクラス
+  - Meeting Type -> MTG種別
+  - internal identifiers / schema / enumは維持。
 
 ## Implementation strategy after freeze
 
