@@ -3,23 +3,26 @@ Work 0042 visual reference only.
 This file is NOT production CSS and must not be copied wholesale into src/Styles.html.
 Use it as the concrete visual baseline for right-pane convergence.
 Sidebar is intentionally out of scope.
+Palette note: right-pane accents intentionally inherit the established formal
+sidebar family: charcoal-adjacent ink, ivory/champagne surfaces, and restrained
+gold (#D7AE42 / #C58C25 / #70480D / #FFE89A family). Avoid a generic blue SaaS look.
 */
 
 :root {
-  --rp-page: #f6f9fc;
-  --rp-surface: #ffffff;
-  --rp-surface-soft: #f8fbfe;
-  --rp-header: #eef6fd;
-  --rp-header-strong: #e6f1fb;
-  --rp-header-content: #edf9f8;
-  --rp-border: #d5e3ef;
-  --rp-border-strong: #c8dae9;
-  --rp-ink: #15304f;
-  --rp-ink-soft: #47617c;
-  --rp-muted: #6e8297;
-  --rp-blue: #1769d2;
-  --rp-blue-dark: #0f55ad;
-  --rp-blue-soft: #eaf4ff;
+  --rp-page: #f6f3ec;
+  --rp-surface: #fffdfa;
+  --rp-surface-soft: #fbf8f1;
+  --rp-header: #f4ecd8;
+  --rp-header-strong: #eee0bc;
+  --rp-header-content: #f6efdc;
+  --rp-border: #ddd0ae;
+  --rp-border-strong: #cbb57a;
+  --rp-ink: #2f2a20;
+  --rp-ink-soft: #5d5442;
+  --rp-muted: #766c59;
+  --rp-gold: #c58c25;
+  --rp-gold-dark: #70480d;
+  --rp-gold-soft: #fbf2d8;
   --rp-danger: #e5484d;
   --rp-danger-soft: #fff4f4;
   --rp-success: #14804a;
@@ -78,9 +81,9 @@ Sidebar is intentionally out of scope.
   gap: 16px;
   padding: 16px 20px;
   margin-bottom: 18px;
-  border: 1px solid #cae0f4;
+  border: 1px solid #dec991;
   border-radius: var(--rp-radius-lg);
-  background: linear-gradient(110deg, #f7fbff 0%, #edf6ff 52%, #e6f2ff 100%);
+  background: linear-gradient(110deg, #fffdf7 0%, #f8f0dc 52%, #f2e3b8 100%);
   box-shadow: inset 0 1px rgba(255,255,255,.8);
 }
 
@@ -91,8 +94,8 @@ Sidebar is intentionally out of scope.
   height: 54px;
   flex: 0 0 54px;
   border-radius: 50%;
-  background: #dcecff;
-  color: var(--rp-blue);
+  background: linear-gradient(180deg,#fff4bf 0%,#ecd070 100%);
+  color: var(--rp-gold-dark);
   font-size: 26px;
 }
 
@@ -162,8 +165,8 @@ Sidebar is intentionally out of scope.
   width: 26px;
   height: 26px;
   border-radius: 7px;
-  background: #ddecfb;
-  color: var(--rp-blue);
+  background: linear-gradient(180deg,#fff5c9 0%,#edd47b 100%);
+  color: var(--rp-gold-dark);
   font-size: 15px;
 }
 
@@ -200,7 +203,7 @@ Sidebar is intentionally out of scope.
 
 .rp-info-row__label {
   color: var(--rp-ink);
-  background: #f4f7fa;
+  background: #f6f1e6;
   font-weight: 700;
 }
 
@@ -234,16 +237,16 @@ Sidebar is intentionally out of scope.
   border: 1px solid var(--rp-border-strong);
   border-radius: 7px;
   background: #fff;
-  color: var(--rp-blue-dark);
+  color: var(--rp-gold-dark);
   font-weight: 700;
   cursor: pointer;
 }
 
 .rp-button--primary {
-  border-color: var(--rp-blue);
-  background: linear-gradient(180deg, #2479df 0%, var(--rp-blue) 100%);
+  border-color: var(--rp-gold-dark);
+  background: linear-gradient(180deg, #c99a34 0%, #9d6a17 100%);
   color: #fff;
-  box-shadow: 0 2px 5px rgba(23,105,210,.18);
+  box-shadow: 0 2px 6px rgba(112,72,13,.22);
 }
 
 .rp-button--danger {
@@ -262,7 +265,7 @@ Sidebar is intentionally out of scope.
   padding: 20px;
   border: 1px dashed var(--rp-border-strong);
   border-radius: var(--rp-radius-md);
-  background: #f8fbfe;
+  background: #fbf8f1;
   color: var(--rp-muted);
   line-height: 1.6;
 }
@@ -277,7 +280,7 @@ Sidebar is intentionally out of scope.
   line-height: 1.5;
 }
 
-.rp-status--info { background: var(--rp-blue-soft); color: var(--rp-blue-dark); }
+.rp-status--info { background: var(--rp-gold-soft); color: var(--rp-gold-dark); }
 .rp-status--success { background: var(--rp-success-soft); color: var(--rp-success); }
 .rp-status--warning { background: var(--rp-warning-soft); color: var(--rp-warning); }
 .rp-status--error { background: var(--rp-danger-soft); color: #a9232a; }
@@ -301,7 +304,7 @@ Sidebar is intentionally out of scope.
   padding: 4px;
   border: 1px solid var(--rp-border);
   border-radius: 9px;
-  background: #f3f7fb;
+  background: #f7f1e3;
 }
 
 .rp-tab {
@@ -317,9 +320,9 @@ Sidebar is intentionally out of scope.
 }
 
 .rp-tab[aria-selected="true"] {
-  border-color: #bcd6ee;
+  border-color: #d2bd82;
   background: #fff;
-  color: var(--rp-blue-dark);
+  color: var(--rp-gold-dark);
   box-shadow: 0 1px 4px rgba(30,62,95,.10);
 }
 
@@ -335,7 +338,7 @@ Sidebar is intentionally out of scope.
 
 .rp-table th {
   padding: 11px 10px;
-  background: #edf4fa;
+  background: #f1e7cf;
   color: var(--rp-ink-soft);
   border-bottom: 1px solid var(--rp-border);
   text-align: left;
@@ -373,7 +376,7 @@ Sidebar is intentionally out of scope.
   height: 30px;
   border: 1px solid var(--rp-border);
   border-radius: 6px;
-  background: #f8fbfe;
+  background: #fbf8f1;
   color: var(--rp-muted);
   cursor: grab;
   user-select: none;
@@ -389,8 +392,8 @@ Sidebar is intentionally out of scope.
   right: 8px;
   height: 3px;
   border-radius: 999px;
-  background: var(--rp-blue);
-  box-shadow: 0 0 0 2px #dcecff;
+  background: var(--rp-gold);
+  box-shadow: 0 0 0 2px #fff1ba;
 }
 
 .rp-drop-before::before { top: -2px; }
