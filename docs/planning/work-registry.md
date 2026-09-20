@@ -573,7 +573,7 @@ Closed user decision 2026-09-20:
 - restoreはexisting Active/Inactive status semanticsを再利用する。
 
 
-## Work 0042 active requirements intake
+## Work 0042 active implementation
 
 ```text
 WORK_ID: 0042
@@ -592,9 +592,11 @@ Requirements: `docs/handoffs/0042-right-pane-design-unification-requirements.md`
 Plan: `docs/planning/work0042-right-pane-design-unification.md`
 Dispatch: `docs/handoffs/0042-dispatches.md`
 Instruction: `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`
+Visual reference: `docs/design/0042/right-pane-reference.css`, `docs/design/0042/right-pane-reference.html`, `docs/design/0042/README.md`
 
 Closed user decisions 2026-09-20:
 - selected record-detail mockupをright-pane全体のcanonical visual directionとする。
+- right-pane配色は既存sidebarと調和するivory/champagne + restrained gold。generic blue基調にはしない。
 - sidebarは変更しない。
 - 管理者ページはtab化。
 - 左tab: `AIプロバイダ設定`。
