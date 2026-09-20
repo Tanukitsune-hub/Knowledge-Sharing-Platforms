@@ -31,7 +31,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACCEPTED | Work0037 version13 | PR #60 / version18 accepted。Completion Latch済み |
 | 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
 | 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACCEPTED | Work0039 version19 | PR #62 / version20 accepted。Completion Latch済み |
-| 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | ACTIVE (BUILD) | Work0040 version20 accepted baseline | 0041-CODEX-01 implementation / same owner-only runtime qualification |
+| 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | ACCEPTED | Work0040 version20 accepted baseline | PR #63 / version21 accepted。Completion Latch済み |
 | 19 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 20 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 21 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -536,19 +536,23 @@ Instruction: `docs/handoffs/0040-CODEX-01-past-meeting-edit-cleanup-instruction.
 Runtime evidence closure: `docs/handoffs/0040-CODEX-02-runtime-legacy-preservation-qualification-instruction.md`
 PR: #62
 Completion: `docs/handoffs/0040-completion-report.md`
-## Work 0041 planned contract
+## Work 0041 accepted outcome
 
 ```text
 WORK_ID: 0041
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
-DEPENDENCY: Work0040 ACCEPTED / Completion Latch
-ACTIVE_DISPATCH: 0041-CODEX-01
-BALL: CODEX
-PRIMARY_SCOPE: Past Meeting persistent empty-states + loading UX + table alignment + user-facing delete + admin 削除記録の管理 / restore
-PHYSICAL_DELETE: 0
-SCHEMA_CHANGE: 0
-MIGRATION_CHANGE: 0
+BASELINE: Work0040 version20
+FINAL_SERVED_VERSION: 21
+PR: #63
+MERGE: a039d57e80aed2652dc310840b21dc3697baf185
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+TARGET_RUNTIME_QUALIFICATION: PASS
+DELETE_RESTORE_E2E: PASS
+LIFECYCLE_AUDIT_SEQUENCE: PASS
+COMPLETION_LATCH: APPLIED
+BLOCKER: NONE
 WORK_0030: DEFERRED_BY_USER
 ```
 
@@ -556,6 +560,8 @@ Requirements: `docs/handoffs/0041-past-meeting-usability-and-delete-record-manag
 Plan: `docs/planning/work0041-past-meeting-usability-and-delete-record-management.md`
 Dispatch: `docs/handoffs/0041-dispatches.md`
 Instruction: `docs/handoffs/0041-CODEX-01-past-meeting-usability-and-delete-record-management-instruction.md`
+Report: `docs/handoffs/0041-CODEX-01-past-meeting-usability-report.md`
+Completion: `docs/handoffs/0041-completion-report.md`
 
 Closed user decision 2026-09-20:
 - 管理者section名は`削除記録の管理`。
