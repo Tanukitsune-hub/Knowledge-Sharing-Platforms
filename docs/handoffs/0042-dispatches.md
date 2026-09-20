@@ -16,6 +16,10 @@ Sidebarを維持し、右ペイン全体をselected record-detail designへ統�
 
 - sidebar unchanged
 - selected record-detail mockup = canonical right-pane visual direction
+- user-facing navigation label: プルダウンの管理 -> マスター管理（visual unchanged）
+- Asset Class / 面談場所 / Team: drag-and-drop reorder; no numeric prompt
+- reorder visual: drag handle + insertion indicator + short shift animation + save/rollback state
+- existing OPTION_REORDER semantics preserved
 - admin tabs:
   - left: AIプロバイダ設定
   - right: 削除記録の管理
