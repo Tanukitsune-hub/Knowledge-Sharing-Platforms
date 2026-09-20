@@ -7,11 +7,11 @@
       <div class="field activity-period-field"><label for="activity-period">期間粒度</label><select id="activity-period"><option value="monthly">月次</option><option value="quarter">暦年四半期</option><option value="calendarYear">暦年</option><option value="fiscalYear">会計年度（4月-3月）</option><option value="custom">カスタム（日次）</option><option value="cumulative">累積（月次）</option></select></div>
       <div class="field activity-date-from-field"><label for="activity-date-from">開始日</label><input id="activity-date-from" type="date"></div>
       <div class="field activity-date-to-field"><label for="activity-date-to">終了日</label><input id="activity-date-to" type="date"></div>
-      <div class="field activity-dimension-field"><label for="activity-dimension">内訳</label><select id="activity-dimension"><option value="counterpartyEntity">面談先</option><option value="assetClass">Asset Class</option><option value="team">Team</option><option value="meetingType">Meeting Type</option><option value="status">Status</option></select></div>
+      <div class="field activity-dimension-field"><label for="activity-dimension">内訳</label><select id="activity-dimension"><option value="counterpartyEntity">面談先</option><option value="assetClass">アセットクラス</option><option value="team">チーム</option><option value="meetingType">MTG種別</option><option value="status">Status</option></select></div>
       <div class="field activity-counterparty-field"><label for="activity-filter-counterpartyEntity">面談先</label><select id="activity-filter-counterpartyEntity"><option value="">未選択</option></select></div>
-      <div class="field activity-asset-field"><label for="activity-filter-assetClass">Asset Class</label><select id="activity-filter-assetClass"><option value="">未選択</option></select></div>
-      <div class="field activity-team-field"><label for="activity-filter-team">Team</label><select id="activity-filter-team"><option value="">未選択</option></select></div>
-      <div class="field activity-meeting-type-field"><label for="activity-filter-meetingType">Meeting Type</label><select id="activity-filter-meetingType"><option value="">未選択</option></select></div>
+      <div class="field activity-asset-field"><label for="activity-filter-assetClass">アセットクラス</label><select id="activity-filter-assetClass"><option value="">未選択</option></select></div>
+      <div class="field activity-team-field"><label for="activity-filter-team">チーム</label><select id="activity-filter-team"><option value="">未選択</option></select></div>
+      <div class="field activity-meeting-type-field"><label for="activity-filter-meetingType">MTG種別</label><select id="activity-filter-meetingType"><option value="">未選択</option></select></div>
       <div class="field activity-status-field"><label for="activity-filter-status">Status</label><select id="activity-filter-status"><option value="">未選択</option></select></div>
     </div>
     <div class="actions analytics-actions"><button id="activity-analytics-refresh" class="action primary" type="button">集計</button><span class="hint">件数は全一致行から計算し、表示上限による省略件数を明示します。</span></div>
@@ -26,7 +26,7 @@
 
   <div class="card">
     <div class="section-heading"><div><h2>該当Meeting</h2><p id="activity-drill-summary" class="hint"></p></div></div>
-    <div class="table-wrap"><table class="data-table analytics-table activity-drill-table"><caption class="sr-only">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>Team</th><th>Meeting Type</th><th>Status</th><th>原本</th><th>確認済み</th></tr></thead><tbody id="activity-drill-results"></tbody></table></div>
+    <div class="table-wrap"><table class="data-table analytics-table activity-drill-table"><caption class="sr-only">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>チーム</th><th>MTG種別</th><th>Status</th><th>原本</th><th>確認済み</th></tr></thead><tbody id="activity-drill-results"></tbody></table></div>
     <div id="activity-admin-check-status" class="status" role="status" aria-live="polite"></div>
   </div>
 

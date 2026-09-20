@@ -111,7 +111,7 @@
   <ellipse cx="12" cy="5" rx="9" ry="3" />
   <path d="M3 5V19A9 3 0 0 0 21 19V5" />
   <path d="M3 12A9 3 0 0 0 21 12" />
-</svg>プルダウンの管理</button>
+</svg>マスター管理</button>
         <button id="nav-ai-provider-settings" type="button"><svg class="nav-icon" aria-hidden="true"
   xmlns="http://www.w3.org/2000/svg"
   width="24"
@@ -166,10 +166,10 @@
             <div class="field meeting-field-date"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required></div>
             <div class="field meeting-field-time"><label for="meeting-time">時間</label><input id="meeting-time" type="time"></div>
             <div class="field meeting-field-location"><label for="meeting-locationId">面談場所</label><select id="meeting-locationId"><option value="">未選択</option></select></div>
-            <div class="field meeting-field-team"><label for="meeting-teamId">Team</label><select id="meeting-teamId"><option value="">未選択</option></select></div>
-            <div class="field meeting-field-asset"><label class="required" for="meeting-assetClassId">Asset Class</label><select id="meeting-assetClassId" required><option value="">未選択</option></select></div>
+            <div class="field meeting-field-team"><label for="meeting-teamId">チーム</label><select id="meeting-teamId"><option value="">未選択</option></select></div>
+            <div class="field meeting-field-asset"><label class="required" for="meeting-assetClassId">アセットクラス</label><select id="meeting-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field meeting-field-backend-only" hidden aria-hidden="true"><label for="meeting-capitalTypeId">Equity / Debt</label><select id="meeting-capitalTypeId"><option value="">未選択</option></select></div>
-            <div id="meeting-types" class="field full meeting-field-types"><label>Meeting Type</label><div class="checkbox-row"><label><input type="checkbox" data-meeting-type="meeting" value="ANNUAL_REVIEW"> 定例年1回</label><label><input type="checkbox" data-meeting-type="meeting" value="OFFICE_VISIT"> 先方オフィス訪問</label><label><input type="checkbox" data-meeting-type="meeting" value="ANNUAL_GENERAL_MEETING"> 年次総会</label></div></div>
+            <div id="meeting-types" class="field full meeting-field-types"><label>MTG種別</label><div class="checkbox-row"><label><input type="checkbox" data-meeting-type="meeting" value="ANNUAL_REVIEW"> 定例年1回</label><label><input type="checkbox" data-meeting-type="meeting" value="OFFICE_VISIT"> 先方オフィス訪問</label><label><input type="checkbox" data-meeting-type="meeting" value="ANNUAL_GENERAL_MEETING"> 年次総会</label></div></div>
             <div class="field meeting-field-counterparty"><label class="required" for="meeting-counterpartyId">面談先</label><select id="meeting-counterpartyId" required><option value="">未選択</option></select><button id="meeting-quick-add-counterparty" class="small-button" type="button">未登録の面談先を追加</button></div>
             <div class="field meeting-field-fund"><label for="meeting-fundStrategy">Fund / Strategy</label><input id="meeting-fundStrategy" maxlength="500"></div>
             <div class="field full meeting-field-backend-only" hidden aria-hidden="true"><label for="meeting-relatedPitchbookIds">既存資料を関連付ける（任意）</label><select id="meeting-relatedPitchbookIds" multiple size="4"></select><div class="hint">親記録の保存後に関連付けます。資料のStatusは変更しません。</div></div>
@@ -192,7 +192,7 @@
           <div>
             <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
             <div class="field"><label class="required" for="pitchbook-counterpartyId">面談先</label><select id="pitchbook-counterpartyId" required><option value="">未選択</option></select></div>
-            <div class="field"><label class="required" for="pitchbook-assetClassId">Asset Class</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
+            <div class="field"><label class="required" for="pitchbook-assetClassId">アセットクラス</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
             <div class="field meeting-field-backend-only" hidden aria-hidden="true"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
             <div class="field"><label for="pitchbook-fundStrategy">Fund / Strategy</label><input id="pitchbook-fundStrategy" maxlength="500"></div>
           </div>
@@ -239,7 +239,7 @@
         <div><p class="counterparty-modal-kicker">RELATED MATERIAL</p><h2 id="meeting-material-modal-title">既存資料を関連付ける</h2></div>
         <button id="meeting-material-modal-close" class="modal-close" type="button" aria-label="閉じる">×</button>
       </div>
-      <p id="meeting-material-modal-help" class="hint">この面談先とAsset Classに一致するActive資料を表示します。</p>
+      <p id="meeting-material-modal-help" class="hint">この面談先とアセットクラスに一致するActive資料を表示します。</p>
       <div id="meeting-material-modal-status" class="status" role="status" aria-live="polite"></div>
       <div id="meeting-material-modal-results" class="meeting-material-modal-results" role="list"></div>
       <div class="counterparty-modal-actions"><button id="meeting-material-modal-cancel" class="action secondary" type="button">キャンセル</button></div>
@@ -268,7 +268,7 @@ async function submitMeetingWithFiles(event){
   if(readEnvelope('ksp.meeting.outcomeUnknown.v1')){showStatus('meeting-status','error','前回の親登録結果が不明です。重複防止のため停止しました。管理者による保存結果の確認が必要です。');return}
   clearStatus('meeting-status');
   const payload=meetingValues(),existingIds=payload.relatedPitchbookIds.slice();
-  if(!payload.date||!payload.counterpartyId||!payload.assetClassId){showStatus('meeting-status','error','日付、面談先、Asset Classは必須です。');return}
+  if(!payload.date||!payload.counterpartyId||!payload.assetClassId){showStatus('meeting-status','error','日付、面談先、アセットクラスは必須です。');return}
   if(selectedPitchbookFiles.length){const error=validateFiles(selectedPitchbookFiles);if(error){showStatus('meeting-status','error',error);return}}
   if(pitchbookSlots.length||pitchbookParent){showStatus('meeting-status','warning','保存済み記録の未完了操作は資料欄から再試行してください。新しい記録は「新しい記録を入力」から開始してください。');return}
   if(retryContext){payload.retryMeetingId=retryContext.meetingId;payload.retryFingerprint=retryContext.fingerprint}

@@ -8,7 +8,7 @@
       <div class="field"><label for="relationship-date-to">Meeting日付 To</label><input id="relationship-date-to" type="date"></div>
       <div class="field"><label for="relationship-counterparty-type">Counterparty Type</label><select id="relationship-counterparty-type"><option value="">未選択</option></select></div>
       <div class="field"><label for="relationship-counterparty-entity">Counterparty Entity</label><select id="relationship-counterparty-entity"><option value="">未選択</option></select></div>
-      <div class="field"><label for="relationship-asset-class">Asset Class</label><select id="relationship-asset-class"><option value="">未選択</option></select></div>
+      <div class="field"><label for="relationship-asset-class">アセットクラス</label><select id="relationship-asset-class"><option value="">未選択</option></select></div>
       <div class="field"><label for="relationship-fund-strategy">Fund / Strategy</label><select id="relationship-fund-strategy"><option value="">未選択</option></select></div>
       <div class="field"><label for="relationship-meeting-status">Meeting Status</label><select id="relationship-meeting-status"><option value="">未選択</option></select></div>
       <div class="field"><label for="relationship-pitchbook-status">Pitchbook Status</label><select id="relationship-pitchbook-status"><option value="">未選択</option></select></div>
@@ -30,7 +30,7 @@
 
   <div class="card">
     <div class="section-heading"><div><h2>Pitchbook → Meeting</h2><p class="hint">明示的にそのDocument_IDを参照するMeetingを逆引きします。</p></div></div>
-    <div class="table-wrap"><table class="data-table relationship-table"><caption class="sr-only">PitchbookからMeetingへの逆引き関係</caption><thead><tr><th>Pitchbook日付</th><th>Document ID</th><th>面談先</th><th>Asset Class / Fund</th><th>Meeting件数</th><th>Status</th><th>選択</th></tr></thead><tbody id="relationship-reverse-results"></tbody></table></div>
+    <div class="table-wrap"><table class="data-table relationship-table"><caption class="sr-only">PitchbookからMeetingへの逆引き関係</caption><thead><tr><th>Pitchbook日付</th><th>Document ID</th><th>面談先</th><th>アセットクラス / Fund</th><th>Meeting件数</th><th>Status</th><th>選択</th></tr></thead><tbody id="relationship-reverse-results"></tbody></table></div>
     <div id="relationship-reverse-detail" class="relationship-detail" role="region" aria-live="polite"></div>
   </div>
 </section>

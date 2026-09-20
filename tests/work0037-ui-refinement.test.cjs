@@ -72,7 +72,7 @@ test('Masters exposes four in-page tabs and snapshots only allowlisted option mu
   assert.match(maintenance, /MASTER_OPTION_TAB_TYPES=Object\.freeze\(\['ASSET_CLASS','LOCATION','TEAM'\]\)/);
   assert.match(maintenance, /masterOptionDrafts=\{ASSET_CLASS:'',LOCATION:'',TEAM:''\}/);
   assert.match(maintenance, /type:request\.type,name:request\.name/);
-  assert.match(maintenance, /\.filter\(row=>row\.type===activeMasterTab\)/);
+  assert.match(maintenance, /renderMasterOptionRows\(masterOptionRows\(masters,activeMasterTab\)\)/);
   assert.match(maintenance, /let activeMasterTab='COUNTERPARTY'/);
   assert.match(styles, /\.master-layout\{display:block\}/);
 });

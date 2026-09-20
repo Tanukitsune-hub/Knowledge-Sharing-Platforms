@@ -1,7 +1,21 @@
 <script>
 let aiProviderAdminState=null;
 let aiProviderAdminBusy=false;
+let activeAdminTab='provider';
 function aiProviderAdminElement(id){return document.getElementById(id)}
+function selectAdminTab(tab,focus){
+  if(tab!=='provider'&&tab!=='deleted')return;
+  activeAdminTab=tab;
+  document.querySelectorAll('[data-admin-tab]').forEach(button=>{const selected=button.dataset.adminTab===tab;button.classList.toggle('active',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;if(selected&&focus)button.focus()});
+  aiProviderAdminElement('admin-panel-provider').hidden=tab!=='provider';
+  aiProviderAdminElement('admin-panel-deleted').hidden=tab!=='deleted';
+}
+function adminTabKeydown(event){
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  event.preventDefault();const tabs=['provider','deleted'];let index=tabs.indexOf(activeAdminTab);
+  if(event.key==='Home')index=0;else if(event.key==='End')index=tabs.length-1;else index=(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+  selectAdminTab(tabs[index],true);
+}
 function aiProviderAdminStatusLabel(value){return value==='ACTIVE'?'有効':value==='ACTIVE_WITH_SYNC_ERRORS'?'有効（一部同期エラー）':value==='READY_FOR_SYNC'?'同期準備完了':value==='READY_FOR_QUALIFICATION'?'資格確認待ち':value==='QUALIFIED_DISABLED'?'資格済み（無効）':value==='DISABLED_EXTERNAL_LIMITATION'?'外部制約により無効':value==='TESTING'?'接続確認中':value==='RECONNECT_REQUIRED'?'再接続が必要':value==='ERROR'?'エラー':value==='UNCONFIGURED'?'未設定':'無効'}
 function aiProviderAdminBooleanLabel(value){return value?'設定済み':'未設定'}
 function aiProviderAdminStoreLabel(value){return value?'準備済み':'未作成'}
@@ -37,5 +51,7 @@ async function searchAdminDeletedMeetings(){if(adminDeletedSearchBusy)return;adm
 async function restoreAdminDeletedMeeting(index,trigger){if(adminDeletedRestoreBusy||adminDeletedSearchBusy)return;const record=adminDeletedMeetingRecords[Number(index)];if(!record||record.status!=='Inactive')return;adminDeletedRestoreBusy=true;trigger.disabled=true;aiProviderAdminElement('admin-deleted-meetings').setAttribute('aria-busy','true');showStatus('admin-deleted-status','info busy','復元中…');try{const result=await serverCall('changeMeetingStatus',{meetingId:record.meetingId,expectedVersion:record.version,targetStatus:'Active'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'復元できませんでした。');adminDeletedRestoreBusy=false;await searchAdminDeletedMeetings()}catch(error){showStatus('admin-deleted-status','error',error.message||String(error))}finally{adminDeletedRestoreBusy=false;aiProviderAdminElement('admin-deleted-meetings').setAttribute('aria-busy','false');if(trigger.isConnected)trigger.disabled=false}}
 aiProviderAdminElement('admin-deleted-search').addEventListener('click',searchAdminDeletedMeetings);
 aiProviderAdminElement('admin-deleted-results').addEventListener('click',event=>{const button=event.target.closest('[data-admin-restore-index]');if(button)restoreAdminDeletedMeeting(button.dataset.adminRestoreIndex,button)});
+document.querySelectorAll('[data-admin-tab]').forEach(button=>{button.addEventListener('click',()=>selectAdminTab(button.dataset.adminTab));button.addEventListener('keydown',adminTabKeydown)});
+selectAdminTab('provider');
 aiProviderAdminElement('nav-ai-provider-settings').addEventListener('click',()=>{searchAdminDeletedMeetings();loadAiProviderAdminData(false)});
 </script>
