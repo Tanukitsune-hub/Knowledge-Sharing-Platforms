@@ -3,9 +3,9 @@
 WORK_ID: 0042
 STATUS: ACTIVE
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
-BALL: CHATGPT
-ACTIVE_DISPATCH: NONE
+PHASE: FROZEN / READY_FOR_CODEX
+BALL: CODEX
+ACTIVE_DISPATCH: 0042-CODEX-01
 
 ## Baseline
 
@@ -26,7 +26,7 @@ WORK_0030: DEFERRED_BY_USER
 
 ユーザー選定済みmockupを右ペインの基準とする。
 
-- white / very-light-blueを基調とする。
+- right-paneの面はwhite / ivory / champagneを基調とし、既存sidebarのgold familyをaccentとして使う。genericなblue SaaS paletteへ寄せない。
 - sectionは明確なcard boundaryを持つ。
 - card headerに薄い色帯を使用し、本文との境界を分かりやすくする。
 - subtle border / radius / shadowで階層を示す。
@@ -36,6 +36,18 @@ WORK_0030: DEFERRED_BY_USER
 - destructive actionは赤系outline等で明確化する。
 - loading / empty / disabled / success / error stateも同じdesign languageへ統一する。
 - sidebar designは変更しない。
+
+## Concrete visual reference
+
+文章指示だけに依存せず、selected mockupを具体化したreferenceをGitHubに置く。
+
+- `docs/design/0042/right-pane-reference.css`
+- `docs/design/0042/right-pane-reference.html`
+- `docs/design/0042/README.md`
+
+CSS referenceには、既存sidebarと調和するivory/champagne + restrained goldの具体的なtokens / card / header / row / inset / button / status / tabs / drag stateを定義する。
+
+これはproductionへ丸ごとcopyするものではない。既存component contractへ翻訳し、右ペイン全体へ一貫して適用する。
 
 ## Scope
 
@@ -146,6 +158,23 @@ Boundary:
 - `ASSET_CLASS` / `TEAM` / `Meeting_Type_Codes` 等のcanonical internal identifiersは維持する。
 - `MTG種別`は表示labelであり、stored Meeting Type codesは変更しない。
 
+## Exhaustive reachable-state coverage
+
+初期表示だけでなく、通常操作を順に進めた後に初めて現れるuser-facing surfaceも全て対象にする。
+
+Codexは `hidden` / `hidden-panel` / `display:none` / tab switch / modal open / row action / mode switch / result render等を横断し、reachable UI surface inventoryを作成してから実装する。
+
+対象例:
+- Knowledge Search result / export / prompt preview / pending / recheck
+- Past records detail / related / edit / material picker / metadata editor
+- attachment / classification / retry state
+- entity / analytics drill-down
+- master tab-dependent panels
+- admin tabpanels
+- loading / empty / disabled / warning / error / success
+
+backend-only / compatibility-only hidden controlsはvisible化せず、inventory上でintentionally hiddenとして分類する。
+
 ## Preserve
 
 - sidebar / navigation IA
@@ -219,4 +248,4 @@ Non-Goals:
 
 ## Dispatch policy
 
-ユーザーが順次追加するUI要件をこのWork0042へ集約し、requirementsがfreezeするまでCodex Dispatchを開始しない。
+Requirements frozen。Authoritative implementation instructionは `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`。
