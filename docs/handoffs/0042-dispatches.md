@@ -1,16 +1,20 @@
 # Work 0042 dispatch control
 
 WORK_ID: 0042
-DISPATCH_ID: N/A
-ACTIVE_DISPATCH_ID: NONE
-BALL: CHATGPT
-STATUS: PREPARING
+DISPATCH_ID: 0042-CODEX-01
+ACTIVE_DISPATCH_ID: 0042-CODEX-01
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
+PHASE: IMPLEMENTATION / EXHAUSTIVE UI QUALIFICATION
 
 ## Primary Outcome
 
 Sidebarを維持し、右ペイン全体をselected record-detail designへ統一する。
+
+## Authoritative instruction
+
+- `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`
 
 ## Current closed decisions
 
@@ -33,7 +37,7 @@ Sidebarを維持し、右ペイン全体をselected record-detail designへ統�
 - Work0030 remains DEFERRED_BY_USER
 
 ```text
-NEXT_UNUSED_DISPATCH: 0042-CODEX-01
+NEXT_UNUSED_DISPATCH: 0042-CODEX-02
 WORK_0042_COMPLETE: NO
 COMPLETION_LATCH: NOT_APPLIED
 ```
