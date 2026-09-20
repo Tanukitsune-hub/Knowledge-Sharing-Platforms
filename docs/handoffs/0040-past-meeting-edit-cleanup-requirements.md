@@ -110,6 +110,48 @@ Recommendation: A。利用者がDocument_IDを管理しないという今回の�
 
 今回のuser intent（follow-up項目は使用予定なし）に合わせ、normal detail presentationからも非表示化する。backend/historical valuesは保持する。
 
-## Pending
+## Closed decision — Existing-material linking
 
-`既存資料を関連付ける`の扱いのみA/B user decision待ち。その他要件はfreeze可能。
+User intent is to keep `既存資料を関連付ける` while removing raw `既存Document_ID` from normal UI.
+
+Therefore:
+- raw `既存Document_ID` label/input is removed from normal user-facing UI.
+- `既存資料を関連付ける` button remains.
+- clicking the button opens a human-readable existing-material picker.
+- picker reuses existing `searchPitchbookRecords` / existing maintenance read path where possible; do not introduce new storage.
+- default candidate scope should be current Meeting's counterparty + Asset Class, Active materials, bounded result set.
+- display human fields such as date / title or saved filename / Fund or Strategy when available.
+- do not display raw Document_ID as the primary user-facing identifier.
+- already-linked material should not be offered as a normal add candidate.
+- selected material is linked through existing relation mutation using its internal Document_ID behind the UI.
+- after successful link, refresh the detail view and preserve current relation/unlink semantics.
+
+## Final frozen scope
+
+### Edit form
+- hide `要フォロー`.
+- hide `フォローアップメモ`.
+- ensure `関連資料（詳細画面で操作）` remains truly hidden despite layout CSS.
+- preserve historical follow-up values and relatedPitchbookIds when saving unrelated edits.
+
+### Detail view
+- hide read-only `要フォロー` / `フォローメモ` attributes.
+- primary actions left aligned in one compact row:
+  `Google Docs原本` → `記録を編集` → `記録を削除（Inactive）`.
+- related-material actions left aligned in one compact row:
+  `既存資料を関連付ける` → `資料を追加`.
+- raw `既存Document_ID` label/input not visible.
+- existing-material button uses human-readable picker.
+
+### Preserve
+- existing related-material list.
+- open original / classification edit / unlink / relink semantics.
+- file add flow.
+- Meeting optimistic version semantics.
+- Meeting ID / Google Doc identity.
+- backend schema and historical values.
+- provider/security behavior.
+
+## Dispatch state
+
+Requirements frozen. Ready to issue `0040-CODEX-01`.
