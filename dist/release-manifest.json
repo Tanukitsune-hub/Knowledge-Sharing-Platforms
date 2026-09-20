@@ -2,16 +2,16 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "93e0cbf752649992dfd8b35815118b42f23fb87a",
+  "source_git_commit": "fdb3fb3c42aea77d96857587d7405c8fdfde506c",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "487cdf05e7004da5c0060f9b55cd8f66891f9fd886e5a2aabbf4e262de1b3e83",
-  "bundle_file_sha256": "0bf0192a341656ed0b0ce1e7ead85933e1713b784e3fe489ef8f8bd855eea39d",
+  "bundle_payload_sha256": "fce7c5951c9b65ca4498dc07528c386af0c495bfe61dfaa2eb7255b633a23cea",
+  "bundle_file_sha256": "9fe6607d794b7bdd502de221422e338b665a365b50a457e56618c55857f88f88",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "904d48fe07860a4940e45fc5f0519c98fbe6b07346fe06448fb860797689d130",
   "bundle_metrics": {
-    "bytes": 1175322,
-    "characters": 1135801,
+    "bytes": 1183046,
+    "characters": 1143254,
     "lines": 19294,
     "server_source_count": 60,
     "embedded_html_count": 22
@@ -371,8 +371,8 @@
     },
     {
       "file": "src/ClientMaintenanceEnhancements.html",
-      "bytes": 13974,
-      "sha256": "671b7a7e6733abd93cf510ecfbbce6c19f8bda2e22cd6e78e89ec851765250e5"
+      "bytes": 19615,
+      "sha256": "718c136e6d9f1799d4d5806493e902ee18176d3a4237f1cfd86eafcd751bc49c"
     },
     {
       "file": "src/ClientPitchbookFiles.html",
@@ -401,8 +401,8 @@
     },
     {
       "file": "src/Index.html",
-      "bytes": 22051,
-      "sha256": "836c1d1b87d2cdf54dd9fa570d3a6d6782a47076c93d1ae154b2b2f470cdf1a3"
+      "bytes": 23214,
+      "sha256": "55278de7f75324f95c6855827a5afc75c294805123585970538f790ef30450ca"
     },
     {
       "file": "src/KnowledgeSearch.html",
@@ -416,8 +416,8 @@
     },
     {
       "file": "src/MaintenancePages.html",
-      "bytes": 14817,
-      "sha256": "9d68605e03a4b9efb2d7a674d959ea4845f48acbc1d0c48e4a2ec6c584f8214c"
+      "bytes": 14826,
+      "sha256": "06945ac483382125b75fb970105a4c80cf752d54a41e85820b5fdabfebaaad7c"
     },
     {
       "file": "src/RelationshipExplorerPage.html",
@@ -426,8 +426,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 34886,
-      "sha256": "5884680ef646b6b77dfb519b3f8f18183065b9522dbd40edf2dedc7e78df62c2"
+      "bytes": 35651,
+      "sha256": "bdb5b1df0da3e1ebe556132eee269ee4a7fef73edba46ac0ab269603b41bfac5"
     }
   ]
 }
