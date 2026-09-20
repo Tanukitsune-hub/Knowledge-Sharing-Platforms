@@ -16,10 +16,17 @@ Sidebarを維持し、右ペイン全体をselected record-detail designへ統�
 
 - `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`
 
+## Concrete visual reference
+
+- `docs/design/0042/right-pane-reference.css`
+- `docs/design/0042/right-pane-reference.html`
+- `docs/design/0042/README.md`
+
 ## Current closed decisions
 
 - sidebar unchanged
-- selected record-detail mockup = canonical right-pane visual direction
+- selected record-detail mockup + concrete CSS/HTML fixture = canonical right-pane visual direction
+- palette = ivory/champagne + restrained gold aligned with existing sidebar; avoid generic blue
 - user-facing navigation label: プルダウンの管理 -> マスター管理（visual unchanged）
 - Asset Class / 面談場所 / Team: drag-and-drop reorder; no numeric prompt
 - reorder visual: drag handle + insertion indicator + short shift animation + save/rollback state
@@ -43,6 +50,6 @@ COMPLETION_LATCH: NOT_APPLIED
 ```
 
 WORK_ID: 0042
-DISPATCH_ID: N/A
-BALL: CHATGPT
-STATUS: PREPARING
+DISPATCH_ID: 0042-CODEX-01
+BALL: CODEX
+STATUS: READY
