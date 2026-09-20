@@ -1,10 +1,10 @@
 # Work 0041 — 過去の記録 usability / 削除記録の管理 requirements
 
 WORK_ID: 0041
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
-BALL: NONE
-ACTIVE_DISPATCH: NONE
+BALL: CODEX
+ACTIVE_DISPATCH: 0041-CODEX-01
 
 ## Dependency
 
