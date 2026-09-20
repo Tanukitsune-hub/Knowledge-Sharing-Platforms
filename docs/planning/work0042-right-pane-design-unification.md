@@ -22,6 +22,12 @@ requirements intakeを先に完了する。
 - sidebar unchanged。
 - right-pane visual systemをselected mockupへ統一。
 - card boundary / light header band / subtle shadow / inset body / action hierarchyを共通化。
+- マスター管理:
+  - sidebar labelを`プルダウンの管理`から`マスター管理`へ変更（sidebar visualは不変）。
+  - Asset Class / 面談場所 / Teamのmanual numeric reorderをdrag-and-dropへ置換。
+  - drag handle + insertion indicator + short shift animation。
+  - existing OPTION_REORDER / Option_Order semanticsを再利用。
+  - numeric sort-order prompt / buttonをnormal UIから撤去。
 - 管理者ページは2 tabs:
   - 左: AIプロバイダ設定
   - 右: 削除記録の管理
@@ -33,10 +39,11 @@ requirements intakeを先に完了する。
 
 1. shared right-pane design tokens / component classesを最小限導入。
 2. existing page DOMをできるだけ維持し、presentationをshared classesへ収束。
-3. admin pageをtablist / tabpanel構造へ整理。
-4. page-by-page visual regressionを実施。
-5. 2560 / 1440 / 1280 / 390でruntime qualification。
-6. same existing owner-only deploymentのみ更新。
+3. master pageのAsset Class / 面談場所 / Teamをdirect-manipulation sortable list/tableへ整理し、existing reorder facadeへ接続。
+4. admin pageをtablist / tabpanel構造へ整理。
+5. page-by-page visual regressionを実施.
+6. 2560 / 1440 / 1280 / 390でruntime qualification。
+7. same existing owner-only deploymentのみ更新。
 
 ## Completion Gate
 
