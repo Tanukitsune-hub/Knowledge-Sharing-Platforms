@@ -1,48 +1,57 @@
 # Work 0040 dispatch control
 
 WORK_ID: 0040
-DISPATCH_ID: N/A
-ACTIVE_DISPATCH_ID: NONE
-BALL: USER
-STATUS: PREPARING
+DISPATCH_ID: 0040-CODEX-01
+ACTIVE_DISPATCH_ID: 0040-CODEX-01
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
+PHASE: IMPLEMENTATION / TARGET RUNTIME QUALIFICATION
 
 ## Primary Outcome
 
-Past Meeting edit formからunused follow-up UI / non-editable related-material selectorを除去し、legacy valuesを保存時にpreserveする。
+Past Meeting detail/edit UIからunused/internal controlsを除去し、legacy valuesとrelated-material functionalityをpreserveする。
 
-## Current closed points
+## Authoritative sources
 
-- follow-up checkbox: hide from edit UI
-- follow-up memo: hide from edit UI
-- related material selector: hide from edit UI
-- existing follow-up values: preserve
-- existing relatedPitchbookIds: preserve
-- detail-screen related-material operations: preserve
+- `docs/handoffs/0040-past-meeting-edit-cleanup-requirements.md`
+- `docs/planning/work0040-past-meeting-edit-cleanup.md`
+- `docs/handoffs/0040-CODEX-01-past-meeting-edit-cleanup-instruction.md`
 
-## Additional confirmed scope
+## Closed decisions
 
-- Detail primary actions: Google Docs原本 / 記録を編集 / 記録を削除をleft-aligned compact row。
-- Related-material actions: left-aligned。
-- raw `既存Document_ID` user-facing input: hide/remove。
-- Detail read-only `要フォロー` / `フォローメモ`: hide from normal UI while preserving data。
+- follow-up edit UI hidden
+- detail follow-up attributes hidden
+- related edit selector hidden robustly
+- legacy values preserved
+- primary/detail actions left aligned
+- raw Document_ID hidden
+- existing-link button retained via human-readable picker
+- add-files preserved
 
-## Pending decision
-
-Current `既存資料を関連付ける` button requires raw Document_ID input.
-
-- Option A (recommended): hide/remove both raw ID input and existing-link button; keep `資料を追加`.
-- Option B: replace raw ID flow with human-readable existing-material picker.
-
-Wait for this decision before CODEX-01.
+## Safety
 
 ```text
-NEXT_UNUSED_DISPATCH: 0040-CODEX-01
+NEW_TARGET: 0
+SECOND_DEPLOYMENT: 0
+PERMISSION_BROADENING: 0
+PUBLIC_EXPOSURE: 0
+SCHEMA_CHANGE: 0
+MIGRATION_CHANGE: 0
+PROVIDER_CALLS: 0
+AI_SYNC: DISABLED / UNCHANGED
+CONFIDENTIAL_DATA: 0
+PHYSICAL_DELETE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+```text
+NEXT_UNUSED_DISPATCH: 0040-CODEX-02
 WORK_0040_COMPLETE: NO
+COMPLETION_LATCH: NOT_APPLIED
 ```
 
 WORK_ID: 0040
-DISPATCH_ID: N/A
-BALL: USER
-STATUS: PREPARING
+DISPATCH_ID: 0040-CODEX-01
+BALL: CODEX
+STATUS: READY
