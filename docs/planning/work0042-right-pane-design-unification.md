@@ -3,9 +3,9 @@
 WORK_ID: 0042
 STATUS: ACTIVE
 MODE: BUILD
-PHASE: REQUIREMENTS_INTAKE
-BALL: CHATGPT
-ACTIVE_DISPATCH: NONE
+PHASE: READY_FOR_CODEX
+BALL: CODEX
+ACTIVE_DISPATCH: 0042-CODEX-01
 
 ## Primary Outcome
 
@@ -13,14 +13,12 @@ Work0041 version21をbaselineとして、sidebarを維持したまま右ペイ�
 
 ## Fastest Safe Decisive Action
 
-requirements intakeを先に完了する。
-
-ユーザーが画面ごとに追加修正を順次提示しているため、各要件をWork0042へ集約し、design / behaviorがfreezeした後に1つのCodex implementation dispatchへまとめる。
+requirements intakeは完了。concrete visual referenceとreachable-state inventoryを使い、frozen requirementsを0042-CODEX-01で収束させる。
 
 ## Current frozen direction
 
 - sidebar unchanged。
-- right-pane visual systemをselected mockupへ統一。
+- right-pane visual systemをselected mockupへ統一。配色はsidebarと調和するivory/champagne + restrained goldを基準とし、generic blue基調にはしない。
 - card boundary / light header band / subtle shadow / inset body / action hierarchyを共通化。
 - マスター管理:
   - sidebar labelを`プルダウンの管理`から`マスター管理`へ変更（sidebar visualは不変）。
@@ -39,6 +37,14 @@ requirements intakeを先に完了する。
   - Asset Class -> アセットクラス
   - Meeting Type -> MTG種別
   - internal identifiers / schema / enumは維持。
+
+## Visual reference
+
+- `docs/design/0042/right-pane-reference.css`
+- `docs/design/0042/right-pane-reference.html`
+- `docs/design/0042/README.md`
+
+selected mockupの具体的な再現基準として使用する。
 
 ## Implementation strategy after freeze
 
