@@ -1,12 +1,12 @@
 # Work 0042 dispatch control
 
 WORK_ID: 0042
-DISPATCH_ID: 0042-CODEX-01
-ACTIVE_DISPATCH_ID: 0042-CODEX-01
+DISPATCH_ID: 0042-CODEX-02
+ACTIVE_DISPATCH_ID: 0042-CODEX-02
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
-PHASE: IMPLEMENTATION / EXHAUSTIVE UI QUALIFICATION
+PHASE: STRATEGY RESET / REPAIRED TERMINOLOGY RUNTIME CLOSURE
 
 ## Primary Outcome
 
@@ -15,6 +15,7 @@ Sidebarを維持し、右ペイン全体をselected record-detail designへ統�
 ## Authoritative instruction
 
 - `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`
+- `docs/handoffs/0042-CODEX-02-serve-terminology-repair-instruction.md`
 
 ## Concrete visual reference
 
@@ -44,12 +45,33 @@ Sidebarを維持し、右ペイン全体をselected record-detail designへ統�
 - Work0030 remains DEFERRED_BY_USER
 
 ```text
-NEXT_UNUSED_DISPATCH: 0042-CODEX-02
+NEXT_UNUSED_DISPATCH: 0042-CODEX-03
 WORK_0042_COMPLETE: NO
 COMPLETION_LATCH: NOT_APPLIED
 ```
 
 WORK_ID: 0042
-DISPATCH_ID: 0042-CODEX-01
+DISPATCH_ID: 0042-CODEX-02
+BALL: CODEX
+STATUS: READY
+
+
+## Strategy Reset — CODEX-02
+
+CODEX-01 version22 actual runtime found generated Full Output terminology drift after the one allowed deployment update.
+Repair is already present and deterministic checks pass, but it is not served.
+
+```text
+SERVED_VERSION: 22
+REPAIRED_APPLICATION_COMMIT: 811c60858edf61147355c7a8d4a36116a1582be9
+RETURN_HEAD: 04dba794690082be16cf567a7b63e391e33b1fed
+BLOCKER: REPAIRED_TERMINOLOGY_NOT_SERVED
+CODEX_02_ADDITIONAL_VERSION_BUDGET: 1
+CODEX_02_ADDITIONAL_DEPLOYMENT_UPDATE_BUDGET: 1
+EXPECTED_FINAL_SERVED_VERSION: 23
+```
+
+WORK_ID: 0042
+DISPATCH_ID: 0042-CODEX-02
 BALL: CODEX
 STATUS: READY
