@@ -32,7 +32,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
 | 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACCEPTED | Work0039 version19 | PR #62 / version20 accepted。Completion Latch済み |
 | 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | ACCEPTED | Work0040 version20 accepted baseline | PR #63 / version21 accepted。Completion Latch済み |
-| 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACTIVE (BUILD) | Work0041 version21 | CODEX-01 implementation + exhaustive reachable-state runtime qualification |
+| 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACTIVE (BUILD) | Work0041 version21 | CODEX-02 serve repaired terminology + targeted runtime closure / PR #64 |
 | 20 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 21 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 22 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -581,7 +581,7 @@ STATUS: ACTIVE
 MODE: BUILD
 PHASE: IMPLEMENTATION / EXHAUSTIVE UI QUALIFICATION
 BASELINE: Work0041 version21
-ACTIVE_DISPATCH: 0042-CODEX-01
+ACTIVE_DISPATCH: 0042-CODEX-02
 BALL: CODEX
 SIDEBAR_REDESIGN: 0
 PRIMARY_SCOPE: right-pane visual unification + master drag reorder + admin tabs
@@ -592,6 +592,8 @@ Requirements: `docs/handoffs/0042-right-pane-design-unification-requirements.md`
 Plan: `docs/planning/work0042-right-pane-design-unification.md`
 Dispatch: `docs/handoffs/0042-dispatches.md`
 Instruction: `docs/handoffs/0042-CODEX-01-right-pane-design-unification-instruction.md`
+Runtime closure: `docs/handoffs/0042-CODEX-02-serve-terminology-repair-instruction.md`
+Draft PR: #64
 Visual reference: `docs/design/0042/right-pane-reference.css`, `docs/design/0042/right-pane-reference.html`, `docs/design/0042/README.md`
 
 Closed user decisions 2026-09-20:
@@ -607,3 +609,16 @@ Closed user decisions 2026-09-20:
 - drag中はinsertion targetを明示し、neighbor rowsを短いanimationでshiftさせる。
 - existing `OPTION_REORDER` / `Option_Order` semanticsを再利用し、schema/storageは変更しない。
 - user-facing labelを日本語へ統一: `Team -> チーム`、`Asset Class -> アセットクラス`、`Meeting Type -> MTG種別`。internal identifiersは変更しない。
+
+
+### Work 0042 Strategy Reset — CODEX-02
+
+CODEX-01 served version22 and passed design / reachable-state qualification, but actual provider-independent Full Output revealed old user-facing generated labels. Repair is already committed and deterministic checks pass; only the repaired runtime evidence remains open.
+
+```text
+ACTIVE_DISPATCH: 0042-CODEX-02
+SERVED_VERSION: 22
+REPAIRED_APPLICATION_COMMIT: 811c60858edf61147355c7a8d4a36116a1582be9
+BLOCKER: REPAIRED_TERMINOLOGY_NOT_SERVED
+EXPECTED_NEXT_SERVED_VERSION: 23
+```
