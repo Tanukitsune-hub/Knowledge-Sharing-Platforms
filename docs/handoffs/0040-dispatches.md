@@ -21,9 +21,21 @@ Past Meeting edit formからunused follow-up UI / non-editable related-material 
 - existing relatedPitchbookIds: preserve
 - detail-screen related-material operations: preserve
 
-## Pending
+## Additional confirmed scope
 
-User message is incomplete after `また、同じく`. Wait for continuation before issuing CODEX-01.
+- Detail primary actions: Google Docs原本 / 記録を編集 / 記録を削除をleft-aligned compact row。
+- Related-material actions: left-aligned。
+- raw `既存Document_ID` user-facing input: hide/remove。
+- Detail read-only `要フォロー` / `フォローメモ`: hide from normal UI while preserving data。
+
+## Pending decision
+
+Current `既存資料を関連付ける` button requires raw Document_ID input.
+
+- Option A (recommended): hide/remove both raw ID input and existing-link button; keep `資料を追加`.
+- Option B: replace raw ID flow with human-readable existing-material picker.
+
+Wait for this decision before CODEX-01.
 
 ```text
 NEXT_UNUSED_DISPATCH: 0040-CODEX-01
