@@ -30,10 +30,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 14 | 0037 | Post-version11 UI refinement — six-screen convergence + admin password gate removal | ACCEPTED | Work0036 version11 | PR #59 / version13 accepted。Completion Latch済み |
 | 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACCEPTED | Work0037 version13 | PR #60 / version18 accepted。Completion Latch済み |
 | 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
-| 17 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 18 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 19 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 20 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / related-material controls | ACTIVE | Work0039 version19 | Requirements intake; user continuation pending |
+| 18 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 19 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 20 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 21 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -507,3 +508,18 @@ COMPLETION_LATCH: APPLIED
 ```
 
 Completion: `docs/handoffs/0039-completion-report.md`
+## Work 0040 active intake
+
+```text
+WORK_ID: 0040
+STATUS: ACTIVE
+MODE: BUILD
+PHASE: REQUIREMENTS_INTAKE
+BASELINE: Work0039 version19
+ACTIVE_DISPATCH: NONE
+BALL: USER
+PRIMARY_SCOPE: Past Meeting edit form cleanup
+```
+
+Requirements: `docs/handoffs/0040-past-meeting-edit-cleanup-requirements.md`
+Dispatch: `docs/handoffs/0040-dispatches.md`
