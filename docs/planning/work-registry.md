@@ -30,8 +30,8 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 14 | 0037 | Post-version11 UI refinement — six-screen convergence + admin password gate removal | ACCEPTED | Work0036 version11 | PR #59 / version13 accepted。Completion Latch済み |
 | 15 | 0038 | Post-version13 UI refinement — Knowledge Search + Meeting-create | ACCEPTED | Work0037 version13 | PR #60 / version18 accepted。Completion Latch済み |
 | 16 | 0039 | Monthly admin review restoration — Meeting Type + autosave checkbox | ACCEPTED | Work0017 capability / Work0038 version18 | PR #61 / version19 accepted。Completion Latch済み |
-| 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACTIVE (BUILD) | Work0039 version19 | CODEX-02 actual runtime legacy preservation evidence closure / PR #62 |
-| 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | PLANNED | Work0040 accepted baseline | Work0040 Completion Latch後にCODEX-01を発行 |
+| 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACCEPTED | Work0039 version19 | PR #62 / version20 accepted。Completion Latch済み |
+| 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | PLANNED | Work0040 version20 accepted baseline | 実装開始時に0041-CODEX-01を発行 |
 | 19 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 20 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 21 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -509,18 +509,24 @@ COMPLETION_LATCH: APPLIED
 ```
 
 Completion: `docs/handoffs/0039-completion-report.md`
-## Work 0040 active intake
+## Work 0040 accepted outcome
 
 ```text
 WORK_ID: 0040
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
-PHASE: IMPLEMENTATION
 BASELINE: Work0039 version19
-ACTIVE_DISPATCH: 0040-CODEX-02
-BALL: CODEX
-PRIMARY_SCOPE: Past Meeting edit/detail cleanup + human-readable existing-material picker
-REVIEW_GATE: CODEX-01 implementation reviewed; non-empty legacy follow-up preservation requires direct actual-runtime readback before merge
+FINAL_SERVED_VERSION: 20
+PR: #62
+MERGE: f4283c6b57c6413178d6a2c4173d4970604ee751
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+TARGET_RUNTIME_QUALIFICATION: PASS
+LEGACY_FOLLOW_UP_PRESERVATION: PASS
+RELATED_PITCHBOOK_IDS_PRESERVATION: PASS
+COMPLETION_LATCH: APPLIED
+BLOCKER: NONE
+WORK_0030: DEFERRED_BY_USER
 ```
 
 Requirements: `docs/handoffs/0040-past-meeting-edit-cleanup-requirements.md`
@@ -528,7 +534,8 @@ Dispatch: `docs/handoffs/0040-dispatches.md`
 Plan: `docs/planning/work0040-past-meeting-edit-cleanup.md`
 Instruction: `docs/handoffs/0040-CODEX-01-past-meeting-edit-cleanup-instruction.md`
 Runtime evidence closure: `docs/handoffs/0040-CODEX-02-runtime-legacy-preservation-qualification-instruction.md`
-Draft PR: #62
+PR: #62
+Completion: `docs/handoffs/0040-completion-report.md`
 ## Work 0041 planned contract
 
 ```text
