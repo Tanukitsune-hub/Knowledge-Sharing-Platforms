@@ -35,7 +35,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACCEPTED | Work0041 version21 | PR #64 / version23 accepted。Completion Latch済み |
 | 20 | 0043 | Palette refinement — institutional blue-gray + navy/gold sidebar + active red | ACCEPTED | Work0042 version23 | PR #65 / version24 accepted。Completion Latch済み |
 | 21 | 0044 | Executive Navy Slate theme tuning — exact #2D3E49 sidebar + right-pane visibility polish | ACCEPTED | Work0043 version24 | PR #66 / version25 accepted。User visual acceptance。Completion Latch済み |
-| 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACTIVE | Work0044 version25 | CODEX-01。Exact default preservation + Script Properties save/reset qualification |
+| 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACTIVE | Work0044 version25 | CODEX-02 targeted repair。exact-default first save + Script Properties roundtrip closure |
 | 23 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 24 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 25 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -687,7 +687,7 @@ WORK_ID: 0045
 STATUS: ACTIVE
 MODE: BUILD
 BASELINE: Work0044 version25
-ACTIVE_DISPATCH: 0045-CODEX-01
+ACTIVE_DISPATCH: 0045-CODEX-02
 BALL: CODEX
 PRIMARY_OUTCOME: admin theme settings / 16 colors / shared Script Properties persistence
 DEFAULT_THEME: Work0044 exact accepted palette
