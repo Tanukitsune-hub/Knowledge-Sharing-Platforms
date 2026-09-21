@@ -1,0 +1,1227 @@
+{
+  "classification": "SYNTHETIC_RENDER_ONLY",
+  "targetRuntimeQualification": "NOT RUN",
+  "result": "PASS",
+  "browser": "151.0.7922.34",
+  "viewports": [
+    [
+      2560,
+      1100
+    ],
+    [
+      1440,
+      1000
+    ],
+    [
+      1280,
+      900
+    ],
+    [
+      1366,
+      900
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "checks": [
+    "identity / nav7 / default Knowledge Search summary",
+    "Work 0038 Meeting and Knowledge topology / 2560, 1440, 1280, 390",
+    "all seven screens / 12-column desktop / one-column mobile / no page overflow",
+    "required-field validation remains visible in header status",
+    "shared Counterparty modal / required fields / non-default type / Meeting auto-select",
+    "single non-GP form / parent-first file RPC wiring",
+    "single past list / detail body / non-GP classification wiring",
+    "Past Meetings compact layout / hidden fixed filters / reset Active / Meeting Type OR payload",
+    "Counterparty Summary one selector / active count-only cards / no type identity",
+    "empty question / no AI model / independent Full Output",
+    "all seven sidebar buttons switch exactly one production page",
+    "Masters per-tab drafts / delayed submit ownership / refresh / shared modal focus restore",
+    "owner-only admin controls available without shared password gate",
+    "Analytics one-year range / frozen section order",
+    "390px / register, past, knowledge / no page horizontal overflow"
+  ],
+  "layoutEvidence": [
+    {
+      "placements": {
+        "meeting-date": {
+          "columnStart": "1",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 111,
+          "width": 313.328125,
+          "height": 66
+        },
+        "meeting-time": {
+          "columnStart": "3",
+          "columnEnd": "span 1",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 616.328125,
+          "y": 111,
+          "width": 149.671875,
+          "height": 66
+        },
+        "meeting-locationId": {
+          "columnStart": "4",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 780,
+          "y": 111,
+          "width": 313.328125,
+          "height": 66
+        },
+        "meeting-teamId": {
+          "columnStart": "6",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 1107.328125,
+          "y": 111,
+          "width": 313.328125,
+          "height": 66
+        },
+        "meeting-assetClassId": {
+          "columnStart": "8",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 1434.65625,
+          "y": 111,
+          "width": 313.34375,
+          "height": 66
+        },
+        "meeting-types": {
+          "columnStart": "10",
+          "columnEnd": "span 3",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 1762,
+          "y": 111,
+          "width": 477,
+          "height": 66
+        },
+        "meeting-counterpartyId": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "2",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 191,
+          "width": 968,
+          "height": 103
+        },
+        "meeting-fundStrategy": {
+          "columnStart": "7",
+          "columnEnd": "span 4",
+          "rowStart": "2",
+          "rowEnd": "auto",
+          "x": 1271,
+          "y": 191,
+          "width": 640.65625,
+          "height": 64
+        },
+        "meeting-counterparty": {
+          "columnStart": "1",
+          "columnEnd": "span 7",
+          "rowStart": "3",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 308,
+          "width": 1131.65625,
+          "height": 64
+        },
+        "meeting-internalParticipants": {
+          "columnStart": "1",
+          "columnEnd": "span 7",
+          "rowStart": "4",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 386,
+          "width": 1131.65625,
+          "height": 64
+        },
+        "meeting-submit": {
+          "columnStart": "1",
+          "columnEnd": "span 3",
+          "rowStart": "5",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 464,
+          "width": 477,
+          "height": 39
+        },
+        "attachment-section": {
+          "columnStart": "8",
+          "columnEnd": "span 5",
+          "rowStart": "3",
+          "rowEnd": "span 2",
+          "x": 1434.65625,
+          "y": 308,
+          "width": 804.34375,
+          "height": 142
+        },
+        "meeting-file-actions-home": {
+          "columnStart": "8",
+          "columnEnd": "span 5",
+          "rowStart": "5",
+          "rowEnd": "auto",
+          "x": 1434.65625,
+          "y": 464,
+          "width": 804.34375,
+          "height": 42
+        },
+        "meeting-notes": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "6",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 520,
+          "width": 1950,
+          "height": 528
+        }
+      },
+      "gridColumns": 12,
+      "columnGap": "14px",
+      "rowGap": "14px",
+      "pageWidth": 2000,
+      "notesHeight": 480,
+      "header": {
+        "childTags": [
+          "H2",
+          "meeting-clear",
+          "meeting-status"
+        ],
+        "headingX": 283,
+        "clearX": 405.9375,
+        "statusX": 533.53125,
+        "headingCenterY": 58.5,
+        "clearCenterY": 58.5,
+        "statusCenterY": 58.5,
+        "statusWidth": 195.53125,
+        "rowWidth": 1998,
+        "statusText": "面談入力の準備ができました。",
+        "statusVisible": true,
+        "draftCopyPresent": false
+      },
+      "attachment": {
+        "panelWidth": 804.34375,
+        "panelHeight": 142,
+        "dropWidth": 804.34375,
+        "dropHeight": 104,
+        "participantStackHeight": 142,
+        "actionsY": 464,
+        "clearLabel": "資料選択をクリア"
+      },
+      "capital": {
+        "display": "none",
+        "width": 0,
+        "height": 0
+      },
+      "overflow": false,
+      "sidebar": {
+        "backgroundImage": "radial-gradient(circle at 18% 8%, rgba(45, 83, 112, 0.3) 0px, rgba(0, 0, 0, 0) 31%), linear-gradient(112deg, rgb(16, 53, 85) 0%, rgb(11, 40, 70) 48%, rgb(7, 29, 52) 100%)",
+        "borderRightColor": "rgb(49, 83, 109)",
+        "activeBackground": "linear-gradient(145deg, rgb(181, 18, 27) 0%, rgb(117, 16, 23) 100%)",
+        "activeShadow": "rgba(255, 240, 175, 0.08) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px -1px 0px 0px inset, rgba(3, 15, 28, 0.36) 0px 2px 4px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "iconFilter": "drop-shadow(rgb(74, 46, 8) 0px 1px 0px) drop-shadow(rgba(239, 200, 92, 0.26) 0px 0px 3px)",
+        "motifDisplay": "block",
+        "motifOpacity": "0.72",
+        "clientWidth": 235,
+        "scrollWidth": 235
+      }
+    },
+    {
+      "placements": {
+        "meeting-date": {
+          "columnStart": "1",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 111,
+          "width": 171.328125,
+          "height": 66
+        },
+        "meeting-time": {
+          "columnStart": "3",
+          "columnEnd": "span 1",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 474.328125,
+          "y": 111,
+          "width": 78.65625,
+          "height": 66
+        },
+        "meeting-locationId": {
+          "columnStart": "4",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 566.984375,
+          "y": 111,
+          "width": 171.34375,
+          "height": 66
+        },
+        "meeting-teamId": {
+          "columnStart": "6",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 752.328125,
+          "y": 111,
+          "width": 171.328125,
+          "height": 66
+        },
+        "meeting-assetClassId": {
+          "columnStart": "8",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 937.65625,
+          "y": 111,
+          "width": 171.328125,
+          "height": 66
+        },
+        "meeting-types": {
+          "columnStart": "10",
+          "columnEnd": "span 3",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 1122.984375,
+          "y": 111,
+          "width": 264,
+          "height": 115
+        },
+        "meeting-counterpartyId": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "2",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 240,
+          "width": 541.984375,
+          "height": 103
+        },
+        "meeting-fundStrategy": {
+          "columnStart": "7",
+          "columnEnd": "span 4",
+          "rowStart": "2",
+          "rowEnd": "auto",
+          "x": 844.984375,
+          "y": 240,
+          "width": 356.671875,
+          "height": 64
+        },
+        "meeting-counterparty": {
+          "columnStart": "1",
+          "columnEnd": "span 7",
+          "rowStart": "3",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 357,
+          "width": 634.65625,
+          "height": 64
+        },
+        "meeting-internalParticipants": {
+          "columnStart": "1",
+          "columnEnd": "span 7",
+          "rowStart": "4",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 435,
+          "width": 634.65625,
+          "height": 64
+        },
+        "meeting-submit": {
+          "columnStart": "1",
+          "columnEnd": "span 3",
+          "rowStart": "5",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 513,
+          "width": 263.984375,
+          "height": 39
+        },
+        "attachment-section": {
+          "columnStart": "8",
+          "columnEnd": "span 5",
+          "rowStart": "3",
+          "rowEnd": "span 2",
+          "x": 937.65625,
+          "y": 357,
+          "width": 449.328125,
+          "height": 142
+        },
+        "meeting-file-actions-home": {
+          "columnStart": "8",
+          "columnEnd": "span 5",
+          "rowStart": "5",
+          "rowEnd": "auto",
+          "x": 937.65625,
+          "y": 513,
+          "width": 449.328125,
+          "height": 42
+        },
+        "meeting-notes": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "6",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 569,
+          "width": 1097.984375,
+          "height": 528
+        }
+      },
+      "gridColumns": 12,
+      "columnGap": "14px",
+      "rowGap": "14px",
+      "pageWidth": 1148,
+      "notesHeight": 480,
+      "header": {
+        "childTags": [
+          "H2",
+          "meeting-clear",
+          "meeting-status"
+        ],
+        "headingX": 283,
+        "clearX": 405.9375,
+        "statusX": 533.53125,
+        "headingCenterY": 58.5,
+        "clearCenterY": 58.5,
+        "statusCenterY": 58.5,
+        "statusWidth": 195.53125,
+        "rowWidth": 1146,
+        "statusText": "面談入力の準備ができました。",
+        "statusVisible": true,
+        "draftCopyPresent": false
+      },
+      "attachment": {
+        "panelWidth": 449.328125,
+        "panelHeight": 142,
+        "dropWidth": 449.328125,
+        "dropHeight": 104,
+        "participantStackHeight": 142,
+        "actionsY": 513,
+        "clearLabel": "資料選択をクリア"
+      },
+      "capital": {
+        "display": "none",
+        "width": 0,
+        "height": 0
+      },
+      "overflow": false,
+      "sidebar": {
+        "backgroundImage": "radial-gradient(circle at 18% 8%, rgba(45, 83, 112, 0.3) 0px, rgba(0, 0, 0, 0) 31%), linear-gradient(112deg, rgb(16, 53, 85) 0%, rgb(11, 40, 70) 48%, rgb(7, 29, 52) 100%)",
+        "borderRightColor": "rgb(49, 83, 109)",
+        "activeBackground": "linear-gradient(145deg, rgb(181, 18, 27) 0%, rgb(117, 16, 23) 100%)",
+        "activeShadow": "rgba(255, 240, 175, 0.08) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px -1px 0px 0px inset, rgba(3, 15, 28, 0.36) 0px 2px 4px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "iconFilter": "drop-shadow(rgb(74, 46, 8) 0px 1px 0px) drop-shadow(rgba(239, 200, 92, 0.26) 0px 0px 3px)",
+        "motifDisplay": "block",
+        "motifOpacity": "0.72",
+        "clientWidth": 235,
+        "scrollWidth": 235
+      }
+    },
+    {
+      "placements": {
+        "meeting-date": {
+          "columnStart": "1",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 111,
+          "width": 144.65625,
+          "height": 66
+        },
+        "meeting-time": {
+          "columnStart": "3",
+          "columnEnd": "span 1",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 447.65625,
+          "y": 111,
+          "width": 65.34375,
+          "height": 66
+        },
+        "meeting-locationId": {
+          "columnStart": "4",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 527,
+          "y": 111,
+          "width": 144.65625,
+          "height": 66
+        },
+        "meeting-teamId": {
+          "columnStart": "6",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 685.65625,
+          "y": 111,
+          "width": 144.671875,
+          "height": 66
+        },
+        "meeting-assetClassId": {
+          "columnStart": "8",
+          "columnEnd": "span 2",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 844.328125,
+          "y": 111,
+          "width": 144.671875,
+          "height": 66
+        },
+        "meeting-types": {
+          "columnStart": "10",
+          "columnEnd": "span 3",
+          "rowStart": "1",
+          "rowEnd": "auto",
+          "x": 1003,
+          "y": 111,
+          "width": 224,
+          "height": 115
+        },
+        "meeting-counterpartyId": {
+          "columnStart": "1",
+          "columnEnd": "span 6",
+          "rowStart": "2",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 240,
+          "width": 462,
+          "height": 103
+        },
+        "meeting-fundStrategy": {
+          "columnStart": "7",
+          "columnEnd": "span 4",
+          "rowStart": "2",
+          "rowEnd": "auto",
+          "x": 765,
+          "y": 240,
+          "width": 303.328125,
+          "height": 64
+        },
+        "meeting-counterparty": {
+          "columnStart": "1",
+          "columnEnd": "span 7",
+          "rowStart": "3",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 357,
+          "width": 541.328125,
+          "height": 64
+        },
+        "meeting-internalParticipants": {
+          "columnStart": "1",
+          "columnEnd": "span 7",
+          "rowStart": "4",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 435,
+          "width": 541.328125,
+          "height": 64
+        },
+        "meeting-submit": {
+          "columnStart": "1",
+          "columnEnd": "span 3",
+          "rowStart": "5",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 513,
+          "width": 224,
+          "height": 39
+        },
+        "attachment-section": {
+          "columnStart": "8",
+          "columnEnd": "span 5",
+          "rowStart": "3",
+          "rowEnd": "span 2",
+          "x": 844.328125,
+          "y": 357,
+          "width": 382.671875,
+          "height": 142
+        },
+        "meeting-file-actions-home": {
+          "columnStart": "8",
+          "columnEnd": "span 5",
+          "rowStart": "5",
+          "rowEnd": "auto",
+          "x": 844.328125,
+          "y": 513,
+          "width": 382.671875,
+          "height": 42
+        },
+        "meeting-notes": {
+          "columnStart": "1",
+          "columnEnd": "span 12",
+          "rowStart": "6",
+          "rowEnd": "auto",
+          "x": 289,
+          "y": 569,
+          "width": 938,
+          "height": 528
+        }
+      },
+      "gridColumns": 12,
+      "columnGap": "14px",
+      "rowGap": "14px",
+      "pageWidth": 988,
+      "notesHeight": 480,
+      "header": {
+        "childTags": [
+          "H2",
+          "meeting-clear",
+          "meeting-status"
+        ],
+        "headingX": 283,
+        "clearX": 405.9375,
+        "statusX": 533.53125,
+        "headingCenterY": 58.5,
+        "clearCenterY": 58.5,
+        "statusCenterY": 58.5,
+        "statusWidth": 195.53125,
+        "rowWidth": 986,
+        "statusText": "面談入力の準備ができました。",
+        "statusVisible": true,
+        "draftCopyPresent": false
+      },
+      "attachment": {
+        "panelWidth": 382.671875,
+        "panelHeight": 142,
+        "dropWidth": 382.671875,
+        "dropHeight": 104,
+        "participantStackHeight": 142,
+        "actionsY": 513,
+        "clearLabel": "資料選択をクリア"
+      },
+      "capital": {
+        "display": "none",
+        "width": 0,
+        "height": 0
+      },
+      "overflow": false,
+      "sidebar": {
+        "backgroundImage": "radial-gradient(circle at 18% 8%, rgba(45, 83, 112, 0.3) 0px, rgba(0, 0, 0, 0) 31%), linear-gradient(112deg, rgb(16, 53, 85) 0%, rgb(11, 40, 70) 48%, rgb(7, 29, 52) 100%)",
+        "borderRightColor": "rgb(49, 83, 109)",
+        "activeBackground": "linear-gradient(145deg, rgb(181, 18, 27) 0%, rgb(117, 16, 23) 100%)",
+        "activeShadow": "rgba(255, 240, 175, 0.08) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px -1px 0px 0px inset, rgba(3, 15, 28, 0.36) 0px 2px 4px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "iconFilter": "drop-shadow(rgb(74, 46, 8) 0px 1px 0px) drop-shadow(rgba(239, 200, 92, 0.26) 0px 0px 3px)",
+        "motifDisplay": "block",
+        "motifOpacity": "0.72",
+        "clientWidth": 235,
+        "scrollWidth": 235
+      }
+    },
+    {
+      "placements": {
+        "meeting-date": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 421.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-time": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 501.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-locationId": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 581.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-teamId": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 661.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-assetClassId": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 741.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-types": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 821.5,
+          "width": 336,
+          "height": 66
+        },
+        "meeting-counterpartyId": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 901.5,
+          "width": 336,
+          "height": 103
+        },
+        "meeting-fundStrategy": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 1018.5,
+          "width": 336,
+          "height": 64
+        },
+        "meeting-counterparty": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 1096.5,
+          "width": 336,
+          "height": 64
+        },
+        "meeting-internalParticipants": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 1174.5,
+          "width": 336,
+          "height": 64
+        },
+        "meeting-submit": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 1252.5,
+          "width": 336,
+          "height": 39
+        },
+        "attachment-section": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 1305.5,
+          "width": 336,
+          "height": 133
+        },
+        "meeting-file-actions-home": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 1452.5,
+          "width": 336,
+          "height": 42
+        },
+        "meeting-notes": {
+          "columnStart": "1",
+          "columnEnd": "auto",
+          "rowStart": "auto",
+          "rowEnd": "auto",
+          "x": 27,
+          "y": 1508.5,
+          "width": 336,
+          "height": 546
+        }
+      },
+      "gridColumns": 1,
+      "columnGap": "14px",
+      "rowGap": "14px",
+      "pageWidth": 370,
+      "notesHeight": 480,
+      "header": {
+        "childTags": [
+          "H2",
+          "meeting-clear",
+          "meeting-status"
+        ],
+        "headingX": 25,
+        "clearX": 147.9375,
+        "statusX": 25,
+        "headingCenterY": 321,
+        "clearCenterY": 324.5,
+        "statusCenterY": 373,
+        "statusWidth": 195.53125,
+        "rowWidth": 368,
+        "statusText": "面談入力の準備ができました。",
+        "statusVisible": true,
+        "draftCopyPresent": false
+      },
+      "attachment": {
+        "panelWidth": 336,
+        "panelHeight": 133,
+        "dropWidth": 336,
+        "dropHeight": 104,
+        "participantStackHeight": 142,
+        "actionsY": 1452.5,
+        "clearLabel": "資料選択をクリア"
+      },
+      "capital": {
+        "display": "none",
+        "width": 0,
+        "height": 0
+      },
+      "overflow": false,
+      "sidebar": {
+        "backgroundImage": "radial-gradient(circle at 18% 8%, rgba(45, 83, 112, 0.3) 0px, rgba(0, 0, 0, 0) 31%), linear-gradient(112deg, rgb(16, 53, 85) 0%, rgb(11, 40, 70) 48%, rgb(7, 29, 52) 100%)",
+        "borderRightColor": "rgb(49, 83, 109)",
+        "activeBackground": "linear-gradient(145deg, rgb(181, 18, 27) 0%, rgb(117, 16, 23) 100%)",
+        "activeShadow": "rgba(255, 240, 175, 0.08) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px -1px 0px 0px inset, rgba(3, 15, 28, 0.36) 0px 2px 4px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "iconFilter": "drop-shadow(rgb(74, 46, 8) 0px 1px 0px) drop-shadow(rgba(239, 200, 92, 0.26) 0px 0px 3px)",
+        "motifDisplay": "none",
+        "motifOpacity": "0.72",
+        "clientWidth": 389,
+        "scrollWidth": 389
+      }
+    }
+  ],
+  "knowledgeLayoutEvidence": [
+    {
+      "columns": 12,
+      "mode": {
+        "columnStart": "1",
+        "columnEnd": "span 3",
+        "x": 289,
+        "y": 205
+      },
+      "model": {
+        "columnStart": "4",
+        "columnEnd": "span 3",
+        "x": 780,
+        "y": 205
+      },
+      "output": {
+        "columnStart": "7",
+        "columnEnd": "span 2",
+        "x": 1271,
+        "y": 209
+      },
+      "asset": {
+        "columnStart": "7",
+        "columnEnd": "span 2",
+        "x": 1271,
+        "y": 125
+      },
+      "label": "AI検索モード",
+      "help": {
+        "text": "表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。 チームは「面談記録のみ」で利用できます。",
+        "modeText": "表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。",
+        "sourceText": "チームは「面談記録のみ」で利用できます。",
+        "sameTop": true,
+        "height": 18,
+        "lineHeight": 18,
+        "explicitBreaks": 0
+      },
+      "overflow": false
+    },
+    {
+      "columns": 12,
+      "mode": {
+        "columnStart": "1",
+        "columnEnd": "span 3",
+        "x": 289,
+        "y": 205
+      },
+      "model": {
+        "columnStart": "4",
+        "columnEnd": "span 3",
+        "x": 567,
+        "y": 205
+      },
+      "output": {
+        "columnStart": "7",
+        "columnEnd": "span 2",
+        "x": 845,
+        "y": 209
+      },
+      "asset": {
+        "columnStart": "7",
+        "columnEnd": "span 2",
+        "x": 845,
+        "y": 125
+      },
+      "label": "AI検索モード",
+      "help": {
+        "text": "表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。 チームは「面談記録のみ」で利用できます。",
+        "modeText": "表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。",
+        "sourceText": "チームは「面談記録のみ」で利用できます。",
+        "sameTop": true,
+        "height": 18,
+        "lineHeight": 18,
+        "explicitBreaks": 0
+      },
+      "overflow": false
+    },
+    {
+      "columns": 12,
+      "mode": {
+        "columnStart": "1",
+        "columnEnd": "span 3",
+        "x": 289,
+        "y": 205
+      },
+      "model": {
+        "columnStart": "4",
+        "columnEnd": "span 3",
+        "x": 527,
+        "y": 205
+      },
+      "output": {
+        "columnStart": "7",
+        "columnEnd": "span 2",
+        "x": 765,
+        "y": 209
+      },
+      "asset": {
+        "columnStart": "7",
+        "columnEnd": "span 2",
+        "x": 765,
+        "y": 125
+      },
+      "label": "AI検索モード",
+      "help": {
+        "text": "表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。 チームは「面談記録のみ」で利用できます。",
+        "modeText": "表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。",
+        "sourceText": "チームは「面談記録のみ」で利用できます。",
+        "sameTop": true,
+        "height": 18,
+        "lineHeight": 18,
+        "explicitBreaks": 0
+      },
+      "overflow": false
+    },
+    {
+      "columns": 1,
+      "mode": {
+        "columnStart": "1",
+        "columnEnd": "auto",
+        "x": 27,
+        "y": 846.5
+      },
+      "model": {
+        "columnStart": "1",
+        "columnEnd": "auto",
+        "x": 27,
+        "y": 926.5
+      },
+      "output": {
+        "columnStart": "1",
+        "columnEnd": "auto",
+        "x": 27,
+        "y": 1006.5
+      },
+      "asset": {
+        "columnStart": "1",
+        "columnEnd": "auto",
+        "x": 27,
+        "y": 606.5
+      },
+      "label": "AI検索モード",
+      "help": {
+        "text": "表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。 チームは「面談記録のみ」で利用できます。",
+        "modeText": "表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。",
+        "sourceText": "チームは「面談記録のみ」で利用できます。",
+        "sameTop": false,
+        "height": 36,
+        "lineHeight": 18,
+        "explicitBreaks": 0
+      },
+      "overflow": false
+    }
+  ],
+  "crossTabLayoutEvidence": [
+    {
+      "label": "wide-2560",
+      "screens": {
+        "knowledge": {
+          "columns": 12,
+          "columnTemplate": "149.656px 149.656px 149.656px 149.656px 149.672px 149.672px 149.656px 149.656px 149.656px 149.656px 149.656px 149.656px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "meeting": {
+          "columns": 12,
+          "columnTemplate": "149.656px 149.656px 149.672px 149.656px 149.656px 149.672px 149.656px 149.672px 149.672px 149.656px 149.672px 149.672px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "meeting-past": {
+          "columns": 12,
+          "columnTemplate": "149.656px 149.656px 149.656px 149.656px 149.672px 149.672px 149.656px 149.656px 149.656px 149.656px 149.672px 149.672px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "entity-workspace": {
+          "columns": 12,
+          "columnTemplate": "149.656px 149.656px 149.656px 149.656px 149.656px 149.656px 149.656px 149.656px 149.656px 149.656px 149.656px 149.656px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "activity-analytics": {
+          "columns": 12,
+          "columnTemplate": "149.656px 149.656px 149.656px 149.656px 149.672px 149.672px 149.656px 149.656px 149.656px 149.656px 149.672px 149.672px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "masters": {
+          "columns": 3,
+          "columnTemplate": "repeat(12, minmax(0px, 1fr))",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "ai-provider-settings": {
+          "columns": 12,
+          "columnTemplate": "145.5px 145.5px 145.5px 145.5px 145.5px 145.5px 145.5px 145.5px 145.5px 145.5px 145.5px 145.5px",
+          "overflow": false,
+          "pageVisible": true
+        }
+      }
+    },
+    {
+      "label": "laptop-1440",
+      "screens": {
+        "knowledge": {
+          "columns": 12,
+          "columnTemplate": "78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "meeting": {
+          "columns": 12,
+          "columnTemplate": "78.6562px 78.6562px 78.6562px 78.6719px 78.6719px 78.6562px 78.6719px 78.6562px 78.6562px 78.6719px 78.6562px 78.6562px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "meeting-past": {
+          "columns": 12,
+          "columnTemplate": "78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6719px 78.6719px 78.6562px 78.6562px 78.6562px 78.6562px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "entity-workspace": {
+          "columns": 12,
+          "columnTemplate": "78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "activity-analytics": {
+          "columns": 12,
+          "columnTemplate": "78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6562px 78.6719px 78.6719px 78.6562px 78.6562px 78.6562px 78.6562px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "masters": {
+          "columns": 3,
+          "columnTemplate": "repeat(12, minmax(0px, 1fr))",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "ai-provider-settings": {
+          "columns": 12,
+          "columnTemplate": "74.5px 74.5px 74.5px 74.5px 74.5px 74.5px 74.5px 74.5px 74.5px 74.5px 74.5px 74.5px",
+          "overflow": false,
+          "pageVisible": true
+        }
+      }
+    },
+    {
+      "label": "compact-1280",
+      "screens": {
+        "knowledge": {
+          "columns": 12,
+          "columnTemplate": "65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "meeting": {
+          "columns": 12,
+          "columnTemplate": "65.3281px 65.3281px 65.3438px 65.3281px 65.3281px 65.3438px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "meeting-past": {
+          "columns": 12,
+          "columnTemplate": "65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "entity-workspace": {
+          "columns": 12,
+          "columnTemplate": "65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "activity-analytics": {
+          "columns": 12,
+          "columnTemplate": "65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px 65.3281px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "masters": {
+          "columns": 3,
+          "columnTemplate": "repeat(12, minmax(0px, 1fr))",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "ai-provider-settings": {
+          "columns": 12,
+          "columnTemplate": "61.1562px 61.1562px 61.1562px 61.1562px 61.1562px 61.1562px 61.1562px 61.1562px 61.1562px 61.1562px 61.1562px 61.1562px",
+          "overflow": false,
+          "pageVisible": true
+        }
+      }
+    },
+    {
+      "label": "mobile-390",
+      "screens": {
+        "knowledge": {
+          "columns": 1,
+          "columnTemplate": "336px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "meeting": {
+          "columns": 1,
+          "columnTemplate": "336px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "meeting-past": {
+          "columns": 1,
+          "columnTemplate": "336px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "entity-workspace": {
+          "columns": 1,
+          "columnTemplate": "336px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "activity-analytics": {
+          "columns": 1,
+          "columnTemplate": "336px",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "masters": {
+          "columns": 1,
+          "columnTemplate": "1fr",
+          "overflow": false,
+          "pageVisible": true
+        },
+        "ai-provider-settings": {
+          "columns": 1,
+          "columnTemplate": "302px",
+          "overflow": false,
+          "pageVisible": true
+        }
+      }
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "blockedRequests": [],
+  "sourceHashes": {
+    "Index.html": "b0784a1e8727494857cce06f7098dd684199038fcec41a0d55fa9760a3220b2d",
+    "Styles.html": "4a71d220a70bfed1d0635ac494e55bf8e7ccf008fc46b7443128391a96a2cd14",
+    "MaintenancePages.html": "e0cd14e193c5d1a95c591ad6b8536579238b5c589254e3e0f2314153aae60baf",
+    "EntityWorkspacePage.html": "57275080b0a6c389b6711d71ca6f16a65eaba3de84563ad1f300ee725bd23d8d",
+    "ActivityAnalyticsPage.html": "ac991e5eff19ec109e47dc6b8275711f0deec38546a05e7f819dce94d947009e",
+    "RelationshipExplorerPage.html": "684470a80d14e786a00f659bde7fee2ca0c843cdd78b55533e09456acc91a566",
+    "KnowledgeSearchPage.html": "cdf3adbeec44899e57fa613d5683633f5789e7668a61ce66ae6d2d2252da234a",
+    "AiProviderSettingsPage.html": "9f3b900243aa84ceed0e5c3fddaaefcf488986dc04b382af4e64522b3db5d831",
+    "ClientDateControls.html": "16a2e6abdf0330b246a1439b3d5a5fb142b47598b5d3a025155b5d1f73922716",
+    "ClientCore.html": "39c7943f7a65bdb1ea8a01f6c451fae6915ee157000b1d1238760693735f9341",
+    "ClientEntityWorkspace.html": "58f518de94444b3085aa9900b23f2c11dc5393148fb21083694d317265ae519c",
+    "ClientKnowledgeSearch.html": "3a6f224614ebb9909ec108a64d9bbe2792814d60e2d627523034138d90192a64",
+    "ClientAiProviderSettings.html": "ee2c098d98cd1953c38e58d177d8045cc7c6b1bcbed79336beaf6dfb205bfd6b",
+    "ClientPitchbookFiles.html": "7a92163a2d746963f2d0e88934990e2bb98f03068eded058e8fdc25faf0a3fde",
+    "ClientPitchbookFlow.html": "27ca60cf0164eed2df73524e23d932c7a531d0c7654ef90ca14f97bfc13d6439",
+    "ClientMaintenance.html": "c5b423e6ba6353d7157cba09920014dbffa8e3f3d6fc8b3d4dc0ed68e5699462",
+    "ClientMaintenanceEnhancements.html": "a6b0e57f040c38e0bdea1fbc4d1440f00f5fa2d4b6df1559b21dc7c35220f216",
+    "ClientActivityAnalytics.html": "4591813ab73acc5a05d7da3506de61b9ca8363edecc0b3b3f4b4c9ebcb1c5265",
+    "ClientRelationshipExplorer.html": "b21f039e7d4dab9c8c688a50d9a26f4e26986b3f3f47688a326d918c7b07e926",
+    "ClientBootstrap.html": "7779e0de45b9fc4d2a9ad2fb59eaf8dd36f96c0cb27b561d429e83cfa68e6205"
+  },
+  "rpcNames": [
+    "getKnowledgeSearchBootstrapData",
+    "getMeetingBootstrapData",
+    "getPitchbookBootstrapData",
+    "getPhase1MaintenanceBootstrapData",
+    "getEntityWorkspaceData",
+    "getMeetingActivityAnalytics",
+    "searchMeetingRecords",
+    "getAiProviderAdminData",
+    "searchMeetingRecords",
+    "getAiProviderAdminData",
+    "searchMeetingRecords",
+    "getAiProviderAdminData",
+    "searchMeetingRecords",
+    "getAiProviderAdminData",
+    "quickAddCounterparty",
+    "registerMeeting",
+    "getMeetingMaintenanceRecord",
+    "getPitchbookBootstrapData",
+    "preparePitchbookBatch",
+    "getMeetingMaintenanceRecord",
+    "uploadPitchbookFile",
+    "searchMeetingRecords",
+    "getMeetingMaintenanceRecord",
+    "getPitchbookMaintenanceRecord",
+    "updatePitchbookMaintenance",
+    "getMeetingMaintenanceRecord",
+    "searchMeetingRecords",
+    "searchMeetingRecords",
+    "searchMeetingRecords",
+    "getEntityWorkspaceData",
+    "previewKnowledgeExport",
+    "searchMeetingRecords",
+    "getAiProviderAdminData",
+    "mutateMaster",
+    "getPhase1MaintenanceBootstrapData",
+    "searchMeetingRecords",
+    "getAiProviderAdminData"
+  ]
+}

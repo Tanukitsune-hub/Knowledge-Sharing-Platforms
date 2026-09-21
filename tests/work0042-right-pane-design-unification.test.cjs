@@ -15,9 +15,9 @@ const adminPage = read('src/AiProviderSettingsPage.html');
 const adminClient = read('src/ClientAiProviderSettings.html');
 const report = read('docs/handoffs/0042-CODEX-01-right-pane-design-unification-report.md');
 
-test('right-pane tokens follow the accepted ivory champagne and restrained-gold reference without restyling the sidebar', () => {
+test('right-pane component system preserves Work0042 structure under the superseding Work0043 palette', () => {
   const work42 = styles.slice(styles.indexOf('/* Work 0042 right-pane system.'));
-  for (const token of ['--rp-page:#f6f3ec', '--rp-surface:#fffdfa', '--rp-header:#f4ecd8', '--rp-border:#ddd0ae', '--rp-gold:#c58c25', '--rp-gold-dark:#70480d']) {
+  for (const token of ['--rp-page:#eaf0f5', '--rp-surface:#f9fbfc', '--rp-header:#dce7f0', '--rp-border:#c3d0da', '--rp-blue:#315f7e', '--rp-blue-dark:#23485f']) {
     assert.ok(work42.includes(token), token);
   }
   for (const primitive of ['.page .card', '.data-table th', '.status.success', '.status.warning', '.status.error', '.record-body', '.knowledge-export-preview-body', '.modal-backdrop']) {
