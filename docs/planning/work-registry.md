@@ -35,8 +35,8 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACCEPTED | Work0041 version21 | PR #64 / version23 accepted。Completion Latch済み |
 | 20 | 0043 | Palette refinement — institutional blue-gray + navy/gold sidebar + active red | ACCEPTED | Work0042 version23 | PR #65 / version24 accepted。Completion Latch済み |
 | 21 | 0044 | Executive Navy Slate theme tuning — exact #2D3E49 sidebar + right-pane visibility polish | ACCEPTED | Work0043 version24 | PR #66 / version25 accepted。User visual acceptance。Completion Latch済み |
-| 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACTIVE | Work0044 version25 | CODEX-02 targeted repair。exact-default first save + Script Properties roundtrip closure |
-| 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | PLANNED | Work0045 accepted baseline | Wait for Work0045 Completion Latch, then issue CODEX-01 |
+| 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACCEPTED | Work0044 version25 | PR #67 / version27 accepted。Completion Latch済み |
+| 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | ACTIVE | Work0045 version27 | CODEX-01 implementation / version28 target |
 | 24 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 25 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 26 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -681,44 +681,46 @@ Dispatch: `docs/handoffs/0044-dispatches.md`
 Visual reference: `docs/design/0044/theme-reference.css`, `docs/design/0044/theme-reference.html`
 Palette registry: `docs/design/theme-palette-registry.md`, `docs/design/theme-palette-tokens.json`
 
-## Work 0045 active contract
+## Work 0045 accepted outcome
 
 ```text
 WORK_ID: 0045
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0044 version25
-ACTIVE_DISPATCH: 0045-CODEX-02
-BALL: CODEX
-PRIMARY_OUTCOME: admin theme settings / 16 colors / shared Script Properties persistence
-DEFAULT_THEME: Work0044 exact accepted palette
-PERSISTENCE_KEY: KSP_THEME_SETTINGS_V1
-NEW_SHEET: 0
-SCHEMA_CHANGE: 0
-MIGRATION_CHANGE: 0
-PERMISSION_BROADENING: 0
-EXPECTED_FINAL_SERVED_VERSION: 26
+FINAL_SERVED_VERSION: 27
+PR: #67
+MERGE: 5e492a59b5c4a28c1a4d093f54e2585f1715e6cf
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+THEME_FIELDS_16: PASS
+EXACT_DEFAULT_FIRST_SAVE: PASS
+FRESH_LOAD_SHARED_PERSISTENCE: PASS
+RESET_TO_DEFAULT: PASS
 FINAL_THEME_OVERRIDE_STATE: ABSENT
+VISIBLE_THEME: WORK0044_DEFAULT
+CONSOLE_MATERIAL_ERROR_WARN: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
 ```
 
 Requirements: `docs/handoffs/0045-theme-settings-requirements.md`
 Plan: `docs/planning/work0045-theme-settings.md`
 Dispatch: `docs/handoffs/0045-dispatches.md`
-Instruction: `docs/handoffs/0045-CODEX-01-theme-settings-instruction.md`
-Design spec: `docs/design/0045/theme-settings-spec.md`
-Default palette: `docs/design/theme-palette-registry.md`, `docs/design/theme-palette-tokens.json`
+Reports: `docs/handoffs/0045-CODEX-01-theme-settings-report.md`, `docs/handoffs/0045-CODEX-02-exact-default-save-repair-report.md`
+Completion: `docs/handoffs/0045-completion-report.md`
 
-
-## Work 0046 planned contract
+## Work 0046 active contract
 
 ```text
 WORK_ID: 0046
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
 DEPENDENCY: Work0045 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+BASELINE: Work0045 version27
+ACTIVE_DISPATCH: 0046-CODEX-01
+BALL: CODEX
 COUNTERPARTY_INTERNAL_ID_VISIBLE: 0
 MEETING_ID_VISIBLE: PRESERVE
 DOCUMENT_ID_VISIBLE: PRESERVE
@@ -732,3 +734,6 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0046-ui-cleanup-analytics-master-reorder-requirements.md`
 Plan: `docs/planning/work0046-ui-cleanup-analytics-master-reorder.md`
+
+Instruction: `docs/handoffs/0046-CODEX-01-ui-cleanup-staged-reorder-instruction.md`
+Dispatch: `docs/handoffs/0046-dispatches.md`
