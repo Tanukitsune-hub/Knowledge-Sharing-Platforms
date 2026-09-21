@@ -134,11 +134,16 @@ function kspMutateMaster_(environment, rawInput) {
       beforeAudit = { moved: beforeAudit, affectedOptions: kspOptionOrderAuditSnapshot_(result.affectedBefore) };
       afterAudit = { moved: afterAudit, affectedOptions: kspOptionOrderAuditSnapshot_(result.affectedRows) };
       changedFields = ['Option_Order'];
+    } else if (input.entity === KSP_MASTER_ENTITY.OPTION && input.action === KSP_MASTER_MUTATION.REORDER_BATCH) {
+      beforeAudit = { affectedOptions: kspOptionOrderAuditSnapshot_(result.affectedBefore) };
+      afterAudit = { affectedOptions: kspOptionOrderAuditSnapshot_(result.affectedRows) };
+      changedFields = ['Option_Order'];
     }
     kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
       timestamp: environment.nowIso(), actor: actor, action: action,
       targetType: input.entity === KSP_MASTER_ENTITY.COUNTERPARTY ? 'Counterparty_Master' : 'Option_Master',
-      targetId: input.entity === KSP_MASTER_ENTITY.COUNTERPARTY ? result.after.Counterparty_ID : result.after.Option_ID,
+      targetId: input.action === KSP_MASTER_MUTATION.REORDER_BATCH ? input.type :
+        (input.entity === KSP_MASTER_ENTITY.COUNTERPARTY ? result.after.Counterparty_ID : result.after.Option_ID),
       result: KSP_AUDIT_RESULTS.SUCCESS,
       before: beforeAudit,
       after: afterAudit,
@@ -151,7 +156,8 @@ function kspMutateMaster_(environment, rawInput) {
     if (context) kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
       timestamp: environment.nowIso(), actor: actor,
       action: kspMasterActionName_(kspNormalizeMasterMutation_(rawInput || {})),
-      targetType: rawInput && rawInput.entity, targetId: rawInput && rawInput.id,
+      targetType: rawInput && rawInput.entity,
+      targetId: rawInput && (rawInput.action === KSP_MASTER_MUTATION.REORDER_BATCH ? rawInput.type : rawInput.id),
       result: KSP_AUDIT_RESULTS.FAILURE, errorCode: kspGetErrorCode_(error), errorMessage: kspSafePublicErrorMessage_(kspGetErrorCode_(error), 'MAINTENANCE')
     }, warnings);
     return kspMaintenanceFailure_(error, warnings);

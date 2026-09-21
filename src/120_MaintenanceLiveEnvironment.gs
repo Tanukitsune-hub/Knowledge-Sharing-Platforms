@@ -389,6 +389,17 @@ function kspCreateMaintenanceEnvironment_() {
         return { before: null, after: after, existing: false };
       }
 
+      if (input.action === KSP_MASTER_MUTATION.REORDER_BATCH) {
+        var plan = kspBuildOptionBatchReorderPlan_(rows, input, actor, nowIso);
+        var values = plan.rows.map(function (row) {
+          return headers.map(function (header) {
+            return row[header] === null || row[header] === undefined ? '' : row[header];
+          });
+        });
+        sheet.getRange(2, 1, values.length, headers.length).setValues(values);
+        return plan;
+      }
+
       var matches = rows.filter(function (row) { return String(row[keyColumn]) === input.id; });
       kspAssert_(matches.length === 1, 'MASTER_NOT_FOUND', '対象Masterが見つかりません。');
       before = kspDeepClone_(matches[0]);

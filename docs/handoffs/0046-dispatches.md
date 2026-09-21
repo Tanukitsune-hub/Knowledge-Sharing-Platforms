@@ -3,8 +3,8 @@
 WORK_ID: 0046
 DISPATCH_ID: 0046-CODEX-01
 ACTIVE_DISPATCH_ID: 0046-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 PHASE: UI CLEANUP / ANALYTICS TABS / STAGED MASTER REORDER
 
@@ -15,6 +15,17 @@ Work0045 accepted baseline上で、visible Counterparty internal ID / Follow-up�
 ## Authoritative instruction
 
 - `docs/handoffs/0046-CODEX-01-ui-cleanup-staged-reorder-instruction.md`
+
+## Return artifact
+
+- Draft PR: `#68`
+- Report: `docs/handoffs/0046-CODEX-01-ui-cleanup-staged-reorder-report.md`
+- Served version: `28`
+- Source / immutable parity: `PASS`
+- Target runtime qualification: `PASS`
+- Final Master order restoration: `PASS`
+- Blocker: `NONE`
+- Ready for ChatGPT final review: `YES`
 
 ## Hard boundary
 
@@ -42,5 +53,5 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0046
 DISPATCH_ID: 0046-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

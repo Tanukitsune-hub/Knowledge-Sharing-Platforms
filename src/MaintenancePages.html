@@ -115,6 +115,11 @@
       </section>
       <section id="option-master-panel" class="master-panel" hidden><h3 id="option-master-heading">アセットクラス</h3>
         <form id="option-add-form" class="inline-form"><input id="option-add-name" maxlength="200" placeholder="選択肢名"><button class="action primary" type="submit">追加</button></form>
+        <div class="master-reorder-controls">
+          <button id="master-reorder-save" class="action primary" type="button" disabled>並び順を保存</button>
+          <button id="master-reorder-reset" class="action secondary" type="button" disabled>変更を元に戻す</button>
+          <span id="master-reorder-dirty" class="hint" role="status" aria-live="polite"></span>
+        </div>
         <div class="table-wrap"><table class="data-table master-sort-table"><thead><tr><th class="master-drag-column"><span class="sr-only">並び替え</span></th><th>名称</th><th>Status</th><th>操作</th></tr></thead><tbody id="option-master-results"></tbody></table></div>
       </section>
     </div>

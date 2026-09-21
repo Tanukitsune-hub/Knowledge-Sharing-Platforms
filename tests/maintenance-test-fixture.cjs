@@ -45,6 +45,7 @@ function createFakeEnvironment(options = {}) {
   const counterpartyRows = cat.counterparties.map(x => ({ ...x }));
   const optionRows = cat.options.map(x => ({ ...x }));
   const audits = [];
+  const masterBatchWrites = [];
   const claims = new Map();
   const pitchbookWrites = [];
 
@@ -149,6 +150,12 @@ function createFakeEnvironment(options = {}) {
           : { Option_ID: ksp.kspNextOptionId_(rows, input.type), Type: input.type, Name: input.name, Sort_Order: rows.filter(r => r.Type === input.type).length + 1, Status: 'Active', Updated_At: now, Updated_By: actor };
         rows.push(row); return { before: null, after: { ...row } };
       }
+      if (input.action === 'REORDER_BATCH') {
+        const plan = ksp.kspBuildOptionBatchReorderPlan_(rows, input, actor, now);
+        rows.splice(0, rows.length, ...plan.rows.map(row => ({ ...row })));
+        masterBatchWrites.push(input.type);
+        return plan;
+      }
       const row = find(rows, key, input.id); if (!row) throw Object.assign(new Error('missing'), { code: 'MASTER_NOT_FOUND' });
       const before = { ...row };
       if (input.action === 'RENAME') input.entity === 'COUNTERPARTY' ? row.Counterparty_Name = input.name : row.Name = input.name;
@@ -161,7 +168,7 @@ function createFakeEnvironment(options = {}) {
       row.Updated_At = now; row.Updated_By = actor; return { before, after: { ...row } };
     },
     deleteAuditRowsBefore(_id, cutoff) { const before = audits.length; for (let i=audits.length-1;i>=0;i--) if (audits[i].Event_Timestamp < cutoff) audits.splice(i,1); return { deletedRows: before-audits.length }; },
-    _debug: { meetingRows, pitchbookRows, counterpartyRows, optionRows, documents, files, audits, claims, pitchbookWrites }
+    _debug: { meetingRows, pitchbookRows, counterpartyRows, optionRows, documents, files, audits, claims, pitchbookWrites, masterBatchWrites }
   };
   return env;
 }

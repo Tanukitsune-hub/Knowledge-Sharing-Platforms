@@ -796,7 +796,7 @@ function kspProviderSafeMessage_(code) {
     AI_ENTITY_GP_CONFLICT: 'Counterparty EntityとGPが一致しません。',
     AI_TEAM_FILTER_UNAVAILABLE: '選択されたチームは利用できません。',
     AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、要フォロー、MTG種別はMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、MTG種別はMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
     AI_FILTER_UNSUPPORTED_PROVIDER: '選択された構造化フィルターはこのプロバイダでは利用できません。',
     AI_MULTI_ENTITY_COUNT_INVALID: '比較するEntityは2–5件で選択してください。',
     AI_MULTI_ENTITY_DUPLICATE: '同じEntityを複数回選択できません。',

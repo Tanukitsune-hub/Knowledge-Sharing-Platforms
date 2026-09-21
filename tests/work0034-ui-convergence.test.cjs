@@ -47,14 +47,15 @@ test('Past Meetings exposes the clean 12-column filter and sends safe backend de
   assert.match(maintenance, /status:meetingPast\?'Active'/);
 });
 
-test('Counterparty Summary uses one selector and count-only active summary without type identity', () => {
+test('Counterparty Summary uses one selector and three accepted summary cards without internal identity', () => {
   assert.doesNotMatch(workspacePage, /entity-workspace-type|面談先種別/);
   assert.match(workspacePage, /id="entity-workspace-entity"/);
   assert.doesNotMatch(workspaceClient, /entityWorkspacePopulateTypes|el\('entity-workspace-type'\)/);
-  assert.match(workspaceClient, /entity-workspace-identity'\)\.textContent=entity\.counterpartyId/);
-  assert.match(workspaceClient, /\['Meetings',s\.activeMeetingCount\+'件'\]/);
-  assert.match(workspaceClient, /\['Pitchbooks',s\.pitchbookActiveCount\+'件'\]/);
+  assert.match(workspaceClient, /entity-workspace-identity'\)\.textContent=''/);
+  assert.match(workspaceClient, /\['面談件数',s\.activeMeetingCount\+'件'\]/);
+  assert.match(workspaceClient, /\['保存資料数',s\.pitchbookActiveCount\+'件'\]/);
+  assert.match(workspaceClient, /\['最後の面談日',entityWorkspaceText\(s\.latestDirectMeetingDate\)\]/);
   const printHeader = workspaceClient.match(/el\('entity-workspace-print'\)\.innerHTML=([\s\S]*?)<\/header>/);
   assert.ok(printHeader);
-  assert.doesNotMatch(printHeader[1], /counterpartyTypeLabel|summary\.meetingCount|summary\.pitchbookCount/);
+  assert.doesNotMatch(printHeader[1], /counterpartyTypeLabel|counterpartyId|summary\.meetingCount|summary\.pitchbookCount/);
 });

@@ -581,14 +581,14 @@ test('FULL_OUTPUT excludes all six Pitchbook formats without metadata or byte re
   assert.match(result.preview.packageText, /Authoritative Meeting body only\./);
 });
 
-test('Knowledge Export includes Counterparty-centered Meeting attributes and follow-up note but no Audit content', () => {
+test('Knowledge Export includes Counterparty-centered Meeting attributes without legacy follow-up display or Audit content', () => {
   const env=createFakeEnvironment({
     meetingRows:[meetingRow('MTG-000001','2026-08-01',{Doc_File_ID:'doc-1',GP_ID:'',Counterparty_Type:'',Counterparty_ID:'CP-000031',Related_GP_IDs:'',Team_ID:'OPT-TEAM-001',Fund_Strategy:'Fund Alpha',Meeting_Type_Codes:'ANNUAL_REVIEW,OFFICE_VISIT',Related_Pitchbook_IDs:'DOC-000001',Follow_Up_Required:true,Follow_Up_Note:'private follow-up'})],
     pitchbookRows:[pitchbookRow('DOC-000001','2026-08-01',{File_ID:'file-1',Fund_Strategy:'Fund Beta'})]
   });
   const input=baseInput();const preview=ksp.kspRunKnowledgeExportPreview_(env,input);const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
   assert.equal(result.ok,true,JSON.stringify(result));const text=ksp.kspBuildKnowledgeExportPlainText_(env._debug.artifacts[0].model);
-  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/アセットクラス: Infrastructure/);assert.match(text,/チーム: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/MTG種別: 定例年1回, 先方オフィス訪問/);assert.doesNotMatch(text,/(?:Asset Class|Team|Meeting Type):/);assert.match(text,/要フォロー: はい/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);assert.match(text,/Follow-up Note: private follow-up/);
+  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/アセットクラス: Infrastructure/);assert.match(text,/チーム: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/MTG種別: 定例年1回, 先方オフィス訪問/);assert.doesNotMatch(text,/(?:Asset Class|Team|Meeting Type):/);assert.doesNotMatch(text,/要フォロー|Follow-up|private follow-up/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);
   assert.equal(JSON.stringify(env._debug.audits).includes('private follow-up'),false);
 });
 
@@ -742,7 +742,7 @@ test('all five prompts are provider-neutral and independent of Gemini state', ()
   assert.equal(env._debug.audits.length, 0);
 });
 
-test('prompt filters use readable master names alongside stable IDs', () => {
+test('prompt filters use readable master names without exposing internal IDs', () => {
   const env = createFakeEnvironment();
   const result = ksp.kspGetKnowledgeExportPrompt_(env, baseInput({
     mode: '比較',
@@ -751,12 +751,13 @@ test('prompt filters use readable master names alongside stable IDs', () => {
     capitalTypeId: 'OPT-CT-001'
   }));
   assert.equal(result.ok, true, JSON.stringify(result));
-  assert.match(result.prompt, /面談先: Apollo \(COUNTERPARTY:CP-000001\)/);
-  assert.match(result.prompt, /アセットクラス: Infrastructure \(OPT-AC-002\)/);
+  assert.match(result.prompt, /面談先: Apollo/);
+  assert.doesNotMatch(result.prompt, /COUNTERPARTY:CP-|CP-000001/);
+  assert.match(result.prompt, /アセットクラス: Infrastructure/);
   assert.match(result.prompt, /チーム:/);
   assert.match(result.prompt, /MTG種別:/);
   assert.doesNotMatch(result.prompt, /(?:Asset Class|Team|Meeting Type):/);
-  assert.match(result.prompt, /Equity \/ Debt: Equity \(OPT-CT-001\)/);
+  assert.match(result.prompt, /Equity \/ Debt: Equity/);
 });
 
 test('prompt-copy audit is metadata-only and occurs only on the explicit copy record call', () => {

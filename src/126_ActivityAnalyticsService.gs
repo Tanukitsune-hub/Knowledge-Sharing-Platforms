@@ -372,6 +372,22 @@ function kspActivityDisplayValue_(value) {
   return value === KSP_ACTIVITY_ANALYTICS_UNSET ? '未設定' : String(value || '');
 }
 
+function kspActivityDisplayLabel_(row, dimension, value) {
+  if (value === KSP_ACTIVITY_ANALYTICS_UNSET) return '未設定';
+  if (dimension === 'counterpartyEntity') return String(row && row.__Counterparty_Name || '登録情報なし');
+  if (dimension === 'assetClass') return String(row && row.__Asset_Class_Name || '登録情報なし');
+  if (dimension === 'team') return String(row && row.__Team_Name || '登録情報なし');
+  if (dimension === 'meetingType') {
+    var labels = kspMeetingTypeLabels_(String(value || ''));
+    return labels.length ? labels[0] : '登録情報なし';
+  }
+  if (dimension === 'counterpartyType') {
+    var definition = kspCounterpartyTypeDefinition_(value);
+    return definition ? definition.label : '登録情報なし';
+  }
+  return kspActivityDisplayValue_(value);
+}
+
 function kspActivityBuildBreakdown_(rows, dimension, limit) {
   var grouped = {};
   (rows || []).forEach(function (row) {
@@ -384,7 +400,7 @@ function kspActivityBuildBreakdown_(rows, dimension, limit) {
     return Object.assign({
       key: value,
       value: value,
-      label: kspActivityDisplayValue_(value)
+      label: kspActivityDisplayLabel_(grouped[value][0], dimension, value)
     }, kspActivityBuildMetrics_(grouped[value]));
   }).sort(function (left, right) {
     return right.meetingCount - left.meetingCount ||
@@ -398,8 +414,8 @@ function kspActivityBuildBreakdown_(rows, dimension, limit) {
   };
 }
 
-function kspActivityBuildFilterOption_(value) {
-  return { value: value, label: kspActivityDisplayValue_(value) };
+function kspActivityBuildFilterOption_(value, label) {
+  return { value: value, label: label || kspActivityDisplayValue_(value) };
 }
 
 function kspActivityBuildFilterOptions_(rows) {
@@ -410,16 +426,21 @@ function kspActivityBuildFilterOptions_(rows) {
   (rows || []).forEach(function (row) {
     var type = kspActivityRowCounterpartyType_(row) || KSP_ACTIVITY_ANALYTICS_UNSET;
     var entity = kspActivityRowCounterpartyKey_(row) || KSP_ACTIVITY_ANALYTICS_UNSET;
-    sets.counterpartyTypes[type] = true;
-    sets.counterpartyEntities[entity] = true;
-    sets.assetClasses[String(row.Asset_Class_ID || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET] = true;
-    sets.teams[String(row.Team_ID || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET] = true;
+    sets.counterpartyTypes[type] = kspActivityDisplayLabel_(row, 'counterpartyType', type);
+    sets.counterpartyEntities[entity] = kspActivityDisplayLabel_(row, 'counterpartyEntity', entity);
+    var assetClass = String(row.Asset_Class_ID || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET;
+    var team = String(row.Team_ID || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET;
+    sets.assetClasses[assetClass] = kspActivityDisplayLabel_(row, 'assetClass', assetClass);
+    sets.teams[team] = kspActivityDisplayLabel_(row, 'team', team);
     var meetingTypes = kspMaintenanceSplitCodes_(row.Meeting_Type_Codes);
-    (meetingTypes.length ? meetingTypes : [KSP_ACTIVITY_ANALYTICS_UNSET]).forEach(function (value) { sets.meetingTypes[value] = true; });
-    sets.statuses[String(row.Status || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET] = true;
+    (meetingTypes.length ? meetingTypes : [KSP_ACTIVITY_ANALYTICS_UNSET]).forEach(function (value) {
+      sets.meetingTypes[value] = kspActivityDisplayLabel_(row, 'meetingType', value);
+    });
+    var status = String(row.Status || '').trim() || KSP_ACTIVITY_ANALYTICS_UNSET;
+    sets.statuses[status] = kspActivityDisplayLabel_(row, 'status', status);
   });
   function mapSet(set) {
-    return Object.keys(set).map(kspActivityBuildFilterOption_).sort(function (left, right) {
+    return Object.keys(set).map(function (value) { return kspActivityBuildFilterOption_(value, set[value]); }).sort(function (left, right) {
       if (left.value === KSP_ACTIVITY_ANALYTICS_UNSET) return 1;
       if (right.value === KSP_ACTIVITY_ANALYTICS_UNSET) return -1;
       return left.label.localeCompare(right.label, 'ja') || left.value.localeCompare(right.value);
@@ -448,8 +469,11 @@ function kspActivityMapMeeting_(row) {
     counterpartyType: kspActivityRowCounterpartyType_(row),
     counterpartyId: kspActivityRowCounterpartyId_(row),
     counterpartyEntityKey: kspActivityRowCounterpartyKey_(row),
+    counterpartyName: String(row.__Counterparty_Name || '登録情報なし'),
     assetClassId: String(row.Asset_Class_ID || ''),
+    assetClassName: String(row.__Asset_Class_Name || '登録情報なし'),
     teamId: String(row.Team_ID || ''),
+    teamName: String(row.__Team_Name || '登録情報なし'),
     meetingTypeCodes: meetingTypeCodes,
     meetingTypeLabels: kspMeetingTypeLabels_(meetingTypeCodes.join(',')),
     followUpRequired: kspToBoolean_(row.Follow_Up_Required, false),
@@ -494,10 +518,31 @@ function kspGetMeetingActivityAnalytics_(environment, rawInput) {
     var context = kspActivityLoadContext_(environment, false);
     var input = kspActivityNormalizeInput_(rawInput);
     var typeById = {};
+    var counterpartyNameById = {};
     (environment.readRows(context.backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER) || [])
-      .forEach(function (row) { typeById[String(row.Counterparty_ID || '')] = String(row.Counterparty_Type || ''); });
+      .forEach(function (row) {
+        var id = String(row.Counterparty_ID || '');
+        typeById[id] = String(row.Counterparty_Type || '');
+        counterpartyNameById[id] = String(row.Counterparty_Name || '');
+      });
+    var assetClassNameById = {};
+    var teamNameById = {};
+    (environment.readRows(context.backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER) || [])
+      .forEach(function (row) {
+        var id = String(row.Option_ID || '');
+        if (String(row.Type || '') === 'ASSET_CLASS') assetClassNameById[id] = String(row.Name || '');
+        if (String(row.Type || '') === 'TEAM') teamNameById[id] = String(row.Name || '');
+      });
     var rows = (environment.readRows(context.backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX) || [])
-      .map(function (row) { var copy = Object.assign({}, row); copy.__Counterparty_Type = typeById[kspMeetingCounterpartyId_(row)] || kspMeetingCounterpartyType_(row); return copy; });
+      .map(function (row) {
+        var copy = Object.assign({}, row);
+        var counterpartyId = kspMeetingCounterpartyId_(row);
+        copy.__Counterparty_Type = typeById[counterpartyId] || kspMeetingCounterpartyType_(row);
+        copy.__Counterparty_Name = counterpartyNameById[counterpartyId] || '';
+        copy.__Asset_Class_Name = assetClassNameById[String(row.Asset_Class_ID || '')] || '';
+        copy.__Team_Name = teamNameById[String(row.Team_ID || '')] || '';
+        return copy;
+      });
     var filterRows = rows.filter(function (row) { return kspActivityRowMatchesFilters_(row, input, false); });
     var bounds = kspActivityResolveBounds_(filterRows, input);
     var matchingRows = filterRows.filter(function (row) {
