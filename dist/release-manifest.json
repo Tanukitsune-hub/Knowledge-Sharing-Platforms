@@ -2,19 +2,19 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "013162ec6de5e0449a717593909d75dc67872f61",
+  "source_git_commit": "8d8a6fd66a998c0d1c167c4421ede46af9edbdb7",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "af42717ee86b6e13f1699670766c3b6495577b224a946afefde365a2ea3388bf",
-  "bundle_file_sha256": "72e7a8d8613ce11fedfda8eda71e94bf22ec57e060de7b7938c3b0ac530d2827",
+  "bundle_payload_sha256": "fee2d4a6f0c0a2928df5179fee9c4e2aa70a00284e126259c993f6122e51295f",
+  "bundle_file_sha256": "46f206bab524f606bb2ee8a2b334a9726d02967d9a5c5e44e79da8f1d8a3ee68",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
-  "source_order_sha256": "904d48fe07860a4940e45fc5f0519c98fbe6b07346fe06448fb860797689d130",
+  "source_order_sha256": "13043741b640c6b9c7ed12617a3f0daab1b13a6bc6c5d49e8bdf79da52126326",
   "bundle_metrics": {
-    "bytes": 1214075,
-    "characters": 1172639,
-    "lines": 19294,
-    "server_source_count": 60,
-    "embedded_html_count": 22
+    "bytes": 1250629,
+    "characters": 1207935,
+    "lines": 19585,
+    "server_source_count": 61,
+    "embedded_html_count": 23
   },
   "server_sources": [
     {
@@ -134,8 +134,8 @@
     },
     {
       "file": "src/90_WebApp.gs",
-      "bytes": 3927,
-      "sha256": "960b8ffc564463a32a73c97efcef74e47601ef46079863d631e509574c55aba5"
+      "bytes": 4137,
+      "sha256": "8d2563d029901fcf63111f73de06670276dcb349b0a93d6803f62af9360942d0"
     },
     {
       "file": "src/99_EntryPoints.gs",
@@ -293,9 +293,14 @@
       "sha256": "c0a25e7cb154901a74363b7992225d974b998dbed7f2ec267484f36acdf46d11"
     },
     {
+      "file": "src/166_ThemeSettings.gs",
+      "bytes": 15204,
+      "sha256": "9452318942e2c1e5edb4af6b0a3e86bbf8810efcd9e6b7563df323e1a527fa3a"
+    },
+    {
       "file": "src/170_AiEntryPoints.gs",
-      "bytes": 1402,
-      "sha256": "5429f7506bf8362ae4d23353ede417e5efe9108a8ed308d391f741117113bc3f"
+      "bytes": 1638,
+      "sha256": "8b29e1de5086ae94891ddea5dc8579e6a84007ff97f53016e50302dfd482c9dc"
     },
     {
       "file": "src/180_FeatureFreezeFormats.gs",
@@ -326,8 +331,8 @@
     },
     {
       "file": "src/AiProviderSettingsPage.html",
-      "bytes": 10529,
-      "sha256": "99c3a4e510dab84397217e0958ce6e0351f3b04d69c0531bb307ab093b2f8adf"
+      "bytes": 11868,
+      "sha256": "000663501af2b07b97d13afb8b45b4d7cf7b1256b4ba5fb7324937b74a7514bb"
     },
     {
       "file": "src/ClientActivityAnalytics.html",
@@ -336,8 +341,8 @@
     },
     {
       "file": "src/ClientAiProviderSettings.html",
-      "bytes": 17499,
-      "sha256": "7e424babf3c66fddd052f96e1bcec458f679a5f4b3ba782d9b2710484ca99abf"
+      "bytes": 17590,
+      "sha256": "d61fc55e087c28ee850dfc2fb1cc7e2712bc56ba697c2d7e2b44739160377c2b"
     },
     {
       "file": "src/ClientBootstrap.html",
@@ -390,6 +395,11 @@
       "sha256": "0f262c1d505d0af79f9ee219e6cf2cbb4fad226c44abc21efb3d71f60a424a5b"
     },
     {
+      "file": "src/ClientThemeSettings.html",
+      "bytes": 10470,
+      "sha256": "0cce0cf967455f74e7258c9df329e431fd4386051b8e2949b9c6c4dfa4175a2c"
+    },
+    {
       "file": "src/DeploymentSecurityOperator.html",
       "bytes": 2860,
       "sha256": "fdf7591631d294d1e72ae485b64e245bff9d0252e83e3b534a523f619f021198"
@@ -401,13 +411,13 @@
     },
     {
       "file": "src/Index.html",
-      "bytes": 23250,
-      "sha256": "4193e5fc9274b9d303f1c285d747932f6aa91c5c0e5c3b123840f67175202e11"
+      "bytes": 23317,
+      "sha256": "eea31d0c3cda4e26d38271e60a7856879203b658df261655ec18d85b66eceba1"
     },
     {
       "file": "src/KnowledgeSearch.html",
-      "bytes": 896,
-      "sha256": "0f8f61e2bff8ce0f7841cc6dceb753c74d09128661c01734ca1ceb23442b406c"
+      "bytes": 922,
+      "sha256": "7b5913cf3f5a9e4594bcd4dedb21e827582dd1747271ed2d625b286a2bfdcd44"
     },
     {
       "file": "src/KnowledgeSearchPage.html",
@@ -426,8 +436,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 47649,
-      "sha256": "e47765bd2197758002a3e39ca44a7306ef12768cf4d00d2584b4effea389271b"
+      "bytes": 56161,
+      "sha256": "f48b26cef62659befe35b621349a9fb931c17c01988ad599fa825a9c09eef2de"
     }
   ]
 }
