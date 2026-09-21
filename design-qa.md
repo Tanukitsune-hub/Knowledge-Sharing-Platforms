@@ -1,59 +1,58 @@
-# Work 0043 Design QA
+# Work 0044 Design QA
 
 ## Comparison target
 
-- Source visual truth: `docs/design/0043/theme-reference.html` / `docs/design/0043/theme-reference.css`
-- Source capture: `docs/design/0043/qa-evidence/reference-1440.png`
-- Rendered implementation: modular production source rendered by `tests/production-ui-browser.cjs`
-- Focused implementation capture: `docs/design/0043/qa-evidence/local/implementation-detail-1440.png`
-- Combined comparison: `docs/design/0043/qa-evidence/comparison-board.png`
-- Full-view captures: `docs/design/0043/qa-evidence/local/layout-wide-2560.png`, `docs/design/0043/qa-evidence/local/layout-laptop-1440.png`, `docs/design/0043/qa-evidence/local/layout-compact-1280.png`
-- Mobile capture: `docs/design/0043/qa-evidence/local/layout-mobile-390.png`
-- Modal / result captures: `docs/design/0043/qa-evidence/local/05-counterparty-modal.png`, `docs/design/0043/qa-evidence/local/03-independent-full-output.png`
+- Source visual truth: `docs/design/0044/theme-reference.html` / `docs/design/0044/theme-reference.css`
+- Source capture: `docs/design/0044/qa-evidence/reference-1440.png`
+- Rendered implementation: final modular production source rendered by `tests/production-ui-browser.cjs`
+- Focused implementation capture: `docs/design/0044/qa-evidence/local/implementation-detail-1440.png`
+- Combined comparison: `docs/design/0044/qa-evidence/comparison-board.png`
+- Full-view captures: `docs/design/0044/qa-evidence/local/layout-wide-2560.png`, `layout-laptop-1440.png`, `layout-compact-1280.png`, `layout-mobile-390.png`
+- Dynamic captures: `docs/design/0044/qa-evidence/local/05-counterparty-modal.png`, `03-independent-full-output.png`
 
 ## Normalization
 
-- Browser: Chromium 151.0.7922.34 for deterministic captures; signed-in Chrome for owner-only runtime qualification.
-- Density: `deviceScaleFactor = 1` for deterministic captures.
+- Deterministic browser: Chromium 151.0.7922.34, `deviceScaleFactor = 1`.
+- Actual runtime: signed-in Chrome, same owner-only Web App version25.
 - Source fixture: 1440 x 1100 CSS viewport.
-- Focused implementation: accepted Work0042 Meeting detail geometry rendered from the final production source.
-- The reference defines palette rather than application geometry. Work0042 layout, DOM, spacing, typography sizes, and behavior are intentionally held constant.
+- Reference defines palette, not geometry. Work0043 layout / DOM / spacing / functionality remain frozen.
 
 ## Combined comparison result
 
-The combined board was inspected as one visual input. The implementation matches the reference's cool gray-blue page, white/blue-gray surfaces, restrained blue headers and borders, dark navy sidebar, retained gold identity, and deep-red selected navigation. The reference fixture and production detail show different accepted content structures, but their palette hierarchy and component state language converge without a warm ivory/champagne cast.
+Referenceとproduction renderを1枚のcomparison boardで確認した。Sidebarはexact `#2d3e49` baseに既存gold identityとred active stateを維持している。Right paneはpale slate page、near-white surface、pageより一段濃いheader band、cool border、blue-slate actionsへ収束し、warm ivory / yellow dominanceはない。
 
 ## Focused visual result
 
-- Right-pane surfaces use `#eaf0f5`, `#f9fbfc`, `#f2f6f9`, `#dce7f0`, and related blue-gray borders consistently.
-- Heading, card, table, input, detail, editor, modal, result, and status surfaces preserve readable hierarchy without introducing a bright consumer-blue treatment.
-- Sidebar background is navy rather than black/brown. Brand, labels, icons, and lower ornament retain the gold family.
-- Selected navigation alone uses the deep-red gradient and bright-red selection stripe. Red does not spread into inactive navigation or the right pane.
-- Semantic success, warning, danger, destructive, and focus states remain distinguishable rather than being forced into the base blue palette.
+- Page `#e7edf2`、surface `#f8fafb`、header `#cdd9e2` / `#becdd8`で明確な階層がある。
+- Primary / secondary / tertiary actionsはblue-slate familyで一貫する。
+- 旧yellow floating action backgroundはactual 28 page/viewport combinationsで0件。
+- Warm buttonはsemantic warning classの「未完了分を再試行」だけ。
+- Destructive red、warning amber、success greenは意味識別のため保持。
+- Sidebar gold text / icons / ornamentとrestrained red selected navigationは保持。
 
 ## Interaction / responsive evidence
 
-- Actual owner-only version24: all seven normal pages were nonblank at 2560, 1440, 1280, and 390 widths with horizontal overflow 0.
-- Desktop sidebar bounding rect: top 0 and bottom equal to the inner Web App viewport at all three desktop widths; delta 0 px.
-- Mobile 390 keeps the accepted relative sidebar and hides the decorative motif.
-- Representative actual states: Past Meeting loading/detail/editor, Counterparty modal, Knowledge Full Output/result/preview, Analytics result tables, both admin panels, and all four master tabs.
-- Editor and modal were opened and closed without save/register actions. No record, file, provider, or configuration mutation was performed.
-- Browser console material errors/warnings: 0.
+- Actual version25: 2560 / 1440 / 1280 / 390の各幅で7 normal pagesがnonblank、horizontal overflow 0。
+- Sidebar computed backgroundは全viewport/pageで`rgb(45, 62, 73)`。Desktop 3幅はviewport下端差0px。
+- Representative states: Past Meeting result/detail/editor、Counterparty modal、provider-independent Full Output preview、Analytics result/drill tables、Master 4 tabs、Admin 2 tabs。
+- Modalはprimary / secondary action、surface、header、input境界を確認し、Cancelでmutationなし。
+- Browser console material error / warn: 0。
+- Record / file / provider / configuration mutation: 0。
 
 ## Findings
 
-- No actionable P0, P1, or P2 visual difference.
-- No layout, DOM, interaction, or responsive topology drift was observed.
-- The only intentional geometry change is desktop sidebar viewport sizing, required by Work0043 and verified at 0 px bottom delta.
+- Actionable P0 / P1 / P2 visual difference: 0。
+- Layout / DOM / functionality / terminology regression: 0。
+- CSS-only scopeで要件を満たしたためscope expansionは不要。
 
 ## Implementation checklist
 
-- [x] Palette-only production change in `src/Styles.html`
-- [x] Cool institutional gray-blue right pane
-- [x] Dark navy sidebar with preserved gold identity
-- [x] Restrained red selected navigation
-- [x] Desktop sidebar viewport-height correction
-- [x] Four-viewpoint deterministic and actual-runtime checks
-- [x] Dynamic state and console checks
+- [x] Exact sidebar `#2d3e49`
+- [x] Existing gold and red sidebar semantics preserved
+- [x] Cool Executive Navy Slate right pane
+- [x] Header bands visibly deeper than page background
+- [x] Non-semantic actions unified to blue-slate
+- [x] Four viewport / seven page deterministic and target-runtime checks
+- [x] Representative dynamic states and console checks
 
 final result: passed

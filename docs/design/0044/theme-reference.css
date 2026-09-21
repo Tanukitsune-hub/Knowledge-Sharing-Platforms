@@ -1,0 +1,46 @@
+/*
+Work 0044 approved palette reference.
+REFERENCE ONLY — production layout, DOM, and behavior remain frozen at Work0043.
+*/
+
+:root {
+  --w44-sidebar:#2d3e49;
+  --w44-sidebar-border:#51636d;
+  --w44-page:#e7edf2;
+  --w44-surface:#f8fafb;
+  --w44-surface-soft:#eef3f6;
+  --w44-header:#cdd9e2;
+  --w44-header-strong:#becdd8;
+  --w44-border:#bbc9d3;
+  --w44-border-strong:#a3b5c1;
+  --w44-ink:#263b49;
+  --w44-ink-soft:#4a6170;
+  --w44-muted:#6b7e8a;
+  --w44-primary:#405f72;
+  --w44-primary-dark:#2f4b5d;
+  --w44-primary-soft:#dce6ec;
+  --w44-secondary:#dce5eb;
+  --w44-gold:#d7ae42;
+  --w44-gold-highlight:#ffe89a;
+  --w44-active-red:#b5121b;
+  --w44-active-red-deep:#751017;
+  --w44-danger:#b42630;
+  --w44-danger-soft:#f9e8ea;
+  --w44-warning:#8b6515;
+  --w44-warning-soft:#f8f0d8;
+}
+
+.w44-page{background:var(--w44-page);color:var(--w44-ink)}
+.w44-sidebar{background:var(--w44-sidebar);border-right:1px solid var(--w44-sidebar-border);color:var(--w44-gold-highlight)}
+.w44-nav{color:#eaddbf;border-color:#d4a83b42;background:linear-gradient(145deg,#e7bc4a16,#23343e7a)}
+.w44-nav-active{color:#fff2d0;border-color:#d94a52;background:linear-gradient(145deg,var(--w44-active-red),var(--w44-active-red-deep))}
+.w44-card{background:var(--w44-surface);border:1px solid var(--w44-border);box-shadow:0 3px 12px rgba(38,59,73,.09)}
+.w44-card-header{background:linear-gradient(180deg,#d7e1e8,var(--w44-header));border-bottom:1px solid var(--w44-border)}
+.w44-input{background:var(--w44-surface);border:1px solid var(--w44-border-strong);color:var(--w44-ink)}
+.w44-table-head{background:linear-gradient(180deg,var(--w44-header),var(--w44-header-strong));color:var(--w44-ink-soft)}
+.w44-button{border:1px solid;border-radius:7px;padding:9px 15px;font-weight:700}
+.w44-primary{background:linear-gradient(180deg,#526f81,var(--w44-primary));border-color:var(--w44-primary-dark);color:#fff}
+.w44-secondary{background:linear-gradient(180deg,var(--w44-surface),var(--w44-secondary));border-color:var(--w44-border-strong);color:var(--w44-primary-dark)}
+.w44-tertiary{background:var(--w44-primary-soft);border-color:var(--w44-border);color:var(--w44-primary-dark)}
+.w44-warning{background:var(--w44-warning-soft);border-color:#d8bd73;color:var(--w44-warning)}
+.w44-danger{background:var(--w44-danger-soft);border-color:#dca5aa;color:var(--w44-danger)}

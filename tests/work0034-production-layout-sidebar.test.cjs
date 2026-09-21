@@ -93,9 +93,9 @@ test('only the <=720px projection collapses Meeting fields to one column', () =>
   assert.doesNotMatch(styles.slice(styles.indexOf('@media(max-width:1000px)'), styles.indexOf('@media(max-width:720px)')), /meeting-field-date|meeting-field-time|meeting-field-types/);
 });
 
-test('shared sidebar preserves premium metallic gold identity under the superseding Work0043 navy and red states', () => {
+test('shared sidebar preserves premium metallic gold identity under the superseding Work0044 slate and red states', () => {
   assert.match(styles, /--gold-highlight:#FFE89A;--gold-mid:#C58C25;--gold-deep:#70480D/);
-  assert.match(styles, /\.page-header\{[^}]*radial-gradient[^}]*linear-gradient\(112deg,#103555 0%,#0B2846 48%,#071D34 100%\)[^}]*border-right:1px solid #31536D[^}]*box-shadow:/);
+  assert.match(styles, /\.page-header\{[^}]*background:#2D3E49[^}]*border-right:1px solid #51636D[^}]*box-shadow:/);
   assert.match(styles, /\.nav button\{[^}]*linear-gradient[^}]*box-shadow:[^}]*transition:/);
   assert.match(styles, /\.nav button:hover\{[^}]*linear-gradient[^}]*translateY\(-1px\)/);
   assert.match(styles, /\.nav button\.active\{[^}]*linear-gradient\(145deg,#B5121B 0%,#751017 100%\)[^}]*translateX\(1px\)[^}]*translateY\(-1px\)/);

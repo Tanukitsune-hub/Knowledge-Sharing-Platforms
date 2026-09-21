@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Work 0044 Executive Navy Slate</title>
+  <link rel="stylesheet" href="./theme-reference.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:"Yu Gothic UI","Meiryo",sans-serif;background:var(--w44-page);color:var(--w44-ink)}
+    .frame{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh}.sidebar{padding:26px 18px}.brand{margin:0 0 7px;font:600 25px Georgia,serif;color:var(--w44-gold-highlight)}
+    .tagline{margin-bottom:28px;color:#d8bd7b;font-size:9px;letter-spacing:1.4px}.nav{display:grid;gap:7px}.nav-item{padding:11px 12px;border:1px solid;border-radius:7px}.nav-item.active{box-shadow:inset 0 -2px #4e090e80,0 7px 14px #31070a73}
+    main{padding:26px 30px 48px}.card{margin-bottom:18px;border-radius:12px;overflow:hidden}.card-header{padding:15px 18px;font-size:20px;font-weight:800}.card-body{padding:18px}.controls{display:grid;grid-template-columns:2fr 1fr;gap:14px}.field{display:grid;gap:6px}.field label{font-size:13px;font-weight:700}.input{padding:10px 12px;border-radius:7px}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    table{width:100%;border-collapse:collapse;border:1px solid var(--w44-border);background:var(--w44-surface)}th,td{padding:11px 10px;border-bottom:1px solid var(--w44-border);text-align:left}th{font-size:12px}.semantic{display:flex;gap:10px;margin-top:16px}
+    @media(max-width:720px){.frame{display:block}.sidebar{min-height:auto}.controls{grid-template-columns:1fr}main{padding:16px 10px 36px}}
+  </style>
+</head>
+<body>
+<div class="frame">
+  <aside class="sidebar w44-sidebar">
+    <h1 class="brand">Knowledge<br>Share</h1>
+    <div class="tagline">PRIVATE ASSETS KNOWLEDGE</div>
+    <nav class="nav" aria-label="参考navigation">
+      <div class="nav-item w44-nav">ナレッジ検索</div>
+      <div class="nav-item w44-nav w44-nav-active active">記録を追加</div>
+      <div class="nav-item w44-nav">過去の記録</div>
+      <div class="nav-item w44-nav">面談先サマリー</div>
+      <div class="nav-item w44-nav">面談実績の集計</div>
+      <div class="nav-item w44-nav">マスター管理</div>
+      <div class="nav-item w44-nav">管理者ページ</div>
+    </nav>
+  </aside>
+  <main class="w44-page">
+    <section class="card w44-card">
+      <header class="card-header w44-card-header">Executive Navy Slate palette</header>
+      <div class="card-body">
+        <div class="controls">
+          <div class="field"><label>面談先</label><div class="input w44-input">Synthetic Counterparty</div></div>
+          <div class="field"><label>アセットクラス</label><div class="input w44-input">Equity</div></div>
+        </div>
+        <div class="buttons">
+          <button class="w44-button w44-primary">登録</button>
+          <button class="w44-button w44-secondary">下書きをクリア</button>
+          <button class="w44-button w44-tertiary">資料選択をクリア</button>
+        </div>
+        <div class="semantic">
+          <button class="w44-button w44-warning">注意が必要</button>
+          <button class="w44-button w44-danger">削除</button>
+        </div>
+      </div>
+    </section>
+    <section class="card w44-card">
+      <header class="card-header w44-card-header">該当Meeting</header>
+      <div class="card-body">
+        <table>
+          <thead class="w44-table-head"><tr><th>日付</th><th>面談先</th><th>チーム</th><th>Status</th></tr></thead>
+          <tbody><tr><td>2026-09-21</td><td>Synthetic Counterparty</td><td>Team A</td><td>Active</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

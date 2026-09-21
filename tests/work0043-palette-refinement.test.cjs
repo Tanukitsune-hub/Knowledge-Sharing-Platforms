@@ -7,22 +7,22 @@ const root = path.resolve(__dirname, '..');
 const styles = fs.readFileSync(path.join(root, 'src', 'Styles.html'), 'utf8');
 const work42 = styles.slice(styles.indexOf('/* Work 0042 right-pane system.'));
 
-test('approved institutional blue-gray tokens replace the warm Work0042 right-pane palette', () => {
+test('approved institutional structure accepts the superseding Work0044 executive slate tokens', () => {
   for (const token of [
-    '--rp-page:#eaf0f5',
-    '--rp-surface:#f9fbfc',
-    '--rp-surface-soft:#f2f6f9',
-    '--rp-header:#dce7f0',
-    '--rp-header-strong:#cfdce7',
-    '--rp-border:#c3d0da',
-    '--rp-border-strong:#aabac8',
-    '--rp-ink:#18324a',
-    '--rp-ink-soft:#40596f',
-    '--rp-muted:#65798a',
-    '--rp-blue:#315f7e',
-    '--rp-blue-dark:#23485f',
-    '--rp-blue-soft:#e0eaf2',
-    '--rp-focus:#5f819a'
+    '--rp-page:#e7edf2',
+    '--rp-surface:#f8fafb',
+    '--rp-surface-soft:#eef3f6',
+    '--rp-header:#cdd9e2',
+    '--rp-header-strong:#becdd8',
+    '--rp-border:#bbc9d3',
+    '--rp-border-strong:#a3b5c1',
+    '--rp-ink:#263b49',
+    '--rp-ink-soft:#4a6170',
+    '--rp-muted:#6b7e8a',
+    '--rp-blue:#405f72',
+    '--rp-blue-dark:#2f4b5d',
+    '--rp-blue-soft:#dce6ec',
+    '--rp-focus:#6c8798'
   ]) assert.ok(work42.includes(token), token);
 
   for (const obsoleteWarmSurface of [
@@ -32,8 +32,9 @@ test('approved institutional blue-gray tokens replace the warm Work0042 right-pa
   ]) assert.ok(!work42.toLowerCase().includes(obsoleteWarmSurface), obsoleteWarmSurface);
 });
 
-test('sidebar uses dark navy while preserving gold identity and limiting red to the active navigation item', () => {
-  assert.match(styles, /\.page-header\{[^}]*linear-gradient\(112deg,#103555 0%,#0B2846 48%,#071D34 100%\)/);
+test('sidebar uses the exact Work0044 slate while preserving gold identity and limiting red to the active navigation item', () => {
+  assert.match(styles, /--sidebar:#2D3E49/);
+  assert.match(styles, /\.page-header\{[^}]*background:#2D3E49/);
   assert.match(styles, /\.brand h1\{[^}]*#FFF4BF[^}]*#EBCB67[^}]*#A66E18/);
   assert.match(styles, /\.nav-icon\{[^}]*stroke:#F0CF69/);
   assert.match(styles, /\.sidebar-motif\{[^}]*#E2B84F78/);
