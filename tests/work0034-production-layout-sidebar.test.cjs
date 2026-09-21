@@ -93,14 +93,14 @@ test('only the <=720px projection collapses Meeting fields to one column', () =>
   assert.doesNotMatch(styles.slice(styles.indexOf('@media(max-width:1000px)'), styles.indexOf('@media(max-width:720px)')), /meeting-field-date|meeting-field-time|meeting-field-types/);
 });
 
-test('shared sidebar uses premium metallic gold dimensional states and a visible ornament', () => {
+test('shared sidebar preserves premium metallic gold identity under the superseding Work0043 navy and red states', () => {
   assert.match(styles, /--gold-highlight:#FFE89A;--gold-mid:#C58C25;--gold-deep:#70480D/);
-  assert.match(styles, /\.page-header\{[^}]*radial-gradient[^}]*linear-gradient[^}]*border-right:1px solid #C79A38[^}]*box-shadow:/);
+  assert.match(styles, /\.page-header\{[^}]*radial-gradient[^}]*linear-gradient\(112deg,#103555 0%,#0B2846 48%,#071D34 100%\)[^}]*border-right:1px solid #31536D[^}]*box-shadow:/);
   assert.match(styles, /\.nav button\{[^}]*linear-gradient[^}]*box-shadow:[^}]*transition:/);
   assert.match(styles, /\.nav button:hover\{[^}]*linear-gradient[^}]*translateY\(-1px\)/);
-  assert.match(styles, /\.nav button\.active\{[^}]*linear-gradient[^}]*translateX\(1px\)[^}]*translateY\(-1px\)/);
+  assert.match(styles, /\.nav button\.active\{[^}]*linear-gradient\(145deg,#B5121B 0%,#751017 100%\)[^}]*translateX\(1px\)[^}]*translateY\(-1px\)/);
   assert.match(styles, /\.nav-icon\{[^}]*stroke:#F0CF69[^}]*drop-shadow/);
-  assert.match(styles, /\.nav button\.active \.nav-icon\{[^}]*stroke:#4E3309[^}]*drop-shadow/);
+  assert.match(styles, /\.nav button\.active \.nav-icon\{[^}]*stroke:#FFE89A[^}]*drop-shadow/);
   assert.match(styles, /\.sidebar-motif\{[^}]*opacity:\.72[^}]*drop-shadow/);
   assert.match(index, /<linearGradient id="sidebar-ornament-gold"[\s\S]*?stroke="url\(#sidebar-ornament-gold\)"/);
 });
