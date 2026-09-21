@@ -1,11 +1,11 @@
 # Work 0046 — user-facing cleanup + analytics tabs + staged master reorder requirements
 
 WORK_ID: 0046
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
 DEPENDENCY: Work0045 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+ACTIVE_DISPATCH: 0046-CODEX-01
+BALL: CODEX
 
 ## Primary Outcome
 
