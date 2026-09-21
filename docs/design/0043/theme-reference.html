@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Work 0043 Theme Reference</title>
+  <link rel="stylesheet" href="./theme-reference.css">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Yu Gothic UI","Meiryo",sans-serif;background:var(--w43-page);color:var(--w43-ink)}
+    .frame{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh}
+    aside{padding:26px 18px;position:relative;overflow:hidden}
+    .brand{font:600 25px Georgia,serif;margin:0 0 8px}
+    .sub{font-size:9px;letter-spacing:1.4px;color:#d7c184;margin-bottom:28px}
+    nav{display:grid;gap:7px}
+    .nav-item{padding:11px 12px;border-radius:7px;border:1px solid;position:relative}
+    .nav-item.active{padding-left:15px}
+    .nav-item.active:before{position:absolute;left:-1px;top:7px;bottom:7px}
+    main{padding:26px 30px 48px}
+    .card{border-radius:12px;overflow:hidden;margin-bottom:18px}
+    .head{padding:16px 18px;font-size:20px;font-weight:800}
+    .body{padding:18px}
+    table{width:100%;border-collapse:collapse;background:var(--w43-surface);border:1px solid var(--w43-border)}
+    th,td{padding:11px 10px;border-bottom:1px solid var(--w43-border);text-align:left}
+    th{font-size:12px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .metric{padding:16px;border:1px solid var(--w43-border);border-radius:9px;background:var(--w43-surface)}
+    .metric b{font-size:24px;display:block;margin-top:5px}
+  </style>
+</head>
+<body>
+<div class="frame">
+  <aside class="w43-sidebar">
+    <div class="brand w43-gold-text">Knowledge<br>Share</div>
+    <div class="sub">PRIVATE ASSETS KNOWLEDGE</div>
+    <nav>
+      <div class="nav-item w43-nav">ナレッジ検索</div>
+      <div class="nav-item w43-nav">記録を追加</div>
+      <div class="nav-item w43-nav">過去の記録</div>
+      <div class="nav-item w43-nav">面談先サマリー</div>
+      <div class="nav-item w43-nav w43-nav-active active">面談実績の集計</div>
+      <div style="height:18px"></div>
+      <div class="nav-item w43-nav">マスター管理</div>
+      <div class="nav-item w43-nav">管理者ページ</div>
+    </nav>
+  </aside>
+  <main class="w43-page">
+    <section class="card w43-card">
+      <div class="head w43-card-header">該当Meeting</div>
+      <div class="body">
+        <table>
+          <thead class="w43-table-head"><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>チーム</th><th>MTG種別</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>2026-09-19</td><td>MTG-000006</td><td>COUNTERPARTY:CP-000031</td><td>未設定</td><td>定例年1回</td><td>Active</td></tr>
+            <tr><td>2026-09-18</td><td>MTG-000005</td><td>COUNTERPARTY:CP-000031</td><td>OPT-TEAM-002</td><td>未設定</td><td>Active</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card w43-card">
+      <div class="head w43-card-header">集計サマリー</div>
+      <div class="body summary">
+        <div class="metric">総面談数<b>128</b></div>
+        <div class="metric">面談先数<b>48</b></div>
+        <div class="metric">アクティブ案件数<b>85</b></div>
+        <div class="metric">今月の面談数<b>12</b></div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
