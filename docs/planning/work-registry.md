@@ -33,7 +33,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 17 | 0040 | Past Meeting edit form cleanup — hide unused follow-up / internal ID controls | ACCEPTED | Work0039 version19 | PR #62 / version20 accepted。Completion Latch済み |
 | 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | ACCEPTED | Work0040 version20 accepted baseline | PR #63 / version21 accepted。Completion Latch済み |
 | 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACCEPTED | Work0041 version21 | PR #64 / version23 accepted。Completion Latch済み |
-| 20 | 0043 | Palette refinement — institutional blue-gray + navy/gold sidebar + active red | ACTIVE (BUILD) | Work0042 version23 | CODEX-01 CSS-only implementation / version24 target |
+| 20 | 0043 | Palette refinement — institutional blue-gray + navy/gold sidebar + active red | ACCEPTED | Work0042 version23 | PR #65 / version24 accepted。Completion Latch済み |
 | 21 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 22 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 23 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -609,20 +609,30 @@ Visual reference: `docs/design/0042/right-pane-reference.css`, `docs/design/0042
 
 
 
-## Work 0043 active contract
+## Work 0043 accepted outcome
 
 ```text
 WORK_ID: 0043
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0042 version23
-ACTIVE_DISPATCH: 0043-CODEX-01
-BALL: CODEX
-PRIMARY_SCOPE: palette-only theme refinement + desktop sidebar viewport-height fix
-EXPECTED_PRODUCTION_SOURCE_CHANGE: src/Styles.html ONLY
-LAYOUT_REDESIGN: 0
-FUNCTIONAL_CHANGE: 0
-EXPECTED_FINAL_SERVED_VERSION: 24
+FINAL_SERVED_VERSION: 24
+PR: #65
+MERGE: f6ce3ed342f290381c272581196e87e304478710
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+PRODUCTION_SOURCE_DIFF: src/Styles.html ONLY
+THEME_REFINEMENT: PASS
+LAYOUT_REGRESSION: 0
+FUNCTIONAL_REGRESSION: 0
+SIDEBAR_VIEWPORT_HEIGHT: PASS
+ACTIVE_NAV_RED_ACCENT: PASS
+TARGET_RUNTIME_QUALIFICATION: PASS
+NORMAL_NAVIGATION: 7/7 PASS
+VIEWPORTS: 2560 / 1440 / 1280 / 390 PASS
+CONSOLE_MATERIAL_ERROR_WARN: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
 ```
 
@@ -630,13 +640,7 @@ Requirements: `docs/handoffs/0043-palette-refinement-requirements.md`
 Plan: `docs/planning/work0043-palette-refinement.md`
 Dispatch: `docs/handoffs/0043-dispatches.md`
 Instruction: `docs/handoffs/0043-CODEX-01-palette-refinement-instruction.md`
+Report: `docs/handoffs/0043-CODEX-01-palette-refinement-report.md`
+Completion: `docs/handoffs/0043-completion-report.md`
 Visual reference: `docs/design/0043/theme-reference.css`, `docs/design/0043/theme-reference.html`, `docs/design/0043/README.md`
 
-Closed user decisions 2026-09-21:
-- Work0042 layout / structure / functionalityは変更しない。
-- right-pane paletteは金融プロフェッショナル向けcool gray-blue。
-- sidebar backgroundはdark navy。
-- sidebarのgold typography / icon / ornamentは維持。
-- selected navigationのみrestrained red accent。
-- desktop sidebar bottomをbrowser viewportと一致させる。
-- production implementationは原則`src/Styles.html` only。
