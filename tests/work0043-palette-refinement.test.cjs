@@ -5,7 +5,10 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const styles = fs.readFileSync(path.join(root, 'src', 'Styles.html'), 'utf8');
-const work42 = styles.slice(styles.indexOf('/* Work 0042 right-pane system.'));
+const work42 = styles.slice(
+  styles.indexOf('/* Work 0042 right-pane system.'),
+  styles.indexOf('/* Work 0045 shared runtime theme.')
+);
 
 test('approved institutional structure accepts the superseding Work0044 executive slate tokens', () => {
   for (const token of [

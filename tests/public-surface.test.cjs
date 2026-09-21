@@ -26,8 +26,10 @@ test('top-level function inventory ignores comments, strings, and nested declara
 
 test('repository exposes only the canonical normal-user facade', () => {
   const result = validatePublicSurface();
-  assert.equal(PUBLIC_FACADE_ALLOWLIST.length, 30);
+  assert.equal(PUBLIC_FACADE_ALLOWLIST.length, 32);
   assert.ok(PUBLIC_FACADE_ALLOWLIST.includes('updateMeetingRelations'));
+  assert.ok(PUBLIC_FACADE_ALLOWLIST.includes('getThemeSettingsData'));
+  assert.ok(PUBLIC_FACADE_ALLOWLIST.includes('mutateThemeSettings'));
   assert.deepEqual(
     result.publicDeclarations.map((item) => item.name).sort(),
     [...PUBLIC_FACADE_ALLOWLIST].sort()

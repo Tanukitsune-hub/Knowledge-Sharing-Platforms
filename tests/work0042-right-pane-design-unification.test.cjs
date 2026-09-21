@@ -16,7 +16,10 @@ const adminClient = read('src/ClientAiProviderSettings.html');
 const report = read('docs/handoffs/0042-CODEX-01-right-pane-design-unification-report.md');
 
 test('right-pane component system preserves Work0042 structure under the superseding Work0044 palette', () => {
-  const work42 = styles.slice(styles.indexOf('/* Work 0042 right-pane system.'));
+const work42 = styles.slice(
+  styles.indexOf('/* Work 0042 right-pane system.'),
+  styles.indexOf('/* Work 0045 shared runtime theme.')
+);
   for (const token of ['--rp-page:#e7edf2', '--rp-surface:#f8fafb', '--rp-header:#cdd9e2', '--rp-border:#bbc9d3', '--rp-blue:#405f72', '--rp-blue-dark:#2f4b5d']) {
     assert.ok(work42.includes(token), token);
   }
