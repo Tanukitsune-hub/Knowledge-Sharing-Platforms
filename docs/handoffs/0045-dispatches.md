@@ -3,10 +3,10 @@
 WORK_ID: 0045
 DISPATCH_ID: 0045-CODEX-02
 ACTIVE_DISPATCH_ID: 0045-CODEX-02
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
-PHASE: TARGETED PERSISTENCE CLOSURE
+PHASE: CODEX-02 RETURNED / READY FOR FINAL REVIEW
 STRATEGY_RESET: YES
 
 ## Primary Outcome
@@ -43,15 +43,32 @@ BLOCKER: EXACT_DEFAULT_FIRST_SAVE_DISABLED / REPAIRED_IN_VERSION27
 ROOT_CAUSE: client Save disabled/no-op when palette values equal current default despite persisted=false
 ```
 
-## Runtime action gate
+## Runtime closure
 
 version27 source / deployment parityはPASSした。qualification開始時、CODEX-01のfinal
 `KSP_THEME_SETTINGS_V1: ABSENT`証拠と異なり、ごく最近更新されたnon-defaultの
-saved overrideをread-onlyで観測した。今回のDispatchによるsaveではないため、既存設定を
-無断で削除せず、通常UIの`既定の配色に戻す`実行直前で停止している。
+saved overrideをread-onlyで観測した。今回のDispatchによるsaveではないため無断削除せず、
+ユーザー確認後に通常UIでresetした。
 
-ユーザー確認後に、このpre-existing overrideをresetし、authoritative instructionの
-exact-default save -> fresh reload -> final resetを同じversion27で実行する。
+その後、ABSENTからauthoritative instructionのexact-default save -> fresh reload ->
+final resetを同じversion27で完了した。
+
+```text
+EXACT_DEFAULT_FIRST_SAVE: PASS
+FRESH_LOAD_SHARED_PERSISTENCE: PASS
+RESET_TO_DEFAULT: PASS
+FINAL_THEME_OVERRIDE_STATE: ABSENT
+VISIBLE_THEME: WORK0044_DEFAULT
+FINAL_SERVED_VERSION: 27
+CONSOLE_MATERIAL_ERROR_WARN: 0
+PROVIDER_CALLS: 0
+BLOCKER: NONE
+READY_FOR_CHATGPT_FINAL_REVIEW: YES
+```
+
+CODEX-02 report:
+
+- `docs/handoffs/0045-CODEX-02-exact-default-save-repair-report.md`
 
 ## Authoritative repair instruction
 
@@ -77,5 +94,5 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0045
 DISPATCH_ID: 0045-CODEX-02
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
