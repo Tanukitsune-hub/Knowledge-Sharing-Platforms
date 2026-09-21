@@ -1,9 +1,11 @@
 {
-  "registry_version": 1,
+  "registry_version": 2,
   "theme_id": "executive-navy-slate",
   "theme_name_ja": "エグゼクティブ・ネイビー・スレート",
-  "status": "CURRENT_TUNING_BASELINE",
-  "note": "Work IDから独立した配色正本。将来の微調整は原則このtoken registryを更新してから実装へ反映する。",
+  "status": "ACCEPTED_DEFAULT_WORK0044",
+  "source_work_id": "0044",
+  "source_served_version": 25,
+  "note": "Work0044でユーザーが実画面確認して確定した配色。Work0045以降のruntime theme設定の公式デフォルト。",
   "explicit_user_locks": {
     "sidebar.background": "#2D3E49"
   },
@@ -13,167 +15,185 @@
       "label_ja": "Sidebar 背景",
       "color_name": "Charcoal Navy Slate",
       "hex": "#2D3E49",
-      "status": "USER_LOCKED"
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "sidebar.text",
       "label_ja": "Sidebar 文字",
       "color_name": "Warm Ivory Gold",
-      "hex": "#F3E3B0",
-      "status": "PRESERVE"
+      "hex": "#EADDBF",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "sidebar.gold",
       "label_ja": "Sidebar Goldアクセント",
       "color_name": "Antique Gold",
       "hex": "#D7AE42",
-      "status": "PRESERVE"
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "sidebar.activeBackground",
       "label_ja": "Sidebar 選択中背景",
       "color_name": "Deep Corporate Red",
       "hex": "#B5121B",
-      "status": "PRESERVE"
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "sidebar.activeAccent",
       "label_ja": "Sidebar 選択中アクセント",
       "color_name": "Signal Red",
       "hex": "#E02A36",
-      "status": "PRESERVE"
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "main.pageBackground",
       "label_ja": "Main ページ背景",
-      "color_name": "Mist Blue Gray",
-      "hex": "#EEF4F9",
-      "status": "TUNABLE"
+      "color_name": "Executive Mist Slate",
+      "hex": "#E7EDF2",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "main.cardBackground",
       "label_ja": "Main Card背景",
-      "color_name": "Ice White Blue",
-      "hex": "#F8FBFD",
-      "status": "TUNABLE"
+      "color_name": "Slate White",
+      "hex": "#F8FAFB",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "main.sectionHeader",
       "label_ja": "Main Section見出し背景",
-      "color_name": "Slate Header Blue",
-      "hex": "#BDD0E4",
-      "status": "TUNABLE"
+      "color_name": "Executive Slate Header",
+      "hex": "#CDD9E2",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "main.border",
       "label_ja": "Main Border",
       "color_name": "Cool Steel Border",
-      "hex": "#B8C8D6",
-      "status": "TUNABLE"
+      "hex": "#BBC9D3",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "text.primary",
       "label_ja": "Text メイン文字",
-      "color_name": "Executive Ink Navy",
-      "hex": "#1D3550",
-      "status": "TUNABLE"
+      "color_name": "Executive Ink",
+      "hex": "#263B49",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "text.secondary",
       "label_ja": "Text 補助文字",
       "color_name": "Muted Slate",
-      "hex": "#667C90",
-      "status": "TUNABLE"
+      "hex": "#6B7E8A",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "action.primary",
       "label_ja": "Action Primary button",
-      "color_name": "Steel Executive Blue",
-      "hex": "#507393",
-      "status": "TUNABLE"
+      "color_name": "Executive Steel Blue",
+      "hex": "#405F72",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "action.secondary",
       "label_ja": "Action Secondary button",
-      "color_name": "Pale Steel Blue",
-      "hex": "#D9E5EF",
-      "status": "TUNABLE"
+      "color_name": "Pale Slate Blue",
+      "hex": "#DCE5EB",
+      "status": "ACCEPTED_DEFAULT"
     },
     {
       "key": "state.success",
       "label_ja": "State Success",
       "color_name": "Institutional Green",
-      "hex": "#2E7D5B",
+      "hex": "#1F7A52",
       "status": "SEMANTIC"
     },
     {
       "key": "state.warning",
       "label_ja": "State Warning",
       "color_name": "Muted Amber",
-      "hex": "#9A6B1F",
+      "hex": "#8B6515",
       "status": "SEMANTIC"
     },
     {
       "key": "state.error",
       "label_ja": "State Error",
       "color_name": "Controlled Red",
-      "hex": "#B33A45",
+      "hex": "#B42630",
       "status": "SEMANTIC"
     }
   ],
   "derived_tokens": [
     {
-      "key": "main.sectionHeaderStrong",
-      "color_name": "Deep Slate Header",
-      "hex": "#A9C0D7",
+      "key": "main.surfaceSoft",
+      "color_name": "Soft Slate Surface",
+      "hex": "#EEF3F6",
+      "source": "main.cardBackground"
+    },
+    {
+      "key": "main.sectionHeaderTop",
+      "color_name": "Slate Header Highlight",
+      "hex": "#D7E1E8",
       "source": "main.sectionHeader"
     },
     {
-      "key": "main.surfaceSoft",
-      "color_name": "Soft Blue Surface",
-      "hex": "#F1F6FA",
-      "source": "main.cardBackground"
+      "key": "main.sectionHeaderStrong",
+      "color_name": "Deep Slate Header",
+      "hex": "#BECDD8",
+      "source": "main.sectionHeader"
     },
     {
       "key": "main.borderStrong",
       "color_name": "Steel Border Strong",
-      "hex": "#9FB3C4",
+      "hex": "#A3B5C1",
       "source": "main.border"
     },
     {
-      "key": "action.primaryHover",
-      "color_name": "Steel Blue Deep",
-      "hex": "#42627F",
+      "key": "text.inkSoft",
+      "color_name": "Slate Ink Soft",
+      "hex": "#4A6170",
+      "source": "text.primary"
+    },
+    {
+      "key": "action.primaryDark",
+      "color_name": "Executive Blue Deep",
+      "hex": "#2F4B5D",
       "source": "action.primary"
     },
     {
-      "key": "action.secondaryText",
-      "color_name": "Slate Action Ink",
-      "hex": "#35536D",
-      "source": "action.secondary"
+      "key": "action.primaryTop",
+      "color_name": "Executive Blue Highlight",
+      "hex": "#526F81",
+      "source": "action.primary"
+    },
+    {
+      "key": "action.primaryHover",
+      "color_name": "Executive Blue Hover",
+      "hex": "#607D8D",
+      "source": "action.primary"
     },
     {
       "key": "focus.ring",
-      "color_name": "Focus Blue",
-      "hex": "#6D8FA9",
+      "color_name": "Slate Focus",
+      "hex": "#6C8798",
       "source": "action.primary"
     },
     {
       "key": "state.successSoft",
       "color_name": "Soft Success Green",
-      "hex": "#E4F2EB",
+      "hex": "#E4F3EB",
       "source": "state.success"
     },
     {
       "key": "state.warningSoft",
       "color_name": "Soft Warning Amber",
-      "hex": "#F7F0DD",
+      "hex": "#F8F0D8",
       "source": "state.warning"
     },
     {
       "key": "state.errorSoft",
       "color_name": "Soft Error Red",
-      "hex": "#F8E9EB",
+      "hex": "#F9E8EA",
       "source": "state.error"
     },
     {
