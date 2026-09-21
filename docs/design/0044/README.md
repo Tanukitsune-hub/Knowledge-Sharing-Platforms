@@ -23,4 +23,3 @@ Work0043でaccepted済みのlayout / DOM / functionality / terminologyを固定�
 Production source changeは`src/Styles.html`のpalette/theme CSSだけです。HTML、JavaScript、Apps Script service、schema、migration、data semantics、grid、spacing、navigation IAは変更しません。
 
 CSSだけで要件を実現できない場合はscopeを拡張せずBLOCKERとして返します。
-
