@@ -36,10 +36,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 20 | 0043 | Palette refinement — institutional blue-gray + navy/gold sidebar + active red | ACCEPTED | Work0042 version23 | PR #65 / version24 accepted。Completion Latch済み |
 | 21 | 0044 | Executive Navy Slate theme tuning — exact #2D3E49 sidebar + right-pane visibility polish | ACCEPTED | Work0043 version24 | PR #66 / version25 accepted。User visual acceptance。Completion Latch済み |
 | 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACTIVE | Work0044 version25 | CODEX-02 targeted repair。exact-default first save + Script Properties roundtrip closure |
-| 23 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 24 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 25 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 26 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | PLANNED | Work0045 accepted baseline | Wait for Work0045 Completion Latch, then issue CODEX-01 |
+| 24 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 25 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 26 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 27 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -707,3 +708,27 @@ Dispatch: `docs/handoffs/0045-dispatches.md`
 Instruction: `docs/handoffs/0045-CODEX-01-theme-settings-instruction.md`
 Design spec: `docs/design/0045/theme-settings-spec.md`
 Default palette: `docs/design/theme-palette-registry.md`, `docs/design/theme-palette-tokens.json`
+
+
+## Work 0046 planned contract
+
+```text
+WORK_ID: 0046
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0045 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+COUNTERPARTY_INTERNAL_ID_VISIBLE: 0
+MEETING_ID_VISIBLE: PRESERVE
+DOCUMENT_ID_VISIBLE: PRESERVE
+FOLLOW_UP_VISIBLE_SURFACE: 0
+ENTITY_SUMMARY_CARDS: 3
+ANALYTICS_TABS: グラフ / 面談一覧
+MASTER_REORDER: LOCAL_DRAFT -> EXPLICIT_SAVE
+REORDERABLE_TABS: ASSET_CLASS / LOCATION / TEAM
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0046-ui-cleanup-analytics-master-reorder-requirements.md`
+Plan: `docs/planning/work0046-ui-cleanup-analytics-master-reorder.md`
