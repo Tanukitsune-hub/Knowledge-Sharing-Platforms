@@ -36,7 +36,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 20 | 0043 | Palette refinement — institutional blue-gray + navy/gold sidebar + active red | ACCEPTED | Work0042 version23 | PR #65 / version24 accepted。Completion Latch済み |
 | 21 | 0044 | Executive Navy Slate theme tuning — exact #2D3E49 sidebar + right-pane visibility polish | ACCEPTED | Work0043 version24 | PR #66 / version25 accepted。User visual acceptance。Completion Latch済み |
 | 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACCEPTED | Work0044 version25 | PR #67 / version27 accepted。Completion Latch済み |
-| 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | ACTIVE | Work0045 version27 | CODEX-01 implementation / version28 target |
+| 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | ACCEPTED | Work0045 version27 | PR #68 / version28 accepted。Completion Latch済み |
 | 24 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 25 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 26 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -711,29 +711,37 @@ Dispatch: `docs/handoffs/0045-dispatches.md`
 Reports: `docs/handoffs/0045-CODEX-01-theme-settings-report.md`, `docs/handoffs/0045-CODEX-02-exact-default-save-repair-report.md`
 Completion: `docs/handoffs/0045-completion-report.md`
 
-## Work 0046 active contract
+## Work 0046 accepted outcome
 
 ```text
 WORK_ID: 0046
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
-DEPENDENCY: Work0045 ACCEPTED
 BASELINE: Work0045 version27
-ACTIVE_DISPATCH: 0046-CODEX-01
-BALL: CODEX
-COUNTERPARTY_INTERNAL_ID_VISIBLE: 0
-MEETING_ID_VISIBLE: PRESERVE
-DOCUMENT_ID_VISIBLE: PRESERVE
-FOLLOW_UP_VISIBLE_SURFACE: 0
+FINAL_SERVED_VERSION: 28
+PR: #68
+MERGE: 313867db3b1f7082ac3ed3801bc9cc5a3cafec5a
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+VISIBLE_COUNTERPARTY_INTERNAL_ID: 0
+VISIBLE_FOLLOW_UP_SURFACE: 0
+MEETING_ID_VISIBLE: PRESERVED
+DOCUMENT_ID_VISIBLE: PRESERVED
 ENTITY_SUMMARY_CARDS: 3
-ANALYTICS_TABS: グラフ / 面談一覧
-MASTER_REORDER: LOCAL_DRAFT -> EXPLICIT_SAVE
-REORDERABLE_TABS: ASSET_CLASS / LOCATION / TEAM
+ANALYTICS_TABS: PASS
+MASTER_REORDER: LOCAL_DRAFT -> ONE_EXPLICIT_SAVE
+MASTER_FINAL_ORDER_RESTORED: YES
+WORK0045_THEME_REGRESSION: PASS
+CONSOLE_MATERIAL_ERROR_WARN: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
 ```
 
 Requirements: `docs/handoffs/0046-ui-cleanup-analytics-master-reorder-requirements.md`
 Plan: `docs/planning/work0046-ui-cleanup-analytics-master-reorder.md`
-
-Instruction: `docs/handoffs/0046-CODEX-01-ui-cleanup-staged-reorder-instruction.md`
 Dispatch: `docs/handoffs/0046-dispatches.md`
+Instruction: `docs/handoffs/0046-CODEX-01-ui-cleanup-staged-reorder-instruction.md`
+Report: `docs/handoffs/0046-CODEX-01-ui-cleanup-staged-reorder-report.md`
+Completion: `docs/handoffs/0046-completion-report.md`
+
