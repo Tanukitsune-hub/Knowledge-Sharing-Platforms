@@ -52,8 +52,8 @@ test('Knowledge Search keeps detailed filters visible in the four frozen rows an
 
 test('Activity Analytics defaults to a leap-safe one calendar year and keeps user edits', () => {
   assert.match(analytics, /for="activity-period">期間粒度/);
-  assert.ok(analytics.indexOf('選択した内訳') < analytics.indexOf('該当Meeting'));
-  assert.ok(analytics.indexOf('該当Meeting') < analytics.indexOf('集計サマリー'));
+  assert.ok(analytics.indexOf('選択した内訳') < analytics.indexOf('集計サマリー'));
+  assert.ok(analytics.indexOf('集計サマリー') < analytics.indexOf('該当Meeting'));
   assert.match(bootstrap, /kspSetOneYearDateRange\('activity-date-from','activity-date-to'\)/);
   const context = vm.createContext({ Intl, Date, Object, Number, String, document: { getElementById() { return null; } } });
   vm.runInContext(dates.match(/<script>([\s\S]*?)<\/script>/)[1], context);
@@ -72,7 +72,7 @@ test('Masters exposes four in-page tabs and snapshots only allowlisted option mu
   assert.match(maintenance, /MASTER_OPTION_TAB_TYPES=Object\.freeze\(\['ASSET_CLASS','LOCATION','TEAM'\]\)/);
   assert.match(maintenance, /masterOptionDrafts=\{ASSET_CLASS:'',LOCATION:'',TEAM:''\}/);
   assert.match(maintenance, /type:request\.type,name:request\.name/);
-  assert.match(maintenance, /renderMasterOptionRows\(masterOptionRows\(masters,activeMasterTab\)\)/);
+  assert.match(maintenance, /renderMasterOptionRows\(masterDisplayedOptionRows\(masters,activeMasterTab\)\)/);
   assert.match(maintenance, /let activeMasterTab='COUNTERPARTY'/);
   assert.match(styles, /\.master-layout\{display:block\}/);
 });

@@ -221,7 +221,7 @@ function kspValidateCanonicalKnowledgeRequest_(request) {
   if ((filters.teamId || filters.followUp || filters.relatedGpId || filters.meetingTypeCode) &&
       filters.sourceType !== KSP_AI_SOURCE_TYPES.MEETING) {
     kspAssert_(false, 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE',
-      'チーム、要フォロー、MTG種別はMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
+      'チーム、MTG種別はMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
   }
   return input;
 }
@@ -243,13 +243,12 @@ function kspKnowledgeScopeSummary_(request) {
   var parts = [];
   if (filters.dateFrom || filters.dateTo) parts.push('Date ' + (filters.dateFrom || '…') + '–' + (filters.dateTo || '…'));
   if (filters.counterpartyType) parts.push('Type ' + filters.counterpartyType);
-  if (filters.entityKey) parts.push('面談先 ' + filters.entityKey);
-  if ((input.selectedEntityKeys || []).length) parts.push('面談先 ' + input.selectedEntityKeys.join(', '));
+  if (filters.entityKey) parts.push('面談先 指定あり');
+  if ((input.selectedEntityKeys || []).length) parts.push('比較対象 ' + input.selectedEntityKeys.length + '件');
   if (filters.assetClassId) parts.push('Asset ' + filters.assetClassId);
   if (filters.capitalTypeId) parts.push('Capital ' + filters.capitalTypeId);
   if (filters.teamId) parts.push('チーム ' + filters.teamId);
   if (filters.fundStrategy) parts.push('Fund/Strategy ' + filters.fundStrategy);
-  if (filters.followUp) parts.push('Follow-up ' + filters.followUp);
   if (filters.meetingTypeCode) parts.push('MTG種別 ' + filters.meetingTypeCode);
   parts.push('Source ' + (filters.sourceType || 'Meeting+Pitchbook'));
   return parts.join(' / ');

@@ -16,6 +16,7 @@ var KSP_MAINTENANCE_ACTIONS = Object.freeze({
   OPTION_ADD: 'OPTION_ADD',
   OPTION_RENAME: 'OPTION_RENAME',
   OPTION_REORDER: 'OPTION_REORDER',
+  OPTION_REORDER_BATCH: 'OPTION_REORDER',
   OPTION_DEACTIVATE: 'OPTION_DEACTIVATE',
   OPTION_REACTIVATE: 'OPTION_REACTIVATE',
   AUDIT_RETENTION_CLEANUP: 'AUDIT_RETENTION_CLEANUP'
@@ -23,7 +24,7 @@ var KSP_MAINTENANCE_ACTIONS = Object.freeze({
 
 var KSP_MASTER_ENTITY = Object.freeze({ COUNTERPARTY: 'COUNTERPARTY', OPTION: 'OPTION' });
 var KSP_MASTER_MUTATION = Object.freeze({
-  ADD: 'ADD', RENAME: 'RENAME', REORDER: 'REORDER',
+  ADD: 'ADD', RENAME: 'RENAME', REORDER: 'REORDER', REORDER_BATCH: 'REORDER_BATCH',
   DEACTIVATE: 'DEACTIVATE', REACTIVATE: 'REACTIVATE'
 });
 
@@ -513,6 +514,11 @@ function kspFindNormalizedMasterDuplicate_(rows, entity, type, name, excludedId)
 
 function kspNormalizeMasterMutation_(input) {
   var source = input && typeof input === 'object' ? input : {};
+  function normalizeIds(values) {
+    return (Array.isArray(values) ? values : []).map(function (value) {
+      return kspMaintenanceTrim_(value);
+    }).filter(Boolean);
+  }
   return {
     entity: kspMaintenanceTrim_(source.entity).toUpperCase(),
     action: kspMaintenanceTrim_(source.action).toUpperCase(),
@@ -520,6 +526,8 @@ function kspNormalizeMasterMutation_(input) {
     type: kspMaintenanceTrim_(source.type).toUpperCase(),
     name: kspDisplayMasterName_(source.name),
     sortOrder: Number(source.sortOrder),
+    expectedOrderIds: normalizeIds(source.expectedOrderIds),
+    orderedIds: normalizeIds(source.orderedIds),
     returnExistingOnDuplicate: Boolean(source.returnExistingOnDuplicate)
   };
 }
@@ -541,18 +549,73 @@ function kspValidateMasterMutation_(input) {
       kspAssert_(Number.isFinite(input.sortOrder) && input.sortOrder > 0 && Math.floor(input.sortOrder) === input.sortOrder,
         'OPTION_SORT_ORDER_INVALID', 'Sort Orderは正の整数にしてください。');
     }
+    if (input.action === KSP_MASTER_MUTATION.REORDER_BATCH) {
+      kspAssert_(['ASSET_CLASS', 'LOCATION', 'TEAM'].indexOf(input.type) !== -1,
+        'OPTION_REORDER_TYPE_INVALID', 'このMaster種別は手動並び替えできません。');
+      kspAssert_(input.expectedOrderIds.length > 0 && input.orderedIds.length > 0,
+        'OPTION_REORDER_IDS_REQUIRED', '並び順の完全なID一覧が必要です。');
+      kspAssert_(input.expectedOrderIds.length <= KSP_MAINTENANCE_LIMITS.MAX_RESULTS &&
+        input.orderedIds.length <= KSP_MAINTENANCE_LIMITS.MAX_RESULTS,
+        'OPTION_REORDER_IDS_INVALID', '並び替え対象が多すぎます。');
+    }
   } else {
     if (input.action === KSP_MASTER_MUTATION.ADD) {
       kspAssert_(Boolean(kspCounterpartyTypeDefinition_(input.type)),
         'COUNTERPARTY_TYPE_INVALID', '面談先種別が不正です。');
     }
-    kspAssert_(input.action !== KSP_MASTER_MUTATION.REORDER,
+    kspAssert_(input.action !== KSP_MASTER_MUTATION.REORDER && input.action !== KSP_MASTER_MUTATION.REORDER_BATCH,
       'COUNTERPARTY_REORDER_NOT_ALLOWED', '面談先は名称順で表示するため手動並び替えできません。');
   }
-  if (input.action !== KSP_MASTER_MUTATION.ADD) {
+  if (input.action !== KSP_MASTER_MUTATION.ADD && input.action !== KSP_MASTER_MUTATION.REORDER_BATCH) {
     kspAssert_(input.id, 'MASTER_ID_REQUIRED', 'Master IDが必要です。');
   }
   return input;
+}
+
+function kspBuildOptionBatchReorderPlan_(rows, input, actor, nowIso) {
+  var sameType = (rows || []).filter(function (row) {
+    return String(row.Type || '') === String(input.type || '');
+  }).slice().sort(function (left, right) {
+    return Number(left.Sort_Order || 0) - Number(right.Sort_Order || 0) ||
+      String(left.Option_ID || '').localeCompare(String(right.Option_ID || ''));
+  });
+  var currentIds = sameType.map(function (row) { return String(row.Option_ID || ''); });
+  var expectedIds = (input.expectedOrderIds || []).map(String);
+  var orderedIds = (input.orderedIds || []).map(String);
+  var uniqueOrdered = {};
+  orderedIds.forEach(function (id) {
+    kspAssert_(!uniqueOrdered[id], 'OPTION_REORDER_IDS_INVALID', '並び順に重複IDがあります。');
+    uniqueOrdered[id] = true;
+  });
+  kspAssert_(currentIds.length === expectedIds.length && currentIds.every(function (id, index) {
+    return id === expectedIds[index];
+  }), 'OPTION_REORDER_CONFLICT', '並び順が他の更新で変更されています。再読込してください。');
+  kspAssert_(orderedIds.length === currentIds.length && currentIds.every(function (id) {
+    return Boolean(uniqueOrdered[id]);
+  }), 'OPTION_REORDER_SET_MISMATCH', '並び順のID一覧が現在のMasterと一致しません。');
+
+  var orderById = {};
+  orderedIds.forEach(function (id, index) { orderById[id] = index + 1; });
+  var plannedRows = (rows || []).map(function (row) {
+    var copy = kspDeepClone_(row);
+    if (String(copy.Type || '') === String(input.type || '')) {
+      copy.Sort_Order = orderById[String(copy.Option_ID || '')];
+      copy.Updated_At = nowIso;
+      copy.Updated_By = actor;
+    }
+    return copy;
+  });
+  var affectedRowsById = {};
+  plannedRows.filter(function (row) { return String(row.Type || '') === String(input.type || ''); })
+    .forEach(function (row) { affectedRowsById[String(row.Option_ID || '')] = row; });
+  var affectedRows = orderedIds.map(function (id) { return kspDeepClone_(affectedRowsById[id]); });
+  return {
+    rows: plannedRows,
+    before: kspDeepClone_(sameType[0]),
+    after: kspDeepClone_(affectedRows[0]),
+    affectedBefore: sameType.map(kspDeepClone_),
+    affectedRows: affectedRows
+  };
 }
 
 function kspBuildMaintenanceAuditRow_(params) {

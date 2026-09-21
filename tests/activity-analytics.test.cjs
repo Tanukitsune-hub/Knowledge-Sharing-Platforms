@@ -80,12 +80,17 @@ function createEnvironment(rows) {
       calls.push(`readRows:${id}:${sheet}`);
       if (sheet === 'Counterparty_Master') {
         return [
-          { Counterparty_ID: 'GP-1', Counterparty_Type: 'GP' },
-          { Counterparty_ID: 'GP-2', Counterparty_Type: 'GP' },
-          { Counterparty_ID: 'GP-3', Counterparty_Type: 'GP' },
-          { Counterparty_ID: 'OPT-CPLP-001', Counterparty_Type: 'LP_ASSET_OWNER' }
+          { Counterparty_ID: 'GP-1', Counterparty_Name: 'Synthetic GP 1', Counterparty_Type: 'GP' },
+          { Counterparty_ID: 'GP-2', Counterparty_Name: 'Synthetic GP 2', Counterparty_Type: 'GP' },
+          { Counterparty_ID: 'GP-3', Counterparty_Name: 'Synthetic GP 3', Counterparty_Type: 'GP' },
+          { Counterparty_ID: 'OPT-CPLP-001', Counterparty_Name: 'Synthetic LP', Counterparty_Type: 'LP_ASSET_OWNER' }
         ];
       }
+      if (sheet === 'Option_Master') return [
+        { Option_ID: 'AC-PE', Type: 'ASSET_CLASS', Name: 'Private Equity' },
+        { Option_ID: 'TEAM-PD', Type: 'TEAM', Name: 'PD' },
+        { Option_ID: 'TEAM-AE', Type: 'TEAM', Name: 'AE' }
+      ];
       assert.equal(sheet, 'Meeting_Index');
       return rows.map(row => ({ ...row }));
     },
@@ -149,7 +154,7 @@ test('period buckets consume Tokyo canonical Business Date and include fiscal bo
   assert.deepEqual(keys(year.series), ['2026']);
   const custom = ksp.kspGetMeetingActivityAnalytics_(env, { ...range, period: 'custom' });
   assert.deepEqual(keys(custom.series), ['2026-03-31', '2026-04-01']);
-  assert.equal(env._debug.calls.filter(call => call.startsWith('readRows')).length, 10);
+  assert.equal(env._debug.calls.filter(call => call.startsWith('readRows')).length, 15);
 });
 
 test('cumulative monthly series returns running exact Meeting counts', () => {
@@ -194,7 +199,7 @@ test('full metrics precede drill and breakdown caps and no Doc body adapter is u
   assert.equal(result.breakdown.omittedCount, 1);
   assert.equal(result.readModel.source, 'Meeting_Index');
   assert.equal(result.readModel.documentBodyRead, false);
-  assert.deepEqual(env._debug.calls, ['getInstallationState', 'readRows:backend:Counterparty_Master', 'readRows:backend:Meeting_Index']);
+  assert.deepEqual(env._debug.calls, ['getInstallationState', 'readRows:backend:Counterparty_Master', 'readRows:backend:Option_Master', 'readRows:backend:Meeting_Index']);
 });
 
 test('Meeting drill uses the canonical Meeting Type definitions for all three labels', () => {

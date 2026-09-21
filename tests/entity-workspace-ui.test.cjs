@@ -14,7 +14,7 @@ function workspaceData() {
   return {
     ok: true,
     entity: { entityKey: 'LP_ASSET_OWNER:LP-1', counterpartyType: 'LP_ASSET_OWNER', counterpartyTypeLabel: 'LP / Asset Owner', counterpartyId: 'LP-1', name: 'Synthetic LP', status: 'Active', mode: 'NON_GP' },
-    summary: { meetingCount: 1, activeMeetingCount: 1, directMeetingCount: 1, relatedMeetingCount: 0, pitchbookCount: 1, pitchbookActiveCount: 1, openFollowUpCount: 0, relationshipCount: 1, latestActivityDate: '2026-08-27' },
+    summary: { meetingCount: 1, activeMeetingCount: 1, directMeetingCount: 1, relatedMeetingCount: 0, pitchbookCount: 1, pitchbookActiveCount: 1, openFollowUpCount: 0, relationshipCount: 1, latestDirectMeetingDate: '2026-08-27', latestActivityDate: '2026-08-27' },
     meetings: { all: { totalCount: 1, records: [{ meetingId: 'MTG-1', date: '2026-08-27', activityScope: 'direct', activityScopeLabel: 'Direct', counterpartyTypeLabel: 'LP / Asset Owner', counterpartyEntityName: 'Synthetic LP', teamName: 'PD', fundStrategy: 'Synthetic Fund', status: 'Active', documentUrl: '' }], omittedCount: 0 }, direct: { totalCount: 1, records: [], omittedCount: 0 }, related: { totalCount: 0, records: [], omittedCount: 0 } },
     pitchbooks: { totalCount: 1, records: [{ documentId: 'DOC-1', date: '2026-08-27', gpId: 'GP-1', gpName: 'Synthetic GP', fundStrategy: 'Synthetic Fund', status: 'Active', fileUrl: '' }], omittedCount: 0 },
     linkedPitchbooks: { totalCount: 1, records: [{ documentId: 'DOC-1', date: '2026-08-27', gpId: 'GP-1', gpName: 'Synthetic GP', fundStrategy: 'Synthetic Fund', status: 'Active', fileUrl: '' }], omittedCount: 0 },
@@ -92,8 +92,11 @@ test('Entity Workspace client loads catalog, selected entity, exact drill, and p
   await runtime.context.loadEntityWorkspace();
   assert.equal(calls.length, 2);
   assert.match(runtime.node('entity-workspace-name').textContent, /Synthetic LP/);
-  assert.equal(runtime.node('entity-workspace-identity').textContent, 'LP-1');
-  assert.match(runtime.node('entity-workspace-summary').innerHTML, /Meetings[\s\S]*1件/);
+  assert.equal(runtime.node('entity-workspace-identity').textContent, '');
+  assert.match(runtime.node('entity-workspace-summary').innerHTML, /面談件数[\s\S]*1件/);
+  assert.match(runtime.node('entity-workspace-summary').innerHTML, /保存資料数[\s\S]*1件/);
+  assert.match(runtime.node('entity-workspace-summary').innerHTML, /最後の面談日[\s\S]*2026-08-27/);
+  assert.doesNotMatch(runtime.node('entity-workspace-print').innerHTML, /LP-1|CP-1/);
   assert.doesNotMatch(runtime.node('entity-workspace-summary').innerHTML, /Active|LP \/ Asset Owner/);
   assert.doesNotMatch(runtime.node('entity-workspace-print').innerHTML, /LP \/ Asset Owner/);
   assert.doesNotMatch(page, /related-gps|関連GP|Related GP/);

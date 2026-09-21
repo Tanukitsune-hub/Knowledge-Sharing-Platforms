@@ -22,7 +22,7 @@ function analyticsData(completed, bucketCount, adminCheckAvailable) {
     breakdown: { totalCount: 1, omittedCount: 0, items: [{ label: 'PD', meetingCount: 1, activeMeetingCount: 1, distinctCounterpartyCount: 1, openFollowUpCount: 0 }] },
     drill: { records: [{
       meetingId: 'MTG-000039', date: '2026-09-20', time: '10:00',
-      counterpartyEntityKey: 'COUNTERPARTY:CP-000039', teamId: 'TEAM-PD',
+      counterpartyEntityKey: 'COUNTERPARTY:CP-000039', counterpartyName: 'Synthetic Counterparty', teamId: 'TEAM-PD', teamName: 'PD',
       meetingTypeCodes: ['ANNUAL_REVIEW', 'OFFICE_VISIT', 'ANNUAL_GENERAL_MEETING'],
       meetingTypeLabels: ['定例年1回', '先方オフィス訪問', '年次総会'],
       status: 'Active', followUpRequired: false,
@@ -49,14 +49,18 @@ function createHarness(responder) {
       classList: { add() {}, remove() {}, toggle() {} },
       addEventListener(name, handler) { listeners[name] = handler; },
       appendChild(child) { this.options.push(child); },
+      setAttribute(name, next) { this[name] = next; },
+      focus() { this.focused = true; },
       _listeners: listeners
     };
     nodes.set(id, value);
     return value;
   }
+  const graphTab = node('activity-tab-graph'); graphTab.dataset = { activityView: 'graph' };
+  const listTab = node('activity-tab-list'); listTab.dataset = { activityView: 'list' };
   const context = vm.createContext({
     console, Promise, String, Number, Boolean, Array, Object, Math, Error,
-    document: { createElement() { return { value: '', textContent: '' }; } },
+    document: { createElement() { return { value: '', textContent: '' }; }, querySelectorAll(selector) { return selector === '[data-activity-view]' ? [graphTab, listTab] : []; } },
     el: node,
     kspEscapeHtml(value) { return String(value == null ? '' : value); },
     kspSafeDriveUrl(value) { return String(value || ''); },
@@ -71,6 +75,19 @@ function createHarness(responder) {
   vm.runInContext(clientScript, context, { filename: 'src/ClientActivityAnalytics.html' });
   return { context, node, statuses, calls };
 }
+
+test('Analytics tab switching and keyboard navigation are presentation-only', () => {
+  const harness = createHarness(async () => ({ ok: true }));
+  harness.context.selectActivityView('list');
+  assert.equal(harness.node('activity-graph-panel').hidden, true);
+  assert.equal(harness.node('activity-list-panel').hidden, false);
+  assert.equal(harness.calls.length, 0);
+  const keydown = harness.node('activity-tab-list')._listeners.keydown;
+  keydown({ key: 'ArrowLeft', preventDefault() {} });
+  assert.equal(harness.node('activity-graph-panel').hidden, false);
+  assert.equal(harness.node('activity-list-panel').hidden, true);
+  assert.equal(harness.calls.length, 0);
+});
 
 test('drill table has the eight required columns and no legacy admin-check card', () => {
   assert.match(page, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>チーム<\/th><th>MTG種別<\/th><th>Status<\/th><th>原本<\/th><th>確認済み<\/th>/);

@@ -191,3 +191,49 @@ test('pending option add rejects duplicate submit and refresh preserves active t
   assert.equal(harness.node('option-add-name').value, 'Location survives refresh');
   assert.equal(harness.tabButtons.find(button => button.dataset.masterTab === 'LOCATION').attributes['aria-selected'], 'true');
 });
+
+test('multiple local reorder gestures preserve per-tab drafts and one explicit save sends one batch mutation', async () => {
+  const masters = { counterparties: [], options: [
+    { id: 'AC-1', type: 'ASSET_CLASS', name: 'A', sortOrder: 1, status: 'Active' },
+    { id: 'AC-2', type: 'ASSET_CLASS', name: 'B', sortOrder: 2, status: 'Active' },
+    { id: 'AC-3', type: 'ASSET_CLASS', name: 'C', sortOrder: 3, status: 'Active' },
+    { id: 'TEAM-1', type: 'TEAM', name: 'One', sortOrder: 1, status: 'Active' },
+    { id: 'TEAM-2', type: 'TEAM', name: 'Two', sortOrder: 2, status: 'Active' }
+  ] };
+  const calls = [];
+  const harness = createHarness(async (name, payload) => {
+    calls.push({ name, payload: JSON.parse(JSON.stringify(payload)) });
+    const byOrder = new Map(payload.orderedIds.map((id, index) => [id, index + 1]));
+    const updated = { counterparties: [], options: masters.options.map(row => row.type === payload.type
+      ? { ...row, sortOrder: byOrder.get(row.id) } : { ...row }) };
+    return { ok: true, masters: updated };
+  });
+  harness.context.renderMasters(masters, { skipDraftCapture: true });
+  harness.context.selectMasterTab('ASSET_CLASS');
+  harness.context.masterDraftMove('ASSET_CLASS', 'AC-3', 0);
+  harness.context.masterDraftMove('ASSET_CLASS', 'AC-1', 2);
+  harness.context.renderMasters(masters, { skipDraftCapture: true });
+  assert.equal(calls.length, 0);
+  assert.match(harness.node('master-reorder-dirty').textContent, /未保存/);
+
+  harness.context.selectMasterTab('TEAM');
+  harness.context.masterDraftMove('TEAM', 'TEAM-2', 0);
+  harness.context.renderMasters(masters, { skipDraftCapture: true });
+  harness.context.selectMasterTab('ASSET_CLASS');
+  const html = harness.node('option-master-results').innerHTML;
+  assert.ok(html.indexOf('data-master-option-id="AC-3"') < html.indexOf('data-master-option-id="AC-2"'));
+  assert.ok(html.indexOf('data-master-option-id="AC-2"') < html.indexOf('data-master-option-id="AC-1"'));
+
+  await harness.context.saveMasterReorder();
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0], { name: 'mutateMaster', payload: {
+    entity: 'OPTION', action: 'REORDER_BATCH', type: 'ASSET_CLASS',
+    expectedOrderIds: ['AC-1', 'AC-2', 'AC-3'], orderedIds: ['AC-3', 'AC-2', 'AC-1']
+  } });
+  assert.equal(harness.node('master-reorder-save').disabled, true);
+  await harness.context.saveMasterReorder();
+  assert.equal(calls.length, 1);
+
+  harness.context.selectMasterTab('TEAM');
+  assert.match(harness.node('master-reorder-dirty').textContent, /未保存/);
+});

@@ -57,64 +57,31 @@ test('normal user-facing terminology is converged while internal identifiers rem
   assert.match(maintenanceClient, /TEAM/);
 });
 
-test('master option ordering uses a drag handle and existing one-item reorder facade without numeric UI', () => {
+test('master option ordering uses a drag handle and staged complete-order batch save without numeric UI', () => {
   assert.match(maintenancePage, /class="master-drag-column"/);
   assert.match(maintenanceClient, /class="master-drag-handle"[^>]*draggable="true"/);
-  assert.match(maintenanceClient, /action:'REORDER',id:state\.id,sortOrder:targetIndex\+1/);
+  assert.match(maintenanceClient, /action:'REORDER_BATCH'/);
+  assert.match(maintenanceClient, /expectedOrderIds:draft\.baseIds\.slice\(\)/);
+  assert.match(maintenanceClient, /orderedIds:draft\.orderedIds\.slice\(\)/);
   assert.match(maintenanceClient, /並び順を保存中…/);
-  assert.match(maintenanceClient, /applyMaintenanceMasterData\(snapshot\)/);
-  assert.match(maintenanceClient, /変更前の並び順へ戻しました。/);
+  assert.match(maintenanceClient, /未保存の並び順を元に戻しました。/);
   assert.doesNotMatch(maintenanceClient, /data-master-reorder/);
   assert.doesNotMatch(maintenanceClient, /新しいSort Order/);
   assert.doesNotMatch(maintenancePage, /<th>順序<\/th>/);
 
-  const start = maintenanceClient.indexOf('function masterOptionRows');
-  const end = maintenanceClient.indexOf('function clearMasterDropIndicators');
-  const context = {};
+  const start = maintenanceClient.indexOf('function masterDropIndex');
+  const end = maintenanceClient.indexOf('function masterDraftMove');
+  const context = { Math };
   vm.createContext(context);
   vm.runInContext(maintenanceClient.slice(start, end), context);
   assert.equal(context.masterDropIndex(0, 2, true, 3), 2);
   assert.equal(context.masterDropIndex(2, 0, false, 3), 0);
-  const masters = {
-    counterparties: [{ id: 'CP-1' }],
-    options: [
-      { id: 'A', type: 'ASSET_CLASS', sortOrder: 1, status: 'Active' },
-      { id: 'L', type: 'LOCATION', sortOrder: 1, status: 'Active' },
-      { id: 'B', type: 'ASSET_CLASS', sortOrder: 2, status: 'Inactive' },
-      { id: 'C', type: 'ASSET_CLASS', sortOrder: 3, status: 'Active' }
-    ]
-  };
-  const moved = context.masterOptimisticMasters(masters, 'ASSET_CLASS', 'C', 0);
-  assert.deepEqual(Array.from(context.masterOptionRows(moved, 'ASSET_CLASS'), row => row.id), ['C', 'A', 'B']);
-  assert.deepEqual(Array.from(context.masterOptionRows(moved, 'ASSET_CLASS'), row => row.sortOrder), [1, 2, 3]);
-  assert.equal(moved.options.find(row => row.id === 'B').status, 'Inactive');
-  assert.equal(masters.options.find(row => row.id === 'C').sortOrder, 3);
 });
 
-test('failed master reorder restores the pre-drag authoritative snapshot and releases the busy state', async () => {
-  const optionRows = maintenanceClient.slice(maintenanceClient.indexOf('function masterOptionRows'), maintenanceClient.indexOf('function renderMasterOptionRows'));
-  const ordering = maintenanceClient.slice(maintenanceClient.indexOf('function masterDropIndex'), maintenanceClient.indexOf('function clearMasterDropIndicators'));
-  const reorder = maintenanceClient.slice(maintenanceClient.indexOf('async function performMasterReorder'), maintenanceClient.indexOf('function optionsFromMasters'));
-  const snapshot = { counterparties: [], options: [
-    { id: 'A', type: 'TEAM', sortOrder: 1, status: 'Active' },
-    { id: 'B', type: 'TEAM', sortOrder: 2, status: 'Active' }
-  ] };
-  const statuses = [];
-  const context = {
-    masterReorderBusy: false,
-    maintenanceBootstrap: { masters: snapshot },
-    renderMasters() {},
-    showStatus(id, kind, message) { statuses.push({ id, kind, message }); },
-    serverCall: async () => { throw new Error('synthetic failure'); },
-    applyMaintenanceMasterData(masters) { context.maintenanceBootstrap.masters = masters; }
-  };
-  vm.createContext(context);
-  vm.runInContext(optionRows + ordering + reorder, context);
-  await context.performMasterReorder({ masters: snapshot, type: 'TEAM', id: 'A', sourceIndex: 0, targetIndex: 1 });
-  assert.equal(context.maintenanceBootstrap.masters, snapshot);
-  assert.equal(context.masterReorderBusy, false);
-  assert.equal(statuses.at(-1).kind, 'error');
-  assert.match(statuses.at(-1).message, /変更前の並び順へ戻しました。/);
+test('failed master batch save keeps the local draft dirty and releases the busy state', () => {
+  assert.match(maintenanceClient, /catch\(error\)\{showStatus\('masters-status','error',error\.message\|\|String\(error\)\)\}/);
+  assert.match(maintenanceClient, /finally\{masterReorderBusy=false;renderMasters/);
+  assert.doesNotMatch(maintenanceClient, /applyMaintenanceMasterData\(snapshot\)/);
 });
 
 test('admin page defaults to the provider tab and supplies accessible state-preserving client-side switching', () => {

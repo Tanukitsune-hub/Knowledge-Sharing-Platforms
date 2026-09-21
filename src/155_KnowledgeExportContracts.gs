@@ -197,7 +197,7 @@ function kspKnowledgeExportSafeMessage_(code, error) {
     AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
     AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件は利用できません。',
     AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMTG種別は利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、要フォロー、MTG種別はMeetingにのみ適用できます。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、MTG種別はMeetingにのみ適用できます。',
     KNOWLEDGE_EXPORT_PROMPT_REQUIRED: '自由質問では質問を入力してください。',
     KNOWLEDGE_EXPORT_PROMPT_TOO_LONG: '質問または追加指示は5,000文字以内で入力してください。',
     KNOWLEDGE_EXPORT_COPY_NOT_CONFIRMED: 'コピー成功の確認がないため、監査記録を作成できません。',
@@ -473,7 +473,7 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
       'Meeting ID: ' + item.source.sourceId,
       'Date: ' + item.source.date,
       '面談先区分: ' + (definition ? definition.label : counterpartyType),
-      '面談先: ' + ((safeMaps.counterparty || {})[counterpartyId] || counterpartyId),
+      '面談先: ' + ((safeMaps.counterparty || {})[counterpartyId] || '登録情報なし'),
       'アセットクラス: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''))
     ];
     if (row.Time) lines.push('Time: ' + kspCanonicalBusinessTime_(row.Time));
@@ -485,13 +485,11 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
     if (row.Fund_Strategy) lines.push('Fund / Strategy: ' + String(row.Fund_Strategy));
     var meetingTypes = kspMeetingTypeLabels_(row.Meeting_Type_Codes);
     if (meetingTypes.length) lines.push('MTG種別: ' + meetingTypes.join(', '));
-    if (kspToBoolean_(row.Follow_Up_Required, false)) lines.push('要フォロー: はい');
-    if (row.Follow_Up_Note) lines.push('Follow-up Note: ' + String(row.Follow_Up_Note));
     if (row.Related_Pitchbook_IDs) lines.push('Related Pitchbook IDs: ' + String(row.Related_Pitchbook_IDs));
     lines.push('Authoritative Google Doc: ' + String(item.source.canonicalUrl || row.Doc_URL || ''));
     return {
       entityKey: item.source.entityKey || kspCounterpartyEntityKey_(counterpartyId),
-      entityLabel: (safeMaps.counterparty || {})[counterpartyId] || counterpartyId,
+      entityLabel: (safeMaps.counterparty || {})[counterpartyId] || '登録情報なし',
       heading: 'Meeting ' + item.source.sourceId + ' / ' + item.source.date,
       metadataLines: lines,
       body: item.body
@@ -512,7 +510,7 @@ function kspBuildKnowledgeExportPlainText_(model) {
   (model.meetingSections || []).forEach(function (section, index) {
     if (section.entityKey && section.entityKey !== currentEntityKey) {
       if (index > 0) lines.push('\f');
-      lines.push('面談先: ' + (section.entityLabel || section.entityKey) + ' (' + section.entityKey + ')', '');
+      lines.push('面談先: ' + (section.entityLabel || '登録情報なし'), '');
       currentEntityKey = section.entityKey;
     } else if (index > 0) lines.push('\f');
     lines.push(section.heading);
@@ -526,7 +524,7 @@ function kspKnowledgeExportPromptLabel_(items, id) {
   var value = String(id || '');
   if (!value) return '未選択';
   var found = (items || []).filter(function (item) { return String(item.id) === value; })[0];
-  return found ? String(found.name) + ' (' + value + ')' : value;
+  return found ? String(found.name) : '登録情報なし';
 }
 
 function kspBuildKnowledgeExportPrompt_(input, catalog) {
@@ -552,7 +550,6 @@ function kspBuildKnowledgeExportPrompt_(input, catalog) {
     'Equity / Debt: ' + kspKnowledgeExportPromptLabel_(safeCatalog.capitalTypes, filters.capitalTypeId),
     'チーム: ' + kspKnowledgeExportPromptLabel_(safeCatalog.teams, filters.teamId),
     'Fund / Strategy: ' + (filters.fundStrategy || '未選択'),
-    '要フォロー: ' + (filters.followUp || '未選択'),
     'MTG種別: ' + (filters.meetingTypeCode || '未選択'),
     'Source Type: ' + sourceType,
     '',
