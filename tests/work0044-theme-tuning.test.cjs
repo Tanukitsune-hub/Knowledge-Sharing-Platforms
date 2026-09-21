@@ -6,7 +6,10 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const styles = read('src/Styles.html');
-const work42 = styles.slice(styles.indexOf('/* Work 0042 right-pane system.'));
+const work42 = styles.slice(
+  styles.indexOf('/* Work 0042 right-pane system.'),
+  styles.indexOf('/* Work 0045 shared runtime theme.')
+);
 
 test('Work0044 applies exact sidebar slate without changing its accepted viewport sizing', () => {
   assert.match(styles, /--sidebar:#2D3E49/);

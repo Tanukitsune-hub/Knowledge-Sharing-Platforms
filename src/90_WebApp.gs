@@ -10,12 +10,16 @@ function doGet(event) {
   }
 
   if (page === 'knowledge') {
-    return kspCreateHtmlTemplate_('KnowledgeSearch').evaluate()
+    var knowledgeTemplate = kspCreateHtmlTemplate_('KnowledgeSearch');
+    knowledgeTemplate.themeHeadMarkup = kspGetThemeHeadMarkup_();
+    return knowledgeTemplate.evaluate()
       .setTitle('ナレッジ検索 | Knowledge Sharing Platforms')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
 
-  return kspCreateHtmlTemplate_('Index').evaluate()
+  var indexTemplate = kspCreateHtmlTemplate_('Index');
+  indexTemplate.themeHeadMarkup = kspGetThemeHeadMarkup_();
+  return indexTemplate.evaluate()
     .setTitle('Knowledge Sharing Platforms')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }

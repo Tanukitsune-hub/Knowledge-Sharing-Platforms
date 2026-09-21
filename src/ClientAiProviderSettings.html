@@ -4,15 +4,16 @@ let aiProviderAdminBusy=false;
 let activeAdminTab='provider';
 function aiProviderAdminElement(id){return document.getElementById(id)}
 function selectAdminTab(tab,focus){
-  if(tab!=='provider'&&tab!=='deleted')return;
+  if(tab!=='provider'&&tab!=='deleted'&&tab!=='theme')return;
   activeAdminTab=tab;
   document.querySelectorAll('[data-admin-tab]').forEach(button=>{const selected=button.dataset.adminTab===tab;button.classList.toggle('active',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;if(selected&&focus)button.focus()});
   aiProviderAdminElement('admin-panel-provider').hidden=tab!=='provider';
   aiProviderAdminElement('admin-panel-deleted').hidden=tab!=='deleted';
+  aiProviderAdminElement('admin-panel-theme').hidden=tab!=='theme';
 }
 function adminTabKeydown(event){
   if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
-  event.preventDefault();const tabs=['provider','deleted'];let index=tabs.indexOf(activeAdminTab);
+  event.preventDefault();const tabs=['provider','deleted','theme'];let index=tabs.indexOf(activeAdminTab);
   if(event.key==='Home')index=0;else if(event.key==='End')index=tabs.length-1;else index=(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
   selectAdminTab(tabs[index],true);
 }

@@ -23,6 +23,14 @@ function mutateAiProviderSettings(input) {
   return kspMutateAiProviderSettings_(kspCreateProviderNeutralAiEnvironment_(), input || {});
 }
 
+function getThemeSettingsData() {
+  return kspGetThemeSettingsData_(kspCreateThemeSettingsEnvironment_());
+}
+
+function mutateThemeSettings(input) {
+  return kspMutateThemeSettings_(kspCreateThemeSettingsEnvironment_(), input || {});
+}
+
 function askKnowledgeQuestion_(input) {
   var payload = kspDeepClone_(input || {});
   payload.mode = KSP_FEATURE_FREEZE_SEARCH_MODES.FREE_QUESTION;

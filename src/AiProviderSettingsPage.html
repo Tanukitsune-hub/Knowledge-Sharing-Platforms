@@ -1,12 +1,29 @@
 <section id="page-ai-provider-settings" class="page">
   <div class="card">
     <div class="section-heading admin-page-heading">
-      <div><h2>管理者ページ</h2><p class="hint">AIプロバイダ設定と削除記録の管理を切り替えて確認します。</p></div>
+      <div><h2>管理者ページ</h2><p class="hint">AIプロバイダ設定、削除記録の管理、テーマ設定を切り替えて確認します。</p></div>
     </div>
     <div class="admin-tabs" role="tablist" aria-label="管理者機能">
       <button id="admin-tab-provider" class="admin-tab active" type="button" role="tab" aria-selected="true" aria-controls="admin-panel-provider" tabindex="0" data-admin-tab="provider">AIプロバイダ設定</button>
       <button id="admin-tab-deleted" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-deleted" tabindex="-1" data-admin-tab="deleted">削除記録の管理</button>
+      <button id="admin-tab-theme" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-theme" tabindex="-1" data-admin-tab="theme">テーマ設定</button>
     </div>
+    <section id="admin-panel-theme" class="admin-tab-panel" role="tabpanel" aria-labelledby="admin-tab-theme" hidden>
+      <div class="section-heading">
+        <div><h2>テーマ設定</h2><p class="hint">基本16色をプレビューし、Web App全体の共有設定として保存できます。</p></div>
+      </div>
+      <div id="theme-settings-status" class="status" role="status" aria-live="polite"></div>
+      <div id="theme-settings-groups" class="theme-settings-groups" aria-busy="false"></div>
+      <div id="theme-contrast-warning" class="status warning" role="status" aria-live="polite"></div>
+      <div class="actions theme-settings-actions">
+        <div class="action-group">
+          <button id="theme-settings-save" class="action primary" type="button">保存</button>
+          <button id="theme-settings-discard" class="action secondary" type="button">変更を破棄</button>
+          <button id="theme-settings-reset" class="action secondary" type="button">既定の配色に戻す</button>
+        </div>
+        <span id="theme-settings-state" class="hint"></span>
+      </div>
+    </section>
     <section id="admin-panel-deleted" class="admin-tab-panel" role="tabpanel" aria-labelledby="admin-tab-deleted" hidden>
     <section id="admin-deleted-meetings" class="admin-deleted-meetings" aria-busy="false">
       <div class="section-heading">
