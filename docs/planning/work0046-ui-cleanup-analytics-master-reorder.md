@@ -1,11 +1,11 @@
 # Work 0046 — UI cleanup and staged master reorder plan
 
 WORK_ID: 0046
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
 DEPENDENCY: Work0045 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+ACTIVE_DISPATCH: 0046-CODEX-01
+BALL: CODEX
 
 ## Primary Outcome
 
@@ -65,7 +65,7 @@ Do not:
 
 ## Routing
 
-Route C予定。Work0045 accepted後にCODEX-01を発行する。
+Route C。Work0045 accepted baselineからCODEX-01を発行済み。
 
 Recommended model:
 - GPT-5.6 Sol High
