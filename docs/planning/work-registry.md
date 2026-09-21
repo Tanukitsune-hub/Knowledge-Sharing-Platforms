@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-20
+Current as of: 2026-09-21
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -34,10 +34,12 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 18 | 0041 | 過去の記録 usability + loading UX + 削除記録の管理 / 復元 | ACCEPTED | Work0040 version20 accepted baseline | PR #63 / version21 accepted。Completion Latch済み |
 | 19 | 0042 | Right-pane design unification — selected detail-card language + admin tabs | ACCEPTED | Work0041 version21 | PR #64 / version23 accepted。Completion Latch済み |
 | 20 | 0043 | Palette refinement — institutional blue-gray + navy/gold sidebar + active red | ACCEPTED | Work0042 version23 | PR #65 / version24 accepted。Completion Latch済み |
-| 21 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 22 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 23 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 24 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 21 | 0044 | Executive Navy Slate theme tuning — exact #2D3E49 sidebar + right-pane visibility polish | ACCEPTED | Work0043 version24 | PR #66 / version25 accepted。User visual acceptance。Completion Latch済み |
+| 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACTIVE | Work0044 version25 | CODEX-01。Exact default preservation + Script Properties save/reset qualification |
+| 23 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 24 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 25 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 26 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -644,3 +646,64 @@ Report: `docs/handoffs/0043-CODEX-01-palette-refinement-report.md`
 Completion: `docs/handoffs/0043-completion-report.md`
 Visual reference: `docs/design/0043/theme-reference.css`, `docs/design/0043/theme-reference.html`, `docs/design/0043/README.md`
 
+
+
+## Work 0044 accepted outcome
+
+```text
+WORK_ID: 0044
+STATUS: ACCEPTED
+MODE: BUILD
+BASELINE: Work0043 version24
+FINAL_SERVED_VERSION: 25
+PR: #66
+MERGE: 6b048d62cd9411988032ed5954446d3327acd64e
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+PRODUCTION_SOURCE_DIFF: src/Styles.html ONLY
+SIDEBAR_EXACT_2D3E49: PASS
+RIGHT_PANE_EXECUTIVE_SLATE: PASS
+STRAY_YELLOW_ACTION_BUTTONS: 0
+TARGET_RUNTIME_QUALIFICATION: PASS
+NORMAL_NAVIGATION: 7/7 PASS
+VIEWPORTS: 2560 / 1440 / 1280 / 390 PASS
+CONSOLE_MATERIAL_ERROR_WARN: 0
+USER_VISUAL_ACCEPTANCE: PASS
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+WORK_0030: DEFERRED_BY_USER
+```
+
+Report: `docs/handoffs/0044-CODEX-01-theme-tuning-report.md`
+Completion: `docs/handoffs/0044-completion-report.md`
+Dispatch: `docs/handoffs/0044-dispatches.md`
+Visual reference: `docs/design/0044/theme-reference.css`, `docs/design/0044/theme-reference.html`
+Palette registry: `docs/design/theme-palette-registry.md`, `docs/design/theme-palette-tokens.json`
+
+## Work 0045 active contract
+
+```text
+WORK_ID: 0045
+STATUS: ACTIVE
+MODE: BUILD
+BASELINE: Work0044 version25
+ACTIVE_DISPATCH: 0045-CODEX-01
+BALL: CODEX
+PRIMARY_OUTCOME: admin theme settings / 16 colors / shared Script Properties persistence
+DEFAULT_THEME: Work0044 exact accepted palette
+PERSISTENCE_KEY: KSP_THEME_SETTINGS_V1
+NEW_SHEET: 0
+SCHEMA_CHANGE: 0
+MIGRATION_CHANGE: 0
+PERMISSION_BROADENING: 0
+EXPECTED_FINAL_SERVED_VERSION: 26
+FINAL_THEME_OVERRIDE_STATE: ABSENT
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0045-theme-settings-requirements.md`
+Plan: `docs/planning/work0045-theme-settings.md`
+Dispatch: `docs/handoffs/0045-dispatches.md`
+Instruction: `docs/handoffs/0045-CODEX-01-theme-settings-instruction.md`
+Design spec: `docs/design/0045/theme-settings-spec.md`
+Default palette: `docs/design/theme-palette-registry.md`, `docs/design/theme-palette-tokens.json`
