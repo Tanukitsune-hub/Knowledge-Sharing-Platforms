@@ -1,0 +1,141 @@
+/*
+Work 0043 approved palette reference.
+REFERENCE ONLY — do not copy wholesale into production.
+The Work0042 layout/component structure is frozen. Translate only colors/theme tokens
+and the desktop sidebar viewport-height fix into src/Styles.html.
+
+Approved visual direction:
+- right pane: cool gray-blue, understated institutional finance tone
+- sidebar: dark navy
+- sidebar typography/icons/ornament: existing gold
+- active nav: restrained deep red with brighter red accent
+*/
+
+:root {
+  /* Right pane — cool institutional blue-gray */
+  --w43-page: #eaf0f5;
+  --w43-page-deep: #dfe7ee;
+  --w43-surface: #f9fbfc;
+  --w43-surface-soft: #f2f6f9;
+  --w43-surface-muted: #e7eef4;
+  --w43-header: #dce7f0;
+  --w43-header-strong: #cfdce7;
+  --w43-border: #c3d0da;
+  --w43-border-strong: #aabac8;
+  --w43-ink: #18324a;
+  --w43-ink-soft: #40596f;
+  --w43-muted: #65798a;
+
+  /* Right-pane blue accents — muted, not consumer/SaaS bright blue */
+  --w43-blue: #315f7e;
+  --w43-blue-dark: #23485f;
+  --w43-blue-soft: #e0eaf2;
+  --w43-focus: #5f819a;
+
+  /* Sidebar */
+  --w43-sidebar: #0b2846;
+  --w43-sidebar-mid: #103555;
+  --w43-sidebar-deep: #071d34;
+  --w43-sidebar-border: #31536d;
+
+  /* Preserve Work0042 gold ornament language */
+  --w43-gold: #d7ae42;
+  --w43-gold-highlight: #ffe89a;
+  --w43-gold-mid: #c58c25;
+  --w43-gold-deep: #70480d;
+
+  /* Active navigation — approved red accent */
+  --w43-active-red: #b5121b;
+  --w43-active-red-deep: #751017;
+  --w43-active-red-bright: #e02a36;
+  --w43-active-red-soft: #d94a52;
+
+  /* Semantic states stay distinct */
+  --w43-success: #1f7a52;
+  --w43-success-soft: #e4f3eb;
+  --w43-warning: #8b6515;
+  --w43-warning-soft: #f8f0d8;
+  --w43-danger: #b42630;
+  --w43-danger-soft: #f9e8ea;
+}
+
+/* Right-pane mapping target */
+.w43-page {
+  background: var(--w43-page);
+  color: var(--w43-ink);
+}
+
+.w43-card {
+  background: var(--w43-surface);
+  border: 1px solid var(--w43-border);
+  box-shadow: 0 3px 12px rgba(25, 50, 74, .08);
+}
+
+.w43-card-header {
+  background: linear-gradient(180deg, #e6eef5 0%, var(--w43-header) 100%);
+  border-bottom: 1px solid var(--w43-border);
+  color: var(--w43-ink);
+}
+
+.w43-table-head {
+  background: linear-gradient(180deg, #dce7f0 0%, #d3e0ea 100%);
+  color: #29465d;
+}
+
+.w43-inset {
+  background: var(--w43-surface-soft);
+  border-color: var(--w43-border);
+}
+
+.w43-primary {
+  background: linear-gradient(180deg, #3d6d8d 0%, var(--w43-blue) 100%);
+  border-color: var(--w43-blue-dark);
+  color: #fff;
+}
+
+.w43-secondary {
+  background: #f6f9fb;
+  border-color: var(--w43-border-strong);
+  color: var(--w43-blue-dark);
+}
+
+/* Sidebar reference: geometry/IA unchanged */
+.w43-sidebar {
+  min-height: 100vh;
+  height: 100dvh;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(45, 83, 112, .30) 0, transparent 32%),
+    linear-gradient(145deg, var(--w43-sidebar-mid) 0%, var(--w43-sidebar) 45%, var(--w43-sidebar-deep) 100%);
+  border-right: 1px solid var(--w43-sidebar-border);
+  color: var(--w43-gold-highlight);
+}
+
+.w43-nav {
+  color: #eadcb3;
+  border-color: rgba(215, 174, 66, .26);
+  background: linear-gradient(145deg, rgba(215,174,66,.06), rgba(7,29,52,.22));
+}
+
+.w43-nav-active {
+  color: #fff2d0;
+  border-color: var(--w43-active-red-soft);
+  background: linear-gradient(145deg, var(--w43-active-red) 0%, var(--w43-active-red-deep) 100%);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.12),
+    0 4px 12px rgba(75, 10, 15, .32);
+}
+
+.w43-nav-active::before {
+  content: "";
+  width: 3px;
+  background: var(--w43-active-red-bright);
+  box-shadow: 0 0 8px rgba(224, 42, 54, .55);
+}
+
+/* Gold identity remains unchanged in spirit */
+.w43-gold-text { color: var(--w43-gold-highlight); }
+.w43-gold-icon { color: var(--w43-gold); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: .01ms !important; }
+}
