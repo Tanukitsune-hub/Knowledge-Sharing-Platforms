@@ -154,6 +154,14 @@ test('admin theme UI has three accessible tabs, 16-field rendering, preview cont
   assert.doesNotMatch(client + page, /localStorage|UserProperties/);
 });
 
+test('client permits exact-default first save only while the shared override is absent', () => {
+  const client = read('src/ClientThemeSettings.html');
+  assert.match(client, /const saveAllowed=!themeSettingsBusy&&!invalid&&\(dirty\|\|!themeSettingsState\.persisted\)/);
+  assert.match(client, /themeSettingsElement\('theme-settings-save'\)\.disabled=!saveAllowed/);
+  assert.match(client, /themeSettingsState\.persisted&&themeSettingsSame\(themeSettingsDraft,themeSettingsState\.palette\)/);
+  assert.doesNotMatch(client, /fakeDirty|forceDirty/);
+});
+
 test('bundle order and public surface include only the intended theme module and facades', () => {
   const order = JSON.parse(read('scripts/bundle-source-order.json'));
   assert.equal(order.serverSources.filter(name => name === '166_ThemeSettings.gs').length, 1);

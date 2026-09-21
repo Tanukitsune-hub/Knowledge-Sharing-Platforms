@@ -49,11 +49,12 @@ function themeSettingsHasInvalid(){return[...document.querySelectorAll('[data-th
 function themeSettingsRefreshState(){
   const dirty=!themeSettingsSame(themeSettingsDraft,themeSettingsState.palette);
   const invalid=themeSettingsHasInvalid();
-  themeSettingsElement('theme-settings-save').disabled=themeSettingsBusy||invalid||!dirty;
+  const saveAllowed=!themeSettingsBusy&&!invalid&&(dirty||!themeSettingsState.persisted);
+  themeSettingsElement('theme-settings-save').disabled=!saveAllowed;
   themeSettingsElement('theme-settings-discard').disabled=themeSettingsBusy||!dirty;
   themeSettingsElement('theme-settings-state').textContent=(themeSettingsState.persisted?'共有設定を適用中':'既定の配色を使用中')+(dirty?' / 未保存のプレビュー':'');
   themeSettingsRenderContrast();
-  return{dirty,invalid};
+  return{dirty,invalid,saveAllowed};
 }
 function themeSettingsMarkPreview(){const state=themeSettingsRefreshState();if(state.invalid)themeSettingsStatus('error','色は#RRGGBB形式で入力してください。');else if(state.dirty)themeSettingsStatus('info','未保存のプレビュー');else clearStatus('theme-settings-status')}
 function themeSettingsFillInputs(){
@@ -86,7 +87,7 @@ function themeSettingsRenderFields(){
 }
 function themeSettingsAcceptState(result){themeSettingsState=themeSettingsClone(result);themeSettingsDraft=themeSettingsClone(result.palette);themeSettingsFillInputs();themeSettingsApplyPreview(themeSettingsDraft);themeSettingsRefreshState()}
 async function themeSettingsSave(){
-  if(themeSettingsBusy||themeSettingsHasInvalid()||themeSettingsSame(themeSettingsDraft,themeSettingsState.palette))return;
+  if(themeSettingsBusy||themeSettingsHasInvalid()||(themeSettingsState.persisted&&themeSettingsSame(themeSettingsDraft,themeSettingsState.palette)))return;
   themeSettingsSetBusy(true);themeSettingsStatus('info busy','テーマ設定を保存中…');
   try{const result=await serverCall('mutateThemeSettings',{action:'SAVE',palette:themeSettingsDraft});if(!result||!result.ok)throw new Error(result&&result.error&&result.error.message||'テーマ設定を保存できませんでした。');themeSettingsAcceptState(result);themeSettingsStatus('success','保存しました')}
   catch(error){themeSettingsStatus('error',error.message||'テーマ設定を保存できませんでした。')}

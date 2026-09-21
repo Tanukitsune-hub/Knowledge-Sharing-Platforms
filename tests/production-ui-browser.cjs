@@ -48,7 +48,7 @@ const shim=`<script>window.google={script:{run:{withSuccessHandler(success){retu
 const themeContext={kspAssert_(condition,code,message){if(!condition){const error=new Error(message);error.code=code;throw error}},kspDeepClone_:value=>JSON.parse(JSON.stringify(value)),kspGetErrorCode_:(error,fallback)=>error&&error.code||fallback};
 vm.createContext(themeContext);vm.runInContext(fs.readFileSync(path.join(root,'src','166_ThemeSettings.gs'),'utf8'),themeContext);
 const themeState=themeContext.kspThemeStateResponse_({palette:themeContext.kspThemeDefaultPalette_(),persisted:false,updatedAt:'',corruptOverrideIgnored:false});
-fixtures.getThemeSettingsData=themeState;fixtures.mutateThemeSettings=themeState;
+let themeRuntimeState=themeState;fixtures.getThemeSettingsData=themeState;
 const themeHead='<style id="ksp-initial-theme">:root{'+themeContext.kspThemeCssDeclarations_(themeState.palette)+'}</style><script id="ksp-theme-bootstrap" type="application/json">'+JSON.stringify(themeState)+'</script>';
 const html=render('Index').replace(/<\?!=\s*themeHeadMarkup\s*\?>/,themeHead).replace('<head>','<head>'+shim);
 assert.doesNotMatch(html,/<\?[!=]/,'all production includes resolved');
@@ -57,6 +57,11 @@ const server=http.createServer(async(req,res)=>{
     let body='';for await(const chunk of req)body+=chunk;
     const request=JSON.parse(body);calls.push(request);
     let response=request.name==='getMeetingMaintenanceRecord'?{ok:true,record:request.payload==='MTG-NEW-SYNTH'?{...meetingRecord,meetingId:'MTG-NEW-SYNTH',relatedPitchbookIds:[],relatedPitchbooks:[]}:meetingRecord}:request.name==='getEntityWorkspaceData'&&request.payload&&request.payload.entityKey?entityWorkspaceData:fixtures[request.name];
+    if(request.name==='mutateThemeSettings'){
+      if(request.payload&&request.payload.action==='SAVE')themeRuntimeState={...themeState,persisted:true,palette:request.payload.palette,updatedAt:'2026-09-21T12:34:56.000Z'};
+      else if(request.payload&&request.payload.action==='RESET')themeRuntimeState={...themeState,persisted:false,updatedAt:''};
+      response=themeRuntimeState;
+    }
     if(!response){res.writeHead(500,{'content-type':'application/json'});res.end(JSON.stringify({error:'Unexpected fixture RPC: '+request.name}));return}
     if(request.name==='mutateMaster')await new Promise(resolve=>setTimeout(resolve,250));
     res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify(response));return;
@@ -177,11 +182,13 @@ async function main(){
     await page.locator('#admin-tab-theme').press('ArrowRight');assert.equal(await page.locator('#admin-tab-provider').getAttribute('aria-selected'),'true');
     await page.locator('#admin-tab-provider').press('ArrowLeft');assert.equal(await page.locator('#admin-tab-theme').getAttribute('aria-selected'),'true');
     assert.equal(await page.locator('.theme-setting-row').count(),16);const defaultPrimary=await page.locator('[data-theme-hex="action.primary"]').inputValue();assert.equal(defaultPrimary,'#405F72');
+    assert.equal(await page.locator('#theme-settings-save').isDisabled(),false);assert.doesNotMatch(await page.locator('#theme-settings-status').textContent(),/未保存のプレビュー/);
+    const exactDefaultSaveBefore=calls.filter(call=>call.name==='mutateThemeSettings').length;await page.locator('#theme-settings-save').click();await page.waitForFunction(()=>document.getElementById('theme-settings-status').textContent.includes('保存しました'));const exactDefaultSaves=calls.filter(call=>call.name==='mutateThemeSettings').slice(exactDefaultSaveBefore);assert.equal(exactDefaultSaves.length,1);assert.equal(exactDefaultSaves[0].payload.action,'SAVE');assert.equal(Object.keys(exactDefaultSaves[0].payload.palette).length,16);assert.deepEqual(exactDefaultSaves[0].payload.palette,themeState.palette);assert.equal(await page.locator('#theme-settings-save').isDisabled(),true);assert.match(await page.locator('#theme-settings-state').textContent(),/共有設定を適用中/);await page.locator('#theme-settings-save').click({force:true});assert.equal(calls.filter(call=>call.name==='mutateThemeSettings').length,exactDefaultSaveBefore+1);
     await page.locator('[data-theme-hex="action.primary"]').fill('#123456');assert.equal(await page.locator('[data-theme-color="action.primary"]').inputValue(),'#123456');assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--theme-action-primary').trim()),'#123456');assert.match(await page.locator('#theme-settings-status').textContent(),/未保存のプレビュー/);
     await page.locator('#theme-settings-discard').click();assert.equal(await page.locator('[data-theme-hex="action.primary"]').inputValue(),'#405F72');assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--theme-action-primary').trim()),'#405F72');
     await page.locator('[data-theme-hex="action.primary"]').fill('#12345Z');assert.equal(await page.locator('[data-theme-hex="action.primary"]').getAttribute('aria-invalid'),'true');assert.equal(await page.locator('#theme-settings-save').isDisabled(),true);assert.match(await page.locator('#theme-settings-status').textContent(),/#RRGGBB/);
     await page.locator('[data-theme-hex="action.primary"]').fill('#405F72');await page.locator('[data-theme-hex="text.primary"]').fill('#F8FAFB');assert.equal(await page.locator('#theme-contrast-warning').isVisible(),true);assert.match(await page.locator('#theme-contrast-warning').textContent(),/コントラスト注意/);await page.locator('#theme-settings-discard').click();
-    await page.screenshot({path:path.join(out,'05-theme-settings.png'),fullPage:true});checks.push('Admin three-tab keyboard loop / 16 theme fields / preview / discard / invalid HEX / contrast warning');
+    await page.screenshot({path:path.join(out,'05-theme-settings.png'),fullPage:true});checks.push('Admin three-tab keyboard loop / exact-default first save once / persisted no-op / 16 theme fields / preview / discard / invalid HEX / contrast warning');
     await page.locator('#nav-activity-analytics').click();await page.waitForTimeout(30);const analyticsDates=await page.evaluate(()=>({from:document.getElementById('activity-date-from').value,to:document.getElementById('activity-date-to').value,expected:kspOneYearDateRange()}));assert.deepEqual({from:analyticsDates.from,to:analyticsDates.to},analyticsDates.expected);const analyticsHeadings=await page.locator('#page-activity-analytics .section-heading h2').allTextContents();assert.ok(analyticsHeadings.indexOf('選択した内訳')<analyticsHeadings.indexOf('該当Meeting'));assert.ok(analyticsHeadings.indexOf('該当Meeting')<analyticsHeadings.indexOf('集計サマリー'));checks.push('Analytics one-year range / frozen section order');
     await page.locator('#nav-knowledge').click();
     const desktopOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);assert.equal(desktopOverflow,false);
