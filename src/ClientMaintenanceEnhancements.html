@@ -42,7 +42,6 @@ function bootstrapMaintenance(result) {
 }
 
 async function performMasterMutation(payload) {
-  clearStatus('masters-status');
   const result=await serverCall('mutateMaster',payload);
   if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Master変更に失敗しました。');
   applyMaintenanceMasterData(result.masters);
@@ -53,8 +52,9 @@ const KSP_COUNTERPARTY_MODAL_TYPES=['GP','LP_ASSET_OWNER','NISSAY_INTERNAL','GRO
 const counterpartyModalState={origin:'',trigger:null,busy:false};
 function counterpartyModalStatus(kind,message){const box=el('counterparty-modal-status');box.className=message?'status visible '+kind:'status';box.textContent=message||''}
 function counterpartyModalFocusable(){return[...el('counterparty-modal').querySelectorAll('button:not([disabled]),select:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden)}
+function setCounterpartyModalBusy(busy){counterpartyModalState.busy=busy;kspSetActionBusy(el('counterparty-modal-submit'),busy,'登録中…');kspSetRegionBusy(el('counterparty-modal'),busy);el('counterparty-modal-type').disabled=busy;el('counterparty-modal-name').disabled=busy;el('counterparty-modal-submit').disabled=busy;el('counterparty-modal-cancel').disabled=busy;el('counterparty-modal-close').disabled=busy}
 function openCounterpartyModal(origin,trigger){
-  counterpartyModalState.origin=origin;counterpartyModalState.trigger=trigger||document.activeElement;counterpartyModalState.busy=false;
+  counterpartyModalState.origin=origin;counterpartyModalState.trigger=trigger||document.activeElement;setCounterpartyModalBusy(false);
   el('counterparty-modal-type').value='';el('counterparty-modal-name').value='';counterpartyModalStatus('','');
   el('counterparty-modal-submit').disabled=false;el('counterparty-modal-backdrop').hidden=false;
   document.querySelector('main').setAttribute('inert','');document.body.classList.add('modal-open');
@@ -71,7 +71,7 @@ async function submitCounterpartyModal(event){
   const type=el('counterparty-modal-type').value,name=el('counterparty-modal-name').value.trim();
   if(!KSP_COUNTERPARTY_MODAL_TYPES.includes(type)){counterpartyModalStatus('error','面談先種別を選択してください。');el('counterparty-modal-type').focus();return}
   if(!name){counterpartyModalStatus('error','面談先名を入力してください。');el('counterparty-modal-name').focus();return}
-  counterpartyModalState.busy=true;el('counterparty-modal-submit').disabled=true;counterpartyModalStatus('info','登録しています…');
+  setCounterpartyModalBusy(true);counterpartyModalStatus('info busy','登録中…');
   try{
     const result=await serverCall('quickAddCounterparty',{name,type});
     if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先追加に失敗しました。');
@@ -83,8 +83,8 @@ async function submitCounterpartyModal(event){
     }else{
       showStatus('masters-status','success','面談先マスターを更新しました。');
     }
-    counterpartyModalState.busy=false;closeCounterpartyModal();
-  }catch(error){counterpartyModalState.busy=false;el('counterparty-modal-submit').disabled=false;counterpartyModalStatus('error',error.message||String(error))}
+    setCounterpartyModalBusy(false);closeCounterpartyModal();
+  }catch(error){setCounterpartyModalBusy(false);counterpartyModalStatus('error',error.message||String(error))}
 }
 function counterpartyModalKeydown(event){
   if(event.key==='Escape'){event.preventDefault();closeCounterpartyModal();return}
@@ -126,7 +126,7 @@ async function openMeetingMaterialPicker(trigger){
   if(meetingMaterialPickerState.busy||!meetingDetailRecord||meetingDetailRecord.status!=='Active')return;
   const record=meetingDetailRecord,request=++meetingMaterialPickerState.request;
   meetingMaterialPickerState.open=true;meetingMaterialPickerState.busy=true;meetingMaterialPickerState.trigger=trigger||document.activeElement;meetingMaterialPickerState.candidates=[];
-  if(trigger)trigger.disabled=true;el('meeting-material-modal').setAttribute('aria-busy','true');
+  if(trigger)kspSetActionBusy(trigger,true,'読み込み中…');kspSetRegionBusy(el('meeting-material-modal'),true);
   el('meeting-material-modal-results').innerHTML='';meetingMaterialPickerStatus('info busy','資料候補を読み込んでいます…');
   el('meeting-material-modal-backdrop').hidden=false;document.querySelector('main').setAttribute('inert','');document.body.classList.add('modal-open');
   setTimeout(()=>el('meeting-material-modal').focus(),0);
@@ -137,15 +137,15 @@ async function openMeetingMaterialPicker(trigger){
     meetingMaterialPickerState.candidates=meetingMaterialCandidates(result.records||[],record.relatedPitchbookIds||[]);
     meetingMaterialPickerStatus('info',meetingMaterialPickerState.candidates.length+'件の候補を表示しています。');renderMeetingMaterialCandidates();
   }catch(error){if(meetingMaterialPickerState.open&&request===meetingMaterialPickerState.request){meetingMaterialPickerStatus('error',error.message||String(error));renderMeetingMaterialCandidates()}}
-  finally{if(request===meetingMaterialPickerState.request){meetingMaterialPickerState.busy=false;el('meeting-material-modal').setAttribute('aria-busy','false');if(meetingMaterialPickerState.open)renderMeetingMaterialCandidates();if(trigger&&trigger.isConnected)trigger.disabled=false}}
+  finally{if(request===meetingMaterialPickerState.request){meetingMaterialPickerState.busy=false;kspSetRegionBusy(el('meeting-material-modal'),false);if(meetingMaterialPickerState.open)renderMeetingMaterialCandidates();if(trigger&&trigger.isConnected)kspSetActionBusy(trigger,false)}}
 }
-async function selectMeetingMaterialCandidate(index){
+async function selectMeetingMaterialCandidate(index,trigger){
   if(meetingMaterialPickerState.busy||!meetingMaterialPickerState.open)return;
   const candidate=meetingMaterialPickerState.candidates[Number(index)];if(!candidate)return;
-  meetingMaterialPickerState.busy=true;if(typeof el==='function')el('meeting-material-modal').setAttribute('aria-busy','true');meetingMaterialPickerStatus('info busy','関連付けています…');renderMeetingMaterialCandidates();
+  meetingMaterialPickerState.busy=true;kspSetActionBusy(trigger,true,'関連付け中…');kspSetRegionBusy(el('meeting-material-modal'),true);meetingMaterialPickerStatus('info busy','関連付け中…');document.querySelectorAll('[data-meeting-material-index]').forEach(button=>{if(button!==trigger)button.disabled=true});
   const linked=await changeDetailRelation(candidate.documentId,'add');
   meetingMaterialPickerState.busy=false;
-  if(typeof el==='function')el('meeting-material-modal').setAttribute('aria-busy','false');
+  kspSetActionBusy(trigger,false);kspSetRegionBusy(el('meeting-material-modal'),false);
   if(linked){closeMeetingMaterialPicker();return}
   meetingMaterialPickerStatus('error','関連付けを完了できませんでした。現在の詳細を確認してください。');renderMeetingMaterialCandidates();
 }
@@ -160,7 +160,7 @@ function meetingMaterialPickerKeydown(event){
 el('meeting-material-modal-close').onclick=closeMeetingMaterialPicker;el('meeting-material-modal-cancel').onclick=closeMeetingMaterialPicker;
 el('meeting-material-modal').addEventListener('keydown',meetingMaterialPickerKeydown);
 el('meeting-material-modal-backdrop').addEventListener('click',event=>{if(event.target===el('meeting-material-modal-backdrop'))closeMeetingMaterialPicker()});
-el('meeting-material-modal-results').addEventListener('click',event=>{const button=event.target.closest('[data-meeting-material-index]');if(button)selectMeetingMaterialCandidate(button.dataset.meetingMaterialIndex)});
+el('meeting-material-modal-results').addEventListener('click',event=>{const button=event.target.closest('[data-meeting-material-index]');if(button)selectMeetingMaterialCandidate(button.dataset.meetingMaterialIndex,button)});
 let meetingDetailRecord=null,meetingDetailBusy=false,meetingDetailReadBusy=false,meetingDetailRequest=0;
 const meetingDetailKnownDocuments=new Map();
 function renderMeetingDetail(record){
@@ -193,7 +193,7 @@ async function openMeetingDetail(meetingId,trigger,internalRefresh){
 }
 async function changeDetailRelation(documentId,operation,trigger){
   if(meetingDetailBusy||pitchbookBusy||!meetingDetailRecord||!documentId)return false;
-  meetingDetailBusy=true;if(trigger)trigger.disabled=true;el('meeting-detail-card').setAttribute('aria-busy','true');showStatus('meeting-detail-status','info busy','関連を更新しています…');
+  meetingDetailBusy=true;if(trigger)kspSetActionBusy(trigger,true,operation==='remove'?'解除中…':'関連付け中…');kspSetRegionBusy(el('meeting-detail-card'),true);showStatus('meeting-detail-status','info busy',operation==='remove'?'関連を解除中…':'関連付け中…');
   try{
     bindPitchbookParent(meetingDetailRecord,true);
     await linkParentDocument(documentId,operation);
@@ -201,7 +201,7 @@ async function changeDetailRelation(documentId,operation,trigger){
     showStatus('meeting-detail-status','success',operation==='remove'?'この記録との関連のみ解除しました。原本と他の関連は維持されます。':'関連付けました。資料のStatusは変更していません。');
     return true;
   }catch(error){showStatus('meeting-detail-status','error',(error.message||String(error))+' 再試行時に現在の関係を照合します。');return false}
-  finally{meetingDetailBusy=false;el('meeting-detail-card').setAttribute('aria-busy','false');if(trigger&&trigger.isConnected)trigger.disabled=false}
+  finally{meetingDetailBusy=false;kspSetRegionBusy(el('meeting-detail-card'),false);if(trigger&&trigger.isConnected)kspSetActionBusy(trigger,false)}
 }
 el('meeting-past-results').addEventListener('click',event=>{const button=event.target.closest('[data-meeting-detail]');if(button)openMeetingDetail(button.dataset.meetingDetail,button)});
 el('meeting-detail-close').onclick=resetMeetingDetailSelection;
@@ -209,8 +209,8 @@ el('meeting-detail-edit').onclick=event=>{if(meetingDetailRecord)openMeetingEdit
 el('meeting-detail-lifecycle').onclick=async()=>{
   if(meetingDetailBusy||pitchbookBusy||!meetingDetailRecord)return;
   const record=meetingDetailRecord;if(record.status!=='Active'||!confirm('この記録を削除します。記録本体は完全には削除されず、管理者ページから復元できます。'))return;
-  meetingDetailBusy=true;el('meeting-detail-lifecycle').disabled=true;el('meeting-detail-card').setAttribute('aria-busy','true');showStatus('meeting-detail-status','info busy','削除中…');
-  try{const result=await serverCall('changeMeetingStatus',{meetingId:record.meetingId,expectedVersion:record.version,targetStatus:'Inactive'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'削除できません。');resetMeetingDetailSelection();await searchMeetings()}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}finally{meetingDetailBusy=false;el('meeting-detail-card').setAttribute('aria-busy','false');if(meetingDetailRecord)el('meeting-detail-lifecycle').disabled=false}
+  meetingDetailBusy=true;kspSetActionBusy(el('meeting-detail-lifecycle'),true,'削除中…');kspSetRegionBusy(el('meeting-detail-card'),true);showStatus('meeting-detail-status','info busy','削除中…');
+  try{const result=await serverCall('changeMeetingStatus',{meetingId:record.meetingId,expectedVersion:record.version,targetStatus:'Inactive'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'削除できません。');resetMeetingDetailSelection();await searchMeetings()}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}finally{meetingDetailBusy=false;kspSetActionBusy(el('meeting-detail-lifecycle'),false);kspSetRegionBusy(el('meeting-detail-card'),false);if(meetingDetailRecord)el('meeting-detail-lifecycle').disabled=false}
 };
 el('meeting-detail-add-files').onclick=()=>{
   if(pitchbookBusy||meetingDetailBusy||!meetingDetailRecord)return;
@@ -219,7 +219,7 @@ el('meeting-detail-add-files').onclick=()=>{
 el('meeting-detail-link').onclick=event=>openMeetingMaterialPicker(event.currentTarget);
 el('meeting-detail-files').addEventListener('click',async event=>{
   const relation=event.target.closest('[data-detail-relation]'),classify=event.target.closest('[data-detail-classify]'),open=event.target.closest('[data-detail-file-open]');
-  if(relation){relation.disabled=true;await changeDetailRelation(relation.dataset.detailRelation,relation.dataset.operation);if(relation.isConnected&&meetingDetailRecord)relation.disabled=meetingDetailRecord.status!=='Active';return}
+  if(relation){kspSetActionBusy(relation,true,relation.dataset.operation==='remove'?'解除中…':'関連付け中…');await changeDetailRelation(relation.dataset.detailRelation,relation.dataset.operation);if(relation.isConnected){kspSetActionBusy(relation,false);if(meetingDetailRecord)relation.disabled=meetingDetailRecord.status!=='Active'}return}
   if(classify){el('meeting-detail-classification-home').appendChild(el('pitchbook-edit-card'));await openPitchbookEdit(classify.dataset.detailClassify);return}
   if(open){try{const result=await serverCall('getPitchbookMaintenanceRecord',open.dataset.detailFileOpen);if(!result||!result.ok)throw new Error('原本情報を読み込めません。');const url=kspSafeDriveUrl(result.record.fileUrl);if(!url)throw new Error('有効な原本リンクがありません。');showStatus('meeting-detail-status','info','<a target="_blank" rel="noopener" href="'+escapeHtml(url)+'">資料原本を開く</a>',true)}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}}
 });

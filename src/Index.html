@@ -278,7 +278,7 @@ function clearRetryContext(){retryContext=null;safeRemove(KSP_MEETING_RETRY_KEY)
 function saveDraft(){saveMeetingDraft();}
 function clearMeetingSpecificDraft(){MEETING_FIELDS.forEach(field=>{if(el('meeting-'+field))el('meeting-'+field).value=''});setMeetingTypeValues('meeting',[]);el('meeting-followUpRequired').checked=false;refreshMeetingCounterpartyEntities('');refreshMeetingRelatedPitchbooks([]);safeStorageRemove(KSP_MEETING_DRAFT_KEY);clearRetryContext();writeEnvelope(KSP_SHARED_DRAFT_KEY,getShared('meeting'))}
 function safeStorageRemove(key){safeRemove(key)}
-function setMeetingBusy(busy){el('meeting-submit').disabled=busy||meetingLoading;el('meeting-clear').disabled=busy;el('meeting-submit').textContent=busy?'登録中…':'登録'}
+function setMeetingBusy(busy){const submit=el('meeting-submit');kspSetActionBusy(submit,busy,'登録中…');if(!busy)submit.disabled=meetingLoading;el('meeting-clear').disabled=busy;kspSetRegionBusy(el('meeting-form'),busy)}
 MEETING_FIELDS.forEach(f=>el('meeting-'+f).addEventListener('input',()=>{clearRetryContext();saveDraft()}));
 document.querySelectorAll('[data-meeting-type="meeting"],#meeting-relatedPitchbookIds,#meeting-followUpRequired').forEach(node=>node.addEventListener('change',()=>{clearRetryContext();saveDraft()}));
 async function submitMeetingWithFiles(event){

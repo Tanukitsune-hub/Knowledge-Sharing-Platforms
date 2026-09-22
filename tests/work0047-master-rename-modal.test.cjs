@@ -66,12 +66,15 @@ function createModalHarness() {
     Object, Array, String, Boolean, Promise, document,
     MASTER_TAB_LABELS: { COUNTERPARTY: '面談先', ASSET_CLASS: 'アセットクラス', LOCATION: '面談場所', TEAM: 'チーム' },
     masterReorderBusy: false,
+    masterMutationBusy: false,
     isMasterOptionTab: type => ['ASSET_CLASS', 'LOCATION', 'TEAM'].includes(type),
     masterOrderDirty: () => false,
     el: id => nodes.get(id),
     showStatus: (...args) => pageStatuses.push(args),
     setTimeout: fn => fn(),
-    performMasterMutation: async payload => { calls.push(payload); }
+    performMasterMutation: async payload => { calls.push(payload); },
+    kspSetActionBusy(button, busy, label) { if (button) { button.disabled = busy; button.busyLabel = busy ? label : ''; } },
+    kspSetRegionBusy(region, busy) { if (region) region.setAttribute('aria-busy', String(busy)); }
   });
   const start = maintenance.indexOf('const masterRenameModalState=');
   const end = maintenance.indexOf("el('option-add-name').addEventListener", start);

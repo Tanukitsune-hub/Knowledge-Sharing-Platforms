@@ -84,6 +84,8 @@ function createHarness(serverCall) {
     confirm() { return true; },
     prompt() { return null; },
     serverCall,
+    kspSetActionBusy(button, busy, label) { if (button) { button.disabled = busy; button.busyLabel = busy ? label : ''; } },
+    kspSetRegionBusy(region, busy) { if (region) region.setAttribute('aria-busy', String(busy)); },
     kspSetDefaultDateRange() {},
     selectedOptionValues() { return []; },
     meetingTypeValues() { return []; },

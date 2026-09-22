@@ -90,10 +90,14 @@ test('picker selection passes the selected internal ID through the existing rela
   const state = { open: true, busy: false, candidates: [{ documentId: 'DOC-INTERNAL-040' }] };
   const context = vm.createContext({
     Number,
+    document: { querySelectorAll() { return []; } },
+    el() { return { setAttribute() {} }; },
     meetingMaterialPickerState: state,
     meetingMaterialPickerStatus() {},
     renderMeetingMaterialCandidates() {},
     async changeDetailRelation(documentId, operation) { calls.push({ documentId, operation }); return true; },
+    kspSetActionBusy(button, busy, label) { if (button) { button.disabled = busy; button.busyLabel = busy ? label : ''; } },
+    kspSetRegionBusy(region, busy) { if (region && typeof region.setAttribute === 'function') region.setAttribute('aria-busy', String(busy)); },
     closeMeetingMaterialPicker() { state.open = false; }
   });
   vm.runInContext(functionSource(enhancements, 'selectMeetingMaterialCandidate'), context);

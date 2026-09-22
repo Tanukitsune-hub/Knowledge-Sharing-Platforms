@@ -80,7 +80,7 @@ test('master option ordering uses a drag handle and staged complete-order batch 
 
 test('failed master batch save keeps the local draft dirty and releases the busy state', () => {
   assert.match(maintenanceClient, /catch\(error\)\{showStatus\('masters-status','error',error\.message\|\|String\(error\)\)\}/);
-  assert.match(maintenanceClient, /finally\{masterReorderBusy=false;renderMasters/);
+  assert.match(maintenanceClient, /finally\{masterReorderBusy=false;[\s\S]*?renderMasters/);
   assert.doesNotMatch(maintenanceClient, /applyMaintenanceMasterData\(snapshot\)/);
 });
 

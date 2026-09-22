@@ -94,7 +94,9 @@ function createModalHarness() {
     applyMaintenanceMasterData() { state.mastersApplied += 1; },
     clearRetryContext() {}, refreshMeetingCounterpartyEntities(id) { state.selected = id; },
     refreshMeetingRelatedPitchbooks() {}, saveMeetingDraft() { state.saved += 1; },
-    showStatus(id, kind, message) { state.statuses.push({ id, kind, message }); }
+    showStatus(id, kind, message) { state.statuses.push({ id, kind, message }); },
+    kspSetActionBusy(button, busy, label) { if (button) { button.disabled = busy; button.busyLabel = busy ? label : ''; } },
+    kspSetRegionBusy(region, busy) { if (region) region.setAttribute('aria-busy', String(busy)); }
   });
   const start = enhancements.indexOf('const KSP_COUNTERPARTY_MODAL_TYPES');
   const end = enhancements.indexOf('let meetingDetailRecord');
