@@ -1,6 +1,6 @@
 // GENERATED FILE. DO NOT EDIT.
 // Authoritative source: src/ and scripts/bundle-source-order.json
-var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":8,"sourceCommit":"1339542022791d41a318753606ae9e426c0d02a7","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"25b719d9462970905f7871fcb70b775fe5f2ae9315624750875282154ed2330b"});
+var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Knowledge Share","releaseVersion":"0.1.2","schemaVersion":8,"sourceCommit":"76ac49b2d053b380f9a088021df9ff7809dc0973","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"fdcb8eb9be5792a94adbcdfc68ea48d381eeac93bd07679cf1b615a6aa256305"});
 var KSP_BUNDLED_HTML_RESOURCES = Object.freeze({
   "ActivityAnalyticsPage": "<section id=\"page-activity-analytics\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>面談実績の集計</h2><p class=\"hint\">Meeting_Indexの構造化メタデータだけを集計します。Meeting本文は読みません。</p></div>\n    </div>\n    <div class=\"filter-grid analytics-controls\">\n      <div class=\"field activity-period-field\"><label for=\"activity-period\">期間粒度</label><select id=\"activity-period\"><option value=\"monthly\">月次</option><option value=\"quarter\">暦年四半期</option><option value=\"calendarYear\">暦年</option><option value=\"fiscalYear\">会計年度（4月-3月）</option><option value=\"custom\">カスタム（日次）</option><option value=\"cumulative\">累積（月次）</option></select></div>\n      <div class=\"field activity-date-from-field\"><label for=\"activity-date-from\">開始日</label><input id=\"activity-date-from\" type=\"date\"></div>\n      <div class=\"field activity-date-to-field\"><label for=\"activity-date-to\">終了日</label><input id=\"activity-date-to\" type=\"date\"></div>\n      <div class=\"field activity-dimension-field\"><label for=\"activity-dimension\">内訳</label><select id=\"activity-dimension\"><option value=\"counterpartyEntity\">面談先</option><option value=\"assetClass\">アセットクラス</option><option value=\"team\">チーム</option><option value=\"meetingType\">MTG種別</option><option value=\"status\">Status</option></select></div>\n      <div class=\"field activity-counterparty-field\"><label for=\"activity-filter-counterpartyEntity\">面談先</label><select id=\"activity-filter-counterpartyEntity\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-asset-field\"><label for=\"activity-filter-assetClass\">アセットクラス</label><select id=\"activity-filter-assetClass\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-team-field\"><label for=\"activity-filter-team\">チーム</label><select id=\"activity-filter-team\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-meeting-type-field\"><label for=\"activity-filter-meetingType\">MTG種別</label><select id=\"activity-filter-meetingType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-status-field\"><label for=\"activity-filter-status\">Status</label><select id=\"activity-filter-status\"><option value=\"\">未選択</option></select></div>\n    </div>\n    <div class=\"actions analytics-actions\"><button id=\"activity-analytics-refresh\" class=\"action primary\" type=\"button\">集計</button><span class=\"hint\">件数は全一致行から計算し、表示上限による省略件数を明示します。</span></div>\n    <div id=\"activity-analytics-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n\n  <div class=\"activity-view-tabs\" role=\"tablist\" aria-label=\"集計表示\">\n    <button id=\"activity-tab-graph\" class=\"activity-view-tab active\" type=\"button\" role=\"tab\" aria-selected=\"true\" aria-controls=\"activity-graph-panel\" tabindex=\"0\" data-activity-view=\"graph\">グラフ</button>\n    <button id=\"activity-tab-list\" class=\"activity-view-tab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"activity-list-panel\" tabindex=\"-1\" data-activity-view=\"list\">面談一覧</button>\n  </div>\n\n  <div id=\"activity-graph-panel\" class=\"activity-view-panel\" role=\"tabpanel\" aria-labelledby=\"activity-tab-graph\">\n    <div class=\"card\">\n      <div class=\"section-heading\"><div><h2>選択した内訳</h2><p id=\"activity-breakdown-summary\" class=\"hint\"></p></div></div>\n      <div id=\"activity-breakdown-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"選択した内訳別Meeting件数\"></div>\n      <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">選択した内訳別集計</caption><thead><tr><th>値</th><th>Meeting</th><th>Active</th><th>Counterparty</th></tr></thead><tbody id=\"activity-breakdown-results\"></tbody></table></div>\n    </div>\n\n    <div class=\"card\">\n      <div class=\"section-heading\"><div><h2>集計サマリー</h2><p id=\"activity-period-summary\" class=\"hint\"></p></div></div>\n      <div id=\"activity-headline\" class=\"analytics-headline\" aria-live=\"polite\"></div>\n      <div id=\"activity-series-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"Meeting件数の期間推移\"></div>\n      <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">Meeting件数の期間別集計</caption><thead><tr><th>期間</th><th>Meeting</th><th>Active</th><th>Counterparty</th></tr></thead><tbody id=\"activity-series-results\"></tbody></table></div>\n    </div>\n  </div>\n\n  <div id=\"activity-list-panel\" class=\"activity-view-panel\" role=\"tabpanel\" aria-labelledby=\"activity-tab-list\" hidden>\n    <div class=\"card\">\n      <div class=\"section-heading\"><div><h2>該当Meeting</h2><p id=\"activity-drill-summary\" class=\"hint\"></p></div></div>\n      <div class=\"table-wrap\"><table class=\"data-table analytics-table activity-drill-table\"><caption class=\"sr-only\">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>チーム</th><th>MTG種別</th><th>Status</th><th>原本</th><th>確認済み</th></tr></thead><tbody id=\"activity-drill-results\"></tbody></table></div>\n      <div id=\"activity-admin-check-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    </div>\n  </div>\n</section>\n",
   "AiProviderSettingsPage": "<section id=\"page-ai-provider-settings\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading admin-page-heading\">\n      <div><h2>管理者ページ</h2><p class=\"hint\">AIプロバイダ設定、削除記録の管理、テーマ設定を切り替えて確認します。</p></div>\n    </div>\n    <div class=\"admin-tabs\" role=\"tablist\" aria-label=\"管理者機能\">\n      <button id=\"admin-tab-provider\" class=\"admin-tab active\" type=\"button\" role=\"tab\" aria-selected=\"true\" aria-controls=\"admin-panel-provider\" tabindex=\"0\" data-admin-tab=\"provider\">AIプロバイダ設定</button>\n      <button id=\"admin-tab-deleted\" class=\"admin-tab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"admin-panel-deleted\" tabindex=\"-1\" data-admin-tab=\"deleted\">削除記録の管理</button>\n      <button id=\"admin-tab-theme\" class=\"admin-tab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"admin-panel-theme\" tabindex=\"-1\" data-admin-tab=\"theme\">テーマ設定</button>\n    </div>\n    <section id=\"admin-panel-theme\" class=\"admin-tab-panel\" role=\"tabpanel\" aria-labelledby=\"admin-tab-theme\" hidden>\n      <div class=\"section-heading\">\n        <div><h2>テーマ設定</h2><p class=\"hint\">基本16色をプレビューし、Web App全体の共有設定として保存できます。</p></div>\n      </div>\n      <div id=\"theme-settings-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n      <section class=\"theme-color-tool\" aria-labelledby=\"theme-color-tool-heading\">\n        <div class=\"section-heading\"><div><h3 id=\"theme-color-tool-heading\">カラー調整ツール</h3><p class=\"hint\">色を選び、適用先の基本色へ反映します。保存するまではプレビューです。</p></div></div>\n        <div class=\"theme-color-tool-layout\">\n          <div class=\"theme-color-tool-picker\">\n            <div id=\"theme-color-sv\" class=\"theme-color-sv\" role=\"slider\" tabindex=\"0\" aria-label=\"彩度と明るさ\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"0\" aria-valuetext=\"彩度 0%、明るさ 100%\"><span id=\"theme-color-sv-handle\" class=\"theme-color-sv-handle\" aria-hidden=\"true\"></span></div>\n            <label for=\"theme-color-hue\">色相</label><input id=\"theme-color-hue\" type=\"range\" min=\"0\" max=\"359\" value=\"0\">\n          </div>\n          <div class=\"theme-color-tool-details\">\n            <div class=\"theme-color-tool-current\"><span id=\"theme-color-swatch\" class=\"theme-color-swatch\" aria-hidden=\"true\"></span><span>選択中の色</span></div>\n            <label for=\"theme-color-hex\">HEX</label><div class=\"theme-color-tool-hex\"><input id=\"theme-color-hex\" type=\"text\" maxlength=\"7\" pattern=\"#[0-9A-Fa-f]{6}\" autocomplete=\"off\" spellcheck=\"false\" aria-invalid=\"false\"><button id=\"theme-color-copy\" class=\"action secondary\" type=\"button\">コピー</button></div>\n            <div id=\"theme-color-hex-error\" class=\"theme-color-tool-error\" role=\"alert\" hidden>色は#RRGGBB形式で入力してください。</div>\n            <span class=\"theme-color-tool-label\">RGB</span><output id=\"theme-color-rgb\" for=\"theme-color-hex\"></output>\n            <label for=\"theme-color-target\">適用先</label><select id=\"theme-color-target\"></select>\n            <div class=\"theme-color-tool-buttons\"><button id=\"theme-color-apply\" class=\"action primary\" type=\"button\">この色を適用</button><button id=\"theme-color-eyedropper\" class=\"action secondary\" type=\"button\" hidden>画面から色を取得</button></div>\n            <div id=\"theme-color-tool-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n          </div>\n        </div>\n      </section>\n      <div id=\"theme-settings-groups\" class=\"theme-settings-groups\" aria-busy=\"false\"></div>\n      <div id=\"theme-contrast-warning\" class=\"status warning\" role=\"status\" aria-live=\"polite\"></div>\n      <div class=\"actions theme-settings-actions\">\n        <div class=\"action-group\">\n          <button id=\"theme-settings-save\" class=\"action primary\" type=\"button\">保存</button>\n          <button id=\"theme-settings-discard\" class=\"action secondary\" type=\"button\">変更を破棄</button>\n          <button id=\"theme-settings-reset\" class=\"action secondary\" type=\"button\">既定の配色に戻す</button>\n        </div>\n        <span id=\"theme-settings-state\" class=\"hint\"></span>\n      </div>\n    </section>\n    <section id=\"admin-panel-deleted\" class=\"admin-tab-panel\" role=\"tabpanel\" aria-labelledby=\"admin-tab-deleted\" hidden>\n    <section id=\"admin-deleted-meetings\" class=\"admin-deleted-meetings\" aria-busy=\"false\">\n      <div class=\"section-heading\">\n        <div><h2>削除記録の管理</h2><p class=\"hint\">削除済みの面談記録を検索し、必要な記録だけを復元します。</p></div>\n      </div>\n      <div class=\"filter-grid admin-deleted-filter-grid\">\n        <div class=\"field\"><label for=\"admin-deleted-date-from\">開始日</label><input id=\"admin-deleted-date-from\" type=\"date\"></div>\n        <div class=\"field\"><label for=\"admin-deleted-date-to\">終了日</label><input id=\"admin-deleted-date-to\" type=\"date\"></div>\n        <div class=\"field\"><label for=\"admin-deleted-counterparty-id\">面談先</label><select id=\"admin-deleted-counterparty-id\"><option value=\"\">未選択</option></select></div>\n        <div class=\"field\"><label for=\"admin-deleted-asset-class-id\">アセットクラス</label><select id=\"admin-deleted-asset-class-id\"><option value=\"\">未選択</option></select></div>\n        <div class=\"field\"><label for=\"admin-deleted-status-filter\">Status</label><select id=\"admin-deleted-status-filter\"><option value=\"Inactive\" selected>削除済み</option><option value=\"Active\">有効</option><option value=\"\">すべて</option></select></div>\n      </div>\n      <div class=\"actions admin-deleted-actions\"><button id=\"admin-deleted-search\" class=\"action primary\" type=\"button\">検索</button><span class=\"hint\">最大100件を新しい順で表示します。</span></div>\n      <div id=\"admin-deleted-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n      <div class=\"table-wrap\"><table class=\"data-table admin-deleted-table\"><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>アセットクラス</th><th>チーム</th><th>Status</th><th>Version</th><th>操作</th></tr></thead><tbody id=\"admin-deleted-results\"><tr><td colspan=\"8\" class=\"empty-cell\">検索すると記録が表示されます。</td></tr></tbody></table></div>\n    </section>\n    </section>\n    <section id=\"admin-panel-provider\" class=\"admin-tab-panel\" role=\"tabpanel\" aria-labelledby=\"admin-tab-provider\">\n    <div class=\"section-heading\">\n      <div><h2>AIプロバイダ設定</h2><p class=\"hint\">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>\n    </div>\n    <div id=\"ai-provider-admin-notice\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-openai-heading\">\n      <h3 id=\"ai-provider-openai-heading\">ChatGPT / OpenAI</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-openai-key\">確認中…</dd>\n        <dt>Vector Store</dt><dd id=\"ai-provider-openai-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-openai-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\">\n        <div class=\"action-group\">\n          <label for=\"ai-provider-openai-key-input\">OpenAI APIキー</label>\n          <input id=\"ai-provider-openai-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n          <label for=\"ai-provider-sync-source\">同期対象</label>\n          <select id=\"ai-provider-sync-source\" disabled>\n            <option value=\"\">All</option>\n            <option value=\"Meeting\">Meeting</option>\n            <option value=\"Pitchbook\">Pitchbook</option>\n          </select>\n          <label for=\"ai-provider-sync-source-id\">Source ID（個別同期・任意）</label>\n          <input id=\"ai-provider-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n          <button id=\"ai-provider-openai-enable\" class=\"action primary\" type=\"button\" disabled>APIキーを保存して接続確認</button>\n          <button id=\"ai-provider-openai-disable\" class=\"action secondary\" type=\"button\" disabled>OpenAIを無効化</button>\n          <button id=\"ai-provider-openai-sync\" class=\"action secondary\" type=\"button\" disabled>資料を同期して利用開始</button>\n        </div>\n      </div>\n      <p id=\"ai-provider-openai-readonly\" class=\"hint ai-provider-readonly\"></p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-gemini-heading\">\n      <h3 id=\"ai-provider-gemini-heading\">Gemini</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-gemini-key\">確認中…</dd>\n        <dt>File Search Store</dt><dd id=\"ai-provider-gemini-store\">確認中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-gemini-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <label for=\"ai-provider-gemini-key-input\">Gemini APIキー</label>\n        <input id=\"ai-provider-gemini-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"Script Propertiesへ安全に保存\">\n        <label for=\"ai-provider-gemini-sync-source\">個別同期対象</label>\n        <select id=\"ai-provider-gemini-sync-source\" disabled><option value=\"Pitchbook\">Pitchbook</option><option value=\"Meeting\">Meeting</option></select>\n        <label for=\"ai-provider-gemini-sync-source-id\">Source ID（必須）</label>\n        <input id=\"ai-provider-gemini-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n        <button id=\"ai-provider-gemini-connect\" class=\"action primary\" type=\"button\" disabled>APIキーを保存してStore確認</button>\n        <button id=\"ai-provider-gemini-enable\" class=\"action secondary\" type=\"button\" disabled>資格済みGeminiを有効化</button>\n        <button id=\"ai-provider-gemini-disable\" class=\"action secondary\" type=\"button\" disabled>Geminiを無効化</button>\n        <button id=\"ai-provider-gemini-sync\" class=\"action secondary\" type=\"button\" disabled>選択資料を個別同期</button>\n      </div></div>\n      <p class=\"hint\">有効化には、Store確認・個別同期・モデル/ThinkingのFile Search資格確認が必要です。</p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-model-policy-heading\">\n      <h3 id=\"ai-model-policy-heading\">モデル / Thinking ポリシー</h3>\n      <p class=\"hint\">利用者に表示する組み合わせだけを登録します。プロバイダが返す新しいモデルは自動で有効化されません。</p>\n      <div class=\"field full\">\n        <label for=\"ai-model-profile-select\">登録済みプロファイル</label>\n        <select id=\"ai-model-profile-select\" disabled><option value=\"\">新規作成</option></select>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-profile-id\">Profile ID</label><input id=\"ai-model-profile-id\" type=\"text\" autocomplete=\"off\" placeholder=\"openai-approved-model\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-provider\">Provider</label><select id=\"ai-model-provider\" disabled><option value=\"OPENAI\">OpenAI</option><option value=\"GEMINI\">Gemini</option></select></div>\n        <div class=\"field\"><label for=\"ai-model-id\">Exact Model ID</label><input id=\"ai-model-id\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-display-name\">表示名</label><input id=\"ai-model-display-name\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-family\">Family</label><input id=\"ai-model-family\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-max-output\">Output上限（任意）</label><input id=\"ai-model-max-output\" type=\"number\" min=\"1\" max=\"65536\" disabled></div>\n      </div>\n      <div class=\"field full\">\n        <label for=\"ai-model-thinking-profiles\">Thinking profiles（1行: ID | 表示名 | provider value。value空欄はプロバイダ標準）</label>\n        <textarea id=\"ai-model-thinking-profiles\" placeholder=\"provider-default | プロバイダ標準 |&#10;low | Low | low\" disabled></textarea>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-default-thinking\">既定Thinking Profile ID</label><input id=\"ai-model-default-thinking\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <label class=\"field\"><span>状態</span><span><input id=\"ai-model-enabled\" type=\"checkbox\" disabled> 有効</span></label>\n        <label class=\"field\"><span>利用者表示</span><span><input id=\"ai-model-user-visible\" type=\"checkbox\" disabled> 表示</span></label>\n        <label class=\"field\"><span>Provider既定</span><span><input id=\"ai-model-provider-default\" type=\"checkbox\" disabled> 既定</span></label>\n      </div>\n      <dl class=\"ai-provider-state\">\n        <dt>API access</dt><dd id=\"ai-model-access-state\">未確認</dd>\n        <dt>File Search qualification</dt><dd id=\"ai-model-qualification-state\">未確認</dd>\n        <dt>Thinking qualification</dt><dd id=\"ai-model-thinking-qualification-state\">未確認</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <button id=\"ai-model-policy-migrate\" class=\"action secondary\" type=\"button\" disabled>現行設定から初期化</button>\n        <button id=\"ai-model-profile-save\" class=\"action primary\" type=\"button\" disabled>プロファイルを保存</button>\n        <button id=\"ai-model-profile-qualify\" class=\"action secondary\" type=\"button\" disabled>接続・File Search確認</button>\n      </div></div>\n    </section>\n    </section>\n  </div>\n</section>\n",
@@ -47,6 +47,7 @@ var KSP_RESOURCE_NAMES = Object.freeze({
   MEETING_RECORDS: 'Meeting Records',
   PITCHBOOKS: 'Pitchbooks',
   KNOWLEDGE_EXPORTS: 'Knowledge Exports',
+  BACKUP_FOLDER: 'Knowledge Platform Backups',
   BACKEND_SPREADSHEET: 'Knowledge Platform Backend',
   AUDIT_SPREADSHEET: 'Knowledge Platform Audit'
 });
@@ -56,6 +57,7 @@ var KSP_RESOURCE_KEYS = Object.freeze({
   MEETING_RECORDS: 'meetingRecordsFolderId',
   PITCHBOOKS: 'pitchbooksFolderId',
   KNOWLEDGE_EXPORTS: 'knowledgeExportsFolderId',
+  BACKUP_FOLDER: 'backupFolderId',
   BACKEND_SPREADSHEET: 'backendSpreadsheetId',
   AUDIT_SPREADSHEET: 'auditSpreadsheetId'
 });
@@ -580,6 +582,7 @@ function kspBuildSettingsRows_(config, resources, nowIso) {
     { Key: 'MEETING_RECORDS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.MEETING_RECORDS], Description: 'Meeting records folder.', Updated_At: nowIso },
     { Key: 'PITCHBOOKS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.PITCHBOOKS], Description: 'Pitchbooks/source-material folder.', Updated_At: nowIso },
     { Key: 'KNOWLEDGE_EXPORTS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS], Description: 'Derived Knowledge Exports folder outside the authoritative root.', Updated_At: nowIso },
+    { Key: 'BACKUP_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.BACKUP_FOLDER], Description: 'Restricted Backend-only daily backup folder.', Updated_At: nowIso },
     { Key: 'BACKEND_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET], Description: 'Five-sheet backend spreadsheet.', Updated_At: nowIso },
     { Key: 'AUDIT_LOG_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET], Description: 'Separate restricted audit spreadsheet.', Updated_At: nowIso },
     { Key: 'ADMIN_EMAILS', Value: adminEmails, Description: 'Administrative contacts; not an application authentication mechanism.', Updated_At: nowIso },
@@ -632,6 +635,16 @@ function kspGetTriggerRegistry_(config) {
       intervalMinutes: config.aiSyncIntervalMinutes,
       enabled: config.aiSyncEnabled,
       available: false
+    },
+    {
+      key: 'BACKEND_DAILY_BACKUP_TRIGGER',
+      handler: 'runBackendDailyBackup_',
+      eventType: KSP_TRIGGER_EVENT_TYPES.CLOCK,
+      schedule: 'DAILY',
+      timezone: config.timezone,
+      enabled: true,
+      available: true,
+      deduplicate: true
     }
   ];
 }
@@ -1235,6 +1248,13 @@ function kspResolveAllResources_(environment, storedResources, config, report) {
   });
 
   kspResolveResource_(environment, resources, report, {
+    key: KSP_RESOURCE_KEYS.BACKUP_FOLDER,
+    parentId: config.controlFolderId,
+    name: KSP_RESOURCE_NAMES.BACKUP_FOLDER,
+    mimeType: KSP_MIME_TYPES.FOLDER
+  });
+
+  kspResolveResource_(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET,
     parentId: config.controlFolderId,
     name: KSP_RESOURCE_NAMES.BACKEND_SPREADSHEET,
@@ -1364,6 +1384,16 @@ function kspEnsureTriggers_(environment, registry, report) {
     });
 
     if (matches.length > 0) {
+      if (rule.deduplicate && matches.length > 1) {
+        kspAssert_(typeof environment.deleteTrigger === 'function' && matches.every(function (trigger) { return trigger.id; }),
+          'TRIGGER_DEDUPLICATION_UNSUPPORTED', 'Duplicate trigger cleanup requires exact trigger IDs.');
+        matches.slice(1).forEach(function (trigger) {
+          environment.deleteTrigger(trigger.id);
+          kspAddAction_(report, 'trigger', rule.key, 'duplicate-removed', { id: trigger.id, handler: rule.handler });
+        });
+        existingTriggers = existingTriggers.filter(function (trigger) { return matches.slice(1).indexOf(trigger) === -1; });
+        matches = matches.slice(0, 1);
+      }
       kspAddAction_(report, 'trigger', rule.key, 'reused', {
         count: matches.length,
         handler: rule.handler,
@@ -1379,12 +1409,17 @@ function kspEnsureTriggers_(environment, registry, report) {
       return;
     }
 
-    var created = environment.createClockTrigger(rule.handler, rule.intervalMinutes);
+    var created = rule.schedule === 'DAILY'
+      ? environment.createDailyTrigger(rule.handler, rule.timezone)
+      : environment.createClockTrigger(rule.handler, rule.intervalMinutes);
+    kspAssert_(created && created.handler === rule.handler && created.eventType === rule.eventType,
+      'TRIGGER_CREATE_MISMATCH', 'Created trigger does not match the required handler and event type.');
     existingTriggers.push(created);
     kspAddAction_(report, 'trigger', rule.key, 'created', {
       handler: rule.handler,
       eventType: rule.eventType,
-      intervalMinutes: rule.intervalMinutes,
+      schedule: rule.schedule || 'MINUTES',
+      intervalMinutes: rule.intervalMinutes || null,
       id: created.id || null
     });
   });
@@ -1406,6 +1441,7 @@ function kspRunValidation_(environment) {
       [KSP_RESOURCE_KEYS.MEETING_RECORDS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.PITCHBOOKS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS, KSP_MIME_TYPES.FOLDER],
+      [KSP_RESOURCE_KEYS.BACKUP_FOLDER, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET, KSP_MIME_TYPES.SPREADSHEET],
       [KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET, KSP_MIME_TYPES.SPREADSHEET]
     ];
@@ -1425,6 +1461,7 @@ function kspRunValidation_(environment) {
       [KSP_RESOURCE_KEYS.MEETING_RECORDS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
       [KSP_RESOURCE_KEYS.PITCHBOOKS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
       [KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS, config.knowledgeParentFolderId],
+      [KSP_RESOURCE_KEYS.BACKUP_FOLDER, config.controlFolderId],
       [KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET, config.controlFolderId],
       [KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET, config.controlFolderId]
     ];
@@ -2241,6 +2278,16 @@ function kspCreateAppsScriptEnvironment_() {
       };
     },
 
+    createDailyTrigger: function (handler, timezone) {
+      var trigger = ScriptApp.newTrigger(handler).timeBased().atHour(2).everyDays(1)
+        .inTimezone(timezone || KSP_DEFAULTS.TIMEZONE).create();
+      return {
+        id: trigger.getUniqueId(),
+        handler: trigger.getHandlerFunction(),
+        eventType: String(trigger.getEventType())
+      };
+    },
+
     deleteTrigger: function (triggerId) {
       var trigger = ScriptApp.getProjectTriggers().filter(function (candidate) {
         return candidate.getUniqueId() === String(triggerId);
@@ -2411,6 +2458,172 @@ function kspFindDisposableDefaultSheet_(spreadsheet) {
   return sheet;
 }
 // ===== END src/20_LiveEnvironment.gs =====
+
+// ===== BEGIN src/21_BackendBackup.gs =====
+var KSP_BACKUP_KIND = 'backend-daily-v1';
+var KSP_BACKUP_PREFIX = 'Knowledge Platform Backend Backup ';
+var KSP_BACKUP_RETENTION_DAYS = 30;
+
+function kspBackendBackupName_(dateKey) {
+  kspAssert_(kspTemporalIsValidDateKey_(dateKey), 'BACKUP_DATE_INVALID', 'Backup date is invalid.');
+  return KSP_BACKUP_PREFIX + dateKey;
+}
+
+function kspBackendBackupOwned_(file, folderId, backendId) {
+  if (!file || !file.id || file.id === backendId || file.trashed === true ||
+    file.mimeType !== KSP_MIME_TYPES.SPREADSHEET ||
+    !Array.isArray(file.parents) || file.parents.length !== 1 || file.parents[0] !== folderId) return false;
+  var marker = file.appProperties || {};
+  return marker.kspBackupKind === KSP_BACKUP_KIND && marker.kspBackendSourceId === backendId &&
+    kspTemporalIsValidDateKey_(marker.kspBackupDate) && file.name === kspBackendBackupName_(marker.kspBackupDate);
+}
+
+function kspBackendBackupAgeDays_(todayKey, snapshotKey) {
+  kspAssert_(kspTemporalIsValidDateKey_(todayKey) && kspTemporalIsValidDateKey_(snapshotKey),
+    'BACKUP_DATE_INVALID', 'Backup date is invalid.');
+  return (Date.parse(todayKey + 'T00:00:00Z') - Date.parse(snapshotKey + 'T00:00:00Z')) / 86400000;
+}
+
+function kspRunBackendDailyBackup_(environment) {
+  var result = { ok: false, dateKey: '', snapshot: 'NOT_RUN', retentionTrashed: 0, errorCode: '' };
+  var lock = null;
+  try {
+    lock = environment.acquireScriptLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS);
+    var state = kspLoadInstallationState_(environment);
+    kspAssert_(state && state.config && state.resources, 'BACKUP_INSTALLATION_MISSING',
+      'Backup requires a completed installation.');
+    var config = kspNormalizeAndValidateConfig_(state.config);
+    var folderId = state.resources[KSP_RESOURCE_KEYS.BACKUP_FOLDER];
+    var backendId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
+    kspAssert_(folderId && backendId && folderId !== backendId, 'BACKUP_RESOURCE_ID_MISSING',
+      'Backup resource IDs are missing or invalid.');
+    var folder = environment.getResource(folderId);
+    var backend = environment.getResource(backendId);
+    kspAssert_(folder && folder.mimeType === KSP_MIME_TYPES.FOLDER &&
+      Array.isArray(folder.parents) && folder.parents.length === 1 && folder.parents[0] === config.controlFolderId,
+    'BACKUP_FOLDER_BOUNDARY_INVALID', 'Backup folder is outside the restricted control boundary.');
+    kspAssert_(backend && backend.mimeType === KSP_MIME_TYPES.SPREADSHEET &&
+      Array.isArray(backend.parents) && backend.parents.length === 1 && backend.parents[0] === config.controlFolderId,
+    'BACKUP_SOURCE_BOUNDARY_INVALID', 'Backend source is outside the restricted control boundary.');
+
+    var todayKey = environment.todayKey(config.timezone);
+    kspAssert_(kspTemporalIsValidDateKey_(todayKey), 'BACKUP_DATE_INVALID', 'Backup date is invalid.');
+    result.dateKey = todayKey;
+    var listed = environment.listBackupFiles(folderId);
+    kspAssert_(Array.isArray(listed), 'BACKUP_LIST_INVALID', 'Backup listing is incomplete.');
+    var owned = listed.filter(function (file) { return kspBackendBackupOwned_(file, folderId, backendId); });
+    var sameDay = owned.filter(function (file) { return file.appProperties.kspBackupDate === todayKey; });
+    kspAssert_(sameDay.length <= 1, 'BACKUP_DUPLICATE_SAME_DAY', 'Multiple accepted snapshots exist for one day.');
+
+    if (sameDay.length) {
+      var existing = environment.getBackupFile(sameDay[0].id);
+      kspAssert_(kspBackendBackupOwned_(existing, folderId, backendId) &&
+        existing.appProperties.kspBackupDate === todayKey,
+      'BACKUP_EXISTING_MISMATCH', 'Existing daily snapshot identity changed.');
+      result.snapshot = 'REUSED';
+    } else {
+      var name = kspBackendBackupName_(todayKey);
+      var marker = { kspBackupKind: KSP_BACKUP_KIND, kspBackendSourceId: backendId, kspBackupDate: todayKey };
+      var copied = environment.copyBackendSpreadsheet(backendId, folderId, name, marker);
+      kspAssert_(copied && copied.id && copied.id !== backendId, 'BACKUP_COPY_INVALID',
+        'Backup copy did not return a distinct file.');
+      var verified = environment.getBackupFile(copied.id);
+      kspAssert_(kspBackendBackupOwned_(verified, folderId, backendId) &&
+        verified.appProperties.kspBackupDate === todayKey,
+      'BACKUP_COPY_VERIFICATION_FAILED', 'Backup copy could not be verified in the dedicated folder.');
+      result.snapshot = 'CREATED';
+    }
+
+    var expired = owned.filter(function (file) {
+      return kspBackendBackupAgeDays_(todayKey, file.appProperties.kspBackupDate) > KSP_BACKUP_RETENTION_DAYS;
+    });
+    var verifiedExpired = expired.map(function (file) {
+      var fresh = environment.getBackupFile(file.id);
+      kspAssert_(kspBackendBackupOwned_(fresh, folderId, backendId) &&
+        kspBackendBackupAgeDays_(todayKey, fresh.appProperties.kspBackupDate) > KSP_BACKUP_RETENTION_DAYS,
+      'BACKUP_RETENTION_BOUNDARY_CHANGED', 'Backup retention candidate changed before cleanup.');
+      return fresh;
+    });
+    verifiedExpired.forEach(function (file) {
+      var trashed = environment.trashBackupFile(file.id);
+      kspAssert_(trashed && trashed.id === file.id && trashed.trashed === true,
+        'BACKUP_TRASH_VERIFICATION_FAILED', 'Backup Trash operation could not be verified.');
+      result.retentionTrashed += 1;
+    });
+    result.ok = true;
+    return result;
+  } catch (error) {
+    result.errorCode = kspGetErrorCode_(error, 'BACKUP_OPERATION_FAILED');
+    return result;
+  } finally {
+    if (lock) environment.releaseScriptLock(lock);
+  }
+}
+// ===== END src/21_BackendBackup.gs =====
+
+// ===== BEGIN src/22_BackendBackupLive.gs =====
+function kspCreateBackendBackupEnvironment_() {
+  var environment = kspCreateAppsScriptEnvironment_();
+
+  environment.todayKey = function (timezone) {
+    kspAssert_(timezone === KSP_DEFAULTS.TIMEZONE, 'BACKUP_TIMEZONE_MISMATCH',
+      'Backup timezone must match the Apps Script Business Date boundary.');
+    return kspCanonicalBusinessDate_(new Date());
+  };
+
+  environment.listBackupFiles = function (folderId) {
+    var files = [];
+    var pageToken = null;
+    var pages = 0;
+    do {
+      pages += 1;
+      kspAssert_(pages <= 100, 'BACKUP_LIST_PAGE_LIMIT', 'Backup folder listing exceeded the safe page limit.');
+      var response = Drive.Files.list({
+        q: "'" + kspEscapeDriveQueryLiteral_(folderId) + "' in parents and trashed = false",
+        spaces: 'drive',
+        corpora: 'allDrives',
+        includeItemsFromAllDrives: true,
+        supportsAllDrives: true,
+        pageSize: 100,
+        pageToken: pageToken || undefined,
+        fields: 'nextPageToken,incompleteSearch,files(id,name,mimeType,parents,trashed,appProperties)'
+      });
+      kspAssert_(response && !response.incompleteSearch, 'BACKUP_LIST_INCOMPLETE',
+        'Backup folder listing is incomplete.');
+      files = files.concat(response.files || []);
+      pageToken = response.nextPageToken || null;
+    } while (pageToken);
+    return files;
+  };
+
+  environment.getBackupFile = function (fileId) {
+    return Drive.Files.get(fileId, {
+      supportsAllDrives: true,
+      fields: 'id,name,mimeType,parents,trashed,appProperties'
+    });
+  };
+
+  environment.copyBackendSpreadsheet = function (sourceId, folderId, name, marker) {
+    return Drive.Files.copy({
+      name: name,
+      parents: [folderId],
+      appProperties: marker
+    }, sourceId, {
+      supportsAllDrives: true,
+      fields: 'id,name,mimeType,parents,trashed,appProperties'
+    });
+  };
+
+  environment.trashBackupFile = function (fileId) {
+    return Drive.Files.update({ trashed: true }, fileId, null, {
+      supportsAllDrives: true,
+      fields: 'id,trashed'
+    });
+  };
+
+  return environment;
+}
+// ===== END src/22_BackendBackupLive.gs =====
 
 // ===== BEGIN src/30_MeetingCore.gs =====
 var KSP_MEETING_WORK_ID = '0005';
@@ -4791,6 +5004,13 @@ function validateInstallation_() {
 
 function getInstallationStatus_() {
   return kspGetStatus_(kspCreateAppsScriptEnvironment_());
+}
+
+function runBackendDailyBackup_() {
+  var result = kspRunBackendDailyBackup_(kspCreateBackendBackupEnvironment_());
+  Logger.log(JSON.stringify({ operation: 'BACKEND_DAILY_BACKUP', ok: result.ok,
+    snapshot: result.snapshot, retentionTrashed: result.retentionTrashed, errorCode: result.errorCode }));
+  return result;
 }
 
 function getBootstrapConfigTemplate_() {

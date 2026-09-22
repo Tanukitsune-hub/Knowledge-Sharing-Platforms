@@ -17,6 +17,7 @@ var KSP_RESOURCE_NAMES = Object.freeze({
   MEETING_RECORDS: 'Meeting Records',
   PITCHBOOKS: 'Pitchbooks',
   KNOWLEDGE_EXPORTS: 'Knowledge Exports',
+  BACKUP_FOLDER: 'Knowledge Platform Backups',
   BACKEND_SPREADSHEET: 'Knowledge Platform Backend',
   AUDIT_SPREADSHEET: 'Knowledge Platform Audit'
 });
@@ -26,6 +27,7 @@ var KSP_RESOURCE_KEYS = Object.freeze({
   MEETING_RECORDS: 'meetingRecordsFolderId',
   PITCHBOOKS: 'pitchbooksFolderId',
   KNOWLEDGE_EXPORTS: 'knowledgeExportsFolderId',
+  BACKUP_FOLDER: 'backupFolderId',
   BACKEND_SPREADSHEET: 'backendSpreadsheetId',
   AUDIT_SPREADSHEET: 'auditSpreadsheetId'
 });
@@ -550,6 +552,7 @@ function kspBuildSettingsRows_(config, resources, nowIso) {
     { Key: 'MEETING_RECORDS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.MEETING_RECORDS], Description: 'Meeting records folder.', Updated_At: nowIso },
     { Key: 'PITCHBOOKS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.PITCHBOOKS], Description: 'Pitchbooks/source-material folder.', Updated_At: nowIso },
     { Key: 'KNOWLEDGE_EXPORTS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS], Description: 'Derived Knowledge Exports folder outside the authoritative root.', Updated_At: nowIso },
+    { Key: 'BACKUP_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.BACKUP_FOLDER], Description: 'Restricted Backend-only daily backup folder.', Updated_At: nowIso },
     { Key: 'BACKEND_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET], Description: 'Five-sheet backend spreadsheet.', Updated_At: nowIso },
     { Key: 'AUDIT_LOG_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET], Description: 'Separate restricted audit spreadsheet.', Updated_At: nowIso },
     { Key: 'ADMIN_EMAILS', Value: adminEmails, Description: 'Administrative contacts; not an application authentication mechanism.', Updated_At: nowIso },
@@ -602,6 +605,16 @@ function kspGetTriggerRegistry_(config) {
       intervalMinutes: config.aiSyncIntervalMinutes,
       enabled: config.aiSyncEnabled,
       available: false
+    },
+    {
+      key: 'BACKEND_DAILY_BACKUP_TRIGGER',
+      handler: 'runBackendDailyBackup_',
+      eventType: KSP_TRIGGER_EVENT_TYPES.CLOCK,
+      schedule: 'DAILY',
+      timezone: config.timezone,
+      enabled: true,
+      available: true,
+      deduplicate: true
     }
   ];
 }

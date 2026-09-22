@@ -298,6 +298,16 @@ function kspCreateAppsScriptEnvironment_() {
       };
     },
 
+    createDailyTrigger: function (handler, timezone) {
+      var trigger = ScriptApp.newTrigger(handler).timeBased().atHour(2).everyDays(1)
+        .inTimezone(timezone || KSP_DEFAULTS.TIMEZONE).create();
+      return {
+        id: trigger.getUniqueId(),
+        handler: trigger.getHandlerFunction(),
+        eventType: String(trigger.getEventType())
+      };
+    },
+
     deleteTrigger: function (triggerId) {
       var trigger = ScriptApp.getProjectTriggers().filter(function (candidate) {
         return candidate.getUniqueId() === String(triggerId);
