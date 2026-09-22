@@ -1,11 +1,11 @@
 # Work 0047 — Meeting detail empty identity cleanup + Master rename modal requirements
 
 WORK_ID: 0047
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0046 version28
-ACTIVE_DISPATCH: 0047-CODEX-01
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -178,3 +178,11 @@ Meeting選択後:
 - 7 normal pages nonblank
 - console material error/warn 0
 - schema/migration/provider/permission changes 0
+
+
+## Accepted Outcome
+
+PR #69 merged as `dba6cf1496d4f1dbfef900fdbbd6212c3b52a5dc`.
+Owner-only Web App version29 accepted. Completion Latch applied.
+
+Completion: `docs/handoffs/0047-completion-report.md`
