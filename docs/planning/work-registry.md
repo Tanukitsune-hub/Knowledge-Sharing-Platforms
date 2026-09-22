@@ -38,10 +38,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACCEPTED | Work0044 version25 | PR #67 / version27 accepted。Completion Latch済み |
 | 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | ACCEPTED | Work0045 version27 | PR #68 / version28 accepted。Completion Latch済み |
 | 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACTIVE | Work0046 version28 | CODEX-01 / version29 target |
-| 25 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 26 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 27 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 28 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 25 | 0048 | 削除記録の管理 manual-search only | PLANNED | Work0047 accepted baseline | Remove page-entry auto search; explicit Search only |
+| 26 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 27 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 28 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 29 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -770,3 +771,25 @@ Requirements: `docs/handoffs/0047-meeting-detail-master-rename-modal-requirement
 Plan: `docs/planning/work0047-meeting-detail-master-rename-modal.md`
 Dispatch: `docs/handoffs/0047-dispatches.md`
 Instruction: `docs/handoffs/0047-CODEX-01-master-rename-modal-instruction.md`
+
+
+## Work 0048 planned contract
+
+```text
+WORK_ID: 0048
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0047 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+ADMIN_PAGE_ENTRY_DELETED_SEARCH_RPC: 0
+DELETED_TAB_SWITCH_SEARCH_RPC: 0
+FILTER_EDIT_SEARCH_RPC: 0
+EXPLICIT_SEARCH_CLICK_RPC: 1
+RESTORE_SUCCESS_REFRESH: PRESERVE
+BACKEND_API_CHANGE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0048-admin-deleted-records-manual-search-requirements.md`
+Plan: `docs/planning/work0048-admin-deleted-records-manual-search.md`
