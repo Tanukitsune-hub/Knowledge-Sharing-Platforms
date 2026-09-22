@@ -43,10 +43,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | PLANNED | Work0049 accepted baseline | Integrate into existing Theme Settings preview/save flow |
 | 28 | 0051 | Backend daily backup + 30-day retention | PLANNED | Work0050 accepted baseline | Backend Spreadsheet only; daily snapshot; >30 days to Trash |
 | 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
-| 30 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 31 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 32 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 33 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
+| 31 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 32 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 33 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 34 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -891,3 +892,27 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0052-missing-source-graceful-failure-requirements.md`
 Plan: `docs/planning/work0052-missing-source-graceful-failure.md`
+
+
+## Work 0053 planned contract
+
+```text
+WORK_ID: 0053
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0052 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+PRIMARY_CHANGE_TYPE: USER_FACING_COPY_ONLY
+VISIBLE_AUTHORITATIVE: 0
+VISIBLE_権威ある: 0
+NATURAL_JAPANESE: REQUIRED
+TERMINOLOGY_CONSISTENCY: REQUIRED
+BUSINESS_LOGIC_CHANGE: 0
+BACKEND_API_CHANGE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Guideline: `docs/design/ui-japanese-copy-guidelines.md`
+Requirements: `docs/handoffs/0053-japanese-ui-copy-naturalization-requirements.md`
+Plan: `docs/planning/work0053-japanese-ui-copy-naturalization.md`
