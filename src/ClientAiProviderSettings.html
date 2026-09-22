@@ -54,5 +54,5 @@ aiProviderAdminElement('admin-deleted-search').addEventListener('click',searchAd
 aiProviderAdminElement('admin-deleted-results').addEventListener('click',event=>{const button=event.target.closest('[data-admin-restore-index]');if(button)restoreAdminDeletedMeeting(button.dataset.adminRestoreIndex,button)});
 document.querySelectorAll('[data-admin-tab]').forEach(button=>{button.addEventListener('click',()=>selectAdminTab(button.dataset.adminTab));button.addEventListener('keydown',adminTabKeydown)});
 selectAdminTab('provider');
-aiProviderAdminElement('nav-ai-provider-settings').addEventListener('click',()=>{searchAdminDeletedMeetings();loadAiProviderAdminData(false)});
+aiProviderAdminElement('nav-ai-provider-settings').addEventListener('click',()=>loadAiProviderAdminData(false));
 </script>
