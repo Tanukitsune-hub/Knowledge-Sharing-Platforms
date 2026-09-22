@@ -40,10 +40,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACTIVE | Work0046 version28 | CODEX-01 / version29 target |
 | 25 | 0048 | 削除記録の管理 manual-search only | PLANNED | Work0047 accepted baseline | Remove page-entry auto search; explicit Search only |
 | 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | PLANNED | Work0048 accepted baseline | Shared button spinner + status busy + aria-busy across mutations |
-| 27 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 28 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 29 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 30 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | PLANNED | Work0049 accepted baseline | Integrate into existing Theme Settings preview/save flow |
+| 28 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 29 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 30 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 31 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -816,3 +817,28 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0049-async-operation-feedback-requirements.md`
 Plan: `docs/planning/work0049-async-operation-feedback.md`
+
+
+## Work 0050 planned contract
+
+```text
+WORK_ID: 0050
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0049 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+COLOR_TOOL: SATURATION_VALUE_PICKER + HUE_SLIDER
+HEX_DISPLAY_INPUT: REQUIRED
+RGB_DISPLAY: REQUIRED
+HEX_COPY: REQUIRED
+THEME_TOKEN_APPLY: REQUIRED
+EYEDROPPER: PROGRESSIVE_ENHANCEMENT
+THEME_DRAFT_INTEGRATION: REQUIRED
+NEW_PERSISTENCE: 0
+THEME_STORAGE_SCHEMA_CHANGE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0050-theme-color-tool-requirements.md`
+Plan: `docs/planning/work0050-theme-color-tool.md`
