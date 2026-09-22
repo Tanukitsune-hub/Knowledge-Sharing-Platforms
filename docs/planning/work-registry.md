@@ -771,7 +771,6 @@ SELECTED_MEETING_IDENTITY_HERO: PRESERVE
 MASTER_RENAME_NATIVE_PROMPT: 0
 MASTER_RENAME_CUSTOM_MODAL: REQUIRED
 REORDER_CONTRACT_CHANGE: 0
-FINAL_SERVED_VERSION: 29
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
@@ -785,7 +784,7 @@ Report: `docs/handoffs/0047-CODEX-01-master-rename-modal-report.md`
 Completion: `docs/handoffs/0047-completion-report.md`
 
 
-## Work 0048 planned contract
+## Work 0048 active contract
 
 ```text
 WORK_ID: 0048
