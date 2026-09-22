@@ -40,10 +40,14 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACTIVE | Work0046 version28 | CODEX-01 / version29 target |
 | 25 | 0048 | 削除記録の管理 manual-search only | PLANNED | Work0047 accepted baseline | Remove page-entry auto search; explicit Search only |
 | 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | PLANNED | Work0048 accepted baseline | Shared button spinner + status busy + aria-busy across mutations |
-| 27 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 28 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 29 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 30 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | PLANNED | Work0049 accepted baseline | Integrate into existing Theme Settings preview/save flow |
+| 28 | 0051 | Backend daily backup + 30-day retention | PLANNED | Work0050 accepted baseline | Backend Spreadsheet only; daily snapshot; >30 days to Trash |
+| 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
+| 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
+| 31 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 32 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 33 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 34 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -816,3 +820,99 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0049-async-operation-feedback-requirements.md`
 Plan: `docs/planning/work0049-async-operation-feedback.md`
+
+
+## Work 0050 planned contract
+
+```text
+WORK_ID: 0050
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0049 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+COLOR_TOOL: SATURATION_VALUE_PICKER + HUE_SLIDER
+HEX_DISPLAY_INPUT: REQUIRED
+RGB_DISPLAY: REQUIRED
+HEX_COPY: REQUIRED
+THEME_TOKEN_APPLY: REQUIRED
+EYEDROPPER: PROGRESSIVE_ENHANCEMENT
+THEME_DRAFT_INTEGRATION: REQUIRED
+NEW_PERSISTENCE: 0
+THEME_STORAGE_SCHEMA_CHANGE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0050-theme-color-tool-requirements.md`
+Plan: `docs/planning/work0050-theme-color-tool.md`
+
+
+## Work 0051 planned contract
+
+```text
+WORK_ID: 0051
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0050 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+BACKUP_SCOPE: KNOWLEDGE_PLATFORM_BACKEND_ONLY
+SCHEDULE: DAILY
+RETENTION_DAYS: 30
+RETENTION_ACTION: MOVE_TO_TRASH
+AUDIT_BACKUP: 0
+MEETING_DOC_BACKUP: 0
+PITCHBOOK_BACKUP: 0
+PERMANENT_DELETE: 0
+AUTOMATIC_RESTORE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0051-backend-daily-backup-requirements.md`
+Plan: `docs/planning/work0051-backend-daily-backup.md`
+
+## Work 0052 planned contract
+
+```text
+WORK_ID: 0052
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0051 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+MISSING_MEETING_DOC: INLINE_FAIL_CLOSED
+MISSING_PITCHBOOK_FILE: INLINE_FAIL_CLOSED
+POPUP_ERROR: 0
+AUTO_RECREATE_SOURCE: 0
+AUTO_DEACTIVATE_RECORD: 0
+BACKEND_MUTATION_ON_MISSING_SOURCE: 0
+PROVIDER_INDEX_AUTO_DELETE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0052-missing-source-graceful-failure-requirements.md`
+Plan: `docs/planning/work0052-missing-source-graceful-failure.md`
+
+
+## Work 0053 planned contract
+
+```text
+WORK_ID: 0053
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0052 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+PRIMARY_CHANGE_TYPE: USER_FACING_COPY_ONLY
+VISIBLE_AUTHORITATIVE: 0
+VISIBLE_権威ある: 0
+NATURAL_JAPANESE: REQUIRED
+TERMINOLOGY_CONSISTENCY: REQUIRED
+BUSINESS_LOGIC_CHANGE: 0
+BACKEND_API_CHANGE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Guideline: `docs/design/ui-japanese-copy-guidelines.md`
+Requirements: `docs/handoffs/0053-japanese-ui-copy-naturalization-requirements.md`
+Plan: `docs/planning/work0053-japanese-ui-copy-naturalization.md`
