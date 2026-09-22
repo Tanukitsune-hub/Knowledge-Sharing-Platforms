@@ -39,8 +39,8 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | ACCEPTED | Work0045 version27 | PR #68 / version28 accepted。Completion Latch済み |
 | 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACCEPTED | Work0046 version28 | PR #69 / version29 accepted。Completion Latch済み |
 | 25 | 0048 | 削除記録の管理 manual-search only | ACCEPTED | Work0047 version29 | PR #70 / version30 accepted。Completion Latch済み |
-| 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | ACTIVE | Work0048 version30 | CODEX-01 / version31 target |
-| 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | PLANNED | Work0049 accepted baseline | Integrate into existing Theme Settings preview/save flow |
+| 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | ACCEPTED | Work0048 version30 | PR #71 / version31 accepted。Completion Latch済み |
+| 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | ACTIVE | Work0049 version31 | CODEX-01 / stacked 0050–0053 entry |
 | 28 | 0051 | Backend daily backup + 30-day retention | PLANNED | Work0050 accepted baseline | Backend Spreadsheet only; daily snapshot; >30 days to Trash |
 | 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
 | 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
@@ -815,21 +815,26 @@ Report: `docs/handoffs/0048-CODEX-01-admin-deleted-manual-search-report.md`
 Completion: `docs/handoffs/0048-completion-report.md`
 
 
-## Work 0049 active contract
+## Work 0049 accepted outcome
 
 ```text
 WORK_ID: 0049
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0048 version30
-ACTIVE_DISPATCH: 0049-CODEX-01
-BALL: CODEX
+FINAL_SERVED_VERSION: 31
+PR: #71
+MERGE: 7702c7b9c210f3a70ac5c184e4143a78e48ed466
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 FEEDBACK_STANDARD: BUTTON_SPINNER + STATUS_BUSY + ARIA_BUSY
 MUTATION_SURFACE_COVERAGE: APP_WIDE
 MASTER_OPTION_ADD_PROCESSING_FEEDBACK: REQUIRED
 FAKE_PROGRESS_PERCENT: 0
 FULLSCREEN_OVERLAY_FOR_NORMAL_MUTATION: 0
 BACKEND_API_CHANGE: 0 expected
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
 ```
 
@@ -837,17 +842,19 @@ Requirements: `docs/handoffs/0049-async-operation-feedback-requirements.md`
 Plan: `docs/planning/work0049-async-operation-feedback.md`
 Dispatch: `docs/handoffs/0049-dispatches.md`
 Instruction: `docs/handoffs/0049-CODEX-01-async-feedback-standardization-instruction.md`
+Report: `docs/handoffs/0049-CODEX-01-async-feedback-standardization-report.md`
+Completion: `docs/handoffs/0049-completion-report.md`
 
 
-## Work 0050 planned contract
+## Work 0050 active contract
 
 ```text
 WORK_ID: 0050
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
-DEPENDENCY: Work0049 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+BASELINE: Work0049 version31
+ACTIVE_DISPATCH: 0050-CODEX-01
+BALL: CODEX
 COLOR_TOOL: SATURATION_VALUE_PICKER + HUE_SLIDER
 HEX_DISPLAY_INPUT: REQUIRED
 RGB_DISPLAY: REQUIRED
@@ -862,6 +869,8 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0050-theme-color-tool-requirements.md`
 Plan: `docs/planning/work0050-theme-color-tool.md`
+Dispatch: `docs/handoffs/0050-dispatches.md`
+Instruction: `docs/handoffs/0050-CODEX-01-theme-color-tool-instruction.md`
 
 
 ## Work 0051 planned contract
