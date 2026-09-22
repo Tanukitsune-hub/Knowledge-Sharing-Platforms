@@ -1,11 +1,11 @@
 # Work 0047 — Meeting detail empty hero + Master rename modal plan
 
 WORK_ID: 0047
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0046 version28
-ACTIVE_DISPATCH: 0047-CODEX-01
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -54,3 +54,9 @@ ACCESS_CHANGE: 0
 - permission
 - reorder redesign
 - generic replacement of all confirm / prompt UI
+
+
+## Accepted Outcome
+
+Work0047 completed in PR #69 / version29.
+Completion Latch applied. No further Work0047 action is required unless a material regression is found.
