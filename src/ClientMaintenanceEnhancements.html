@@ -43,9 +43,9 @@ function bootstrapMaintenance(result) {
 
 async function performMasterMutation(payload) {
   const result=await serverCall('mutateMaster',payload);
-  if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Master変更に失敗しました。');
+  if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'マスターを更新できませんでした。');
   applyMaintenanceMasterData(result.masters);
-  showStatus('masters-status','success','Masterを更新しました。');
+  showStatus('masters-status','success','マスターを更新しました。');
 }
 
 const KSP_COUNTERPARTY_MODAL_TYPES=['GP','LP_ASSET_OWNER','NISSAY_INTERNAL','GROUP_COMPANY','CONSULTANT_GATEKEEPER','OTHER'];
@@ -113,7 +113,7 @@ function meetingMaterialCandidates(records,linkedIds){
 }
 function renderMeetingMaterialCandidates(){
   const candidates=meetingMaterialPickerState.candidates.filter(item=>item);
-  el('meeting-material-modal-results').innerHTML=candidates.map((record,index)=>'<div class="meeting-material-candidate" role="listitem"><div class="meeting-material-candidate-label">'+escapeHtml(meetingMaterialCandidateLabel(record))+'</div><button class="small-button" type="button" data-meeting-material-index="'+index+'"'+(meetingMaterialPickerState.busy?' disabled':'')+'>この資料を関連付ける</button></div>').join('')||'<div class="meeting-material-empty">一致する未関連のActive資料はありません。</div>';
+  el('meeting-material-modal-results').innerHTML=candidates.map((record,index)=>'<div class="meeting-material-candidate" role="listitem"><div class="meeting-material-candidate-label">'+escapeHtml(meetingMaterialCandidateLabel(record))+'</div><button class="small-button" type="button" data-meeting-material-index="'+index+'"'+(meetingMaterialPickerState.busy?' disabled':'')+'>この資料を関連付ける</button></div>').join('')||'<div class="meeting-material-empty">関連付け可能な有効な保存資料はありません。</div>';
 }
 function closeMeetingMaterialPicker(){
   if(meetingMaterialPickerState.busy)return;
@@ -165,7 +165,7 @@ let meetingDetailRecord=null,meetingDetailBusy=false,meetingDetailReadBusy=false
 const meetingDetailKnownDocuments=new Map();
 function renderMeetingDetail(record){
   meetingDetailRecord=record;
-  el('meeting-detail-identity').textContent=record.meetingId+' / Version '+record.version+' / '+record.status;
+  el('meeting-detail-identity').textContent=record.meetingId+' / 更新番号 '+record.version+' / '+record.status;
   const fields=[['日付',record.date],['時間',record.time],['面談場所',record.locationName],['面談先',record.counterpartyEntityName],['面談先種別',record.counterpartyType],['アセットクラス',record.assetClassName],['Equity / Debt',record.capitalTypeName],['チーム',record.teamName],['Fund / Strategy',record.fundStrategy],['MTG種別',(record.meetingTypeLabels||[]).join(' / ')],['面談相手',record.counterparty],['当社側',record.internalParticipants]];
   el('meeting-detail-attributes').innerHTML=fields.map(([label,value])=>'<div><strong>'+escapeHtml(label)+'</strong><div>'+escapeHtml(value||'—')+'</div></div>').join('');
   el('meeting-detail-body').textContent=record.notes||'（本文なし）';
@@ -198,7 +198,7 @@ async function changeDetailRelation(documentId,operation,trigger){
     bindPitchbookParent(meetingDetailRecord,true);
     await linkParentDocument(documentId,operation);
     await openMeetingDetail(meetingDetailRecord.meetingId,null,true);
-    showStatus('meeting-detail-status','success',operation==='remove'?'この記録との関連のみ解除しました。原本と他の関連は維持されます。':'関連付けました。資料のStatusは変更していません。');
+    showStatus('meeting-detail-status','success',operation==='remove'?'この記録との関連付けを解除しました。資料本体は残ります。':'資料を関連付けました。資料の状態は変更していません。');
     return true;
   }catch(error){showStatus('meeting-detail-status','error',(error.message||String(error))+' 再試行時に現在の関係を照合します。');return false}
   finally{meetingDetailBusy=false;kspSetRegionBusy(el('meeting-detail-card'),false);if(trigger&&trigger.isConnected)kspSetActionBusy(trigger,false)}

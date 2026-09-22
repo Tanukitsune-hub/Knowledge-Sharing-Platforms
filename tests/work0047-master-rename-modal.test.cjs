@@ -13,7 +13,7 @@ const styles = read('src/Styles.html');
 
 test('empty Meeting identity hero is hidden while selected and reset identity behavior is preserved', () => {
   assert.match(styles, /#meeting-detail-identity\.meeting-detail-hero:empty\{display:none\}/);
-  assert.match(enhancements, /el\('meeting-detail-identity'\)\.textContent=record\.meetingId\+' \/ Version '\+record\.version/);
+  assert.match(enhancements, /el\('meeting-detail-identity'\)\.textContent=record\.meetingId\+' \/ 更新番号 '\+record\.version/);
   assert.match(enhancements, /resetMeetingDetailSelection[\s\S]*?el\('meeting-detail-identity'\)\.textContent=''/);
 });
 

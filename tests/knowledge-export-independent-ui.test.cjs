@@ -52,7 +52,7 @@ test('production layout has the Work 0037 row order and a dedicated non-submit F
   for (const id of order) {const position = page.indexOf('id="' + id + '"');assert.ok(position > previous, id);previous = position}
   assert.match(page, /id="knowledge-full-output"[^>]*type="button">全文出力/);
   assert.doesNotMatch(page, /<option value="FULL_EXPORT"/);
-  assert.match(page, /面談記録・資料/);
+  assert.match(page, /面談記録・保存資料/);
   assert.match(page, /面談記録のみ/);
   assert.match(page, /資料のみ/);
   const ids = Array.from(page.matchAll(/\bid="([^"]+)"/g), match => match[1]);
@@ -132,7 +132,7 @@ test('read-only mode instruction and free draft are preserved; all-period restor
   h.context.kApplyMode();
   assert.equal(h.nodes.get('knowledge-instruction').readOnly, false);
   assert.equal(h.nodes.get('knowledge-instruction').value, 'User free draft');
-  assert.equal(h.nodes.get('knowledge-mode-help').textContent, 'このモードでは質問が必須です。Citationから原資料へ戻れます。');
+  assert.equal(h.nodes.get('knowledge-mode-help').textContent, '質問を入力してください。参照資料から原本を開けます。');
   h.nodes.get('knowledge-dateFrom').value = '2026-01-02';
   h.nodes.get('knowledge-dateTo').value = '2026-02-03';
   h.nodes.get('knowledge-all-period').checked = true;

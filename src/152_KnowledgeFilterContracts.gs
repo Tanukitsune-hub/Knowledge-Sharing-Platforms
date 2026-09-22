@@ -67,7 +67,7 @@ function kspGetKnowledgeModeDefinition_(mode) {
     placeholder: '任意: 投資機会、リスク、見通しの共通軸で比較してください。',
     inputRequired: false,
     targetRequired: false,
-    instruction: '選択された2–5 Entityを共通軸で比較し、Entityごとの根拠と証拠不足を区別してください。',
+    instruction: '選択した2–5件の面談先を共通の項目で比較し、それぞれの根拠と情報が足りない点を示してください。',
     apiInstructions: [
       '選択Entityごとに資料で確認できる事実を帰属させ、共通軸の簡潔な比較表を作成してください。',
       '裏付けられた共通点、相違点、時系列の変化、証拠の非対称性を区別してください。',
@@ -80,7 +80,7 @@ function kspGetKnowledgeModeDefinition_(mode) {
     placeholder: '任意: 次回面談で確認したいテーマを入力してください。',
     inputRequired: false,
     targetRequired: true,
-    instruction: '選択された単一EntityまたはGPとの面談に向け、主要更新、変化、未解決点、再確認事項、質問候補、証拠不足を整理してください。投資判断を自動生成しないでください。',
+    instruction: '選択した面談先との面談に向け、主な更新、変化、未解決点、確認事項、質問候補を整理してください。資料にない情報は補わないでください。',
     apiInstructions: [
       '選択された単一EntityまたはGPとの次回面談に向けた実務的なBriefを作成してください。',
       '最近の更新、過去からの変化、未解決論点、再確認事項、質問候補、証拠不足を整理してください。',
@@ -241,16 +241,17 @@ function kspKnowledgeScopeSummary_(request) {
   var input = request || {};
   var filters = kspKnowledgeRequestFilters_(input);
   var parts = [];
-  if (filters.dateFrom || filters.dateTo) parts.push('Date ' + (filters.dateFrom || '…') + '–' + (filters.dateTo || '…'));
-  if (filters.counterpartyType) parts.push('Type ' + filters.counterpartyType);
+  if (filters.dateFrom || filters.dateTo) parts.push('期間 ' + (filters.dateFrom || '…') + '–' + (filters.dateTo || '…'));
+  if (filters.counterpartyType) parts.push('面談先種別 指定あり');
   if (filters.entityKey) parts.push('面談先 指定あり');
   if ((input.selectedEntityKeys || []).length) parts.push('比較対象 ' + input.selectedEntityKeys.length + '件');
-  if (filters.assetClassId) parts.push('Asset ' + filters.assetClassId);
-  if (filters.capitalTypeId) parts.push('Capital ' + filters.capitalTypeId);
-  if (filters.teamId) parts.push('チーム ' + filters.teamId);
-  if (filters.fundStrategy) parts.push('Fund/Strategy ' + filters.fundStrategy);
-  if (filters.meetingTypeCode) parts.push('MTG種別 ' + filters.meetingTypeCode);
-  parts.push('Source ' + (filters.sourceType || 'Meeting+Pitchbook'));
+  if (filters.assetClassId) parts.push('アセットクラス 指定あり');
+  if (filters.capitalTypeId) parts.push('Equity / Debt 指定あり');
+  if (filters.teamId) parts.push('チーム 指定あり');
+  if (filters.fundStrategy) parts.push('Fund / Strategy ' + filters.fundStrategy);
+  if (filters.meetingTypeCode) parts.push('MTG種別 指定あり');
+  parts.push('対象資料 ' + (filters.sourceType === 'Meeting' ? '面談記録' :
+    filters.sourceType === 'Pitchbook' ? '保存資料' : '面談記録と保存資料'));
   return parts.join(' / ');
 }
 

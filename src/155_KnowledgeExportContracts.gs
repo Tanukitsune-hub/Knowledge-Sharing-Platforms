@@ -186,50 +186,50 @@ function kspKnowledgeExportSafeMessage_(code, error) {
     AI_ASSET_CLASS_FILTER_UNAVAILABLE: '選択されたアセットクラスは利用できません。',
     AI_CAPITAL_TYPE_FILTER_UNAVAILABLE: '選択されたEquity / Debtは利用できません。',
     AI_TEAM_FILTER_UNAVAILABLE: '選択されたチームは利用できません。',
-    AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE: '選択されたCounterparty Typeは利用できません。',
-    AI_ENTITY_FILTER_UNAVAILABLE: '選択されたCounterparty Entityは利用できません。',
+    AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE: '選択した面談先種別は利用できません。',
+    AI_ENTITY_FILTER_UNAVAILABLE: '選択した面談先は利用できません。',
     AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
-    AI_ENTITY_TYPE_CONFLICT: 'Counterparty TypeとEntityが一致しません。',
-    AI_ENTITY_GP_CONFLICT: 'Counterparty EntityとGPが一致しません。',
-    AI_MULTI_ENTITY_COUNT_INVALID: '比較するEntityは2–5件で選択してください。',
-    AI_MULTI_ENTITY_DUPLICATE: '同じEntityを複数回選択できません。',
-    AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
-    AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
+    AI_ENTITY_TYPE_CONFLICT: '面談先の種別が一致しません。',
+    AI_ENTITY_GP_CONFLICT: '面談先とGPの指定が一致しません。',
+    AI_MULTI_ENTITY_COUNT_INVALID: '比較する面談先を2–5件選択してください。',
+    AI_MULTI_ENTITY_DUPLICATE: '同じ面談先を複数回選択できません。',
+    AI_MULTI_ENTITY_MODE_REQUIRED: '面談先の複数選択は比較モードで利用できます。',
+    AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数の面談先と単一の面談先を同時に指定できません。',
     AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件は利用できません。',
     AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMTG種別は利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、MTG種別はMeetingにのみ適用できます。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チームとMTG種別は「面談記録のみ」で利用できます。',
     KNOWLEDGE_EXPORT_PROMPT_REQUIRED: '自由質問では質問を入力してください。',
     KNOWLEDGE_EXPORT_PROMPT_TOO_LONG: '質問または追加指示は5,000文字以内で入力してください。',
     KNOWLEDGE_EXPORT_COPY_NOT_CONFIRMED: 'コピー成功の確認がないため、監査記録を作成できません。',
     KNOWLEDGE_EXPORT_OUTPUT_TYPE_INVALID: '出力形式が不正です。',
     KNOWLEDGE_EXPORT_PREVIEW_REQUIRED: '先に対象資料を確認してください。',
     KNOWLEDGE_EXPORT_PREVIEW_STALE: 'プレビューが古くなっています。再度プレビューを実行してください。',
-    KNOWLEDGE_EXPORT_NO_RESULTS: '一致するActiveな資料がありません。',
+    KNOWLEDGE_EXPORT_NO_RESULTS: '条件に合う有効な資料はありません。',
     KNOWLEDGE_EXPORT_LIMIT_EXCEEDED: '対象資料が書き出し上限を超えています。フィルターを絞ってください。',
-    KNOWLEDGE_EXPORT_MEETING_DOCUMENT_MISSING: '面談記録のGoogle Docs原本を確認できません。',
-    KNOWLEDGE_EXPORT_MEETING_URL_MISSING: '面談記録の原本リンクを確認できません。',
+    KNOWLEDGE_EXPORT_MEETING_DOCUMENT_MISSING: '面談記録のGoogle Docs原本が見つかりません。',
+    KNOWLEDGE_EXPORT_MEETING_URL_MISSING: '面談記録の原本リンクがありません。',
     KNOWLEDGE_EXPORT_MEETING_LINK_MISMATCH: '面談記録の原本リンクが一致しません。',
     KNOWLEDGE_EXPORT_MEETING_DOCUMENT_READ_FAILED: '面談記録のGoogle Docs原本を読み込めません。',
-    KNOWLEDGE_EXPORT_PITCHBOOK_FILE_MISSING: '保存資料の原本ファイルを確認できません。',
-    KNOWLEDGE_EXPORT_PITCHBOOK_URL_MISSING: '保存資料の原本リンクを確認できません。',
+    KNOWLEDGE_EXPORT_PITCHBOOK_FILE_MISSING: '保存資料の原本ファイルが見つかりません。',
+    KNOWLEDGE_EXPORT_PITCHBOOK_URL_MISSING: '保存資料の原本リンクがありません。',
     KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH: '保存資料の原本リンクが一致しません。',
-    KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID: '保存資料の原本ファイルを確認できません。',
+    KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID: '保存資料の原本ファイルを開くことができません。',
     KNOWLEDGE_EXPORT_PITCHBOOK_FILE_READ_FAILED: '保存資料の原本ファイルを読み込めません。',
     KNOWLEDGE_EXPORT_RATE_LIMITED: '処理が集中しています。少し待って再試行してください。',
-    KNOWLEDGE_EXPORTS_FOLDER_MISSING: 'Knowledge Exportsフォルダが設定されていません。',
-    KNOWLEDGE_EXPORTS_FOLDER_INVALID: 'Knowledge Exportsフォルダの境界を確認できません。',
-    KNOWLEDGE_EXPORT_ARTIFACT_MISSING: '生成された書き出しのIDを確認できません。',
-    KNOWLEDGE_EXPORT_ARTIFACT_URL_MISSING: '生成された書き出しのDriveリンクを確認できません。',
-    KNOWLEDGE_EXPORT_ARTIFACT_URL_MISMATCH: '生成された書き出しのリンク整合性を確認できません。',
-    KNOWLEDGE_EXPORT_DOCUMENT_CREATE_FAILED: '生成されたGoogle Docの境界を確認できません。',
-    KNOWLEDGE_EXPORT_DOCUMENT_URL_MISSING: '生成されたGoogle Docのリンクを確認できません。',
+    KNOWLEDGE_EXPORTS_FOLDER_MISSING: '書き出し先フォルダが見つかりません。',
+    KNOWLEDGE_EXPORTS_FOLDER_INVALID: '書き出し先フォルダを開くことができません。',
+    KNOWLEDGE_EXPORT_ARTIFACT_MISSING: '書き出したファイルが見つかりません。',
+    KNOWLEDGE_EXPORT_ARTIFACT_URL_MISSING: '書き出したファイルのリンクがありません。',
+    KNOWLEDGE_EXPORT_ARTIFACT_URL_MISMATCH: '書き出したファイルのリンクが一致しません。',
+    KNOWLEDGE_EXPORT_DOCUMENT_CREATE_FAILED: 'Google Docsを作成できませんでした。',
+    KNOWLEDGE_EXPORT_DOCUMENT_URL_MISSING: '作成したGoogle Docsのリンクがありません。',
     KNOWLEDGE_EXPORT_PDF_EMPTY: 'PDFの内容が空です。',
-    KNOWLEDGE_EXPORT_PDF_CREATE_FAILED: '生成されたPDFの境界を確認できません。',
-    KNOWLEDGE_EXPORT_PDF_URL_MISSING: '生成されたPDFのリンクを確認できません。',
+    KNOWLEDGE_EXPORT_PDF_CREATE_FAILED: 'PDFを作成できませんでした。',
+    KNOWLEDGE_EXPORT_PDF_URL_MISSING: '作成したPDFのリンクがありません。',
     KNOWLEDGE_EXPORT_ARTIFACT_CREATE_FAILED: '書き出しファイルを作成できませんでした。',
-    KNOWLEDGE_EXPORT_FILE_ID_MISSING: '書き出しファイルIDがありません。'
+    KNOWLEDGE_EXPORT_FILE_ID_MISSING: '書き出したファイルが見つかりません。'
   };
-  var safe = messages[code] || 'Knowledge Exportを処理できませんでした。';
+  var safe = messages[code] || '資料を書き出せませんでした。';
   var sourceId = error && error.sourceId ? String(error.sourceId) : '';
   if (sourceId && /^(?:MTG|DOC)-[A-Za-z0-9_-]{1,80}$/.test(sourceId) &&
       /KNOWLEDGE_EXPORT_(?:MEETING|PITCHBOOK)/.test(code)) {
@@ -244,7 +244,7 @@ function kspKnowledgeExportSafeWarning_(code) {
     AUDIT_WRITE_FAILED: '監査メタデータを記録できませんでした。',
     KNOWLEDGE_EXPORT_TEMP_DOCUMENT_CLEANUP_FAILED: 'PDFは作成されましたが、一時Google Docを自動削除できませんでした。'
   };
-  return messages[code] || 'Knowledge Exportの補足処理に失敗しました。';
+  return messages[code] || '書き出し後の処理を完了できませんでした。';
 }
 
 function kspKnowledgeExportRowMatches_(row, input) {
@@ -450,7 +450,7 @@ function kspBuildKnowledgeExportFilename_(input, nowIso, outputType) {
 
 function kspBuildKnowledgeExportPackageTitle_(input) {
   var value = input || {};
-  var parts = ['Meeting全文出力'];
+  var parts = ['面談記録の全文出力'];
   var filters = kspKnowledgeExportPublicFilters_(value);
   [filters.counterpartyType, filters.entityKey, (input.selectedEntityKeys || []).join('+'), filters.gpId, filters.assetClassId,
     filters.capitalTypeId, filters.teamId, filters.fundStrategy, filters.followUp, filters.sourceType,
@@ -471,33 +471,33 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
     var definition = kspCounterpartyTypeDefinition_(counterpartyType);
     var lines = [
       'Meeting ID: ' + item.source.sourceId,
-      'Date: ' + item.source.date,
+      '日付: ' + item.source.date,
       '面談先区分: ' + (definition ? definition.label : counterpartyType),
       '面談先: ' + ((safeMaps.counterparty || {})[counterpartyId] || '登録情報なし'),
       'アセットクラス: ' + (safeMaps.assetClass[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''))
     ];
-    if (row.Time) lines.push('Time: ' + kspCanonicalBusinessTime_(row.Time));
+    if (row.Time) lines.push('時間: ' + kspCanonicalBusinessTime_(row.Time));
     if (row.Capital_Type_ID) lines.push('Equity / Debt: ' + (safeMaps.capitalType[String(row.Capital_Type_ID)] || String(row.Capital_Type_ID)));
-    if (row.Location_ID) lines.push('Location: ' + (safeMaps.location[String(row.Location_ID)] || String(row.Location_ID)));
-    if (row.Counterparty) lines.push('Counterparty: ' + String(row.Counterparty));
-    if (row.Internal_Participants) lines.push('Internal Participants: ' + String(row.Internal_Participants));
+    if (row.Location_ID) lines.push('面談場所: ' + (safeMaps.location[String(row.Location_ID)] || String(row.Location_ID)));
+    if (row.Counterparty) lines.push('面談相手: ' + String(row.Counterparty));
+    if (row.Internal_Participants) lines.push('当社側: ' + String(row.Internal_Participants));
     if (row.Team_ID) lines.push('チーム: ' + (safeMaps.team[String(row.Team_ID)] || String(row.Team_ID)));
     if (row.Fund_Strategy) lines.push('Fund / Strategy: ' + String(row.Fund_Strategy));
     var meetingTypes = kspMeetingTypeLabels_(row.Meeting_Type_Codes);
     if (meetingTypes.length) lines.push('MTG種別: ' + meetingTypes.join(', '));
-    if (row.Related_Pitchbook_IDs) lines.push('Related Pitchbook IDs: ' + String(row.Related_Pitchbook_IDs));
-    lines.push('Authoritative Google Doc: ' + String(item.source.canonicalUrl || row.Doc_URL || ''));
+    if (row.Related_Pitchbook_IDs) lines.push('関連資料のDocument ID: ' + String(row.Related_Pitchbook_IDs));
+    lines.push('Google Docs原本: ' + String(item.source.canonicalUrl || row.Doc_URL || ''));
     return {
       entityKey: item.source.entityKey || kspCounterpartyEntityKey_(counterpartyId),
       entityLabel: (safeMaps.counterparty || {})[counterpartyId] || '登録情報なし',
-      heading: 'Meeting ' + item.source.sourceId + ' / ' + item.source.date,
+      heading: '面談記録 ' + item.source.sourceId + ' / ' + item.source.date,
       metadataLines: lines,
       body: item.body
     };
   });
   return {
     title: title || kspBuildKnowledgeExportPackageTitle_(input),
-    headerLines: ['Meeting全文出力（非AI）', 'Scope: ' + kspKnowledgeScopeSummary_(input)],
+    headerLines: ['面談記録の全文出力', '対象範囲: ' + kspKnowledgeScopeSummary_(input)],
     meetingSections: meetingSections,
     pitchbookLines: [],
     pitchbookReferencesOnly: false
@@ -505,7 +505,7 @@ function kspBuildKnowledgeExportRenderModel_(input, meetings, pitchbooks, maps, 
 }
 
 function kspBuildKnowledgeExportPlainText_(model) {
-  var lines = [String(model.title || 'Knowledge Export')].concat(model.headerLines || [], ['']);
+  var lines = [String(model.title || '面談記録の全文出力')].concat(model.headerLines || [], ['']);
   var currentEntityKey = '';
   (model.meetingSections || []).forEach(function (section, index) {
     if (section.entityKey && section.entityKey !== currentEntityKey) {
@@ -531,15 +531,16 @@ function kspBuildKnowledgeExportPrompt_(input, catalog) {
   var definition = kspGetKnowledgeExportModeDefinition_(input.mode);
   var filters = kspKnowledgeExportPublicFilters_(input);
   var safeCatalog = catalog || {};
-  var sourceType = filters.sourceType || '未選択（Meeting と Pitchbook の両方）';
+  var sourceType = filters.sourceType === KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.MEETING ? '面談記録' :
+    filters.sourceType === KSP_KNOWLEDGE_EXPORT_SOURCE_TYPES.PITCHBOOK ? '保存資料' : '面談記録と保存資料';
   var lines = [
-    '添付したKnowledge Exportと、必要に応じて別途添付した原資料だけを根拠に、日本語で回答してください。',
+    '添付した面談記録の全文と、必要に応じて別途添付した原資料だけを根拠に、日本語で回答してください。',
     '資料にない事実は推測・創作せず、確認できない点と証拠不足を明示してください。',
     '重要な事実や比較には、可能な範囲で資料タイトル、Meeting ID、Document IDなどの出典名を付けてください。',
     '',
     'モード: ' + definition.mode,
-    'Date From: ' + (filters.dateFrom || '未選択'),
-    'Date To: ' + (filters.dateTo || '未選択'),
+    '開始日: ' + (filters.dateFrom || '未選択'),
+    '終了日: ' + (filters.dateTo || '未選択'),
     '面談先区分: ' + (filters.counterpartyType || '未選択'),
     '面談先: ' + kspKnowledgeExportPromptLabel_(safeCatalog.counterpartyEntities, filters.entityKey),
     '比較対象の面談先: ' + ((input.selectedEntityKeys || []).length
@@ -551,11 +552,11 @@ function kspBuildKnowledgeExportPrompt_(input, catalog) {
     'チーム: ' + kspKnowledgeExportPromptLabel_(safeCatalog.teams, filters.teamId),
     'Fund / Strategy: ' + (filters.fundStrategy || '未選択'),
     'MTG種別: ' + (filters.meetingTypeCode || '未選択'),
-    'Source Type: ' + sourceType,
+    '対象資料: ' + sourceType,
     '',
     definition.instruction,
-    'Meeting sectionは権威あるGoogle Docsの完全な原文と業務属性を含みます。Pitchbook本文・参照リンクsectionは含みません。',
-    'この全文出力にPitchbook本文は含みません。Pitchbook本文の分析が必要な場合は、許可された資料検索ルートで別途アップロードされた原資料を参照してください。'
+    '面談記録にはGoogle Docs原本の全文と登録情報を含みます。保存資料の本文とリンクは含みません。',
+    '保存資料の本文を分析する場合は、許可された資料検索から原本を参照してください。'
   ];
   if (input.questionOrInstruction) lines.push('', '質問または追加指示:', input.questionOrInstruction);
   return lines.join('\n');

@@ -141,7 +141,7 @@ test('admin theme UI has three accessible tabs, 16-field rendering, preview cont
   const admin = read('src/ClientAiProviderSettings.html');
   const client = read('src/ClientThemeSettings.html');
   assert.equal((page.match(/data-admin-tab=/g) || []).length, 3);
-  assert.match(page, />AIプロバイダ設定<\/button>[\s\S]*>削除記録の管理<\/button>[\s\S]*>テーマ設定<\/button>/);
+  assert.match(page, />AI設定<\/button>[\s\S]*>削除記録の管理<\/button>[\s\S]*>テーマ設定<\/button>/);
   assert.match(page, /id="theme-settings-save"[\s\S]*>保存<\/button>/);
   assert.match(page, /id="theme-settings-discard"[\s\S]*>変更を破棄<\/button>/);
   assert.match(page, /id="theme-settings-reset"[\s\S]*>既定の配色に戻す<\/button>/);

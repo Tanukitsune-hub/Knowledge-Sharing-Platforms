@@ -4,7 +4,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const PAYLOAD_PLACEHOLDER = '0'.repeat(64);
-const PRODUCT = 'Knowledge Share';
+const PRODUCT = 'Private Assets Intelligence';
 
 function normalizeText(value) {
   return String(value).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
@@ -130,7 +130,7 @@ function buildArtifacts(options = {}) {
   };
   const releaseManifestText = `${safeJson(releaseManifest, 2)}\n`;
   const generatedManifest = `${safeJson(JSON.parse(manifestContent), 2)}\n`;
-  const installGuide = `# Knowledge Share ${release.releaseVersion} installation\n\n` +
+  const installGuide = `# Private Assets Intelligence ${release.releaseVersion} installation\n\n` +
     `Source commit: \`${sourceCommit}\`\n` +
     `Bundle SHA-256: \`${fileHash}\`\n` +
     `Payload SHA-256: \`${payloadHash}\`\n\n` +

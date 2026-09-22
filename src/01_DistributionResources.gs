@@ -3,7 +3,7 @@ function kspGetDistributionMetadata_() {
     return kspDeepClone_(KSP_BUNDLE_RELEASE_METADATA);
   }
   return {
-    product: 'Knowledge Share',
+    product: 'Private Assets Intelligence',
     releaseVersion: KSP_RELEASE_VERSION,
     schemaVersion: KSP_SCHEMA_VERSION,
     sourceCommit: '',

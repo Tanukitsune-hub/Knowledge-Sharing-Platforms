@@ -176,8 +176,8 @@ test('FULL_OUTPUT package preserves common scope and Meeting body independently 
     source: { sourceId: 'DOC-1', date: '2026-08-02', canonicalUrl: 'https://drive.google.com/open?id=file-1', row: rows().pitchbooks[0] }
   }], { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} }, 'Synthetic package'));
   const text = ksp.kspBuildKnowledgeExportPlainText_(model);
-  assert.match(text, /Meeting全文出力（非AI）/);
-  assert.match(text, /Scope: Source Meeting/);
+  assert.match(text, /面談記録の全文出力/);
+  assert.match(text, /対象範囲: 対象資料 面談記録/);
   assert.doesNotMatch(text, /Mode: 比較|Compare periods/);
   assert.match(text, /AUTHORITATIVE MEETING BODY/);
   assert.doesNotMatch(text, /Pitchbooks \/ reference|file-1|Document ID: DOC-1/);

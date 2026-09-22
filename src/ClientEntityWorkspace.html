@@ -4,23 +4,24 @@ let entityWorkspaceData=null,entityWorkspaceCatalog=null,entityWorkspaceRequestS
 function entityWorkspaceText(value){const text=String(value==null?'':value).trim();return text||'—'}
 function entityWorkspaceStatusClass(status){return status==='Active'?'Active':status==='Inactive'?'Inactive':status==='Pending'?'Pending':status==='Failed'?'Failed':''}
 function entityWorkspaceBadge(status){return '<span class="badge '+entityWorkspaceStatusClass(status)+'">'+kspEscapeHtml(entityWorkspaceText(status))+'</span>'}
-function entityWorkspaceMore(count){return Number(count||0)>0?'<div class="gp-more">+'+kspEscapeHtml(count)+' more</div>':''}
+function entityWorkspaceScopeLabel(item){const value=String(item.activityScope||item.activityScopeLabel||'');return value==='related'||value==='Related'?'関連':'直接'}
+function entityWorkspaceMore(count){return Number(count||0)>0?'<div class="gp-more">ほか'+kspEscapeHtml(count)+'件</div>':''}
 function entityWorkspaceLink(url,label){const safe=kspSafeDriveUrl(url);return safe?'<a class="small-link" href="'+kspEscapeHtml(safe)+'" target="_blank" rel="noopener">'+kspEscapeHtml(label)+'</a>':'—'}
 
 function entityWorkspacePopulateEntities(preferred){
   const node=el('entity-workspace-entity'),selected=preferred===undefined?node.value:String(preferred||'');
   node.innerHTML='<option value="">未選択</option>';
-  ((entityWorkspaceCatalog&&entityWorkspaceCatalog.entityOptions)||[]).forEach(item=>{const option=document.createElement('option');option.value=item.entityKey;option.textContent=item.name+(item.status==='Inactive'?'（Inactive）':'');node.appendChild(option)});
+  ((entityWorkspaceCatalog&&entityWorkspaceCatalog.entityOptions)||[]).forEach(item=>{const option=document.createElement('option');option.value=item.entityKey;option.textContent=item.name+(item.status==='Inactive'?'（削除済み）':'');node.appendChild(option)});
   if([...node.options].some(option=>option.value===selected))node.value=selected;
 }
 function entityWorkspacePopulateFundStrategies(items){
   const node=el('entity-workspace-fund'),current=node.value;
   node.innerHTML='<option value="">未選択</option>';
-  ((items&&items.records)||[]).forEach(item=>{const option=document.createElement('option');option.value=item.text;option.textContent=item.text+' (M '+item.meetingCount+' / P '+item.pitchbookCount+')';node.appendChild(option)});
+  ((items&&items.records)||[]).forEach(item=>{const option=document.createElement('option');option.value=item.text;option.textContent=item.text+' (面談 '+item.meetingCount+' / 資料 '+item.pitchbookCount+')';node.appendChild(option)});
   if([...node.options].some(option=>option.value===current))node.value=current;
 }
 function entityWorkspaceMeetingCompact(item){
-  return '<div class="entity-list-row"><strong>'+kspEscapeHtml(item.date||'未設定')+' / '+kspEscapeHtml(item.meetingId)+'</strong><span>'+kspEscapeHtml(item.activityScopeLabel||item.activityScope||'Direct')+' / '+kspEscapeHtml(item.fundStrategy||'未設定')+'</span><span>'+entityWorkspaceBadge(item.status)+' '+entityWorkspaceLink(item.documentUrl,'Doc')+'</span></div>';
+  return '<div class="entity-list-row"><strong>'+kspEscapeHtml(item.date||'未設定')+' / '+kspEscapeHtml(item.meetingId)+'</strong><span>'+kspEscapeHtml(entityWorkspaceScopeLabel(item))+' / '+kspEscapeHtml(item.fundStrategy||'未設定')+'</span><span>'+entityWorkspaceBadge(item.status)+' '+entityWorkspaceLink(item.documentUrl,'原本')+'</span></div>';
 }
 function entityWorkspaceOwnedPitchbookRow(item){
   return '<tr><td>'+kspEscapeHtml(item.date||'未設定')+'</td><td>'+kspEscapeHtml(item.documentId)+'</td><td>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</td><td>'+entityWorkspaceBadge(item.status)+'</td><td>'+entityWorkspaceLink(item.fileUrl,'原本')+'</td></tr>';
@@ -38,11 +39,11 @@ function entityWorkspaceRenderDrill(drill){
   const host=el('entity-workspace-drill');
   if(!drill){host.innerHTML='';return}
   const meetings=drill.meetings&&drill.meetings.records||[],pitchbooks=drill.pitchbooks&&drill.pitchbooks.records||[],relationships=drill.relationships&&drill.relationships.records||[];
-  host.innerHTML='<h4>詳細: '+kspEscapeHtml(drill.selected)+'</h4><p class="hint">Meeting '+kspEscapeHtml(drill.counts.meetings)+'件 / Pitchbook '+kspEscapeHtml(drill.counts.pitchbooks)+'件 / 関係 '+kspEscapeHtml(drill.counts.relationships)+'件</p><div class="entity-workspace-grid"><div><strong>面談記録</strong>'+((meetings.map(entityWorkspaceMeetingCompact).join(''))||'<div class="empty-cell">該当なし</div>')+'</div><div><strong>保存資料</strong>'+((pitchbooks.map(item=>'<div class="entity-list-row"><strong>'+kspEscapeHtml(item.date||'未設定')+' / '+kspEscapeHtml(item.documentId)+'</strong><span>'+kspEscapeHtml(item.fundStrategy||'未設定')+' '+entityWorkspaceBadge(item.status)+'</span><span>'+entityWorkspaceLink(item.fileUrl,'原本')+'</span></div>').join(''))||'<div class="empty-cell">該当なし</div>')+'</div></div><div class="entity-relationship-list">'+((relationships.map(entityWorkspaceRelationship).join(''))||'<div class="empty-cell">該当なし</div>')+'</div>';
+  host.innerHTML='<h4>詳細: '+kspEscapeHtml(drill.selected)+'</h4><p class="hint">面談記録 '+kspEscapeHtml(drill.counts.meetings)+'件 / 保存資料 '+kspEscapeHtml(drill.counts.pitchbooks)+'件 / 関連付け '+kspEscapeHtml(drill.counts.relationships)+'件</p><div class="entity-workspace-grid"><div><strong>面談記録</strong>'+((meetings.map(entityWorkspaceMeetingCompact).join(''))||'<div class="empty-cell">該当なし</div>')+'</div><div><strong>保存資料</strong>'+((pitchbooks.map(item=>'<div class="entity-list-row"><strong>'+kspEscapeHtml(item.date||'未設定')+' / '+kspEscapeHtml(item.documentId)+'</strong><span>'+kspEscapeHtml(item.fundStrategy||'未設定')+' '+entityWorkspaceBadge(item.status)+'</span><span>'+entityWorkspaceLink(item.fileUrl,'原本')+'</span></div>').join(''))||'<div class="empty-cell">該当なし</div>')+'</div></div><div class="entity-relationship-list">'+((relationships.map(entityWorkspaceRelationship).join(''))||'<div class="empty-cell">該当なし</div>')+'</div>';
 }
 function entityWorkspaceRenderMeetings(data){
   const meetings=data.meetings&&data.meetings.all||{records:[],omittedCount:0};
-  el('entity-workspace-meetings').innerHTML=(meetings.records||[]).map(item=>'<tr><td>'+kspEscapeHtml(item.date||'未設定')+'</td><td>'+kspEscapeHtml(item.activityScopeLabel||item.activityScope||'Direct')+'</td><td>'+kspEscapeHtml(item.counterpartyTypeLabel||'未設定')+'<br>'+kspEscapeHtml(item.counterpartyEntityName||'登録情報なし')+'</td><td>'+kspEscapeHtml(item.teamName||'未設定')+'<br>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</td><td>'+entityWorkspaceBadge(item.status)+'</td><td>'+entityWorkspaceLink(item.documentUrl,'原本')+'</td></tr>').join('')||'<tr><td colspan="6" class="empty-cell">該当なし</td></tr>';
+  el('entity-workspace-meetings').innerHTML=(meetings.records||[]).map(item=>'<tr><td>'+kspEscapeHtml(item.date||'未設定')+'</td><td>'+kspEscapeHtml(entityWorkspaceScopeLabel(item))+'</td><td>'+kspEscapeHtml(item.counterpartyTypeLabel||'未設定')+'<br>'+kspEscapeHtml(item.counterpartyEntityName||'登録情報なし')+'</td><td>'+kspEscapeHtml(item.teamName||'未設定')+'<br>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</td><td>'+entityWorkspaceBadge(item.status)+'</td><td>'+entityWorkspaceLink(item.documentUrl,'原本')+'</td></tr>').join('')||'<tr><td colspan="6" class="empty-cell">該当なし</td></tr>';
   el('entity-workspace-meetings-more').innerHTML=entityWorkspaceMore(meetings.omittedCount);
 }
 function entityWorkspaceRenderMixes(mixes){
@@ -55,7 +56,7 @@ function entityWorkspaceRelationship(item){
 }
 function entityWorkspaceRenderRelationships(data){
   const items=data.relationships||[];
-  el('entity-workspace-relationships').innerHTML=items.map(entityWorkspaceRelationship).join('')||'<div class="empty-cell">明示的な関係はありません。</div>';
+  el('entity-workspace-relationships').innerHTML=items.map(entityWorkspaceRelationship).join('')||'<div class="empty-cell">関連付けられた資料はありません。</div>';
 }
 function entityWorkspaceRenderTimeline(data){
   const timeline=data.timeline&&data.timeline.records||[];
@@ -66,7 +67,7 @@ function entityWorkspaceRenderPrint(data){
   const funds=limit(data.fundStrategies&&data.fundStrategies.records,'funds'),meetings=limit(data.meetings&&data.meetings.all&&data.meetings.all.records,'meetings'),pitchbooks=limit(data.pitchbooks&&data.pitchbooks.records,'pitchbooks'),relationships=limit(data.relationships,'relationships'),timeline=limit(data.timeline&&data.timeline.records,'timeline');
   const section=(title,items,renderer,more,omitted)=>'<section class="gp-print-section"><h3>'+kspEscapeHtml(title)+'</h3>'+items.map(renderer).join('')+entityWorkspaceMore(Number(more||0)+Number(omitted||0))+'</section>';
   const omitted=data.omittedCounts||{};
-  el('entity-workspace-print').innerHTML='<header class="gp-print-header"><div><h1>'+kspEscapeHtml(data.entity.name)+'</h1><span>'+kspEscapeHtml(data.entity.status)+'</span></div><div class="gp-print-summary"><span>面談件数 <b>'+kspEscapeHtml(data.summary.activeMeetingCount)+'件</b></span><span>保存資料数 <b>'+kspEscapeHtml(data.summary.pitchbookActiveCount)+'件</b></span><span>最後の面談日 <b>'+kspEscapeHtml(data.summary.latestDirectMeetingDate||'未設定')+'</b></span></div></header>'+section('Fund / Strategy',funds.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.text)+'</b><span>M '+kspEscapeHtml(item.meetingCount)+' / P '+kspEscapeHtml(item.pitchbookCount)+'</span></div>',funds.more,omitted.fundStrategies)+section('面談記録',meetings.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.meetingId)+'</b><span>'+kspEscapeHtml(item.activityScopeLabel||'Direct')+' / '+kspEscapeHtml(item.fundStrategy||'未設定')+'</span></div>',meetings.more,omitted.directMeetings+omitted.relatedMeetings)+section('保存資料',pitchbooks.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.documentId)+'</b><span>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</span></div>',pitchbooks.more,omitted.pitchbooks)+section('関連資料',relationships.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.meetingId)+'</b><span>'+kspEscapeHtml((item.pitchbooks||[]).map(target=>target.documentId).join(', ')||'未設定')+'</span></div>',relationships.more,omitted.relationships)+section('活動履歴',timeline.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.kind)+'</b><span>'+kspEscapeHtml(item.id)+'</span></div>',timeline.more,omitted.timeline);
+  el('entity-workspace-print').innerHTML='<header class="gp-print-header"><div><h1>'+kspEscapeHtml(data.entity.name)+'</h1><span>'+kspEscapeHtml(data.entity.status)+'</span></div><div class="gp-print-summary"><span>面談件数 <b>'+kspEscapeHtml(data.summary.activeMeetingCount)+'件</b></span><span>保存資料数 <b>'+kspEscapeHtml(data.summary.pitchbookActiveCount)+'件</b></span><span>最後の面談日 <b>'+kspEscapeHtml(data.summary.latestDirectMeetingDate||'未設定')+'</b></span></div></header>'+section('Fund / Strategy',funds.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.text)+'</b><span>面談 '+kspEscapeHtml(item.meetingCount)+' / 資料 '+kspEscapeHtml(item.pitchbookCount)+'</span></div>',funds.more,omitted.fundStrategies)+section('面談記録',meetings.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.meetingId)+'</b><span>'+kspEscapeHtml(entityWorkspaceScopeLabel(item))+' / '+kspEscapeHtml(item.fundStrategy||'未設定')+'</span></div>',meetings.more,omitted.directMeetings+omitted.relatedMeetings)+section('保存資料',pitchbooks.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.documentId)+'</b><span>'+kspEscapeHtml(item.fundStrategy||'未設定')+'</span></div>',pitchbooks.more,omitted.pitchbooks)+section('関連資料',relationships.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.meetingId)+'</b><span>'+kspEscapeHtml((item.pitchbooks||[]).map(target=>target.documentId).join(', ')||'未設定')+'</span></div>',relationships.more,omitted.relationships)+section('活動履歴',timeline.items,item=>'<div class="gp-print-row"><b>'+kspEscapeHtml(item.date)+' / '+kspEscapeHtml(item.kind)+'</b><span>'+kspEscapeHtml(item.id)+'</span></div>',timeline.more,omitted.timeline);
 }
 function entityWorkspaceRender(data){
   entityWorkspaceData=data;
@@ -85,14 +86,14 @@ function entityWorkspaceRender(data){
 }
 async function loadEntityWorkspaceCatalog(){
   if(entityWorkspaceCatalogLoaded)return;
-  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','Entity一覧を読み込んでいます。');
+  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','面談先一覧を読み込んでいます。');
   try{const result=await serverCall('getEntityWorkspaceData',{});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先一覧を読み込めませんでした。');entityWorkspaceCatalog=result;entityWorkspaceCatalogLoaded=true;entityWorkspacePopulateEntities();showStatus('entity-workspace-status','info','面談先を選択してください。')}catch(error){showStatus('entity-workspace-status','error',error.message||String(error))}
 }
 async function loadEntityWorkspace(){
   const entityKey=el('entity-workspace-entity').value;
   if(!entityKey){entityWorkspaceData=null;el('entity-workspace-content').classList.add('hidden-panel');el('entity-workspace-print-button').disabled=true;return}
-  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','Entity Workspaceを読み込んでいます。');
-  try{const result=await serverCall('getEntityWorkspaceData',{entityKey:entityKey});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Entity Workspaceを読み込めませんでした。');entityWorkspaceRender(result);showStatus('entity-workspace-status','success','Entity Workspaceを表示しました。')}catch(error){if(requestId===entityWorkspaceRequestSequence)showStatus('entity-workspace-status','error',error.message||String(error))}
+  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','面談先サマリーを読み込んでいます。');
+  try{const result=await serverCall('getEntityWorkspaceData',{entityKey:entityKey});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先サマリーを読み込めませんでした。');entityWorkspaceRender(result);showStatus('entity-workspace-status','success','面談先サマリーを表示しました。')}catch(error){if(requestId===entityWorkspaceRequestSequence)showStatus('entity-workspace-status','error',error.message||String(error))}
 }
 async function loadEntityWorkspaceFund(fundStrategy){
   if(!entityWorkspaceData||!fundStrategy)return;
