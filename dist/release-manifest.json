@@ -2,16 +2,16 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "1869d9b12fbef3d77cd8ce876883d3c21a850889",
+  "source_git_commit": "0bae148e900f33654249587959e1c1901f4de38b",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "5ffaa2e59bff115f78a18bc6d789b60c749c88edb0373e1c93e4e631f0346eac",
-  "bundle_file_sha256": "be5c9c3535c0b5cfe89e69d613953553c9197b78c83e552db0d389efd571d3de",
+  "bundle_payload_sha256": "a24e6e1f2db25ad537c358a5dfb8276ef402dae4a2e4ccf6ed6b7456e6013e78",
+  "bundle_file_sha256": "b3a22f9e7904b12a92ff6976a7f65966c71b2a7111ba248496153d97fb29ed2a",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "13043741b640c6b9c7ed12617a3f0daab1b13a6bc6c5d49e8bdf79da52126326",
   "bundle_metrics": {
-    "bytes": 1261000,
-    "characters": 1217768,
+    "bytes": 1266912,
+    "characters": 1223491,
     "lines": 19706,
     "server_source_count": 61,
     "embedded_html_count": 23
@@ -371,8 +371,8 @@
     },
     {
       "file": "src/ClientMaintenance.html",
-      "bytes": 33472,
-      "sha256": "05229241345584b9132e9a13fd4f1e315c6d9596e9b26645b15c4a6ca0428661"
+      "bytes": 37793,
+      "sha256": "0d837ff5bdff3e7b98a12edc0e862b7bdc4cabba83358a52e3b898288a77d6f1"
     },
     {
       "file": "src/ClientMaintenanceEnhancements.html",
@@ -411,8 +411,8 @@
     },
     {
       "file": "src/Index.html",
-      "bytes": 23317,
-      "sha256": "eea31d0c3cda4e26d38271e60a7856879203b658df261655ec18d85b66eceba1"
+      "bytes": 24717,
+      "sha256": "031c54b2a51c8fc1ba8b578242467a704815459247c840772d71da1c84d6ab48"
     },
     {
       "file": "src/KnowledgeSearch.html",
@@ -436,8 +436,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 56913,
-      "sha256": "2e453b6393c815d3fcc9d47309109c48104e03d7b03b21e933e9d8be51f0657d"
+      "bytes": 56978,
+      "sha256": "093858ad93f84b9bb46463e96db4cd53aff5d5da0793ae93b41163f3f45374d0"
     }
   ]
 }
