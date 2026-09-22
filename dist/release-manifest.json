@@ -1,31 +1,31 @@
 {
-  "product": "Knowledge Share",
+  "product": "Private Assets Intelligence",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "e1ea1b9117bae227a2dabea5e30c46633fb83642",
+  "source_git_commit": "369fa4829dfe148d4807705de754c65b102901c3",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "e23c11608d0e4df5f13dcb8a79eba2252fa2dd5f64b9933ed6ef44141aa567bf",
-  "bundle_file_sha256": "51293db4adffe7bd068a1e2f5d4099f7eeb88d5fb044c6247e62bf41ba3405ad",
+  "bundle_payload_sha256": "cbd803fad74ac1cdc7a7235649d3cd6751643d7955b0a1fd82443b26f0cffd62",
+  "bundle_file_sha256": "c0d803dc4e34c6f396e6cec24bd4fceb84ce7fb9a01636cc9515b1757a842ad5",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "ce4aafc9b472432bcb8963308664f8c7acba0db7eed73e87ab5ce0bbd2d61ee5",
   "bundle_metrics": {
-    "bytes": 1302346,
-    "characters": 1257951,
-    "lines": 19970,
+    "bytes": 1302181,
+    "characters": 1256322,
+    "lines": 19972,
     "server_source_count": 63,
     "embedded_html_count": 23
   },
   "server_sources": [
     {
       "file": "src/00_Core.gs",
-      "bytes": 30308,
-      "sha256": "32ada87d173af9ed93af7d7cb57f8c68e56f5bd5b6e89721d71ce25f2611fde8"
+      "bytes": 30360,
+      "sha256": "c25faafafde1d401699af2f153be3a402321e4bb324b7621b5e1e0374659f39f"
     },
     {
       "file": "src/01_DistributionResources.gs",
-      "bytes": 1450,
-      "sha256": "30767cc45b4473103fc1f77474fb65a67d8bb8349269f7880d680469e76909c4"
+      "bytes": 1462,
+      "sha256": "7ba73a7d93cfff6871591a1d881566d549245336e52e42a62a1e787920121ebe"
     },
     {
       "file": "src/05_TemporalContracts.gs",
@@ -145,7 +145,7 @@
     {
       "file": "src/90_WebApp.gs",
       "bytes": 4137,
-      "sha256": "8d2563d029901fcf63111f73de06670276dcb349b0a93d6803f62af9360942d0"
+      "sha256": "69fbf59718a0d248378f2f28226b40ff90759e36729c3cf0af53260221eaf5f2"
     },
     {
       "file": "src/99_EntryPoints.gs",
@@ -249,18 +249,18 @@
     },
     {
       "file": "src/151_KnowledgeSearchService.gs",
-      "bytes": 5169,
-      "sha256": "848cfbd986b4322020baab900ee4c0c5033506f78e20b378621b661553853f94"
+      "bytes": 5160,
+      "sha256": "81e1cf20d06050ab6521aea9fd999eca5d05e176631a6d5bff8f91dbce38f166"
     },
     {
       "file": "src/152_KnowledgeFilterContracts.gs",
-      "bytes": 18849,
-      "sha256": "39978d24944d0bbbf071f85ef5c310aaf51d7cc4733f4c6eda57864b1f9c4e16"
+      "bytes": 18918,
+      "sha256": "93a25fa298f3cacad3f108c5e89baf7641adcf1c0765ff7b0b8a508de59df6c5"
     },
     {
       "file": "src/155_KnowledgeExportContracts.gs",
-      "bytes": 31444,
-      "sha256": "0d39bb927130469b73ed78fc7c09f193a09afb50203d71a72566d4c7b8f07f4e"
+      "bytes": 31382,
+      "sha256": "c66490fd09e906cb39e6903d107fdc890114c6a9677e3e48a70c70cf00a18a29"
     },
     {
       "file": "src/156_KnowledgeExportService.gs",
@@ -294,8 +294,8 @@
     },
     {
       "file": "src/164_AiProviderCore.gs",
-      "bytes": 102798,
-      "sha256": "b37c5d53b7a96695930d0e070b9b8acf36bae5b6405bea4135eda95c0400ff88"
+      "bytes": 102749,
+      "sha256": "b123e58e447e2c666cbb3b15915214cf1ee4169dd88243d509c7e9c11379bc1f"
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
@@ -324,8 +324,8 @@
     },
     {
       "file": "src/182_FeatureFreezeKnowledge.gs",
-      "bytes": 7396,
-      "sha256": "d688f0ab85b401b1f648b17e14cfa6d519d27e7d9b2348861ee71c5fb02c2362"
+      "bytes": 7387,
+      "sha256": "f49af6578f4da9b0984d6f38b6b81949cd61785b2ec0908e755a80dcd9c86dfa"
     },
     {
       "file": "src/190_FeatureFreezeDiagnostics.gs",
@@ -336,23 +336,23 @@
   "html_resources": [
     {
       "file": "src/ActivityAnalyticsPage.html",
-      "bytes": 5461,
-      "sha256": "eab0f89746aa2a335dadf15080d64bf68b693a1849b278abf9df27332792501e"
+      "bytes": 5428,
+      "sha256": "bf2ff259fa68fd851f1c9dcaedf25799623e61057b75ce01a541a33543f63d0b"
     },
     {
       "file": "src/AiProviderSettingsPage.html",
-      "bytes": 14070,
-      "sha256": "a60319cad9450d7f318a50c5e3eea83c28cd0a836051c0dcfc9ae84773c218fb"
+      "bytes": 13919,
+      "sha256": "00e9963e0c375d229556e84dcd43ed75c392b884c9a02890d31c475c4edfdd40"
     },
     {
       "file": "src/ClientActivityAnalytics.html",
-      "bytes": 11084,
-      "sha256": "a0fb57748513a11f868b152c6da87b23c88d8d11c00c28b2c1640d1e45af47e1"
+      "bytes": 11289,
+      "sha256": "e935ea1ae70922f1773712e13ec6193832226fe3f6fdaeac8ab3d2c860bce719"
     },
     {
       "file": "src/ClientAiProviderSettings.html",
-      "bytes": 18684,
-      "sha256": "67d91094358aeab4ec37ce503348239df3dea4d07a7dabb339a51de4ecc4031d"
+      "bytes": 18667,
+      "sha256": "22cb1fb1885d0f92f6242cd631b42909f2c9f89fe0b62ab45eae15a11b356abb"
     },
     {
       "file": "src/ClientBootstrap.html",
@@ -371,23 +371,23 @@
     },
     {
       "file": "src/ClientEntityWorkspace.html",
-      "bytes": 15582,
-      "sha256": "ac260b155cdd7a68355001925a5c879dde98010aeb2f539a87b1a7b4b22d19b6"
+      "bytes": 15779,
+      "sha256": "dc6d5b2a8f8119aea1d53f52c37a7cdedc14eb4a2aae6077f8411f26ab1a3d47"
     },
     {
       "file": "src/ClientKnowledgeSearch.html",
-      "bytes": 33913,
-      "sha256": "248b39c74735d4fb79aeac46ab5ee3ba6a211a6bcf47f165bbff54c33867ba1b"
+      "bytes": 33941,
+      "sha256": "454af5c9518798ecfff7b5b9404ed62915401f58ad7c059a221824d2d4653126"
     },
     {
       "file": "src/ClientMaintenance.html",
-      "bytes": 40614,
-      "sha256": "bd8773d3a6edae4a09c23dfebc35267adb34eacb594b465f088352d8ff506944"
+      "bytes": 40660,
+      "sha256": "183e2440a2265ad5102f8f1458a81384df1dcea0c7efac0694fa34b2d9f97799"
     },
     {
       "file": "src/ClientMaintenanceEnhancements.html",
-      "bytes": 22936,
-      "sha256": "7f9dae68acf4ee31a9baef7954302dc984d21581760748d2c91db7d2f5de522d"
+      "bytes": 22962,
+      "sha256": "94e128040b31f0c81ca1f3b5bc8b6f06a7052c12d6b7e038b6d660a278e81645"
     },
     {
       "file": "src/ClientPitchbookFiles.html",
@@ -396,13 +396,13 @@
     },
     {
       "file": "src/ClientPitchbookFlow.html",
-      "bytes": 9149,
-      "sha256": "af2e8ad37e9addd78abf71345a7f22e62ff5391b5045a7f82a430a22e0683a39"
+      "bytes": 9154,
+      "sha256": "814c291232c1f47f2076cb38324e0e53782c2ca28e9979ae73c7a9710a5782c5"
     },
     {
       "file": "src/ClientRelationshipExplorer.html",
-      "bytes": 12088,
-      "sha256": "0f262c1d505d0af79f9ee219e6cf2cbb4fad226c44abc21efb3d71f60a424a5b"
+      "bytes": 12061,
+      "sha256": "657cc4d0b39dd51fcd8f5d3ab5b7ad708ef980ae06f964a1f4cac4bd9d4b6085"
     },
     {
       "file": "src/ClientThemeSettings.html",
@@ -416,33 +416,33 @@
     },
     {
       "file": "src/EntityWorkspacePage.html",
-      "bytes": 4003,
-      "sha256": "6ce42ba1b5c29ef82ce05d5d163aecbeefe6a81a75659952307abc9ad5ccdb03"
+      "bytes": 3944,
+      "sha256": "a0cdaa218a67ab8cacff50baeeb8c4339df02fc13f610b9d310f5115ab3d1f6a"
     },
     {
       "file": "src/Index.html",
-      "bytes": 24765,
-      "sha256": "b28a26f8347d094ccd851be692b0decdd7f02cec6e3897038d0a82344753d4dd"
+      "bytes": 24704,
+      "sha256": "b616bf8161cec21c85a89a5a44b0e84c1f53ba58b4c5d33412a04005a3e33184"
     },
     {
       "file": "src/KnowledgeSearch.html",
-      "bytes": 922,
-      "sha256": "7b5913cf3f5a9e4594bcd4dedb21e827582dd1747271ed2d625b286a2bfdcd44"
+      "bytes": 901,
+      "sha256": "a970dbe7e32af55e932a188ea0b2af4a4d1ed6dd1ddb7410fe7ea9e9e01c997f"
     },
     {
       "file": "src/KnowledgeSearchPage.html",
-      "bytes": 9955,
-      "sha256": "a090641b34d56a26840309c5929de6ccd92d57289a0c7712cb0129d762fccb6c"
+      "bytes": 9748,
+      "sha256": "fca18c3742cef7ba357def5a210114992981653e5513f4c1a4c15ba713b95b3e"
     },
     {
       "file": "src/MaintenancePages.html",
-      "bytes": 16190,
-      "sha256": "a6fd3d77c0b9aef26498002191f28b413f6dc66bbc1851a9e2abcf593150021a"
+      "bytes": 16149,
+      "sha256": "b8866fed4f2cc830a483aa7d99f36eeadb841a67724221f3d45bfc6f4a7cc2be"
     },
     {
       "file": "src/RelationshipExplorerPage.html",
-      "bytes": 3962,
-      "sha256": "1142d4c465eef3864abf94474048678a88b98868eee542abbae18b234821abc2"
+      "bytes": 3887,
+      "sha256": "dbd6f019e68013b542e935061e001ad6cbfd7cdb27d8c47229210456266f3a2a"
     },
     {
       "file": "src/Styles.html",
