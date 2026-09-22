@@ -38,8 +38,8 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACCEPTED | Work0044 version25 | PR #67 / version27 accepted。Completion Latch済み |
 | 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | ACCEPTED | Work0045 version27 | PR #68 / version28 accepted。Completion Latch済み |
 | 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACCEPTED | Work0046 version28 | PR #69 / version29 accepted。Completion Latch済み |
-| 25 | 0048 | 削除記録の管理 manual-search only | ACTIVE | Work0047 version29 | CODEX-01 / version30 target |
-| 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | PLANNED | Work0048 accepted baseline | Shared button spinner + status busy + aria-busy across mutations |
+| 25 | 0048 | 削除記録の管理 manual-search only | ACCEPTED | Work0047 version29 | PR #70 / version30 accepted。Completion Latch済み |
+| 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | ACTIVE | Work0048 version30 | CODEX-01 / version31 target |
 | 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | PLANNED | Work0049 accepted baseline | Integrate into existing Theme Settings preview/save flow |
 | 28 | 0051 | Backend daily backup + 30-day retention | PLANNED | Work0050 accepted baseline | Backend Spreadsheet only; daily snapshot; >30 days to Trash |
 | 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
@@ -784,21 +784,26 @@ Report: `docs/handoffs/0047-CODEX-01-master-rename-modal-report.md`
 Completion: `docs/handoffs/0047-completion-report.md`
 
 
-## Work 0048 active contract
+## Work 0048 accepted outcome
 
 ```text
 WORK_ID: 0048
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0047 version29
-ACTIVE_DISPATCH: 0048-CODEX-01
-BALL: CODEX
+FINAL_SERVED_VERSION: 30
+PR: #70
+MERGE: 024d9f14a9f44b3c1cfcd2f6f2b31ea7f6b346bb
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 ADMIN_PAGE_ENTRY_DELETED_SEARCH_RPC: 0
 DELETED_TAB_SWITCH_SEARCH_RPC: 0
 FILTER_EDIT_SEARCH_RPC: 0
 EXPLICIT_SEARCH_CLICK_RPC: 1
 RESTORE_SUCCESS_REFRESH: PRESERVE
 BACKEND_API_CHANGE: 0
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
 ```
 
@@ -806,17 +811,19 @@ Requirements: `docs/handoffs/0048-admin-deleted-records-manual-search-requiremen
 Plan: `docs/planning/work0048-admin-deleted-records-manual-search.md`
 Dispatch: `docs/handoffs/0048-dispatches.md`
 Instruction: `docs/handoffs/0048-CODEX-01-admin-deleted-manual-search-instruction.md`
+Report: `docs/handoffs/0048-CODEX-01-admin-deleted-manual-search-report.md`
+Completion: `docs/handoffs/0048-completion-report.md`
 
 
-## Work 0049 planned contract
+## Work 0049 active contract
 
 ```text
 WORK_ID: 0049
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
-DEPENDENCY: Work0048 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+BASELINE: Work0048 version30
+ACTIVE_DISPATCH: 0049-CODEX-01
+BALL: CODEX
 FEEDBACK_STANDARD: BUTTON_SPINNER + STATUS_BUSY + ARIA_BUSY
 MUTATION_SURFACE_COVERAGE: APP_WIDE
 MASTER_OPTION_ADD_PROCESSING_FEEDBACK: REQUIRED
@@ -828,6 +835,8 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0049-async-operation-feedback-requirements.md`
 Plan: `docs/planning/work0049-async-operation-feedback.md`
+Dispatch: `docs/handoffs/0049-dispatches.md`
+Instruction: `docs/handoffs/0049-CODEX-01-async-feedback-standardization-instruction.md`
 
 
 ## Work 0050 planned contract
