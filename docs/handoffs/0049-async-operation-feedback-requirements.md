@@ -1,11 +1,11 @@
 # Work 0049 — 全アプリ非同期処理フィードバック標準化 requirements
 
 WORK_ID: 0049
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0048 version30
-ACTIVE_DISPATCH: 0049-CODEX-01
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -241,3 +241,11 @@ Asset Class / Location / Team:
 - server API redesign unless strictly necessary
 - schema / migration
 - Work0030
+
+
+## Accepted Outcome
+
+PR #71 merged as `7702c7b9c210f3a70ac5c184e4143a78e48ed466`.
+Owner-only Web App version31 accepted. Completion Latch applied.
+
+Completion: `docs/handoffs/0049-completion-report.md`
