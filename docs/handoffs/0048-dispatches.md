@@ -3,8 +3,8 @@
 WORK_ID: 0048
 DISPATCH_ID: 0048-CODEX-01
 ACTIVE_DISPATCH_ID: 0048-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 PHASE: ADMIN DELETED RECORDS MANUAL SEARCH
 
@@ -16,6 +16,7 @@ PHASE: ADMIN DELETED RECORDS MANUAL SEARCH
 
 - `docs/handoffs/0048-CODEX-01-admin-deleted-manual-search-instruction.md`
 - `docs/handoffs/0048-admin-deleted-records-manual-search-requirements.md`
+- `docs/handoffs/0048-CODEX-01-admin-deleted-manual-search-report.md`
 
 ## Hard boundary
 
@@ -42,5 +43,5 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0048
 DISPATCH_ID: 0048-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
