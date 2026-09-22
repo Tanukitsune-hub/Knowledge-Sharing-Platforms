@@ -37,10 +37,11 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 21 | 0044 | Executive Navy Slate theme tuning — exact #2D3E49 sidebar + right-pane visibility polish | ACCEPTED | Work0043 version24 | PR #66 / version25 accepted。User visual acceptance。Completion Latch済み |
 | 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACCEPTED | Work0044 version25 | PR #67 / version27 accepted。Completion Latch済み |
 | 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | ACCEPTED | Work0045 version27 | PR #68 / version28 accepted。Completion Latch済み |
-| 24 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 25 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 26 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 27 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACTIVE | Work0046 version28 | CODEX-01 / version29 target |
+| 25 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 26 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 27 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 28 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -745,3 +746,27 @@ Instruction: `docs/handoffs/0046-CODEX-01-ui-cleanup-staged-reorder-instruction.
 Report: `docs/handoffs/0046-CODEX-01-ui-cleanup-staged-reorder-report.md`
 Completion: `docs/handoffs/0046-completion-report.md`
 
+
+
+## Work 0047 active contract
+
+```text
+WORK_ID: 0047
+STATUS: ACTIVE
+MODE: BUILD
+BASELINE: Work0046 version28
+ACTIVE_DISPATCH: 0047-CODEX-01
+BALL: CODEX
+EMPTY_MEETING_IDENTITY_PILL: REMOVE_WHEN_EMPTY
+SELECTED_MEETING_IDENTITY_HERO: PRESERVE
+MASTER_RENAME_NATIVE_PROMPT: 0
+MASTER_RENAME_CUSTOM_MODAL: REQUIRED
+REORDER_CONTRACT_CHANGE: 0
+EXPECTED_FINAL_SERVED_VERSION: 29
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0047-meeting-detail-master-rename-modal-requirements.md`
+Plan: `docs/planning/work0047-meeting-detail-master-rename-modal.md`
+Dispatch: `docs/handoffs/0047-dispatches.md`
+Instruction: `docs/handoffs/0047-CODEX-01-master-rename-modal-instruction.md`
