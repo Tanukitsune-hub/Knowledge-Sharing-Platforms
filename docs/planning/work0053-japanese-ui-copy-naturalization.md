@@ -9,18 +9,19 @@ BALL: NONE
 
 ## Primary Outcome
 
-全user-facing copyを自然で一貫した日本語へ整える。
+全user-facing copyを自然で一貫した日本語へ整え、accepted product brandを `Private Assets Intelligence` へ統一する。
 
 ## Fastest Safe Decisive Action
 
-1. user-facing string inventoryを作る。
-2. `docs/design/ui-japanese-copy-guidelines.md`に沿って候補を分類。
-3. awkward / technical / English leakageだけを限定修正。
-4. terminology consistency testsを追加。
-5. 1440 / 390 browser review。
-6. no logic-change diffを確認。
-7. same owner-only runtimeへbounded deploy。
-8. ChatGPT final review。
+1. `docs/design/product-brand.md` と user-facing string inventoryを確認する。
+2. brand surfaceを `Private Assets Intelligence` に統一し、subtitleを削除する。
+3. `docs/design/ui-japanese-copy-guidelines.md`に沿って候補を分類。
+4. awkward / technical / English leakageだけを限定修正。
+5. brand / terminology consistency testsを追加。
+6. 1440 / 390 browser review。
+7. no logic-change diffを確認。
+8. same owner-only runtimeへbounded deploy。
+9. ChatGPT final review。
 
 ## Routing
 
