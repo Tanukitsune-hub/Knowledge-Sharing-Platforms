@@ -43,10 +43,10 @@ Work0052 must fail closed for cited sources.
 
 ## Required AI Search behavior
 
-After provider response and authoritative citation mapping, before answer is returned to client:
+After provider response and citation mapping, before answer is returned to client:
 
 1. resolve each cited source to Backend row
-2. validate authoritative Drive source:
+2. validate the registered Drive source:
    - Meeting: Doc_File_ID exists, file accessible, not trashed, expected Google Doc type/boundary as applicable
    - Pitchbook: File_ID exists, file accessible, not trashed, expected file identity
 3. if any cited source is missing/inaccessible:
@@ -60,7 +60,7 @@ After provider response and authoritative citation mapping, before answer is ret
    - no automatic provider index deletion in this Work
 
 Suggested message:
-`参照元ファイルを確認できないため、検索結果を表示できません。対象ID: MTG-xxxxxx。原本の状態を確認してください。`
+`参照元のファイルが見つからないか、開くことができないため、検索結果を表示できません。対象ID: MTG-xxxxxx。Google Drive上の原本を確認してください。`
 
 For multiple sources:
 - bounded list or first source + count
@@ -70,7 +70,7 @@ For multiple sources:
 
 Do not preflight every source in the entire corpus on every query.
 
-Validate only the bounded set of sources actually used/cited by the provider response, unless a cheaper existing authoritative validation path exists.
+Validate only the bounded set of sources actually used/cited by the provider response, unless a cheaper existing validation path exists.
 
 This keeps failure quick without turning every search into a full Drive crawl.
 
@@ -105,7 +105,7 @@ When source is missing:
 
 ### Meeting Doc missing
 
-Synthetic indexed/cited Meeting whose authoritative Doc is unavailable:
+Synthetic indexed/cited Meeting whose registered Google Doc is unavailable:
 - AI answer not shown
 - inline error visible
 - popup count 0
@@ -137,3 +137,28 @@ Same for Pitchbook:
 - search configured-provider behavior otherwise unchanged
 - console material error/warn 0
 - schema/migration/permission changes 0
+
+
+## User-facing Japanese wording rule
+
+このWorkで追加・変更する利用者向け文言は、実装内部の用語を直訳せず、自然で簡潔な日本語にする。
+
+Avoid in user-facing UI:
+- 権威ある
+- authoritative
+- fail closed
+- source materialization
+- provider response
+- stale source
+- boundary
+- contract
+
+Preferred wording examples:
+- `Meetingの権威あるGoogle Docを読み取れません。`
+  -> `面談記録のGoogle Docs原本を読み込めません。`
+- `PitchbookのDriveメタデータを確認できません。`
+  -> `保存資料の原本ファイルを確認できません。`
+- generic `確認できませんでした`
+  -> 実際に失敗した処理に合わせて `読み込めませんでした` / `見つかりません` / `保存できませんでした`
+
+内部code / error code / developer documentationではtechnical terminologyを維持してよい。
