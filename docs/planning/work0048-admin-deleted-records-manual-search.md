@@ -1,11 +1,11 @@
 # Work 0048 — manual deleted-record search plan
 
 WORK_ID: 0048
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0047 version29
-ACTIVE_DISPATCH: 0048-CODEX-01
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -53,3 +53,9 @@ PERMISSION_CHANGE: 0
 THEME_CHANGE: 0
 WORK_0030: DEFERRED_BY_USER
 ```
+
+
+## Accepted Outcome
+
+Work0048 completed in PR #70 / version30.
+Completion Latch applied. No further Work0048 action is required unless a material regression is found.
