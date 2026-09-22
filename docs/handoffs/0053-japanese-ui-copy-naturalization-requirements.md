@@ -13,6 +13,33 @@ Knowledge Share全体の利用者向け文言を横断レビューし、生成AI
 
 正本:
 - `docs/design/ui-japanese-copy-guidelines.md`
+- `docs/design/product-brand.md`
+
+## Brand migration
+
+User-confirmed product brand:
+- `Private Assets Intelligence`
+
+Work0053でuser-facing brandを統一する。
+
+Required:
+- 左上brand `Knowledge Share` -> `Private Assets Intelligence`
+- 左上のsmall subtitle `PRIVATE ASSETS KNOWLEDGE` -> 削除
+- main browser title `Knowledge Sharing Platforms` -> `Private Assets Intelligence`
+- standalone Knowledge Search title -> `ナレッジ検索 | Private Assets Intelligence`
+- user-facing product titleとして`Platform` / `Hub`等は追加しない
+
+Internal identifiersはrenameしない:
+- GitHub repository
+- function / variable / path / filename
+- API / RPC
+- Script Properties
+- `Knowledge Platform Backend`
+- `Knowledge Platform Audit`
+- existing Drive resource names
+- historical docs / Work IDs
+
+Responsive時にbrand phraseが折り返すことは許容するが、説明subtitleは追加しない。
 
 ## Scope
 
@@ -112,6 +139,10 @@ Do NOT:
 
 - visible `権威ある`: 0
 - visible `authoritative`: 0
+- visible `Knowledge Share` brand: 0
+- visible `Knowledge Sharing Platforms` product title: 0
+- visible `PRIVATE ASSETS KNOWLEDGE`: 0
+- visible product brand: `Private Assets Intelligence`
 - visible internal-only terminology from guideline avoid-list: 0 unless explicitly excepted
 - no material change to Meeting ID / Document ID / Fund / Strategy / Status
 - error messages state the actual failed operation
@@ -124,7 +155,7 @@ Do NOT:
 
 ## Non-goals
 
-- marketing copy rewrite
+- marketing copy rewrite（ただしaccepted product brand migrationはscope内）
 - visual redesign
 - translation to English
 - code comments / developer docs Japanese cleanup
