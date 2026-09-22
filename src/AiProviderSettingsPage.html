@@ -13,6 +13,24 @@
         <div><h2>テーマ設定</h2><p class="hint">基本16色をプレビューし、Web App全体の共有設定として保存できます。</p></div>
       </div>
       <div id="theme-settings-status" class="status" role="status" aria-live="polite"></div>
+      <section class="theme-color-tool" aria-labelledby="theme-color-tool-heading">
+        <div class="section-heading"><div><h3 id="theme-color-tool-heading">カラー調整ツール</h3><p class="hint">色を選び、適用先の基本色へ反映します。保存するまではプレビューです。</p></div></div>
+        <div class="theme-color-tool-layout">
+          <div class="theme-color-tool-picker">
+            <div id="theme-color-sv" class="theme-color-sv" role="slider" tabindex="0" aria-label="彩度と明るさ" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="彩度 0%、明るさ 100%"><span id="theme-color-sv-handle" class="theme-color-sv-handle" aria-hidden="true"></span></div>
+            <label for="theme-color-hue">色相</label><input id="theme-color-hue" type="range" min="0" max="359" value="0">
+          </div>
+          <div class="theme-color-tool-details">
+            <div class="theme-color-tool-current"><span id="theme-color-swatch" class="theme-color-swatch" aria-hidden="true"></span><span>選択中の色</span></div>
+            <label for="theme-color-hex">HEX</label><div class="theme-color-tool-hex"><input id="theme-color-hex" type="text" maxlength="7" pattern="#[0-9A-Fa-f]{6}" autocomplete="off" spellcheck="false" aria-invalid="false"><button id="theme-color-copy" class="action secondary" type="button">コピー</button></div>
+            <div id="theme-color-hex-error" class="theme-color-tool-error" role="alert" hidden>色は#RRGGBB形式で入力してください。</div>
+            <span class="theme-color-tool-label">RGB</span><output id="theme-color-rgb" for="theme-color-hex"></output>
+            <label for="theme-color-target">適用先</label><select id="theme-color-target"></select>
+            <div class="theme-color-tool-buttons"><button id="theme-color-apply" class="action primary" type="button">この色を適用</button><button id="theme-color-eyedropper" class="action secondary" type="button" hidden>画面から色を取得</button></div>
+            <div id="theme-color-tool-status" class="status" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
       <div id="theme-settings-groups" class="theme-settings-groups" aria-busy="false"></div>
       <div id="theme-contrast-warning" class="status warning" role="status" aria-live="polite"></div>
       <div class="actions theme-settings-actions">

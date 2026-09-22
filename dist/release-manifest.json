@@ -2,16 +2,16 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "817ed3f3f871c5f313c928ee1c5102da26fc74e0",
+  "source_git_commit": "1339542022791d41a318753606ae9e426c0d02a7",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "35cc3210fcc75753393934f7dd885131f277ee65ac7b9f753cbdfa23dc214d28",
-  "bundle_file_sha256": "d2afac4fdc7a4d74dd59054ae1fec4a7fc30b1d369f0b2e5bf749096a2d80d49",
+  "bundle_payload_sha256": "25b719d9462970905f7871fcb70b775fe5f2ae9315624750875282154ed2330b",
+  "bundle_file_sha256": "0abf936f6bd87c573b0cf7013fae6a6fce497511101bc2bfc34a23b750853beb",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "13043741b640c6b9c7ed12617a3f0daab1b13a6bc6c5d49e8bdf79da52126326",
   "bundle_metrics": {
-    "bytes": 1276221,
-    "characters": 1232424,
+    "bytes": 1289311,
+    "characters": 1245208,
     "lines": 19706,
     "server_source_count": 61,
     "embedded_html_count": 23
@@ -331,8 +331,8 @@
     },
     {
       "file": "src/AiProviderSettingsPage.html",
-      "bytes": 11868,
-      "sha256": "000663501af2b07b97d13afb8b45b4d7cf7b1256b4ba5fb7324937b74a7514bb"
+      "bytes": 14070,
+      "sha256": "a60319cad9450d7f318a50c5e3eea83c28cd0a836051c0dcfc9ae84773c218fb"
     },
     {
       "file": "src/ClientActivityAnalytics.html",
@@ -396,8 +396,8 @@
     },
     {
       "file": "src/ClientThemeSettings.html",
-      "bytes": 10924,
-      "sha256": "988cac24eba6e3421060e1da2d15a0468c2d40ee4b4bf9c2ee72b5f8d6249788"
+      "bytes": 18959,
+      "sha256": "7c067898ce8f068a552510168b9f7f5efd300487bd26106443cb731763da40cf"
     },
     {
       "file": "src/DeploymentSecurityOperator.html",
@@ -436,8 +436,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 57349,
-      "sha256": "9e79f6d16e99db94b469ddc90ce5c780d15e729e6b8e72d322789ee3c9b5248f"
+      "bytes": 59968,
+      "sha256": "d12aec4464d5d3dd6087776adf890bcb95708fa0a7d22d419a5ac7e76687a14d"
     }
   ]
 }
