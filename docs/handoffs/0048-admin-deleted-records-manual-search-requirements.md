@@ -1,11 +1,11 @@
 # Work 0048 — 削除記録の管理 manual-search only requirements
 
 WORK_ID: 0048
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0047 version29
-ACTIVE_DISPATCH: 0048-CODEX-01
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -110,3 +110,11 @@ nav click -> loadAiProviderAdminData(false)
 - Work0047 accepted behavior preserved
 - console material error/warn 0
 - provider calls unrelated to existing provider-admin page behavior not added
+
+
+## Accepted Outcome
+
+PR #70 merged as `024d9f14a9f44b3c1cfcd2f6f2b31ea7f6b346bb`.
+Owner-only Web App version30 accepted. Completion Latch applied.
+
+Completion: `docs/handoffs/0048-completion-report.md`
