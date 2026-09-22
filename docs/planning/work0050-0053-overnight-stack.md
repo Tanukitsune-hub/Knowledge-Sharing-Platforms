@@ -1,7 +1,7 @@
 # Work 0050–0053 overnight stacked implementation plan
 
-Status: PREPARED
-Start condition: Work0049 ACCEPTED / Completion Latch APPLIED
+Status: READY
+Start condition: SATISFIED — Work0049 ACCEPTED / Completion Latch APPLIED
 Execution owner: CODEX
 Final acceptance owner: CHATGPT
 
