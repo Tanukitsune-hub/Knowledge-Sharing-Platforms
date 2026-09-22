@@ -40,7 +40,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACCEPTED | Work0046 version28 | PR #69 / version29 accepted。Completion Latch済み |
 | 25 | 0048 | 削除記録の管理 manual-search only | ACCEPTED | Work0047 version29 | PR #70 / version30 accepted。Completion Latch済み |
 | 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | ACCEPTED | Work0048 version30 | PR #71 / version31 accepted。Completion Latch済み |
-| 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | ACTIVE | Work0049 version31 | CODEX-01 / stacked 0050–0053 entry |
+| 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | ACTIVE | Work0049 version31 | PR #72 merged; CODEX-02 target-runtime qualification / version32 target |
 | 28 | 0051 | Backend daily backup + 30-day retention | PLANNED | Work0050 accepted baseline | Backend Spreadsheet only; daily snapshot; >30 days to Trash |
 | 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
 | 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
@@ -853,7 +853,7 @@ WORK_ID: 0050
 STATUS: ACTIVE
 MODE: BUILD
 BASELINE: Work0049 version31
-ACTIVE_DISPATCH: 0050-CODEX-01
+ACTIVE_DISPATCH: 0050-CODEX-02
 BALL: CODEX
 COLOR_TOOL: SATURATION_VALUE_PICKER + HUE_SLIDER
 HEX_DISPLAY_INPUT: REQUIRED
@@ -871,6 +871,7 @@ Requirements: `docs/handoffs/0050-theme-color-tool-requirements.md`
 Plan: `docs/planning/work0050-theme-color-tool.md`
 Dispatch: `docs/handoffs/0050-dispatches.md`
 Instruction: `docs/handoffs/0050-CODEX-01-theme-color-tool-instruction.md`
+Runtime instruction: `docs/handoffs/0050-CODEX-02-theme-color-tool-runtime-instruction.md`
 
 
 ## Work 0051 planned contract
