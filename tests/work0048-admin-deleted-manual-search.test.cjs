@@ -58,6 +58,8 @@ function createHarness() {
     Promise,
     escapeHtml: value => String(value),
     showStatus: (...args) => statuses.push(args),
+    kspSetActionBusy(button, busy, label) { if (button) { button.disabled = busy; button.busyLabel = busy ? label : ''; } },
+    kspSetRegionBusy(region, busy) { if (region) region.setAttribute('aria-busy', String(busy)); },
     serverCall: async (name, payload) => {
       calls.push({ name, payload });
       if (name === 'changeMeetingStatus') return { ok: true };

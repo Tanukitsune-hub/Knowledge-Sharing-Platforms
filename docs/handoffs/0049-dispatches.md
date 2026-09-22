@@ -3,10 +3,10 @@
 WORK_ID: 0049
 DISPATCH_ID: 0049-CODEX-01
 ACTIVE_DISPATCH_ID: 0049-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
-PHASE: APP-WIDE ASYNC FEEDBACK STANDARDIZATION
+PHASE: DRAFT PR REVIEW
 
 ## Primary Outcome
 
@@ -16,6 +16,17 @@ PHASE: APP-WIDE ASYNC FEEDBACK STANDARDIZATION
 
 - `docs/handoffs/0049-CODEX-01-async-feedback-standardization-instruction.md`
 - `docs/handoffs/0049-async-operation-feedback-requirements.md`
+
+## Return evidence
+
+- Draft PR: `#71`
+- `docs/handoffs/0049-CODEX-01-async-feedback-standardization-report.md`
+- owner-only Web App version31
+- focused tests 14/14 PASS
+- `npm run check` 645/645 PASS
+- bundle validation 30/30 PASS
+- final data drift 0
+- blocker none
 
 ## Hard boundary
 
@@ -44,5 +55,5 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0049
 DISPATCH_ID: 0049-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

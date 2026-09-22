@@ -67,6 +67,8 @@ function createHarness(responder) {
     clearStatus(id) { statuses.push({ id, kind: 'clear', message: '' }); },
     showStatus(id, kind, message) { statuses.push({ id, kind, message }); },
     showPage() {},
+    kspSetActionBusy(button, busy, label) { if (button) { button.disabled = busy; button.busyLabel = busy ? label : ''; } },
+    kspSetRegionBusy(region, busy) { if (region) region.setAttribute('aria-busy', String(busy)); },
     serverCall: async (method, payload) => {
       calls.push({ method, payload: clone(payload) });
       return responder(method, payload);
@@ -126,7 +128,7 @@ test('inline checkbox autosaves false to true, survives reload, then saves true 
   });
   harness.context.activityRender(clone(authoritative));
 
-  const checked = { dataset: { activityAdminMeeting: 'MTG-000039' }, checked: true, disabled: false };
+  const checked = { dataset: { activityAdminMeeting: 'MTG-000039' }, checked: true, disabled: false, setAttribute(name, value) { this[name] = value; } };
   await harness.context.updateActivityAdminCheck(checked);
   assert.equal(checked.disabled, false);
   assert.equal(checked.checked, true);
@@ -138,7 +140,7 @@ test('inline checkbox autosaves false to true, survives reload, then saves true 
   await harness.context.loadActivityAnalytics();
   assert.match(harness.node('activity-drill-results').innerHTML, /data-activity-admin-meeting="MTG-000039"[^>]* checked/);
 
-  const unchecked = { dataset: { activityAdminMeeting: 'MTG-000039' }, checked: false, disabled: false };
+  const unchecked = { dataset: { activityAdminMeeting: 'MTG-000039' }, checked: false, disabled: false, setAttribute(name, value) { this[name] = value; } };
   await harness.context.updateActivityAdminCheck(unchecked);
   assert.equal(unchecked.disabled, false);
   assert.equal(unchecked.checked, false);
@@ -155,7 +157,7 @@ test('stale update reloads authoritative drill state and restores the checkbox s
     return clone(authoritative);
   });
   harness.context.activityRender(clone(authoritative));
-  const control = { dataset: { activityAdminMeeting: 'MTG-000039' }, checked: true, disabled: false };
+  const control = { dataset: { activityAdminMeeting: 'MTG-000039' }, checked: true, disabled: false, setAttribute(name, value) { this[name] = value; } };
   await harness.context.updateActivityAdminCheck(control);
   assert.deepEqual(harness.calls.map(call => call.method), ['updateMeetingAdminCheck', 'getMeetingActivityAnalytics']);
   assert.doesNotMatch(harness.node('activity-drill-results').innerHTML, /data-activity-admin-meeting="MTG-000039"[^>]* checked/);

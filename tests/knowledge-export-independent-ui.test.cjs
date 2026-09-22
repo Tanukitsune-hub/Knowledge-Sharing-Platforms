@@ -36,7 +36,9 @@ function harness() {
   const context = vm.createContext({document: {getElementById: id => nodes.get(id) || null, createElement: node,
     querySelectorAll: selector => selector === 'input[type="date"]' ? [nodes.get('knowledge-dateFrom'), nodes.get('knowledge-dateTo')] : []},
     google: {script: {run: runner}}, console, Intl, Date, Set, Object, Promise,
-    setTimeout: () => 1, clearTimeout() {}});
+    setTimeout: () => 1, clearTimeout() {},
+    kspSetActionBusy(button, busy, label) { if (button) { button.disabled = busy; button.busyLabel = busy ? label : ''; } },
+    kspSetRegionBusy(region, busy) { if (region) region.setAttribute('aria-busy', String(busy)); }});
   new vm.Script(dateControls.match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
   new vm.Script(client.match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
   return {context, nodes, calls, setResponse: value => {response = value}};

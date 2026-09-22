@@ -31,6 +31,24 @@ function kspEscapeHtml(value){return String(value==null?'':value).replace(/[&<>"
 function kspSanitizeStatusHtml(value){return String(value==null?'':value).replace(/href="([^"]*)"/gi,(match,href)=>{const safe=kspSafeDriveUrl(href);return safe?'href="'+kspEscapeHtml(safe)+'"':'href="#" aria-disabled="true"'})}
 function showStatus(id,kind,message,html){const box=el(id);box.className='status visible '+kind;if(html)box.innerHTML=kspSanitizeStatusHtml(message);else box.textContent=message}
 function clearStatus(id){const box=el(id);box.className='status';box.textContent=''}
+const kspActionBusyStates=new WeakMap();
+function kspSetActionBusy(button,busy,label){
+  if(!button)return;
+  const current=kspActionBusyStates.get(button);
+  if(busy){
+    if(current){current.label.textContent=String(label||'処理中…');if(current.fallback)button.textContent=current.label.textContent;return}
+    const width=typeof button.getBoundingClientRect==='function'?button.getBoundingClientRect().width:0;
+    const state={nodes:Array.from(button.childNodes||[]),disabled:Boolean(button.disabled),minWidth:button.style?button.style.minWidth:'',fallback:typeof button.replaceChildren!=='function',textContent:button.textContent};
+    const indicator=document.createElement('span'),text=document.createElement('span');
+    indicator.className='ksp-action-busy-content';text.className='ksp-action-busy-label';text.textContent=String(label||'処理中…');indicator.appendChild(text);
+    state.label=text;kspActionBusyStates.set(button,state);if(state.fallback)button.textContent=text.textContent;else button.replaceChildren(indicator);button.classList.add('ksp-action-busy');button.setAttribute('aria-busy','true');button.disabled=true;
+    if(width>0&&button.style)button.style.minWidth=Math.ceil(width)+'px';
+    return;
+  }
+  if(!current){button.classList.remove('ksp-action-busy');button.setAttribute('aria-busy','false');return}
+  if(current.fallback)button.textContent=current.textContent;else button.replaceChildren(...current.nodes);button.classList.remove('ksp-action-busy');button.setAttribute('aria-busy','false');button.disabled=current.disabled;if(button.style)button.style.minWidth=current.minWidth;kspActionBusyStates.delete(button);
+}
+function kspSetRegionBusy(region,busy){if(region)region.setAttribute('aria-busy',String(Boolean(busy)))}
 function safeGet(key){try{return localStorage.getItem(key)}catch(e){return null}}function safeSet(key,value){try{localStorage.setItem(key,value)}catch(e){}}function safeRemove(key){try{localStorage.removeItem(key)}catch(e){}}
 function readEnvelope(key){const raw=safeGet(key);if(!raw)return null;try{const env=JSON.parse(raw);if(!env||typeof env.savedAt!=='number'||Date.now()-env.savedAt>KSP_DRAFT_TTL_MS){safeRemove(key);return null}return env.data||null}catch(e){safeRemove(key);return null}}
 function writeEnvelope(key,data){safeSet(key,JSON.stringify({savedAt:Date.now(),data}))}
