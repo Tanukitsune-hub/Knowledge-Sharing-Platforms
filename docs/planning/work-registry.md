@@ -903,7 +903,10 @@ MODE: BUILD
 DEPENDENCY: Work0052 ACCEPTED
 ACTIVE_DISPATCH: NONE
 BALL: NONE
-PRIMARY_CHANGE_TYPE: USER_FACING_COPY_ONLY
+PRIMARY_CHANGE_TYPE: USER_FACING_COPY_AND_BRAND
+PRODUCT_BRAND: Private Assets Intelligence
+BRAND_SUBTITLE: NONE
+INTERNAL_RENAME: 0
 VISIBLE_AUTHORITATIVE: 0
 VISIBLE_権威ある: 0
 NATURAL_JAPANESE: REQUIRED
@@ -913,6 +916,7 @@ BACKEND_API_CHANGE: 0
 WORK_0030: DEFERRED_BY_USER
 ```
 
+Brand: `docs/design/product-brand.md`
 Guideline: `docs/design/ui-japanese-copy-guidelines.md`
 Requirements: `docs/handoffs/0053-japanese-ui-copy-naturalization-requirements.md`
 Plan: `docs/planning/work0053-japanese-ui-copy-naturalization.md`
