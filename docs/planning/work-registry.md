@@ -37,8 +37,8 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 21 | 0044 | Executive Navy Slate theme tuning — exact #2D3E49 sidebar + right-pane visibility polish | ACCEPTED | Work0043 version24 | PR #66 / version25 accepted。User visual acceptance。Completion Latch済み |
 | 22 | 0045 | Shared runtime theme settings — admin 3rd tab + 16 colors + shared persistence | ACCEPTED | Work0044 version25 | PR #67 / version27 accepted。Completion Latch済み |
 | 23 | 0046 | UI cleanup + Analytics tabs + staged Master reorder | ACCEPTED | Work0045 version27 | PR #68 / version28 accepted。Completion Latch済み |
-| 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACTIVE | Work0046 version28 | CODEX-01 / version29 target |
-| 25 | 0048 | 削除記録の管理 manual-search only | PLANNED | Work0047 accepted baseline | Remove page-entry auto search; explicit Search only |
+| 24 | 0047 | Meeting detail empty hero cleanup + Master rename modal | ACCEPTED | Work0046 version28 | PR #69 / version29 accepted。Completion Latch済み |
+| 25 | 0048 | 削除記録の管理 manual-search only | ACTIVE | Work0047 version29 | CODEX-01 / version30 target |
 | 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | PLANNED | Work0048 accepted baseline | Shared button spinner + status busy + aria-busy across mutations |
 | 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | PLANNED | Work0049 accepted baseline | Integrate into existing Theme Settings preview/save flow |
 | 28 | 0051 | Backend daily backup + 30-day retention | PLANNED | Work0050 accepted baseline | Backend Spreadsheet only; daily snapshot; >30 days to Trash |
@@ -754,21 +754,26 @@ Completion: `docs/handoffs/0046-completion-report.md`
 
 
 
-## Work 0047 active contract
+## Work 0047 accepted outcome
 
 ```text
 WORK_ID: 0047
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0046 version28
-ACTIVE_DISPATCH: 0047-CODEX-01
-BALL: CODEX
+FINAL_SERVED_VERSION: 29
+PR: #69
+MERGE: dba6cf1496d4f1dbfef900fdbbd6212c3b52a5dc
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 EMPTY_MEETING_IDENTITY_PILL: REMOVE_WHEN_EMPTY
 SELECTED_MEETING_IDENTITY_HERO: PRESERVE
 MASTER_RENAME_NATIVE_PROMPT: 0
 MASTER_RENAME_CUSTOM_MODAL: REQUIRED
 REORDER_CONTRACT_CHANGE: 0
-EXPECTED_FINAL_SERVED_VERSION: 29
+FINAL_SERVED_VERSION: 29
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
 WORK_0030: DEFERRED_BY_USER
 ```
 
@@ -776,17 +781,19 @@ Requirements: `docs/handoffs/0047-meeting-detail-master-rename-modal-requirement
 Plan: `docs/planning/work0047-meeting-detail-master-rename-modal.md`
 Dispatch: `docs/handoffs/0047-dispatches.md`
 Instruction: `docs/handoffs/0047-CODEX-01-master-rename-modal-instruction.md`
+Report: `docs/handoffs/0047-CODEX-01-master-rename-modal-report.md`
+Completion: `docs/handoffs/0047-completion-report.md`
 
 
 ## Work 0048 planned contract
 
 ```text
 WORK_ID: 0048
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
-DEPENDENCY: Work0047 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+BASELINE: Work0047 version29
+ACTIVE_DISPATCH: 0048-CODEX-01
+BALL: CODEX
 ADMIN_PAGE_ENTRY_DELETED_SEARCH_RPC: 0
 DELETED_TAB_SWITCH_SEARCH_RPC: 0
 FILTER_EDIT_SEARCH_RPC: 0
@@ -798,6 +805,8 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0048-admin-deleted-records-manual-search-requirements.md`
 Plan: `docs/planning/work0048-admin-deleted-records-manual-search.md`
+Dispatch: `docs/handoffs/0048-dispatches.md`
+Instruction: `docs/handoffs/0048-CODEX-01-admin-deleted-manual-search-instruction.md`
 
 
 ## Work 0049 planned contract
