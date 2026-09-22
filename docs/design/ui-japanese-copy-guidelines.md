@@ -1,7 +1,7 @@
 # UI Japanese Copy Guidelines
 
 Status: CURRENT
-Applies to: user-facing UI text in Knowledge Share
+Applies to: user-facing UI text in Private Assets Intelligence
 
 ## Goal
 
@@ -123,3 +123,18 @@ User-facing stringを変更するWorkでは:
 - 次の操作が必要なら明確か
 - 同じ概念の表記が他画面と揃っているか
 を確認する。
+
+
+## Product brand
+
+Canonical brand:
+- `Private Assets Intelligence`
+
+Do not show as product brand:
+- `Knowledge Share`
+- `Knowledge Sharing Platforms`
+- `PRIVATE ASSETS KNOWLEDGE`
+
+Do not add a secondary subtitle beneath the brand.
+
+Internal repository/resource identifiers are not renamed by this copy guideline.
