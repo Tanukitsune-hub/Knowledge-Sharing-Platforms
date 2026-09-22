@@ -937,3 +937,23 @@ Brand: `docs/design/product-brand.md`
 Guideline: `docs/design/ui-japanese-copy-guidelines.md`
 Requirements: `docs/handoffs/0053-japanese-ui-copy-naturalization-requirements.md`
 Plan: `docs/planning/work0053-japanese-ui-copy-naturalization.md`
+
+
+## Work 0050–0053 overnight execution option
+
+User-approved execution option: after Work0049 is ACCEPTED, Work0050–0053 may be implemented in one Codex run as four sequential stacked Draft PRs.
+
+This does not merge the Work IDs or bypass ChatGPT acceptance.
+
+```text
+START_CONDITION: Work0049 ACCEPTED
+DISPATCHES: 0050-CODEX-01 -> 0051-CODEX-01 -> 0052-CODEX-01 -> 0053-CODEX-01
+PR_MODEL: STACKED_DRAFTS
+MERGE_DURING_BATCH: 0
+LIVE_DEPLOY_DURING_BATCH: 0
+REAL_DRIVE_TRIGGER_PROVIDER_MUTATION: 0
+STOP_ON_FIRST_BLOCKER: YES
+FINAL_ACCEPTANCE_OWNER: CHATGPT
+```
+
+Plan: `docs/planning/work0050-0053-overnight-stack.md`
