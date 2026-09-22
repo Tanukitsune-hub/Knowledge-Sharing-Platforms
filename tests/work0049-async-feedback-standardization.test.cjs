@@ -181,6 +181,13 @@ test('app-wide mutation and long-operation feedback matrix remains wired before 
   }
 });
 
+test('async form handlers retain their form reference across await boundaries', () => {
+  assert.match(maintenance, /const form=event\.currentTarget,payload=/);
+  assert.match(maintenance, /finally\{pitchbookMutationBusy=false;[\s\S]*?form\.querySelectorAll/);
+  assert.match(maintenance, /const form=event\.currentTarget,type=activeMasterTab/);
+  assert.doesNotMatch(maintenance, /finally\{[^}]*event\.currentTarget\.querySelectorAll/);
+});
+
 test('Work0048 manual-search-only wiring remains unchanged by async feedback', () => {
   assert.match(admin, /nav-ai-provider-settings'\)\.addEventListener\('click',\(\)=>loadAiProviderAdminData\(false\)\)/);
   assert.doesNotMatch(admin, /nav-ai-provider-settings'[\s\S]{0,180}searchAdminDeletedMeetings/);
