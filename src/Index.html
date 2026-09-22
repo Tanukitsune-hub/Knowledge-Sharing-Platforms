@@ -234,6 +234,23 @@
     </section>
   </div>
 
+  <div id="master-rename-modal-backdrop" class="modal-backdrop" hidden>
+    <section id="master-rename-modal" class="counterparty-modal" role="dialog" aria-modal="true" aria-labelledby="master-rename-modal-title" aria-describedby="master-rename-modal-help" tabindex="-1">
+      <div class="counterparty-modal-heading">
+        <div><p class="counterparty-modal-kicker">MASTER RENAME</p><h2 id="master-rename-modal-title">名称変更</h2></div>
+        <button id="master-rename-modal-close" class="modal-close" type="button" aria-label="閉じる">×</button>
+      </div>
+      <p id="master-rename-modal-help" class="hint">現在の名称を編集して保存してください。</p>
+      <form id="master-rename-modal-form" novalidate>
+        <div class="counterparty-modal-fields">
+          <div class="field"><label class="required" for="master-rename-modal-name">新しい名称</label><input id="master-rename-modal-name" maxlength="200" autocomplete="off" required></div>
+        </div>
+        <div id="master-rename-modal-status" class="status" role="alert" aria-live="assertive"></div>
+        <div class="counterparty-modal-actions"><button id="master-rename-modal-cancel" class="action secondary" type="button">キャンセル</button><button id="master-rename-modal-submit" class="action primary" type="submit">変更を保存</button></div>
+      </form>
+    </section>
+  </div>
+
   <div id="meeting-material-modal-backdrop" class="modal-backdrop" hidden>
     <section id="meeting-material-modal" class="counterparty-modal meeting-material-modal" role="dialog" aria-modal="true" aria-labelledby="meeting-material-modal-title" aria-describedby="meeting-material-modal-help" tabindex="-1">
       <div class="counterparty-modal-heading">

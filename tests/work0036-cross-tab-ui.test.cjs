@@ -37,8 +37,9 @@ test('Counterparty Type is selectable only in the shared registration modal', ()
   assert.deepEqual(values, ['', 'GP', 'LP_ASSET_OWNER', 'NISSAY_INTERNAL', 'GROUP_COMPANY', 'CONSULTANT_GATEKEEPER', 'OTHER']);
   const registration = enhancements.slice(enhancements.indexOf('const KSP_COUNTERPARTY_MODAL_TYPES'), enhancements.indexOf('let meetingDetailRecord'));
   assert.doesNotMatch(registration, /\bprompt\s*\(/);
-  assert.equal((index.match(/role="dialog"/g) || []).length, 2);
+  assert.equal((index.match(/role="dialog"/g) || []).length, 3);
   assert.match(index, /id="counterparty-modal"[^>]*role="dialog" aria-modal="true"/);
+  assert.match(index, /id="master-rename-modal"[^>]*role="dialog" aria-modal="true"/);
   assert.match(index, /id="meeting-material-modal"[^>]*role="dialog" aria-modal="true"/);
 });
 
