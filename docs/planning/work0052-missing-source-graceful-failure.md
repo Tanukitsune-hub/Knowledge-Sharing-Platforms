@@ -14,7 +14,7 @@ Deleted/inaccessible Meeting Docs or Pitchbooks must not silently support a disp
 ## Fastest Safe Decisive Action
 
 1. preserve existing Full Output source read/metadata checks.
-2. add bounded authoritative source-existence validation for mapped AI citations.
+2. add bounded registered source-existence validation for mapped AI citations.
 3. return one safe missing-source error contract.
 4. reuse existing inline Knowledge Search status rendering.
 5. test stale provider citation with missing Drive source.
@@ -28,7 +28,7 @@ Recommended model:
 - GPT-5.6 Sol High
 
 Reason:
-provider response/citation mappingとDrive authoritative-source validationの境界を安全に追加する必要がある。
+provider response/citation mappingとDrive上の登録原本の存在確認を安全に追加する必要がある。
 
 ## Safety
 
