@@ -1,11 +1,11 @@
 # Work 0049 — async operation feedback standardization plan
 
 WORK_ID: 0049
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0048 version30
-ACTIVE_DISPATCH: 0049-CODEX-01
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -65,3 +65,9 @@ PROVIDER_POLICY_CHANGE: 0
 PERMISSION_CHANGE: 0
 WORK_0030: DEFERRED_BY_USER
 ```
+
+
+## Accepted Outcome
+
+Work0049 completed in PR #71 / version31.
+Completion Latch applied. No further Work0049 action is required unless a material regression is found.
