@@ -778,6 +778,7 @@ function kspProviderSafeMessage_(code) {
     AI_QUERY_TOKEN_INVALID: '検索状態を確認できませんでした。',
     AI_QUERY_TOKEN_EXPIRED: '検索状態の有効期限が切れています。',
     AI_QUERY_STATE_UNAVAILABLE: '検索状態を保存できませんでした。',
+    AI_CITED_SOURCE_UNAVAILABLE: '参照元のファイルが見つからないか、開くことができないため、検索結果を表示できません。Google Drive上の原本を確認してください。',
     AI_DOCUMENT_READBACK_FAILED: 'Gemini検索用Documentを確認できませんでした。',
     AI_PROVIDER_INVALID: '検索プロバイダが不正です。',
     AI_MODEL_POLICY_RAW_VALUE_REJECTED: '選択したモデル設定を確認してください。',
@@ -1007,6 +1008,9 @@ function kspKnowledgeQueryFailureResult_(provider, mode, error, warnings, pendin
     error: { code: code, message: kspProviderSafeMessage_(code) || kspSafePublicErrorMessage_(code, 'SEARCH') },
     warnings: warnings || []
   };
+  if (code === 'AI_CITED_SOURCE_UNAVAILABLE' && error && /^(?:MTG|DOC)-[A-Za-z0-9_-]{1,80}$/.test(String(error.sourceId || ''))) {
+    result.error.message = '参照元のファイルが見つからないか、開くことができないため、検索結果を表示できません。対象ID: ' + error.sourceId + '。Google Drive上の原本を確認してください。';
+  }
   var terminalStatus = kspAiTrim_(error && error.providerStatus).toLowerCase();
   if (kspKnowledgeQueryKnownTerminalStatus_(terminalStatus)) {
     result.terminalStatus = terminalStatus;
@@ -1127,6 +1131,7 @@ function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, c
   var catalog = kspBuildKnowledgeSearchCatalog_(kspContextCounterpartyRows_(context), context.optionRows,
     context.meetingRows, context.pitchbookRows);
   var guarded = kspGuardKnowledgeComparisonCitations_(input, catalog, mapped.citations);
+  kspValidateCitedDriveSources_(environment, context, guarded.citations);
   var allWarnings = (warnings || []).concat(parsed.warnings || [], mapped.warnings, guarded.warnings);
   var answer = parsed.answer || '確認できる根拠が不足しています。';
   if (mapped.warnings.length) answer = '出典の最新状態を確認できないため、回答を表示できません。';
@@ -1180,13 +1185,49 @@ function kspKnowledgeResultSourceIdentity_(context, result) {
   }));
 }
 
+function kspValidateCitedDriveSources_(environment, context, citations) {
+  if (!(citations || []).length) return;
+  var maps = kspBuildAuthoritativeSourceMaps_(context.meetingRows, context.pitchbookRows);
+  var resources = context.state && context.state.resources ? context.state.resources : {};
+  var checked = {};
+  (citations || []).forEach(function (citation) {
+    var key = kspAiSourceKey_(citation.sourceType, citation.sourceId);
+    if (checked[key]) return;
+    checked[key] = true;
+    var source = maps.bySourceKey[key];
+    var expectedFolderId = citation.sourceType === KSP_AI_SOURCE_TYPES.MEETING
+      ? resources[KSP_RESOURCE_KEYS.MEETING_RECORDS] : resources[KSP_RESOURCE_KEYS.PITCHBOOKS];
+    var valid = Boolean(source && source.fileId && typeof environment.getDriveFileMetadata === 'function');
+    if (valid) {
+      try {
+        var file = environment.getDriveFileMetadata(source.fileId);
+        valid = Boolean(file && file.id === source.fileId && !file.trashed &&
+          (citation.sourceType !== KSP_AI_SOURCE_TYPES.MEETING ||
+            file.mimeType === 'application/vnd.google-apps.document') &&
+          (!expectedFolderId || (file.parents || []).indexOf(expectedFolderId) !== -1));
+      } catch (error) {
+        valid = false;
+      }
+    }
+    if (!valid) {
+      var unavailable = new Error('Cited Drive source is unavailable.');
+      unavailable.code = 'AI_CITED_SOURCE_UNAVAILABLE';
+      unavailable.sourceId = String(citation.sourceId || '');
+      unavailable.queryTerminal = true;
+      throw unavailable;
+    }
+  });
+}
+
 function kspRevalidateKnowledgeReplay_(environment, state) {
   var replay = kspDeepClone_(state.result);
   if ((replay.citations || []).length) {
-    var identity = kspKnowledgeResultSourceIdentity_(environment.loadAiContext(), replay);
+    var context = environment.loadAiContext();
+    var identity = kspKnowledgeResultSourceIdentity_(context, replay);
     kspAssert_(state.sourceIdentity && state.sourceIdentity === identity &&
       JSON.parse(identity).every(function (source) { return source !== null; }),
       'AI_QUERY_SOURCE_CHANGED', '出典が変更されたため検索をやり直してください。');
+    kspValidateCitedDriveSources_(environment, context, replay.citations);
   }
   replay.idempotentReplay = true;
   return replay;
@@ -1340,7 +1381,8 @@ function kspRunProviderKnowledgeSearchPoll_(environment, requestedProvider, rawI
     try { return kspRevalidateKnowledgeReplay_(environment, state); }
     catch (replayError) {
       return kspKnowledgeQueryFailureResult_(requestedProvider, input.mode,
-        { code: 'AI_QUERY_SOURCE_CHANGED' }, warnings, false, '');
+        replayError && replayError.code === 'AI_CITED_SOURCE_UNAVAILABLE'
+          ? replayError : { code: 'AI_QUERY_SOURCE_CHANGED' }, warnings, false, '');
     }
   }
   if (state.kind !== 'PENDING' || !state.interactionId || !state.input || !state.requestFingerprint) {
