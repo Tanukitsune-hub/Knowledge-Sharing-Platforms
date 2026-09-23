@@ -4,7 +4,7 @@ const KSP_QUERY_STORAGE_KEY='ksp.knowledge.query.v1';
 const knowledgeState={freeQuestionDraft:'',appliedMode:'自由質問',savedPeriod:null,loading:true,configured:false,modeDefinitions:{},modelPolicies:{},options:{},exportPreview:null,exportBusy:false,exportRequestId:0,exportActionButton:null,pendingQueryToken:'',pendingQueryRoute:'OPENAI',pendingQueryFingerprint:'',pendingQueryStartedAt:0,pendingQueryPollCount:0,pendingQueryPolling:false,pendingQueryAutoStopped:false,pendingQueryTimer:null,startingQuery:false};
 function kEl(id){return document.getElementById(id)}
 function kSafeKnowledgeDriveUrl(value){const candidate=String(value==null?'':value).trim();const docs=/^https:\/\/docs\.google\.com\/document\/d\/[^/?#&]+(?:[/?#]|$)/i;const file=/^https:\/\/drive\.google\.com\/file\/d\/[^/?#&]+(?:[/?#]|$)/i;const open=/^https:\/\/drive\.google\.com\/(?:open|uc)\?[^#]*\bid=[^&#]+/i;return docs.test(candidate)||file.test(candidate)||open.test(candidate)?candidate:''}
-function kShowStatus(kind,message){const box=kEl('knowledge-status');box.className='status visible '+kind;box.textContent=message}
+function kShowStatus(kind,message){const box=kEl('knowledge-status');box.className='status visible '+kind;box.textContent=message;if(kind==='error')kEl('knowledge-result').classList.add('hidden-panel')}
 function kClearStatus(){const box=kEl('knowledge-status');box.className='status';box.textContent=''}
 function kShowExportStatus(kind,message){const box=kEl('knowledge-export-status');box.className='status visible '+kind;box.textContent=message}
 function kClearExportStatus(){const box=kEl('knowledge-export-status');box.className='status';box.textContent=''}

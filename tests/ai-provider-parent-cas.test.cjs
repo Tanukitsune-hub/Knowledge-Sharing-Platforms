@@ -107,7 +107,8 @@ test('terminal replay revalidates current source context without provider calls'
   c.pitchbookRows[0].Saved_Filename = 'nullable-null-review.txt';
   const result = { citations: [{ sourceType: 'Pitchbook', sourceId: 'DOC-000001' }], answer: 'synthetic answer' };
   const state = { result, sourceIdentity: ksp.kspKnowledgeResultSourceIdentity_(c, result) };
-  const env = { loadAiContext: () => c };
+  const env = { loadAiContext: () => c,
+    getDriveFileMetadata: id => ({ id, mimeType: 'text/plain', parents: ['pitchbook-folder'], trashed: false }) };
   assert.equal(ksp.kspRevalidateKnowledgeReplay_(env, state).idempotentReplay, true);
   c.meetingRows[0].Related_Pitchbook_IDs = '';
   assert.throws(() => ksp.kspRevalidateKnowledgeReplay_(env, state), e => e.code === 'AI_QUERY_SOURCE_CHANGED');

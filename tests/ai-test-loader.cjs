@@ -27,7 +27,7 @@ function loadAi() {
     var KSP_STATUS={ACTIVE:'Active',INACTIVE:'Inactive'};
     var KSP_AUDIT_RESULTS={SUCCESS:'Success',FAILURE:'Failure'};
     var KSP_SHEET_NAMES={MEETING_INDEX:'Meeting_Index',PITCHBOOK_INDEX:'Pitchbook_Index',COUNTERPARTY_MASTER:'Counterparty_Master',OPTION_MASTER:'Option_Master',SETTINGS:'Settings',AUDIT_LOG:'Audit_Log'};
-    var KSP_RESOURCE_KEYS={BACKEND_SPREADSHEET:'backendSpreadsheetId',AUDIT_SPREADSHEET:'auditSpreadsheetId'};
+    var KSP_RESOURCE_KEYS={BACKEND_SPREADSHEET:'backendSpreadsheetId',AUDIT_SPREADSHEET:'auditSpreadsheetId',MEETING_RECORDS:'meetingRecordsFolderId',PITCHBOOKS:'pitchbooksFolderId'};
     var KSP_DEFAULTS={LOCK_TIMEOUT_MS:30000};
     function kspDeepClone_(v){return v===undefined?undefined:JSON.parse(JSON.stringify(v));}
     function kspAssert_(c,code,m){if(!c){var e=new Error(m);e.code=code;throw e;}}

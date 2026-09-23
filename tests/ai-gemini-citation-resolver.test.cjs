@@ -19,9 +19,9 @@ function sourceRow(sourceType, sourceId, documentName, options = {}) {
       : options.providerState
   };
   return sourceType === 'Meeting'
-    ? { ...common, Meeting_ID: sourceId, Doc_URL: 'https://drive.test/fixture-meeting',
+    ? { ...common, Meeting_ID: sourceId, Doc_File_ID: 'fixture-meeting-id', Doc_URL: 'https://drive.test/fixture-meeting',
       Saved_Filename: options.filename || 'fixture-meeting' }
-    : { ...common, Document_ID: sourceId, File_URL: 'https://drive.test/fixture-pitchbook',
+    : { ...common, Document_ID: sourceId, File_ID: 'fixture-pitchbook-id', File_URL: 'https://drive.test/fixture-pitchbook',
       Saved_Filename: options.filename || 'fixture-source.txt' };
 }
 
@@ -290,6 +290,7 @@ test('CODEX-05 qualification and normal completion share strict mapping without 
   const environment = {
     ...resolverEnvironment([document], document),
     loadAiContext: () => ({ meetingRows: [], pitchbookRows: [row], gpRows: [], optionRows: [], auditSpreadsheetId: 'audit-fixture' }),
+    getDriveFileMetadata: id => ({ id, mimeType: 'text/plain', parents: [], trashed: false }),
     nowIso: () => '2026-09-05T00:00:00.000Z',
     appendAuditRow(id, auditRow) { this.audit = plain(auditRow); }
   };
