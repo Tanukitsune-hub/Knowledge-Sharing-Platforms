@@ -44,13 +44,14 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 28 | 0051 | Backend daily backup + 30-day retention | ACCEPTED | Work0050 version32 | PR #73/#79/#80 / version33 accepted。Completion Latch済み |
 | 29 | 0052 | Missing source graceful failure | ACTIVE | Work0051 version33 | PR #81 merged; CODEX-03 final runtime qualification / version34 target |
 | 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
-| 31 | 0054 | No-admin-role / Settings unification | PLANNED | Work0053 accepted baseline | Remove in-app admin/user distinction; Settings available equally to Web App users |
+| 31 | 0054 | Roleless Admin Page | PLANNED | Work0053 accepted baseline | Keep 管理者ページ; no account-level admin role; equal app permission for Web App users |
 | 32 | 0055 | Theme Color Tool hue bar / swatch refinement | PLANNED | Work0054 accepted baseline | Rainbow hue track + vertical indicator; selected-color swatch ~2x width |
 | 33 | 0056 | Entity Workspace 390px overflow fix | PLANNED | Work0055 accepted baseline | Pre-existing mobile overflow follow-up; all seven pages 390px overflow 0 |
-| 34 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 35 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 36 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 37 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 34 | Unassigned future Work | Optional admin-page shared password gate | DEFERRED | Near final rollout | Shared password to open 管理者ページ only; not account-level RBAC; user decision pending |
+| 35 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 36 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 37 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 38 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -1009,19 +1010,20 @@ MODE: BUILD
 DEPENDENCY: Work0053 ACCEPTED
 ACTIVE_DISPATCH: NONE
 BALL: NONE
-IN_APP_ADMIN_ROLE: NONE
-EQUAL_APP_FEATURE_ACCESS: REQUIRED
+VISIBLE_ADMIN_PAGE: KEEP
+ADMIN_PAGE_LABEL: 管理者ページ
+IN_APP_ADMIN_ACCOUNT_ROLE: NONE
 ADMIN_EMAILS_AS_APP_AUTHORIZATION: 0
-VISIBLE_ADMIN_PAGE_LABEL: REMOVE
-SETTINGS_PAGE: REQUIRED
+EQUAL_WEB_APP_FEATURE_PERMISSION: REQUIRED
+RENAME_ADMIN_PAGE_TO_SETTINGS: NO
+ADMIN_PAGE_SHARED_PASSWORD_GATE: DEFERRED_OPTION
 DEPLOYMENT_ACCESS_CHANGE: 0
 DRIVE_PERMISSION_CHANGE: 0
 WORK_0030: DEFERRED_BY_USER
 ```
 
-Requirements: `docs/handoffs/0054-no-admin-role-settings-unification-requirements.md`
-Plan: `docs/planning/work0054-no-admin-role-settings-unification.md`
-
+Requirements: `docs/handoffs/0054-roleless-admin-page-requirements.md`
+Plan: `docs/planning/work0054-roleless-admin-page.md`
 
 ## Work 0055 planned contract
 
