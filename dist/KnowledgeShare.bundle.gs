@@ -1,6 +1,6 @@
 // GENERATED FILE. DO NOT EDIT.
 // Authoritative source: src/ and scripts/bundle-source-order.json
-var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Private Assets Intelligence","releaseVersion":"0.1.2","schemaVersion":8,"sourceCommit":"7358d7970b65d133702addf466006950fdd3dfc0","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"e1881327e03d657c385b411298b0d5574022c56558da36c463a86319b5f1c06d"});
+var KSP_BUNDLE_RELEASE_METADATA = Object.freeze({"product":"Private Assets Intelligence","releaseVersion":"0.1.2","schemaVersion":8,"sourceCommit":"baaa35c3a53324b25649f79204b96bc0177ee068","bundleProfile":"company-single-file-v1","hashCanonicalizationVersion":"ksp-bundle-payload-v1","bundlePayloadSha256":"b901733656a7ecb500cb352cd18ce67bc4a87af07ce48ad1f38c07af682f24b8"});
 var KSP_BUNDLED_HTML_RESOURCES = Object.freeze({
   "ActivityAnalyticsPage": "<section id=\"page-activity-analytics\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading\">\n      <div><h2>面談実績の集計</h2><p class=\"hint\">面談記録の登録情報から件数を集計します。</p></div>\n    </div>\n    <div class=\"filter-grid analytics-controls\">\n      <div class=\"field activity-period-field\"><label for=\"activity-period\">期間粒度</label><select id=\"activity-period\"><option value=\"monthly\">月次</option><option value=\"quarter\">暦年四半期</option><option value=\"calendarYear\">暦年</option><option value=\"fiscalYear\">会計年度（4月-3月）</option><option value=\"custom\">カスタム（日次）</option><option value=\"cumulative\">累積（月次）</option></select></div>\n      <div class=\"field activity-date-from-field\"><label for=\"activity-date-from\">開始日</label><input id=\"activity-date-from\" type=\"date\"></div>\n      <div class=\"field activity-date-to-field\"><label for=\"activity-date-to\">終了日</label><input id=\"activity-date-to\" type=\"date\"></div>\n      <div class=\"field activity-dimension-field\"><label for=\"activity-dimension\">内訳</label><select id=\"activity-dimension\"><option value=\"counterpartyEntity\">面談先</option><option value=\"assetClass\">アセットクラス</option><option value=\"team\">チーム</option><option value=\"meetingType\">MTG種別</option><option value=\"status\">Status</option></select></div>\n      <div class=\"field activity-counterparty-field\"><label for=\"activity-filter-counterpartyEntity\">面談先</label><select id=\"activity-filter-counterpartyEntity\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-asset-field\"><label for=\"activity-filter-assetClass\">アセットクラス</label><select id=\"activity-filter-assetClass\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-team-field\"><label for=\"activity-filter-team\">チーム</label><select id=\"activity-filter-team\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-meeting-type-field\"><label for=\"activity-filter-meetingType\">MTG種別</label><select id=\"activity-filter-meetingType\"><option value=\"\">未選択</option></select></div>\n      <div class=\"field activity-status-field\"><label for=\"activity-filter-status\">Status</label><select id=\"activity-filter-status\"><option value=\"\">未選択</option></select></div>\n    </div>\n    <div class=\"actions analytics-actions\"><button id=\"activity-analytics-refresh\" class=\"action primary\" type=\"button\">集計</button><span class=\"hint\">一覧に表示しきれない記録がある場合は件数を示します。</span></div>\n    <div id=\"activity-analytics-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n  </div>\n\n  <div class=\"activity-view-tabs\" role=\"tablist\" aria-label=\"集計表示\">\n    <button id=\"activity-tab-graph\" class=\"activity-view-tab active\" type=\"button\" role=\"tab\" aria-selected=\"true\" aria-controls=\"activity-graph-panel\" tabindex=\"0\" data-activity-view=\"graph\">グラフ</button>\n    <button id=\"activity-tab-list\" class=\"activity-view-tab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"activity-list-panel\" tabindex=\"-1\" data-activity-view=\"list\">面談一覧</button>\n  </div>\n\n  <div id=\"activity-graph-panel\" class=\"activity-view-panel\" role=\"tabpanel\" aria-labelledby=\"activity-tab-graph\">\n    <div class=\"card\">\n      <div class=\"section-heading\"><div><h2>選択した内訳</h2><p id=\"activity-breakdown-summary\" class=\"hint\"></p></div></div>\n      <div id=\"activity-breakdown-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"選択した内訳別の面談件数\"></div>\n      <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">選択した内訳別集計</caption><thead><tr><th>項目</th><th>面談件数</th><th>有効</th><th>面談先</th></tr></thead><tbody id=\"activity-breakdown-results\"></tbody></table></div>\n    </div>\n\n    <div class=\"card\">\n      <div class=\"section-heading\"><div><h2>集計サマリー</h2><p id=\"activity-period-summary\" class=\"hint\"></p></div></div>\n      <div id=\"activity-headline\" class=\"analytics-headline\" aria-live=\"polite\"></div>\n      <div id=\"activity-series-chart\" class=\"analytics-chart\" role=\"img\" aria-label=\"面談件数の期間推移\"></div>\n      <div class=\"table-wrap\"><table class=\"data-table analytics-table\"><caption class=\"sr-only\">面談件数の期間別集計</caption><thead><tr><th>期間</th><th>面談件数</th><th>有効</th><th>面談先</th></tr></thead><tbody id=\"activity-series-results\"></tbody></table></div>\n    </div>\n  </div>\n\n  <div id=\"activity-list-panel\" class=\"activity-view-panel\" role=\"tabpanel\" aria-labelledby=\"activity-tab-list\" hidden>\n    <div class=\"card\">\n      <div class=\"section-heading\"><div><h2>該当する面談記録</h2><p id=\"activity-drill-summary\" class=\"hint\"></p></div></div>\n      <div class=\"table-wrap\"><table class=\"data-table analytics-table activity-drill-table\"><caption class=\"sr-only\">集計対象の面談記録一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>チーム</th><th>MTG種別</th><th>Status</th><th>原本</th><th>確認済み</th></tr></thead><tbody id=\"activity-drill-results\"></tbody></table></div>\n      <div id=\"activity-admin-check-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    </div>\n  </div>\n</section>\n",
   "AiProviderSettingsPage": "<section id=\"page-ai-provider-settings\" class=\"page\">\n  <div class=\"card\">\n    <div class=\"section-heading admin-page-heading\">\n      <div><h2>管理者ページ</h2><p class=\"hint\">AI設定、削除済み記録、配色を管理します。</p></div>\n    </div>\n    <div class=\"admin-tabs\" role=\"tablist\" aria-label=\"管理者機能\">\n      <button id=\"admin-tab-provider\" class=\"admin-tab active\" type=\"button\" role=\"tab\" aria-selected=\"true\" aria-controls=\"admin-panel-provider\" tabindex=\"0\" data-admin-tab=\"provider\">AI設定</button>\n      <button id=\"admin-tab-deleted\" class=\"admin-tab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"admin-panel-deleted\" tabindex=\"-1\" data-admin-tab=\"deleted\">削除記録の管理</button>\n      <button id=\"admin-tab-theme\" class=\"admin-tab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"admin-panel-theme\" tabindex=\"-1\" data-admin-tab=\"theme\">テーマ設定</button>\n    </div>\n    <section id=\"admin-panel-theme\" class=\"admin-tab-panel\" role=\"tabpanel\" aria-labelledby=\"admin-tab-theme\" hidden>\n      <div class=\"section-heading\">\n        <div><h2>テーマ設定</h2><p class=\"hint\">基本の16色を試せます。保存すると全画面に適用されます。</p></div>\n      </div>\n      <div id=\"theme-settings-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n      <section class=\"theme-color-tool\" aria-labelledby=\"theme-color-tool-heading\">\n        <div class=\"section-heading\"><div><h3 id=\"theme-color-tool-heading\">カラー調整ツール</h3><p class=\"hint\">色を選び、適用先の基本色へ反映します。保存するまではプレビューです。</p></div></div>\n        <div class=\"theme-color-tool-layout\">\n          <div class=\"theme-color-tool-picker\">\n            <div id=\"theme-color-sv\" class=\"theme-color-sv\" role=\"slider\" tabindex=\"0\" aria-label=\"彩度と明るさ\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"0\" aria-valuetext=\"彩度 0%、明るさ 100%\"><span id=\"theme-color-sv-handle\" class=\"theme-color-sv-handle\" aria-hidden=\"true\"></span></div>\n            <label for=\"theme-color-hue\">色相</label><input id=\"theme-color-hue\" type=\"range\" min=\"0\" max=\"359\" value=\"0\">\n          </div>\n          <div class=\"theme-color-tool-details\">\n            <div class=\"theme-color-tool-current\"><span id=\"theme-color-swatch\" class=\"theme-color-swatch\" aria-hidden=\"true\"></span><span>選択中の色</span></div>\n            <label for=\"theme-color-hex\">HEX</label><div class=\"theme-color-tool-hex\"><input id=\"theme-color-hex\" type=\"text\" maxlength=\"7\" pattern=\"#[0-9A-Fa-f]{6}\" autocomplete=\"off\" spellcheck=\"false\" aria-invalid=\"false\"><button id=\"theme-color-copy\" class=\"action secondary\" type=\"button\">コピー</button></div>\n            <div id=\"theme-color-hex-error\" class=\"theme-color-tool-error\" role=\"alert\" hidden>色は#RRGGBB形式で入力してください。</div>\n            <span class=\"theme-color-tool-label\">RGB</span><output id=\"theme-color-rgb\" for=\"theme-color-hex\"></output>\n            <label for=\"theme-color-target\">適用先</label><select id=\"theme-color-target\"></select>\n            <div class=\"theme-color-tool-buttons\"><button id=\"theme-color-apply\" class=\"action primary\" type=\"button\">この色を適用</button><button id=\"theme-color-eyedropper\" class=\"action secondary\" type=\"button\" hidden>画面から色を取得</button></div>\n            <div id=\"theme-color-tool-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n          </div>\n        </div>\n      </section>\n      <div id=\"theme-settings-groups\" class=\"theme-settings-groups\" aria-busy=\"false\"></div>\n      <div id=\"theme-contrast-warning\" class=\"status warning\" role=\"status\" aria-live=\"polite\"></div>\n      <div class=\"actions theme-settings-actions\">\n        <div class=\"action-group\">\n          <button id=\"theme-settings-save\" class=\"action primary\" type=\"button\">保存</button>\n          <button id=\"theme-settings-discard\" class=\"action secondary\" type=\"button\">変更を破棄</button>\n          <button id=\"theme-settings-reset\" class=\"action secondary\" type=\"button\">既定の配色に戻す</button>\n        </div>\n        <span id=\"theme-settings-state\" class=\"hint\"></span>\n      </div>\n    </section>\n    <section id=\"admin-panel-deleted\" class=\"admin-tab-panel\" role=\"tabpanel\" aria-labelledby=\"admin-tab-deleted\" hidden>\n    <section id=\"admin-deleted-meetings\" class=\"admin-deleted-meetings\" aria-busy=\"false\">\n      <div class=\"section-heading\">\n        <div><h2>削除記録の管理</h2><p class=\"hint\">削除済みの面談記録を検索し、必要な記録だけを復元します。</p></div>\n      </div>\n      <div class=\"filter-grid admin-deleted-filter-grid\">\n        <div class=\"field\"><label for=\"admin-deleted-date-from\">開始日</label><input id=\"admin-deleted-date-from\" type=\"date\"></div>\n        <div class=\"field\"><label for=\"admin-deleted-date-to\">終了日</label><input id=\"admin-deleted-date-to\" type=\"date\"></div>\n        <div class=\"field\"><label for=\"admin-deleted-counterparty-id\">面談先</label><select id=\"admin-deleted-counterparty-id\"><option value=\"\">未選択</option></select></div>\n        <div class=\"field\"><label for=\"admin-deleted-asset-class-id\">アセットクラス</label><select id=\"admin-deleted-asset-class-id\"><option value=\"\">未選択</option></select></div>\n        <div class=\"field\"><label for=\"admin-deleted-status-filter\">Status</label><select id=\"admin-deleted-status-filter\"><option value=\"Inactive\" selected>削除済み</option><option value=\"Active\">有効</option><option value=\"\">すべて</option></select></div>\n      </div>\n      <div class=\"actions admin-deleted-actions\"><button id=\"admin-deleted-search\" class=\"action primary\" type=\"button\">検索</button><span class=\"hint\">最大100件を新しい順で表示します。</span></div>\n      <div id=\"admin-deleted-status\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n      <div class=\"table-wrap\"><table class=\"data-table admin-deleted-table\"><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>アセットクラス</th><th>チーム</th><th>Status</th><th>更新番号</th><th>操作</th></tr></thead><tbody id=\"admin-deleted-results\"><tr><td colspan=\"8\" class=\"empty-cell\">検索すると記録が表示されます。</td></tr></tbody></table></div>\n    </section>\n    </section>\n    <section id=\"admin-panel-provider\" class=\"admin-tab-panel\" role=\"tabpanel\" aria-labelledby=\"admin-tab-provider\">\n    <div class=\"section-heading\">\n      <div><h2>AI設定</h2><p class=\"hint\">OpenAIとGeminiの接続状態を表示します。APIキーは表示しません。</p></div>\n    </div>\n    <div id=\"ai-provider-admin-notice\" class=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-openai-heading\">\n      <h3 id=\"ai-provider-openai-heading\">ChatGPT / OpenAI</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-openai-key\">確認中…</dd>\n        <dt>検索データ</dt><dd id=\"ai-provider-openai-store\">読み込み中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-openai-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\">\n        <div class=\"action-group\">\n          <label for=\"ai-provider-openai-key-input\">OpenAI APIキー</label>\n          <input id=\"ai-provider-openai-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"APIキーを入力\">\n          <label for=\"ai-provider-sync-source\">同期対象</label>\n          <select id=\"ai-provider-sync-source\" disabled>\n            <option value=\"\">すべて</option>\n            <option value=\"Meeting\">面談記録</option>\n            <option value=\"Pitchbook\">保存資料</option>\n          </select>\n          <label for=\"ai-provider-sync-source-id\">Meeting ID / Document ID（個別同期・任意）</label>\n          <input id=\"ai-provider-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n          <button id=\"ai-provider-openai-enable\" class=\"action primary\" type=\"button\" disabled>APIキーを保存して接続確認</button>\n          <button id=\"ai-provider-openai-disable\" class=\"action secondary\" type=\"button\" disabled>OpenAIを無効化</button>\n          <button id=\"ai-provider-openai-sync\" class=\"action secondary\" type=\"button\" disabled>資料を同期して利用開始</button>\n        </div>\n      </div>\n      <p id=\"ai-provider-openai-readonly\" class=\"hint ai-provider-readonly\"></p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-provider-gemini-heading\">\n      <h3 id=\"ai-provider-gemini-heading\">Gemini</h3>\n      <dl class=\"ai-provider-state\">\n        <dt>APIキー</dt><dd id=\"ai-provider-gemini-key\">確認中…</dd>\n        <dt>検索データ</dt><dd id=\"ai-provider-gemini-store\">読み込み中…</dd>\n        <dt>状態</dt><dd id=\"ai-provider-gemini-status\">確認中…</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <label for=\"ai-provider-gemini-key-input\">Gemini APIキー</label>\n        <input id=\"ai-provider-gemini-key-input\" type=\"password\" autocomplete=\"new-password\" spellcheck=\"false\" placeholder=\"APIキーを入力\">\n        <label for=\"ai-provider-gemini-sync-source\">個別同期対象</label>\n        <select id=\"ai-provider-gemini-sync-source\" disabled><option value=\"Pitchbook\">保存資料</option><option value=\"Meeting\">面談記録</option></select>\n        <label for=\"ai-provider-gemini-sync-source-id\">Meeting ID / Document ID（必須）</label>\n        <input id=\"ai-provider-gemini-sync-source-id\" type=\"text\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"例: DOC-000017\" disabled>\n        <button id=\"ai-provider-gemini-connect\" class=\"action primary\" type=\"button\" disabled>APIキーを保存して接続確認</button>\n        <button id=\"ai-provider-gemini-enable\" class=\"action secondary\" type=\"button\" disabled>Geminiを有効化</button>\n        <button id=\"ai-provider-gemini-disable\" class=\"action secondary\" type=\"button\" disabled>Geminiを無効化</button>\n        <button id=\"ai-provider-gemini-sync\" class=\"action secondary\" type=\"button\" disabled>選択資料を個別同期</button>\n      </div></div>\n      <p class=\"hint\">有効化するには、接続確認、資料の同期、モデルの利用確認が必要です。</p>\n    </section>\n    <section class=\"card ai-provider-card\" aria-labelledby=\"ai-model-policy-heading\">\n      <h3 id=\"ai-model-policy-heading\">AIモデルと思考レベル</h3>\n      <p class=\"hint\">利用者に表示する組み合わせを登録します。新しいモデルは自動では有効になりません。</p>\n      <div class=\"field full\">\n        <label for=\"ai-model-profile-select\">登録済みプロファイル</label>\n        <select id=\"ai-model-profile-select\" disabled><option value=\"\">新規作成</option></select>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-profile-id\">Profile ID</label><input id=\"ai-model-profile-id\" type=\"text\" autocomplete=\"off\" placeholder=\"openai-approved-model\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-provider\">接続先</label><select id=\"ai-model-provider\" disabled><option value=\"OPENAI\">OpenAI</option><option value=\"GEMINI\">Gemini</option></select></div>\n        <div class=\"field\"><label for=\"ai-model-id\">Model ID</label><input id=\"ai-model-id\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-display-name\">表示名</label><input id=\"ai-model-display-name\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-family\">モデル系列</label><input id=\"ai-model-family\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <div class=\"field\"><label for=\"ai-model-max-output\">出力上限（任意）</label><input id=\"ai-model-max-output\" type=\"number\" min=\"1\" max=\"65536\" disabled></div>\n      </div>\n      <div class=\"field full\">\n        <label for=\"ai-model-thinking-profiles\">思考レベル（1行に ID | 表示名 | 設定値。設定値が空欄なら標準）</label>\n        <textarea id=\"ai-model-thinking-profiles\" placeholder=\"provider-default | プロバイダ標準 |&#10;low | Low | low\" disabled></textarea>\n      </div>\n      <div class=\"filter-grid\">\n        <div class=\"field\"><label for=\"ai-model-default-thinking\">既定の思考レベルID</label><input id=\"ai-model-default-thinking\" type=\"text\" autocomplete=\"off\" disabled></div>\n        <label class=\"field\"><span>状態</span><span><input id=\"ai-model-enabled\" type=\"checkbox\" disabled> 有効</span></label>\n        <label class=\"field\"><span>利用者表示</span><span><input id=\"ai-model-user-visible\" type=\"checkbox\" disabled> 表示</span></label>\n        <label class=\"field\"><span>接続先の既定モデル</span><span><input id=\"ai-model-provider-default\" type=\"checkbox\" disabled> 既定</span></label>\n      </div>\n      <dl class=\"ai-provider-state\">\n        <dt>API接続</dt><dd id=\"ai-model-access-state\">未確認</dd>\n        <dt>資料検索の利用確認</dt><dd id=\"ai-model-qualification-state\">未確認</dd>\n        <dt>思考レベルの利用確認</dt><dd id=\"ai-model-thinking-qualification-state\">未確認</dd>\n      </dl>\n      <div class=\"actions\"><div class=\"action-group\">\n        <button id=\"ai-model-policy-migrate\" class=\"action secondary\" type=\"button\" disabled>現行設定から初期化</button>\n        <button id=\"ai-model-profile-save\" class=\"action primary\" type=\"button\" disabled>プロファイルを保存</button>\n        <button id=\"ai-model-profile-qualify\" class=\"action secondary\" type=\"button\" disabled>資料検索の接続確認</button>\n      </div></div>\n    </section>\n    </section>\n  </div>\n</section>\n",
@@ -12720,44 +12720,6 @@ function kspCreateAiEnvironment_() {
     return digest.map(function (value) { return ('0' + ((value + 256) % 256).toString(16)).slice(-2); }).join('');
   };
 
-  base.readSharedAdminCredential = function () {
-    return {
-      salt: scriptProperties.getProperty(KSP_SHARED_ADMIN_PROPERTY_KEYS.SALT) || '',
-      verifier: scriptProperties.getProperty(KSP_SHARED_ADMIN_PROPERTY_KEYS.VERIFIER) || '',
-      signingSecret: scriptProperties.getProperty(KSP_SHARED_ADMIN_PROPERTY_KEYS.SIGNING_SECRET) || '',
-      generation: scriptProperties.getProperty(KSP_SHARED_ADMIN_PROPERTY_KEYS.GENERATION) || ''
-    };
-  };
-
-  base.writeSharedAdminCredential = function (state) {
-    var values = {};
-    values[KSP_SHARED_ADMIN_PROPERTY_KEYS.SALT] = String(state.salt || '');
-    values[KSP_SHARED_ADMIN_PROPERTY_KEYS.VERIFIER] = String(state.verifier || '');
-    values[KSP_SHARED_ADMIN_PROPERTY_KEYS.SIGNING_SECRET] = String(state.signingSecret || '');
-    values[KSP_SHARED_ADMIN_PROPERTY_KEYS.GENERATION] = String(state.generation || '');
-    scriptProperties.setProperties(values, false);
-    return true;
-  };
-
-  base.withSharedAdminLock = function (callback) {
-    var lock = LockService.getScriptLock();
-    lock.waitLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS);
-    try { return callback(); }
-    finally { lock.releaseLock(); }
-  };
-
-  base.sharedAdminHmac = function (value, key) {
-    var signature = Utilities.computeHmacSha256Signature(
-      String(value), String(key), Utilities.Charset.UTF_8);
-    return Utilities.base64EncodeWebSafe(signature).replace(/=+$/g, '');
-  };
-
-  base.sharedAdminRandom = function (purpose) {
-    var seed = String(purpose || '') + '|' + Utilities.getUuid() + '|' + Utilities.getUuid();
-    var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, seed, Utilities.Charset.UTF_8);
-    return Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '');
-  };
-
   base.updateAiRow = function (sourceType, sourceId, patch) {
     var context = base.loadAiContext();
     var sheetName = sourceType === KSP_AI_SOURCE_TYPES.MEETING
@@ -16097,18 +16059,7 @@ function kspRunProviderNeutralAiSync_(environment, options) {
 // ===== BEGIN src/165_AiProviderAdmin.gs =====
 function kspAiProviderAdminSafeMessage_(code) {
   var messages = {
-    AI_PROVIDER_ADMIN_UNAUTHORIZED: 'この操作は管理者だけが実行できます。',
     AI_PROVIDER_ADMIN_ACTION_INVALID: 'AIプロバイダ操作が不正です。',
-    SHARED_ADMIN_ACTION_INVALID: '管理者モード操作が不正です。',
-    SHARED_ADMIN_STORAGE_UNAVAILABLE: '管理者認証状態を確認できませんでした。',
-    SHARED_ADMIN_CREDENTIAL_INVALID: '管理者認証状態を確認できませんでした。',
-    SHARED_ADMIN_CREDENTIAL_NOT_CONFIGURED: '管理者パスワードが未設定です。',
-    SHARED_ADMIN_ALREADY_CONFIGURED: '管理者パスワードは設定済みです。',
-    SHARED_ADMIN_BOOTSTRAP_UNAUTHORIZED: '初回管理者設定を実行できません。',
-    SHARED_ADMIN_PASSWORD_INVALID: '管理者パスワードは8文字以上256文字以下で入力してください。',
-    SHARED_ADMIN_PASSWORD_MISMATCH: '管理者パスワードの確認入力が一致しません。',
-    SHARED_ADMIN_UNLOCK_FAILED: '管理者パスワードを確認できませんでした。',
-    SHARED_ADMIN_SESSION_INVALID: '管理者モードのロック解除が必要です。',
     OPENAI_API_KEY_NOT_CONFIGURED: 'OpenAI APIキーがScript Propertiesに設定されていません。',
     OPENAI_API_KEY_INVALID: 'OpenAI APIキーを確認できませんでした。',
     OPENAI_ACTIVATION_FAILED: 'OpenAIを有効化できませんでした。APIキーと権限を確認してください。',
@@ -16167,7 +16118,7 @@ function kspAiProviderAdminSafeMessage_(code) {
 function kspAiProviderAdminFailure_(code, qualificationEvidence) {
   var output = {
     ok: false,
-    workId: String(code || '').indexOf('SHARED_ADMIN_') === 0 ? '0029' : '0020',
+    workId: '0020',
     error: { code: String(code || 'OPENAI_ACTIVATION_FAILED'), message: kspAiProviderAdminSafeMessage_(code) }
   };
   if (qualificationEvidence) {
@@ -16183,229 +16134,8 @@ function kspAiProviderAdminFailure_(code, qualificationEvidence) {
   return output;
 }
 
-var KSP_SHARED_ADMIN_PROPERTY_KEYS = Object.freeze({
-  SALT: 'KSP_SHARED_ADMIN_PASSWORD_SALT',
-  VERIFIER: 'KSP_SHARED_ADMIN_PASSWORD_VERIFIER',
-  SIGNING_SECRET: 'KSP_SHARED_ADMIN_TOKEN_SIGNING_SECRET',
-  GENERATION: 'KSP_SHARED_ADMIN_CREDENTIAL_GENERATION'
-});
-
-var KSP_SHARED_ADMIN_TOKEN_VERSION = 'KSP1';
-
-function kspSharedAdminReadCredential_(environment) {
-  kspAssert_(environment && typeof environment.readSharedAdminCredential === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator credential storage is unavailable.');
-  var raw = environment.readSharedAdminCredential() || {};
-  var state = {
-    salt: String(raw.salt || ''),
-    verifier: String(raw.verifier || ''),
-    signingSecret: String(raw.signingSecret || ''),
-    generation: String(raw.generation || '')
-  };
-  var values = [state.salt, state.verifier, state.signingSecret, state.generation];
-  var populated = values.filter(function (value) { return Boolean(value); }).length;
-  if (!populated) return { configured: false };
-  kspAssert_(populated === values.length && /^[A-Za-z0-9_-]{32,128}$/.test(state.salt) &&
-    /^[A-Za-z0-9_-]{32,128}$/.test(state.verifier) &&
-    /^[A-Za-z0-9_-]{32,128}$/.test(state.signingSecret) &&
-    /^[1-9][0-9]{0,9}$/.test(state.generation),
-    'SHARED_ADMIN_CREDENTIAL_INVALID', 'Shared administrator credential state is invalid.');
-  state.configured = true;
-  state.generation = Number(state.generation);
-  return state;
-}
-
-function kspSharedAdminPassword_(value) {
-  var password = value === undefined || value === null ? '' : String(value);
-  kspAssert_(password.length >= 8 && password.length <= 256 && /\S/.test(password),
-    'SHARED_ADMIN_PASSWORD_INVALID', 'Shared administrator password is invalid.');
-  return password;
-}
-
-function kspSharedAdminConstantTimeEquals_(left, right) {
-  var a = String(left || '');
-  var b = String(right || '');
-  var difference = a.length ^ b.length;
-  var length = Math.max(a.length, b.length);
-  for (var index = 0; index < length; index += 1) {
-    difference |= (a.charCodeAt(index) || 0) ^ (b.charCodeAt(index) || 0);
-  }
-  return difference === 0;
-}
-
-function kspSharedAdminHmac_(environment, value, key) {
-  kspAssert_(environment && typeof environment.sharedAdminHmac === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator HMAC is unavailable.');
-  var result = String(environment.sharedAdminHmac(String(value), String(key)) || '');
-  kspAssert_(/^[A-Za-z0-9_-]{32,128}$/.test(result),
-    'SHARED_ADMIN_CREDENTIAL_INVALID', 'Shared administrator HMAC output is invalid.');
-  return result;
-}
-
-function kspSharedAdminRandom_(environment, purpose) {
-  kspAssert_(environment && typeof environment.sharedAdminRandom === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator random source is unavailable.');
-  var value = String(environment.sharedAdminRandom(String(purpose || '')) || '');
-  kspAssert_(/^[A-Za-z0-9_-]{32,128}$/.test(value),
-    'SHARED_ADMIN_CREDENTIAL_INVALID', 'Shared administrator random value is invalid.');
-  return value;
-}
-
-function kspSharedAdminPasswordVerifier_(environment, password, salt) {
-  return kspSharedAdminHmac_(environment, 'KSP_SHARED_ADMIN_PASSWORD_V1|' + String(salt), password);
-}
-
-function kspSharedAdminBuildCredential_(environment, password, generation) {
-  var salt = kspSharedAdminRandom_(environment, 'PASSWORD_SALT');
-  return {
-    configured: true,
-    salt: salt,
-    verifier: kspSharedAdminPasswordVerifier_(environment, password, salt),
-    signingSecret: kspSharedAdminRandom_(environment, 'TOKEN_SIGNING_SECRET'),
-    generation: Number(generation)
-  };
-}
-
-function kspSharedAdminTokenSignature_(environment, state, nonce) {
-  return kspSharedAdminHmac_(environment,
-    'KSP_SHARED_ADMIN_TOKEN_V1|' + String(state.generation) + '|' + String(nonce),
-    state.signingSecret);
-}
-
-function kspSharedAdminIssueToken_(environment, state) {
-  var nonce = kspSharedAdminRandom_(environment, 'SESSION_NONCE');
-  return [KSP_SHARED_ADMIN_TOKEN_VERSION, String(state.generation), nonce,
-    kspSharedAdminTokenSignature_(environment, state, nonce)].join('.');
-}
-
-function kspSharedAdminValidateToken_(environment, token, suppliedState) {
-  var state = suppliedState || kspSharedAdminReadCredential_(environment);
-  kspAssert_(state.configured, 'SHARED_ADMIN_CREDENTIAL_NOT_CONFIGURED',
-    'Shared administrator credential is not configured.');
-  var normalized = token === undefined || token === null ? '' : String(token);
-  var parts = normalized.split('.');
-  kspAssert_(parts.length === 4 && parts[0] === KSP_SHARED_ADMIN_TOKEN_VERSION &&
-    /^[1-9][0-9]{0,9}$/.test(parts[1]) && /^[A-Za-z0-9_-]{32,128}$/.test(parts[2]) &&
-    /^[A-Za-z0-9_-]{32,128}$/.test(parts[3]) && Number(parts[1]) === state.generation,
-    'SHARED_ADMIN_SESSION_INVALID', 'Shared administrator session is invalid.');
-  var expected = kspSharedAdminTokenSignature_(environment, state, parts[2]);
-  kspAssert_(kspSharedAdminConstantTimeEquals_(expected, parts[3]),
-    'SHARED_ADMIN_SESSION_INVALID', 'Shared administrator session is invalid.');
-  return true;
-}
-
-function kspSharedAdminTryValidateToken_(environment, token, state) {
-  if (!token || !state || !state.configured) return false;
-  try { return kspSharedAdminValidateToken_(environment, token, state); }
-  catch (ignored) { return false; }
-}
-
-function kspSharedAdminWriteCredential_(environment, state) {
-  kspAssert_(environment && typeof environment.writeSharedAdminCredential === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator credential storage is unavailable.');
-  environment.writeSharedAdminCredential({
-    salt: state.salt,
-    verifier: state.verifier,
-    signingSecret: state.signingSecret,
-    generation: String(state.generation)
-  });
-}
-
-function kspSharedAdminWithLock_(environment, callback) {
-  kspAssert_(environment && typeof environment.withSharedAdminLock === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator lock is unavailable.');
-  return environment.withSharedAdminLock(callback);
-}
-
-function kspManageSharedAdminSession_(environment, input) {
-  var action = kspAiTrim_(input && input.action).toUpperCase();
-  if (['BOOTSTRAP', 'UNLOCK', 'CHANGE_PASSWORD'].indexOf(action) === -1) {
-    return kspAiProviderAdminFailure_('SHARED_ADMIN_ACTION_INVALID');
-  }
-  try {
-    if (action === 'BOOTSTRAP') {
-      var bootstrapPassword = kspSharedAdminPassword_(input && input.password);
-      kspAssert_(bootstrapPassword === String(input && input.passwordConfirmation || ''),
-        'SHARED_ADMIN_PASSWORD_MISMATCH', 'Shared administrator password confirmation does not match.');
-      var context = environment.loadAiContext();
-      return kspSharedAdminWithLock_(environment, function () {
-        var current = kspSharedAdminReadCredential_(environment);
-        kspAssert_(!current.configured, 'SHARED_ADMIN_ALREADY_CONFIGURED',
-          'Shared administrator credential is already configured.');
-        kspAssert_(kspIsAiProviderAdministrator_(environment, context),
-          'SHARED_ADMIN_BOOTSTRAP_UNAUTHORIZED', 'Shared administrator bootstrap is unauthorized.');
-        var next = kspSharedAdminBuildCredential_(environment, bootstrapPassword, 1);
-        var token = kspSharedAdminIssueToken_(environment, next);
-        kspSharedAdminWriteCredential_(environment, next);
-        return { ok: true, workId: '0029', action: action, adminSessionToken: token,
-          adminAuth: { credentialConfigured: true, canBootstrap: false, unlocked: true } };
-      });
-    }
-    if (action === 'UNLOCK') {
-      var state = kspSharedAdminReadCredential_(environment);
-      kspAssert_(state.configured, 'SHARED_ADMIN_CREDENTIAL_NOT_CONFIGURED',
-        'Shared administrator credential is not configured.');
-      var password = kspSharedAdminPassword_(input && input.password);
-      var actual = kspSharedAdminPasswordVerifier_(environment, password, state.salt);
-      kspAssert_(kspSharedAdminConstantTimeEquals_(actual, state.verifier),
-        'SHARED_ADMIN_UNLOCK_FAILED', 'Shared administrator unlock failed.');
-      return { ok: true, workId: '0029', action: action,
-        adminSessionToken: kspSharedAdminIssueToken_(environment, state),
-        adminAuth: { credentialConfigured: true, canBootstrap: false, unlocked: true } };
-    }
-    var nextPassword = kspSharedAdminPassword_(input && input.newPassword);
-    kspAssert_(nextPassword === String(input && input.newPasswordConfirmation || ''),
-      'SHARED_ADMIN_PASSWORD_MISMATCH', 'Shared administrator password confirmation does not match.');
-    return kspSharedAdminWithLock_(environment, function () {
-      var currentState = kspSharedAdminReadCredential_(environment);
-      kspSharedAdminValidateToken_(environment, input && input.adminSessionToken, currentState);
-      var nextState = kspSharedAdminBuildCredential_(environment, nextPassword, currentState.generation + 1);
-      var replacementToken = kspSharedAdminIssueToken_(environment, nextState);
-      kspSharedAdminWriteCredential_(environment, nextState);
-      return { ok: true, workId: '0029', action: action, adminSessionToken: replacementToken,
-        adminAuth: { credentialConfigured: true, canBootstrap: false, unlocked: true } };
-    });
-  } catch (error) {
-    var code = kspGetErrorCode_(error, 'SHARED_ADMIN_CREDENTIAL_INVALID');
-    if (String(code).indexOf('SHARED_ADMIN_') !== 0) code = 'SHARED_ADMIN_CREDENTIAL_INVALID';
-    return kspAiProviderAdminFailure_(code);
-  }
-}
-
 function kspAiProviderAdminNormalizeSourceType_(input) {
   return kspNormalizeProviderAiSelection_(input).sourceType;
-}
-
-function kspAiProviderAdminSessionEmails_() {
-  var active = '';
-  var effective = '';
-  try { active = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (ignoredActive) {}
-  try { effective = String(Session.getEffectiveUser().getEmail() || '').trim().toLowerCase(); } catch (ignoredEffective) {}
-  return { active: active, effective: effective };
-}
-
-function kspAiProviderAdminAllowedEmails_(context) {
-  var configured = context && context.state && context.state.config
-    ? context.state.config.adminEmails : [];
-  if (!Array.isArray(configured)) return [];
-  var seen = {};
-  return configured.map(function (value) { return String(value || '').trim().toLowerCase(); })
-    .filter(function (value) {
-      if (!value || seen[value]) return false;
-      seen[value] = true;
-      return true;
-    });
-}
-
-function kspIsAiProviderAdministrator_(environment, context) {
-  if (environment && typeof environment.isAdministrator === 'function') {
-    return Boolean(environment.isAdministrator(context));
-  }
-  var allowed = kspAiProviderAdminAllowedEmails_(context);
-  if (!allowed.length) return false;
-  var session = kspAiProviderAdminSessionEmails_();
-  if (session.active && allowed.indexOf(session.active) !== -1) return true;
-  return !session.active && session.effective && allowed.indexOf(session.effective) !== -1;
 }
 
 function kspAiProviderAdminCredentialConfigured_(environment) {
@@ -18578,9 +18308,8 @@ function kspMutateAiProviderSettings_(environment, input) {
       } catch (ignoredGeminiDisable) {}
     }
     var modelPolicyError = code.indexOf('AI_MODEL_') === 0 || code.indexOf('AI_THINKING_') === 0;
-    var sharedAdminError = code.indexOf('SHARED_ADMIN_') === 0;
     var geminiAdminError = code.indexOf('GEMINI_') === 0 || code.indexOf('AI_GEMINI_') === 0;
-    if (!modelPolicyError && !sharedAdminError && code !== 'AI_PROVIDER_ADMIN_UNAUTHORIZED' && code !== 'OPENAI_API_KEY_NOT_CONFIGURED' &&
+    if (!modelPolicyError && code !== 'OPENAI_API_KEY_NOT_CONFIGURED' &&
         code !== 'OPENAI_API_KEY_INVALID' && code !== 'AI_SYNC_SOURCE_TYPE_INVALID' &&
         code !== 'AI_SYNC_SOURCE_TYPE_REQUIRED' && code !== 'AI_SYNC_SOURCE_TYPE_MISMATCH' &&
         code !== 'AI_SYNC_SOURCE_ID_INVALID' && code !== 'AI_SYNC_SOURCE_NOT_FOUND' &&

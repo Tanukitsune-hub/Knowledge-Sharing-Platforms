@@ -1,0 +1,112 @@
+{
+  "classification": "SYNTHETIC_RENDER_ONLY",
+  "targetRuntimeQualification": "NOT RUN",
+  "result": "PASS",
+  "browser": "151.0.7922.34",
+  "checks": [
+    "identity / nav7 / default Knowledge Search summary",
+    "Work 0038 Meeting and Knowledge topology / 2560, 1440, 1280, 390",
+    "all seven nonblank screens / brand and copy / desktop and mobile overflow bounds",
+    "required-field validation remains visible in header status",
+    "shared Counterparty modal / required fields / non-default type / Meeting auto-select",
+    "single non-GP form / parent-first file RPC wiring",
+    "single past list / detail body / non-GP classification wiring / empty identity hidden / selected identity preserved / reset hidden",
+    "Past Meetings compact layout / hidden fixed filters / reset Active / Meeting Type OR payload",
+    "Counterparty Summary one selector / accepted three cards / no internal identity",
+    "expanded Entity Workspace / 390px <=176px Work0056 baseline / desktop 0px",
+    "empty question / no AI model / independent Full Output",
+    "missing Meeting Full Output and cited AI source / inline errors / stale answer hidden / no popup",
+    "all seven sidebar buttons switch exactly one nonblank production page",
+    "Masters per-tab drafts / delayed submit ownership / refresh / shared modal focus restore",
+    "four-category Master rename modal / cancel zero mutation / Enter one RENAME / failure retention / Escape / focus",
+    "owner-only admin controls available without shared password gate",
+    "Work0053 管理者ページ label and three tabs / 1440 and 390 / copy and overflow",
+    "Admin theme Color Tool / 16 token load and apply / hue, saturation, value, keyboard / HEX, RGB, copy fallback, Eyedropper / preview-only / save, discard, reset / 1440 and 390",
+    "Analytics one-year range / accepted graph-to-summary order / two view tabs",
+    "390px / register, past, knowledge / no page horizontal overflow"
+  ],
+  "screens": [
+    {
+      "viewport": "laptop-1440",
+      "pages": {
+        "knowledge": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "meeting": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "meeting-past": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "entity-workspace": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "activity-analytics": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "masters": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "ai-provider-settings": {
+          "nonblank": true,
+          "overflowPx": 0
+        }
+      }
+    },
+    {
+      "viewport": "mobile-390",
+      "pages": {
+        "knowledge": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "meeting": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "meeting-past": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "entity-workspace": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "activity-analytics": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "masters": {
+          "nonblank": true,
+          "overflowPx": 0
+        },
+        "ai-provider-settings": {
+          "nonblank": true,
+          "overflowPx": 0
+        }
+      }
+    }
+  ],
+  "entityExpandedOverflowPx": 176,
+  "adminRpc": {
+    "getAiProviderAdminData": 6,
+    "mutateAiProviderSettings": 0,
+    "mutateThemeSettings": 3
+  },
+  "pageErrors": [],
+  "consoleErrors": [],
+  "dialogs": [],
+  "blockedRequests": [],
+  "htmlSourceHashes": {
+    "Index.html": "a60b91b915b9ebc9b8bf7cb05fdf0709887c04d0277289732d77e7fe8b73f62e",
+    "AiProviderSettingsPage.html": "5abe0a7bf65a33b0c3c28e1bae784c98fd86d9920193909e56bc9521847e321c",
+    "ClientAiProviderSettings.html": "53fa28fabce7e605e0b6da24f83bbcb44146c33dadccacb98a959de4268969fa",
+    "ClientThemeSettings.html": "45ba9e3d00837561b5e071a57bdb0790b96c1b6900575cd41b98297a27797fd2"
+  }
+}

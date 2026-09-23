@@ -3,8 +3,8 @@
 WORK_ID: 0054
 DISPATCH_ID: 0054-CODEX-01
 ACTIVE_DISPATCH_ID: 0054-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 PHASE: ADMIN ROLE / OBSOLETE AUTH CLEANUP
 
@@ -84,5 +84,12 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0054
 DISPATCH_ID: 0054-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
+
+## CODEX-01 return
+
+- Draft PR #85に旧shared-admin dead codeと専用fixtureの削除、generated bundle、reportを追加した。
+- focused 79/79、`npm run check` 673/673、`npm run check:bundle` 30/30、deterministic browser 20 checksはPASS。
+- [report](0054-CODEX-01-shared-admin-policy-cleanup-report.md)に、通常Web App管理者ページのrole gate 0と、現役editor installer `adminEmails` guardの境界を記録した。
+- live mutation 0。ACCEPTED判定とCompletion LatchはChatGPT final reviewへ残す。
