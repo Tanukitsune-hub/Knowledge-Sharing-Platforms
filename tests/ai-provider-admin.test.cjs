@@ -902,7 +902,7 @@ test('admin provider surface exposes policy-safe exact model fields without cred
   assert.match(client, /mutateAiProviderSettings/);
   assert.match(client, /const isSync=action==='SYNC'\|\|action==='SYNC_GEMINI'/);
   assert.match(client, /sourceId:isSync\?\(sourceId\|\|''\):''/);
-  assert.match(client, /OPENAI_INDEX_TIMEOUT/);
+  assert.doesNotMatch(client, /OPENAI_INDEX_TIMEOUT/);
   assert.match(client, /sync\.selected/);
   assert.match(client, /sync\.failed/);
   assert.doesNotMatch(page + client, /KSP_OPENAI_API_KEY|OPENAI_VECTOR_STORE_ID|OPENAI_DEFAULT_MODEL|gpt-5\.6-terra/);

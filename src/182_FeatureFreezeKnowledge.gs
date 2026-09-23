@@ -118,7 +118,7 @@ function kspRunFeatureFreezeKnowledgeSearch_(environment, rawInput) {
     var answer = parsed.answer;
     var insufficientEvidence = !answer || mapped.citations.length === 0;
     if (!answer) answer = '確認できる根拠が不足しています。';
-    if (insufficientEvidence) warnings.push({ code: 'AI_INSUFFICIENT_EVIDENCE', message: '回答または authoritative citation が不足しています。' });
+    if (insufficientEvidence) warnings.push({ code: 'AI_INSUFFICIENT_EVIDENCE', message: '回答または根拠となる資料が不足しています。' });
     kspTryAppendKnowledgeAudit_(environment, auditSpreadsheetId, kspBuildFeatureFreezeAuditRow_({
       timestamp: environment.nowIso(), actor: actor, input: input, modelId: settings.modelId,
       interactionId: parsed.interactionId, result: KSP_AUDIT_RESULTS.SUCCESS, citations: mapped.citations

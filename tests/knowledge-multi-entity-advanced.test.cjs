@@ -182,7 +182,7 @@ test('FULL_OUTPUT independently applies common Meeting filters, not AI compariso
       }, 'Synthetic'));
     assert.deepEqual(model.pitchbookLines, []);
     const text = ksp.kspBuildKnowledgeExportPlainText_(model);
-    assert.match(text, /Meeting全文出力（非AI）/);
+    assert.match(text, /面談記録の全文出力/);
     assert.match(text, /面談先: LP 1/);
     assert.doesNotMatch(text, /Related GP:/);
     assert.ok(text.includes(body));

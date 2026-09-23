@@ -5,7 +5,7 @@ function doGet(event) {
   // is the security boundary. Rendering never performs confirmation.
   if (page === 'deployment-security') {
     return kspCreateHtmlTemplate_('DeploymentSecurityOperator').evaluate()
-      .setTitle('デプロイ設定の確認 | Knowledge Sharing Platforms')
+      .setTitle('デプロイ設定の確認 | Private Assets Intelligence')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
 
@@ -13,14 +13,14 @@ function doGet(event) {
     var knowledgeTemplate = kspCreateHtmlTemplate_('KnowledgeSearch');
     knowledgeTemplate.themeHeadMarkup = kspGetThemeHeadMarkup_();
     return knowledgeTemplate.evaluate()
-      .setTitle('ナレッジ検索 | Knowledge Sharing Platforms')
+      .setTitle('ナレッジ検索 | Private Assets Intelligence')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
 
   var indexTemplate = kspCreateHtmlTemplate_('Index');
   indexTemplate.themeHeadMarkup = kspGetThemeHeadMarkup_();
   return indexTemplate.evaluate()
-    .setTitle('Knowledge Sharing Platforms')
+    .setTitle('Private Assets Intelligence')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }
 

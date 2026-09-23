@@ -64,7 +64,7 @@ test('Knowledge Search renders dynamic mode help and Team source help in one inl
 });
 
 test('non-AI Full Output remains provider independent', () => {
-  assert.match(knowledge, /<span class="field-label">非AI出力<\/span>/);
+  assert.match(knowledge, /<span class="field-label">資料の書き出し<\/span>/);
   assert.match(knowledge, /id="knowledge-full-output"[^>]*>全文出力<\/button>/);
   assert.match(knowledgeClient, /previewKnowledgeExport/);
   assert.doesNotMatch(knowledgeClient, /knowledge-full-output[^\n]*(?:startKnowledgeSearch|runAiKnowledgeSearch)/);

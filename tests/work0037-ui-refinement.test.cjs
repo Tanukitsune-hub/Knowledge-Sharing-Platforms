@@ -38,7 +38,7 @@ test('Knowledge Search keeps detailed filters visible in the four frozen rows an
   assert.match(knowledge, /knowledge-filter-row/);
   assert.match(knowledge, /<option value="要約" selected>/);
   assert.match(knowledge, /knowledge-full-output-field[\s\S]*id="knowledge-full-output"/);
-  assert.match(knowledge, /id="knowledge-instruction-label"[^>]*>AI検索 指示入力欄/);
+  assert.match(knowledge, /id="knowledge-instruction-label"[^>]*>質問・追加指示/);
   assert.match(knowledge, /id="knowledge-submit"[^>]*>AI検索を実行/);
   assert.match(knowledge, /id="knowledge-clear"[^>]*>条件クリア/);
   for (const id of ['knowledge-fundStrategy', 'knowledge-followUp', 'knowledge-meetingTypeCode', 'knowledge-capitalTypeId']) {
@@ -46,14 +46,14 @@ test('Knowledge Search keeps detailed filters visible in the four frozen rows an
   }
   assert.doesNotMatch(knowledge, /class="field knowledge-(?:fund|follow-up|meeting-type)-field"/);
   assert.match(knowledgeClient, /kEl\('knowledge-mode'\)\.value='要約'/);
-  assert.match(knowledgeClient, /label\.textContent='AI検索 指示入力欄'/);
+  assert.match(knowledgeClient, /label\.textContent='質問・追加指示'/);
   assert.match(knowledgeClient, /fundStrategy:kEl\('knowledge-fundStrategy'\)\.value/);
 });
 
 test('Activity Analytics defaults to a leap-safe one calendar year and keeps user edits', () => {
   assert.match(analytics, /for="activity-period">期間粒度/);
   assert.ok(analytics.indexOf('選択した内訳') < analytics.indexOf('集計サマリー'));
-  assert.ok(analytics.indexOf('集計サマリー') < analytics.indexOf('該当Meeting'));
+  assert.ok(analytics.indexOf('集計サマリー') < analytics.indexOf('該当する面談記録'));
   assert.match(bootstrap, /kspSetOneYearDateRange\('activity-date-from','activity-date-to'\)/);
   const context = vm.createContext({ Intl, Date, Object, Number, String, document: { getElementById() { return null; } } });
   vm.runInContext(dates.match(/<script>([\s\S]*?)<\/script>/)[1], context);

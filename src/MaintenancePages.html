@@ -16,7 +16,7 @@
     </div>
     <div class="actions meeting-past-actions"><div class="action-group"><button id="meeting-past-search" class="action primary" type="button">検索</button><button id="meeting-past-clear" class="action secondary" type="button">条件クリア</button></div><span class="hint">Activeの記録を最大100件、新しい順で表示します。</span></div>
     <div id="meeting-past-status" class="status" role="status" aria-live="polite"></div>
-    <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>面談先</th><th>アセットクラス</th><th>Status</th><th>Version</th><th>操作</th></tr></thead><tbody id="meeting-past-results"></tbody></table></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>面談先</th><th>アセットクラス</th><th>Status</th><th>更新番号</th><th>操作</th></tr></thead><tbody id="meeting-past-results"></tbody></table></div>
   </div>
   <section id="meeting-detail-card" class="card" aria-busy="false">
     <div class="section-heading"><div><h2>記録の詳細</h2><p id="meeting-detail-identity" class="hint meeting-detail-hero"></p></div><button id="meeting-detail-close" class="small-button" type="button" disabled>選択解除</button></div>
@@ -27,9 +27,9 @@
       <div class="actions meeting-detail-primary-actions"><a id="meeting-detail-original" class="small-link" target="_blank" rel="noopener">Google Docs原本</a><button id="meeting-detail-edit" class="small-button" type="button">記録を編集</button><button id="meeting-detail-lifecycle" class="small-button" type="button">記録を削除</button></div>
     </div>
     <h3>関連資料</h3>
-    <p id="meeting-detail-related-empty" class="maintenance-empty-state">記録を選択すると、関連資料の確認・追加・関連付けができます。</p>
+    <p id="meeting-detail-related-empty" class="maintenance-empty-state">記録を選択すると、関連資料を確認・追加できます。</p>
     <div id="meeting-detail-related-content" hidden>
-      <p class="hint">資料の「削除」はこの記録との関連解除です。資料本体・他の記録との関係・資料のStatusは変更しません。</p>
+      <p class="hint">ここで資料を「削除」すると、この記録との関連付けだけを解除します。資料本体は残ります。</p>
       <div id="meeting-detail-files" class="file-list"></div>
       <div class="actions meeting-detail-related-actions"><button id="meeting-detail-link" class="small-button" type="button">既存資料を関連付ける</button><button id="meeting-detail-add-files" class="small-button" type="button">資料を追加</button></div>
       <div id="meeting-detail-file-home"></div><div id="meeting-detail-classification-home"></div>
@@ -59,7 +59,7 @@
         <div class="field meeting-edit-internal-participants-field"><label for="meeting-edit-internalParticipants">当社側</label><input id="meeting-edit-internalParticipants" maxlength="500"></div>
         <div class="field full meeting-edit-notes-field"><label for="meeting-edit-notes">面談内容</label><textarea id="meeting-edit-notes" maxlength="20000"></textarea></div>
       </div>
-      <div class="actions"><span class="hint">同じMeeting IDとGoogle Docを維持します。</span><button class="action primary" type="submit">変更を保存</button></div>
+      <div class="actions"><span class="hint">Meeting IDとGoogle Docs原本はそのまま使います。</span><button class="action primary" type="submit">変更を保存</button></div>
       </fieldset>
     </form>
     <div id="meeting-edit-status" class="status" role="status" aria-live="polite"></div>
@@ -68,10 +68,10 @@
 
 <section id="page-pitchbook-past" class="page">
   <div class="card">
-    <div class="section-heading"><div><h2>過去のPitchbook / 資料</h2><p class="hint">ファイル本体は差し替えず、分類MetadataとStatusを管理します。</p></div></div>
+    <div class="section-heading"><div><h2>過去の保存資料</h2><p class="hint">原本ファイルを残したまま、登録情報とStatusを更新できます。</p></div></div>
     <div class="filter-grid pitchbook-past-filter-grid">
-      <div class="field pitchbook-past-date-from-field"><label for="pitchbook-past-dateFrom">Date From</label><input id="pitchbook-past-dateFrom" type="date"></div>
-      <div class="field pitchbook-past-date-to-field"><label for="pitchbook-past-dateTo">Date To</label><input id="pitchbook-past-dateTo" type="date"></div>
+      <div class="field pitchbook-past-date-from-field"><label for="pitchbook-past-dateFrom">開始日</label><input id="pitchbook-past-dateFrom" type="date"></div>
+      <div class="field pitchbook-past-date-to-field"><label for="pitchbook-past-dateTo">終了日</label><input id="pitchbook-past-dateTo" type="date"></div>
       <div class="field pitchbook-past-counterparty-field"><label for="pitchbook-past-counterpartyId">面談先</label><select id="pitchbook-past-counterpartyId"><option value="">未選択</option></select></div>
       <div class="field pitchbook-past-asset-field"><label for="pitchbook-past-assetClassId">アセットクラス</label><select id="pitchbook-past-assetClassId"><option value="">未選択</option></select></div>
       <div class="field maintenance-backend-filter" hidden aria-hidden="true"><label for="pitchbook-past-capitalTypeId">Equity / Debt</label><select id="pitchbook-past-capitalTypeId"><option value="">未選択</option></select></div>
@@ -83,7 +83,7 @@
     <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>面談先</th><th>アセットクラス</th><th>ファイル</th><th>Status</th><th>操作</th></tr></thead><tbody id="pitchbook-past-results"></tbody></table></div>
   </div>
   <div id="pitchbook-edit-card" class="card maintenance-editor hidden-panel">
-    <div class="section-heading"><div><h2>資料Metadataを修正</h2><p id="pitchbook-edit-id" class="hint"></p></div><button id="pitchbook-edit-close" class="small-button" type="button">閉じる</button></div>
+    <div class="section-heading"><div><h2>保存資料の登録情報を修正</h2><p id="pitchbook-edit-id" class="hint"></p></div><button id="pitchbook-edit-close" class="small-button" type="button">閉じる</button></div>
     <form id="pitchbook-edit-form" novalidate>
       <input id="pitchbook-edit-documentId" type="hidden"><input id="pitchbook-edit-expectedUpdatedAt" type="hidden">
       <div class="grid pitchbook-edit-grid">
@@ -93,7 +93,7 @@
         <div class="field maintenance-backend-field" hidden aria-hidden="true"><label for="pitchbook-edit-capitalTypeId">Equity / Debt</label><select id="pitchbook-edit-capitalTypeId"><option value="">未選択</option></select></div>
         <div class="field pitchbook-edit-fund-field"><label for="pitchbook-edit-fundStrategy">Fund / Strategy</label><input id="pitchbook-edit-fundStrategy" maxlength="500"></div>
       </div>
-      <div class="actions"><span class="hint">別の命名コンテキストへ移る場合は移動先の次番号を使用します。</span><button class="action primary" type="submit">変更を保存</button></div>
+      <div class="actions"><span class="hint">保存先が変わる場合は、移動先の次の番号を使います。</span><button class="action primary" type="submit">変更を保存</button></div>
     </form>
     <div id="pitchbook-edit-status" class="status" role="status" aria-live="polite"></div>
   </div>
@@ -101,7 +101,7 @@
 
 <section id="page-masters" class="page">
   <div class="card">
-    <div class="section-heading"><div><h2>マスター管理</h2><p class="hint">物理削除は行わず、Inactive / Reactivateで管理します。</p></div><button id="masters-refresh" class="small-button" type="button">再読込</button></div>
+    <div class="section-heading"><div><h2>マスター管理</h2><p class="hint">削除した項目は後から復元できます。</p></div><button id="masters-refresh" class="small-button" type="button">再読込</button></div>
     <div class="master-tabs" role="tablist" aria-label="マスター種別">
       <button class="master-tab active" type="button" role="tab" aria-selected="true" data-master-tab="COUNTERPARTY">面談先</button>
       <button class="master-tab" type="button" role="tab" aria-selected="false" data-master-tab="ASSET_CLASS">アセットクラス</button>

@@ -23,7 +23,7 @@
         <div class="field knowledge-counterparty-field"><label id="knowledge-entity-label" for="knowledge-entityKey">面談先</label><select id="knowledge-entityKey"><option value="">未選択</option></select></div>
         <div class="field knowledge-asset-field"><label for="knowledge-assetClassId">アセットクラス</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
         <div class="field knowledge-team-field"><label for="knowledge-teamId">チーム</label><select id="knowledge-teamId"><option value="">未選択</option></select></div>
-        <div class="field knowledge-source-field"><label for="knowledge-sourceType">情報ソース</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">面談記録・資料</option><option value="Meeting">面談記録のみ</option><option value="Pitchbook">資料のみ</option></select></div>
+        <div class="field knowledge-source-field"><label for="knowledge-sourceType">対象資料</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">面談記録・保存資料</option><option value="Meeting">面談記録のみ</option><option value="Pitchbook">保存資料のみ</option></select></div>
       </div>
       <div class="knowledge-mode-row">
       <div class="field mode-field knowledge-mode-field">
@@ -43,7 +43,7 @@
         </div>
 
         <div class="field knowledge-full-output-field">
-          <span class="field-label">非AI出力</span>
+          <span class="field-label">資料の書き出し</span>
           <button id="knowledge-full-output" class="action secondary" type="button">全文出力</button>
         </div>
       </div>
@@ -56,14 +56,14 @@
         <select id="knowledge-meetingTypeCode"><option value="">未選択</option></select>
       </div>
       <span id="knowledge-config-state" class="hint">設定を確認しています…</span>
-        <div id="knowledge-multi-entity-field" class="field full" hidden><label class="required" for="knowledge-entityKeys">比較Entity（2–5件）</label><select id="knowledge-entityKeys" multiple size="5" aria-describedby="knowledge-multi-entity-help"></select><span id="knowledge-multi-entity-help" class="hint">Ctrl / CommandまたはShiftで複数選択します。表示名と種別で確認し、安定キーを送信します。</span></div>
+        <div id="knowledge-multi-entity-field" class="field full" hidden><label class="required" for="knowledge-entityKeys">比較する面談先（2–5件）</label><select id="knowledge-entityKeys" multiple size="5" aria-describedby="knowledge-multi-entity-help"></select><span id="knowledge-multi-entity-help" class="hint">Ctrl / CommandまたはShiftを押しながら複数選択できます。</span></div>
       <div class="field full knowledge-instruction-field">
-        <label id="knowledge-instruction-label" class="required" for="knowledge-instruction">AI検索 指示入力欄</label>
+        <label id="knowledge-instruction-label" class="required" for="knowledge-instruction">質問・追加指示</label>
         <textarea id="knowledge-instruction" maxlength="5000" placeholder="例: 最近の資料では、APACインフラの投資機会についてどのような見解が示されていますか？"></textarea>
-        <div id="knowledge-help-line" class="hint knowledge-help-line"><span id="knowledge-mode-help">自由質問では質問が必須です。回答全文や検索チャンクは監査ログへ複製しません。</span> <span id="knowledge-source-help">チームは「面談記録のみ」で利用できます。</span></div>
+        <div id="knowledge-help-line" class="hint knowledge-help-line"><span id="knowledge-mode-help">自由質問では質問を入力してください。</span> <span id="knowledge-source-help">チームは「面談記録のみ」で利用できます。</span></div>
       </div>
       <div class="actions knowledge-actions">
-        <span class="hint">新規・更新資料が検索可能になるまで最大約15分かかる想定です。</span>
+        <span class="hint">追加・更新した資料が検索に反映されるまで、最大約15分かかります。</span>
         <div class="action-group">
           <button id="knowledge-submit" class="action primary" type="submit" disabled>AI検索を実行</button>
           <button id="knowledge-clear" class="action secondary" type="button">条件クリア</button>
@@ -80,12 +80,12 @@
     <div class="section-heading">
       <div>
         <h2>対象資料の書き出し</h2>
-        <p class="hint">Meeting記録のGoogle Docs全文を出力します。Pitchbook本文・参照リンクsectionは含みません。Gemini検索を実行せず、ChatGPT検索も実行しません。</p>
+        <p class="hint">面談記録のGoogle Docs全文を書き出します。保存資料の本文は含みません。</p>
       </div>
     </div>
-    <p id="knowledge-export-scope" class="hint" aria-live="polite">全文出力は面談記録のみ（共通条件を適用、AI検索の情報ソース・モード・質問は変更しません）</p>
+    <p id="knowledge-export-scope" class="hint" aria-live="polite">面談記録のみを対象に、選択した面談先・期間・条件を適用します。</p>
     <div class="actions">
-      <span class="hint">まず対象資料を確認してください。出力は確認済みのMeeting原文と業務属性だけを使います。</span>
+      <span class="hint">まず対象資料を確認してください。面談記録の原文と登録情報を書き出します。</span>
       <div class="action-group">
         <button id="knowledge-export-preview-button" class="action secondary" type="button">対象資料を確認</button>
       </div>
@@ -99,7 +99,7 @@
       </div>
     </div>
     <div id="knowledge-export-hard-stop" class="status error" role="alert" aria-live="assertive"></div>
-    <div id="knowledge-export-preview-body" class="knowledge-export-preview-body" tabindex="0" aria-label="Meeting全文プレビュー"><pre id="knowledge-export-body-preview"></pre></div>
+    <div id="knowledge-export-preview-body" class="knowledge-export-preview-body" tabindex="0" aria-label="面談記録の全文プレビュー"><pre id="knowledge-export-body-preview"></pre></div>
     <div class="actions">
       <div class="action-group">
         <button id="knowledge-export-prompt" class="action secondary" type="button">AI用プロンプトをコピー</button>

@@ -87,8 +87,8 @@ test('Relationship Explorer page exposes accessible filters and both tabular dir
     'relationship-pitchbook-status', 'relationship-forward-results', 'relationship-reverse-results',
     'relationship-forward-detail', 'relationship-reverse-detail'
   ]) assert.match(page, new RegExp(`id="${id}"`));
-  assert.match(page, /<caption class="sr-only">MeetingからPitchbookへの明示的関係<\/caption>/);
-  assert.match(page, /<caption class="sr-only">PitchbookからMeetingへの逆引き関係<\/caption>/);
+  assert.match(page, /<caption class="sr-only">面談記録から保存資料への関連付け<\/caption>/);
+  assert.match(page, /<caption class="sr-only">保存資料から面談記録への関連付け<\/caption>/);
   assert.match(page, /面談先/);
   assert.doesNotMatch(page, /Related GP|Pitchbook GP/);
   assert.match(client, /serverCall\('getRelationshipExplorerData'/);
@@ -105,7 +105,7 @@ test('Relationship Explorer client loads read-only data and renders counterparty
   await runtime.context.loadRelationshipExplorer();
   assert.equal(calls.length, 1);
   assert.equal(calls[0][0], 'getRelationshipExplorerData');
-  assert.equal(runtime.node('relationship-summary').innerHTML.includes('Unresolved'), true);
+  assert.equal(runtime.node('relationship-summary').innerHTML.includes('未解決'), true);
   assert.match(runtime.node('relationship-forward-results').innerHTML, /MTG-000001/);
   assert.match(runtime.node('relationship-reverse-results').innerHTML, /DOC-1/);
 
@@ -114,7 +114,7 @@ test('Relationship Explorer client loads read-only data and renders counterparty
   });
   assert.match(runtime.node('relationship-forward-detail').innerHTML, /面談先/);
   assert.doesNotMatch(runtime.node('relationship-forward-detail').innerHTML, /Related GP|Pitchbook GP/);
-  assert.match(runtime.node('relationship-forward-detail').innerHTML, /既存の面談保守で開く/);
+  assert.match(runtime.node('relationship-forward-detail').innerHTML, /面談記録を開く/);
   assert.equal(runtime.node('relationship-forward-detail').innerHTML.includes('must never escape'), false);
 
   runtime.node('relationship-reverse-results')._listener_click({

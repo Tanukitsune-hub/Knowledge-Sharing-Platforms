@@ -4,7 +4,7 @@ function bindPitchbookParent(record,existing){
   if(!record||!record.meetingId||!Number.isInteger(Number(record.version))||Number(record.version)<1||record.status!=='Active')throw new Error('保存済みActive記録のIDとVersionを確認できません。');
   if(pitchbookSlots.some(slot=>slot.parentMeetingId!==record.meetingId))throw new Error('別の親記録の未完了資料があります。先にその記録で回復してください。');
   pitchbookParent={meetingId:record.meetingId,version:Number(record.version),existing:Boolean(existing)};
-  el('pitchbook-parent-label').textContent='親記録: '+record.meetingId+' / Version '+record.version+'（新規記録は作成しません）';
+  el('pitchbook-parent-label').textContent='親記録: '+record.meetingId+' / 更新番号 '+record.version+'（新規記録は作成しません）';
   el('pitchbook-submit').hidden=!existing;savePitchbookSlots();
 }
 async function readPitchbookParent(){

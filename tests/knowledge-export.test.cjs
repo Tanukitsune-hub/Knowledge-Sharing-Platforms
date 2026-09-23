@@ -588,7 +588,7 @@ test('Knowledge Export includes Counterparty-centered Meeting attributes without
   });
   const input=baseInput();const preview=ksp.kspRunKnowledgeExportPreview_(env,input);const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
   assert.equal(result.ok,true,JSON.stringify(result));const text=ksp.kspBuildKnowledgeExportPlainText_(env._debug.artifacts[0].model);
-  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/アセットクラス: Infrastructure/);assert.match(text,/チーム: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/MTG種別: 定例年1回, 先方オフィス訪問/);assert.doesNotMatch(text,/(?:Asset Class|Team|Meeting Type):/);assert.doesNotMatch(text,/要フォロー|Follow-up|private follow-up/);assert.match(text,/Related Pitchbook IDs: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);
+  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/アセットクラス: Infrastructure/);assert.match(text,/チーム: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/MTG種別: 定例年1回, 先方オフィス訪問/);assert.doesNotMatch(text,/(?:Asset Class|Team|Meeting Type):/);assert.doesNotMatch(text,/要フォロー|Follow-up|private follow-up/);assert.match(text,/関連資料のDocument ID: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);
   assert.equal(JSON.stringify(env._debug.audits).includes('private follow-up'),false);
 });
 
@@ -736,8 +736,8 @@ test('all five prompts are provider-neutral and independent of Gemini state', ()
     }));
     assert.equal(result.ok, true, `${mode}: ${JSON.stringify(result)}`);
     assert.doesNotMatch(result.prompt, /Gemini|File Search|Citation|citation/i);
-    assert.match(result.prompt, /Pitchbook本文は含みません/);
-    assert.match(result.prompt, /別途アップロード/);
+    assert.match(result.prompt, /保存資料の本文とリンクは含みません/);
+    assert.match(result.prompt, /必要に応じて別途添付した原資料/);
   });
   assert.equal(env._debug.audits.length, 0);
 });

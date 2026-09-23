@@ -86,7 +86,7 @@ test('failed master batch save keeps the local draft dirty and releases the busy
 
 test('admin page defaults to the provider tab and supplies accessible state-preserving client-side switching', () => {
   assert.match(adminPage, /role="tablist"/);
-  assert.match(adminPage, /id="admin-tab-provider"[\s\S]*?aria-selected="true"[\s\S]*?>AIプロバイダ設定<\/button>/);
+  assert.match(adminPage, /id="admin-tab-provider"[\s\S]*?aria-selected="true"[\s\S]*?>AI設定<\/button>/);
   assert.match(adminPage, /id="admin-tab-deleted"[\s\S]*?aria-selected="false"[\s\S]*?>削除記録の管理<\/button>/);
   assert.match(adminPage, /id="admin-panel-deleted"[^>]*role="tabpanel"[^>]*hidden/);
   assert.match(adminPage, /id="admin-panel-provider"[^>]*role="tabpanel"/);

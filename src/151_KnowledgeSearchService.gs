@@ -82,7 +82,7 @@ function kspRunFreeQuestion_(environment, rawInput) {
     if (insufficientEvidence) {
       warnings.push({
         code: 'AI_INSUFFICIENT_EVIDENCE',
-        message: '回答または authoritative citation が不足しています。'
+        message: '回答または根拠となる資料が不足しています。'
       });
     }
 
