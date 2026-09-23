@@ -1,11 +1,11 @@
 # Work 0053 — user-facing Japanese copy naturalization requirements
 
 WORK_ID: 0053
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
-DEPENDENCY: Work0052 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+BASELINE: Work0052 version34
+ACTIVE_DISPATCH: 0053-CODEX-02
+BALL: CODEX
 
 ## Primary Outcome
 
@@ -161,3 +161,25 @@ Do NOT:
 - code comments / developer docs Japanese cleanup
 - raw third-party error translation beyond safe public messages
 - Work0030
+
+
+## Admin Page naming decision
+
+User-confirmed:
+- visible `管理者ページ` label is intentionally kept
+- do not rename `管理者ページ` to `設定`
+- do not remove the admin-page navigation item
+- this Work is copy/brand polish only; account-role semantics belong to Work0054
+- no new admin account model, adminEmails gate, or shared-password gate in Work0053
+
+```text
+ADMIN_PAGE_LABEL: KEEP_AS_管理者ページ
+RENAME_TO_SETTINGS: NO
+ACCOUNT_ROLE_CHANGE: 0
+SHARED_PASSWORD_CHANGE: 0
+```
+
+Known mobile follow-up:
+- Entity Workspace has a pre-existing 390px overflow tracked as Work0056
+- Work0053 must not increase that known overflow or introduce overflow on other pages
+- fixing the pre-existing overflow is not Work0053 scope
