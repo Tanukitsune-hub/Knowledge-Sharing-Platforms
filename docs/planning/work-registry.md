@@ -42,7 +42,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | ACCEPTED | Work0048 version30 | PR #71 / version31 accepted。Completion Latch済み |
 | 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | ACCEPTED | Work0049 version31 | PR #72 / version32 accepted。Completion Latch済み |
 | 28 | 0051 | Backend daily backup + 30-day retention | ACCEPTED | Work0050 version32 | PR #73/#79/#80 / version33 accepted。Completion Latch済み |
-| 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
+| 29 | 0052 | Missing source graceful failure | ACTIVE | Work0051 version33 | CODEX-02 reconcile old stacked PR #74 onto latest main |
 | 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
 | 31 | 0054 | No-admin-role / Settings unification | PLANNED | Work0053 accepted baseline | Remove in-app admin/user distinction; Settings available equally to Web App users |
 | 32 | 0055 | Theme Color Tool hue bar / swatch refinement | PLANNED | Work0054 accepted baseline | Rainbow hue track + vertical indicator; selected-color swatch ~2x width |
@@ -925,15 +925,15 @@ Final runtime instruction: `docs/handoffs/0051-CODEX-04-backend-daily-backup-fin
 Runtime report: `docs/handoffs/0051-CODEX-04-backend-daily-backup-final-runtime-report.md`
 Completion: `docs/handoffs/0051-completion-report.md`
 
-## Work 0052 planned contract
+## Work 0052 active contract
 
 ```text
 WORK_ID: 0052
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
-DEPENDENCY: Work0051 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+BASELINE: Work0051 version33
+ACTIVE_DISPATCH: 0052-CODEX-02
+BALL: CODEX
 MISSING_MEETING_DOC: INLINE_FAIL_CLOSED
 MISSING_PITCHBOOK_FILE: INLINE_FAIL_CLOSED
 POPUP_ERROR: 0
@@ -946,6 +946,8 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0052-missing-source-graceful-failure-requirements.md`
 Plan: `docs/planning/work0052-missing-source-graceful-failure.md`
+Dispatch: `docs/handoffs/0052-dispatches.md`
+Reconcile instruction: `docs/handoffs/0052-CODEX-02-missing-source-reconcile-instruction.md`
 
 
 ## Work 0053 planned contract
