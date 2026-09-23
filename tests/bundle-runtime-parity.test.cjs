@@ -28,7 +28,7 @@ function loadModularDistributionResources() {
   return context;
 }
 
-test('bundle and modular source expose the same normal and guarded public surfaces', () => {
+test('bundle and modular source expose the same normal and operator public surfaces', () => {
   const sourceNames = collectRepositoryPublicSurface(rootDir)
     .filter((item) => !item.name.endsWith('_')).map((item) => item.name).sort();
   const bundleNames = collectTopLevelFunctionDeclarations(bundle)

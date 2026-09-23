@@ -39,7 +39,8 @@ const PUBLIC_FACADE_ALLOWLIST = Object.freeze([
 const OPERATOR_ENTRYPOINT_ALLOWLIST = Object.freeze([
   'installKnowledgeShare',
   'checkKnowledgeShareReadiness',
-  'confirmKnowledgeShareDeploymentSecurity'
+  'confirmKnowledgeShareDeploymentSecurity',
+  'runBackendDailyBackupNow'
 ]);
 
 const PRIVILEGED_FUNCTION_NAMES = Object.freeze([
@@ -393,7 +394,7 @@ function validatePublicSurface(rootDir = path.resolve(__dirname, '..')) {
   const errors = [];
 
   if (missingFacade.length) errors.push(`Missing required public facade: ${missingFacade.join(', ')}`);
-  if (missingOperatorEntrypoints.length) errors.push(`Missing guarded operator entrypoint: ${missingOperatorEntrypoints.join(', ')}`);
+  if (missingOperatorEntrypoints.length) errors.push(`Missing operator entrypoint: ${missingOperatorEntrypoints.join(', ')}`);
   if (unexpectedPublic.length) {
     errors.push(`Unexpected browser-callable top-level functions: ${unexpectedPublic.map((item) => `${item.name} (${item.file}:${item.line})`).join(', ')}`);
   }

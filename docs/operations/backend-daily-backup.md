@@ -4,7 +4,9 @@ Work0051は `Knowledge Platform Backend` のGoogle Spreadsheet全体を日次で
 
 ## 導入と確認
 
-既存installationでは、受入れ後の正規 `installKnowledgeShare()` / `setupKnowledgePlatform_()` 経路を管理者が再実行する。setupは `controlFolderId` 直下の `Knowledge Platform Backups` を作成または再利用し、`runBackendDailyBackup_` の日次CLOCK triggerを1件に整える。再実行でfolderとtriggerを増やさない。Web Appの通常操作からbackupを開始しない。
+既存installationでは、受入れ後の正規 `installKnowledgeShare()` / `setupKnowledgePlatform_()` 経路をApps Script project/editorにアクセスできる運用者が再実行する。setupは `controlFolderId` 直下の `Knowledge Platform Backups` を作成または再利用し、`runBackendDailyBackup_` の日次CLOCK triggerを1件に整える。再実行でfolderとtriggerを増やさない。Web Appの通常操作からbackupを開始しない。
+
+手動実行と同日再実行の確認には、Apps Script editorのfunction pickerから `runBackendDailyBackupNow()` を実行する。scheduled handlerとdaily triggerのtargetは引き続きprivateの `runBackendDailyBackup_()`。manual entrypointは同じbackup serviceを使用し、`ok`、`dateKey`、`snapshot`、`retentionTrashed`、`errorCode` を返す。ログには既存の安全な要約のみを残す。アプリ独自の管理者判定は設けず、editorでの実行はGoogle側のproject/editor accessに従う。Web App UIに手動backup導線はない。公開top-level関数はHTML Serviceからも呼び出せるため、既存のowner-only Web App accessを維持し、将来accessを変更する場合はこのsurfaceを再確認する。
 
 日付はinstallation timezone（通常 `Asia/Tokyo`）で `YYYY-MM-DD` とする。snapshot名は `Knowledge Platform Backend Backup YYYY-MM-DD`。Drive `appProperties` にbackup種別、日付、copy元Backend IDを記録する。triggerが同日に再実行された場合、検証済みsnapshotを再利用する。
 
