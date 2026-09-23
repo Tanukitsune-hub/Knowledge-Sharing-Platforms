@@ -1,11 +1,11 @@
 # Work 0050 — Theme Color Tool requirements
 
 WORK_ID: 0050
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0049 version31
-ACTIVE_DISPATCH: 0050-CODEX-01
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -269,3 +269,13 @@ If unsupported:
 - CSS arbitrary input
 - Theme backend schema redesign
 - Work0030
+
+
+## Accepted Outcome
+
+Implementation PR #72 merged as `b518b98c9c1e7acedd2b08128662abc463291213`.
+Target-runtime qualification PASS on owner-only Web App version32.
+Runtime report PR #77 merged as `9e6f6e69cf3874853b165f3073cc6ad899d55639`.
+Completion Latch applied.
+
+Completion: `docs/handoffs/0050-completion-report.md`
