@@ -41,7 +41,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 25 | 0048 | 削除記録の管理 manual-search only | ACCEPTED | Work0047 version29 | PR #70 / version30 accepted。Completion Latch済み |
 | 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | ACCEPTED | Work0048 version30 | PR #71 / version31 accepted。Completion Latch済み |
 | 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | ACCEPTED | Work0049 version31 | PR #72 / version32 accepted。Completion Latch済み |
-| 28 | 0051 | Backend daily backup + 30-day retention | ACTIVE | Work0050 version32 | PR #73 merged; CODEX-02 runtime qualification / version33 target |
+| 28 | 0051 | Backend daily backup + 30-day retention | ACTIVE | Work0050 version32 | PR #73 merged; CODEX-03 guarded manual operator fix before runtime qualification |
 | 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
 | 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
 | 31 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
@@ -894,7 +894,7 @@ MODE: BUILD
 BASELINE: Work0050 version32
 IMPLEMENTATION_PR: #73
 IMPLEMENTATION_MERGE: cc4af362bce24409246e4d03ab6f804a365ecb83
-ACTIVE_DISPATCH: 0051-CODEX-02
+ACTIVE_DISPATCH: 0051-CODEX-03
 BALL: CODEX
 BACKUP_SCOPE: KNOWLEDGE_PLATFORM_BACKEND_ONLY
 SCHEDULE: DAILY
@@ -912,6 +912,7 @@ Requirements: `docs/handoffs/0051-backend-daily-backup-requirements.md`
 Plan: `docs/planning/work0051-backend-daily-backup.md`
 Dispatch: `docs/handoffs/0051-dispatches.md`
 Runtime instruction: `docs/handoffs/0051-CODEX-02-backend-daily-backup-runtime-instruction.md`
+Manual operator instruction: `docs/handoffs/0051-CODEX-03-manual-backup-operator-instruction.md`
 
 ## Work 0052 planned contract
 
