@@ -2,7 +2,7 @@
   "name": "knowledge-sharing-platforms",
   "version": "0.1.0",
   "private": true,
-  "description": "Local validation tooling for the Apps Script Knowledge Sharing Platforms project.",
+  "description": "Local validation tooling for the Apps Script Private Assets Intelligence project.",
   "scripts": {
     "build:bundle": "node scripts/build-apps-script-bundle.cjs",
     "check:bundle": "node scripts/validate-apps-script-bundle.cjs && node --test tests/bundle-generation.test.cjs tests/bundle-runtime-parity.test.cjs tests/installer.test.cjs",
