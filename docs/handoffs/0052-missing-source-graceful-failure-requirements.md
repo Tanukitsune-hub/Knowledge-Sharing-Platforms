@@ -1,11 +1,11 @@
 # Work 0052 — missing source graceful failure requirements
 
 WORK_ID: 0052
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0051 version33
-ACTIVE_DISPATCH: 0052-CODEX-02
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -162,3 +162,18 @@ Preferred wording examples:
   -> 実際に失敗した処理に合わせて `読み込めませんでした` / `見つかりません` / `保存できませんでした`
 
 内部code / error code / developer documentationではtechnical terminologyを維持してよい。
+
+
+## Accepted Outcome
+
+Work0052 completed on owner-only Web App version34.
+
+Accepted:
+- cited-source validation before answer display
+- inline safe failure
+- stale answer hidden
+- popup/dialog 0
+- no automatic mutation/cleanup
+- destructive production-source qualification not performed for safety
+
+Completion: `docs/handoffs/0052-completion-report.md`
