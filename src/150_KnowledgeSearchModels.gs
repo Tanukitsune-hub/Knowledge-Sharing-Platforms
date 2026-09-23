@@ -145,6 +145,7 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
     add({
       sourceType: KSP_AI_SOURCE_TYPES.MEETING,
       sourceId: String(row.Meeting_ID || ''),
+      fileId: String(row.Doc_File_ID || ''),
       date: kspCanonicalBusinessDate_(row.Date),
       driveUrl: String(row.Doc_URL || ''),
       savedFilename: String(row.Saved_Filename || row.Meeting_ID || ''),
@@ -164,6 +165,7 @@ function kspBuildAuthoritativeSourceMaps_(meetingRows, pitchbookRows) {
     add({
       sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
       sourceId: String(row.Document_ID || ''),
+      fileId: String(row.File_ID || ''),
       date: kspCanonicalBusinessDate_(row.Date),
       driveUrl: String(row.File_URL || ''),
       savedFilename: String(row.Saved_Filename || row.Original_Filename || row.Document_ID || ''),

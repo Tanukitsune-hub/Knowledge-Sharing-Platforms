@@ -37,6 +37,7 @@ function attachSharedAdminAuth(environment, options = {}) {
 function baseContext(overrides={}) {
   return {
     backendSpreadsheetId:'backend', auditSpreadsheetId:'audit',
+    state:{resources:{meetingRecordsFolderId:'meeting-folder',pitchbooksFolderId:'pitchbook-folder'}},
     settings:{
       GEMINI_FILE_SEARCH_STORE_NAME:'fileSearchStores/store-1',
       AI_DEFAULT_MODEL:'gemini-flash-configured',
@@ -77,6 +78,14 @@ function createSyncEnvironment(options={}) {
   return {
     nowIso(){clock++;return `2026-08-16T00:${String(clock).padStart(2,'0')}:00.000Z`;},
     loadAiContext(){return context;},
+    getDriveFileMetadata(fileId){
+      if (typeof options.getDriveFileMetadata === 'function') return options.getDriveFileMetadata(fileId);
+      const meeting=context.meetingRows.find(row=>row.Doc_File_ID===fileId);
+      const pitchbook=context.pitchbookRows.find(row=>row.File_ID===fileId);
+      if (!meeting && !pitchbook) throw new Error('Synthetic file missing');
+      return {id:fileId,mimeType:meeting?'application/vnd.google-apps.document':'text/plain',
+        parents:[meeting?'meeting-folder':'pitchbook-folder'],trashed:false};
+    },
     ensureAiSettings(rows){for(const row of rows)if(!(row.Key in context.settings))context.settings[row.Key]=row.Value;return{};},
     ensureFileSearchStore(){return{name:'fileSearchStores/store-1'};},
     readMeetingText(){if(options.readError)throw options.readError;return options.meetingText||'Meeting body';},
