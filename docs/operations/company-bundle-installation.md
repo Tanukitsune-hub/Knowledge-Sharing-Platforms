@@ -1,4 +1,4 @@
-# Company installation from the Knowledge Share bundle
+# Company installation of Private Assets Intelligence
 
 Status: Target operator flow for Work `0023`; implementation and screenshots pending
 
@@ -22,12 +22,12 @@ Use only the bundle and release manifest from the same accepted release. Do not 
 
 ### 1. Create the host Spreadsheet
 
-In the Shared Drive folder where Knowledge Share should be installed, create one new Google Spreadsheet.
+In the Shared Drive folder where Private Assets Intelligence should be installed, create one new Google Spreadsheet.
 
 Recommended name:
 
 ```text
-Knowledge Share Control
+Private Assets Intelligence Control
 ```
 
 Keep the Spreadsheet in that folder while installation runs. The installer uses its parent folder as the default location boundary.
@@ -166,7 +166,7 @@ Share the Web App URL with approved internal users. Users do not need the bundle
 
 ```text
 Selected Shared Drive folder
-├─ Knowledge Share Control
+├─ Private Assets Intelligence Control
 ├─ Private Assets Knowledge
 │  ├─ Meeting Records
 │  └─ Pitchbooks
