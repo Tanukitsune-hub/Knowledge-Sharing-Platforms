@@ -42,14 +42,15 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 26 | 0049 | 全アプリ非同期処理フィードバック標準化 | ACCEPTED | Work0048 version30 | PR #71 / version31 accepted。Completion Latch済み |
 | 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | ACCEPTED | Work0049 version31 | PR #72 / version32 accepted。Completion Latch済み |
 | 28 | 0051 | Backend daily backup + 30-day retention | ACCEPTED | Work0050 version32 | PR #73/#79/#80 / version33 accepted。Completion Latch済み |
-| 29 | 0052 | Missing source graceful failure | ACTIVE | Work0051 version33 | CODEX-02 reconcile old stacked PR #74 onto latest main |
+| 29 | 0052 | Missing source graceful failure | ACTIVE | Work0051 version33 | PR #81 merged; CODEX-03 final runtime qualification / version34 target |
 | 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
 | 31 | 0054 | No-admin-role / Settings unification | PLANNED | Work0053 accepted baseline | Remove in-app admin/user distinction; Settings available equally to Web App users |
 | 32 | 0055 | Theme Color Tool hue bar / swatch refinement | PLANNED | Work0054 accepted baseline | Rainbow hue track + vertical indicator; selected-color swatch ~2x width |
-| 32 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 33 | 0056 | Entity Workspace 390px overflow fix | PLANNED | Work0055 accepted baseline | Pre-existing mobile overflow follow-up; all seven pages 390px overflow 0 |
+| 34 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 35 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
-| 33 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
-| 34 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
+| 36 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
+| 37 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
 ## Accepted boundaries
 
@@ -932,7 +933,7 @@ WORK_ID: 0052
 STATUS: ACTIVE
 MODE: BUILD
 BASELINE: Work0051 version33
-ACTIVE_DISPATCH: 0052-CODEX-02
+ACTIVE_DISPATCH: 0052-CODEX-03
 BALL: CODEX
 MISSING_MEETING_DOC: INLINE_FAIL_CLOSED
 MISSING_PITCHBOOK_FILE: INLINE_FAIL_CLOSED
@@ -948,6 +949,7 @@ Requirements: `docs/handoffs/0052-missing-source-graceful-failure-requirements.m
 Plan: `docs/planning/work0052-missing-source-graceful-failure.md`
 Dispatch: `docs/handoffs/0052-dispatches.md`
 Reconcile instruction: `docs/handoffs/0052-CODEX-02-missing-source-reconcile-instruction.md`
+Final runtime instruction: `docs/handoffs/0052-CODEX-03-missing-source-final-runtime-instruction.md`
 
 
 ## Work 0053 planned contract
@@ -1043,3 +1045,25 @@ WORK_0030: DEFERRED_BY_USER
 
 Requirements: `docs/handoffs/0055-theme-color-tool-visual-refinement-requirements.md`
 Plan: `docs/planning/work0055-theme-color-tool-visual-refinement.md`
+
+
+## Work 0056 planned contract
+
+```text
+WORK_ID: 0056
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0055 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+DISCOVERY: PREEXISTING_ENTITY_WORKSPACE_390PX_OVERFLOW
+MOBILE_390_OVERFLOW_TARGET: 0
+ALL_SEVEN_PAGES_390_OVERFLOW: 0
+GLOBAL_OVERFLOW_HIDDEN_MASK: PROHIBITED
+BUSINESS_LOGIC_CHANGE: 0
+BACKEND_API_CHANGE: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0056-entity-workspace-mobile-overflow-requirements.md`
+Plan: `docs/planning/work0056-entity-workspace-mobile-overflow.md`
