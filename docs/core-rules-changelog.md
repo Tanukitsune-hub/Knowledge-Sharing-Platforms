@@ -1,5 +1,15 @@
 # Core Rules Changelog
 
+## 2.3 — 2026-09-23
+
+- Added explicit risk-based validation tiers: `TIER_1_LOW`, `TIER_2_STANDARD`, and `TIER_3_HIGH`.
+- Made the selected tier the default sufficient validation scope and prohibited broader regression or target-runtime qualification by habit.
+- Required a concrete decision-impact reason before escalating validation depth.
+- Clarified that unrelated historical Work, unaffected pages/viewports/providers, and available harnesses do not by themselves justify extra checks.
+- Added a stop rule after required evidence passes and one final relevant diff/consistency review.
+- Clarified that TIER_1 work with no material runtime dependency may record target-runtime qualification as `NOT APPLICABLE` instead of deploying solely for evidence.
+
+
 This changelog records behavioral changes to the bounded Core Rules in root `AGENTS.md`. The canonical universal wording is maintained in `Tanukitsune-hub/dev-repo-template`; repository-specific adoption does not overwrite local architecture or product contracts.
 
 ## 2.2 — 2026-08-26
