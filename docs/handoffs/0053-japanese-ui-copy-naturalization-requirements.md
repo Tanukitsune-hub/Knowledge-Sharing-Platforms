@@ -1,11 +1,11 @@
 # Work 0053 — user-facing Japanese copy naturalization requirements
 
 WORK_ID: 0053
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0052 version34
-ACTIVE_DISPATCH: 0053-CODEX-02
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -162,7 +162,6 @@ Do NOT:
 - raw third-party error translation beyond safe public messages
 - Work0030
 
-
 ## Admin Page naming decision
 
 User-confirmed:
@@ -183,3 +182,13 @@ Known mobile follow-up:
 - Entity Workspace has a pre-existing 390px overflow tracked as Work0056
 - Work0053 must not increase that known overflow or introduce overflow on other pages
 - fixing the pre-existing overflow is not Work0053 scope
+
+## Completion
+
+Accepted on version35 after final target-runtime qualification. Completion evidence is recorded in `docs/handoffs/0053-completion-report.md`.
+
+```text
+WORK_0053_COMPLETE: YES
+COMPLETION_LATCH: APPLIED
+FOLLOW_UP_WORK: 0056
+```
