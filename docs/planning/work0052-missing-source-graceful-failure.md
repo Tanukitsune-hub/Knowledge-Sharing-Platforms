@@ -1,11 +1,11 @@
 # Work 0052 — missing source graceful failure plan
 
 WORK_ID: 0052
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 BASELINE: Work0051 version33
-ACTIVE_DISPATCH: 0052-CODEX-02
-BALL: CODEX
+ACTIVE_DISPATCH: NONE
+BALL: NONE
 
 ## Primary Outcome
 
@@ -42,3 +42,9 @@ BACKEND_MUTATION_ON_MISSING_SOURCE: 0
 SCHEMA_CHANGE: 0
 WORK_0030: DEFERRED_BY_USER
 ```
+
+
+## Accepted Outcome
+
+Work0052 is accepted on version34. Completion Latch applied.
+Entity Workspace 390px overflow is tracked separately as Work0056.
