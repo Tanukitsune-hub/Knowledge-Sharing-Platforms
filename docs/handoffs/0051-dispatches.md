@@ -10,7 +10,7 @@ PHASE: GUARDED MANUAL BACKUP OPERATOR
 
 ## Primary Outcome
 
-private scheduled backup handlerを維持しつつ、editor-visibleでstrict owner/admin authorization付きのmanual backup operator entrypointを追加する。
+private scheduled backup handlerを維持しつつ、editor-visibleなmanual backup operator entrypointを追加する。アプリ内の管理者/一般利用者ロールは設けない。
 
 ## Accepted evidence retained
 
@@ -33,7 +33,8 @@ BLOCKER_TO_RESOLVE: APPROVED_PRIVATE_BACKUP_MANUAL_EXECUTION_PATH_UNAVAILABLE
 
 ```text
 MANUAL_OPERATOR_ENTRYPOINT: REQUIRED
-STRICT_ACTIVE_EFFECTIVE_ADMIN_MATCH: REQUIRED
+IN_APP_ADMIN_ROLE: NONE
+EMAIL_ROSTER_AUTHORIZATION: 0
 SCHEDULED_HANDLER: runBackendDailyBackup_
 SCHEDULED_HANDLER_PRIVATE: YES
 NORMAL_USER_UI_REFERENCE: 0
