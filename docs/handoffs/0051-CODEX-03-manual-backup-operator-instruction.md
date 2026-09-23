@@ -256,3 +256,18 @@ WORK_ID: 0051
 DISPATCH_ID: 0051-CODEX-03
 BALL: CODEX
 STATUS: READY
+
+
+## Personnel handover compatibility
+
+This manual operator must authorize against the current configured `adminEmails` roster, not a hard-coded person and not the installer-owner latch.
+
+Required:
+- multiple configured administrators are supported
+- any current roster member may pass when active == effective == that member
+- do not require exactly one admin
+- do not require the original installer owner
+- tests include at least two configured admins and prove either can authorize
+- removing a former admin from the roster makes that identity fail immediately
+
+The operational mechanism for safely editing the administrator roster is a separate Work. Do not broaden Work0051 into administrator lifecycle UI.
