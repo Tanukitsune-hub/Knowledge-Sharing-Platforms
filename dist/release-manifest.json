@@ -2,17 +2,17 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "a9f4e34ec98cacfea9429e5de6c344b0cde81c02",
+  "source_git_commit": "39c6bbb368af183e92bf7a7a4a1897f785e728a3",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "9458af07f8b6dc6595548a75ad010fa3525bb4d1dd93a7d32c8551ce749706d4",
-  "bundle_file_sha256": "aaf2cf1558c5d9712b9fb3e401852c0ce583df032fd9f9771ef68629eedfd038",
+  "bundle_payload_sha256": "613d34a1b8a39a4742964db88312f2f79f30c5a829cca933972f6c6efe3fe772",
+  "bundle_file_sha256": "abb903cdd93c57001c847e993f2310a10920305c9aee151864f9221ebc98448d",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "ce4aafc9b472432bcb8963308664f8c7acba0db7eed73e87ab5ce0bbd2d61ee5",
   "bundle_metrics": {
-    "bytes": 1300071,
-    "characters": 1255968,
-    "lines": 19933,
+    "bytes": 1302671,
+    "characters": 1258276,
+    "lines": 19977,
     "server_source_count": 63,
     "embedded_html_count": 23
   },
@@ -244,8 +244,8 @@
     },
     {
       "file": "src/150_KnowledgeSearchModels.gs",
-      "bytes": 29091,
-      "sha256": "9ef28d0a3440ab643606f39f9a83e774be65ff85e966df3110787b7acbcfeafe"
+      "bytes": 29177,
+      "sha256": "bed705d75f62bbfd61a6aea273a9e50c5039b92641d62f67269b5d50ba6951fc"
     },
     {
       "file": "src/151_KnowledgeSearchService.gs",
@@ -259,8 +259,8 @@
     },
     {
       "file": "src/155_KnowledgeExportContracts.gs",
-      "bytes": 31437,
-      "sha256": "7cff12ed590c6d5d19242b153835c6a20e6f8f38cf3b2de3953404fdc4569c41"
+      "bytes": 31444,
+      "sha256": "0d39bb927130469b73ed78fc7c09f193a09afb50203d71a72566d4c7b8f07f4e"
     },
     {
       "file": "src/156_KnowledgeExportService.gs",
@@ -294,8 +294,8 @@
     },
     {
       "file": "src/164_AiProviderCore.gs",
-      "bytes": 100363,
-      "sha256": "4a6b2a70ffa89357caa749a968e55a6b481684d6fabe9cbff10189e9ec546643"
+      "bytes": 102798,
+      "sha256": "b37c5d53b7a96695930d0e070b9b8acf36bae5b6405bea4135eda95c0400ff88"
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
@@ -376,8 +376,8 @@
     },
     {
       "file": "src/ClientKnowledgeSearch.html",
-      "bytes": 33841,
-      "sha256": "ebbef423e1ece897a511013962ad97991319e6ad02d3ccabe053c863c6476e42"
+      "bytes": 33913,
+      "sha256": "248b39c74735d4fb79aeac46ab5ee3ba6a211a6bcf47f165bbff54c33867ba1b"
     },
     {
       "file": "src/ClientMaintenance.html",
