@@ -1,4 +1,4 @@
-const { test, assert, ksp, plain, attachSharedAdminAuth } = require('./ai-test-helpers.cjs');
+const { test, assert, ksp, plain } = require('./ai-test-helpers.cjs');
 
 function response(code, body, headers = {}) {
   return {
@@ -410,7 +410,7 @@ function makeE2eEnvironment(options = {}) {
     profiles: [profile]
   }));
   const context = {
-    state: { config: { adminEmails: ['admin@example.com'] }, resources: {} },
+    state: { resources: {} },
     backendSpreadsheetId: 'backend-synthetic',
     auditSpreadsheetId: 'audit-synthetic',
     settings: {
@@ -440,7 +440,6 @@ function makeE2eEnvironment(options = {}) {
     },
     loadAiContext() { return context; },
     ensureAiSettings() {},
-    isAdministrator() { return true; },
     isGeminiCredentialConfigured() { return true; },
     getActor() { return 'admin@example.com'; },
     writeAiSetting(key, value) {
@@ -528,13 +527,12 @@ function makeE2eEnvironment(options = {}) {
     },
     _debug: { context, calls, writes, audits, requests, profile }
   };
-  return attachSharedAdminAuth(env);
+  return env;
 }
 
 function qualifyE2e(env) {
   return plain(ksp.kspMutateAiProviderSettings_(env, {
-    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low',
-    adminSessionToken: env._debug.adminSessionToken
+    action: 'QUALIFY_MODEL_PROFILE', profileId: 'gemini-38-low', thinkingProfileId: 'low'
   }));
 }
 

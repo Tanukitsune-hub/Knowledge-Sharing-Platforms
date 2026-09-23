@@ -23,6 +23,7 @@ function ownerOnlyEnvironment() {
     isGeminiCredentialConfigured() { return false; },
     writeAiSetting(key, value) { writes.push({ key, value: String(value) }); context.settings[key] = String(value); },
     readSharedAdminCredential() { throw new Error('legacy credential must be inert'); },
+    isAdministrator() { throw new Error('application administrator role must be inert'); },
     _debug: { context, writes }
   };
 }
@@ -53,12 +54,11 @@ test('owner-only admin read and mutation do not consult legacy password properti
   assert.deepEqual(env._debug.writes.map(item => item.key), ['OPENAI_ENABLED', 'OPENAI_READINESS']);
 });
 
-test('legacy password property names remain present but have no active public route', () => {
+test('obsolete shared-admin and email role code is absent from the AI settings path', () => {
   const server = read('src', '165_AiProviderAdmin.gs');
+  const environment = read('src', '160_AiEnvironment.gs');
   const surface = read('scripts', 'public-surface.cjs');
-  for (const key of [
-    'KSP_SHARED_ADMIN_PASSWORD_SALT', 'KSP_SHARED_ADMIN_PASSWORD_VERIFIER',
-    'KSP_SHARED_ADMIN_TOKEN_SIGNING_SECRET', 'KSP_SHARED_ADMIN_CREDENTIAL_GENERATION'
-  ]) assert.match(server, new RegExp(key));
+  assert.doesNotMatch(server, /SHARED_ADMIN_|kspManageSharedAdminSession_|kspIsAiProviderAdministrator_|adminEmails|Session\.get(?:Active|Effective)User|AI_PROVIDER_ADMIN_UNAUTHORIZED/);
+  assert.doesNotMatch(environment, /readSharedAdminCredential|writeSharedAdminCredential|withSharedAdminLock|sharedAdminHmac|sharedAdminRandom/);
   assert.doesNotMatch(surface, /'manageAiProviderAdminSession'/);
 });

@@ -1,17 +1,6 @@
 function kspAiProviderAdminSafeMessage_(code) {
   var messages = {
-    AI_PROVIDER_ADMIN_UNAUTHORIZED: 'この操作は管理者だけが実行できます。',
     AI_PROVIDER_ADMIN_ACTION_INVALID: 'AIプロバイダ操作が不正です。',
-    SHARED_ADMIN_ACTION_INVALID: '管理者モード操作が不正です。',
-    SHARED_ADMIN_STORAGE_UNAVAILABLE: '管理者認証状態を確認できませんでした。',
-    SHARED_ADMIN_CREDENTIAL_INVALID: '管理者認証状態を確認できませんでした。',
-    SHARED_ADMIN_CREDENTIAL_NOT_CONFIGURED: '管理者パスワードが未設定です。',
-    SHARED_ADMIN_ALREADY_CONFIGURED: '管理者パスワードは設定済みです。',
-    SHARED_ADMIN_BOOTSTRAP_UNAUTHORIZED: '初回管理者設定を実行できません。',
-    SHARED_ADMIN_PASSWORD_INVALID: '管理者パスワードは8文字以上256文字以下で入力してください。',
-    SHARED_ADMIN_PASSWORD_MISMATCH: '管理者パスワードの確認入力が一致しません。',
-    SHARED_ADMIN_UNLOCK_FAILED: '管理者パスワードを確認できませんでした。',
-    SHARED_ADMIN_SESSION_INVALID: '管理者モードのロック解除が必要です。',
     OPENAI_API_KEY_NOT_CONFIGURED: 'OpenAI APIキーがScript Propertiesに設定されていません。',
     OPENAI_API_KEY_INVALID: 'OpenAI APIキーを確認できませんでした。',
     OPENAI_ACTIVATION_FAILED: 'OpenAIを有効化できませんでした。APIキーと権限を確認してください。',
@@ -70,7 +59,7 @@ function kspAiProviderAdminSafeMessage_(code) {
 function kspAiProviderAdminFailure_(code, qualificationEvidence) {
   var output = {
     ok: false,
-    workId: String(code || '').indexOf('SHARED_ADMIN_') === 0 ? '0029' : '0020',
+    workId: '0020',
     error: { code: String(code || 'OPENAI_ACTIVATION_FAILED'), message: kspAiProviderAdminSafeMessage_(code) }
   };
   if (qualificationEvidence) {
@@ -86,229 +75,8 @@ function kspAiProviderAdminFailure_(code, qualificationEvidence) {
   return output;
 }
 
-var KSP_SHARED_ADMIN_PROPERTY_KEYS = Object.freeze({
-  SALT: 'KSP_SHARED_ADMIN_PASSWORD_SALT',
-  VERIFIER: 'KSP_SHARED_ADMIN_PASSWORD_VERIFIER',
-  SIGNING_SECRET: 'KSP_SHARED_ADMIN_TOKEN_SIGNING_SECRET',
-  GENERATION: 'KSP_SHARED_ADMIN_CREDENTIAL_GENERATION'
-});
-
-var KSP_SHARED_ADMIN_TOKEN_VERSION = 'KSP1';
-
-function kspSharedAdminReadCredential_(environment) {
-  kspAssert_(environment && typeof environment.readSharedAdminCredential === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator credential storage is unavailable.');
-  var raw = environment.readSharedAdminCredential() || {};
-  var state = {
-    salt: String(raw.salt || ''),
-    verifier: String(raw.verifier || ''),
-    signingSecret: String(raw.signingSecret || ''),
-    generation: String(raw.generation || '')
-  };
-  var values = [state.salt, state.verifier, state.signingSecret, state.generation];
-  var populated = values.filter(function (value) { return Boolean(value); }).length;
-  if (!populated) return { configured: false };
-  kspAssert_(populated === values.length && /^[A-Za-z0-9_-]{32,128}$/.test(state.salt) &&
-    /^[A-Za-z0-9_-]{32,128}$/.test(state.verifier) &&
-    /^[A-Za-z0-9_-]{32,128}$/.test(state.signingSecret) &&
-    /^[1-9][0-9]{0,9}$/.test(state.generation),
-    'SHARED_ADMIN_CREDENTIAL_INVALID', 'Shared administrator credential state is invalid.');
-  state.configured = true;
-  state.generation = Number(state.generation);
-  return state;
-}
-
-function kspSharedAdminPassword_(value) {
-  var password = value === undefined || value === null ? '' : String(value);
-  kspAssert_(password.length >= 8 && password.length <= 256 && /\S/.test(password),
-    'SHARED_ADMIN_PASSWORD_INVALID', 'Shared administrator password is invalid.');
-  return password;
-}
-
-function kspSharedAdminConstantTimeEquals_(left, right) {
-  var a = String(left || '');
-  var b = String(right || '');
-  var difference = a.length ^ b.length;
-  var length = Math.max(a.length, b.length);
-  for (var index = 0; index < length; index += 1) {
-    difference |= (a.charCodeAt(index) || 0) ^ (b.charCodeAt(index) || 0);
-  }
-  return difference === 0;
-}
-
-function kspSharedAdminHmac_(environment, value, key) {
-  kspAssert_(environment && typeof environment.sharedAdminHmac === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator HMAC is unavailable.');
-  var result = String(environment.sharedAdminHmac(String(value), String(key)) || '');
-  kspAssert_(/^[A-Za-z0-9_-]{32,128}$/.test(result),
-    'SHARED_ADMIN_CREDENTIAL_INVALID', 'Shared administrator HMAC output is invalid.');
-  return result;
-}
-
-function kspSharedAdminRandom_(environment, purpose) {
-  kspAssert_(environment && typeof environment.sharedAdminRandom === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator random source is unavailable.');
-  var value = String(environment.sharedAdminRandom(String(purpose || '')) || '');
-  kspAssert_(/^[A-Za-z0-9_-]{32,128}$/.test(value),
-    'SHARED_ADMIN_CREDENTIAL_INVALID', 'Shared administrator random value is invalid.');
-  return value;
-}
-
-function kspSharedAdminPasswordVerifier_(environment, password, salt) {
-  return kspSharedAdminHmac_(environment, 'KSP_SHARED_ADMIN_PASSWORD_V1|' + String(salt), password);
-}
-
-function kspSharedAdminBuildCredential_(environment, password, generation) {
-  var salt = kspSharedAdminRandom_(environment, 'PASSWORD_SALT');
-  return {
-    configured: true,
-    salt: salt,
-    verifier: kspSharedAdminPasswordVerifier_(environment, password, salt),
-    signingSecret: kspSharedAdminRandom_(environment, 'TOKEN_SIGNING_SECRET'),
-    generation: Number(generation)
-  };
-}
-
-function kspSharedAdminTokenSignature_(environment, state, nonce) {
-  return kspSharedAdminHmac_(environment,
-    'KSP_SHARED_ADMIN_TOKEN_V1|' + String(state.generation) + '|' + String(nonce),
-    state.signingSecret);
-}
-
-function kspSharedAdminIssueToken_(environment, state) {
-  var nonce = kspSharedAdminRandom_(environment, 'SESSION_NONCE');
-  return [KSP_SHARED_ADMIN_TOKEN_VERSION, String(state.generation), nonce,
-    kspSharedAdminTokenSignature_(environment, state, nonce)].join('.');
-}
-
-function kspSharedAdminValidateToken_(environment, token, suppliedState) {
-  var state = suppliedState || kspSharedAdminReadCredential_(environment);
-  kspAssert_(state.configured, 'SHARED_ADMIN_CREDENTIAL_NOT_CONFIGURED',
-    'Shared administrator credential is not configured.');
-  var normalized = token === undefined || token === null ? '' : String(token);
-  var parts = normalized.split('.');
-  kspAssert_(parts.length === 4 && parts[0] === KSP_SHARED_ADMIN_TOKEN_VERSION &&
-    /^[1-9][0-9]{0,9}$/.test(parts[1]) && /^[A-Za-z0-9_-]{32,128}$/.test(parts[2]) &&
-    /^[A-Za-z0-9_-]{32,128}$/.test(parts[3]) && Number(parts[1]) === state.generation,
-    'SHARED_ADMIN_SESSION_INVALID', 'Shared administrator session is invalid.');
-  var expected = kspSharedAdminTokenSignature_(environment, state, parts[2]);
-  kspAssert_(kspSharedAdminConstantTimeEquals_(expected, parts[3]),
-    'SHARED_ADMIN_SESSION_INVALID', 'Shared administrator session is invalid.');
-  return true;
-}
-
-function kspSharedAdminTryValidateToken_(environment, token, state) {
-  if (!token || !state || !state.configured) return false;
-  try { return kspSharedAdminValidateToken_(environment, token, state); }
-  catch (ignored) { return false; }
-}
-
-function kspSharedAdminWriteCredential_(environment, state) {
-  kspAssert_(environment && typeof environment.writeSharedAdminCredential === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator credential storage is unavailable.');
-  environment.writeSharedAdminCredential({
-    salt: state.salt,
-    verifier: state.verifier,
-    signingSecret: state.signingSecret,
-    generation: String(state.generation)
-  });
-}
-
-function kspSharedAdminWithLock_(environment, callback) {
-  kspAssert_(environment && typeof environment.withSharedAdminLock === 'function',
-    'SHARED_ADMIN_STORAGE_UNAVAILABLE', 'Shared administrator lock is unavailable.');
-  return environment.withSharedAdminLock(callback);
-}
-
-function kspManageSharedAdminSession_(environment, input) {
-  var action = kspAiTrim_(input && input.action).toUpperCase();
-  if (['BOOTSTRAP', 'UNLOCK', 'CHANGE_PASSWORD'].indexOf(action) === -1) {
-    return kspAiProviderAdminFailure_('SHARED_ADMIN_ACTION_INVALID');
-  }
-  try {
-    if (action === 'BOOTSTRAP') {
-      var bootstrapPassword = kspSharedAdminPassword_(input && input.password);
-      kspAssert_(bootstrapPassword === String(input && input.passwordConfirmation || ''),
-        'SHARED_ADMIN_PASSWORD_MISMATCH', 'Shared administrator password confirmation does not match.');
-      var context = environment.loadAiContext();
-      return kspSharedAdminWithLock_(environment, function () {
-        var current = kspSharedAdminReadCredential_(environment);
-        kspAssert_(!current.configured, 'SHARED_ADMIN_ALREADY_CONFIGURED',
-          'Shared administrator credential is already configured.');
-        kspAssert_(kspIsAiProviderAdministrator_(environment, context),
-          'SHARED_ADMIN_BOOTSTRAP_UNAUTHORIZED', 'Shared administrator bootstrap is unauthorized.');
-        var next = kspSharedAdminBuildCredential_(environment, bootstrapPassword, 1);
-        var token = kspSharedAdminIssueToken_(environment, next);
-        kspSharedAdminWriteCredential_(environment, next);
-        return { ok: true, workId: '0029', action: action, adminSessionToken: token,
-          adminAuth: { credentialConfigured: true, canBootstrap: false, unlocked: true } };
-      });
-    }
-    if (action === 'UNLOCK') {
-      var state = kspSharedAdminReadCredential_(environment);
-      kspAssert_(state.configured, 'SHARED_ADMIN_CREDENTIAL_NOT_CONFIGURED',
-        'Shared administrator credential is not configured.');
-      var password = kspSharedAdminPassword_(input && input.password);
-      var actual = kspSharedAdminPasswordVerifier_(environment, password, state.salt);
-      kspAssert_(kspSharedAdminConstantTimeEquals_(actual, state.verifier),
-        'SHARED_ADMIN_UNLOCK_FAILED', 'Shared administrator unlock failed.');
-      return { ok: true, workId: '0029', action: action,
-        adminSessionToken: kspSharedAdminIssueToken_(environment, state),
-        adminAuth: { credentialConfigured: true, canBootstrap: false, unlocked: true } };
-    }
-    var nextPassword = kspSharedAdminPassword_(input && input.newPassword);
-    kspAssert_(nextPassword === String(input && input.newPasswordConfirmation || ''),
-      'SHARED_ADMIN_PASSWORD_MISMATCH', 'Shared administrator password confirmation does not match.');
-    return kspSharedAdminWithLock_(environment, function () {
-      var currentState = kspSharedAdminReadCredential_(environment);
-      kspSharedAdminValidateToken_(environment, input && input.adminSessionToken, currentState);
-      var nextState = kspSharedAdminBuildCredential_(environment, nextPassword, currentState.generation + 1);
-      var replacementToken = kspSharedAdminIssueToken_(environment, nextState);
-      kspSharedAdminWriteCredential_(environment, nextState);
-      return { ok: true, workId: '0029', action: action, adminSessionToken: replacementToken,
-        adminAuth: { credentialConfigured: true, canBootstrap: false, unlocked: true } };
-    });
-  } catch (error) {
-    var code = kspGetErrorCode_(error, 'SHARED_ADMIN_CREDENTIAL_INVALID');
-    if (String(code).indexOf('SHARED_ADMIN_') !== 0) code = 'SHARED_ADMIN_CREDENTIAL_INVALID';
-    return kspAiProviderAdminFailure_(code);
-  }
-}
-
 function kspAiProviderAdminNormalizeSourceType_(input) {
   return kspNormalizeProviderAiSelection_(input).sourceType;
-}
-
-function kspAiProviderAdminSessionEmails_() {
-  var active = '';
-  var effective = '';
-  try { active = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (ignoredActive) {}
-  try { effective = String(Session.getEffectiveUser().getEmail() || '').trim().toLowerCase(); } catch (ignoredEffective) {}
-  return { active: active, effective: effective };
-}
-
-function kspAiProviderAdminAllowedEmails_(context) {
-  var configured = context && context.state && context.state.config
-    ? context.state.config.adminEmails : [];
-  if (!Array.isArray(configured)) return [];
-  var seen = {};
-  return configured.map(function (value) { return String(value || '').trim().toLowerCase(); })
-    .filter(function (value) {
-      if (!value || seen[value]) return false;
-      seen[value] = true;
-      return true;
-    });
-}
-
-function kspIsAiProviderAdministrator_(environment, context) {
-  if (environment && typeof environment.isAdministrator === 'function') {
-    return Boolean(environment.isAdministrator(context));
-  }
-  var allowed = kspAiProviderAdminAllowedEmails_(context);
-  if (!allowed.length) return false;
-  var session = kspAiProviderAdminSessionEmails_();
-  if (session.active && allowed.indexOf(session.active) !== -1) return true;
-  return !session.active && session.effective && allowed.indexOf(session.effective) !== -1;
 }
 
 function kspAiProviderAdminCredentialConfigured_(environment) {
@@ -2481,9 +2249,8 @@ function kspMutateAiProviderSettings_(environment, input) {
       } catch (ignoredGeminiDisable) {}
     }
     var modelPolicyError = code.indexOf('AI_MODEL_') === 0 || code.indexOf('AI_THINKING_') === 0;
-    var sharedAdminError = code.indexOf('SHARED_ADMIN_') === 0;
     var geminiAdminError = code.indexOf('GEMINI_') === 0 || code.indexOf('AI_GEMINI_') === 0;
-    if (!modelPolicyError && !sharedAdminError && code !== 'AI_PROVIDER_ADMIN_UNAUTHORIZED' && code !== 'OPENAI_API_KEY_NOT_CONFIGURED' &&
+    if (!modelPolicyError && code !== 'OPENAI_API_KEY_NOT_CONFIGURED' &&
         code !== 'OPENAI_API_KEY_INVALID' && code !== 'AI_SYNC_SOURCE_TYPE_INVALID' &&
         code !== 'AI_SYNC_SOURCE_TYPE_REQUIRED' && code !== 'AI_SYNC_SOURCE_TYPE_MISMATCH' &&
         code !== 'AI_SYNC_SOURCE_ID_INVALID' && code !== 'AI_SYNC_SOURCE_NOT_FOUND' &&

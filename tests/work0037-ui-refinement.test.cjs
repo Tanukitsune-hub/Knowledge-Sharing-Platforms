@@ -77,12 +77,12 @@ test('Masters exposes four in-page tabs and snapshots only allowlisted option mu
   assert.match(styles, /\.master-layout\{display:block\}/);
 });
 
-test('Admin has no shared password gate while provider controls and legacy properties remain', () => {
+test('Admin has no shared password gate while provider controls remain', () => {
   assert.doesNotMatch(adminPage + adminClient, /shared-admin|共有管理者パスワード|adminSessionToken|管理者モードを開始|管理者モードを終了/);
   assert.match(adminPage, /id="ai-provider-openai-enable"/);
   assert.match(adminPage, /id="ai-provider-gemini-connect"/);
   assert.match(adminClient, /canMutate/);
-  assert.match(read('165_AiProviderAdmin.gs'), /KSP_SHARED_ADMIN_PASSWORD_SALT/);
+  assert.doesNotMatch(read('165_AiProviderAdmin.gs'), /KSP_SHARED_ADMIN_PASSWORD_SALT/);
 });
 
 test('Meeting Create places Meeting Type in row one, submit below internal participants, and attachment at right', () => {
