@@ -217,6 +217,11 @@ function createFakeEnvironment(options = {}) {
       triggers.push(trigger);
       return { ...trigger };
     },
+    createDailyTrigger(handler, timezone) {
+      const trigger = { id: `trigger-${idCounter++}`, handler, eventType: 'CLOCK', schedule: 'DAILY', timezone };
+      triggers.push(trigger);
+      return { ...trigger };
+    },
     deleteTrigger(triggerId) {
       const index = triggers.findIndex((trigger) => String(trigger.id) === String(triggerId));
       if (index === -1) throw new Error('Trigger is not accessible for migration.');
@@ -429,7 +434,7 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const report = ksp.kspRunSetup_(env);
   assert.equal(report.ok, true, JSON.stringify(report.errors));
   assert.equal(report.mode, 'SETUP');
-  assert.equal(Object.keys(report.resources).length, 6);
+  assert.equal(Object.keys(report.resources).length, 7);
   assert.ok(report.actions.some((action) => action.resource === 'knowledgeRootFolderId' && action.action === 'created'));
   assert.ok(report.actions.some((action) => action.resource === 'knowledgeExportsFolderId' && action.action === 'created'));
   assert.equal(env._debug.properties.has('BOOTSTRAP_CONFIG_JSON'), false);
@@ -439,8 +444,12 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const backend = env._debug.spreadsheets.get(state.resources.backendSpreadsheetId);
   const audit = env._debug.spreadsheets.get(state.resources.auditSpreadsheetId);
   const exportsFolder = env._debug.resources.get(state.resources.knowledgeExportsFolderId);
+  const backupFolder = env._debug.resources.get(state.resources.backupFolderId);
   assert.equal(exportsFolder.name, 'Knowledge Exports');
   assert.deepEqual(exportsFolder.parents, ['knowledge-parent']);
+  assert.equal(backupFolder.name, 'Knowledge Platform Backups');
+  assert.deepEqual(backupFolder.parents, ['control-folder']);
+  assert.deepEqual(env._debug.triggers.map(trigger=>trigger.handler), ['runBackendDailyBackup_']);
   assert.equal(state.schemaVersion, 8);
   assert.equal(backend.sheets.size, 5);
   assert.equal(audit.sheets.size, 1);
@@ -448,6 +457,7 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   assert.equal(backend.sheets.get('Option_Master').rows.length, 16);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'AUDIT_LOG_SPREADSHEET_ID').Value, state.resources.auditSpreadsheetId);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'KNOWLEDGE_EXPORTS_FOLDER_ID').Value, state.resources.knowledgeExportsFolderId);
+  assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'BACKUP_FOLDER_ID').Value, state.resources.backupFolderId);
 });
 
 test('second setup reuses all resources and does not duplicate seeds', () => {
@@ -459,12 +469,25 @@ test('second setup reuses all resources and does not duplicate seeds', () => {
   assert.equal(first.ok, true);
   const second = ksp.kspRunSetup_(env);
   assert.equal(second.ok, true, JSON.stringify(second.errors));
-  assert.equal(second.actions.filter((action) => action.category === 'resource' && action.action === 'reused').length, 6);
+  assert.equal(second.actions.filter((action) => action.category === 'resource' && action.action === 'reused').length, 7);
+  assert.equal(env._debug.triggers.filter(trigger=>trigger.handler==='runBackendDailyBackup_').length,1);
 
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
   const backend = env._debug.spreadsheets.get(state.resources.backendSpreadsheetId);
   assert.equal(backend.sheets.get('Counterparty_Master').rows.length, 30);
   assert.equal(backend.sheets.get('Option_Master').rows.length, 16);
+});
+
+test('existing installation gains the backup folder binding and daily trigger on setup rerun', () => {
+  const env=createFakeEnvironment({properties:{BOOTSTRAP_CONFIG_JSON:bootstrap()}});
+  assert.equal(ksp.kspRunSetup_(env).ok,true);
+  const state=JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
+  const folderId=state.resources.backupFolderId;delete state.resources.backupFolderId;
+  env._debug.properties.set('KSP_INSTALLATION_STATE_JSON',JSON.stringify(state));
+  env._debug.triggers.splice(0);
+  const rerun=ksp.kspRunSetup_(env);assert.equal(rerun.ok,true,JSON.stringify(rerun.errors));
+  assert.equal(rerun.resources.backupFolderId,folderId);
+  assert.equal(env._debug.triggers.filter(trigger=>trigger.handler==='runBackendDailyBackup_').length,1);
 });
 
 test('multiple exact-name candidates fail explicitly', () => {
@@ -572,4 +595,16 @@ test('refuses to create a trigger for an unavailable handler contract', () => {
     key: 'AI_SYNC', handler: 'runAiSyncWorker_', eventType: 'CLOCK', intervalMinutes: 15, enabled: true, available: false
   }], output), /not implemented/);
   assert.equal(env._debug.triggers.length, 0);
+});
+
+test('daily backup trigger is created once and exact duplicate handlers are reduced to one', () => {
+  const rule={key:'BACKEND_DAILY_BACKUP_TRIGGER',handler:'runBackendDailyBackup_',eventType:'CLOCK',schedule:'DAILY',timezone:'Asia/Tokyo',enabled:true,available:true,deduplicate:true};
+  const env=createFakeEnvironment();
+  ksp.kspEnsureTriggers_(env,[rule],report());
+  assert.equal(env._debug.triggers.length,1);assert.equal(env._debug.triggers[0].schedule,'DAILY');
+  env._debug.triggers.push({id:'duplicate',handler:'runBackendDailyBackup_',eventType:'CLOCK',schedule:'DAILY'});
+  const output=report();ksp.kspEnsureTriggers_(env,[rule],output);
+  assert.equal(env._debug.triggers.length,1);
+  assert.equal(output.actions.filter(action=>action.action==='duplicate-removed').length,1);
+  ksp.kspEnsureTriggers_(env,[rule],report());assert.equal(env._debug.triggers.length,1);
 });

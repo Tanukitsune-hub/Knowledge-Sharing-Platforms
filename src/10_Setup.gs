@@ -147,6 +147,13 @@ function kspResolveAllResources_(environment, storedResources, config, report) {
   });
 
   kspResolveResource_(environment, resources, report, {
+    key: KSP_RESOURCE_KEYS.BACKUP_FOLDER,
+    parentId: config.controlFolderId,
+    name: KSP_RESOURCE_NAMES.BACKUP_FOLDER,
+    mimeType: KSP_MIME_TYPES.FOLDER
+  });
+
+  kspResolveResource_(environment, resources, report, {
     key: KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET,
     parentId: config.controlFolderId,
     name: KSP_RESOURCE_NAMES.BACKEND_SPREADSHEET,
@@ -276,6 +283,16 @@ function kspEnsureTriggers_(environment, registry, report) {
     });
 
     if (matches.length > 0) {
+      if (rule.deduplicate && matches.length > 1) {
+        kspAssert_(typeof environment.deleteTrigger === 'function' && matches.every(function (trigger) { return trigger.id; }),
+          'TRIGGER_DEDUPLICATION_UNSUPPORTED', 'Duplicate trigger cleanup requires exact trigger IDs.');
+        matches.slice(1).forEach(function (trigger) {
+          environment.deleteTrigger(trigger.id);
+          kspAddAction_(report, 'trigger', rule.key, 'duplicate-removed', { id: trigger.id, handler: rule.handler });
+        });
+        existingTriggers = existingTriggers.filter(function (trigger) { return matches.slice(1).indexOf(trigger) === -1; });
+        matches = matches.slice(0, 1);
+      }
       kspAddAction_(report, 'trigger', rule.key, 'reused', {
         count: matches.length,
         handler: rule.handler,
@@ -291,12 +308,17 @@ function kspEnsureTriggers_(environment, registry, report) {
       return;
     }
 
-    var created = environment.createClockTrigger(rule.handler, rule.intervalMinutes);
+    var created = rule.schedule === 'DAILY'
+      ? environment.createDailyTrigger(rule.handler, rule.timezone)
+      : environment.createClockTrigger(rule.handler, rule.intervalMinutes);
+    kspAssert_(created && created.handler === rule.handler && created.eventType === rule.eventType,
+      'TRIGGER_CREATE_MISMATCH', 'Created trigger does not match the required handler and event type.');
     existingTriggers.push(created);
     kspAddAction_(report, 'trigger', rule.key, 'created', {
       handler: rule.handler,
       eventType: rule.eventType,
-      intervalMinutes: rule.intervalMinutes,
+      schedule: rule.schedule || 'MINUTES',
+      intervalMinutes: rule.intervalMinutes || null,
       id: created.id || null
     });
   });
@@ -318,6 +340,7 @@ function kspRunValidation_(environment) {
       [KSP_RESOURCE_KEYS.MEETING_RECORDS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.PITCHBOOKS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS, KSP_MIME_TYPES.FOLDER],
+      [KSP_RESOURCE_KEYS.BACKUP_FOLDER, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET, KSP_MIME_TYPES.SPREADSHEET],
       [KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET, KSP_MIME_TYPES.SPREADSHEET]
     ];
@@ -337,6 +360,7 @@ function kspRunValidation_(environment) {
       [KSP_RESOURCE_KEYS.MEETING_RECORDS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
       [KSP_RESOURCE_KEYS.PITCHBOOKS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
       [KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS, config.knowledgeParentFolderId],
+      [KSP_RESOURCE_KEYS.BACKUP_FOLDER, config.controlFolderId],
       [KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET, config.controlFolderId],
       [KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET, config.controlFolderId]
     ];

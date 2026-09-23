@@ -9,6 +9,8 @@
     "10_Setup.gs",
     "15_Installer.gs",
     "20_LiveEnvironment.gs",
+    "21_BackendBackup.gs",
+    "22_BackendBackupLive.gs",
     "30_MeetingCore.gs",
     "40_MeetingService.gs",
     "50_MeetingLiveEnvironment.gs",

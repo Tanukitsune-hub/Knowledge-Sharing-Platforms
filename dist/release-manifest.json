@@ -2,25 +2,25 @@
   "product": "Knowledge Share",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "1339542022791d41a318753606ae9e426c0d02a7",
+  "source_git_commit": "76ac49b2d053b380f9a088021df9ff7809dc0973",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "25b719d9462970905f7871fcb70b775fe5f2ae9315624750875282154ed2330b",
-  "bundle_file_sha256": "0abf936f6bd87c573b0cf7013fae6a6fce497511101bc2bfc34a23b750853beb",
+  "bundle_payload_sha256": "fdcb8eb9be5792a94adbcdfc68ea48d381eeac93bd07679cf1b615a6aa256305",
+  "bundle_file_sha256": "dbc7f4d83826b973f6cf9dd6d453796b8e607acc883879c6bd4449ed29c20b1a",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
-  "source_order_sha256": "13043741b640c6b9c7ed12617a3f0daab1b13a6bc6c5d49e8bdf79da52126326",
+  "source_order_sha256": "ce4aafc9b472432bcb8963308664f8c7acba0db7eed73e87ab5ce0bbd2d61ee5",
   "bundle_metrics": {
-    "bytes": 1289311,
-    "characters": 1245208,
-    "lines": 19706,
-    "server_source_count": 61,
+    "bytes": 1299746,
+    "characters": 1255643,
+    "lines": 19926,
+    "server_source_count": 63,
     "embedded_html_count": 23
   },
   "server_sources": [
     {
       "file": "src/00_Core.gs",
-      "bytes": 29790,
-      "sha256": "6cd440983e6886b6dc12d32a531428088f9762027bc6b13886e7f25b35f7091a"
+      "bytes": 30308,
+      "sha256": "32ada87d173af9ed93af7d7cb57f8c68e56f5bd5b6e89721d71ce25f2611fde8"
     },
     {
       "file": "src/01_DistributionResources.gs",
@@ -39,8 +39,8 @@
     },
     {
       "file": "src/10_Setup.gs",
-      "bytes": 17498,
-      "sha256": "2c5d12360da10e57586d62d2f4e3891db1c701a36345137a5f5ecc9bebac638e"
+      "bytes": 18899,
+      "sha256": "c66a3e871e2ce9cb540201d381eca18ae09031f3465c6d1cab9cdc5f3dda9a4e"
     },
     {
       "file": "src/15_Installer.gs",
@@ -49,8 +49,18 @@
     },
     {
       "file": "src/20_LiveEnvironment.gs",
-      "bytes": 17717,
-      "sha256": "75ae03ca31d3d887dc20ba3a7a934235cc5eaed92effdddca1232a72bc54aec4"
+      "bytes": 18086,
+      "sha256": "e6beb6bfd032a4b1111ea191d8b24b194d1123337516a06125729f0560cb911a"
+    },
+    {
+      "file": "src/21_BackendBackup.gs",
+      "bytes": 5571,
+      "sha256": "f35ffa3a5c4f1545d20ade90beb41b707c5799890ab24cb9499344d517b20e25"
+    },
+    {
+      "file": "src/22_BackendBackupLive.gs",
+      "bytes": 2067,
+      "sha256": "d73902cfda6cad8b2ae3c0519f409789bb86424b44fcb7e47a27c591b79b3cee"
     },
     {
       "file": "src/30_MeetingCore.gs",
@@ -139,8 +149,8 @@
     },
     {
       "file": "src/99_EntryPoints.gs",
-      "bytes": 1767,
-      "sha256": "b808b4806f7c4f2c94a49e02a11d81bcbd8d34d3bfa3fc17977c3aea23ca64b9"
+      "bytes": 2090,
+      "sha256": "d5b70bb90101a29bb6288519e7a640a3da8aab1fbaf83a5550926476e7d4c4c9"
     },
     {
       "file": "src/100_MaintenanceCore.gs",
