@@ -1,0 +1,166 @@
+{
+  "classification": "SYNTHETIC_RENDER_ONLY",
+  "result": "BASELINE",
+  "browser": "151.0.7922.34",
+  "mobile": {
+    "viewport": 390,
+    "overflowPx": 176,
+    "page": {
+      "left": 10,
+      "right": 380,
+      "width": 370,
+      "minWidth": "0px",
+      "overflowX": "visible",
+      "clientWidth": 370,
+      "scrollWidth": 556
+    },
+    "selector": {
+      "left": 27,
+      "right": 363,
+      "width": 336,
+      "minWidth": "auto",
+      "overflowX": "clip",
+      "clientWidth": 334,
+      "scrollWidth": 334
+    },
+    "grid": {
+      "left": 27,
+      "right": 363,
+      "width": 336,
+      "minWidth": "0px",
+      "overflowX": "visible",
+      "clientWidth": 336,
+      "scrollWidth": 336
+    },
+    "card": {
+      "left": 10,
+      "right": 566,
+      "width": 556,
+      "minWidth": "auto",
+      "overflowX": "visible",
+      "clientWidth": 554,
+      "scrollWidth": 554
+    },
+    "tableWrap": {
+      "left": 27,
+      "right": 549,
+      "width": 522,
+      "minWidth": "0px",
+      "overflowX": "auto",
+      "clientWidth": 520,
+      "scrollWidth": 520
+    },
+    "table": {
+      "left": 28,
+      "right": 548,
+      "width": 520,
+      "minWidth": "520px",
+      "overflowX": "visible",
+      "clientWidth": 520,
+      "scrollWidth": 520
+    },
+    "summaryCards": [
+      {
+        "left": 10,
+        "right": 380,
+        "width": 370,
+        "text": "面談件数1件"
+      },
+      {
+        "left": 10,
+        "right": 380,
+        "width": 370,
+        "text": "保存資料数1件"
+      },
+      {
+        "left": 10,
+        "right": 380,
+        "width": 370,
+        "text": "最後の面談日2026-09-23"
+      }
+    ],
+    "gridColumns": 1
+  },
+  "desktop": {
+    "viewport": 1440,
+    "overflowPx": 0,
+    "page": {
+      "left": 264,
+      "right": 1412,
+      "width": 1148,
+      "minWidth": "0px",
+      "overflowX": "visible",
+      "clientWidth": 1148,
+      "scrollWidth": 1148
+    },
+    "selector": {
+      "left": 289,
+      "right": 831,
+      "width": 542,
+      "minWidth": "auto",
+      "overflowX": "clip",
+      "clientWidth": 540,
+      "scrollWidth": 540
+    },
+    "grid": {
+      "left": 289,
+      "right": 1387,
+      "width": 1098,
+      "minWidth": "0px",
+      "overflowX": "visible",
+      "clientWidth": 1098,
+      "scrollWidth": 1098
+    },
+    "card": {
+      "left": 264,
+      "right": 829,
+      "width": 565,
+      "minWidth": "auto",
+      "overflowX": "visible",
+      "clientWidth": 563,
+      "scrollWidth": 563
+    },
+    "tableWrap": {
+      "left": 289,
+      "right": 804,
+      "width": 515,
+      "minWidth": "0px",
+      "overflowX": "auto",
+      "clientWidth": 513,
+      "scrollWidth": 513
+    },
+    "table": {
+      "left": 290,
+      "right": 803,
+      "width": 513,
+      "minWidth": "0px",
+      "overflowX": "visible",
+      "clientWidth": 513,
+      "scrollWidth": 513
+    },
+    "summaryCards": [
+      {
+        "left": 264,
+        "right": 638.65625,
+        "width": 374.65625,
+        "text": "面談件数1件"
+      },
+      {
+        "left": 650.65625,
+        "right": 1025.328125,
+        "width": 374.671875,
+        "text": "保存資料数1件"
+      },
+      {
+        "left": 1037.328125,
+        "right": 1411.984375,
+        "width": 374.65625,
+        "text": "最後の面談日2026-09-23"
+      }
+    ],
+    "gridColumns": 2
+  },
+  "pageErrors": [],
+  "consoleErrors": [],
+  "blockedRequests": []
+}
