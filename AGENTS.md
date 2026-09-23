@@ -2,7 +2,7 @@
 
 This is the always-loaded contract and map for agent-assisted work in this repository.
 
-CORE_RULES_VERSION: 2.2
+CORE_RULES_VERSION: 2.3
 REPOSITORY_RULES_SCHEMA_VERSION: 2.2
 
 <!-- CORE_RULES_START -->
@@ -40,7 +40,7 @@ REPOSITORY_RULES_SCHEMA_VERSION: 2.2
 - Separate `LOGIC_VALIDATION` from `TARGET_RUNTIME_QUALIFICATION`. Unit, static, mock, contract, synthetic, or CI checks may prove logic but do not prove target APIs, permissions, functions, rendering, persistence, or runtime data shapes.
 - Runtime-dependent `READY` requires target-runtime evidence using isolated test data. A simulator/test-harness pass is not production readiness.
 - A capability present only in a test loader or harness is not evidence that it exists in production source or the target runtime.
-- Run the smallest sufficient validation first and expand only when risk or coupling justifies it.
+- Assign a validation tier under `docs/agent-governance/work-control.md` and run the smallest sufficient validation for that tier. Do not escalate to broader regression or target-runtime qualification by habit; add checks only for a concrete risk, dependency, or acceptance question that could change the decision.
 - Never report an unexecuted or unobserved check as passed. Separate application defects, target-runtime gaps, automation limitations, infrastructure failures, and intentionally deferred checks.
 - Classify findings as `BLOCKER`, `FOLLOW_UP`, or `OPTIONAL`; only a blocker prevents delivery.
 - Qualification preserves evidence; incident recovery prioritizes restoring use. Do not apply one mode's stop rule blindly to another.
@@ -135,7 +135,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Diff hygiene: `git diff --check`.
 - Agent foundation: `python tools/validate_agent_foundation.py` once added by Core 2.2 adoption.
 - Work 0023 uses every gate in its decision and plan.
-- Run targeted tests first, then the canonical check when change risk justifies it.
+- Use the Work's validation tier. Run targeted tests first; run the canonical check, browser/runtime checks, and broader regression only when that tier or a concrete dependency requires them.
 - Target-runtime evidence uses exact tested source and isolated data; mocks/test loaders may not inject missing production business behavior.
 - Report `LOGIC_VALIDATION`, `TARGET_RUNTIME_QUALIFICATION`, `SIDE_EFFECT_STATE`, and `READY` separately.
 
