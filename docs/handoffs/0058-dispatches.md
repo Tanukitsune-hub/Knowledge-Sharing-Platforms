@@ -3,11 +3,11 @@
 WORK_ID: 0058
 DISPATCH_ID: 0058-CODEX-01
 ACTIVE_DISPATCH_ID: 0058-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: INVESTIGATION
 VALIDATION_TIER: TIER_1_LOW
-PHASE: VISIBLE BRAND INVENTORY
+PHASE: VISIBLE BRAND INVENTORY COMPLETE / CHATGPT FINAL REVIEW
 
 ## Primary Outcome
 
@@ -42,6 +42,15 @@ Draft PRを使用。
 report: `docs/handoffs/0058-CODEX-01-visible-brand-inventory-report.md`
 inventory: `docs/decisions/visible-brand-migration-inventory.md`
 
+## CODEX-01 return
+
+- Inventory: `docs/decisions/visible-brand-migration-inventory.md`
+- Report: `docs/handoffs/0058-CODEX-01-visible-brand-inventory-report.md`
+- Existing Draft PR: #89 / `work/0058-visible-brand-inventory`
+- Production source / runtime mutation: 0
+- `BLOCKER: NONE`
+- `READY_FOR_CHATGPT_FINAL_REVIEW: YES`
+
 ChatGPT final reviewまでBUILDへ進めず、renameを実行しない。
 
 ```text
@@ -52,5 +61,5 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0058
 DISPATCH_ID: 0058-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
