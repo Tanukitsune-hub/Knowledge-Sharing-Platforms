@@ -1,7 +1,7 @@
 <section id="page-activity-analytics" class="page">
   <div class="card">
     <div class="section-heading">
-      <div><h2>面談実績の集計</h2><p class="hint">Meeting_Indexの構造化メタデータだけを集計します。Meeting本文は読みません。</p></div>
+      <div><h2>面談実績の集計</h2><p class="hint">面談記録の登録情報から件数を集計します。</p></div>
     </div>
     <div class="filter-grid analytics-controls">
       <div class="field activity-period-field"><label for="activity-period">期間粒度</label><select id="activity-period"><option value="monthly">月次</option><option value="quarter">暦年四半期</option><option value="calendarYear">暦年</option><option value="fiscalYear">会計年度（4月-3月）</option><option value="custom">カスタム（日次）</option><option value="cumulative">累積（月次）</option></select></div>
@@ -14,7 +14,7 @@
       <div class="field activity-meeting-type-field"><label for="activity-filter-meetingType">MTG種別</label><select id="activity-filter-meetingType"><option value="">未選択</option></select></div>
       <div class="field activity-status-field"><label for="activity-filter-status">Status</label><select id="activity-filter-status"><option value="">未選択</option></select></div>
     </div>
-    <div class="actions analytics-actions"><button id="activity-analytics-refresh" class="action primary" type="button">集計</button><span class="hint">件数は全一致行から計算し、表示上限による省略件数を明示します。</span></div>
+    <div class="actions analytics-actions"><button id="activity-analytics-refresh" class="action primary" type="button">集計</button><span class="hint">一覧に表示しきれない記録がある場合は件数を示します。</span></div>
     <div id="activity-analytics-status" class="status" role="status" aria-live="polite"></div>
   </div>
 
@@ -26,22 +26,22 @@
   <div id="activity-graph-panel" class="activity-view-panel" role="tabpanel" aria-labelledby="activity-tab-graph">
     <div class="card">
       <div class="section-heading"><div><h2>選択した内訳</h2><p id="activity-breakdown-summary" class="hint"></p></div></div>
-      <div id="activity-breakdown-chart" class="analytics-chart" role="img" aria-label="選択した内訳別Meeting件数"></div>
-      <div class="table-wrap"><table class="data-table analytics-table"><caption class="sr-only">選択した内訳別集計</caption><thead><tr><th>値</th><th>Meeting</th><th>Active</th><th>Counterparty</th></tr></thead><tbody id="activity-breakdown-results"></tbody></table></div>
+      <div id="activity-breakdown-chart" class="analytics-chart" role="img" aria-label="選択した内訳別の面談件数"></div>
+      <div class="table-wrap"><table class="data-table analytics-table"><caption class="sr-only">選択した内訳別集計</caption><thead><tr><th>項目</th><th>面談件数</th><th>有効</th><th>面談先</th></tr></thead><tbody id="activity-breakdown-results"></tbody></table></div>
     </div>
 
     <div class="card">
       <div class="section-heading"><div><h2>集計サマリー</h2><p id="activity-period-summary" class="hint"></p></div></div>
       <div id="activity-headline" class="analytics-headline" aria-live="polite"></div>
-      <div id="activity-series-chart" class="analytics-chart" role="img" aria-label="Meeting件数の期間推移"></div>
-      <div class="table-wrap"><table class="data-table analytics-table"><caption class="sr-only">Meeting件数の期間別集計</caption><thead><tr><th>期間</th><th>Meeting</th><th>Active</th><th>Counterparty</th></tr></thead><tbody id="activity-series-results"></tbody></table></div>
+      <div id="activity-series-chart" class="analytics-chart" role="img" aria-label="面談件数の期間推移"></div>
+      <div class="table-wrap"><table class="data-table analytics-table"><caption class="sr-only">面談件数の期間別集計</caption><thead><tr><th>期間</th><th>面談件数</th><th>有効</th><th>面談先</th></tr></thead><tbody id="activity-series-results"></tbody></table></div>
     </div>
   </div>
 
   <div id="activity-list-panel" class="activity-view-panel" role="tabpanel" aria-labelledby="activity-tab-list" hidden>
     <div class="card">
-      <div class="section-heading"><div><h2>該当Meeting</h2><p id="activity-drill-summary" class="hint"></p></div></div>
-      <div class="table-wrap"><table class="data-table analytics-table activity-drill-table"><caption class="sr-only">集計対象のMeeting一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>チーム</th><th>MTG種別</th><th>Status</th><th>原本</th><th>確認済み</th></tr></thead><tbody id="activity-drill-results"></tbody></table></div>
+      <div class="section-heading"><div><h2>該当する面談記録</h2><p id="activity-drill-summary" class="hint"></p></div></div>
+      <div class="table-wrap"><table class="data-table analytics-table activity-drill-table"><caption class="sr-only">集計対象の面談記録一覧</caption><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>チーム</th><th>MTG種別</th><th>Status</th><th>原本</th><th>確認済み</th></tr></thead><tbody id="activity-drill-results"></tbody></table></div>
       <div id="activity-admin-check-status" class="status" role="status" aria-live="polite"></div>
     </div>
   </div>

@@ -1,16 +1,16 @@
 <section id="page-ai-provider-settings" class="page">
   <div class="card">
     <div class="section-heading admin-page-heading">
-      <div><h2>管理者ページ</h2><p class="hint">AIプロバイダ設定、削除記録の管理、テーマ設定を切り替えて確認します。</p></div>
+      <div><h2>管理者ページ</h2><p class="hint">AI設定、削除済み記録、配色を管理します。</p></div>
     </div>
     <div class="admin-tabs" role="tablist" aria-label="管理者機能">
-      <button id="admin-tab-provider" class="admin-tab active" type="button" role="tab" aria-selected="true" aria-controls="admin-panel-provider" tabindex="0" data-admin-tab="provider">AIプロバイダ設定</button>
+      <button id="admin-tab-provider" class="admin-tab active" type="button" role="tab" aria-selected="true" aria-controls="admin-panel-provider" tabindex="0" data-admin-tab="provider">AI設定</button>
       <button id="admin-tab-deleted" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-deleted" tabindex="-1" data-admin-tab="deleted">削除記録の管理</button>
       <button id="admin-tab-theme" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-theme" tabindex="-1" data-admin-tab="theme">テーマ設定</button>
     </div>
     <section id="admin-panel-theme" class="admin-tab-panel" role="tabpanel" aria-labelledby="admin-tab-theme" hidden>
       <div class="section-heading">
-        <div><h2>テーマ設定</h2><p class="hint">基本16色をプレビューし、Web App全体の共有設定として保存できます。</p></div>
+        <div><h2>テーマ設定</h2><p class="hint">基本の16色を試せます。保存すると全画面に適用されます。</p></div>
       </div>
       <div id="theme-settings-status" class="status" role="status" aria-live="polite"></div>
       <section class="theme-color-tool" aria-labelledby="theme-color-tool-heading">
@@ -56,32 +56,32 @@
       </div>
       <div class="actions admin-deleted-actions"><button id="admin-deleted-search" class="action primary" type="button">検索</button><span class="hint">最大100件を新しい順で表示します。</span></div>
       <div id="admin-deleted-status" class="status" role="status" aria-live="polite"></div>
-      <div class="table-wrap"><table class="data-table admin-deleted-table"><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>アセットクラス</th><th>チーム</th><th>Status</th><th>Version</th><th>操作</th></tr></thead><tbody id="admin-deleted-results"><tr><td colspan="8" class="empty-cell">検索すると記録が表示されます。</td></tr></tbody></table></div>
+      <div class="table-wrap"><table class="data-table admin-deleted-table"><thead><tr><th>日付</th><th>Meeting ID</th><th>面談先</th><th>アセットクラス</th><th>チーム</th><th>Status</th><th>更新番号</th><th>操作</th></tr></thead><tbody id="admin-deleted-results"><tr><td colspan="8" class="empty-cell">検索すると記録が表示されます。</td></tr></tbody></table></div>
     </section>
     </section>
     <section id="admin-panel-provider" class="admin-tab-panel" role="tabpanel" aria-labelledby="admin-tab-provider">
     <div class="section-heading">
-      <div><h2>AIプロバイダ設定</h2><p class="hint">プロバイダの状態を安全な表示だけで確認します。資格情報やプロバイダ固有IDは表示しません。</p></div>
+      <div><h2>AI設定</h2><p class="hint">OpenAIとGeminiの接続状態を表示します。APIキーは表示しません。</p></div>
     </div>
     <div id="ai-provider-admin-notice" class="status" role="status" aria-live="polite"></div>
     <section class="card ai-provider-card" aria-labelledby="ai-provider-openai-heading">
       <h3 id="ai-provider-openai-heading">ChatGPT / OpenAI</h3>
       <dl class="ai-provider-state">
         <dt>APIキー</dt><dd id="ai-provider-openai-key">確認中…</dd>
-        <dt>Vector Store</dt><dd id="ai-provider-openai-store">確認中…</dd>
+        <dt>検索データ</dt><dd id="ai-provider-openai-store">読み込み中…</dd>
         <dt>状態</dt><dd id="ai-provider-openai-status">確認中…</dd>
       </dl>
       <div class="actions">
         <div class="action-group">
           <label for="ai-provider-openai-key-input">OpenAI APIキー</label>
-          <input id="ai-provider-openai-key-input" type="password" autocomplete="new-password" spellcheck="false" placeholder="Script Propertiesへ安全に保存">
+          <input id="ai-provider-openai-key-input" type="password" autocomplete="new-password" spellcheck="false" placeholder="APIキーを入力">
           <label for="ai-provider-sync-source">同期対象</label>
           <select id="ai-provider-sync-source" disabled>
-            <option value="">All</option>
-            <option value="Meeting">Meeting</option>
-            <option value="Pitchbook">Pitchbook</option>
+            <option value="">すべて</option>
+            <option value="Meeting">面談記録</option>
+            <option value="Pitchbook">保存資料</option>
           </select>
-          <label for="ai-provider-sync-source-id">Source ID（個別同期・任意）</label>
+          <label for="ai-provider-sync-source-id">Meeting ID / Document ID（個別同期・任意）</label>
           <input id="ai-provider-sync-source-id" type="text" autocomplete="off" spellcheck="false" placeholder="例: DOC-000017" disabled>
           <button id="ai-provider-openai-enable" class="action primary" type="button" disabled>APIキーを保存して接続確認</button>
           <button id="ai-provider-openai-disable" class="action secondary" type="button" disabled>OpenAIを無効化</button>
@@ -94,57 +94,57 @@
       <h3 id="ai-provider-gemini-heading">Gemini</h3>
       <dl class="ai-provider-state">
         <dt>APIキー</dt><dd id="ai-provider-gemini-key">確認中…</dd>
-        <dt>File Search Store</dt><dd id="ai-provider-gemini-store">確認中…</dd>
+        <dt>検索データ</dt><dd id="ai-provider-gemini-store">読み込み中…</dd>
         <dt>状態</dt><dd id="ai-provider-gemini-status">確認中…</dd>
       </dl>
       <div class="actions"><div class="action-group">
         <label for="ai-provider-gemini-key-input">Gemini APIキー</label>
-        <input id="ai-provider-gemini-key-input" type="password" autocomplete="new-password" spellcheck="false" placeholder="Script Propertiesへ安全に保存">
+        <input id="ai-provider-gemini-key-input" type="password" autocomplete="new-password" spellcheck="false" placeholder="APIキーを入力">
         <label for="ai-provider-gemini-sync-source">個別同期対象</label>
-        <select id="ai-provider-gemini-sync-source" disabled><option value="Pitchbook">Pitchbook</option><option value="Meeting">Meeting</option></select>
-        <label for="ai-provider-gemini-sync-source-id">Source ID（必須）</label>
+        <select id="ai-provider-gemini-sync-source" disabled><option value="Pitchbook">保存資料</option><option value="Meeting">面談記録</option></select>
+        <label for="ai-provider-gemini-sync-source-id">Meeting ID / Document ID（必須）</label>
         <input id="ai-provider-gemini-sync-source-id" type="text" autocomplete="off" spellcheck="false" placeholder="例: DOC-000017" disabled>
-        <button id="ai-provider-gemini-connect" class="action primary" type="button" disabled>APIキーを保存してStore確認</button>
-        <button id="ai-provider-gemini-enable" class="action secondary" type="button" disabled>資格済みGeminiを有効化</button>
+        <button id="ai-provider-gemini-connect" class="action primary" type="button" disabled>APIキーを保存して接続確認</button>
+        <button id="ai-provider-gemini-enable" class="action secondary" type="button" disabled>Geminiを有効化</button>
         <button id="ai-provider-gemini-disable" class="action secondary" type="button" disabled>Geminiを無効化</button>
         <button id="ai-provider-gemini-sync" class="action secondary" type="button" disabled>選択資料を個別同期</button>
       </div></div>
-      <p class="hint">有効化には、Store確認・個別同期・モデル/ThinkingのFile Search資格確認が必要です。</p>
+      <p class="hint">有効化するには、接続確認、資料の同期、モデルの利用確認が必要です。</p>
     </section>
     <section class="card ai-provider-card" aria-labelledby="ai-model-policy-heading">
-      <h3 id="ai-model-policy-heading">モデル / Thinking ポリシー</h3>
-      <p class="hint">利用者に表示する組み合わせだけを登録します。プロバイダが返す新しいモデルは自動で有効化されません。</p>
+      <h3 id="ai-model-policy-heading">AIモデルと思考レベル</h3>
+      <p class="hint">利用者に表示する組み合わせを登録します。新しいモデルは自動では有効になりません。</p>
       <div class="field full">
         <label for="ai-model-profile-select">登録済みプロファイル</label>
         <select id="ai-model-profile-select" disabled><option value="">新規作成</option></select>
       </div>
       <div class="filter-grid">
         <div class="field"><label for="ai-model-profile-id">Profile ID</label><input id="ai-model-profile-id" type="text" autocomplete="off" placeholder="openai-approved-model" disabled></div>
-        <div class="field"><label for="ai-model-provider">Provider</label><select id="ai-model-provider" disabled><option value="OPENAI">OpenAI</option><option value="GEMINI">Gemini</option></select></div>
-        <div class="field"><label for="ai-model-id">Exact Model ID</label><input id="ai-model-id" type="text" autocomplete="off" disabled></div>
+        <div class="field"><label for="ai-model-provider">接続先</label><select id="ai-model-provider" disabled><option value="OPENAI">OpenAI</option><option value="GEMINI">Gemini</option></select></div>
+        <div class="field"><label for="ai-model-id">Model ID</label><input id="ai-model-id" type="text" autocomplete="off" disabled></div>
         <div class="field"><label for="ai-model-display-name">表示名</label><input id="ai-model-display-name" type="text" autocomplete="off" disabled></div>
-        <div class="field"><label for="ai-model-family">Family</label><input id="ai-model-family" type="text" autocomplete="off" disabled></div>
-        <div class="field"><label for="ai-model-max-output">Output上限（任意）</label><input id="ai-model-max-output" type="number" min="1" max="65536" disabled></div>
+        <div class="field"><label for="ai-model-family">モデル系列</label><input id="ai-model-family" type="text" autocomplete="off" disabled></div>
+        <div class="field"><label for="ai-model-max-output">出力上限（任意）</label><input id="ai-model-max-output" type="number" min="1" max="65536" disabled></div>
       </div>
       <div class="field full">
-        <label for="ai-model-thinking-profiles">Thinking profiles（1行: ID | 表示名 | provider value。value空欄はプロバイダ標準）</label>
+        <label for="ai-model-thinking-profiles">思考レベル（1行に ID | 表示名 | 設定値。設定値が空欄なら標準）</label>
         <textarea id="ai-model-thinking-profiles" placeholder="provider-default | プロバイダ標準 |&#10;low | Low | low" disabled></textarea>
       </div>
       <div class="filter-grid">
-        <div class="field"><label for="ai-model-default-thinking">既定Thinking Profile ID</label><input id="ai-model-default-thinking" type="text" autocomplete="off" disabled></div>
+        <div class="field"><label for="ai-model-default-thinking">既定の思考レベルID</label><input id="ai-model-default-thinking" type="text" autocomplete="off" disabled></div>
         <label class="field"><span>状態</span><span><input id="ai-model-enabled" type="checkbox" disabled> 有効</span></label>
         <label class="field"><span>利用者表示</span><span><input id="ai-model-user-visible" type="checkbox" disabled> 表示</span></label>
-        <label class="field"><span>Provider既定</span><span><input id="ai-model-provider-default" type="checkbox" disabled> 既定</span></label>
+        <label class="field"><span>接続先の既定モデル</span><span><input id="ai-model-provider-default" type="checkbox" disabled> 既定</span></label>
       </div>
       <dl class="ai-provider-state">
-        <dt>API access</dt><dd id="ai-model-access-state">未確認</dd>
-        <dt>File Search qualification</dt><dd id="ai-model-qualification-state">未確認</dd>
-        <dt>Thinking qualification</dt><dd id="ai-model-thinking-qualification-state">未確認</dd>
+        <dt>API接続</dt><dd id="ai-model-access-state">未確認</dd>
+        <dt>資料検索の利用確認</dt><dd id="ai-model-qualification-state">未確認</dd>
+        <dt>思考レベルの利用確認</dt><dd id="ai-model-thinking-qualification-state">未確認</dd>
       </dl>
       <div class="actions"><div class="action-group">
         <button id="ai-model-policy-migrate" class="action secondary" type="button" disabled>現行設定から初期化</button>
         <button id="ai-model-profile-save" class="action primary" type="button" disabled>プロファイルを保存</button>
-        <button id="ai-model-profile-qualify" class="action secondary" type="button" disabled>接続・File Search確認</button>
+        <button id="ai-model-profile-qualify" class="action secondary" type="button" disabled>資料検索の接続確認</button>
       </div></div>
     </section>
     </section>

@@ -4,14 +4,14 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Knowledge Sharing Platforms</title>
+  <title>Private Assets Intelligence</title>
   <?!= include_('Styles'); ?>
   <?!= themeHeadMarkup ?>
 </head>
 <body>
   <main class="app-shell">
     <header class="page-header">
-      <div class="brand"><h1>Knowledge Share</h1><p>PRIVATE ASSETS KNOWLEDGE</p></div>
+      <div class="brand"><h1>Private Assets Intelligence</h1></div>
       <nav class="nav" aria-label="ページ切替">
         <button id="nav-knowledge" class="active" type="button"><svg class="nav-icon" aria-hidden="true"
   xmlns="http://www.w3.org/2000/svg"
@@ -181,9 +181,9 @@
             <div class="meeting-field-submit"><button id="meeting-submit" class="action primary" type="submit" disabled>登録</button></div>
             <div id="attachment-section" class="meeting-field-attachment"><div id="meeting-file-home"></div></div>
             <div id="meeting-file-actions-home" class="meeting-field-attachment-actions"></div>
-            <div class="field full meeting-field-notes"><label for="meeting-notes">面談内容</label><textarea id="meeting-notes" maxlength="20000" placeholder="自由に記載してください。改行は保存されます。"></textarea><div class="hint">本文はGoogle Docsだけに保存し、Indexや監査ログへ全文を複製しません。</div></div>
+            <div class="field full meeting-field-notes"><label for="meeting-notes">面談内容</label><textarea id="meeting-notes" maxlength="20000" placeholder="自由に記載してください。改行は保存されます。"></textarea><div class="hint">面談内容はGoogle Docs原本に保存します。</div></div>
           </div>
-          <div id="meeting-retry-note" class="retry-note">前回の途中失敗から、同じMeeting IDで再試行します。入力変更時は解除されます。</div>
+          <div id="meeting-retry-note" class="retry-note">前回の登録を再試行します。入力内容を変更すると再試行できません。</div>
         </form>
       </div>
     </section>
@@ -219,7 +219,7 @@
   <div id="counterparty-modal-backdrop" class="modal-backdrop" hidden>
     <section id="counterparty-modal" class="counterparty-modal" role="dialog" aria-modal="true" aria-labelledby="counterparty-modal-title" aria-describedby="counterparty-modal-help" tabindex="-1">
       <div class="counterparty-modal-heading">
-        <div><p class="counterparty-modal-kicker">COUNTERPARTY MASTER</p><h2 id="counterparty-modal-title">新規面談先を追加</h2></div>
+        <div><p class="counterparty-modal-kicker">面談先マスター</p><h2 id="counterparty-modal-title">新規面談先を追加</h2></div>
         <button id="counterparty-modal-close" class="modal-close" type="button" aria-label="閉じる">×</button>
       </div>
       <p id="counterparty-modal-help" class="hint">面談先種別と名称を入力してください。</p>
@@ -237,7 +237,7 @@
   <div id="master-rename-modal-backdrop" class="modal-backdrop" hidden>
     <section id="master-rename-modal" class="counterparty-modal" role="dialog" aria-modal="true" aria-labelledby="master-rename-modal-title" aria-describedby="master-rename-modal-help" tabindex="-1">
       <div class="counterparty-modal-heading">
-        <div><p class="counterparty-modal-kicker">MASTER RENAME</p><h2 id="master-rename-modal-title">名称変更</h2></div>
+        <div><p class="counterparty-modal-kicker">マスター管理</p><h2 id="master-rename-modal-title">名称変更</h2></div>
         <button id="master-rename-modal-close" class="modal-close" type="button" aria-label="閉じる">×</button>
       </div>
       <p id="master-rename-modal-help" class="hint">現在の名称を編集して保存してください。</p>
@@ -254,10 +254,10 @@
   <div id="meeting-material-modal-backdrop" class="modal-backdrop" hidden>
     <section id="meeting-material-modal" class="counterparty-modal meeting-material-modal" role="dialog" aria-modal="true" aria-labelledby="meeting-material-modal-title" aria-describedby="meeting-material-modal-help" tabindex="-1">
       <div class="counterparty-modal-heading">
-        <div><p class="counterparty-modal-kicker">RELATED MATERIAL</p><h2 id="meeting-material-modal-title">既存資料を関連付ける</h2></div>
+        <div><p class="counterparty-modal-kicker">関連資料</p><h2 id="meeting-material-modal-title">既存資料を関連付ける</h2></div>
         <button id="meeting-material-modal-close" class="modal-close" type="button" aria-label="閉じる">×</button>
       </div>
-      <p id="meeting-material-modal-help" class="hint">この面談先とアセットクラスに一致するActive資料を表示します。</p>
+      <p id="meeting-material-modal-help" class="hint">この面談先とアセットクラスに一致する有効な保存資料を表示します。</p>
       <div id="meeting-material-modal-status" class="status" role="status" aria-live="polite"></div>
       <div id="meeting-material-modal-results" class="meeting-material-modal-results" role="list"></div>
       <div class="counterparty-modal-actions"><button id="meeting-material-modal-cancel" class="action secondary" type="button">キャンセル</button></div>

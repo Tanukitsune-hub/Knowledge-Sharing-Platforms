@@ -772,44 +772,44 @@ function kspProviderSafeMessage_(code) {
     GEMINI_NOT_CONFIGURED: 'Gemini検索の設定が未完了です。',
     GEMINI_CREDENTIALS_UNAVAILABLE: 'Gemini検索の設定を確認できません。',
     AI_QUERY_HTTP_FAILED: 'Gemini検索サービスを利用できません。',
-    AI_QUERY_RESPONSE_INVALID: 'Gemini検索結果を確認できませんでした。',
+    AI_QUERY_RESPONSE_INVALID: 'Geminiの検索結果を読み込めませんでした。',
     AI_QUERY_PROVIDER_TERMINAL: 'Gemini検索が完了できない状態になりました。',
     AI_QUERY_ASYNC_REQUIRED: 'Gemini検索は後続の確認が必要です。',
-    AI_QUERY_TOKEN_INVALID: '検索状態を確認できませんでした。',
+    AI_QUERY_TOKEN_INVALID: '検索の進行状況を読み込めませんでした。',
     AI_QUERY_TOKEN_EXPIRED: '検索状態の有効期限が切れています。',
     AI_QUERY_STATE_UNAVAILABLE: '検索状態を保存できませんでした。',
     AI_CITED_SOURCE_UNAVAILABLE: '参照元のファイルが見つからないか、開くことができないため、検索結果を表示できません。Google Drive上の原本を確認してください。',
-    AI_DOCUMENT_READBACK_FAILED: 'Gemini検索用Documentを確認できませんでした。',
-    AI_PROVIDER_INVALID: '検索プロバイダが不正です。',
+    AI_DOCUMENT_READBACK_FAILED: 'Geminiの検索資料を読み込めませんでした。',
+    AI_PROVIDER_INVALID: '検索サービスの設定を確認してください。',
     AI_MODEL_POLICY_RAW_VALUE_REJECTED: '選択したモデル設定を確認してください。',
     AI_MODEL_SELECTION_STALE: '選択したモデルは現在利用できません。設定を読み直してください。',
-    AI_MODEL_PROFILE_PROVIDER_MISMATCH: '選択したモデルとプロバイダが一致しません。',
+    AI_MODEL_PROFILE_PROVIDER_MISMATCH: '選択したモデルと検索サービスが一致しません。',
     AI_MODEL_PROFILE_DISABLED: '選択したモデルは管理者設定で利用できません。',
     AI_MODEL_PROFILE_INACCESSIBLE: '選択したモデルは現在のプロジェクトでは利用できません。',
-    AI_MODEL_PROFILE_UNQUALIFIED: '選択したモデルはKnowledge Searchで利用確認されていません。',
+    AI_MODEL_PROFILE_UNQUALIFIED: '選択したモデルはナレッジ検索で利用確認されていません。',
     AI_THINKING_SELECTION_STALE: '選択した思考レベルは現在利用できません。設定を読み直してください。',
     AI_THINKING_PROFILE_DISABLED: '選択した思考レベルは管理者設定で利用できません。',
-    AI_THINKING_PROFILE_UNQUALIFIED: '選択した思考レベルはKnowledge Searchで利用確認されていません。',
-    AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE: '選択されたCounterparty Typeは利用できません。',
-    AI_ENTITY_FILTER_INVALID: 'Counterparty Entityが不正です。',
-    AI_ENTITY_FILTER_UNAVAILABLE: '選択されたCounterparty Entityは利用できません。',
-    AI_ENTITY_TYPE_CONFLICT: 'Counterparty TypeとEntityが一致しません。',
-    AI_ENTITY_GP_CONFLICT: 'Counterparty EntityとGPが一致しません。',
+    AI_THINKING_PROFILE_UNQUALIFIED: '選択した思考レベルはナレッジ検索で利用確認されていません。',
+    AI_COUNTERPARTY_TYPE_FILTER_UNAVAILABLE: '選択した面談先種別は利用できません。',
+    AI_ENTITY_FILTER_INVALID: '面談先の指定を確認してください。',
+    AI_ENTITY_FILTER_UNAVAILABLE: '選択した面談先は利用できません。',
+    AI_ENTITY_TYPE_CONFLICT: '面談先の種別が一致しません。',
+    AI_ENTITY_GP_CONFLICT: '面談先とGPの指定が一致しません。',
     AI_TEAM_FILTER_UNAVAILABLE: '選択されたチームは利用できません。',
     AI_FUND_STRATEGY_FILTER_UNAVAILABLE: '選択されたFund / Strategyは利用できません。',
-    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チーム、MTG種別はMeetingにのみ適用できます。Source TypeをMeetingにしてください。',
-    AI_FILTER_UNSUPPORTED_PROVIDER: '選択された構造化フィルターはこのプロバイダでは利用できません。',
-    AI_MULTI_ENTITY_COUNT_INVALID: '比較するEntityは2–5件で選択してください。',
-    AI_MULTI_ENTITY_DUPLICATE: '同じEntityを複数回選択できません。',
-    AI_MULTI_ENTITY_MODE_REQUIRED: '2–5 Entity選択は比較モードでのみ利用できます。',
-    AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数Entity比較と単一Entityフィルターを同時に指定できません。',
+    AI_FILTER_SOURCE_TYPE_INCOMPATIBLE: 'チームとMTG種別は「面談記録のみ」で利用できます。',
+    AI_FILTER_UNSUPPORTED_PROVIDER: '選択した条件はこの検索サービスでは利用できません。',
+    AI_MULTI_ENTITY_COUNT_INVALID: '比較する面談先を2–5件選択してください。',
+    AI_MULTI_ENTITY_DUPLICATE: '同じ面談先を複数回選択できません。',
+    AI_MULTI_ENTITY_MODE_REQUIRED: '面談先の複数選択は比較モードで利用できます。',
+    AI_MULTI_ENTITY_AMBIGUOUS_SCOPE: '複数の面談先と単一の面談先を同時に指定できません。',
     AI_RELATED_GP_FILTER_UNAVAILABLE: '旧形式の検索条件は利用できません。',
     AI_MEETING_TYPE_FILTER_UNAVAILABLE: '選択されたMTG種別は利用できません。',
-    AI_ADVANCED_FILTER_TOO_BROAD: '該当するMeetingが多すぎます。条件を絞ってください。',
-    AI_MEETING_PREP_TARGET_REQUIRED: '面談準備ではCounterparty EntityまたはGPを選択してください。',
-    AI_MODEL_POLICY_INVALID: 'モデル設定を確認できませんでした。',
-    AI_MODEL_POLICY_JSON_INVALID: 'モデル設定を確認できませんでした。',
-    AI_MODEL_POLICY_SCHEMA_UNSUPPORTED: 'モデル設定を確認できませんでした。'
+    AI_ADVANCED_FILTER_TOO_BROAD: '該当する面談記録が多すぎます。条件を絞ってください。',
+    AI_MEETING_PREP_TARGET_REQUIRED: '面談準備では面談先を選択してください。',
+    AI_MODEL_POLICY_INVALID: 'モデル設定を読み込めませんでした。',
+    AI_MODEL_POLICY_JSON_INVALID: 'モデル設定を読み込めませんでした。',
+    AI_MODEL_POLICY_SCHEMA_UNSUPPORTED: 'モデル設定を読み込めませんでした。'
   };
   return messages[String(code || '')] || '';
 }
@@ -1136,10 +1136,10 @@ function kspBuildProviderKnowledgeSearchSuccess_(environment, provider, input, c
   var answer = parsed.answer || '確認できる根拠が不足しています。';
   if (mapped.warnings.length) answer = '出典の最新状態を確認できないため、回答を表示できません。';
   if (guarded.rejectedUnselected) {
-    answer = '選択外Entityの根拠が混入したため、比較結果を表示できません。';
+    answer = '選択していない面談先の資料が含まれるため、比較結果を表示できません。';
   }
   var insufficientEvidence = !parsed.answer || guarded.citations.length === 0 || guarded.rejectedUnselected === true || mapped.warnings.length > 0;
-  if (insufficientEvidence) allWarnings.push({ code: 'AI_INSUFFICIENT_EVIDENCE', message: '回答または authoritative citation が不足しています。' });
+  if (insufficientEvidence) allWarnings.push({ code: 'AI_INSUFFICIENT_EVIDENCE', message: '回答または根拠となる資料が不足しています。' });
   kspAppendKnowledgeQueryAuditOnce_(environment, actor, auditToken, context.auditSpreadsheetId, kspBuildKnowledgeSearchAuditRow_({
     timestamp: environment.nowIso(), actor: actor, input: input, modelId: config.modelId,
     interactionId: kspKnowledgeQueryAuditTargetId_(auditToken), result: KSP_AUDIT_RESULTS.SUCCESS, citations: guarded.citations,

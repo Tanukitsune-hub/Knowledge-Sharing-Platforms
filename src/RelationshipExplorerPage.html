@@ -1,36 +1,36 @@
 <section id="page-relationship-explorer" class="page">
   <div class="card">
     <div class="section-heading">
-      <div><h2>Relationship Explorer</h2><p class="hint">Meeting_Index.Related_Pitchbook_IDsに保存された明示的なDocument_IDだけを、双方向に読み取ります。関係の追加・削除は既存の面談編集から行います。</p></div>
+      <div><h2>資料の関連付け</h2><p class="hint">面談記録と保存資料の関連付けを両方向から確認できます。変更は面談記録の編集画面で行います。</p></div>
     </div>
     <div class="filter-grid relationship-filters">
-      <div class="field"><label for="relationship-date-from">Meeting日付 From</label><input id="relationship-date-from" type="date"></div>
-      <div class="field"><label for="relationship-date-to">Meeting日付 To</label><input id="relationship-date-to" type="date"></div>
-      <div class="field"><label for="relationship-counterparty-type">Counterparty Type</label><select id="relationship-counterparty-type"><option value="">未選択</option></select></div>
-      <div class="field"><label for="relationship-counterparty-entity">Counterparty Entity</label><select id="relationship-counterparty-entity"><option value="">未選択</option></select></div>
+      <div class="field"><label for="relationship-date-from">開始日</label><input id="relationship-date-from" type="date"></div>
+      <div class="field"><label for="relationship-date-to">終了日</label><input id="relationship-date-to" type="date"></div>
+      <div class="field"><label for="relationship-counterparty-type">面談先種別</label><select id="relationship-counterparty-type"><option value="">未選択</option></select></div>
+      <div class="field"><label for="relationship-counterparty-entity">面談先</label><select id="relationship-counterparty-entity"><option value="">未選択</option></select></div>
       <div class="field"><label for="relationship-asset-class">アセットクラス</label><select id="relationship-asset-class"><option value="">未選択</option></select></div>
       <div class="field"><label for="relationship-fund-strategy">Fund / Strategy</label><select id="relationship-fund-strategy"><option value="">未選択</option></select></div>
-      <div class="field"><label for="relationship-meeting-status">Meeting Status</label><select id="relationship-meeting-status"><option value="">未選択</option></select></div>
-      <div class="field"><label for="relationship-pitchbook-status">Pitchbook Status</label><select id="relationship-pitchbook-status"><option value="">未選択</option></select></div>
+      <div class="field"><label for="relationship-meeting-status">面談記録のStatus</label><select id="relationship-meeting-status"><option value="">未選択</option></select></div>
+      <div class="field"><label for="relationship-pitchbook-status">保存資料のStatus</label><select id="relationship-pitchbook-status"><option value="">未選択</option></select></div>
     </div>
     <div class="actions"><span class="hint">件数は上限適用前に計算し、表示省略数を明示します。</span><div class="action-group"><button id="relationship-explorer-clear" class="action secondary" type="button">条件をクリア</button><button id="relationship-explorer-refresh" class="action primary" type="button">読み込む</button></div></div>
     <div id="relationship-explorer-status" class="status" role="status" aria-live="polite"></div>
   </div>
 
   <div class="card">
-    <div class="section-heading"><div><h2>関係サマリー</h2><p id="relationship-summary-note" class="hint"></p></div></div>
+    <div class="section-heading"><div><h2>関連付けの集計</h2><p id="relationship-summary-note" class="hint"></p></div></div>
     <div id="relationship-summary" class="relationship-summary" aria-live="polite"></div>
   </div>
 
   <div class="card">
-    <div class="section-heading"><div><h2>Meeting → Pitchbook</h2><p class="hint">Meetingと資料のCounterparty_IDおよび明示的なDocument_ID関係を表示します。</p></div></div>
-    <div class="table-wrap"><table class="data-table relationship-table"><caption class="sr-only">MeetingからPitchbookへの明示的関係</caption><thead><tr><th>Meeting日付</th><th>Meeting ID</th><th>面談先</th><th>Pitchbook件数</th><th>Status</th><th>選択</th></tr></thead><tbody id="relationship-forward-results"></tbody></table></div>
+    <div class="section-heading"><div><h2>面談記録から見る</h2><p class="hint">面談記録ごとに関連付けられた保存資料を表示します。</p></div></div>
+    <div class="table-wrap"><table class="data-table relationship-table"><caption class="sr-only">面談記録から保存資料への関連付け</caption><thead><tr><th>面談日</th><th>Meeting ID</th><th>面談先</th><th>保存資料数</th><th>Status</th><th>選択</th></tr></thead><tbody id="relationship-forward-results"></tbody></table></div>
     <div id="relationship-forward-detail" class="relationship-detail" role="region" aria-live="polite"></div>
   </div>
 
   <div class="card">
-    <div class="section-heading"><div><h2>Pitchbook → Meeting</h2><p class="hint">明示的にそのDocument_IDを参照するMeetingを逆引きします。</p></div></div>
-    <div class="table-wrap"><table class="data-table relationship-table"><caption class="sr-only">PitchbookからMeetingへの逆引き関係</caption><thead><tr><th>Pitchbook日付</th><th>Document ID</th><th>面談先</th><th>アセットクラス / Fund</th><th>Meeting件数</th><th>Status</th><th>選択</th></tr></thead><tbody id="relationship-reverse-results"></tbody></table></div>
+    <div class="section-heading"><div><h2>保存資料から見る</h2><p class="hint">保存資料ごとに関連付けられた面談記録を表示します。</p></div></div>
+    <div class="table-wrap"><table class="data-table relationship-table"><caption class="sr-only">保存資料から面談記録への関連付け</caption><thead><tr><th>資料の日付</th><th>Document ID</th><th>面談先</th><th>アセットクラス / Fund</th><th>面談件数</th><th>Status</th><th>選択</th></tr></thead><tbody id="relationship-reverse-results"></tbody></table></div>
     <div id="relationship-reverse-detail" class="relationship-detail" role="region" aria-live="polite"></div>
   </div>
 </section>

@@ -14,7 +14,7 @@ const styles = fs.readFileSync(path.join(root, 'src', 'Styles.html'), 'utf8');
 test('Past Meeting keeps detail, related materials, and disabled edit empty states visible', () => {
   assert.match(page, /id="meeting-detail-card" class="card"/);
   assert.match(page, /id="meeting-detail-empty"[\s\S]*上の一覧から「詳細」を選択すると、ここに記録内容が表示されます。/);
-  assert.match(page, /id="meeting-detail-related-empty"[\s\S]*記録を選択すると、関連資料の確認・追加・関連付けができます。/);
+  assert.match(page, /id="meeting-detail-related-empty"[\s\S]*記録を選択すると、関連資料を確認・追加できます。/);
   assert.match(page, /id="meeting-edit-card" class="card maintenance-editor"/);
   assert.match(page, /id="meeting-edit-empty"[\s\S]*記録の詳細から「記録を編集」を選択すると編集できます。/);
   assert.match(page, /<fieldset id="meeting-edit-fieldset" disabled>/);
@@ -46,7 +46,7 @@ test('normal Past Meeting uses table-cell action wrappers and delete-only wordin
 test('admin deleted-record management defaults to Inactive and reuses optimistic status mutation', () => {
   assert.match(adminPage, /<h2>削除記録の管理<\/h2>/);
   assert.match(adminPage, /id="admin-deleted-status-filter"[\s\S]*value="Inactive" selected>削除済み/);
-  assert.match(adminPage, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>アセットクラス<\/th><th>チーム<\/th><th>Status<\/th><th>Version<\/th><th>操作<\/th>/);
+  assert.match(adminPage, /<th>日付<\/th><th>Meeting ID<\/th><th>面談先<\/th><th>アセットクラス<\/th><th>チーム<\/th><th>Status<\/th><th>更新番号<\/th><th>操作<\/th>/);
   assert.match(adminClient, /serverCall\('searchMeetingRecords',adminDeletedMeetingPayload\(\)\)/);
   assert.match(adminClient, /serverCall\('changeMeetingStatus',\{meetingId:record\.meetingId,expectedVersion:record\.version,targetStatus:'Active'\}\)/);
   assert.match(adminClient, />復元<\/button>/);

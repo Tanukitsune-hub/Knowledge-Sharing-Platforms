@@ -107,7 +107,7 @@ test('one-year and one-month drill rows always render canonical labels, 原本, 
     assert.match(html, /年次総会/);
     assert.doesNotMatch(html, />ANNUAL_REVIEW<|>OFFICE_VISIT<|>ANNUAL_GENERAL_MEETING</);
     assert.match(html, /data-activity-admin-meeting="MTG-000039"/);
-    assert.match(html, />Doc<\/a>/);
+    assert.match(html, />原本<\/a>/);
   }
 });
 
