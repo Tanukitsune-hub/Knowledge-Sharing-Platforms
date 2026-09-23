@@ -2,7 +2,7 @@
 
 Current as of: 2026-08-29
 
-This directory records the active product, architecture, runtime, security, roadmap, distribution, and delivery contracts for Knowledge Sharing Platforms.
+This directory records the active product, architecture, runtime, security, roadmap, distribution, and delivery contracts for Private Assets Intelligence.
 
 Historical Work/qualification files remain evidence of what they observed. They do not override newer accepted decisions.
 

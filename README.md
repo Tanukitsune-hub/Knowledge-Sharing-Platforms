@@ -1,4 +1,4 @@
-# Knowledge Sharing Platforms
+# Private Assets Intelligence
 
 プライベートアセット領域のMeeting recordsとPitchbook / source materialsを、Google Workspaceを正本として蓄積し、検索・整理・比較・面談準備へつなげるApps Script-firstのナレッジ基盤です。
 

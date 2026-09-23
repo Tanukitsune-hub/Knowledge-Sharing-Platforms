@@ -12,7 +12,7 @@ Architecture boundary: `docs/architecture/target-architecture.md`
 
 ## 1. Operating principle
 
-Knowledge Sharing Platforms runs as an organization-controlled Google Apps Script HTML Service Web App backed by Google Workspace resources and, when authorized, Gemini File Search.
+Private Assets Intelligence runs as an organization-controlled Google Apps Script HTML Service Web App backed by Google Workspace resources and, when authorized, Gemini File Search.
 
 The application should fail explicitly and safely rather than silently guessing resource identity, weakening integrity, or presenting partial failure as success.
 
