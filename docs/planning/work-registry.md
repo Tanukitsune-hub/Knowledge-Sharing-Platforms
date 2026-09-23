@@ -43,7 +43,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | ACCEPTED | Work0049 version31 | PR #72 / version32 accepted。Completion Latch済み |
 | 28 | 0051 | Backend daily backup + 30-day retention | ACCEPTED | Work0050 version32 | PR #73/#79/#80 / version33 accepted。Completion Latch済み |
 | 29 | 0052 | Missing source graceful failure | ACCEPTED | Work0051 version33 | PR #81/#82 / version34 accepted。Completion Latch済み |
-| 30 | 0053 | User-facing Japanese copy naturalization | ACTIVE | Work0052 version34 | CODEX-02 reconcile old stacked PR #75 onto latest main |
+| 30 | 0053 | User-facing Japanese copy naturalization | ACTIVE | Work0052 version34 | PR #83 merged; CODEX-03 final runtime qualification / version35 target |
 | 31 | 0054 | Roleless Admin Page | PLANNED | Work0053 accepted baseline | Keep 管理者ページ; no account-level admin role; equal app permission for Web App users |
 | 32 | 0055 | Theme Color Tool hue bar / swatch refinement | PLANNED | Work0054 accepted baseline | Rainbow hue track + vertical indicator; selected-color swatch ~2x width |
 | 33 | 0056 | Entity Workspace 390px overflow fix | PLANNED | Work0055 accepted baseline | Pre-existing mobile overflow follow-up; all seven pages 390px overflow 0 |
@@ -969,7 +969,7 @@ WORK_ID: 0053
 STATUS: ACTIVE
 MODE: BUILD
 BASELINE: Work0052 version34
-ACTIVE_DISPATCH: 0053-CODEX-02
+ACTIVE_DISPATCH: 0053-CODEX-03
 BALL: CODEX
 PRIMARY_CHANGE_TYPE: USER_FACING_COPY_AND_BRAND
 PRODUCT_BRAND: Private Assets Intelligence
@@ -990,6 +990,7 @@ Requirements: `docs/handoffs/0053-japanese-ui-copy-naturalization-requirements.m
 Plan: `docs/planning/work0053-japanese-ui-copy-naturalization.md`
 Dispatch: `docs/handoffs/0053-dispatches.md`
 Reconcile instruction: `docs/handoffs/0053-CODEX-02-japanese-copy-reconcile-instruction.md`
+Final runtime instruction: `docs/handoffs/0053-CODEX-03-japanese-copy-final-runtime-instruction.md`
 
 
 ## Work 0050–0053 overnight execution option
