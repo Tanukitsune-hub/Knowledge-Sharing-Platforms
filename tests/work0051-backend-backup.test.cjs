@@ -6,7 +6,7 @@ const vm=require('node:vm');
 
 const root=path.resolve(__dirname,'..');
 const context=vm.createContext({Date,JSON,Object,Array,String,Number,Boolean,Math,RegExp,Error});
-for(const name of ['00_Core.gs','05_TemporalContracts.gs','21_BackendBackup.gs','22_BackendBackupLive.gs']){
+for(const name of ['00_Core.gs','05_TemporalContracts.gs','21_BackendBackup.gs','22_BackendBackupLive.gs','99_EntryPoints.gs']){
   vm.runInContext(fs.readFileSync(path.join(root,'src',name),'utf8'),context,{filename:name});
 }
 const plain=value=>JSON.parse(JSON.stringify(value));
@@ -53,6 +53,46 @@ test('daily run copies only the full Backend file into the restricted folder and
   assert.equal(run.files.get('backend').trashed,false);assert.equal(run.files.get('audit').trashed,false);
   const second=plain(context.kspRunBackendDailyBackup_(run.env));assert.equal(second.snapshot,'REUSED');assert.equal(run.calls.copies.length,1);
   assert.equal(run.calls.locks,2);assert.equal(run.calls.releases,2);
+});
+
+test('editor-visible manual operator runs the same service twice with safe summaries',()=>{
+  const run=fixture(),logs=[];
+  const originalEnvironment=context.kspCreateBackendBackupEnvironment_;
+  const originalLogger=context.Logger;
+  context.kspCreateBackendBackupEnvironment_=()=>run.env;
+  context.Logger={log(value){logs.push(JSON.parse(value))}};
+  try{
+    const first=plain(context.runBackendDailyBackupNow());
+    const second=plain(context.runBackendDailyBackupNow());
+    assert.deepEqual(first,{ok:true,dateKey:'2026-09-23',snapshot:'CREATED',retentionTrashed:0,errorCode:''});
+    assert.deepEqual(second,{...first,snapshot:'REUSED'});
+    assert.equal(run.calls.copies.length,1);
+    assert.equal(run.calls.trashes.length,0);
+    assert.deepEqual(logs,[
+      {operation:'BACKEND_DAILY_BACKUP',ok:true,snapshot:'CREATED',retentionTrashed:0,errorCode:''},
+      {operation:'BACKEND_DAILY_BACKUP',ok:true,snapshot:'REUSED',retentionTrashed:0,errorCode:''}
+    ]);
+  }finally{
+    context.kspCreateBackendBackupEnvironment_=originalEnvironment;
+    context.Logger=originalLogger;
+  }
+});
+
+test('manual operator stays outside role checks, browser UI and trigger target',()=>{
+  const entrySource=fs.readFileSync(path.join(root,'src','99_EntryPoints.gs'),'utf8');
+  const operator=entrySource.match(/^function runBackendDailyBackupNow\(\) \{([\s\S]*?)^\}/m);
+  assert.ok(operator,'editor-visible top-level declaration');
+  assert.match(operator[1],/kspRunBackendDailyBackup_\(kspCreateBackendBackupEnvironment_\(\)\)/);
+  assert.doesNotMatch(operator[1],/adminEmails|@[\w.-]+|installer|owner|password|token|role|Session|DriveApp|Drive\.Files|copyBackendSpreadsheet|trashBackupFile|listBackupFiles/i);
+  assert.match(entrySource,/^function runBackendDailyBackup_\(\)/m);
+  const coreSource=fs.readFileSync(path.join(root,'src','00_Core.gs'),'utf8');
+  assert.match(coreSource,/key: 'BACKEND_DAILY_BACKUP_TRIGGER',\s*handler: 'runBackendDailyBackup_'/);
+  for(const name of fs.readdirSync(path.join(root,'src')).filter(name=>name.endsWith('.html'))){
+    assert.doesNotMatch(fs.readFileSync(path.join(root,'src',name),'utf8'),/runBackendDailyBackupNow/,name);
+  }
+  const manifest=JSON.parse(fs.readFileSync(path.join(root,'src','appsscript.json'),'utf8'));
+  assert.deepEqual(manifest.webapp,{executeAs:'USER_DEPLOYING',access:'MYSELF'});
+  assert.equal(Object.hasOwn(manifest,'executionApi'),false);
 });
 
 test('retention trashes only marked snapshots older than 30 calendar days',()=>{

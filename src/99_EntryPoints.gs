@@ -32,6 +32,13 @@ function runBackendDailyBackup_() {
   return result;
 }
 
+function runBackendDailyBackupNow() {
+  var result = kspRunBackendDailyBackup_(kspCreateBackendBackupEnvironment_());
+  Logger.log(JSON.stringify({ operation: 'BACKEND_DAILY_BACKUP', ok: result.ok,
+    snapshot: result.snapshot, retentionTrashed: result.retentionTrashed, errorCode: result.errorCode }));
+  return result;
+}
+
 function getBootstrapConfigTemplate_() {
   return kspGetBootstrapConfigTemplate_();
 }

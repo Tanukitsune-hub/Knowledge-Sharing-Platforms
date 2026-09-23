@@ -30,6 +30,8 @@ test('repository exposes only the canonical normal-user facade', () => {
   assert.ok(PUBLIC_FACADE_ALLOWLIST.includes('updateMeetingRelations'));
   assert.ok(PUBLIC_FACADE_ALLOWLIST.includes('getThemeSettingsData'));
   assert.ok(PUBLIC_FACADE_ALLOWLIST.includes('mutateThemeSettings'));
+  assert.ok(OPERATOR_ENTRYPOINT_ALLOWLIST.includes('runBackendDailyBackupNow'));
+  assert.ok(!PUBLIC_FACADE_ALLOWLIST.includes('runBackendDailyBackupNow'));
   assert.deepEqual(
     result.publicDeclarations.map((item) => item.name).sort(),
     [...PUBLIC_FACADE_ALLOWLIST].sort()
