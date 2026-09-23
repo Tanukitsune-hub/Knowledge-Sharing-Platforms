@@ -17,6 +17,8 @@ production変更は以下の4ファイルのみ。
 - `src/164_AiProviderCore.gs`
 - `src/ClientKnowledgeSearch.html`
 
+Delivery: 新Draft PR #81 (`main`向け、branch `codex/0052-missing-source-reconcile`) を作成した後、旧PR #74へ `SUPERSEDED` コメントを付けてcloseした。mergeはしていない。
+
 Meeting `Doc_File_ID` とPitchbook `File_ID` を出典mapに保持する。provider回答の表示・成功Audit前、ならびにterminal replay時に、実際の引用元だけDrive ID、Trash、Meeting MIME、登録folder境界を確認する。失敗時はsafe inline errorで回答を止め、古い回答を隠す。全corpusの事前照会、原本再作成、Backend変更、auto deactivate、provider index削除は追加していない。
 
 ## Validation
@@ -60,6 +62,8 @@ READY_FOR_CHATGPT_FINAL_REVIEW: NO
 WORK_0052_ACCEPTED: NO
 COMPLETION_LATCH: NOT_APPLIED
 WORK_0030: DEFERRED_BY_USER
+NEW_DRAFT_PR: #81
+OLD_PR_74: SUPERSEDED_CLOSED
 ```
 
 ## Shared Knowledge
