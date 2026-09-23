@@ -51,7 +51,8 @@ PHASE: ADMIN ROLE / OBSOLETE AUTH CLEANUP
 
 - `管理者ページ` labelは維持
 - admin account modelは作らない
-- `adminEmails` allowlistは使わない
+- 通常Web Appの管理者ページでは`adminEmails` allowlistを使わない
+- editor installerの既存operator authorizationは維持
 - Google identityでadmin判定しない
 - shared password gateは現時点で導入しない
 - Work0055 / Work0056は別Work
@@ -93,3 +94,11 @@ STATUS: RETURNED
 - focused 79/79、`npm run check` 673/673、`npm run check:bundle` 30/30、deterministic browser 20 checksはPASS。
 - [report](0054-CODEX-01-shared-admin-policy-cleanup-report.md)に、通常Web App管理者ページのrole gate 0と、現役editor installer `adminEmails` guardの境界を記録した。`BLOCKER: INSTALLER_ADMINEMAILS_POLICY_SCOPE_CONFLICT`はChatGPT final reviewへ返す。
 - live mutation 0。ACCEPTED判定とCompletion LatchはChatGPT final reviewへ残す。
+
+## ChatGPT final review
+
+- CODEX-01のdiff / report / testsをreview: PASS。
+- 返却された`INSTALLER_ADMINEMAILS_POLICY_SCOPE_CONFLICT`は実装blockerではなく、decisionのscope記述が広すぎたことによる文書上の矛盾と判定。
+- `docs/decisions/admin-page-access-model.md`を修正し、通常Web Appのadmin roleとeditor installer operator authorizationを明確に分離した。
+- installerの現役`adminEmails` guardは維持する。追加実装・再検証・target-runtime deployは不要。
+- PR #85をこの境界で受入れ可能。
