@@ -91,5 +91,5 @@ STATUS: RETURNED
 
 - Draft PR #85に旧shared-admin dead codeと専用fixtureの削除、generated bundle、reportを追加した。
 - focused 79/79、`npm run check` 673/673、`npm run check:bundle` 30/30、deterministic browser 20 checksはPASS。
-- [report](0054-CODEX-01-shared-admin-policy-cleanup-report.md)に、通常Web App管理者ページのrole gate 0と、現役editor installer `adminEmails` guardの境界を記録した。
+- [report](0054-CODEX-01-shared-admin-policy-cleanup-report.md)に、通常Web App管理者ページのrole gate 0と、現役editor installer `adminEmails` guardの境界を記録した。`BLOCKER: INSTALLER_ADMINEMAILS_POLICY_SCOPE_CONFLICT`はChatGPT final reviewへ返す。
 - live mutation 0。ACCEPTED判定とCompletion LatchはChatGPT final reviewへ残す。

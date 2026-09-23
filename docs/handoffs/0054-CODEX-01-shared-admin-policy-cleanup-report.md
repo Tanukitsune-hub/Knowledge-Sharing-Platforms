@@ -64,7 +64,7 @@ WORK0055_OR_WORK0056_CHANGE: 0
 WORK0030: DEFERRED_BY_USER
 ```
 
-BLOCKER: NONE_FOR_NORMAL_WEB_APP_ADMIN_PAGE。インストーラーの現役`adminEmails` guardとdecisionのrepository-wide文言の差はfinal reviewで判定する。
+BLOCKER: INSTALLER_ADMINEMAILS_POLICY_SCOPE_CONFLICT。通常Web App管理者ページのgateは0だが、decisionのrepository-wide文言と現役installer guardは両立していない。現役認可の削除は「unusedのみ」「別機構への置換なし」の範囲を超えるため、ChatGPT final reviewで境界を判定する。
 READY_FOR_CHATGPT_FINAL_REVIEW: YES
 WORK_0054_ACCEPTED: NO
 COMPLETION_LATCH: NOT_APPLIED
