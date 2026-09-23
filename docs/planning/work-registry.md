@@ -44,7 +44,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 28 | 0051 | Backend daily backup + 30-day retention | ACTIVE | Work0050 version32 | PR #73 merged; CODEX-03 guarded manual operator fix before runtime qualification |
 | 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
 | 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
-| 31 | 0054 | Administrator roster / personnel handover | PLANNED | Work0053 accepted baseline | Multi-admin roster; successor-first handover; installer-owner decoupling |
+| 31 | 0054 | No-admin-role / Settings unification | PLANNED | Work0053 accepted baseline | Remove in-app admin/user distinction; Settings available equally to Web App users |
 | 32 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 35 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 33 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
@@ -995,15 +995,15 @@ MODE: BUILD
 DEPENDENCY: Work0053 ACCEPTED
 ACTIVE_DISPATCH: NONE
 BALL: NONE
-ADMIN_AUTH_SOURCE: CURRENT_ADMIN_EMAIL_ROSTER
-MULTI_ADMIN: REQUIRED
-SUCCESSOR_FIRST_HANDOVER: REQUIRED
-LAST_ADMIN_REMOVAL: BLOCKED
-INSTALLER_OWNER_PERMANENT_DEPENDENCY: REMOVE
-GOOGLE_GROUP_DIRECTORY_API: OUT_OF_SCOPE
-PERMISSION_BROADENING: 0
+IN_APP_ADMIN_ROLE: NONE
+EQUAL_APP_FEATURE_ACCESS: REQUIRED
+ADMIN_EMAILS_AS_APP_AUTHORIZATION: 0
+VISIBLE_ADMIN_PAGE_LABEL: REMOVE
+SETTINGS_PAGE: REQUIRED
+DEPLOYMENT_ACCESS_CHANGE: 0
+DRIVE_PERMISSION_CHANGE: 0
 WORK_0030: DEFERRED_BY_USER
 ```
 
-Requirements: `docs/handoffs/0054-admin-roster-handover-requirements.md`
-Plan: `docs/planning/work0054-admin-roster-handover.md`
+Requirements: `docs/handoffs/0054-no-admin-role-settings-unification-requirements.md`
+Plan: `docs/planning/work0054-no-admin-role-settings-unification.md`
