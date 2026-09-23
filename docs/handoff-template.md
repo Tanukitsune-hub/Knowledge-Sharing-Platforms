@@ -5,6 +5,7 @@ Use this template when work crosses agent runs, worktrees, machines, or external
 WORK_ID: `<zero-padded 4-digit ID or Not assigned>`
 DISPATCH_ID: `<WORK_ID>-CODEX-<NN> | N/A for ChatGPT-only work>`
 MODE: `<BUILD | INCIDENT_RECOVERY | INVESTIGATION | QUALIFICATION>`
+VALIDATION_TIER: `<TIER_1_LOW | TIER_2_STANDARD | TIER_3_HIGH>`
 BALL: `<CHATGPT | CODEX | USER | NONE>`
 STATUS: `<PREPARING | READY | IN_PROGRESS | ACTION_REQUIRED | RETURNED | REVIEW | ACCEPTED | BLOCKED | SUPERSEDED>`
 
@@ -65,13 +66,15 @@ Required for `INVESTIGATION`; optional otherwise.
 
 ## Required Validation
 
+State why the selected tier is sufficient. Do not add broader regression or runtime checks unless a concrete dependency, risk, or observed result can change acceptance.
+
 ### Logic Validation
 
 List focused deterministic checks of algorithms, transformations, schemas, contracts, security rules, redaction, IDs, retries, and invariants.
 
 ### Target-Runtime Qualification
 
-List the smallest native Apps Script / Workspace / browser / Gemini smoke/readback required using isolated data. A mock, simulator, test loader, CI run, alternate runtime, or local synthetic harness is not a substitute for platform-dependent behavior.
+List the smallest native Apps Script / Workspace / browser / Gemini smoke/readback required by the selected tier and changed behavior. If runtime behavior is not decision-relevant, write `NOT APPLICABLE`; do not deploy only to manufacture runtime evidence. A mock, simulator, test loader, CI run, alternate runtime, or local synthetic harness is not a substitute when platform-dependent behavior actually requires qualification.
 
 ### Side-Effect Enablement
 
