@@ -44,8 +44,9 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 28 | 0051 | Backend daily backup + 30-day retention | ACTIVE | Work0050 version32 | PR #73 merged; CODEX-03 guarded manual operator fix before runtime qualification |
 | 29 | 0052 | Missing source graceful failure | PLANNED | Work0051 accepted baseline | Inline fail-closed for missing Meeting Docs / Pitchbooks |
 | 30 | 0053 | User-facing Japanese copy naturalization | PLANNED | Work0052 accepted baseline | App-wide natural Japanese / terminology consistency sweep |
-| 31 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
-| 32 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
+| 31 | 0054 | Administrator roster / personnel handover | PLANNED | Work0053 accepted baseline | Multi-admin roster; successor-first handover; installer-owner decoupling |
+| 32 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
+| 35 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
 | 33 | Unassigned future Work | Historical-material migration | PLANNED | Provider/installer stable | Select approach from actual corpus |
 | 34 | Unassigned future Work | Final company qualification and rollout | PLANNED | Company credentials, Shared Drive, permissions, migration ready | Qualify approved company environment/providers |
 
@@ -983,3 +984,26 @@ FINAL_ACCEPTANCE_OWNER: CHATGPT
 ```
 
 Plan: `docs/planning/work0050-0053-overnight-stack.md`
+
+
+## Work 0054 planned contract
+
+```text
+WORK_ID: 0054
+STATUS: PLANNED
+MODE: BUILD
+DEPENDENCY: Work0053 ACCEPTED
+ACTIVE_DISPATCH: NONE
+BALL: NONE
+ADMIN_AUTH_SOURCE: CURRENT_ADMIN_EMAIL_ROSTER
+MULTI_ADMIN: REQUIRED
+SUCCESSOR_FIRST_HANDOVER: REQUIRED
+LAST_ADMIN_REMOVAL: BLOCKED
+INSTALLER_OWNER_PERMANENT_DEPENDENCY: REMOVE
+GOOGLE_GROUP_DIRECTORY_API: OUT_OF_SCOPE
+PERMISSION_BROADENING: 0
+WORK_0030: DEFERRED_BY_USER
+```
+
+Requirements: `docs/handoffs/0054-admin-roster-handover-requirements.md`
+Plan: `docs/planning/work0054-admin-roster-handover.md`
