@@ -1,4 +1,4 @@
-# Work 0051 CODEX-03 — guarded manual backup operator path
+# Work 0051 CODEX-03 — manual backup operator path
 
 WORK_ID: 0051
 DISPATCH_ID: 0051-CODEX-03
@@ -8,19 +8,17 @@ MODE: BUILD
 
 ## Primary Outcome
 
-Work0051 CODEX-02で判明した `APPROVED_PRIVATE_BACKUP_MANUAL_EXECUTION_PATH_UNAVAILABLE` を、scheduled handler `runBackendDailyBackup_()` のprivate性を維持したまま解消する。
+Work0051 CODEX-02で判明した `APPROVED_PRIVATE_BACKUP_MANUAL_EXECUTION_PATH_UNAVAILABLE` を解消する。
 
-editor function pickerから明示実行できる、owner/admin限定のmanual operator entrypointを追加する。
+scheduled handler `runBackendDailyBackup_()` はprivateのまま維持し、Apps Script editorのfunction pickerから手動実行できるoperator entrypointを追加する。
+
+ユーザー方針:
+- アプリ内で「管理者 / 一般利用者」を分けない
+- Web Appにアクセスできる利用者は原則同じ機能を使える
+- 特定個人のemail rosterをapplication authorizationに使わない
 
 このDispatchではsource implementation / tests / Draft PRまで。
 Apps Script source sync、setup、backup folder/trigger/snapshot作成、version33、deployment更新は行わない。
-
-## Recommended model
-
-GPT-5.6 Sol High。
-
-理由:
-public top-level Apps Script functionを1つ追加するため、normal-user RPC surfaceへの意図しない露出とauthorization semanticsを慎重にレビューする必要がある。
 
 ## Read first
 
@@ -40,6 +38,8 @@ BACKEND_BOUNDARY: PROVEN
 BACKUP_IMPLEMENTATION_PR: #73 MERGED
 PRIVATE_SCHEDULED_HANDLER: runBackendDailyBackup_
 PRIVATE_HANDLER_MUST_REMAIN_PRIVATE: YES
+IN_APP_ADMIN_ROLE: NONE
+EMAIL_ROSTER_AUTHORIZATION_FOR_BACKUP: 0
 NORMAL_USER_UI_FOR_MANUAL_BACKUP: 0
 API_EXECUTABLE_DEPLOYMENT: 0
 NEW_DEPLOYMENT: 0
@@ -55,73 +55,47 @@ Add one editor-visible operator entrypoint, recommended name:
 runBackendDailyBackupNow()
 ```
 
-or an equivalent clear name without a trailing underscore.
+or equivalent clear name without trailing underscore.
 
-This wrapper is for administrator/operator manual execution only.
-
-The scheduled daily handler remains:
+Scheduled daily trigger remains:
 ```js
 runBackendDailyBackup_()
 ```
 
-Do not rename the scheduled handler and do not point the daily trigger at the public wrapper.
+Do not rename the scheduled handler and do not point the daily trigger at the manual wrapper.
 
-## Authorization contract
+## Authorization / access contract
 
-The manual wrapper must fail closed before any Drive/backup mutation unless all conditions are true:
+Do NOT add application-level administrator authorization.
 
-1. installation state/config is readable
-2. configured `adminEmails` contains the active operator email
-3. `Session.getActiveUser().getEmail()` is non-empty
-4. `Session.getEffectiveUser().getEmail()` is non-empty
-5. active email === effective email
-6. normalized email is in configured `adminEmails`
+Specifically:
+- do not check `adminEmails`
+- do not hard-code a person/email
+- do not require installer owner
+- do not add shared-admin password/token
+- do not add a role table
 
-Reason:
-- editor/manual run by the owner/admin should pass
-- future Web App execute-as-owner calls from another user must not pass via effective-user fallback
-- blank active identity must fail
-- normal-user browser access must not be treated as administrator merely because effective user is the deployer
+The manual operator relies on the underlying Google / Apps Script access boundary for the project/editor.
 
-Do NOT reuse an authorization helper whose blank-active fallback accepts effective user alone.
-
-A dedicated narrow helper is preferred.
-
-Suggested internal shape:
-
-```js
-kspAssertBackendBackupOperator_(environment)
-kspRunBackendDailyBackupOperator_(environment)
-runBackendDailyBackupNow()
-```
-
-Equivalent implementation is acceptable.
-
-## Environment contract
-
-Use a testable environment adapter for session identities rather than hard-coding untestable Session access inside core logic.
-
-Preferred:
-- `kspCreateBackendBackupEnvironment_()` exposes `getSessionIdentities()`
-- returns normalized-safe raw active/effective strings
-- authorization logic remains in core backup service
-
-Do not move this authorization logic into UI/client code.
+The function itself must still be operationally safe:
+- same backup service
+- same same-day idempotency
+- same restricted folder/source boundary
+- same app-owned retention boundary
+- no permanent delete
 
 ## Manual wrapper behavior
 
-On authorized execution:
-
-1. authorize
-2. call the same private `kspRunBackendDailyBackup_()` service used by scheduled execution
-3. preserve its same-day idempotency and retention semantics
-4. write only the existing safe Logger summary:
+On execution:
+1. call the same `kspRunBackendDailyBackup_()` service used by scheduled execution
+2. preserve same-day idempotency and retention semantics
+3. log only the existing safe summary:
    - operation
    - ok
    - snapshot
    - retentionTrashed
    - errorCode
-5. return the bounded result object
+4. return the bounded result object
 
 Do not log:
 - file IDs
@@ -131,61 +105,43 @@ Do not log:
 - Script ID / deployment ID
 - source contents
 
-Unauthorized execution:
-- must fail before copy / Trash
-- must not create folder/trigger
-- must not modify Backend
-- must not invoke provider calls
+Do not duplicate backup/retention implementation inside the wrapper.
 
-A clear internal error code such as `BACKUP_OPERATOR_UNAUTHORIZED` is expected.
+## Product surface boundary
 
-## Public-surface boundary
+This operator exists to support controlled manual execution and qualification.
 
-The new top-level function is editor-visible by design, but normal product UI must not expose it.
-
-Required:
-- no button/link/menu in Web App
-- no HTML reference to `runBackendDailyBackupNow`
-- no automatic browser call
-- no new admin tab action
+For Work0051:
+- no new button/link/menu in Web App
+- no automatic browser invocation
 - no API executable deployment
 - no new doGet/doPost route
-- no client helper wrapping it
+- no new backup settings UI
 
-Add a test that scans user-facing/client HTML and confirms manual backup operator function name is not referenced.
-
-Because Apps Script public server functions may be callable from `google.script.run` when known, server-side authorization is mandatory and must be sufficient by itself.
+A future Work will normalize the current “管理者ページ” concept so application features are not role-gated.
 
 ## Tests
 
 At minimum:
 
-### Authorized operator
-- active == effective == configured admin
-- wrapper/service proceeds
+### Manual operator
+- editor-visible top-level function exists
+- no trailing underscore
+- calls the same backup service path
 - first run can return CREATED
 - second run can return REUSED
-- underlying backup service remains exactly the same implementation path
+- no duplicate backup logic
 
-### Unauthorized
-Each fails before mutation:
-- active blank
-- effective blank
-- active != effective
-- active not in adminEmails
-- configured adminEmails empty
-- installation/config unreadable
-
-Assert for unauthorized:
-- copy calls 0
-- Trash calls 0
-- source mutation 0
+### Role policy
+- manual operator contains no `adminEmails` authorization
+- no hard-coded email
+- no installer-owner dependency
+- no shared-admin password/token dependency
 
 ### Surface
 - scheduled handler still ends with underscore
 - daily trigger registry still targets `runBackendDailyBackup_`
-- manual wrapper has no trailing underscore / editor-visible
-- normal-user HTML/client source contains 0 references to manual wrapper
+- no Web App UI button/menu added for manual backup
 - no API/deployment config change
 
 ### Regression
@@ -199,20 +155,19 @@ Assert for unauthorized:
 ## Scope
 
 Expected production files:
-- `src/21_BackendBackup.gs`
-- `src/22_BackendBackupLive.gs`
 - `src/99_EntryPoints.gs`
 - tests
 - bundle artifacts
 - docs as needed
 
-Avoid unrelated copy/UI changes.
+Only change backup core/live files if necessary for testability. Avoid unrelated UI/copy changes.
 
 ## Safety
 
 ```text
+IN_APP_ADMIN_ROLE: NONE
+EMAIL_AUTHORIZATION_CHANGE_FOR_MANUAL_BACKUP: REMOVE_REQUIREMENT
 NORMAL_USER_UI_CHANGE: 0
-NORMAL_USER_RPC_WIRING: 0
 SCHEDULED_HANDLER_VISIBILITY_CHANGE: 0
 BACKUP_BUSINESS_SEMANTICS_CHANGE: 0
 RETENTION_SEMANTICS_CHANGE: 0
@@ -242,13 +197,11 @@ Update:
 `docs/handoffs/0051-dispatches.md`
 
 Report must include:
-- exact authorization predicate
 - production files changed
-- authorized tests
-- unauthorized fail-closed tests
-- normal-user UI reference count
+- wrapper -> same backup service evidence
+- no app-level admin/email gating evidence
 - scheduled handler target unchanged
-- full/bundle results
+- tests / bundle
 - external mutation count 0
 - BLOCKER / READY_FOR_CHATGPT_FINAL_REVIEW
 
@@ -256,18 +209,3 @@ WORK_ID: 0051
 DISPATCH_ID: 0051-CODEX-03
 BALL: CODEX
 STATUS: READY
-
-
-## Personnel handover compatibility
-
-This manual operator must authorize against the current configured `adminEmails` roster, not a hard-coded person and not the installer-owner latch.
-
-Required:
-- multiple configured administrators are supported
-- any current roster member may pass when active == effective == that member
-- do not require exactly one admin
-- do not require the original installer owner
-- tests include at least two configured admins and prove either can authorize
-- removing a former admin from the roster makes that identity fail immediately
-
-The operational mechanism for safely editing the administrator roster is a separate Work. Do not broaden Work0051 into administrator lifecycle UI.
