@@ -541,7 +541,7 @@
     const visible = spec.fields.filter(function (field) { return field.visible; });
     const hidden = spec.fields.filter(function (field) { return !field.visible; });
     const lines = [
-      '# Knowledge Sharing Platforms UI layout handoff', '',
+      '# Private Assets Intelligence UI layout handoff', '',
       '- Baseline: `' + spec.baseline + '`',
       '- Screen: `' + spec.screen + '`',
       '- Spec: `version ' + spec.specVersion + ' / ' + spec.container.gridColumns + ' columns`',
