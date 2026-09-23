@@ -24,7 +24,7 @@ READY_FOR_CHATGPT_FINAL_REVIEW: YES
 
 ## Production scope
 
-変更した production source は次の user-facing copy / brand surface に限る。`src/` の関数名・ID・RPC・payload・enum は変更していない。
+変更した production source は次の user-facing copy / brand surface に限る。既存の関数・ID・RPC・payload・enum は rename していない。表示用の変換 helper だけを追加した。
 
 ```text
 scripts/build-apps-script-bundle.cjs
