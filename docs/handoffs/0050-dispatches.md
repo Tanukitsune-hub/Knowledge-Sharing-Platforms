@@ -3,8 +3,8 @@
 WORK_ID: 0050
 DISPATCH_ID: 0050-CODEX-03
 ACTIVE_DISPATCH_ID: 0050-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: QUALIFICATION
 PHASE: TARGET IDENTITY RECOVERY + RUNTIME QUALIFICATION
 
@@ -58,5 +58,17 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0050
 DISPATCH_ID: 0050-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
+
+## CODEX-03 return
+
+- Report: `docs/handoffs/0050-CODEX-03-theme-color-tool-runtime-report.md`
+- Host-bound identity chain: PASS
+- Existing owner-only `WEB_APP`: version31 → version32、同一 `/exec` / execute-as / access
+- Version32 target-runtime qualification: PASS
+- Source sync / version create / existing deployment update: 1 / 1 / 1
+- New deployment / Theme Save or Reset / provider call / business write / permission change: 0
+- Persisted Theme drift: 0
+- `READY_FOR_CHATGPT_FINAL_REVIEW: YES`
+- Work0050 ACCEPTEDとCompletion Latchは未適用。Work0030は `DEFERRED_BY_USER`。
