@@ -12,11 +12,12 @@ MODE: BUILD
 
 ```text
 ADMIN_ACCOUNT_MODEL: NONE
-ADMIN_EMAIL_ALLOWLIST: NONE
-GOOGLE_IDENTITY_ADMIN_GATE: NONE
-SHARED_PASSWORD_GATE: NONE_FOR_NOW
+WEB_APP_ADMIN_EMAIL_ALLOWLIST: NONE
+WEB_APP_GOOGLE_IDENTITY_ADMIN_GATE: NONE
+WEB_APP_SHARED_PASSWORD_GATE: NONE_FOR_NOW
 ADMIN_PAGE_LABEL: 管理者ページ
 ADMIN_PAGE_VISIBILITY: ALL_AUTHORIZED_WEB_APP_USERS
+INSTALLER_OPERATOR_AUTHORIZATION: PRESERVE
 ```
 
 ## Rationale
@@ -25,6 +26,7 @@ ADMIN_PAGE_VISIBILITY: ALL_AUTHORIZED_WEB_APP_USERS
 - アプリ独自の管理者アカウント、role、`adminEmails` allowlist、Google Workspace identityによるrole判定は追加しない。
 - 共通passwordによる追加gateも現時点では導入しない。将来、実利用上必要になった場合だけ別Workで検討する。
 - Web App自体のGoogle Workspace / Apps Script側アクセス境界は維持する。この決定はWeb Appを公開化したり権限範囲を広げたりするものではない。
+- editor-visible installer / deployment-security operatorは別のsecurity boundaryであり、既存のowner latch / session identity / installation configの`adminEmails`による認可を維持する。これは通常Web Appの管理者roleではない。
 
 ## Required implementation cleanup
 
@@ -49,8 +51,9 @@ ADMIN_PAGE_VISIBILITY: ALL_AUTHORIZED_WEB_APP_USERS
 - 管理者ページが通常のauthorized Web App userに表示される
 - AI設定のmutationがapp-level admin role / email allowlist / shared passwordを要求しない
 - 削除記録管理とテーマ設定も同じ利用者モデルを維持
-- production sourceにactiveな`adminEmails` gateがない
-- production sourceにactiveなshared-admin password/session gateがない
+- 通常Web Appの管理者ページcall graphにactiveな`adminEmails` gateがない
+- 通常Web Appの管理者ページcall graphにactiveなshared-admin password/session gateがない
+- editor installerの既存operator authorizationを維持
 - 管理者ページ3タブを維持
 - Work0051 / Work0052 / Work0053 regression PASS
 - `npm run check` PASS
@@ -66,5 +69,6 @@ ADMIN_PAGE_VISIBILITY: ALL_AUTHORIZED_WEB_APP_USERS
 - Workspace group / directory連携
 - Web App access scope変更
 - shared password導入
+- installer operator authorizationの再設計
 - Work0055 color UI improvement
 - Work0056 mobile overflow fix
