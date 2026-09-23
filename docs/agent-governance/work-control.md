@@ -12,6 +12,7 @@ Before substantial work, record the following in the task handoff or working pla
 | Dispatch ID | For a Codex request, `<WORK_ID>-CODEX-<NN>`; otherwise `N/A` |
 | Ball / status | Current owner and durable state under `dispatch-control.md` |
 | Mode | `BUILD`, `INCIDENT_RECOVERY`, `INVESTIGATION`, or `QUALIFICATION` |
+| Validation tier | `TIER_1_LOW`, `TIER_2_STANDARD`, or `TIER_3_HIGH`; choose the lowest tier that covers the material risk |
 | Primary outcome | The user-visible or operator-visible capability that must exist |
 | Acceptance evidence | The observable evidence that proves the outcome |
 | Evidence hierarchy | Strongest to weakest admissible evidence for this task |
@@ -30,7 +31,50 @@ Before substantial work, record the following in the task handoff or working pla
 
 A short issue-style prompt is enough when risk is low and these fields are obvious. Route B/C uses the Dispatch ID and current-ball protocol in `dispatch-control.md`.
 
-## 2. Choose one mode
+## 2. Risk-based validation tiers
+
+Validation depth follows the change, not habit. Select one tier in the Work Contract before implementation. The selected tier is the default sufficient scope, not a floor that should automatically be expanded.
+
+### TIER_1_LOW
+
+Use for changes that are local, reversible, and do not alter runtime-dependent behavior or consequential boundaries, such as documentation, copy-only changes, dead-code removal with a proven call graph, narrowly scoped CSS, or deterministic refactors.
+
+Default evidence:
+- focused tests or static checks directly covering the change;
+- diff review / `git diff --check` when applicable;
+- canonical repository check only when the changed surface is covered by it or repository policy requires it.
+
+Do not add full-browser sweeps, all historical Work regressions, deployment, source readback, or target-runtime qualification unless a concrete dependency or observed result makes one decision-relevant.
+
+### TIER_2_STANDARD
+
+Use for ordinary functional changes with bounded runtime coupling.
+
+Default evidence:
+- focused tests;
+- canonical check when applicable;
+- only the relevant integration, browser, or target-runtime smoke needed to prove the changed behavior;
+- regression checks for directly coupled accepted behavior, not every prior Work.
+
+Do not repeat unaffected viewports, pages, providers, backups, or deployment checks merely because they exist.
+
+### TIER_3_HIGH
+
+Use when the change affects a consequential boundary or cannot be established safely with narrower evidence, including permissions/security enforcement, schema or migration, destructive or production-data operations, provider/billing behavior, deployment architecture, public exposure, or similarly high-impact stateful behavior.
+
+Use the necessary broader regression and target-runtime qualification, while still excluding checks that cannot change the acceptance decision.
+
+### Escalation rule
+
+Escalate above the selected tier only when a specific new fact shows that an additional check can change acceptance, safety, integrity, cost, exposure, or reversibility. Record that reason. Do not escalate for reassurance alone.
+
+A failed required check, contradictory evidence, or newly discovered coupling may justify escalation. A passing required matrix, an unrelated historical risk, or the mere availability of another harness does not.
+
+### Stop rule
+
+When the tier's required evidence and Acceptance Evidence pass, perform one final relevant diff/consistency review and stop. Do not rerun the same matrix, add viewports/pages/providers, or reopen accepted prior Work without material contradictory evidence.
+
+## 3. Choose one mode
 
 ### BUILD
 
@@ -42,7 +86,7 @@ Default sequence:
 2. implement that slice directly in production source paths and the actual target runtime;
 3. use isolated test data/resources and guard external side effects;
 4. run focused logic validation;
-5. run a target-runtime smoke or integration readback as soon as the slice can execute;
+5. when the selected validation tier or a concrete runtime dependency requires it, run the smallest relevant target-runtime smoke or integration readback as soon as the slice can execute;
 6. fix observed incompatibilities before expanding the feature surface;
 7. enable production data, users, triggers, billing, broad exposure, or destructive effects only when separately authorized;
 8. stop when acceptance evidence passes and residuals are routed.
@@ -89,7 +133,7 @@ Use to establish readiness or evidence against a fixed matrix.
 
 A stopped matrix does not automatically block independent matrices. Record dependent checks as `NOT RUN`, not failed.
 
-## 3. Target-runtime-first development
+## 4. Target-runtime-first development
 
 ### Definitions
 
@@ -121,7 +165,7 @@ A separate DEV/Staging runtime is justified only when at least one material cond
 
 Record the reason and unique evidence. If a test folder, Spreadsheet, record prefix, isolated resource, inactive deployment, test recipient, disabled trigger, dry-run, or feature flag settles the same decision, prefer that simpler path.
 
-## 4. Decision-Impact Gate
+## 5. Decision-Impact Gate
 
 Before opening a new branch of work, answer:
 
@@ -131,7 +175,7 @@ Before opening a new branch of work, answer:
 
 If all answers are no, route the item to `FOLLOW_UP` or `OPTIONAL`.
 
-## 5. Evidence hierarchy and readiness
+## 6. Evidence hierarchy and readiness
 
 Declare evidence sources in task-specific order. A common KSP runtime hierarchy is:
 
@@ -160,7 +204,7 @@ Rules:
 - contradictory stronger evidence reopens the conclusion;
 - record what was observed, not what a tool was expected to observe.
 
-## 6. Execution budgets and loops
+## 7. Execution budgets and loops
 
 When material, state numeric limits before execution. Typical defaults:
 
@@ -170,7 +214,7 @@ When material, state numeric limits before execution. Typical defaults:
 - full validation: once after targeted checks, then again only after material change;
 - identical tool failure: no immediate blind retry.
 
-## 7. Strategy reset
+## 8. Strategy reset
 
 Trigger a strategy reset when:
 
@@ -184,7 +228,7 @@ Trigger a strategy reset when:
 
 Reset by restating the primary outcome, closed evidence, eliminated hypotheses, blocker layer, cheapest safe decisive action in the target runtime, and follow-ups. Start a fresh run when context contamination is plausible.
 
-## 8. Completion latch
+## 9. Completion latch
 
 Once primary acceptance evidence passes:
 
@@ -194,8 +238,8 @@ Once primary acceptance evidence passes:
 - complete reporting and route residual issues;
 - reopen only for material contradictory evidence, a failed required check, or explicit new scope.
 
-For runtime-dependent BUILD work, completion normally requires required logic validation and target-runtime qualification. Production data, broad rollout, billing, triggers, or destructive effects may remain disabled when outside the authorized outcome.
+For BUILD work, target-runtime qualification is required only when the accepted outcome materially depends on target APIs, permissions, persistence, rendering, deployment, or other runtime behavior. For TIER_1 work with no such dependency, record `TARGET_RUNTIME_QUALIFICATION: NOT APPLICABLE` rather than deploying solely to create evidence. Production data, broad rollout, billing, triggers, or destructive effects may remain disabled when outside the authorized outcome.
 
-## 9. Delegation
+## 10. Delegation
 
 Use a single outcome owner. Add subagents only for independent work with positive expected value, such as read-heavy exploration, independent evidence review, security review, or parallel tasks with no overlapping writes. Avoid fixed counts, duplicate root-cause brainstorming, and multiple writers on the same files.
