@@ -30,7 +30,7 @@ PATHS = {
 
 REQUIRED_TOKENS = {
     "agents": [
-        "CORE_RULES_VERSION: 2.2",
+        "CORE_RULES_VERSION: 2.3",
         "REPOSITORY_RULES_STATUS: ACTIVE",
         "target-runtime-first",
         "LOGIC_VALIDATION",
@@ -45,7 +45,7 @@ REQUIRED_TOKENS = {
         "### INCIDENT_RECOVERY",
         "### INVESTIGATION",
         "### QUALIFICATION",
-        "## 3. Target-runtime-first development",
+        "## 4. Target-runtime-first development",
         "### Separate staging decision gate",
         "LOGIC_VALIDATION",
         "TARGET_RUNTIME_QUALIFICATION",

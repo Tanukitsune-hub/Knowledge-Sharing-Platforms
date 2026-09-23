@@ -2,16 +2,16 @@
   "product": "Private Assets Intelligence",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "baaa35c3a53324b25649f79204b96bc0177ee068",
+  "source_git_commit": "3fd63b033a23fc192d1b7f2a3cbab9aad09f122e",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "b901733656a7ecb500cb352cd18ce67bc4a87af07ce48ad1f38c07af682f24b8",
-  "bundle_file_sha256": "f3185596c84ce8386cb8f1ccbe511991d9e2bfe3e0c1836da94b9f3d0d522597",
+  "bundle_payload_sha256": "d0ec39a7d1c244bd73af4b3e869888c790bfd13dec7a54eb7a970737391f2a70",
+  "bundle_file_sha256": "0566b4c08d3fb7b2c9aefcfcfa69e9eeda5b229171f167478f049ee7040e6e8e",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "ce4aafc9b472432bcb8963308664f8c7acba0db7eed73e87ab5ce0bbd2d61ee5",
   "bundle_metrics": {
-    "bytes": 1288811,
-    "characters": 1243248,
+    "bytes": 1289824,
+    "characters": 1244261,
     "lines": 19708,
     "server_source_count": 63,
     "embedded_html_count": 23
@@ -446,8 +446,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 59968,
-      "sha256": "d12aec4464d5d3dd6087776adf890bcb95708fa0a7d22d419a5ac7e76687a14d"
+      "bytes": 60981,
+      "sha256": "b868ce1424fe51990e7ec2d681c682423744e971bca55d7609edd0ec29c5b688"
     }
   ]
 }

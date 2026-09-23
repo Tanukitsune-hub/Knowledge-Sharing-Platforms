@@ -1,8 +1,8 @@
 # Private Assets Intelligence 0.1.2 installation
 
-Source commit: `baaa35c3a53324b25649f79204b96bc0177ee068`
-Bundle SHA-256: `f3185596c84ce8386cb8f1ccbe511991d9e2bfe3e0c1836da94b9f3d0d522597`
-Payload SHA-256: `b901733656a7ecb500cb352cd18ce67bc4a87af07ce48ad1f38c07af682f24b8`
+Source commit: `3fd63b033a23fc192d1b7f2a3cbab9aad09f122e`
+Bundle SHA-256: `0566b4c08d3fb7b2c9aefcfcfa69e9eeda5b229171f167478f049ee7040e6e8e`
+Payload SHA-256: `d0ec39a7d1c244bd73af4b3e869888c790bfd13dec7a54eb7a970737391f2a70`
 
 1. Create a Google Spreadsheet in the intended company Drive folder.
 2. Open Extensions -> Apps Script and add the Drive API service.

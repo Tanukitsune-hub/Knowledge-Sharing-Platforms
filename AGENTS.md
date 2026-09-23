@@ -17,11 +17,11 @@ REPOSITORY_RULES_SCHEMA_VERSION: 2.2
 ## 2. Outcome control and implementation posture
 
 - Optimize for the usable user outcome, not analysis volume, local elegance, or exhaustive issue discovery.
-- Before substantial work, establish a compact Work Contract: mode, outcome, acceptance evidence, fastest safe decisive action, scope, non-goals, authorization boundaries, and reset conditions.
+- Before substantial work, set a compact Work Contract: mode, outcome, acceptance evidence, fastest safe action, scope, non-goals, authorization boundaries, reset conditions.
 - Use one mode from `docs/agent-governance/work-control.md`: `BUILD`, `INCIDENT_RECOVERY`, `INVESTIGATION`, or `QUALIFICATION`.
-- Apply the Decision-Impact Gate: if a line of work cannot change the outcome, next action, safety, cost, integrity, or reversibility, route it to follow-up.
+- Route work to follow-up if it cannot change outcome, next action, safety, cost, integrity, or reversibility (Decision-Impact Gate).
 - For `BUILD`, default to target-runtime-first development: after a bounded preflight, implement the shortest coherent end-to-end slice in the actual target runtime or native format, using isolated test data and guarded side effects.
-- Do not create a separate staging/test runtime by habit. Require a material safety, regulatory, blast-radius, rollback, public-exposure, concurrency, cost, or platform reason.
+- A separate staging/test runtime needs a material safety, regulatory, blast-radius, rollback, exposure, concurrency, cost, or platform reason.
 - Once primary acceptance passes, latch it closed and reopen only for material contradictory evidence.
 
 ## 3. Scope, safety, and changes
@@ -36,11 +36,11 @@ REPOSITORY_RULES_SCHEMA_VERSION: 2.2
 
 ## 4. Evidence and validation
 
-- Declare the task-specific evidence hierarchy before live or ambiguous validation; stronger direct evidence overrides weaker automation or inference.
+- Before live or ambiguous validation, declare the evidence hierarchy; stronger direct evidence overrides weaker automation or inference.
 - Separate `LOGIC_VALIDATION` from `TARGET_RUNTIME_QUALIFICATION`. Unit, static, mock, contract, synthetic, or CI checks may prove logic but do not prove target APIs, permissions, functions, rendering, persistence, or runtime data shapes.
 - Runtime-dependent `READY` requires target-runtime evidence using isolated test data. A simulator/test-harness pass is not production readiness.
 - A capability present only in a test loader or harness is not evidence that it exists in production source or the target runtime.
-- Assign a validation tier under `docs/agent-governance/work-control.md` and run the smallest sufficient validation for that tier. Do not escalate to broader regression or target-runtime qualification by habit; add checks only for a concrete risk, dependency, or acceptance question that could change the decision.
+- Set the validation tier under `docs/agent-governance/work-control.md`. Run only sufficient checks; broaden for concrete risk, dependency, or acceptance questions that could change the decision.
 - Never report an unexecuted or unobserved check as passed. Separate application defects, target-runtime gaps, automation limitations, infrastructure failures, and intentionally deferred checks.
 - Classify findings as `BLOCKER`, `FOLLOW_UP`, or `OPTIONAL`; only a blocker prevents delivery.
 - Qualification preserves evidence; incident recovery prioritizes restoring use. Do not apply one mode's stop rule blindly to another.
