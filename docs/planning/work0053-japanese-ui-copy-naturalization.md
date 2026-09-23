@@ -1,11 +1,11 @@
 # Work 0053 — Japanese UI copy polish plan
 
 WORK_ID: 0053
-STATUS: PLANNED
+STATUS: ACTIVE
 MODE: BUILD
-DEPENDENCY: Work0052 ACCEPTED
-ACTIVE_DISPATCH: NONE
-BALL: NONE
+BASELINE: Work0052 version34
+ACTIVE_DISPATCH: 0053-CODEX-02
+BALL: CODEX
 
 ## Primary Outcome
 
@@ -44,3 +44,15 @@ MIGRATION_CHANGE: 0
 PERMISSION_CHANGE: 0
 WORK_0030: DEFERRED_BY_USER
 ```
+
+
+## Baseline reconciliation
+
+The old stacked PR #75 was produced before Work0051/0052 reached accepted version34.
+Do not merge it directly.
+
+Reconcile only the Work0053 semantic copy/brand changes onto latest main, preserving all accepted Work0051/0052 source and regenerated artifacts.
+
+Keep the visible `管理者ページ` label. Do not implement Work0054 in this Work.
+
+Known Entity Workspace 390px overflow is Work0056 follow-up; Work0053 may not worsen it.
