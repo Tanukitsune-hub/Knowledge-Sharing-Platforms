@@ -1,4 +1,4 @@
-const { test, assert, fs, path, ksp, plain, baseContext, attachSharedAdminAuth } = require('./ai-test-helpers.cjs');
+const { test, assert, fs, path, ksp, plain, baseContext } = require('./ai-test-helpers.cjs');
 
 function mutateAdmin(environment, input) {
   return ksp.kspMutateAiProviderSettings_(environment, input || {});
@@ -6,7 +6,7 @@ function mutateAdmin(environment, input) {
 
 function makeAdminEnvironment(options = {}) {
   const context = baseContext();
-  context.state = { config: { adminEmails: ['admin@example.com'] }, resources: {} };
+  context.state = { resources: {} };
   context.settings = {
     ...context.settings,
     OPENAI_ENABLED: options.enabled ? 'true' : 'false',
@@ -40,7 +40,6 @@ function makeAdminEnvironment(options = {}) {
         if (!(row.Key in context.settings)) context.settings[row.Key] = row.Value;
       });
     },
-    isAdministrator() { return options.admin !== false; },
     isOpenAiCredentialConfigured() { return credentialConfigured; },
     saveOpenAiApiKey() { savedKeys.push(true); credentialConfigured = true; },
     isGeminiCredentialConfigured() { return geminiCredentialConfigured; },
@@ -107,7 +106,7 @@ function makeAdminEnvironment(options = {}) {
     _debug: { context, writes, created, read, deleted, syncCalls, savedKeys, savedGeminiKeys,
       connectionUploads, connectionQueries, connectionDeletes }
   };
-  return attachSharedAdminAuth(environment);
+  return environment;
 }
 
 function withSyncStub(callback) {
@@ -172,7 +171,7 @@ function geminiGenerateContentQualificationResponse(contentHash, options = {}) {
 
 function makeGeminiQualificationEnvironment(sequence = []) {
   const context = baseContext();
-  context.state = { config: { adminEmails: ['admin@example.com'] }, resources: {} };
+  context.state = { resources: {} };
   context.pitchbookRows[0] = { ...context.pitchbookRows[0], Document_ID: 'DOC-000017',
     File_URL: 'https://drive.test/doc-17', Status: 'Active' };
   const bytes = Array.from(Buffer.from('CODEX18_SYNTH_PITCHBOOK_20260830', 'utf8'));
@@ -214,7 +213,6 @@ function makeGeminiQualificationEnvironment(sequence = []) {
         if (!(row.Key in context.settings)) context.settings[row.Key] = row.Value;
       });
     },
-    isAdministrator() { return true; },
     isGeminiCredentialConfigured() { return true; },
     readPitchbookSource() { return { mimeType: 'text/plain', bytes }; },
     hashBytes(value) { return ksp.kspAiHashBytesFallback_(value); },
@@ -244,7 +242,7 @@ function makeGeminiQualificationEnvironment(sequence = []) {
     },
     _debug: { context, calls, writes, contentHash, profile }
   };
-  return attachSharedAdminAuth(env);
+  return env;
 }
 
 function runGeminiQualification(env, transport = 'INTERACTIONS') {
@@ -264,7 +262,7 @@ test('OpenAI key absence fails safely and leaves the provider disabled', () => {
 });
 
 test('Gemini credential and Store administration is boolean-only inside the owner-only deployment', () => {
-  const ownerOnly = makeAdminEnvironment({ admin: false, geminiKey: false,
+  const ownerOnly = makeAdminEnvironment({ geminiKey: false,
     geminiStore: 'fileSearchStores/private-store' });
   const directResult = plain(ksp.kspMutateAiProviderSettings_(ownerOnly, {
     action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
