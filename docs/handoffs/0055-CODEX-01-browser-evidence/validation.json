@@ -1,0 +1,32 @@
+{
+  "classification": "SYNTHETIC_RENDER_ONLY",
+  "result": "PASS",
+  "browser": "151.0.7922.34",
+  "viewports": [
+    1440,
+    390
+  ],
+  "rainbowTrack": true,
+  "indicatorMoved": true,
+  "hueAfterPointer": 180,
+  "swatch": {
+    "width": 116,
+    "height": 58
+  },
+  "mobile": {
+    "overflowPx": 0,
+    "hueWidth": 302,
+    "swatchWidth": 116,
+    "swatchHeight": 58
+  },
+  "previewRpcCount": 0,
+  "saveRpcCount": 1,
+  "pageErrors": [],
+  "consoleErrors": [],
+  "blockedRequests": [],
+  "sourceHashes": {
+    "Styles.html": "b868ce1424fe51990e7ec2d681c682423744e971bca55d7609edd0ec29c5b688",
+    "AiProviderSettingsPage.html": "5abe0a7bf65a33b0c3c28e1bae784c98fd86d9920193909e56bc9521847e321c",
+    "ClientThemeSettings.html": "45ba9e3d00837561b5e071a57bdb0790b96c1b6900575cd41b98297a27797fd2"
+  }
+}
