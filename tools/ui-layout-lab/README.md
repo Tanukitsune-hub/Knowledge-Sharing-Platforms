@@ -1,6 +1,6 @@
 # UI Layout Lab
 
-Knowledge Sharing Platformsの「記録を追加」画面を、productionから完全に分離して調整するlocal-only static toolです。
+Private Assets Intelligenceの「記録を追加」画面を、productionから完全に分離して調整するlocal-only static toolです。
 
 ## 起動
 
