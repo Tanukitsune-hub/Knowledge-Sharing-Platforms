@@ -1,7 +1,7 @@
 # Work 0065 — target runtime release
 
 WORK_ID: 0065
-STATUS: READY
+STATUS: ACCEPTED
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
 
@@ -147,3 +147,15 @@ RELEASE_SOURCE: accepted main after Work0064
 ```
 
 runtimeへ反映するproduction sourceは上記accepted mainに固定する。release branch上のhandoff/report変更はruntime source scopeではない。
+
+## Final Acceptance
+
+ChatGPT final review: PASS。
+
+```text
+FINAL_SERVED_VERSION: 36
+TARGET_RUNTIME_QUALIFICATION: PASS
+WORK_0065_COMPLETE: YES
+COMPLETION_LATCH: APPLIED
+BLOCKER: NONE
+```
