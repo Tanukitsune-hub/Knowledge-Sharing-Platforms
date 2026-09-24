@@ -43,11 +43,11 @@
       <fieldset id="meeting-edit-fieldset" disabled>
       <input id="meeting-edit-meetingId" type="hidden"><input id="meeting-edit-expectedVersion" type="hidden">
       <div class="grid meeting-edit-grid">
-        <div class="field meeting-edit-date-field"><label class="required" for="meeting-edit-date">日付</label><input id="meeting-edit-date" type="date" required></div>
+        <div class="field meeting-edit-date-field"><label class="required" for="meeting-edit-date">日付</label><input id="meeting-edit-date" type="date" required><span id="meeting-edit-date-error" class="meeting-field-error" hidden>日付を入力してください。</span></div>
         <div class="field meeting-edit-time-field"><label for="meeting-edit-time">時間</label><input id="meeting-edit-time" type="time"></div>
         <div class="field meeting-edit-location-field"><label for="meeting-edit-locationId">面談場所</label><select id="meeting-edit-locationId"><option value="">未選択</option></select></div>
-        <div class="field meeting-edit-counterparty-field"><label class="required" for="meeting-edit-counterpartyId">面談先</label><select id="meeting-edit-counterpartyId" required><option value="">未選択</option></select></div>
-        <div class="field meeting-edit-asset-field"><label class="required" for="meeting-edit-assetClassId">アセットクラス</label><select id="meeting-edit-assetClassId" required><option value="">未選択</option></select></div>
+        <div class="field meeting-edit-counterparty-field"><label class="required" for="meeting-edit-counterpartyId">面談先</label><select id="meeting-edit-counterpartyId" required><option value="">未選択</option></select><span id="meeting-edit-counterpartyId-error" class="meeting-field-error" hidden>面談先を選択してください。</span></div>
+        <div class="field meeting-edit-asset-field"><label class="required" for="meeting-edit-assetClassId">アセットクラス</label><select id="meeting-edit-assetClassId" required><option value="">未選択</option></select><span id="meeting-edit-assetClassId-error" class="meeting-field-error" hidden>アセットクラスを選択してください。</span></div>
         <div class="field maintenance-backend-field" hidden aria-hidden="true"><label for="meeting-edit-capitalTypeId">Equity / Debt</label><select id="meeting-edit-capitalTypeId"><option value="">未選択</option></select></div>
         <div class="field meeting-edit-team-field"><label for="meeting-edit-teamId">チーム</label><select id="meeting-edit-teamId"><option value="">未選択</option></select></div>
         <div class="field meeting-edit-fund-field"><label for="meeting-edit-fundStrategy">Fund / Strategy</label><input id="meeting-edit-fundStrategy" maxlength="500"></div>
