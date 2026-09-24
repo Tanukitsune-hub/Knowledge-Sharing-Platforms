@@ -1,7 +1,7 @@
 # Work 0065 — target runtime release
 
 WORK_ID: 0065
-STATUS: ACTION_REQUIRED
+STATUS: READY
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
 
@@ -11,7 +11,10 @@ Work0060–0064でacceptedとなったUX改善を、既存の同一owner-control
 
 ## User Approval Gate
 
-このWorkは実利用Web Appのdeployment updateを伴うため、Codex dispatch開始前にユーザーの明示承認を必須とする。
+2026-09-24、ユーザーが「0065を進めて」と明示承認した。deployment updateを伴うCodex dispatch開始条件を満たした。
+
+APPROVAL_STATE: GRANTED
+APPROVED_DISPATCH: 0065-CODEX-01
 
 承認前に行ってよいこと:
 - GitHub上のrelease plan / handoff準備
@@ -135,3 +138,12 @@ target runtimeで安全に再現できないmutation系acceptanceは、既存acc
 - BLOCKER NONE
 - runtime reportをGitHubへ記録
 - ChatGPT final review後にCompletion Latch
+
+## Release Source Pin
+
+```text
+RELEASE_SOURCE_COMMIT: ff953fe0bd2a79d108ad2e981700c947e6bb07ad
+RELEASE_SOURCE: accepted main after Work0064
+```
+
+runtimeへ反映するproduction sourceは上記accepted mainに固定する。release branch上のhandoff/report変更はruntime source scopeではない。
