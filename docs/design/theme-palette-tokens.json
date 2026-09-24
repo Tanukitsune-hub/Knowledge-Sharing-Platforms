@@ -1,11 +1,11 @@
 {
-  "registry_version": 2,
+  "registry_version": 3,
   "theme_id": "executive-navy-slate",
   "theme_name_ja": "エグゼクティブ・ネイビー・スレート",
-  "status": "ACCEPTED_DEFAULT_WORK0044",
+  "status": "WORK0064_REVIEW_CANDIDATE",
   "source_work_id": "0044",
   "source_served_version": 25,
-  "note": "Work0044でユーザーが実画面確認して確定した配色。Work0045以降のruntime theme設定の公式デフォルト。",
+  "note": "Work0044の既定paletteを基礎とし、Work0064でtext.secondaryのみcontrastを補正したreview candidate。persisted custom paletteは変更しない。",
   "explicit_user_locks": {
     "sidebar.background": "#2D3E49"
   },
@@ -84,8 +84,8 @@
       "key": "text.secondary",
       "label_ja": "Text 補助文字",
       "color_name": "Muted Slate",
-      "hex": "#6B7E8A",
-      "status": "ACCEPTED_DEFAULT"
+      "hex": "#5A6D79",
+      "status": "WORK0064_REVIEW_CANDIDATE"
     },
     {
       "key": "action.primary",

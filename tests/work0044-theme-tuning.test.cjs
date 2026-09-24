@@ -25,7 +25,7 @@ test('right-pane tokens form a cool executive slate hierarchy', () => {
     '--rp-page:#e7edf2', '--rp-surface:#f8fafb', '--rp-surface-soft:#eef3f6',
     '--rp-header:#cdd9e2', '--rp-header-strong:#becdd8', '--rp-border:#bbc9d3',
     '--rp-border-strong:#a3b5c1', '--rp-ink:#263b49', '--rp-ink-soft:#4a6170',
-    '--rp-muted:#6b7e8a', '--rp-blue:#405f72', '--rp-blue-dark:#2f4b5d',
+    '--rp-muted:#5a6d79', '--rp-blue:#405f72', '--rp-blue-dark:#2f4b5d',
     '--rp-blue-soft:#dce6ec', '--rp-focus:#6c8798'
   ]) assert.ok(work42.includes(token), token);
 

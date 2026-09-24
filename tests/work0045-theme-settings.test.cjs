@@ -41,7 +41,7 @@ function fakeEnvironment(initial = '') {
   };
 }
 
-test('source defaults are the exact 16 accepted Work0044 registry values', () => {
+test('source defaults match the current 16-token registry and static CSS fallback', () => {
   const theme = loadTheme();
   const defaults = plain(theme.kspThemeDefaultPalette_());
   assert.equal(Object.keys(defaults).length, 16);
