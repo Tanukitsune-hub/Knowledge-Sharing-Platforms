@@ -3,8 +3,8 @@
 WORK_ID: 0060
 DISPATCH_ID: 0060-CODEX-01
 ACTIVE_DISPATCH_ID: 0060-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: UNSAVED EDIT PROTECTION
@@ -42,7 +42,7 @@ branch: `work/0060-unsaved-edit-protection`
 Draft PRを使用。
 report: `docs/handoffs/0060-CODEX-01-unsaved-edit-protection-report.md`
 
-ChatGPT final reviewまでACCEPTED / Completion Latchは適用しない。
+CODEX-01は実装・local validation結果を`0060-CODEX-01-unsaved-edit-protection-report.md`に記録して返却した。ChatGPT final reviewまでACCEPTED / Completion Latchは適用しない。
 
 ```text
 NEXT_UNUSED_DISPATCH: 0060-CODEX-02
@@ -52,5 +52,5 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0060
 DISPATCH_ID: 0060-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
