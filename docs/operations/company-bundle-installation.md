@@ -1,6 +1,8 @@
 # Company installation of Private Assets Intelligence
 
-Status: Target operator flow for Work `0023`; implementation and screenshots pending
+Current as of: 2026-09-24
+
+Status: Active company installation flow
 
 Audience: non-specialist company administrator
 
@@ -116,12 +118,16 @@ In Apps Script:
 デプロイ -> 新しいデプロイ -> ウェブアプリ
 ```
 
-Use the company-approved settings. The expected default is:
+Use the company-approved settings.
+
+For the **initial company-environment pilot**, use the same restricted boundary accepted in Work0065:
 
 ```text
-Execute as: deploying administrator
-Access: company/domain users only
+Execute as: deploying administrator / self
+Access: self only
 ```
+
+Do not broaden access to company/domain users as part of the pilot. Sharing with colleagues is a separate rollout decision and should be authorized after the pilot is accepted.
 
 Do not select public/anonymous access unless separately authorized.
 
@@ -129,12 +135,14 @@ Copy the resulting Web App URL.
 
 ### 9. Confirm final readiness
 
-Before reporting or sharing the Web App as ready, manually re-open the deployment settings and verify both:
+Before reporting the pilot Web App as ready, manually re-open the deployment settings and verify both:
 
 ```text
-Execute as: deploying administrator
-Access: approved company/domain users only
+Execute as: deploying administrator / self
+Access: self only
 ```
+
+If a later approved rollout broadens access, re-verify the new approved audience and re-attest.
 
 Then run the guarded administrator attestation:
 
