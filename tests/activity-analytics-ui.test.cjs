@@ -47,3 +47,10 @@ test('Activity Analytics filter option keys match the server response contract',
   assert.doesNotMatch(client, /activity-filter-counterpartyType|\['counterpartyTypes'/);
   assert.match(client, /counterpartyType:''/);
 });
+
+test('Activity Analytics starts a normal aggregation only from the 集計 button', () => {
+  assert.match(client, /el\('activity-analytics-refresh'\)\.onclick=event=>loadActivityAnalytics\(event\.currentTarget\)/);
+  assert.match(client, /el\('nav-activity-analytics'\)\.onclick=\(\)=>\{showPage\('activity-analytics'\);selectActivityView\(activityActiveView\)\}/);
+  assert.doesNotMatch(client, /if\(!activityAnalyticsLoaded\)loadActivityAnalytics\(\)/);
+  assert.doesNotMatch(client, /addEventListener\('change',\(\)=>\{if\(activityAnalyticsLoaded\)loadActivityAnalytics\(\)\}/);
+});
