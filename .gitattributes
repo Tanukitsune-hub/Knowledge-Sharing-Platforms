@@ -1,0 +1,7 @@
+dist/KnowledgeShare.bundle.gs text eol=lf
+dist/appsscript.json text eol=lf
+dist/release-manifest.json text eol=lf
+dist/INSTALL.md text eol=lf
+dist/Private_Assets_Intelligence_KnowledgeShare_bundle_v0.1.2.txt text eol=lf
+dist/company-multifile/* text eol=lf
+dist/company-multifile/* whitespace=-blank-at-eof
