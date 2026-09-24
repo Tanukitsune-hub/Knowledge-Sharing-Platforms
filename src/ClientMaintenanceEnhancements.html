@@ -179,10 +179,12 @@ function renderMeetingDetail(record){
   el('meeting-detail-files').innerHTML=[...known.values()].map(item=>{const linked=(record.relatedPitchbookIds||[]).includes(item.id);return'<div class="file-row"><div><strong>'+escapeHtml(item.title||item.id)+'</strong><div class="hint">'+escapeHtml(item.id)+' / '+escapeHtml(item.status||'状態未確認')+' / '+(linked?'関連あり':'この記録から解除済み')+'</div></div><button class="small-button" data-detail-file-open="'+escapeHtml(item.id)+'">原本</button><div class="row-actions"><button class="small-button" data-detail-classify="'+escapeHtml(item.id)+'">分類を編集</button><button class="small-button" data-detail-relation="'+escapeHtml(item.id)+'" data-operation="'+(linked?'remove':'add')+'"'+(record.status!=='Active'?' disabled':'')+'>'+(linked?'削除':'削除を取り消す')+'</button></div></div>'}).join('')||'<p class="hint">関連資料はありません。</p>';
   el('meeting-detail-empty').hidden=true;el('meeting-detail-content').hidden=false;el('meeting-detail-related-empty').hidden=true;el('meeting-detail-related-content').hidden=false;el('meeting-detail-close').disabled=false;
 }
-function resetMeetingDetailSelection(){
+function resetMeetingDetailSelection(force){
+  if(force!==true&&(meetingEditBusy||!confirmMeetingEditDiscard()))return false;
   meetingDetailRequest+=1;meetingDetailRecord=null;el('meeting-detail-identity').textContent='';el('meeting-detail-empty').hidden=false;el('meeting-detail-content').hidden=true;el('meeting-detail-related-empty').hidden=false;el('meeting-detail-related-content').hidden=true;el('meeting-detail-close').disabled=true;el('meeting-detail-card').setAttribute('aria-busy','false');clearStatus('meeting-detail-status');
   if(el('meeting-file-panel')&&el('meeting-file-home'))el('meeting-file-home').appendChild(el('meeting-file-panel'));if(el('meeting-file-actions')&&el('meeting-file-actions-home'))el('meeting-file-actions-home').appendChild(el('meeting-file-actions'));
   resetMeetingEditState();
+  return true;
 }
 async function openMeetingDetail(meetingId,trigger,internalRefresh){
   if(meetingDetailReadBusy||(!internalRefresh&&meetingDetailBusy))return false;
@@ -204,13 +206,13 @@ async function changeDetailRelation(documentId,operation,trigger){
   finally{meetingDetailBusy=false;kspSetRegionBusy(el('meeting-detail-card'),false);if(trigger&&trigger.isConnected)kspSetActionBusy(trigger,false)}
 }
 el('meeting-past-results').addEventListener('click',event=>{const button=event.target.closest('[data-meeting-detail]');if(button)openMeetingDetail(button.dataset.meetingDetail,button)});
-el('meeting-detail-close').onclick=resetMeetingDetailSelection;
+el('meeting-detail-close').onclick=()=>resetMeetingDetailSelection();
 el('meeting-detail-edit').onclick=event=>{if(meetingDetailRecord)openMeetingEdit(meetingDetailRecord.meetingId,event.currentTarget)};
 el('meeting-detail-lifecycle').onclick=async()=>{
   if(meetingDetailBusy||pitchbookBusy||!meetingDetailRecord)return;
-  const record=meetingDetailRecord;if(record.status!=='Active'||!confirm('この記録を削除します。記録本体は完全には削除されず、管理者ページから復元できます。'))return;
+  const record=meetingDetailRecord;if(record.status!=='Active'||!confirm('この記録を削除します。記録本体は完全には削除されず、管理者ページから復元できます。'+(meetingEditIsDirty()?' 未保存の面談編集内容も破棄されます。':'')))return;
   meetingDetailBusy=true;kspSetActionBusy(el('meeting-detail-lifecycle'),true,'削除中…');kspSetRegionBusy(el('meeting-detail-card'),true);showStatus('meeting-detail-status','info busy','削除中…');
-  try{const result=await serverCall('changeMeetingStatus',{meetingId:record.meetingId,expectedVersion:record.version,targetStatus:'Inactive'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'削除できません。');resetMeetingDetailSelection();await searchMeetings()}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}finally{meetingDetailBusy=false;kspSetActionBusy(el('meeting-detail-lifecycle'),false);kspSetRegionBusy(el('meeting-detail-card'),false);if(meetingDetailRecord)el('meeting-detail-lifecycle').disabled=false}
+  try{const result=await serverCall('changeMeetingStatus',{meetingId:record.meetingId,expectedVersion:record.version,targetStatus:'Inactive'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'削除できません。');resetMeetingDetailSelection(true);await searchMeetings()}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}finally{meetingDetailBusy=false;kspSetActionBusy(el('meeting-detail-lifecycle'),false);kspSetRegionBusy(el('meeting-detail-card'),false);if(meetingDetailRecord)el('meeting-detail-lifecycle').disabled=false}
 };
 el('meeting-detail-add-files').onclick=()=>{
   if(pitchbookBusy||meetingDetailBusy||!meetingDetailRecord)return;
