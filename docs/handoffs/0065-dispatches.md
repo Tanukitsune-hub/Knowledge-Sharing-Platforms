@@ -3,11 +3,11 @@
 WORK_ID: 0065
 DISPATCH_ID: 0065-CODEX-01
 ACTIVE_DISPATCH_ID: 0065-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
-PHASE: TARGET RUNTIME RELEASE
+PHASE: CHATGPT FINAL REVIEW
 
 ## Primary Outcome
 
@@ -21,7 +21,10 @@ Work0060–0064のaccepted mainを既存owner-controlled Web Appへ1回だけ反
 - Work0063: ACCEPTED / merged
 - Work0064: ACCEPTED / merged
 - current mainに5改善が揃っている
-- runtime deployment updateはまだ未実施
+- pinned accepted source `ff953fe0bd2a79d108ad2e981700c947e6bb07ad`を既存Web Appへ反映済み
+- 既存deploymentはversion 35からversion 36へ更新済み。変更面限定のtarget-runtime qualificationはPASS
+- new deployment、permission change、provider call、business-data mutationは各0
+- ChatGPT final review待ち。Work0065のACCEPTED / Completion Latchは未適用
 
 ## Approval Gate
 
@@ -42,7 +45,7 @@ EXISTING_DEPLOYMENT_UPDATE_MAX: 1
 NEW_DEPLOYMENT: 0
 PERMISSION_CHANGE: 0
 PROVIDER_CALL: 0
-BUSINESS_DATA_MUTATION: 0 (原則)
+BUSINESS_DATA_MUTATION: 0
 FULL_REGRESSION: NO
 ```
 
@@ -60,17 +63,17 @@ COMPLETION_LATCH: NOT_APPLIED
 
 WORK_ID: 0065
 DISPATCH_ID: 0065-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 ## Active Dispatch
 
 instruction: `docs/handoffs/0065-CODEX-01-target-runtime-release-instruction.md`
 report: `docs/handoffs/0065-CODEX-01-target-runtime-release-report.md`
 
-Codexは1回のsource sync / version create / existing deployment update上限で実行する。target/deploymentのprivate ID・URLはGitHubやchatへ記録しない。served version、access boundary、実行結果はprivate identifierを除いた形でreportする。
+Codexはsource sync / version create / existing deployment updateを各1回で完了した。served version、access boundary、変更面限定matrixの結果はprivate identifierを除いてreportへ記録した。次はChatGPT final review。
 
 WORK_ID: 0065
 DISPATCH_ID: 0065-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
