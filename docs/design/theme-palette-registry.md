@@ -1,11 +1,11 @@
 # Theme Palette Registry
 
-Status: ACCEPTED_DEFAULT_WORK0044  
-Theme: Executive Navy Slate  
-Registry version: 2  
-Source: Work0044 / served version25
+- Status: ACCEPTED
+- Theme: Executive Navy Slate
+- Registry version: 3
+- Source: Work0044 / served version25、text.secondary補正: Work0064
 
-このファイルはWork IDから独立した配色の正本です。Work0044でユーザーが実画面確認して確定したpaletteを、今後の既定Themeとして保持します。
+このファイルはWork IDから独立した配色の正本です。Work0044でユーザーが実画面確認したpaletteを基礎とし、Work0064で補助文字のみcontrast基準に合わせて補正し、ChatGPT final reviewでaccepted defaultとして確定した。
 
 Machine-readable source:
 - `docs/design/theme-palette-tokens.json`
@@ -14,12 +14,12 @@ Machine-readable source:
 
 - layout / DOM / functionalityとは分離して管理する。
 - 色だけを調整するWorkでは、このregistryを最初に参照する。
-- Work0045以降のruntime theme設定では、このWork0044確定値を「既定の配色」とする。
+- runtime theme設定では、このregistryの値を「既定の配色」とする。保存済みcustom paletteは変更しない。
 - hover / focus / soft background等はderived tokenとして扱い、利用者向けの基本設定項目を増やしすぎない。
 - semantic success / warning / errorは意味識別を維持する。
 - theme overrideが存在しない場合は必ずこの既定値へ戻る。
 
-## 基本16項目 — Work0044 accepted default
+## 基本16項目 — Work0044 baseline + Work0064補正
 
 | # | 区分 | 設定項目 | 色名 | Color Code |
 |---:|---|---|---|---|
@@ -33,7 +33,7 @@ Machine-readable source:
 | 8 | Main | Section見出し背景 | Executive Slate Header | `#CDD9E2` |
 | 9 | Main | Border | Cool Steel Border | `#BBC9D3` |
 | 10 | Text | メイン文字 | Executive Ink | `#263B49` |
-| 11 | Text | 補助文字 | Muted Slate | `#6B7E8A` |
+| 11 | Text | 補助文字 | Muted Slate | `#5A6D79` |
 | 12 | Action | Primary button | Executive Steel Blue | `#405F72` |
 | 13 | Action | Secondary button | Pale Slate Blue | `#DCE5EB` |
 | 14 | State | Success | Institutional Green | `#1F7A52` |

@@ -2,16 +2,16 @@
   "product": "Private Assets Intelligence",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "b9abea5055216eb14a5799937bacbaa53e1ed1e1",
+  "source_git_commit": "d12857ffecab73d2f2b36725a63cf10f585a883a",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "b09143421247a89cb82139ee8aa5f11310ffe5ccce4d48e79b3a51a0f15def83",
-  "bundle_file_sha256": "4dfdd5f58267570a3ff95a441889278ed548245820acb034e3f5983f6145a7d3",
+  "bundle_payload_sha256": "327c324ff57035bf92ee9160d1bf872941892e51d4aa9a0b5da88e17732acb06",
+  "bundle_file_sha256": "48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "ce4aafc9b472432bcb8963308664f8c7acba0db7eed73e87ab5ce0bbd2d61ee5",
   "bundle_metrics": {
-    "bytes": 1300157,
-    "characters": 1253986,
+    "bytes": 1300560,
+    "characters": 1254351,
     "lines": 19708,
     "server_source_count": 63,
     "embedded_html_count": 23
@@ -305,7 +305,7 @@
     {
       "file": "src/166_ThemeSettings.gs",
       "bytes": 15204,
-      "sha256": "9452318942e2c1e5edb4af6b0a3e86bbf8810efcd9e6b7563df323e1a527fa3a"
+      "sha256": "6fe3189f3d87f5fb26490cc0adcb3a63c37d6f7c14bfc0ec2074f60d04941d8a"
     },
     {
       "file": "src/170_AiEntryPoints.gs",
@@ -406,8 +406,8 @@
     },
     {
       "file": "src/ClientThemeSettings.html",
-      "bytes": 18959,
-      "sha256": "7c067898ce8f068a552510168b9f7f5efd300487bd26106443cb731763da40cf"
+      "bytes": 19358,
+      "sha256": "f9ce6c76fc99af1ac4730a9425f857c357b9071ee9c4803fe4ab4fd639a790ab"
     },
     {
       "file": "src/DeploymentSecurityOperator.html",
@@ -447,7 +447,7 @@
     {
       "file": "src/Styles.html",
       "bytes": 61274,
-      "sha256": "013e67fa223fb2bd082654009d8339ecc6ad06144a0565870be3b91edb265e06"
+      "sha256": "0d9f0fe8fa38c720bb959c6f5189a2bb4c74f9362228ca502256cf071de14fa8"
     }
   ]
 }

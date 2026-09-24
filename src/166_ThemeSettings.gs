@@ -12,7 +12,7 @@ var KSP_THEME_TOKEN_DEFINITIONS = Object.freeze([
   { key: 'main.sectionHeader', group: 'Main', label: 'Main Section見出し背景', colorName: 'Executive Slate Header', cssVariable: '--theme-main-section-header', defaultHex: '#CDD9E2' },
   { key: 'main.border', group: 'Main', label: 'Main Border', colorName: 'Cool Steel Border', cssVariable: '--theme-main-border', defaultHex: '#BBC9D3' },
   { key: 'text.primary', group: 'Text', label: 'Text メイン文字', colorName: 'Executive Ink', cssVariable: '--theme-text-primary', defaultHex: '#263B49' },
-  { key: 'text.secondary', group: 'Text', label: 'Text 補助文字', colorName: 'Muted Slate', cssVariable: '--theme-text-secondary', defaultHex: '#6B7E8A' },
+  { key: 'text.secondary', group: 'Text', label: 'Text 補助文字', colorName: 'Muted Slate', cssVariable: '--theme-text-secondary', defaultHex: '#5A6D79' },
   { key: 'action.primary', group: 'Action', label: 'Action Primary button', colorName: 'Executive Steel Blue', cssVariable: '--theme-action-primary', defaultHex: '#405F72' },
   { key: 'action.secondary', group: 'Action', label: 'Action Secondary button', colorName: 'Pale Slate Blue', cssVariable: '--theme-action-secondary', defaultHex: '#DCE5EB' },
   { key: 'state.success', group: 'State', label: 'State Success', colorName: 'Institutional Green', cssVariable: '--theme-state-success', defaultHex: '#1F7A52' },

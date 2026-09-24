@@ -128,14 +128,18 @@ function themeSettingsContrastRatio(left,right){
 }
 function themeSettingsRenderContrast(){
   const palette=themeSettingsDraft;
+  const softSurface=themeSettingsCssVariables(palette)['--theme-main-surface-soft'];
   const pairs=[
-    ['Sidebar 文字 / 背景','sidebar.text','sidebar.background'],
-    ['メイン文字 / ページ背景','text.primary','main.pageBackground'],
-    ['メイン文字 / Card背景','text.primary','main.cardBackground'],
-    ['メイン文字 / Section見出し','text.primary','main.sectionHeader'],
-    ['白文字 / Primary button',null,'action.primary']
+    ['Sidebar 文字 / 背景',palette['sidebar.text'],palette['sidebar.background']],
+    ['メイン文字 / ページ背景',palette['text.primary'],palette['main.pageBackground']],
+    ['メイン文字 / Card背景',palette['text.primary'],palette['main.cardBackground']],
+    ['メイン文字 / Section見出し',palette['text.primary'],palette['main.sectionHeader']],
+    ['補助文字 / ページ背景',palette['text.secondary'],palette['main.pageBackground']],
+    ['補助文字 / Card背景',palette['text.secondary'],palette['main.cardBackground']],
+    ['補助文字 / soft surface',palette['text.secondary'],softSurface],
+    ['白文字 / Primary button','#FFFFFF',palette['action.primary']]
   ];
-  const warnings=pairs.map(pair=>({label:pair[0],ratio:themeSettingsContrastRatio(pair[1]?palette[pair[1]]:'#FFFFFF',palette[pair[2]])})).filter(item=>item.ratio<4.5);
+  const warnings=pairs.map(pair=>({label:pair[0],ratio:themeSettingsContrastRatio(pair[1],pair[2])})).filter(item=>item.ratio<4.5);
   if(warnings.length){showStatus('theme-contrast-warning','warning','コントラスト注意: '+warnings.map(item=>item.label+' '+item.ratio.toFixed(2)+':1').join(' / '))}
   else clearStatus('theme-contrast-warning');
 }
