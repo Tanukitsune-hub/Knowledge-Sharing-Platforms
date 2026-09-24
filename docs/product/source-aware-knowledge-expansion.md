@@ -84,6 +84,37 @@ Meeting / Memo、Pitchbook、内部評価、Newsは、それぞれ専用の登�
 
 この構造により、面談時はその場で関連資料も保存でき、面談と無関係に蓄積したい資料は `資料保存` から登録できる。
 
+### 共通アップロード形式
+
+利用者向けのすべてのファイルアップローダーは、対応拡張子を共通仕様にする。
+
+対象:
+
+- 面談メモ内の関連資料アップロード
+- `資料保存`
+- `ニュース`
+- `内部評価`
+- 将来追加される同種のKnowledge Source uploader
+
+共通の初期allowlist:
+
+```text
+.pdf
+.pptx
+.xlsx
+.docx
+.txt
+.eml
+```
+
+原則:
+
+- extension allowlistとMIME/format validationは一つのshared contract / shared constantを正本にし、各画面で個別定義しない。
+- uploaderごとの表示文言も同じformat contractから生成・同期できる設計を優先する。
+- ある拡張子を追加・削除する場合は、原則として全upload surfaceへ同時に反映する。
+- file size、file count、total size等のlimitまで必ず同一にするとは現時点で決めない。共通化できる場合は共通化するが、source-specificな制約が必要ならimplementation Workで明示する。
+- provider側で特定formatに制約がある場合でもauthoritative Workspace保存とAI index可否は分け、unsupported provider statusを明示する。
+
 ### 検索基盤は共通化する
 
 UIと保存contractはsource typeごとに分ける一方、AI retrievalはprovider-neutralなCanonical Knowledge Sourceへ正規化する。
@@ -134,16 +165,37 @@ EntityをKnowledgeの主要な横断軸とする。
 
 ## News direction
 
-Newsは自動ニュース収集を初期目的にしない。
+Newsは自動ニュース収集を初期目的にしない。利用者が「残す価値がある」と判断した記事をhuman-curatedで登録する。
 
-初期方向:
+Newsは2つの登録経路を持つ方向とする。
 
-1. 利用者が「残す価値がある」と判断したニュースを選ぶ。
-2. タイトル、公開日、媒体、URL等を入力する。
-3. 本文を貼り付ける。
-4. 1〜複数Entity、必要に応じAsset Class / Fund / Strategyへ紐付ける。
-5. authoritative contentをGoogle Workspaceに保存する。
-6. AI利用が許可されたsourceだけderived File Searchへindexする。
+1. **直接入力**
+   - タイトル、公開日、媒体、URL等を入力する。
+   - 記事本文を直接貼り付ける。
+   - 保存時にGoogle Docs等のauthoritative sourceを作成する方向とする。
+
+2. **ファイルアップロード**
+   - PDF化された記事、Word、text file等をそのまま登録できる。
+   - 対応拡張子は全upload surface共通のformat contractに従う。
+   - authoritative sourceはアップロードした原本ファイルとする。
+   - Drive保存・format handling・AI indexの基盤は既存の共通upload/indexing機構を最大限再利用する。
+
+どちらの経路でも同じNews Source Type・stable ID・metadata contractへ正規化する。
+
+共通metadataの候補:
+
+```text
+published_date
+publisher
+title
+url
+entity_keys
+asset_class
+fund_strategy
+authoritative_file_id
+```
+
+登録後は1〜複数Entity、必要に応じAsset Class / Fund / Strategyへ紐付ける。AI利用が許可されたsourceだけderived File Searchへindexする。
 
 Newsは `EXTERNAL_NEWS` provenanceを持ち、Meetingや内部評価の内容と混同しない。
 
@@ -169,11 +221,10 @@ Newsは `EXTERNAL_NEWS` provenanceを持ち、Meetingや内部評価の内容と
 内部評価は2つの登録経路を持つ方向とする。
 
 1. **ファイルアップロード**
-   - Pitchbookと同じbounded format matrixを基本とする。
-   - 初期対象: `.pdf` / `.pptx` / `.xlsx` / `.docx` / `.txt` / `.eml`
-   - Wordやtextを含め、PDFに限定しない。
+   - 全upload surface共通のformat contractに従う。
+   - PDFだけでなくWord、PowerPoint、Excel、text、EML等を受け付ける。
    - authoritative sourceは原本ファイル。
-   - Drive保存・format handling・File Search indexingはPitchbookの既存基盤を最大限再利用する。
+   - Drive保存・format handling・File Search indexingは既存の共通upload/indexing基盤を最大限再利用する。
 
 2. **直接入力**
    - 専用フォームに本文を直接入力して保存できる。
@@ -376,6 +427,8 @@ confidentiality = source-specific classification
 - 既存の24時間draft自動復元は廃止し、過去sessionの入力を初回表示時に自動復元しない。
 - `記録を追加` と `過去の記録` のselected tab stateは連動させない。
 - standalone Pitchbook入口は利用者向けに `資料保存` とし、面談メモ内の資料アップロードと同じPitchbook保存contractを使う。
+- Newsは直接入力とファイルアップロードの両方を許容する。
+- 全upload surfaceの対応拡張子はshared format contractで一元管理する。
 
 ## Open implementation questions
 
