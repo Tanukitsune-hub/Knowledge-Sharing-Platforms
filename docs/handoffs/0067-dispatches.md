@@ -3,11 +3,11 @@
 WORK_ID: 0067
 DISPATCH_ID: 0067-CODEX-01
 ACTIVE_DISPATCH_ID: 0067-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_1_LOW
-PHASE: IMPLEMENTATION
+PHASE: CHATGPT FINAL REVIEW
 
 ## Primary Outcome
 
@@ -43,6 +43,13 @@ TIER_1_LOW。
 - `git diff --check`
 - target-runtime deployment / company Workspace mutationは不要
 
+## Codex return
+
+- accepted bundleから7個の.gsと同一bytesの7個の.txtを生成済み。
+- raw連結1,300,560 bytes / SHA-256 48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64はcanonical bundleと一致。
+- targeted tests 3/3、bundle validation 30/30、npm run check 690/690、diff check PASS。
+- deployment、provider call、business-data mutationは各0。ChatGPT final review待ち。
+
 ## Delivery
 
 branch: `work/0067-company-multifile-package`
@@ -59,5 +66,5 @@ NEXT_UNUSED_DISPATCH: 0067-CODEX-02
 
 WORK_ID: 0067
 DISPATCH_ID: 0067-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

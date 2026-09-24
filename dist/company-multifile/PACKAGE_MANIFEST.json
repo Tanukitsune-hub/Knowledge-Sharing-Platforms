@@ -1,0 +1,136 @@
+{
+  "format": "company-multifile-v1",
+  "product": "Private Assets Intelligence",
+  "release_version": "0.1.2",
+  "schema_version": 8,
+  "bundle_source_commit": "d12857ffecab73d2f2b36725a63cf10f585a883a",
+  "canonical_bundle_sha256": "48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64",
+  "canonical_bundle_payload_sha256": "327c324ff57035bf92ee9160d1bf872941892e51d4aa9a0b5da88e17732acb06",
+  "concatenated_bytes": 1300560,
+  "concatenated_sha256": "48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64",
+  "ordered_files": [
+    {
+      "name": "00_BundleResources.gs",
+      "bytes": 364395,
+      "sha256": "71c3a8f6a78e5562ffdb30ca2d5404ac54380d072afde422518ef752103e9a59",
+      "text_attachment": "00_BundleResources.txt",
+      "source_sections": []
+    },
+    {
+      "name": "10_ServerPart01.gs",
+      "bytes": 146395,
+      "sha256": "3194b104f076032d06444444e447367a56b965ebcb27ca4502f0195f96b1ae00",
+      "text_attachment": "10_ServerPart01.txt",
+      "source_sections": [
+        "src/00_Core.gs",
+        "src/01_DistributionResources.gs",
+        "src/05_TemporalContracts.gs",
+        "src/06_CounterpartyMigration.gs",
+        "src/10_Setup.gs",
+        "src/15_Installer.gs",
+        "src/20_LiveEnvironment.gs",
+        "src/21_BackendBackup.gs",
+        "src/22_BackendBackupLive.gs",
+        "src/30_MeetingCore.gs",
+        "src/40_MeetingService.gs"
+      ]
+    },
+    {
+      "name": "20_ServerPart02.gs",
+      "bytes": 144702,
+      "sha256": "841b624cbf3f9b64d1ca82487e63e44254eadf682ef23c9bb97d0be7b4b20c5c",
+      "text_attachment": "20_ServerPart02.txt",
+      "source_sections": [
+        "src/50_MeetingLiveEnvironment.gs",
+        "src/60_PitchbookConstants.gs",
+        "src/61_PitchbookValidation.gs",
+        "src/62_PitchbookIdentity.gs",
+        "src/63_PitchbookAudit.gs",
+        "src/70_PitchbookPrepareService.gs",
+        "src/71_PitchbookUploadService.gs",
+        "src/72_PitchbookContext.gs",
+        "src/73_ParentRelations.gs",
+        "src/80_PitchbookLiveEnvironment.gs",
+        "src/81_PitchbookReservationAdapters.gs",
+        "src/82_PitchbookClaimAdapters.gs",
+        "src/83_PitchbookDriveAdapters.gs",
+        "src/84_PitchbookIndexAdapters.gs",
+        "src/90_WebApp.gs",
+        "src/99_EntryPoints.gs",
+        "src/100_MaintenanceCore.gs",
+        "src/110_MaintenanceMeetingService.gs",
+        "src/111_MaintenancePitchbookMasterService.gs",
+        "src/112_MaintenanceServiceHelpers.gs"
+      ]
+    },
+    {
+      "name": "30_ServerPart03.gs",
+      "bytes": 155598,
+      "sha256": "db2fe5e816ad24d2753f930704b8763701af448deed1e05b614ede731c32e20a",
+      "text_attachment": "30_ServerPart03.txt",
+      "source_sections": [
+        "src/120_MaintenanceLiveEnvironment.gs",
+        "src/121_MaintenanceLiveHelpers.gs",
+        "src/126_ActivityAnalyticsService.gs",
+        "src/127_ActivityAnalyticsLiveEnvironment.gs",
+        "src/128_RelationshipExplorerService.gs",
+        "src/129_EntityWorkspaceService.gs",
+        "src/130_AiConstants.gs",
+        "src/131_AiFileSearchContracts.gs",
+        "src/132_AiKnowledgeContracts.gs",
+        "src/133_AiRetryContracts.gs",
+        "src/134_AiModelPolicyContracts.gs"
+      ]
+    },
+    {
+      "name": "40_ServerPart04.gs",
+      "bytes": 142391,
+      "sha256": "d11cd1619abf11037146a5312c40394d790f02c5ed16c5ec934df8918ffc708d",
+      "text_attachment": "40_ServerPart04.txt",
+      "source_sections": [
+        "src/140_AiSourceModels.gs",
+        "src/141_AiSyncHelpers.gs",
+        "src/142_AiSyncWorker.gs",
+        "src/150_KnowledgeSearchModels.gs",
+        "src/151_KnowledgeSearchService.gs",
+        "src/152_KnowledgeFilterContracts.gs",
+        "src/155_KnowledgeExportContracts.gs",
+        "src/156_KnowledgeExportService.gs",
+        "src/157_KnowledgeExportLiveEnvironment.gs",
+        "src/160_AiEnvironment.gs"
+      ]
+    },
+    {
+      "name": "50_ServerPart05.gs",
+      "bytes": 162337,
+      "sha256": "836f3f147281815edbed7a894945820a39dbafe83f7283894b8e19dce841294c",
+      "text_attachment": "50_ServerPart05.txt",
+      "source_sections": [
+        "src/161_GeminiRestClient.gs",
+        "src/162_AiLiveDataAdapters.gs",
+        "src/163_OpenAiRestClient.gs",
+        "src/164_AiProviderCore.gs"
+      ]
+    },
+    {
+      "name": "60_ServerPart06.gs",
+      "bytes": 184742,
+      "sha256": "511b01f538296d7ba68b0f8f9c127cad42f6e6c3b437e726ea42add009f88039",
+      "text_attachment": "60_ServerPart06.txt",
+      "source_sections": [
+        "src/165_AiProviderAdmin.gs",
+        "src/166_ThemeSettings.gs",
+        "src/170_AiEntryPoints.gs",
+        "src/180_FeatureFreezeFormats.gs",
+        "src/181_FeatureFreezeSync.gs",
+        "src/182_FeatureFreezeKnowledge.gs",
+        "src/190_FeatureFreezeDiagnostics.gs"
+      ]
+    }
+  ],
+  "appsscript_json": {
+    "name": "appsscript.json",
+    "bytes": 678,
+    "sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f"
+  }
+}
