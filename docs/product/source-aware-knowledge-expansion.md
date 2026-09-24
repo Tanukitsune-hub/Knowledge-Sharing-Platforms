@@ -351,25 +351,48 @@ AIはprovenanceを明示する。
 
 ## Source scope in Knowledge Search
 
-Knowledge Searchでは将来的にsource scopeを選択できる方向とする。
+Knowledge Searchでは、検索対象の情報ソースをcheckboxで明示選択できるようにする。
 
-例:
+利用者向けlabel:
 
 ```text
-☑ Meeting / Memo
-☑ Pitchbook
-☑ 内部評価
-☑ News
+☑ 面談メモ
+☐ 保存資料
+☐ ニュース
+☐ 評価（IC、社内整理）
 ```
+
+default stateは `面談メモ` のみcheckedとする。
+
+対応するcanonical Source Type:
+
+```text
+面談メモ                 -> Meeting
+保存資料                 -> Pitchbook
+ニュース                 -> News
+評価（IC、社内整理）     -> Internal Assessment
+```
+
+原則:
+
+- checkboxは複数選択可能とする。
+- 検索対象はcheckedされたSource TypeのOR条件とする。
+- 少なくとも1つのSource Typeを選択した状態で検索する。すべてuncheckedのまま検索は実行しない。
+- 初回表示時は毎回 `面談メモ` のみcheckedとし、過去sessionのsource scopeをsilent restoreしない。
+- Source Type selectionは他のstructured filtersとは独立したfilter axisとして扱う。
+- 回答では選択されたsourceを混ぜて一つの事実のように扱わず、source別Evidenceとprovenanceを維持する。
+- `保存資料` は利用者向けlabelであり、canonical Source Type / stable ID / AI metadataは既存Pitchbook contractを継承する。
+- `評価（IC、社内整理）` は利用者向けlabelであり、canonical Source TypeはInternal Assessmentとする。
 
 用途例:
 
-- 面談準備: 全source
-- IC review: Meeting + Pitchbook + 内部評価
-- 外部動向確認: News
-- 内部判断の振り返り: 内部評価
+- default検索: 面談メモのみ
+- 面談準備: 面談メモ + 保存資料 + ニュース + 評価
+- 資料確認: 保存資料のみ
+- 外部動向確認: ニュースのみ
+- 内部判断の振り返り: 評価のみ
 
-default scopeは実装WorkでUXと検索costを踏まえて決める。
+Source Type checkboxは、将来のOpenAI / Gemini provider-neutral filter contractへ組み込み、providerごとに意味が変わらないことを前提とする。
 
 ## Security and AI indexing policy
 
@@ -429,6 +452,8 @@ confidentiality = source-specific classification
 - standalone Pitchbook入口は利用者向けに `資料保存` とし、面談メモ内の資料アップロードと同じPitchbook保存contractを使う。
 - Newsは直接入力とファイルアップロードの両方を許容する。
 - 全upload surfaceの対応拡張子はshared format contractで一元管理する。
+- Knowledge Searchのsource scopeはcheckboxで複数選択可能とし、初期値は`面談メモ`のみとする。
+- Knowledge Searchの利用者向けsource labelは `面談メモ / 保存資料 / ニュース / 評価（IC、社内整理）` とする。
 
 ## Open implementation questions
 
