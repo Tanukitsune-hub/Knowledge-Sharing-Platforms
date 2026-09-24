@@ -108,7 +108,7 @@ test('showPage switches Knowledge Search, Counterparty Summary, and Meeting with
             return name === 'active' && state.active;
           }
         },
-        addEventListener() {},prepend() {},
+        addEventListener() {},prepend() {},querySelectorAll() { return []; },
         _state: state
       });
     }

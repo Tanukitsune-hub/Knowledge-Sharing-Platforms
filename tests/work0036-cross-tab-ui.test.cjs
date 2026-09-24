@@ -13,6 +13,7 @@ const analyticsPage = read('ActivityAnalyticsPage.html');
 const analyticsClient = read('ClientActivityAnalytics.html');
 const maintenance = read('ClientMaintenance.html');
 const enhancements = read('ClientMaintenanceEnhancements.html');
+const clientCore = read('ClientCore.html');
 const styles = read('Styles.html');
 
 test('Equity and Debt remains hidden and preserved, not selectable in normal UI', () => {
@@ -98,6 +99,7 @@ function createModalHarness() {
     kspSetActionBusy(button, busy, label) { if (button) { button.disabled = busy; button.busyLabel = busy ? label : ''; } },
     kspSetRegionBusy(region, busy) { if (region) region.setAttribute('aria-busy', String(busy)); }
   });
+  vm.runInContext(clientCore.match(/function kspSetMeetingRequiredError\(control,invalid\)\{[^\n]+/)[0], context);
   const start = enhancements.indexOf('const KSP_COUNTERPARTY_MODAL_TYPES');
   const end = enhancements.indexOf('let meetingDetailRecord');
   vm.runInContext(enhancements.slice(start, end), context, { filename: 'ClientMaintenanceEnhancements.modal.js' });

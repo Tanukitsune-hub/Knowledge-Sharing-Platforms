@@ -31,7 +31,7 @@ test('Meeting Create header keeps heading, draft clear, and one compact status i
   assert.equal((bootstrap.match(/面談入力の準備ができました。/g) || []).length, 1);
   assert.match(bootstrap, /showStatus\('meeting-status','error',result&&result\.error\?result\.error\.message:'初期データを読み込めませんでした。'\)/);
   assert.match(bootstrap, /withFailureHandler\(error=>\{meetingLoading=false;setMeetingBusy\(false\);showStatus\('meeting-status','error'/);
-  assert.match(index, /showStatus\('meeting-status','error','日付、面談先、アセットクラスは必須です。'\)/);
+  assert.match(index, /kspValidateMeetingRequired\('meeting','meeting-status'\)/);
   assert.match(index, /showStatus\('meeting-status','success','記録を保存しました:/);
   assert.doesNotMatch(pitchbookFlow, /meeting-entry-hint/);
   assert.match(pitchbookFlow, /showStatus\('meeting-status','info','前回保存済みの記録を表示しています。/);
