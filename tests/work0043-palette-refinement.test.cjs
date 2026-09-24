@@ -21,7 +21,7 @@ test('approved institutional structure accepts the superseding Work0044 executiv
     '--rp-border-strong:#a3b5c1',
     '--rp-ink:#263b49',
     '--rp-ink-soft:#4a6170',
-    '--rp-muted:#6b7e8a',
+    '--rp-muted:#5a6d79',
     '--rp-blue:#405f72',
     '--rp-blue-dark:#2f4b5d',
     '--rp-blue-soft:#dce6ec',
