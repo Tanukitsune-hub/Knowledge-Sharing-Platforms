@@ -74,9 +74,10 @@ STATUS: ACCEPTED
 - Japanese Word guide created and rendered as 3 A4 pages; clipping/overlapなし。
 - plain-text guide and release checksum file created.
 - guide/checksum package sent to the established company-email route with attachments.
-- current `dist/KnowledgeShare.bundle.gs` content sent separately as plain-text email body for direct one-paste use.
-- the first bundle-body send was empty and is superseded by the corrected resend whose subject begins `[再送・こちらを使用]`; only the corrected resend is valid.
-- corrected bundle body length: 1,254,351 characters, matching the current generated bundle content fetched from GitHub Contents API.
+- final code delivery is `Private_Assets_Intelligence_KnowledgeShare_bundle_v0.1.2.txt` as an email attachment.
+- attachment bytes: 1,300,560; SHA-256: `48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64`; current generated bundle / release manifestと一致。
+- Gmail SENT readbackでattachment filename / text/plain / 1,300,560 bytesを確認。
+- earlier bundle-body emails are superseded; company installation should use the final attached text file.
 - company Workspace resources、Web App deployment、provider settings、business dataはWork0066では変更していない。
 
 ```text
@@ -97,5 +98,5 @@ BYTE_IDENTITY: PASS
 
 WORK_ID: 0066
 DISPATCH_ID: N/A
-BALL: CHATGPT
-STATUS: REVIEW
+BALL: NONE
+STATUS: ACCEPTED
