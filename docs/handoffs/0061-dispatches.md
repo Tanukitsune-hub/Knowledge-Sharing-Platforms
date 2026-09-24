@@ -2,12 +2,12 @@
 
 WORK_ID: 0061
 DISPATCH_ID: 0061-CODEX-01
-ACTIVE_DISPATCH_ID: 0061-CODEX-01
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: NONE
+BALL: NONE
+STATUS: ACCEPTED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
-PHASE: RESULT FRESHNESS
+PHASE: COMPLETE
 
 ## Primary Outcome
 
@@ -46,8 +46,8 @@ ChatGPT final reviewまでACCEPTED / Completion Latchは適用しない。
 
 ```text
 NEXT_UNUSED_DISPATCH: 0061-CODEX-02
-WORK_0061_COMPLETE: NO
-COMPLETION_LATCH: NOT_APPLIED
+WORK_0061_COMPLETE: YES
+COMPLETION_LATCH: APPLIED
 ```
 
 WORK_ID: 0061
@@ -56,3 +56,23 @@ BALL: CHATGPT
 STATUS: RETURNED
 
 CODEX-01は実装・local validation結果を`0061-CODEX-01-result-freshness-report.md`に記録して返却した。ChatGPT final reviewまでACCEPTED / Completion Latchは適用しない。
+
+## ChatGPT final review
+
+- PR #93 implementation diff / report / focused async-race evidenceをreview: PASS。
+- Knowledge Searchのquery identityへ質問本文を含むhash fingerprintを追加し、raw question textはsessionStorageへ保存しない設計を受入れ。
+- request sequence + current payload fingerprintでstart response / poll responseを照合し、条件変更後の遅延responseをcurrent resultとして描画しない。
+- query-defining input変更時はpending stateと旧resultを無効化し、resumeもcurrent fingerprint一致時のみ継続する。
+- Entity Workspaceはentity切替開始時に旧content / printをhideし、request sequence + selected entity keyでresponse identityを確認する。
+- Fund / Strategy切替でも旧drillを消し、遅延responseの上書きを防止する。
+- provider server logic / prompt / retrieval / schema / API contractは未変更。
+- focused 20/20、Knowledge Search + Entity Workspace 1440/390 synthetic browser、bundle 30/30、canonical 681/681を受入れ。
+- provider call / deployment / business-data mutation 0。TIER_2_STANDARDとしてtarget runtime deployは不要。Work0065へ集約する。
+- BLOCKER: NONE。
+
+Completion: `docs/handoffs/0061-completion-report.md`
+
+WORK_ID: 0061
+DISPATCH_ID: 0061-CODEX-01
+BALL: NONE
+STATUS: ACCEPTED
