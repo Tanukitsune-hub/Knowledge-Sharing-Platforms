@@ -20,7 +20,7 @@ Work0066でacceptedとなったPrivate Assets Intelligence 0.1.2のsingle-file b
 - CANONICAL_BUNDLE_PAYLOAD_SHA256: 327c324ff57035bf92ee9160d1bf872941892e51d4aa9a0b5da88e17732acb06
 - CANONICAL_BUNDLE_SHA256: 48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64
 
-current mainのGit blobとrelease manifestは固定Release Basisに一致した。Windowsのcheckoutではcore.autocrlfによって作業ファイルだけがCRLF化されたため、.gitattributesで既存dist artifactと新packageのLF checkoutを固定した。既存bundle等のcommitted blobは変更していない。生成物のstaged Git blobを7個連結したbytesもaccepted bundleのGit blobと完全一致した。
+current mainのGit blobとrelease manifestは固定Release Basisに一致した。Windowsのcheckoutではcore.autocrlfによって作業ファイルだけがCRLF化されたため、.gitattributesで既存dist artifactと新packageのLF checkoutを固定した。既存bundle等のcommitted blobは変更していない。生成物のstaged Git blobを7個連結したbytesもaccepted bundleのGit blobと完全一致した。新しいWindows checkoutでもbundleと7ファイル連結のraw bytes / SHA-256一致を確認した。
 
 | ファイル | bytes | server sections |
 |---|---:|---:|
@@ -39,6 +39,7 @@ current mainのGit blobとrelease manifestは固定Release Basisに一致した�
 - GENERATED_GS_COUNT: 7
 - MAX_FILE_BYTES: 364395
 - CONCAT_BYTE_IDENTITY: PASS (1300560 bytes; staged Git blobsも一致)
+- FRESH_CHECKOUT_RAW_IDENTITY: PASS (Windows checkoutのbundleと7ファイル連結が一致)
 - CONCAT_SHA256: 48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64
 - CANONICAL_BUNDLE_SHA256: 48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64
 - MANIFEST_PARITY: PASS (packaged appsscript.jsonはaccepted dist/appsscript.jsonとbyte-identical)
