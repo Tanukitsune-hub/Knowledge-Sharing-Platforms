@@ -19,7 +19,7 @@
     <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>面談先</th><th>アセットクラス</th><th>Status</th><th>更新番号</th><th>操作</th></tr></thead><tbody id="meeting-past-results"></tbody></table></div>
   </div>
   <section id="meeting-detail-card" class="card" aria-busy="false">
-    <div class="section-heading"><div><h2>記録の詳細</h2><p id="meeting-detail-identity" class="hint meeting-detail-hero"></p></div><button id="meeting-detail-close" class="small-button" type="button" disabled>選択解除</button></div>
+    <div class="section-heading"><div><h2 id="meeting-detail-heading" tabindex="-1">記録の詳細</h2><p id="meeting-detail-identity" class="hint meeting-detail-hero"></p></div><button id="meeting-detail-close" class="small-button" type="button" disabled>選択解除</button></div>
     <p id="meeting-detail-empty" class="maintenance-empty-state">上の一覧から「詳細」を選択すると、ここに記録内容が表示されます。</p>
     <div id="meeting-detail-content" hidden>
       <div id="meeting-detail-attributes" class="grid"></div>
@@ -37,7 +37,7 @@
     <div id="meeting-detail-status" class="status" role="status" aria-live="polite"></div>
   </section>
   <div id="meeting-edit-card" class="card maintenance-editor" aria-busy="false">
-    <div class="section-heading"><div><h2>面談記録を修正</h2><p id="meeting-edit-id" class="hint"></p></div><button id="meeting-edit-close" class="small-button" type="button" disabled>編集を終了</button></div>
+    <div class="section-heading"><div><h2 id="meeting-edit-heading" tabindex="-1">面談記録を修正</h2><p id="meeting-edit-id" class="hint"></p></div><button id="meeting-edit-close" class="small-button" type="button" disabled>編集を終了</button></div>
     <p id="meeting-edit-empty" class="maintenance-empty-state">記録の詳細から「記録を編集」を選択すると編集できます。</p>
     <form id="meeting-edit-form" novalidate>
       <fieldset id="meeting-edit-fieldset" disabled>
