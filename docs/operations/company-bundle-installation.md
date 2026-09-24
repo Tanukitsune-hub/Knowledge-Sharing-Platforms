@@ -9,7 +9,7 @@ Audience: non-specialist company administrator
 ## What you need
 
 ```text
-KnowledgeShare.bundle.gs
+Private_Assets_Intelligence_KnowledgeShare_bundle_v0.1.2.txt（会社PCへ渡すテキスト版）
 release-manifest.json or the release checksum page
 this installation guide
 permission to create files/folders in the target Shared Drive folder
@@ -58,13 +58,15 @@ A future release may remove this step only after equivalent Shared Drive behavio
 
 ### 4. Verify and paste one bundle
 
-Confirm that the bundle belongs to the same release/source commit as `release-manifest.json`. Use the published final-file SHA-256 check where company policy or the release process provides it.
+Confirm that the text-file bundle belongs to the same release/source commit as `release-manifest.json`. The `.txt` file is byte-identical to the generated `KnowledgeShare.bundle.gs`; only the filename/extension is changed for transfer. Use the published final-file SHA-256 check where company policy or the release process provides it.
 
 Open the default code file, remove its sample content, and paste the complete contents of:
 
 ```text
-KnowledgeShare.bundle.gs
+Private_Assets_Intelligence_KnowledgeShare_bundle_v0.1.2.txt
 ```
+
+The text file content is the exact generated `KnowledgeShare.bundle.gs` content.
 
 Save once. Confirm that Apps Script accepts the exact file and shows all three guarded operator functions in the function list:
 
