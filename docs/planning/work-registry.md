@@ -9,6 +9,14 @@ Work IDs identify stable outcomes, not execution order. Never renumber or reuse 
 
 Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 
+## 2026-09-25 planning addendum
+
+| Work ID | Outcome | Status | Dependency | Next action |
+|---|---|---|---|---|
+| 0069 | Source-aware knowledge expansion implementation plan | ACCEPTED | Work0068 current baseline | Start API-independent record-layer implementation under a new Work ID when authorized; AI/provider phase remains credential/policy-gated |
+
+Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
+
 ## Current delivery sequence
 
 | Order | Work ID | Outcome | Status | Dependency | Next action |
