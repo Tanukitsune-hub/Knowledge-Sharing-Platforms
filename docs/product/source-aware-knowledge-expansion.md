@@ -51,12 +51,12 @@ Meeting / Memo、Pitchbook、内部評価、Newsは、それぞれ専用の登�
 面談メモ | 資料保存 | ニュース | 内部評価
 ```
 
-- 初回表示はclear stateとし、以前の入力を自動で復元して埋めない。
+- 初回表示はclear stateとし、以前の入力を自動で復元して埋めない。既存の24時間draft自動復元は、この将来UXでは廃止する方向とする。
 - semanticに共通する入力項目はpage-level shared stateとして扱い、tabを切り替えても保持する。
 - shared stateは利用者が `クリア` を実行するまで維持する。
 - source固有項目は各tab固有stateとして扱う。
 - exact common-field setとclear時のsource-specific state範囲はimplementation Workで確定する。
-- 現行のbrowser draft auto-restoreが初回clear要件と衝突する場合は、silent restoreを前提にせずUXを見直す。
+- source共通・固有の入力stateは、利用中の画面stateとして保持する。過去sessionのdraftをlocal storage等からsilent restoreする機能は持たない。
 
 #### 過去の記録
 
@@ -373,6 +373,7 @@ confidentiality = source-specific classification
 - Authoritative保存可否とAI index可否は分ける。
 - 既存Pitchbookのstorage/index contractへ内部評価 / Newsを無理に流用しない。
 - `記録を追加` の共通入力項目はtab間で保持し、初回表示はclear stateとする。
+- 既存の24時間draft自動復元は廃止し、過去sessionの入力を初回表示時に自動復元しない。
 - `記録を追加` と `過去の記録` のselected tab stateは連動させない。
 - standalone Pitchbook入口は利用者向けに `資料保存` とし、面談メモ内の資料アップロードと同じPitchbook保存contractを使う。
 
