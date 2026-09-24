@@ -2,8 +2,8 @@
 
 WORK_ID: 0066
 DISPATCH_ID: N/A
-BALL: CHATGPT
-STATUS: IN_PROGRESS
+BALL: NONE
+STATUS: ACCEPTED
 MODE: BUILD
 VALIDATION_TIER: TIER_1_LOW
 
@@ -60,9 +60,26 @@ The generated bundle / release manifest pair remains the installation artifact. 
 
 ## Completion
 
-ChatGPT final delivery review after email send and artifact checks.
+ChatGPT final delivery review: PASS。会社メール配送とguide render確認を完了。
 
 WORK_ID: 0066
 DISPATCH_ID: N/A
-BALL: CHATGPT
-STATUS: IN_PROGRESS
+BALL: NONE
+STATUS: ACCEPTED
+
+## Accepted Delivery Evidence
+
+- canonical installation doc updated for the current self-only pilot.
+- Japanese Word guide created and rendered as 3 A4 pages; clipping/overlapなし。
+- plain-text guide and release checksum file created.
+- guide/checksum package sent to the established company-email route with attachments.
+- current `dist/KnowledgeShare.bundle.gs` content sent separately as plain-text email body for direct one-paste use.
+- the first bundle-body send was empty and is superseded by the corrected resend whose subject begins `[再送・こちらを使用]`; only the corrected resend is valid.
+- corrected bundle body length: 1,254,351 characters, matching the current generated bundle content fetched from GitHub Contents API.
+- company Workspace resources、Web App deployment、provider settings、business dataはWork0066では変更していない。
+
+```text
+WORK_0066_COMPLETE: YES
+COMPLETION_LATCH: APPLIED
+BLOCKER: NONE
+```
