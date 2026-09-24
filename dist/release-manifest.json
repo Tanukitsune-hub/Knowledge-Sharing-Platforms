@@ -2,16 +2,16 @@
   "product": "Private Assets Intelligence",
   "release_version": "0.1.2",
   "schema_version": 8,
-  "source_git_commit": "7971d0eaaf08d6eb35b60e8d3c8a0e9f61a491e0",
+  "source_git_commit": "b9abea5055216eb14a5799937bacbaa53e1ed1e1",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "b88f28ee5e7ec6dd88acd200e5dbb471af513e7e3f112c01d442c5957646cfa3",
-  "bundle_file_sha256": "0039de728f2a67876c8e802c5e77d3de0dff876c78d046009079ba44f810b62f",
+  "bundle_payload_sha256": "b09143421247a89cb82139ee8aa5f11310ffe5ccce4d48e79b3a51a0f15def83",
+  "bundle_file_sha256": "4dfdd5f58267570a3ff95a441889278ed548245820acb034e3f5983f6145a7d3",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "ce4aafc9b472432bcb8963308664f8c7acba0db7eed73e87ab5ce0bbd2d61ee5",
   "bundle_metrics": {
-    "bytes": 1297781,
-    "characters": 1251642,
+    "bytes": 1300157,
+    "characters": 1253986,
     "lines": 19708,
     "server_source_count": 63,
     "embedded_html_count": 23
@@ -361,8 +361,8 @@
     },
     {
       "file": "src/ClientCore.html",
-      "bytes": 11030,
-      "sha256": "0bdc936415daa480513d14c8f1cf5e9f82f37f935f3ac867c4e328ba7fa6e8ef"
+      "bytes": 11399,
+      "sha256": "d5da2edef723dff2451c76f9f7b05f5b0b9892b660f0eed872cf964db3af08b1"
     },
     {
       "file": "src/ClientDateControls.html",
@@ -381,13 +381,13 @@
     },
     {
       "file": "src/ClientMaintenance.html",
-      "bytes": 42416,
-      "sha256": "2b8c6e3202bc0a4a26f127255022ea336e3ec37af12d8164adafc0ab22cf8c01"
+      "bytes": 44236,
+      "sha256": "ddfcef1c90e3524f05851c4ee061549916ae34d1c0de87887877c4ed6c2b3863"
     },
     {
       "file": "src/ClientMaintenanceEnhancements.html",
-      "bytes": 23226,
-      "sha256": "e602c0b90e4f38a1b398e37bb9bba34f9187189cd99c16eaf089360476f12fac"
+      "bytes": 23301,
+      "sha256": "229ccbf8e48c83ca88f5a9a21aecab9c229ef00fc83d5a5466bf3511c0af5ba9"
     },
     {
       "file": "src/ClientPitchbookFiles.html",
@@ -436,8 +436,8 @@
     },
     {
       "file": "src/MaintenancePages.html",
-      "bytes": 16524,
-      "sha256": "703f7fee9a93e8026b6952277daecb4306935b2f05e15a340b39259bf02367ff"
+      "bytes": 16606,
+      "sha256": "eedf00c8685d54dc8bd61adfe25082fb0df70cc94743a682567276e331d61f18"
     },
     {
       "file": "src/RelationshipExplorerPage.html",
