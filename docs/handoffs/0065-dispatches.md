@@ -1,13 +1,13 @@
 # Work 0065 dispatch control
 
 WORK_ID: 0065
-DISPATCH_ID: N/A
-ACTIVE_DISPATCH_ID: NONE
-BALL: USER
-STATUS: ACTION_REQUIRED
+DISPATCH_ID: 0065-CODEX-01
+ACTIVE_DISPATCH_ID: 0065-CODEX-01
+BALL: CODEX
+STATUS: READY
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
-PHASE: USER APPROVAL GATE
+PHASE: TARGET RUNTIME RELEASE
 
 ## Primary Outcome
 
@@ -25,10 +25,13 @@ Work0060–0064のaccepted mainを既存owner-controlled Web Appへ1回だけ反
 
 ## Approval Gate
 
-実利用Web Appのsource sync / immutable version create / existing deployment updateを伴うため、ユーザーの明示承認待ち。
+2026-09-24、ユーザーが「0065を進めて」と明示承認した。
 
-承認後の最初のDispatch ID:
-`0065-CODEX-01`
+```text
+APPROVAL_STATE: GRANTED
+APPROVED_DISPATCH: 0065-CODEX-01
+RELEASE_SOURCE_COMMIT: ff953fe0bd2a79d108ad2e981700c947e6bb07ad
+```
 
 ## Planned Limits
 
@@ -50,12 +53,24 @@ FULL_REGRESSION: NO
 ## Completion State
 
 ```text
-NEXT_UNUSED_DISPATCH: 0065-CODEX-01
+NEXT_UNUSED_DISPATCH: 0065-CODEX-02
 WORK_0065_COMPLETE: NO
 COMPLETION_LATCH: NOT_APPLIED
 ```
 
 WORK_ID: 0065
-DISPATCH_ID: N/A
-BALL: USER
-STATUS: ACTION_REQUIRED
+DISPATCH_ID: 0065-CODEX-01
+BALL: CODEX
+STATUS: READY
+
+## Active Dispatch
+
+instruction: `docs/handoffs/0065-CODEX-01-target-runtime-release-instruction.md`
+report: `docs/handoffs/0065-CODEX-01-target-runtime-release-report.md`
+
+Codexは1回のsource sync / version create / existing deployment update上限で実行する。target/deploymentのprivate ID・URLはGitHubやchatへ記録しない。served version、access boundary、実行結果はprivate identifierを除いた形でreportする。
+
+WORK_ID: 0065
+DISPATCH_ID: 0065-CODEX-01
+BALL: CODEX
+STATUS: READY
