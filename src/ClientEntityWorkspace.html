@@ -87,18 +87,23 @@ function entityWorkspaceRender(data){
 async function loadEntityWorkspaceCatalog(){
   if(entityWorkspaceCatalogLoaded)return;
   const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','面談先一覧を読み込んでいます。');
-  try{const result=await serverCall('getEntityWorkspaceData',{});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先一覧を読み込めませんでした。');entityWorkspaceCatalog=result;entityWorkspaceCatalogLoaded=true;entityWorkspacePopulateEntities();showStatus('entity-workspace-status','info','面談先を選択してください。')}catch(error){showStatus('entity-workspace-status','error',error.message||String(error))}
+  try{const result=await serverCall('getEntityWorkspaceData',{});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先一覧を読み込めませんでした。');entityWorkspaceCatalog=result;entityWorkspaceCatalogLoaded=true;entityWorkspacePopulateEntities();showStatus('entity-workspace-status','info','面談先を選択してください。')}catch(error){if(requestId===entityWorkspaceRequestSequence)showStatus('entity-workspace-status','error',error.message||String(error))}
 }
 async function loadEntityWorkspace(){
-  const entityKey=el('entity-workspace-entity').value;
-  if(!entityKey){entityWorkspaceData=null;el('entity-workspace-content').classList.add('hidden-panel');el('entity-workspace-print-button').disabled=true;return}
-  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','面談先サマリーを読み込んでいます。');
-  try{const result=await serverCall('getEntityWorkspaceData',{entityKey:entityKey});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先サマリーを読み込めませんでした。');entityWorkspaceRender(result);showStatus('entity-workspace-status','success','面談先サマリーを表示しました。')}catch(error){if(requestId===entityWorkspaceRequestSequence)showStatus('entity-workspace-status','error',error.message||String(error))}
+  const selected=el('entity-workspace-entity'),entityKey=selected.value,requestId=++entityWorkspaceRequestSequence;
+  entityWorkspaceData=null;el('entity-workspace-content').classList.add('hidden-panel');el('entity-workspace-print-button').disabled=true;el('entity-workspace-fund').value='';
+  if(!entityKey){showStatus('entity-workspace-status','info','面談先を選択してください。');return}
+  const label=selected.selectedOptions&&selected.selectedOptions.length?selected.selectedOptions[0].textContent.trim():entityKey;
+  showStatus('entity-workspace-status','info busy','面談先「'+label+'」を読み込んでいます…');
+  try{const result=await serverCall('getEntityWorkspaceData',{entityKey:entityKey});if(requestId!==entityWorkspaceRequestSequence||selected.value!==entityKey)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'面談先サマリーを読み込めませんでした。');if(!result.entity||result.entity.entityKey!==entityKey)throw new Error('選択した面談先の結果を確認できませんでした。');entityWorkspaceRender(result);showStatus('entity-workspace-status','success','面談先「'+label+'」を表示しました。')}catch(error){if(requestId===entityWorkspaceRequestSequence&&selected.value===entityKey)showStatus('entity-workspace-status','error','面談先「'+label+'」を読み込めませんでした。'+(error.message||String(error)))}
 }
 async function loadEntityWorkspaceFund(fundStrategy){
-  if(!entityWorkspaceData||!fundStrategy)return;
-  const requestId=++entityWorkspaceRequestSequence;showStatus('entity-workspace-status','info','Fund / Strategy詳細を読み込んでいます。');
-  try{const result=await serverCall('getEntityWorkspaceData',{entityKey:entityWorkspaceData.entity.entityKey,fundStrategy:fundStrategy});if(requestId!==entityWorkspaceRequestSequence)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Fund / Strategy詳細を読み込めませんでした。');entityWorkspaceRender(result);showStatus('entity-workspace-status','success','Fund / Strategy詳細を表示しました。')}catch(error){if(requestId===entityWorkspaceRequestSequence)showStatus('entity-workspace-status','error',error.message||String(error))}
+  if(!entityWorkspaceData)return;
+  const entityKey=entityWorkspaceData.entity.entityKey,entityName=entityWorkspaceData.entity.name,requestId=++entityWorkspaceRequestSequence;
+  entityWorkspaceRenderDrill(null);
+  if(!fundStrategy){showStatus('entity-workspace-status','success','面談先「'+entityName+'」を表示しました。');return}
+  showStatus('entity-workspace-status','info busy','面談先「'+entityName+'」のFund / Strategy詳細を読み込んでいます…');
+  try{const result=await serverCall('getEntityWorkspaceData',{entityKey:entityKey,fundStrategy:fundStrategy});if(requestId!==entityWorkspaceRequestSequence||el('entity-workspace-entity').value!==entityKey||el('entity-workspace-fund').value!==fundStrategy)return;if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'Fund / Strategy詳細を読み込めませんでした。');if(!result.entity||result.entity.entityKey!==entityKey)throw new Error('選択した面談先の結果を確認できませんでした。');entityWorkspaceRender(result);showStatus('entity-workspace-status','success','面談先「'+entityName+'」のFund / Strategy詳細を表示しました。')}catch(error){if(requestId===entityWorkspaceRequestSequence&&el('entity-workspace-entity').value===entityKey&&el('entity-workspace-fund').value===fundStrategy)showStatus('entity-workspace-status','error','面談先「'+entityName+'」のFund / Strategy詳細を読み込めませんでした。'+(error.message||String(error)))}
 }
 el('entity-workspace-entity').addEventListener('change',()=>loadEntityWorkspace());
 el('entity-workspace-fund').addEventListener('change',event=>loadEntityWorkspaceFund(event.target.value));
