@@ -53,7 +53,7 @@ TIER_1_LOW。
 ## Delivery
 
 branch: `work/0067-company-multifile-package`
-Draft PRを使用。
+Draft PR #101を使用。
 
 report:
 `docs/handoffs/0067-CODEX-01-company-multifile-package-report.md`

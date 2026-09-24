@@ -14,6 +14,7 @@ Work0066でacceptedとなったPrivate Assets Intelligence 0.1.2のsingle-file b
 ## Release basis and package size
 
 - MAIN_AT_START: bb0c571e7d106d622d8cc1350d77a45f8e07670d
+- DRAFT_PR: #101
 - BUNDLE_RELEASE: 0.1.2
 - SCHEMA: 8
 - BUNDLE_SOURCE_COMMIT: d12857ffecab73d2f2b36725a63cf10f585a883a
