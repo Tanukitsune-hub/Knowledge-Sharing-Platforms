@@ -385,6 +385,17 @@ The company may enable OpenAI, Gemini, both, or neither.
 → final production qualification
 ```
 
+## Future direction: source-aware knowledge expansion
+
+将来のKnowledge Sourceとして、Meeting / Memo、Pitchbook、IC Memo、Newsを入口・provenance・AI出力で明確に区別しつつ、provider-neutralなretrieval基盤で横断検索できる方向を採る。
+
+詳細な方向性、Closed Conclusions、未確定のimplementation questionsは以下を参照する。
+
+`docs/product/source-aware-knowledge-expansion.md`
+
+この方向性は現行の5-sheet baselineやMeeting / Pitchbook中心の実装contractを直ちに変更しない。実装時は別Workでstorage/schema/security/migration/target-runtime evidenceを確定する。
+
+
 ## Principles
 
 - simplicity first;
