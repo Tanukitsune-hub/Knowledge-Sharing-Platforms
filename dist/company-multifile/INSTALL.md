@@ -1,8 +1,8 @@
 # Private Assets Intelligence 0.1.2 — 7ファイル導入手順
 
 このpackageはaccepted single-file bundleと同じ内容の手動導入用代替artifactです。canonical sourceやruntime behaviorは変更していません。
-release source commit: d12857ffecab73d2f2b36725a63cf10f585a883a
-canonical bundle SHA-256: 48eb6f2eb68c20e820e0dfb00bd9843ac968661769853574e9b95c5efa655d64
+release source commit: 4f092183d6f5804b79b5ef802c40b234aedd6131
+canonical bundle SHA-256: 8ef7c362af8c5da23c792cf20046c8b6f08a044f16fa5b71e3d40f7f46601c27
 
 1. 既に受け取った会社導入ガイドの手順1～3に従い、導入先Spreadsheet、Apps Script、必要なDrive APIを準備します。
 2. Apps Script editorで既存Code.gsを00_BundleResources.gsに名前変更してサンプルコードを消し、残り6個のスクリプトファイルを記載順に作成します。各添付.txtの全文を対応する.gsへ貼り付けてください。

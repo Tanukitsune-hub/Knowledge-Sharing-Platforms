@@ -3,11 +3,11 @@
 WORK_ID: 0068
 DISPATCH_ID: 0068-CODEX-01
 ACTIVE_DISPATCH_ID: 0068-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
-PHASE: IMPLEMENTATION
+PHASE: FINAL_REVIEW
 
 ## Primary Outcome
 
@@ -48,6 +48,12 @@ Draft PRを使用。
 report:
 `docs/handoffs/0068-CODEX-01-activity-analytics-manual-run-report.md`
 
+## CODEX-01 return
+
+- navigationと条件変更からの自動集計を解除し、「集計」button起点のみの通常集計を維持。
+- focused Activity Analytics 10/10、synthetic browser 1440px / 390px、bundle 30/30、7-file package parity、canonical check 691/691 PASS。
+- deployment / provider call / business-data mutation: 0。ChatGPT final review待ち。
+
 ChatGPT final reviewまでACCEPTED / Completion Latchは適用しない。
 
 ```text
@@ -56,5 +62,5 @@ NEXT_UNUSED_DISPATCH: 0068-CODEX-02
 
 WORK_ID: 0068
 DISPATCH_ID: 0068-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
