@@ -36,6 +36,7 @@ function executeClient(serverCall) {
       const classes = new Set();
       nodes.set(id, {
         id, value: '', disabled: false, innerHTML: '', textContent: '', className: '', options: [],
+        get selectedOptions() { return this.options.filter(option => option.value === this.value); },
         classList: { add(name) { classes.add(name); }, remove(name) { classes.delete(name); }, toggle(name, value) { if (value) classes.add(name); else classes.delete(name); }, contains(name) { return classes.has(name); } },
         addEventListener(type, listener) { this['_listener_' + type] = listener; },
         appendChild(child) { this.options.push(child); },
@@ -45,17 +46,18 @@ function executeClient(serverCall) {
     return nodes.get(id);
   }
   let printCalls = 0;
+  const statuses = [];
   const context = {
     el: node,
     document: { createElement() { return { value: '', textContent: '' }; } },
     kspEscapeHtml(value) { return String(value == null ? '' : value); },
     kspSafeDriveUrl(value) { return String(value || ''); },
-    showStatus() {},
+    showStatus(id, kind, message) { statuses.push({ id, kind, message }); },
     serverCall,
     window: { print() { printCalls += 1; } }
   };
   vm.runInNewContext(clientScript, context, { filename: 'ClientEntityWorkspace.js' });
-  return { context, node, getPrintCalls: () => printCalls };
+  return { context, node, statuses, getPrintCalls: () => printCalls };
 }
 
 test('Entity Workspace is integrated, read-only, and has bounded print markup', () => {
@@ -100,10 +102,86 @@ test('Entity Workspace client loads catalog, selected entity, exact drill, and p
   assert.doesNotMatch(runtime.node('entity-workspace-summary').innerHTML, /Active|LP \/ Asset Owner/);
   assert.doesNotMatch(runtime.node('entity-workspace-print').innerHTML, /LP \/ Asset Owner/);
   assert.doesNotMatch(page, /related-gps|関連GP|Related GP/);
+  runtime.node('entity-workspace-fund').value = 'Synthetic Fund';
   await runtime.context.loadEntityWorkspaceFund('Synthetic Fund');
   assert.equal(calls.length, 3);
   assert.match(runtime.node('entity-workspace-drill').innerHTML, /Synthetic Fund/);
   runtime.node('entity-workspace-print-button').onclick();
   assert.equal(runtime.getPrintCalls(), 1);
   assert.equal(calls.length, 3);
+});
+
+test('Entity Workspace hides A while B loads and ignores an out-of-order A response', async () => {
+  const keys = { a: 'LP_ASSET_OWNER:LP-1', b: 'LP_ASSET_OWNER:LP-2' };
+  let resolveA, resolveB;
+  const a = new Promise(resolve => { resolveA = resolve; });
+  const b = new Promise(resolve => { resolveB = resolve; });
+  const runtime = executeClient(async (_, payload) => {
+    if (!payload.entityKey) return { ok: true, entityOptions: [
+      { entityKey: keys.a, name: 'Synthetic A' }, { entityKey: keys.b, name: 'Synthetic B' }
+    ] };
+    return payload.entityKey === keys.a ? a : b;
+  });
+  await runtime.context.loadEntityWorkspaceCatalog();
+  runtime.node('entity-workspace-entity').value = keys.a;
+  const oldRequest = runtime.context.loadEntityWorkspace();
+  runtime.node('entity-workspace-entity').value = keys.b;
+  const currentRequest = runtime.context.loadEntityWorkspace();
+  assert.equal(runtime.node('entity-workspace-content').classList.contains('hidden-panel'), true);
+  assert.equal(runtime.node('entity-workspace-print-button').disabled, true);
+  assert.match(runtime.statuses.at(-1).message, /Synthetic B/);
+  resolveB({ ...workspaceData(), entity: { ...workspaceData().entity, entityKey: keys.b, name: 'Synthetic B' } });
+  await currentRequest;
+  assert.equal(runtime.node('entity-workspace-name').textContent, 'Synthetic B');
+  resolveA(workspaceData());
+  await oldRequest;
+  assert.equal(runtime.node('entity-workspace-name').textContent, 'Synthetic B');
+  assert.equal(runtime.node('entity-workspace-content').classList.contains('hidden-panel'), false);
+});
+
+test('Entity Workspace B failure keeps A content hidden and labels the failed target', async () => {
+  const keys = { a: 'LP_ASSET_OWNER:LP-1', b: 'LP_ASSET_OWNER:LP-2' };
+  const runtime = executeClient(async (_, payload) => {
+    if (!payload.entityKey) return { ok: true, entityOptions: [
+      { entityKey: keys.a, name: 'Synthetic A' }, { entityKey: keys.b, name: 'Synthetic B' }
+    ] };
+    if (payload.entityKey === keys.b) throw new Error('fixture failure');
+    return workspaceData();
+  });
+  await runtime.context.loadEntityWorkspaceCatalog();
+  runtime.node('entity-workspace-entity').value = keys.a;
+  await runtime.context.loadEntityWorkspace();
+  assert.equal(runtime.node('entity-workspace-name').textContent, 'Synthetic LP');
+  runtime.node('entity-workspace-entity').value = keys.b;
+  await runtime.context.loadEntityWorkspace();
+  assert.equal(runtime.node('entity-workspace-content').classList.contains('hidden-panel'), true);
+  assert.equal(runtime.node('entity-workspace-print-button').disabled, true);
+  assert.equal(runtime.statuses.at(-1).kind, 'error');
+  assert.match(runtime.statuses.at(-1).message, /Synthetic B/);
+});
+
+test('Entity Workspace clears an old Fund / Strategy drill while the next selection loads', async () => {
+  let resolveNext;
+  const next = new Promise(resolve => { resolveNext = resolve; });
+  const data = workspaceData();
+  const drilled = { ...data, drillDown: { selected: 'Synthetic Fund', counts: { meetings: 0, pitchbooks: 0, relationships: 0 }, meetings: { records: [] }, pitchbooks: { records: [] }, relationships: { records: [] } } };
+  const runtime = executeClient(async (_, payload) => {
+    if (!payload.entityKey) return { ok: true, entityOptions: [{ entityKey: data.entity.entityKey, name: data.entity.name }] };
+    if (payload.fundStrategy === 'Next Fund') return next;
+    return payload.fundStrategy ? drilled : data;
+  });
+  await runtime.context.loadEntityWorkspaceCatalog();
+  runtime.node('entity-workspace-entity').value = data.entity.entityKey;
+  await runtime.context.loadEntityWorkspace();
+  runtime.node('entity-workspace-fund').value = 'Synthetic Fund';
+  await runtime.context.loadEntityWorkspaceFund('Synthetic Fund');
+  assert.match(runtime.node('entity-workspace-drill').innerHTML, /Synthetic Fund/);
+  runtime.node('entity-workspace-fund').value = 'Next Fund';
+  const pending = runtime.context.loadEntityWorkspaceFund('Next Fund');
+  assert.equal(runtime.node('entity-workspace-drill').innerHTML, '');
+  runtime.node('entity-workspace-fund').value = '';
+  await runtime.context.loadEntityWorkspaceFund('');
+  resolveNext(drilled);
+  await pending;
+  assert.equal(runtime.node('entity-workspace-drill').innerHTML, '');
 });

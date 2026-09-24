@@ -78,7 +78,7 @@ test('all new Apps Script and client files parse and contain required live contr
   assert.match(clientFingerprint,/modelProfileId/);
   assert.match(clientFingerprint,/thinkingProfileId/);
   assert.match(clientFingerprint,/filters/);
-  assert.doesNotMatch(clientFingerprint,/questionOrInstruction/);
+  assert.match(clientFingerprint,/questionOrInstruction/);
   const aiSource=fs.readdirSync(path.join(root,'src')).filter(f=>/^(13|14|15|16|17)\d_.*\.gs$/.test(f)).sort().map(f=>fs.readFileSync(path.join(root,'src',f),'utf8')).join('\n');
   for(const token of ['/interactions','uploadToFileSearchStore','X-Goog-Upload-Protocol','x-goog-api-key','customMetadata','ScriptApp.getOAuthToken'])assert.ok(aiSource.includes(token),token);
   const entry=fs.readFileSync(path.join(root,'src','99_EntryPoints.gs'),'utf8');assert.ok(entry.includes("copy.available = true"));
