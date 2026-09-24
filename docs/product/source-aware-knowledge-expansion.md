@@ -470,6 +470,14 @@ confidentiality = source-specific classification
 - 内部評価 / NewsをEntity Summary timelineへどの粒度で表示するか
 - Newsの保存可能範囲・契約上の扱い
 
+## Implementation plan
+
+The reviewed implementation roadmap is recorded in:
+
+`docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
+
+Work 0069 is planning-only. Record-layer implementation and AI/provider implementation will receive separate future Work IDs when started.
+
 ## Non-Goals of this note
 
 - Work IDの発番
