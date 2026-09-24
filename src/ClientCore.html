@@ -31,6 +31,11 @@ function kspEscapeHtml(value){return String(value==null?'':value).replace(/[&<>"
 function kspSanitizeStatusHtml(value){return String(value==null?'':value).replace(/href="([^"]*)"/gi,(match,href)=>{const safe=kspSafeDriveUrl(href);return safe?'href="'+kspEscapeHtml(safe)+'"':'href="#" aria-disabled="true"'})}
 function showStatus(id,kind,message,html){const box=el(id);box.className='status visible '+kind;if(html)box.innerHTML=kspSanitizeStatusHtml(message);else box.textContent=message}
 function clearStatus(id){const box=el(id);box.className='status';box.textContent=''}
+function kspMeetingRequiredControls(prefix){return[...el(prefix+'-form').querySelectorAll('input[required],select[required]')]}
+function kspSetMeetingRequiredError(control,invalid){const message=el(control.id+'-error');if(invalid){control.setAttribute('aria-invalid','true');control.setAttribute('aria-describedby',message.id)}else{control.removeAttribute('aria-invalid');control.removeAttribute('aria-describedby')}message.hidden=!invalid}
+function kspClearMeetingRequiredErrors(prefix){kspMeetingRequiredControls(prefix).forEach(control=>kspSetMeetingRequiredError(control,false))}
+function kspValidateMeetingRequired(prefix,statusId){let first=null;kspMeetingRequiredControls(prefix).forEach(control=>{const invalid=!String(control.value||'').trim();kspSetMeetingRequiredError(control,invalid);if(invalid&&!first)first=control});if(first){showStatus(statusId,'error','必須項目を入力してください。');first.focus();return false}return true}
+['meeting','meeting-edit'].forEach(prefix=>kspMeetingRequiredControls(prefix).forEach(control=>{const clearWhenValid=()=>{if(control.getAttribute('aria-invalid')!=='true'||!String(control.value||'').trim())return;kspSetMeetingRequiredError(control,false);const statusId=prefix==='meeting'?'meeting-status':'meeting-edit-status';if(!kspMeetingRequiredControls(prefix).some(item=>item.getAttribute('aria-invalid')==='true')&&el(statusId).textContent==='必須項目を入力してください。')clearStatus(statusId)};control.addEventListener('input',clearWhenValid);control.addEventListener('change',clearWhenValid)}));
 const kspActionBusyStates=new WeakMap();
 function kspSetActionBusy(button,busy,label){
   if(!button)return;

@@ -78,7 +78,7 @@ async function submitCounterpartyModal(event){
     applyMaintenanceMasterData(result.masters);
     if(counterpartyModalState.origin==='meeting'){
       const id=result.counterparty&&result.counterparty.id;
-      clearRetryContext();refreshMeetingCounterpartyEntities(id||'');refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();
+      clearRetryContext();refreshMeetingCounterpartyEntities(id||'');refreshMeetingRelatedPitchbooks([]);saveMeetingDraft();if(id)kspSetMeetingRequiredError(el('meeting-counterpartyId'),false);
       showStatus('meeting-status','success','面談先を追加して選択しました。');
     }else{
       showStatus('masters-status','success','面談先マスターを更新しました。');
