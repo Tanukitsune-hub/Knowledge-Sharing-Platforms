@@ -1,11 +1,11 @@
 # Theme Palette Registry
 
-- Status: WORK0064_REVIEW_CANDIDATE
+- Status: ACCEPTED
 - Theme: Executive Navy Slate
 - Registry version: 3
-- Source: Work0044 / served version25、text.secondary補正案: Work0064
+- Source: Work0044 / served version25、text.secondary補正: Work0064
 
-このファイルはWork IDから独立した配色の正本です。Work0044でユーザーが実画面確認したpaletteを基礎とし、Work0064では補助文字のみcontrast基準に合わせて補正します。Work0064の変更はChatGPT final review待ちです。
+このファイルはWork IDから独立した配色の正本です。Work0044でユーザーが実画面確認したpaletteを基礎とし、Work0064で補助文字のみcontrast基準に合わせて補正し、ChatGPT final reviewでaccepted defaultとして確定した。
 
 Machine-readable source:
 - `docs/design/theme-palette-tokens.json`
@@ -19,7 +19,7 @@ Machine-readable source:
 - semantic success / warning / errorは意味識別を維持する。
 - theme overrideが存在しない場合は必ずこの既定値へ戻る。
 
-## 基本16項目 — Work0044 baseline + Work0064補正案
+## 基本16項目 — Work0044 baseline + Work0064補正
 
 | # | 区分 | 設定項目 | 色名 | Color Code |
 |---:|---|---|---|---|
