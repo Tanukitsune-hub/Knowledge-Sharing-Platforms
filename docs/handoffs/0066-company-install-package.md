@@ -34,7 +34,7 @@ The generated bundle / release manifest pair remains the installation artifact. 
 
 ## Required Delivery
 
-- generated bundle content
+- text-file bundle `dist/Private_Assets_Intelligence_KnowledgeShare_bundle_v0.1.2.txt` (byte-identical to generated `.gs` bundle)
 - release/checksum information
 - Japanese installation guide
 - clear statement that AI providers remain disabled until separately configured
@@ -55,7 +55,8 @@ The generated bundle / release manifest pair remains the installation artifact. 
 - canonical company installation doc updated for current self-only pilot.
 - guide is consistent with `dist/INSTALL.md`, `src/appsscript.json`, security/runtime policy, and Work0065 accepted boundary.
 - release/checksum values match `dist/release-manifest.json`.
-- user receives the bundle content and guide through the established company-email path.
+- text-file bundle blob SHA matches the generated bundle blob SHA (`f5d8df671509aaa6c49077fc1cfbb7dfe4abc836`).
+- user receives the text-file bundle and guide for company-environment transfer.
 - no company environment mutation occurs in Work0066.
 
 ## Completion
@@ -83,3 +84,18 @@ WORK_0066_COMPLETE: YES
 COMPLETION_LATCH: APPLIED
 BLOCKER: NONE
 ```
+
+## Delivery Artifact
+
+```text
+TEXT_BUNDLE: dist/Private_Assets_Intelligence_KnowledgeShare_bundle_v0.1.2.txt
+SOURCE_BUNDLE: dist/KnowledgeShare.bundle.gs
+TEXT_BUNDLE_BLOB_SHA: f5d8df671509aaa6c49077fc1cfbb7dfe4abc836
+SOURCE_BUNDLE_BLOB_SHA: f5d8df671509aaa6c49077fc1cfbb7dfe4abc836
+BYTE_IDENTITY: PASS
+```
+
+WORK_ID: 0066
+DISPATCH_ID: N/A
+BALL: CHATGPT
+STATUS: REVIEW
