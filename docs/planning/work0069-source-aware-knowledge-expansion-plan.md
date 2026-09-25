@@ -741,7 +741,7 @@ Acceptance Evidence:
 - enabled provider runtime qualification passes for every provider actually approved
 - no provider qualification is claimed for unavailable providers
 
-### Future implementation Work D — Internal Assessment Digest
+### Future implementation Work D — Automatic Internal Assessment Digest
 
 Start after Work C provider path is stable and Internal Assessment AI use is authorized.
 
@@ -750,7 +750,9 @@ Validation: TIER_3_HIGH for confidential Internal Assessment provider path.
 
 Primary Outcome:
 
-長文Internal Assessmentを原本にgroundしたstructured digestとしてderived/rebuildable化し、Knowledge Searchで全体像と原本根拠の両方を使える。
+利用者がDigestの存在・要否・利用方法を意識しなくても、systemがInternal AssessmentごとにDigest要否を自動判定し、必要な場合だけ原本にgroundしたstructured digestを生成・更新し、Knowledge Searchで自動利用する。
+
+Digestはnormal user向けの独立Source Type、登録項目、checkbox、toggle、手動生成buttonにはしない。derived/rebuildableな内部最適化layerとする。
 
 Candidate digest:
 
@@ -771,15 +773,69 @@ decision / action
 supporting page / section references
 ~~~
 
-Rules:
+#### Automatic generation policy
+
+原文をprovider-independentにmaterializeした後、次のdeterministic policyで要否を決める。thresholdはinitial production defaultであり、実データによる後続tuningは可能だが、user操作にはしない。
+
+~~~text
+materialized text < 4,000 chars
+  -> NOT_REQUIRED
+
+materialized text >= 12,000 chars
+  -> REQUIRED
+
+4,000 <= materialized text < 12,000 chars
+  -> REQUIRED if either:
+     - assessment_type is IC / investment-decision class, or
+     - materialized structure has >= 4 meaningful sections/headings
+  -> otherwise NOT_REQUIRED
+~~~
+
+追加原則:
+
+- 画像主体等でtext extractionが不十分な場合は、文字数だけでNOT_REQUIREDに落とさず、materialization品質を判定してfail-closed / deferredにする。
+- Digest生成はsource保存をblockしない。
+- approved provider / source policyが利用不可なら自動生成をdeferし、原本検索だけで機能継続する。
+- providerが利用可能になった後はeligibleな未生成/stale sourceをbackground sync対象として自動回収する。
+- user-facing manual overrideは設けない。
+
+Internal state:
+
+~~~text
+NOT_REQUIRED
+PENDING
+CURRENT
+STALE
+DEFERRED
+FAILED
+~~~
+
+#### Automatic retrieval policy
+
+DigestがCURRENTでも、回答をDigestだけから作らない。
+
+- broad overview / synthesis / history / change-over-time question:
+  - CURRENT Digestをoverview / retrieval aidとして自動利用する。
+  - supporting source referencesを使って原本File Searchへ戻り、最終回答をgroundする。
+- precise factual / numeric / clause / page-specific question:
+  - 原本File Searchをprimaryにし、Digestは必要な場合だけ補助的に使う。
+- multi-source synthesis:
+  - Internal Assessment Digestは論点把握とsource prioritizationに使えるが、final citationは原本sourceへ解決する。
+- DigestがNOT_REQUIRED / STALE / DEFERRED / FAILEDでも検索をblockせず、原本へtransparent fallbackする。
+- Digestの利用有無をnormal user UIへ表示する必要はない。必要な運用診断はadministrator-only derived stateで確認可能にする。
+
+#### Integrity / lifecycle
 
 - authoritative source remains original file/Doc
+- Digest is not a separate user Knowledge Source and does not receive an independent source ID
 - no invented conclusions
 - page/section grounded where possible
-- digest has source content hash/version
-- source update invalidates/rebuilds digest
+- digest records source_id + source content hash/version
+- source update immediately marks Digest STALE
+- stale Digest is never used as current evidence
+- rebuild creates a new CURRENT derived state
 - digest cannot silently replace original evidence
-- direct short assessments may skip digest when no benefit
+- final answer citations resolve to authoritative source, not the Digest artifact
 
 ## Migration / Company Update Strategy
 
@@ -964,6 +1020,7 @@ NEXT_IMPLEMENTATION_WORK: UNASSIGNED
 FULL_OUTPUT_PITCHBOOK_OMISSION: MUST_FIX
 CLEAR_SCOPE: ALL_4_ADD_TABS
 AI_PROVIDER_GATE: DEFERRED_UNTIL_APPROVED
+DIGEST_POLICY: AUTOMATIC_HIDDEN_DERIVED_LAYER
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 ~~~
