@@ -10,6 +10,7 @@ ROUTE: A -> C
 BASELINE: Work0070 ACCEPTED / release 0.2.0 / schema9
 TARGET_RELEASE: 0.2.1
 TARGET_SCHEMA: 9
+TARGET_RELEASE_PHASE_B: 0.2.2 if production source changes
 
 ## Primary Outcome
 
@@ -316,7 +317,7 @@ GOOGLE_WEB_UX_KB_REVIEWED: YES
 ADOPTION_MATRIX: docs/product/work0071-google-web-ux-adoption.md
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: 0071-CODEX-03
+NEXT_DISPATCH: 0071-CODEX-04
 ```
 
 
@@ -373,3 +374,29 @@ NATIVE_UPLOAD_PATH_ACCEPTED_EVIDENCE: REUSED
 The missing OS-picker observation is not a Phase A blocker because picker/upload transport semantics did not change and prior native-path evidence is closed. Do not re-request user file selection.
 
 Main AGENTS compact-context gate was repaired by ChatGPT without changing the validator limit. Active dispatch `0071-CODEX-03` is reconciliation/canonical qualification only; target-runtime mutation is prohibited.
+
+
+## Phase A integrated
+
+```text
+PR: #104
+MERGE: e9c759c569660331a1eb447cd44787ab1051c427
+RELEASE: 0.2.1
+SCHEMA: 9
+PHASE_A_INTEGRATION_READY: YES
+BLOCKER: NONE
+```
+
+Accepted Phase A:
+
+- stable primary-action/status geometry for Add 4 source
+- shared file queue with vermilion identity marker
+- standalone stale-status repair
+- inline add-form validation/focus improvements
+- Work0049 busy-feedback preservation
+- exact distribution source/hash pinning
+- unattended-first validation contract
+
+The exact-candidate valid-file runtime transition remains `NOT_OBSERVED_AUTOMATION_LIMITATION` and is not reopened without material contradictory evidence.
+
+Phase B active dispatch: `0071-CODEX-04`.
