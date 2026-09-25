@@ -1,12 +1,12 @@
 # Work 0070 dispatch control
 
 WORK_ID: 0070
-ACTIVE_DISPATCH_ID: 0070-CODEX-02
+ACTIVE_DISPATCH_ID: 0070-CODEX-03
 BALL: CODEX
 STATUS: READY
-MODE: BUILD
+MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
-PHASE: SOURCE_REVIEW_REPAIR
+PHASE: TARGET_RUNTIME_QUALIFICATION
 
 ## Primary Outcome
 
@@ -29,7 +29,8 @@ API providerなしで、`面談メモ / 保存資料 / ニュース / 評価（I
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
 | 0070-CODEX-01 | production source実装 + deterministic validation | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-01-record-source-expansion-instruction.md` | `docs/handoffs/0070-CODEX-01-record-source-expansion-report.md` / Draft PR #103 | — |
-| 0070-CODEX-02 | ChatGPT source review findingsの限定修正 | BUILD | CODEX | READY | `docs/handoffs/0070-CODEX-02-source-review-repair-instruction.md` | pending | — |
+| 0070-CODEX-02 | ChatGPT source review findingsの限定修正 | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-02-source-review-repair-instruction.md` | `docs/handoffs/0070-CODEX-02-source-review-repair-report.md` / Draft PR #103 | — |
+| 0070-CODEX-03 | isolated target-runtime migration / persistence / browser / concurrency qualification | QUALIFICATION | CODEX | READY | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-instruction.md` | pending | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -52,15 +53,29 @@ CODEX-02で限定修正し、ChatGPT再review後にtarget-runtime qualification�
 - deployment/runtime/company data/provider mutation = 0。
 - target runtimeはまだ実行しない。
 
-## Planned Next Dispatch
+## CODEX-02 ChatGPT review
 
-CODEX-01のChatGPT review後、必要なら:
+Draft PR #103の5件のsource review repairを再確認し、deterministic sourceとして受入れ。
 
-`0070-CODEX-03` — CODEX-02 source repair受入れ後の isolated target-runtime schema9 migration / Workspace persistence / browser / concurrency qualification.
+ACCEPTED_REPAIR_EVIDENCE:
 
-同じWork IDを維持する。
+- actual server bootstrapのdotなしextensionからbrowser acceptをdot付き生成し、fixtureもproduction server functionを利用。
+- standalone 保存資料はAsset Class required + prepare RPC前validationへ整合。
+- News / Assessment Title、News Publisher、Fund / Strategyのclient/server boundaryを整合。
+- explicit SOURCE_REQUEST_EXPIREDはknown safe rejectionとしてfresh requestへ回復し、true unknown outcomeはfail-closedを維持。
+- new source validation/retry/reference/file errorにsafe public messageを追加。
+- focused + synthetic browser + bundle/package + canonical 716/716 PASSを受入れ。
 
-WORK_ID: 0070
-DISPATCH_ID: 0070-CODEX-02
-BALL: CODEX
-STATUS: READY
+PR #103はcontroller-side main commitsとの履歴divergenceにより現時点でmergeable=false。CODEX-03の最初にnormal mergeでorigin/mainをreconcileし、production source conflictがあればruntime mutation前にSTOPする。
+
+## CODEX-03 Boundary
+
+- MODE: QUALIFICATION。
+- exact reconciled PR candidateのみをactual Apps Script / Workspace / Web Appでisolated synthetic qualification。
+- company production migration / real users / confidential data / provider call / broad access / physical delete = 0。
+- application defectを観測した場合はsource patchせずmatrixを停止し、次Dispatchへ返す。
+
+## Completion Gate
+
+CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPTEDにしない。
+
