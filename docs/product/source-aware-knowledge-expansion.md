@@ -138,6 +138,21 @@ content_hash
 
 source固有の項目は各sourceのcontractに残す。
 
+## Team usage principle
+
+Private Assets Intelligenceは、複数名が同時に異なる記録を入力・保存・検索・編集するteam-use業務システムとして設計する。
+
+- 各browser tabの未保存入力は独立し、他user / 他tabと共有しない。
+- shared authoritative stateのmutationだけをatomic / idempotentに保護する。
+- 異なるrecordのcreateは並行利用を許容する。
+- 同じrecordの同時編集はclaim + optimistic concurrencyでstale writeを拒否する。
+- global lockは採番・Index commit等の短いcritical sectionに限定し、file upload / AI / Digest / Full Output materialization中は保持しない。
+- authoritative source保存とderived processingを分離し、AI/Digest failureで利用者の保存済み記録をrollbackしない。
+- derived processingはsource ID + revision/content hashでdeduplicate / rebuild可能にする。
+- read-only search / Full Outputは原則lock-freeとし、revision token等でsource更新との整合を確認する。
+- current shared-access modelではauthorized Web App usersは同じActive corpusを参照する。user-level ACLは初期scope外。
+- team rollout前にmulti-session target-runtime concurrency qualificationを必須とする。
+
 ## Stable source identity
 
 各Knowledge Sourceは独立したstable ID namespaceで管理する方向とする。
@@ -503,6 +518,8 @@ confidentiality = source-specific classification
 - Knowledge Searchのsource scopeはcheckboxで複数選択可能とし、初期値は`面談メモ`のみとする。
 - Knowledge Searchの利用者向けsource labelは `面談メモ / 保存資料 / ニュース / 評価（IC、社内整理）` とする。
 - Internal Assessment Digestは利用者操作なしで要否判定・生成・利用・更新を自動化する。Digestはhidden derived layerで、final citationは原本へ解決する。
+- 製品は個人利用ではなく複数名同時利用を前提とし、入力state分離・atomic mutation・stale-write拒否を設計原則とする。
+- 長時間処理でglobal lockを保持せず、AI/Digest等のderived processingをauthoritative saveの同期critical pathから分離する。
 
 ## Open implementation questions
 
