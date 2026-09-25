@@ -89,6 +89,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 
 - Build Alternative Assets Intelligence for Meeting, Pitchbook, News, and Assessment; retrieval is separately scoped.
 - Product/UX: `docs/product/vision.md`.
+- Interaction stability: `docs/product/stable-interaction-layout.md`.
 - Architecture: `docs/architecture/target-architecture.md`.
 - Current implementation plan: `docs/planning/apps-script-implementation-plan.md`.
 - Runtime/operations: `docs/operations/runtime-policy.md`.
@@ -129,6 +130,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Actor is best-effort: email → `TEMP_USER:<key>` → `UNIDENTIFIED`; missing persistent identity does not block normal operation.
 - Never commit confidential source content, credentials, private URLs, or organization-specific runtime IDs.
 - Gemini credentials are server-side only; billing-enabled operations and confidential indexing require explicit authorization.
+- In user-facing async flows, avoid avoidable layout shifts that move primary actions or reading position; reuse shared busy/status semantics, preserve focus/retry/error visibility, and validate changed interaction states rather than only static screenshots.
 
 ## Commands and validation
 
