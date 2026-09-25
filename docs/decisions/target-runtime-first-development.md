@@ -73,6 +73,32 @@ Work 0014で利用したsynthetic DEV project / resource evidenceは、実際に
 
 すべてのdeterministic scenarioをtarget runtimeで繰り返す必要はない。logic validationとtarget-runtime qualificationは役割を分け、最小十分なnative evidenceを取得する。
 
+
+## User-presence-independent development
+
+開発・qualificationは、利用者が検証用PCの前にいることを前提にしない。外出中・離席中でもagentが安全に前進できることを標準とする。
+
+既定値:
+
+```text
+USER_NATIVE_ACTION_BUDGET: 0
+USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
+```
+
+原則:
+
+- native user actionの回数をtarget-runtime evidenceの強さと混同しない。同じAcceptanceをactual target上のautomationとauthoritative readbackで証明できるなら、そちらを使う。
+- browser操作はactual Web App上のnative automationを第一選択とする。file uploadではOS picker自体がOutcomeでない限り、Playwright等の `setInputFiles()` / file chooser control、または同じ `input[type=file]` / `change` event pathを通る安全なpage-native File/DataTransfer操作を使用できる。
+- automated file injectionを使う場合は、inputのfiles、client event、upload RPC、Drive/Index等のauthoritative persisted resultまでreadbackし、「見かけ上ファイル名だけ入った」状態をPASSにしない。
+- OAuth consent、OS file pickerそのもの、browser permission、hardware/device固有挙動、または明示的なhuman visual acceptanceなど、manual/nativeでしか得られないunique evidenceがAcceptanceに必要な場合だけuser actionを要求する。
+- 既にnative pathをaccepted target-runtime evidenceで確認済みで、当該pathにmaterial changeがない場合は、そのClosed Conclusionを再利用する。同じpicker/permission操作を念のため再要求しない。
+- user actionが不可避なWorkでは、handoffで理由と `USER_NATIVE_ACTION_BUDGET` を明示し、可能な限りrun終盤の1 checkpointへ集約する。途中で小出しに複数回依頼しない。
+- automation harnessがOS dialog等を操作できないだけなら `AUTOMATION_LIMITATION` と分類する。それ自体をapplication defect、FAIL、または追加deployment理由にしない。
+- userが不在で不可避のmanual actionだけが残った場合は、accepted evidenceとcurrent stateを保持して `ACTION_REQUIRED` で安全に停止する。別のmutationやblind retryで回避しない。
+- unattended-firstのためにOAuth/security control、browser permission、access restriction、audit、data protectionを弱めてはならない。
+
+Evidence hierarchyは「強い証拠ほど必ず人間が操作する」という意味ではない。Acceptanceを同じ強さで満たす最も自動化可能で再現可能なtarget-runtime evidenceを優先する。
+
 ## Isolated test-data and resource rules
 
 - test dataはsyntheticまたは適切にanonymizedされたものだけを使用する。

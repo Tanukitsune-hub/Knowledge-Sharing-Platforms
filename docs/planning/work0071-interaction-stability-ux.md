@@ -279,6 +279,15 @@ Escalate to `TIER_3_HIGH` only if implementation must change:
 
 ## Execution Budget
 
+User-presence rule:
+
+```text
+USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
+USER_NATIVE_ACTION_BUDGET: 0
+```
+
+File upload qualification uses actual-Web-App browser automation and authoritative persistence readback unless native OS/file-picker behavior itself becomes a new explicit outcome. Previously accepted native upload-path evidence is reused when unchanged.
+
 When CODEX-01 starts:
 
 - one shared interaction pattern
