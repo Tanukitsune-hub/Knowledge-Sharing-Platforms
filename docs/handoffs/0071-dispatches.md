@@ -2,8 +2,8 @@
 
 WORK_ID: 0071
 ACTIVE_DISPATCH_ID: 0071-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: USER
+STATUS: ACTION_REQUIRED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: PHASE_A_IMPLEMENTATION
@@ -26,7 +26,11 @@ PHASE: PHASE_A_IMPLEMENTATION
 
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
-| 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CODEX | READY | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | pending | — |
+| 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | USER | ACTION_REQUIRED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` | — |
+
+## Current handoff
+
+Phase A source、generated artifacts、deterministic validation、面談/News/評価の隔離target-runtime確認は完了。standalone資料保存のfile chooserをbrowser automationで取得できなかったため、同じ隔離Web Appの「記録を追加 > 資料保存」で用意済みsynthetic TXTのnative選択だけを本人に依頼する。選択後に同一Dispatchでfile flowとfinal evidenceを確認し、BALLをChatGPTへ返す。Work0071は未ACCEPTED。
 
 ## Authorization Boundary
 
@@ -55,5 +59,5 @@ Work0071はまだACCEPTEDにしない。
 
 WORK_ID: 0071
 DISPATCH_ID: 0071-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: USER
+STATUS: ACTION_REQUIRED
