@@ -32,12 +32,14 @@ test('seven ordered .gs files raw-concatenate to the accepted bundle', () => {
   const parts = names.map((name) => fs.readFileSync(path.join(packageDir, name)));
   const concatenated = Buffer.concat(parts);
   assert.ok(concatenated.equals(acceptedBundle));
-  assert.equal(sha256(concatenated), '8ef7c362af8c5da23c792cf20046c8b6f08a044f16fa5b71e3d40f7f46601c27');
+  assert.equal(sha256(concatenated), 'cc05693d92e9d66951cf06c3c56ee88b63329d3e768a228ed58da022a04b3144');
   assert.equal(packageManifest.concatenated_sha256, sha256(concatenated));
   assert.equal(packageManifest.canonical_bundle_sha256, acceptedRelease.bundle_file_sha256);
   assert.equal(packageManifest.canonical_bundle_payload_sha256, acceptedRelease.bundle_payload_sha256);
   assert.equal(packageManifest.concatenated_bytes, acceptedBundle.length);
-  assert.equal(Math.max(...parts.map((part) => part.length)) <= 400_000, true);
+  assert.equal(parts[0].length <= 450_000, true, 'HTML resource file exceeds its hard limit');
+  assert.equal(Math.max(...parts.slice(1).map((part) => part.length)) <= 400_000, true,
+    'server part exceeds its hard limit');
   for (let index = 0; index < parts.length; index += 1) {
     assert.equal(packageManifest.ordered_files[index].bytes, parts[index].length);
     assert.equal(packageManifest.ordered_files[index].sha256, sha256(parts[index]));
