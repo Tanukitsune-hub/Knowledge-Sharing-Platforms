@@ -10,7 +10,7 @@ function harness(respond){
     const classes=new Set();return{id,value:'',checked:false,disabled:false,hidden:false,options:[],children:[],dataset:{},listeners:{},textContent:'',innerHTML:'',className:'',
       classList:{add:x=>classes.add(x),remove:x=>classes.delete(x),toggle:(x,on)=>on?classes.add(x):classes.delete(x),contains:x=>classes.has(x)},
       addEventListener(name,handler){(this.listeners[name]??=[]).push(handler)},append(...children){this.children.push(...children)},appendChild(child){this.children.push(child);return child},prepend(child){this.children.unshift(child)},
-      querySelectorAll(){return[]},contains(){return false},scrollIntoView(){},setAttribute(key,value){this[key]=value},removeAttribute(key){delete this[key]}
+      querySelectorAll(){return[]},contains(){return false},scrollIntoView(){},setAttribute(key,value){this[key]=value},getAttribute(key){return this[key]??null},removeAttribute(key){delete this[key]},insertAdjacentElement(_,child){nodes.set(child.id,child)}
     };
   }
   for(const name of fs.readdirSync(path.join(__dirname,'../src')).filter(x=>x.endsWith('.html'))){for(const match of source(name).matchAll(/\bid="([^"]+)"/g))nodes.set(match[1],element(match[1]))}

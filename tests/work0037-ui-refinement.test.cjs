@@ -85,12 +85,11 @@ test('Admin has no shared password gate while provider controls remain', () => {
   assert.doesNotMatch(read('165_AiProviderAdmin.gs'), /KSP_SHARED_ADMIN_PASSWORD_SALT/);
 });
 
-test('Meeting Create places Meeting Type in row one, submit below internal participants, and attachment at right', () => {
+test('Meeting Create keeps its field grid while primary action precedes dynamic attachment content', () => {
   assert.match(styles, /meeting-field-types\{grid-column:10\/span 3;grid-row:1/);
   assert.match(styles, /meeting-field-internal-participants\{grid-column:1\/span 7;grid-row:4/);
-  assert.match(styles, /meeting-field-submit\{grid-column:1\/span 3;grid-row:5/);
-  const grid = index.slice(index.indexOf('<div class="grid">'), index.indexOf('</div>\n          <div id="meeting-retry-note"'));
-  assert.ok(grid.indexOf('meeting-internalParticipants') < grid.indexOf('meeting-submit'));
+  assert.match(styles, /\.ksp-stable-action \.action\.primary\{[^}]*width:180px/);
+  assert.ok(index.indexOf('id="meeting-submit"') < index.indexOf('id="meeting-internalParticipants"'));
   assert.match(index, /attachment-workspace[\s\S]*attachment-drop-column/);
   assert.match(index, /id="meeting-file-actions"[\s\S]*pitchbook-clear[\s\S]*pitchbook-retry/);
   assert.match(styles, /attachment-workspace\{display:block/);

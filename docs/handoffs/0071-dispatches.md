@@ -2,8 +2,8 @@
 
 WORK_ID: 0071
 ACTIVE_DISPATCH_ID: 0071-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: PHASE_A_FINAL_INTEGRATION
@@ -31,7 +31,7 @@ USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 |---|---|---|---|---|---|---|---|
 | 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` / Draft PR #104 | — |
 | 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-report.md` / Draft PR #104 | — |
-| 0071-CODEX-03 | latest-main reconcile + canonical check + Phase A integration readiness | QUALIFICATION | CODEX | READY | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-instruction.md` | pending | — |
+| 0071-CODEX-03 | latest-main reconcile + canonical check + Phase A integration readiness | QUALIFICATION | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-instruction.md` | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-report.md` / Draft PR #104 | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -105,7 +105,9 @@ CODEX-01 return後にChatGPTがbefore/after geometry、diff、browser/runtime ev
 
 Work0071はまだACCEPTEDにしない。
 
+CODEX-03 return: latest main normal merge後もPhase A sourceと0.2.1/schema9 distribution identityは不変。agent foundation、`npm run check` 717/717、diff hygieneはPASS。valid-file exact-candidate runtime stateの未直接観測は`AUTOMATION_LIMITATION`として明記し、ChatGPT判断によりPhase A integrationの非BLOCKERとする。CODEX-03のruntime mutationとuser native actionは0。Phase A integration ready、Work全体のACCEPTED判定は未実施。
+
 WORK_ID: 0071
 DISPATCH_ID: 0071-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
