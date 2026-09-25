@@ -21,7 +21,10 @@ test('public copy uses the agreed terms and hides internal error vocabulary', ()
   const pages = ['Index.html', 'KnowledgeSearchPage.html', 'EntityWorkspacePage.html',
     'ActivityAnalyticsPage.html', 'RelationshipExplorerPage.html', 'MaintenancePages.html',
     'AiProviderSettingsPage.html'].map(source).join('\n');
-  const publicErrors = source('00_Core.gs').split('function kspSafePublicErrorMessage_')[0];
+  const safeMap = source('00_Core.gs').match(/var KSP_SAFE_ERROR_MESSAGES = Object\.freeze\(\{([\s\S]*?)\n\}\);/);
+  assert.ok(safeMap, 'public error message map missing');
+  const publicErrors = [...safeMap[1].matchAll(/^\s+[A-Z][A-Z0-9_]+:\s*'([^']*)'/gm)]
+    .map(match => match[1]).join('\n');
   const glossary = fs.readFileSync(path.join(root, 'docs/design/work0053-ui-copy-glossary.md'), 'utf8');
   for (const term of ['面談記録', '保存資料', '面談先', 'アセットクラス', 'チーム',
     '面談場所', '最後の面談日', '削除済み', '復元', '既定の配色', '接続確認', '同期']) {

@@ -213,7 +213,9 @@ test('new source validation and retry failures have safe actionable public messa
     SOURCE_COUNTERPARTY_UNAVAILABLE: '選択した面談先を確認してください。',
     SOURCE_REFERENCE_UNAVAILABLE: '関連記録が見つからないか、利用できません。',
     SOURCE_UPLOAD_MIME_MISMATCH: 'ファイルの形式を確認してください。',
+    SOURCE_FILE_CONFLICT: '保存済み原本と入力内容が一致しません。内容を確認して再試行してください。',
     SOURCE_RETRY_CONFLICT: '前回の登録内容と一致しません。入力内容を確認してください。',
+    SOURCE_MASTER_UNAVAILABLE: '選択した面談先または項目を確認してください。',
     ASSESSMENT_TYPE_INVALID: '評価種別を選択してください。'
   };
   for (const [code, message] of Object.entries(expected)) {

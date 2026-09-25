@@ -32,7 +32,7 @@ async function runViewport(browser,url,width,height){
       if(name==='searchNewsRecords'&&deleted&&window.__deferDeletedNews){window.__resolveDeletedNews=()=>success({ok:true,records:[{...data.getNewsMaintenanceRecord.record,status:'Inactive'}]});return}
       let result=data[name]||{ok:true};
       if(name==='registerNews'&&window.__newsFailure==='expired')result={ok:false,error:{code:'SOURCE_REQUEST_EXPIRED',message:'Request expired'}};
-      if(name==='registerNews'&&window.__newsFailure==='retry')result={ok:false,error:{code:'SOURCE_FILE_CONFLICT',message:'原本を確認してください。'},retry:{retryRecordId:'NEWS-000099',retryFingerprint:'stable-fingerprint'}};
+      if(name==='registerNews'&&window.__newsFailure==='retry')result={ok:false,error:{code:'SOURCE_FILE_CONFLICT',message:'保存済み原本と入力内容が一致しません。内容を確認して再試行してください。'},retry:{retryRecordId:'NEWS-000099',retryFingerprint:'stable-fingerprint'}};
       if(name==='preparePitchbookBatch'&&!payload.assetClassId)result={ok:false,error:{code:'PITCHBOOK_ASSET_CLASS_REQUIRED',message:'アセットクラスを選択してください。'}};
       if(name==='searchNewsRecords'&&deleted)result={ok:true,records:[{...data.getNewsMaintenanceRecord.record,status:'Inactive'}]};
       if(name==='searchAssessmentRecords'&&deleted)result={ok:true,records:[{id:'ASMT-000001',assessmentId:'ASMT-000001',date:'2026-09-25',title:'Synthetic Assessment',counterpartyNames:['Synthetic Entity'],assetClassName:'Private Equity',status:'Inactive',version:1}]};
@@ -100,7 +100,7 @@ async function runViewport(browser,url,width,height){
     await fillNewsDraft('Stable retry test');
     await page.evaluate(()=>{window.__newsFailure='retry'});
     await page.locator('#news-add-submit').click();
-    await page.waitForFunction(()=>document.getElementById('news-add-status').textContent.includes('原本を確認してください'));
+    await page.waitForFunction(()=>document.getElementById('news-add-status').textContent.includes('保存済み原本と入力内容が一致しません'));
     const retryOperation=await page.evaluate(()=>sourceRecordOperations.news);
     assert.equal(retryOperation.retryRecordId,'NEWS-000099');
     assert.equal(retryOperation.retryFingerprint,'stable-fingerprint');
