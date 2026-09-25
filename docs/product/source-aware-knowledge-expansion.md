@@ -54,6 +54,7 @@ Meeting / Memo、Pitchbook、内部評価、Newsは、それぞれ専用の登�
 - 初回表示はclear stateとし、以前の入力を自動で復元して埋めない。既存の24時間draft自動復元は、この将来UXでは廃止する方向とする。
 - semanticに共通する入力項目はpage-level shared stateとして扱い、tabを切り替えても保持する。
 - shared stateは利用者が `クリア` を実行するまで維持する。
+- `クリア` は4tabすべての未保存入力・選択済みファイルに適用する。安全なretry / partial-operation stateが残る場合はclearを拒否して回復を優先する。
 - source固有項目は各tab固有stateとして扱う。
 - exact common-field setとclear時のsource-specific state範囲はimplementation Workで確定する。
 - source共通・固有の入力stateは、利用中の画面stateとして保持する。過去sessionのdraftをlocal storage等からsilent restoreする機能は持たない。
@@ -324,6 +325,17 @@ Default direction:
 ```
 
 質問やmodeに応じて不要なsectionは省略できるが、provenanceは保持する。
+
+### Full Outputも同じsource scopeを使う
+
+`全文出力` はKnowledge Searchのsource selectionと同じ4-source scopeを使用する。
+
+- 面談メモだけでなく、保存資料を選択した場合はPitchbook本文/contentを出力対象に含める。
+- News / 内部評価も選択時は本文/contentを含める。
+- current implementationのPitchbook reference-only / 本文省略は将来仕様として維持しない。
+- Copy / Google Docs / PDFは同じcanonical packageを使う。
+- provider APIが利用できなくても成立するrouteとし、File Searchだけに依存して本文を取得しない。
+- supported upload formatで本文をmaterializeできない場合はsilent omissionせず、明示的なlimitation / blockとして扱う。
 
 ## Citation / provenance UX
 
