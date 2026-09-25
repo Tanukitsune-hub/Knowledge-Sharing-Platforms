@@ -1283,7 +1283,7 @@ Risk: Workspace storage permission does not imply external AI transmission permi
 Mitigation:
 
 - separate source capture from provider index
-- source-type authorization gate before Work B
+- source-type authorization gate before Work C
 - no automatic News crawling
 - no Internal Assessment external indexing without explicit approval
 
@@ -1321,7 +1321,7 @@ API credential is NOT required.
 ## Non-Goals of This Plan Work
 
 - source code implementation
-- Work A/B/C ID reservation
+- Work A/B/C/D ID reservation
 - deployment
 - schema mutation
 - company data mutation
