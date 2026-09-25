@@ -122,6 +122,18 @@ async function runViewport(browser,url,width,height){
     await page.locator('#meeting-clear').click();
     assert.equal(await page.locator('#news-title').inputValue(),'');
     assert.equal(await page.locator('#news-date').inputValue(),'');
+    await fillNewsDraft('Expired unknown outcome');
+    await page.evaluate(()=>{window.__newsFailure='transport'});
+    await page.locator('#news-add-submit').click();
+    await page.waitForFunction(()=>document.getElementById('news-add-status').textContent.includes('synthetic transport failure'));
+    const unresolvedId=(await calls()).filter(item=>item.name==='registerNews').at(-1).payload.requestId;
+    await page.evaluate(()=>{window.__newsFailure='expired'});
+    await page.locator('#news-add-submit').click();
+    await page.waitForFunction(()=>document.getElementById('news-add-status').textContent.includes('前回の保存結果が不明'));
+    assert.equal(await page.evaluate(()=>sourceRecordOperations.news.requestId),unresolvedId);
+    assert.equal(await page.evaluate(()=>sourceRecordOperations.news.unknown),true);
+    await page.locator('#meeting-clear').click();
+    assert.equal(await page.locator('#news-title').inputValue(),'Expired unknown outcome','prior unknown remains fail-closed after expiry');
     assert.deepEqual(errors,[]);assert.deepEqual(warnings,[]);assert.deepEqual(blocked,[]);
     return{viewport:width,addTabs:4,pastTabs:4,newsDirectRpc:1,assessmentUploadRpc:1,standalonePitchbookRpc:2,crossTabInputBleed:0,materialOverflowPx:0,pageErrors:errors,consoleWarnings:warnings,externalRequests:blocked};
   }finally{await context.close()}
