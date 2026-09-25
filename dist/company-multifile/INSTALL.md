@@ -1,8 +1,8 @@
 # Alternative Assets Intelligence 0.2.0 — 7ファイル導入手順
 
 このpackageは同じsource commitから生成したsingle-file bundleとbyte-identicalな手動導入用代替artifactです。
-release source commit: 418802156e1a8489014ff8ca53bca134a3bad00e
-canonical bundle SHA-256: a227b3390b3c591399c2ef38c3cb319994fd8953fb325905bbfd229c817954d4
+release source commit: 25c6e62d601e6c2e7a4f3f8faf4629e8a2627904
+canonical bundle SHA-256: 3e31e792b1292af8b21d730e7ab2e07efcb7be74ee2f03de78daaa6f99635f88
 
 1. 既に受け取った会社導入ガイドの手順1～3に従い、導入先Spreadsheet、Apps Script、必要なDrive APIを準備します。
 2. Apps Script editorで既存Code.gsを00_BundleResources.gsに名前変更してサンプルコードを消し、残り6個のスクリプトファイルを記載順に作成します。各添付.txtの全文を対応する.gsへ貼り付けてください。

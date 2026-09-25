@@ -2,16 +2,16 @@
   "product": "Alternative Assets Intelligence",
   "release_version": "0.2.0",
   "schema_version": 9,
-  "source_git_commit": "418802156e1a8489014ff8ca53bca134a3bad00e",
+  "source_git_commit": "25c6e62d601e6c2e7a4f3f8faf4629e8a2627904",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "df11281487412b089fcc1aa7f29e4adcc566f008b35f24a2c8649eb3d6c905c8",
-  "bundle_file_sha256": "a227b3390b3c591399c2ef38c3cb319994fd8953fb325905bbfd229c817954d4",
+  "bundle_payload_sha256": "1c89c32a5ff641951f90cdb9f22609d608dd5e3e924ea245c9d77984a5a52c89",
+  "bundle_file_sha256": "3e31e792b1292af8b21d730e7ab2e07efcb7be74ee2f03de78daaa6f99635f88",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "1d04e4b03bf18a4268a8f91669aa9031abf33f03f6a4d8936500f59cbdeeba8a",
   "bundle_metrics": {
-    "bytes": 1409842,
-    "characters": 1357225,
+    "bytes": 1410098,
+    "characters": 1357405,
     "lines": 20756,
     "server_source_count": 67,
     "embedded_html_count": 24
@@ -426,8 +426,8 @@
     },
     {
       "file": "src/ClientSourceRecords.html",
-      "bytes": 24231,
-      "sha256": "b8170fdfc73db2c5e569c583094a5bf9fa094048bf5477dc8986f2e36a7b09b1"
+      "bytes": 24487,
+      "sha256": "18edfe2173df79a8a9f9cdfd6f3592f686fcf9717f0dccc5586adb1dd87b612d"
     },
     {
       "file": "src/ClientThemeSettings.html",
