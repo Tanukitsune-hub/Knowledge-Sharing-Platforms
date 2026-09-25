@@ -255,13 +255,31 @@ authoritative_file_id
 
 1件の内部評価は1〜複数Entityへ紐付けられ、必要に応じ関連News、Meeting、Pitchbookをstable IDで参照できるようにする。
 
-### Structured Internal Assessment Digest
+### Automatic Structured Internal Assessment Digest
 
-長文の内部評価ファイルは原本のFile Searchだけに依存せず、derived structured digestを持たせる方向を優先する。
+Internal Assessment Digestはnormal userが意識・操作する機能にはしない。systemが要否判定、生成、staleness管理、検索時利用まで自動処理するderived/rebuildable layerとする。
 
-候補項目:
+要否のinitial default:
 
-```text
+~~~text
+materialized text < 4,000 chars
+  -> NOT_REQUIRED
+
+materialized text >= 12,000 chars
+  -> REQUIRED
+
+4,000 <= materialized text < 12,000 chars
+  -> REQUIRED if:
+     - IC / investment-decision class, or
+     - meaningful headings / sections >= 4
+  -> otherwise NOT_REQUIRED
+~~~
+
+画像主体等でmaterialization品質が低い場合は文字数だけで不要判定せず、defer / fail-closedする。
+
+Digest候補項目:
+
+~~~text
 investment thesis / assessment purpose
 manager / fund strengths
 key risks
@@ -275,17 +293,36 @@ open items
 conditions
 decision / action（原文にある場合のみ）
 supporting page / section references
-```
+~~~
 
-原則:
+内部state:
 
-- アップロード型は原本ファイルがauthoritative。
-- 直接入力型は保存されたGoogle Doc等がauthoritative。
-- Digestはderived/rebuildable。
+~~~text
+NOT_REQUIRED
+PENDING
+CURRENT
+STALE
+DEFERRED
+FAILED
+~~~
+
+検索時:
+
+- broad overview / synthesis / 時系列変化ではCURRENT Digestをoverview / retrieval aidとして自動利用する。
+- precise factual / numeric / clause-specific queryでは原本検索をprimaryとする。
+- final answerはDigestだけを根拠にせず、原本へ戻ってgroundする。
+- final citationはauthoritative sourceへ解決する。
+- stale / failed / unavailable Digestは使わず、原本検索へtransparent fallbackする。
+- Digest利用のtoggle、manual generation button、normal-user badgeは設けない。
+
+Integrity:
+
+- アップロード型は原本ファイル、直接入力型は保存されたGoogle Doc等がauthoritative。
+- Digestは独立Knowledge Sourceではなく、独立source IDを持たない。
 - 原文にない判断を生成しない。
-- 可能な限りpage / section-groundedにする。
-- Digestは原本を置き換えない。
-- Knowledge SearchはDigestで全体像をつかみ、必要に応じ原本File Searchの根拠へ戻れることを目指す。
+- source content hash/versionを保持し、原本変更時は即STALE。
+- Digest生成失敗やprovider未利用はsource保存・通常検索をblockしない。
+- approved providerが利用可能になればeligibleな未生成/stale Digestをbackground処理で自動回収する。
 
 ## Retrieval and File Search
 
@@ -441,7 +478,6 @@ confidentiality = source-specific classification
 - multiple Entity relationのpersistent representation
 - source-specific lifecycle
 - provider index policy / Store separation
-- Internal Assessment Digest生成・更新contract
 - migration / retention / permissions
 
 内部評価やNewsを既存 `Pitchbook_Index` へ意味だけ変えて押し込むことは避ける。
@@ -466,6 +502,7 @@ confidentiality = source-specific classification
 - 全upload surfaceの対応拡張子はshared format contractで一元管理する。
 - Knowledge Searchのsource scopeはcheckboxで複数選択可能とし、初期値は`面談メモ`のみとする。
 - Knowledge Searchの利用者向けsource labelは `面談メモ / 保存資料 / ニュース / 評価（IC、社内整理）` とする。
+- Internal Assessment Digestは利用者操作なしで要否判定・生成・利用・更新を自動化する。Digestはhidden derived layerで、final citationは原本へ解決する。
 
 ## Open implementation questions
 
