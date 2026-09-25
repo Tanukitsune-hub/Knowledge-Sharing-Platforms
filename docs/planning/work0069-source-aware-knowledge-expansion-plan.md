@@ -147,7 +147,7 @@ Knowledge SearchはFile Searchを使い、provider citationsをauthoritative Mee
 
 Current Knowledge Search filterはsingle sourceTypeを前提としている。
 
-Current Full Outputはcurrent code上Meeting source中心で、Pitchbook rowsをdeliberately ignoreするpathがある。将来の4-source UXではここも同じsource-scope contractへ揃える必要がある。
+Current Full OutputはMeeting本文を中心にmaterializeし、Pitchbookはauthoritative file identityを確認したうえでreference-onlyとして扱うpathがある。これは将来仕様として維持する境界ではなく、明示的に解消するproduct gapとする。保存資料を選択した場合は本文/contentを無視せず、他sourceと同じsource-scope contractでFull Outputへ含める。
 
 ## Closed Product Decisions
 
@@ -241,7 +241,7 @@ Rules:
 - browser reload / new sessionを跨いでshared stateをsilent restoreしない。
 - in-flight retry / unknown-outcome / partial-upload recovery stateは安全機構として残す。
 
-クリア のexact scope（active tab固有fieldだけか、全tab固有fieldも含むか）はUI implementation開始時に1点だけ最終固定する。shared fieldsを消すことは確定。
+クリア は4tabすべてに適用する。shared fieldsに加え、面談メモ・資料保存・ニュース・内部評価の未保存source-specific入力、選択済みファイル、通常の一時UI stateをまとめてclearする。in-flight retry / unknown-outcome / partial-upload recovery等の安全stateが残る場合は、既存と同様にclearを拒否して先に回復を要求し、重複・orphanを生まない。
 
 ### 5. Meeting内uploadとstandalone資料保存
 
@@ -413,7 +413,22 @@ Examples:
 
 Internal Assessmentは「当時の社内評価」として表現する。
 
-### 12. Workspace保存とAI indexは分離
+### 12. Full Output source parity
+
+`全文出力` はAI provider APIとは独立したsource-reading routeとして、選択されたSource Typeのcontentを無視しない。
+
+Closed rules:
+
+- Knowledge Searchのsource checkboxと同じsource scopeを使う。
+- `保存資料` を選択した場合、Pitchbook本文/contentをreference-onlyで省略しない。
+- News / Internal Assessmentが追加された後は、それらも選択時に本文/contentを含める。
+- sourceごとにsection/provenanceを分け、異なるsourceを一つの事実として平坦化しない。
+- Copy / Google Docs / PDFは同じcanonical package / fingerprintを使う。
+- API credentialが無くてもFull Outputは成立するため、provider File Searchだけに依存したmaterializationにしない。
+- current binary formatの `.pdf` / `.pptx` / `.docx` はAI indexingではDIRECT_BINARYだが、現行Full Outputにはprovider-independent本文抽出がない。この差分は実装上のdependencyであり、本文を省略してAcceptanceする理由にはしない。
+- implementationではWorkspace-native conversion/extractionまたはbounded parser等のdeterministicなprovider-independent materializerを採用し、unsupportedな場合は明示的にblock/limitationとして扱う。
+
+### 13. Workspace保存とAI indexは分離
 
 Authoritative source captureはprovider availabilityに依存させない。
 
@@ -609,6 +624,7 @@ Acceptance Evidence:
 - first Add open clear
 - no 24h draft restore
 - shared fields survive tab switches and successful record flow until clear
+- clear removes unsaved input/file selections across all 4 Add tabs; safety recovery state is preserved or blocks clear until resolved
 - Add/Past selected tabs independent
 - all upload surfaces advertise/enforce same extensions
 - provider calls = 0
@@ -617,7 +633,75 @@ Acceptance Evidence:
 - target-runtime Apps Script + Workspace evidence on isolated test resources
 - canonical check / bundle parity / company package parity
 
-### Future implementation Work B — Source-aware Knowledge Search, credential-gated
+### Future implementation Work B — Source-aware Full Output parity, API-independent
+
+Start after Work A source schema / storage is accepted. API credential is not required.
+
+Mode: BUILD  
+Validation: TIER_2_STANDARD（source materialization / browser / export artifact behavior）  
+
+Primary Outcome:
+
+Knowledge Searchの4-source checkboxをprovider-independent source scopeとして先に導入し、`全文出力` が選択された面談メモ・保存資料・ニュース・内部評価のcontentを省略せず、source-separated canonical packageとしてCopy / Google Docs / PDFへ出力できる。
+
+Scope:
+
+1. source checkbox UI
+   - 面談メモ / 保存資料 / ニュース / 評価（IC、社内整理）
+   - initial Meeting only
+   - multi-select / zero-selection blocked
+   - no silent restore
+
+2. canonical request / export scope
+   - scalar `sourceType` compatibility
+   - canonical `sourceTypes[]`
+   - same structured filters where semantically valid
+
+3. 4-source authoritative resolver
+   - Meeting / Pitchbook / News / Internal Assessment
+   - multi-Entity source resolution
+   - Active-only normal behavior
+
+4. provider-independent content materialization
+   - Meeting / direct-input News / direct-input Assessment Google Docs
+   - TXT / XLSX / EML using deterministic text normalization
+   - PDF / PPTX / DOCX using a deterministic Workspace-native or bounded local conversion/extraction path
+   - no File Search/API dependency
+
+5. canonical package
+   - source-separated sections
+   - provenance label / stable ID / authoritative link
+   - selected-source ordering
+   - package fingerprint reflects source identity/content revision
+
+6. output parity
+   - preview
+   - copy
+   - Google Docs
+   - PDF
+   - AI用prompt copy, if retained, uses the same package
+
+7. remove current product limitation
+   - remove UI copy that says 保存資料本文は含まない
+   - remove/reference-only Pitchbook materialization behavior as the normal accepted path
+
+Acceptance Evidence:
+
+- initial source checkbox state = Meeting only
+- 0 selected blocked
+- each single source scope exports only that source type
+- multi-source scope exports all and only selected source types
+- Pitchbook selected -> content is present, not reference-only
+- News/Internal Assessment direct and upload paths -> content present
+- all supported upload extensions have deterministic materialization behavior or explicit blocking error; silent omission = 0
+- source sections/provenance/stable IDs/Drive links are correct
+- Copy / Docs / PDF package parity
+- provider calls = 0
+- no API credential required
+- target-runtime browser/export smoke with isolated sources
+- existing Meeting-only Full Output remains compatible
+
+### Future implementation Work C — Source-aware Knowledge Search, credential-gated
 
 Start only when approved API credential and source-indexing policy are available.
 
@@ -657,9 +741,9 @@ Acceptance Evidence:
 - enabled provider runtime qualification passes for every provider actually approved
 - no provider qualification is claimed for unavailable providers
 
-### Future implementation Work C — Internal Assessment Digest
+### Future implementation Work D — Internal Assessment Digest
 
-Start after Work B provider path is stable and Internal Assessment AI use is authorized.
+Start after Work C provider path is stable and Internal Assessment AI use is authorized.
 
 Mode: BUILD  
 Validation: TIER_3_HIGH for confidential Internal Assessment provider path.
@@ -803,7 +887,7 @@ Mitigation:
 
 - Work A delivers full Workspace record value without provider
 - derived AI indexing can be rebuilt later from authoritative sources
-- Work B/C remain deferred, not blockers for Work A
+- Work C/D remain deferred by provider policy and are not blockers for Work A/B
 
 ### News rights / Internal Assessment confidentiality
 
@@ -835,7 +919,27 @@ API credentials are NOT a blocker.
 
 ### Work C can start when
 
-- Work B retrieval/citation is stable
+- Work C retrieval/citation is stable
+- Internal Assessment indexing is authorized
+- digest adds decision value beyond raw File Search
+
+### Work B can start when
+
+- Work A source schema / record flows are accepted
+- provider-independent materialization strategy for the common upload formats is fixed
+
+API credential is NOT required.
+
+### Work C can start when
+
+- at least one provider is approved/configured
+- source-type AI use policy is known
+- Work A source schema is accepted
+- Work B source scope / Full Output contract is accepted
+
+### Work D can start when
+
+- Work C retrieval/citation is stable
 - Internal Assessment indexing is authorized
 - digest adds decision value beyond raw File Search
 
@@ -857,6 +961,8 @@ API credentials are NOT a blocker.
 PLAN_REVIEWED_AGAINST_CHAT: YES
 PLAN_REVIEWED_AGAINST_CURRENT_MAIN: YES
 NEXT_IMPLEMENTATION_WORK: UNASSIGNED
+FULL_OUTPUT_PITCHBOOK_OMISSION: MUST_FIX
+CLEAR_SCOPE: ALL_4_ADD_TABS
 AI_PROVIDER_GATE: DEFERRED_UNTIL_APPROVED
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
