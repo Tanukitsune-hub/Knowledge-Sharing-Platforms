@@ -12,7 +12,7 @@ Current as of: 2026-09-25
 
 ## Primary Outcome
 
-2026-09-25までのユーザーとの設計対話と現在のGitHub正本を突き合わせ、Private Assets Intelligenceを以下4つのKnowledge Sourceへ拡張するための実装順序・境界・Acceptance Evidenceを、取りこぼしなく実装可能な計画として固定する。
+2026-09-25までのユーザーとの設計対話と現在のGitHub正本を突き合わせ、Alternative Assets Intelligenceへ名称変更した上で、以下4つのKnowledge Sourceへ拡張するための実装順序・境界・Acceptance Evidenceを、取りこぼしなく実装可能な計画として固定する。
 
 利用者向けsource:
 
@@ -534,6 +534,42 @@ Record-layer WorkのAcceptanceへ以下を追加する。
 
 このmatrixはmulti-user accessを実際に許可したcompany rollout時にもtarget-runtimeで再qualificationする。
 
+### 14. Product title rename
+
+利用者向けproduct titleを次へ変更する。
+
+~~~text
+Private Assets Intelligence
+-> Alternative Assets Intelligence
+~~~
+
+Scope:
+
+- Web Appのbrowser `<title>`
+- main header / brand title
+- current user-facing generated artifact / print header等でproduct titleを表示している箇所
+- current operator-facing docsで、現行product名として表示している安全な箇所
+
+Preserve:
+
+- `KSP_*` / `ksp...` internal namespace
+- function / API / property key
+- sheet tab names
+- stable IDs / prefixes
+- bundle filename / installer entrypoint
+- existing Drive resource names等、名前参照がruntime contractになっているresource
+- historical Work / completion evidence
+
+旧Work0058のvisible-brand方針を継承し、表示名変更のためだけにschema migration、resource rename、data migrationを行わない。
+
+Acceptance:
+
+- normal Web App header = `Alternative Assets Intelligence`
+- browser title = `Alternative Assets Intelligence`
+- current user-visible product titleに `Private Assets Intelligence` が残らない
+- internal contract rename = 0
+- historical evidence rewrite = 0
+
 ## Proposed Record-layer Architecture
 
 ### Backend
@@ -687,7 +723,12 @@ Scope:
    - saved material merges Meeting-linked + standalone Pitchbooks
    - selected tab independent from Add page
 
-10. distribution
+10. product title
+   - user-visible title: `Alternative Assets Intelligence`
+   - browser title / main header / user-facing output branding
+   - preserve internal KSP / API / schema / resource contracts
+
+11. distribution
    - generated bundle
    - company 7-file package
    - migration/install instructions
@@ -723,6 +764,7 @@ Acceptance Evidence:
 - no confidential/production data
 - target-runtime Apps Script + Workspace evidence on isolated test resources
 - canonical check / bundle parity / company package parity
+- visible product title is Alternative Assets Intelligence with no internal-contract rename
 - multi-session concurrent create / same-record stale-write matrix PASS
 - global lock is held only for bounded shared-state critical sections; long file/AI/materialization operations run outside it
 - concurrent create across different source types causes no lost rows, ID collisions, cross-session state bleed, or derived-job duplication
@@ -1117,6 +1159,7 @@ CLEAR_SCOPE: ALL_4_ADD_TABS
 AI_PROVIDER_GATE: DEFERRED_UNTIL_APPROVED
 DIGEST_POLICY: AUTOMATIC_HIDDEN_DERIVED_LAYER
 TEAM_OPERATING_MODEL: MULTI_USER_FIRST
+PRODUCT_TITLE: Alternative Assets Intelligence
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 ~~~
