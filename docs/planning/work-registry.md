@@ -15,8 +15,12 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 |---|---|---|---|---|
 | 0069 | Source-aware knowledge expansion implementation plan | ACCEPTED | Work0068 current baseline | Start API-independent record-layer implementation under a new Work ID when authorized; AI/provider phase remains credential/policy-gated |
 | 0070 | Source-aware record layer expansion — 4-source authoritative record/storage/UI, schema9, team concurrency | READY | Work0069 ACCEPTED | Run `0070-CODEX-01`; source implementation + deterministic validation, then ChatGPT review before runtime qualification |
+| 0071 | Interaction-stable async UX — save/upload/status表示によるlayout shiftを抑え、主要action位置を安定化 | PLANNED | Work0070 ACCEPTED baseline | Work0070完了後、記録追加/save/uploadからshared interaction patternを確立 |
 
 Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
+
+Work0071 plan: `docs/planning/work0071-interaction-stability-ux.md`
+Product direction: `docs/product/stable-interaction-layout.md`
 
 ## Current delivery sequence
 
