@@ -2,16 +2,16 @@
   "product": "Alternative Assets Intelligence",
   "release_version": "0.2.0",
   "schema_version": 9,
-  "source_git_commit": "25c6e62d601e6c2e7a4f3f8faf4629e8a2627904",
+  "source_git_commit": "61d5abdb7fe95616a5a0ae3519910c429d4ebb3b",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "1c89c32a5ff641951f90cdb9f22609d608dd5e3e924ea245c9d77984a5a52c89",
-  "bundle_file_sha256": "3e31e792b1292af8b21d730e7ab2e07efcb7be74ee2f03de78daaa6f99635f88",
+  "bundle_payload_sha256": "7672bf887749a31cd3555a86a8a2d1ddade6eada76da79ed77a3db1b26f8856a",
+  "bundle_file_sha256": "f7f445e78fa0d88231bba655edfc5651e6ebc88a26f8a8d26ec6aa4cdfda16e4",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "1d04e4b03bf18a4268a8f91669aa9031abf33f03f6a4d8936500f59cbdeeba8a",
   "bundle_metrics": {
-    "bytes": 1410098,
-    "characters": 1357405,
+    "bytes": 1415764,
+    "characters": 1363055,
     "lines": 20756,
     "server_source_count": 67,
     "embedded_html_count": 24
@@ -381,8 +381,8 @@
     },
     {
       "file": "src/ClientCore.html",
-      "bytes": 11954,
-      "sha256": "18ef5e70a308949f5ebfdf33682b365095b6c1aee8247a59223fccc580100afa"
+      "bytes": 13116,
+      "sha256": "ebe168705b34cd6af197d375234dcbf68c11f34407a4f8be2f8302560854a925"
     },
     {
       "file": "src/ClientDateControls.html",
@@ -411,13 +411,13 @@
     },
     {
       "file": "src/ClientPitchbookFiles.html",
-      "bytes": 6876,
-      "sha256": "2f406f58df59bd75973f98d8fe8155ad9289d49dc7526b4e79e649521d4fa862"
+      "bytes": 7577,
+      "sha256": "778056c75c18c422c5beff9f880335f8c454d393ce94da95b6d466f661aaa849"
     },
     {
       "file": "src/ClientPitchbookFlow.html",
-      "bytes": 9795,
-      "sha256": "71c267ff49af4798a9fd0d805989b3a0e34b84c9dbaa06291e124700b437730e"
+      "bytes": 9843,
+      "sha256": "8e4b7dd8695c986f4b48326fd5d56a06072a8a6e323c33df33a18ed7f53cd034"
     },
     {
       "file": "src/ClientRelationshipExplorer.html",
@@ -426,8 +426,8 @@
     },
     {
       "file": "src/ClientSourceRecords.html",
-      "bytes": 24487,
-      "sha256": "18edfe2173df79a8a9f9cdfd6f3592f686fcf9717f0dccc5586adb1dd87b612d"
+      "bytes": 25801,
+      "sha256": "af465a9e60363d2da679cd41d4614d4c298b9a0e2706044833c54b1e01fc44cc"
     },
     {
       "file": "src/ClientThemeSettings.html",
@@ -446,8 +446,8 @@
     },
     {
       "file": "src/Index.html",
-      "bytes": 30986,
-      "sha256": "119633f9e625d5fe515cd63244d4d1db5dde2db300dad858ab83529288943a5a"
+      "bytes": 31302,
+      "sha256": "91780c3a94f8477cb34c9ebd85c33bccace4b66d76ce54c341b42d84621cedf7"
     },
     {
       "file": "src/KnowledgeSearch.html",
@@ -471,8 +471,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 62755,
-      "sha256": "e09113347270cad01140283f7212c7680fd9be618a8f52b1e8914f0de288dfb5"
+      "bytes": 64803,
+      "sha256": "805ba2a4640fdd127f803dcd306884f81c74206516c846c349fdb59ef1a46152"
     }
   ]
 }
