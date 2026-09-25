@@ -1,12 +1,12 @@
 # Work 0071 dispatch control
 
 WORK_ID: 0071
-ACTIVE_DISPATCH_ID: 0071-CODEX-01
+ACTIVE_DISPATCH_ID: 0071-CODEX-02
 BALL: CODEX
 STATUS: READY
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
-PHASE: PHASE_A_IMPLEMENTATION
+PHASE: PHASE_A_REPAIR
 
 ## Primary Outcome
 
@@ -26,7 +26,30 @@ PHASE: PHASE_A_IMPLEMENTATION
 
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
-| 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CODEX | READY | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | pending | — |
+| 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` / Draft PR #104 | — |
+| 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CODEX | READY | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | pending | — |
+
+## CODEX-01 ChatGPT review
+
+Accepted evidence:
+
+- before geometry measurements
+- Phase A stable action/status shell
+- Meeting / News / Assessment representative target-runtime saves
+- 1440 / 390 geometry within target
+- local 320 / 200% zoom / reduced-motion smoke
+- Work0049 / Work0070 coupled regressions
+- deterministic 716/716 PASS
+
+BLOCKER / repair findings:
+
+- standalone valid file selection does not clear stale primary no-file error; pending shows contradictory statuses
+- user-approved vermilion file identity marker should be added to shared file queue
+- unrelated root AGENTS.md compact rewrite must be reverted
+- company package validation must not weaken accepted exact source/hash pinning
+- Work0071 bundle must use a new patch release identity instead of reusing Work0070 release 0.2.0; target release = 0.2.1, schema remains 9
+
+CODEX-02 performs only these repairs and one bounded isolated target-runtime requalification. Phase B remains FOLLOW_UP.
 
 ## Authorization Boundary
 
@@ -54,6 +77,6 @@ CODEX-01 return後にChatGPTがbefore/after geometry、diff、browser/runtime ev
 Work0071はまだACCEPTEDにしない。
 
 WORK_ID: 0071
-DISPATCH_ID: 0071-CODEX-01
+DISPATCH_ID: 0071-CODEX-02
 BALL: CODEX
 STATUS: READY
