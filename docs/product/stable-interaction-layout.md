@@ -57,6 +57,20 @@ Work0049のbusy feedback standardを置き換えず、「feedbackはあるがgeo
 - 状態変更は読み上げにも伝える。過剰な連続読み上げや処理のたびのフォーカス移動は避ける。
 - 実際に観測できる件数・状態のみで進捗を表示し、根拠のない進捗率を出さない。
 
+### 資料ファイルのvisual marker
+
+アップロード資料の各file rowは、filename先頭に小さな朱色の丸markerを恒常表示する。
+
+- markerは「この行は資料ファイルである」というvisual identityにのみ使用する。
+- 保存状態を色で表現する用途には使わない。Selected / Saving / Saved / Retry等は既存の文字・badgeで伝える。
+- pending / success / errorでmarkerの色・位置・寸法を変えない。
+- markerは装飾としてassistive technologyからは原則隠し、filename自体をaccessible name/contentとして維持する。
+- long filenameや複数fileでも左端のvisual anchorが揃うよう、marker用の安定した領域またはinline-flex構造を使う。
+- hoverのみを意味理解の前提にしない。
+- 色は既存error stateと混同しない朱色系の固定visual accentとし、status/error semanticsとは分離する。
+
+狙いは、色だけで意味を伝えることではなく、file listの走査性と「何件の資料が並んでいるか」の把握を早めることである。
+
 ### アップロード一覧
 
 - 元ファイル名を主表示として維持する。処理途中に「元名 → 長い保存名」を追加して行高を増やす方式は見直す。
