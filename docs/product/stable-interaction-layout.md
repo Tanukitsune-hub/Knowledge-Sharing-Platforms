@@ -2,7 +2,8 @@
 
 更新日: 2026-09-25
 方針: 採用 / 実装は後続Work
-実装Work ID: 未採番
+実装Work ID: 0071
+Canonical product direction: YES
 
 ## 目的と根拠
 
@@ -16,7 +17,7 @@
 
 - Work0070 / 0070-CODEX-03の実装範囲、固定済みcandidate、Acceptance Evidence、権限、実行上限を変更しない。
 - 本方針をWork0070の追加Acceptanceや完了阻害要因にしない。現在のWorkを先にレビュー・収束させる。
-- UI改善の実装を開始するときに、履歴を確認して別Work IDを割り当てる。本書の追加だけでは新しいCodex Dispatchを開始しない。
+- UI改善の実装Workは0071として予約済み。本書の追加だけではCodex Dispatchを開始せず、Work0070完了後に別Dispatchを発番する。
 - 保存・採番・retry・競合制御・権限・schema・provider・全文出力の内容範囲は本方針だけでは変更しない。
 
 ## 共通原則
