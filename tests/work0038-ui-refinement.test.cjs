@@ -12,20 +12,20 @@ const styles = read('Styles.html');
 const bootstrap = read('ClientBootstrap.html');
 const pitchbookFlow = read('ClientPitchbookFlow.html');
 
-test('Meeting Create header keeps heading, draft clear, and one compact status in semantic order', () => {
+test('Meeting Create header precedes the stable action and status region', () => {
   const headerStart = index.indexOf('<div id="meeting-entry-actions" class="meeting-entry-header">');
   const headerEnd = index.indexOf('</div>', headerStart) + '</div>'.length;
   const header = index.slice(headerStart, headerEnd);
   const heading = header.indexOf('<h2>記録を追加</h2>');
   const clear = header.indexOf('id="meeting-clear"');
-  const status = header.indexOf('id="meeting-status"');
-  assert.ok(headerStart >= 0 && heading >= 0 && heading < clear && clear < status, 'heading -> clear -> status');
+  assert.ok(headerStart >= 0 && heading >= 0 && heading < clear, 'heading -> clear');
   assert.ok(headerEnd < index.indexOf('id="meeting-form"'), 'header must precede form');
+  assert.ok(index.indexOf('id="meeting-submit"') < index.indexOf('id="meeting-status"') && index.indexOf('id="meeting-status"') < index.indexOf('id="meeting-date"'), 'action -> status -> fields');
   assert.equal((index.match(/id="meeting-status"/g) || []).length, 1);
   assert.doesNotMatch(index, /meeting-entry-hint|下書きや入力内容を消去して、新しい記録を開始できます。/);
   assert.doesNotMatch(index, /成功後も日付・Asset Class・Fund \/ Strategyは保持されます。/);
   assert.match(styles, /\.meeting-entry-header\{[^}]*display:flex[^}]*flex-wrap:wrap/);
-  assert.match(styles, /\.meeting-entry-header \.status\{[^}]*width:auto[^}]*margin:0/);
+  assert.match(styles, /\.ksp-stable-action\{display:grid;grid-template-columns:180px minmax\(0,1fr\)/);
   assert.match(styles, /@media\(max-width:720px\)[\s\S]*\.meeting-entry-header\{[^}]*align-items:flex-start/);
   assert.match(bootstrap, /showStatus\('meeting-status','info','面談入力の準備ができました。'\)/);
   assert.equal((bootstrap.match(/面談入力の準備ができました。/g) || []).length, 1);
@@ -70,12 +70,12 @@ test('non-AI Full Output remains provider independent', () => {
   assert.doesNotMatch(knowledgeClient, /knowledge-full-output[^\n]*(?:startKnowledgeSearch|runAiKnowledgeSearch)/);
 });
 
-test('Meeting Create uses frozen left registration and right attachment geometry', () => {
+test('Meeting Create keeps field geometry and anchors attachment actions above the queue', () => {
   assert.match(styles, /meeting-field-counterparty-person\{grid-column:1\/span 7;grid-row:3\}/);
   assert.match(styles, /meeting-field-internal-participants\{grid-column:1\/span 7;grid-row:4\}/);
-  assert.match(styles, /meeting-field-submit\{grid-column:1\/span 3;grid-row:5/);
-  assert.match(styles, /#attachment-section\{grid-column:8\/span 5;grid-row:3\/span 2/);
-  assert.match(styles, /meeting-field-attachment-actions\{grid-column:8\/span 5;grid-row:5/);
+  assert.match(styles, /\.ksp-stable-action \.action\.primary\{[^}]*width:180px/);
+  assert.match(styles, /#meeting-form>\.grid>\.meeting-field-attachment-actions\{grid-column:8\/span 5;grid-row:3/);
+  assert.match(styles, /#meeting-form>\.grid>#attachment-section\{grid-column:8\/span 5;grid-row:4\/span 2/);
   assert.match(styles, /meeting-field-notes\{grid-column:1\/span 12;grid-row:6\}/);
   assert.match(styles, /attachment-workspace\{display:block/);
   assert.match(styles, /attachment-drop-column \.drop-zone\{[^}]*min-height:10[0-9]px/);
@@ -100,8 +100,8 @@ test('Meeting attachment actions keep clear and retry behavior with the frozen l
   assert.match(pitchbookClient, /!el\('meeting-file-panel'\)\.contains\(node\)&&!el\('meeting-file-actions'\)\.contains\(node\)/);
 });
 
-test('Meeting mobile source and CSS order safely stack participants, registration, attachment, and notes', () => {
-  const tokens = ['id="meeting-counterparty"', 'id="meeting-internalParticipants"', 'id="meeting-submit"', 'id="attachment-section"', 'id="meeting-file-actions-home"', 'id="meeting-notes"'];
+test('Meeting mobile source and CSS order keep actions before dynamic attachment content', () => {
+  const tokens = ['id="meeting-submit"', 'id="meeting-counterparty"', 'id="meeting-internalParticipants"', 'id="meeting-file-actions-home"', 'id="attachment-section"', 'id="meeting-notes"'];
   let previous = -1;
   for (const token of tokens) {
     const next = index.indexOf(token);

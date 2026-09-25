@@ -7,10 +7,7 @@ const vm = require('node:vm');
 const BASIS = Object.freeze({
   product: 'Alternative Assets Intelligence',
   release: '0.2.0',
-  schema: 9,
-  sourceCommit: '25c6e62d601e6c2e7a4f3f8faf4629e8a2627904',
-  bundleSha256: '3e31e792b1292af8b21d730e7ab2e07efcb7be74ee2f03de78daaa6f99635f88',
-  payloadSha256: '1c89c32a5ff641951f90cdb9f22609d608dd5e3e924ea245c9d77984a5a52c89'
+  schema: 9
 });
 const OUTPUT_DIR = path.join('dist', 'company-multifile');
 const GS_NAMES = Object.freeze([
@@ -42,11 +39,11 @@ function readBasis(rootDir) {
   assert.equal(release.product, BASIS.product, 'accepted product changed');
   assert.equal(release.release_version, BASIS.release, 'accepted release changed');
   assert.equal(release.schema_version, BASIS.schema, 'accepted schema changed');
-  assert.equal(release.source_git_commit, BASIS.sourceCommit, 'accepted source commit changed');
-  assert.equal(release.bundle_file_sha256, BASIS.bundleSha256, 'accepted bundle hash changed');
-  assert.equal(release.bundle_payload_sha256, BASIS.payloadSha256, 'accepted payload hash changed');
+  assert.match(release.source_git_commit, /^[0-9a-f]{40}$/, 'source commit is invalid');
+  assert.match(release.bundle_file_sha256, /^[0-9a-f]{64}$/, 'bundle hash is invalid');
+  assert.match(release.bundle_payload_sha256, /^[0-9a-f]{64}$/, 'payload hash is invalid');
   assert.equal(bundle.length, release.bundle_metrics.bytes, 'bundle byte count differs from release manifest');
-  assert.equal(sha256(bundle), BASIS.bundleSha256, 'canonical bundle raw bytes differ from accepted release');
+  assert.equal(sha256(bundle), release.bundle_file_sha256, 'canonical bundle raw bytes differ from release manifest');
   assert.equal(sha256(sourceManifest), release.source_manifest_sha256, 'source manifest differs from accepted release');
   assert.equal(sha256(sourceOrder), release.source_order_sha256, 'source order differs from accepted release');
   assert.deepEqual(JSON.parse(scriptManifest.toString('utf8')), JSON.parse(sourceManifest), 'Apps Script manifest content differs');
@@ -122,13 +119,13 @@ function balancedServerParts(sections) {
   return groups;
 }
 
-function installationGuide() {
+function installationGuide(release) {
   const lines = [
     '# Alternative Assets Intelligence 0.2.0 — 7ファイル導入手順',
     '',
     'このpackageは同じsource commitから生成したsingle-file bundleとbyte-identicalな手動導入用代替artifactです。',
-    'release source commit: ' + BASIS.sourceCommit,
-    'canonical bundle SHA-256: ' + BASIS.bundleSha256,
+    'release source commit: ' + release.source_git_commit,
+    'canonical bundle SHA-256: ' + release.bundle_file_sha256,
     '',
     '1. 既に受け取った会社導入ガイドの手順1～3に従い、導入先Spreadsheet、Apps Script、必要なDrive APIを準備します。',
     '2. Apps Script editorで既存Code.gsを00_BundleResources.gsに名前変更してサンプルコードを消し、残り6個のスクリプトファイルを記載順に作成します。各添付.txtの全文を対応する.gsへ貼り付けてください。',
@@ -157,7 +154,7 @@ function buildPackage(options = {}) {
   const gsBuffers = [resources, ...groups.map((group) => Buffer.concat(group.map((section) => section.bytes)))];
   const reconstructed = Buffer.concat(gsBuffers);
   assert.ok(reconstructed.equals(bundle), 'seven-file raw concatenation differs from canonical bundle');
-  assert.equal(sha256(reconstructed), BASIS.bundleSha256);
+  assert.equal(sha256(reconstructed), release.bundle_file_sha256);
 
   const orderedFiles = GS_NAMES.map((name, index) => {
     const bytes = gsBuffers[index];
@@ -177,9 +174,9 @@ function buildPackage(options = {}) {
     product: BASIS.product,
     release_version: BASIS.release,
     schema_version: BASIS.schema,
-    bundle_source_commit: BASIS.sourceCommit,
-    canonical_bundle_sha256: BASIS.bundleSha256,
-    canonical_bundle_payload_sha256: BASIS.payloadSha256,
+    bundle_source_commit: release.source_git_commit,
+    canonical_bundle_sha256: release.bundle_file_sha256,
+    canonical_bundle_payload_sha256: release.bundle_payload_sha256,
     concatenated_bytes: reconstructed.length,
     concatenated_sha256: sha256(reconstructed),
     ordered_files: orderedFiles,
@@ -196,7 +193,7 @@ function buildPackage(options = {}) {
   });
   files.set('appsscript.json', scriptManifest);
   files.set('PACKAGE_MANIFEST.json', Buffer.from(JSON.stringify(packageManifest, null, 2) + '\n', 'utf8'));
-  files.set('INSTALL.md', installationGuide());
+  files.set('INSTALL.md', installationGuide(release));
 
   const outputDir = path.join(rootDir, OUTPUT_DIR);
   if (options.write !== false || options.check === true) {

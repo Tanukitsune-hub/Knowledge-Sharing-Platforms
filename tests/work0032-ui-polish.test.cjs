@@ -33,10 +33,11 @@ test('Meeting create uses a compact left-aligned bounded grid with expanded prim
   assert.match(index, /class="field full meeting-field-notes"[\s\S]*?id="meeting-notes"/);
 });
 
-test('draft clear control follows the heading and precedes the compact status', () => {
+test('draft clear control follows the heading and status stays beside the stable primary action', () => {
   const actions = index.match(/<div id="meeting-entry-actions" class="meeting-entry-header">[\s\S]*?<\/div>/)?.[0] || '';
   assert.ok(actions.indexOf('<h2>記録を追加<\/h2>') < actions.indexOf('id="meeting-clear"'));
-  assert.ok(actions.indexOf('id="meeting-clear"') < actions.indexOf('id="meeting-status"'));
+  assert.ok(index.indexOf('id="meeting-clear"') < index.indexOf('id="meeting-status"'));
+  assert.match(index, /class="ksp-stable-action"[^>]*>[\s\S]*?id="meeting-submit"[\s\S]*?id="meeting-status"/);
   assert.match(styles, /\.meeting-entry-header\{[^}]*justify-content:flex-start/);
   assert.match(styles, /\.meeting-entry-header \.action\{[^}]*min-height:38px/);
 });

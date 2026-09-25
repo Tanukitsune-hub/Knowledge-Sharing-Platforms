@@ -33,8 +33,17 @@ Object.keys(pages).forEach(name=>{const button=el('nav-'+name);if(button){button
 function kspSafeDriveUrl(value){const candidate=String(value==null?'':value).trim();return /^https:\/\/(?:drive|docs)\.google\.com\//.test(candidate)?candidate:''}
 function kspEscapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function kspSanitizeStatusHtml(value){return String(value==null?'':value).replace(/href="([^"]*)"/gi,(match,href)=>{const safe=kspSafeDriveUrl(href);return safe?'href="'+kspEscapeHtml(safe)+'"':'href="#" aria-disabled="true"'})}
-function showStatus(id,kind,message,html){const box=el(id);box.className='status visible '+kind;if(html)box.innerHTML=kspSanitizeStatusHtml(message);else box.textContent=message}
-function clearStatus(id){const box=el(id);box.className='status';box.textContent=''}
+function showStatus(id,kind,message,html){const box=el(id),stable=box.classList.contains('ksp-stable-status');box.className='status visible '+kind+(stable?' ksp-stable-status':'');if(html)box.innerHTML=kspSanitizeStatusHtml(message);else box.textContent=message}
+function clearStatus(id){const box=el(id),stable=box.classList.contains('ksp-stable-status');box.className='status'+(stable?' ksp-stable-status':'');box.textContent=''}
+function kspSetInlineError(control,message){
+  if(!control)return;
+  const errorId=control.id+'-error';let note=el(errorId);
+  if(!note){note=document.createElement('span');note.id=errorId;note.className='source-field-error';note.hidden=true;control.insertAdjacentElement('afterend',note)}
+  const described=(control.getAttribute('aria-describedby')||'').split(/\s+/).filter(id=>id&&id!==errorId);
+  if(message){note.textContent=message;note.hidden=false;control.setAttribute('aria-invalid','true');control.setAttribute('aria-describedby',[...described,errorId].join(' '))}
+  else{note.hidden=true;note.textContent='';control.removeAttribute('aria-invalid');if(described.length)control.setAttribute('aria-describedby',described.join(' '));else control.removeAttribute('aria-describedby')}
+}
+function kspClearInlineErrors(form){form.querySelectorAll('[aria-invalid="true"]').forEach(control=>{if(el(control.id+'-error')?.classList.contains('source-field-error'))kspSetInlineError(control,'')})}
 function kspMeetingRequiredControls(prefix){return[...el(prefix+'-form').querySelectorAll('input[required],select[required]')]}
 function kspSetMeetingRequiredError(control,invalid){const message=el(control.id+'-error');if(invalid){control.setAttribute('aria-invalid','true');control.setAttribute('aria-describedby',message.id)}else{control.removeAttribute('aria-invalid');control.removeAttribute('aria-describedby')}message.hidden=!invalid}
 function kspClearMeetingRequiredErrors(prefix){kspMeetingRequiredControls(prefix).forEach(control=>kspSetMeetingRequiredError(control,false))}

@@ -56,10 +56,11 @@ test('production Meeting fields retain explicit desktop placement after the Work
 
 test('source order supports the canonical visual and mobile order', () => {
   const tokens = [
+    'id="meeting-submit"', 'id="meeting-status"',
     'id="meeting-date"', 'id="meeting-time"', 'id="meeting-locationId"', 'id="meeting-teamId"',
     'id="meeting-assetClassId"', 'id="meeting-capitalTypeId"', 'id="meeting-types"',
     'id="meeting-counterpartyId"', 'id="meeting-fundStrategy"', 'id="meeting-counterparty"',
-    'id="meeting-internalParticipants"', 'id="meeting-submit"', 'id="attachment-section"', 'id="meeting-file-actions-home"', 'id="meeting-notes"'
+    'id="meeting-internalParticipants"', 'id="meeting-file-actions-home"', 'id="attachment-section"', 'id="meeting-notes"'
   ];
   let previous = -1;
   for (const token of tokens) {

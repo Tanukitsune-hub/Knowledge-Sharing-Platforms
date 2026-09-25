@@ -90,6 +90,6 @@ async function completeParentAttachments(trigger){
 }
 el('pitchbook-submit').onclick=event=>completeParentAttachments(event.currentTarget);
 el('pitchbook-retry').onclick=event=>completeParentAttachments(event.currentTarget);
-el('pitchbook-clear').onclick=()=>{if(pitchbookSlots.length||pendingExistingDocumentIds.length){showStatus('pitchbook-status','warning','未完了IDは破棄できません。再試行または親記録で状態を確認してください。');return}selectedPitchbookFiles=[];fileInput.value='';renderPitchbookFiles()};
+el('pitchbook-clear').onclick=()=>{if(pitchbookSlots.length||pendingExistingDocumentIds.length){showStatus('pitchbook-status','warning','未完了IDは破棄できません。再試行または親記録で状態を確認してください。');return}selectedPitchbookFiles=[];fileInput.value='';kspSetInlineError(el('pitchbook-drop-zone'),'');renderPitchbookFiles()};
 function setRegisteredMeetingLocked(locked){el('meeting-form').querySelectorAll('input,select,textarea,button').forEach(node=>{if(!el('meeting-file-panel').contains(node)&&!el('meeting-file-actions').contains(node))node.disabled=locked});el('meeting-clear').disabled=false;el('meeting-clear').textContent=locked?'新しい記録を入力':'クリア';el('meeting-entry-actions').classList.toggle('registered-parent',locked);const status=el('meeting-status');if(locked&&(!status.classList.contains('visible')||status.textContent==='面談入力の準備ができました。'))showStatus('meeting-status','info','前回保存済みの記録を表示しています。新しい記録を登録するには、ここから入力を切り替えてください。')}
 </script>
