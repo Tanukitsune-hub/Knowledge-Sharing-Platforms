@@ -94,7 +94,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Current implementation plan: `docs/planning/apps-script-implementation-plan.md`.
 - Runtime/operations: `docs/operations/runtime-policy.md`.
 - Current environment policy: `docs/decisions/target-runtime-first-development.md`.
-- Distribution/installer sources: `docs/decisions/modular-source-single-bundle-distribution.md`, `docs/decisions/bundle-integrity-and-installer-security.md`, and `docs/planning/work0023-bundle-installer-distribution.md`.
+- Distribution: `docs/decisions/modular-source-single-bundle-distribution.md` and `docs/decisions/bundle-integrity-and-installer-security.md`.
 - Consolidated decisions: `docs/decisions/decision-log.md`.
 - Security: `docs/governance/security.md`.
 - If documents conflict, prefer the latest explicit user decision and closest current domain-specific source.
@@ -105,7 +105,6 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Use production source paths from the first vertical slice; do not maintain a separate DEV runtime without documented material justification.
 - Use synthetic/anonymized data in isolated resources or namespaces.
 - Guard confidential/production data, real users, billing, triggers, public exposure, deletion, bulk mutation, migration, and permission changes until authorized.
-- Work 0014 finishes or safely stops under PR #17's existing evidence boundary; new Work applies target-runtime-first prospectively.
 
 ## Architecture invariants
 
@@ -114,33 +113,32 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Backend schema9 has exactly seven sheets: `Counterparty_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `News_Index`, `Internal_Assessment_Index`, `Settings`. Schema7 `GP_Master` is migration-only; no eighth sheet.
 - Audit uses a separate Restricted Spreadsheet; normal users do not directly edit backend/Audit/File Search.
 - `src/` is authoritative; `dist/KnowledgeShare.bundle.gs` is generated reproducibly and never hand-edited.
-- `setupKnowledgePlatform_()` stays private/idempotent. Work0023 editor wrappers must authorize the administrator before mutation and reject normal/unidentified callers.
-- Only approved normal-user facades are browser-callable; other top-level functions end in `_` or use non-top-level scope.
-- Bundle integrity uses a canonical payload hash plus external final-file checksum, never a self-referential final hash.
+- `setupKnowledgePlatform_()` stays private/idempotent; editor wrappers authorize the administrator and fail closed.
+- Only approved normal-user facades are browser-callable; other server entry points remain private.
+- Bundle integrity uses canonical payload hash + external final-file checksum.
 - Preserve stable IDs, optimistic locking, short locks, file-granular retry, and no duplicate Drive/Index records.
 - AI failure never rolls back authoritative source capture. Only Active sources are normally retrievable, and grounded output shows citations/Drive links.
 
 ## Product and security boundaries
 
-- Meeting requires Date, Counterparty, Asset Class; GP is only one `Counterparty_Type`. Google Doc body is authoritative and is not duplicated into Index.
-- Pitchbook requires file, Date, Counterparty, Asset Class. Parent-bound inherits Meeting Counterparty; standalone has no parent. Sequence starts at `01`, uses destination max, and leaves gaps.
+- Meeting requires Date, Counterparty, Asset Class; GP is a `Counterparty_Type`. Doc body is authoritative.
+- Pitchbook requires file, Date, Counterparty, Asset Class; parent-bound inherits Counterparty, standalone has no parent; sequence starts `01` and leaves gaps.
 - News/Assessment use one direct-text Doc or uploaded original, a stable ID, and canonical `Counterparty_IDs` in their own Index. Provider work is separate.
 - Initial upload policy: 25MB/file, 10 files, 100MB total; lower it if actual Apps Script behavior requires, rather than adding unjustified transport architecture.
 - Normal lifecycle is Active / Inactive / Reactivate, not physical deletion.
 - Actor is best-effort: email → `TEMP_USER:<key>` → `UNIDENTIFIED`; missing persistent identity does not block normal operation.
 - Never commit confidential source content, credentials, private URLs, or organization-specific runtime IDs.
 - Gemini credentials are server-side only; billing-enabled operations and confidential indexing require explicit authorization.
-- In user-facing async flows, avoid avoidable layout shifts that move primary actions or reading position; reuse shared busy/status semantics, preserve focus/retry/error visibility, and validate changed interaction states rather than only static screenshots.
+- Async UI keeps actions/reading position stable and preserves busy/status, focus, retry, and error visibility.
 
 ## Commands and validation
 
 - Canonical deterministic check: `npm run check`.
 - Diff hygiene: `git diff --check`.
-- Agent foundation: `python tools/validate_agent_foundation.py` once added by Core 2.2 adoption.
-- Work 0023 uses every gate in its decision and plan.
+- Agent foundation: `python tools/validate_agent_foundation.py`.
 - Use the Work's validation tier. Run targeted tests first; run the canonical check, browser/runtime checks, and broader regression only when that tier or a concrete dependency requires them.
 - Target-runtime evidence uses exact tested source and isolated data; mocks/test loaders may not inject missing production business behavior.
-- Development and qualification are user-presence-independent by default: do not assume the user is at the test PC. Default `USER_NATIVE_ACTION_BUDGET: 0`; prefer automation against the actual target runtime plus authoritative readback. Require a user-native action only when that native/OS/permission behavior is itself decision-relevant and no safe automated equivalent exists; reuse accepted native-path evidence when unchanged, aggregate unavoidable actions into one checkpoint, and treat harness inability as `AUTOMATION_LIMITATION`, not an application defect.
+- User-presence-independent validation is default (`USER_NATIVE_ACTION_BUDGET: 0`); follow `docs/decisions/target-runtime-first-development.md`.
 - Report `LOGIC_VALIDATION`, `TARGET_RUNTIME_QUALIFICATION`, `SIDE_EFFECT_STATE`, and `READY` separately.
 
 ## Completion and routing
@@ -148,6 +146,6 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Active Work follows its committed handoff and dispatch register; do not store transient Work status here.
 - Do not reopen accepted product design merely because target-runtime qualification is pending.
 - Escalate only for unsafe target identity, authorization/data exposure, material architecture contradiction, repeated bounded failure, or evidence contamination.
-- Historical Work/DEV evidence remains valid for what it observed but does not define the future environment strategy.
+- Historical evidence remains valid only for what it observed.
 
 <!-- REPOSITORY_SPECIFIC_RULES_END -->
