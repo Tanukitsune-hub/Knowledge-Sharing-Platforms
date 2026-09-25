@@ -613,6 +613,150 @@ Acceptance:
 - custom renamed rootはpreserved
 - duplicate root folder creation = 0
 
+## Implementation defaults closed before Work A
+
+以下は追加のuser decisionを要求せず、implementation defaultとして固定する。
+
+### New stable IDs
+
+~~~text
+News: NEWS-000001
+Internal Assessment: ASMT-000001
+~~~
+
+- independent monotonic countersをSettingsに持つ。
+- allocationはScriptLock下のshort critical section。
+- retry/idempotency時はallocated IDを再利用する。
+- content equalityで自動mergeしない。
+
+### Multi-Entity persistence
+
+News / Internal Assessmentのauthoritative relationは各Indexの `Counterparty_IDs` に、sorted / uniqueなcanonical comma-separated `CP-*` listとして保存する。
+
+- minimum 1 Entity。
+- source IDは1つ。
+- Entityごとにsource row/fileを複製しない。
+- read modelではarrayへnormalizeする。
+- future provider queryはauthoritative IndexでEntity -> source IDsへ解決する。
+
+### News_Index initial schema
+
+~~~text
+News_ID
+Published_Date
+Publisher
+Title
+URL
+Counterparty_IDs
+Asset_Class_ID
+Fund_Strategy
+Input_Mode
+Source_File_ID
+Source_URL
+Source_Mime_Type
+Original_Filename
+Saved_Filename
+Status
+Version
+Created_At
+Updated_At
+Created_By
+Updated_By
+AI_Document_Name
+AI_Index_Status
+AI_Indexed_At
+AI_Content_Hash
+AI_Last_Error
+AI_Provider_State_JSON
+~~~
+
+Required at registration:
+
+- Published_Date
+- Publisher
+- Title
+- >=1 Counterparty
+- exactly one authoritative content route
+
+URL / Asset Class / Fund Strategy are optional.
+
+### Internal_Assessment_Index initial schema
+
+~~~text
+Assessment_ID
+Assessment_Date
+Assessment_Type
+Title
+Counterparty_IDs
+Asset_Class_ID
+Fund_Strategy
+Decision_Or_Action
+Input_Mode
+Source_File_ID
+Source_URL
+Source_Mime_Type
+Original_Filename
+Saved_Filename
+Related_Meeting_IDs
+Related_Document_IDs
+Related_News_IDs
+Status
+Version
+Created_At
+Updated_At
+Created_By
+Updated_By
+AI_Document_Name
+AI_Index_Status
+AI_Indexed_At
+AI_Content_Hash
+AI_Last_Error
+AI_Provider_State_JSON
+~~~
+
+Required at registration:
+
+- Assessment_Date
+- Assessment_Type
+- Title
+- >=1 Counterparty
+- exactly one authoritative content route
+
+Asset Class / Fund Strategy / Decision or Action / related source IDs are optional.
+
+### Direct input vs upload
+
+News / Internal Assessmentの1 recordは、authoritative contentとしてexactly one routeを持つ。
+
+~~~text
+DIRECT_TEXT
+UPLOAD_FILE
+~~~
+
+- DIRECT_TEXT: Google Docを作成してauthoritative sourceとする。
+- UPLOAD_FILE: uploaded original fileをauthoritative sourceとする。
+- 同一recordでdirect textとuploaded originalを二重正本にしない。
+- source metadataはどちらのrouteでも同じIndex contractへnormalizeする。
+
+### Post-save input behavior
+
+正常保存後:
+
+- shared fields（date / asset class / fund strategy）は保持。
+- active tabのsource-specific input / selected filesはclearして次のrecordを入力可能にする。
+- 他tabの未保存source-specific inputは保持。
+- global `クリア` は4tabすべての未保存input/file selection + shared fieldsをclearする。
+- unresolved retry / partial operationがあれば安全stateを優先し、clearを拒否する。
+
+### Remaining non-blocking follow-ups
+
+以下はWork A開始を止めない。
+
+- Entity Summary timelineへNews / Assessmentをどの粒度で表示するか。
+- source-specific confidentiality taxonomy / provider-specific index policy UX（Work C）。
+- News全文の契約・社内AI policy（AI indexing前に確認）。
+- actual company multi-user Web App access scope（team rollout前に確定）。
+
 ## Proposed Record-layer Architecture
 
 ### Backend
@@ -1200,6 +1344,8 @@ TEAM_OPERATING_MODEL: MULTI_USER_FIRST
 PRODUCT_TITLE: Alternative Assets Intelligence
 KNOWLEDGE_ROOT_DEFAULT_NAME: 記録・資料
 SOURCE_FOLDER_LAYOUT: 面談記録 / 保存資料 / ニュース / 評価（ICメモ、社内整理等）
+NEW_SOURCE_IDS: NEWS- / ASMT-
+MULTI_ENTITY_STORAGE: canonical Counterparty_IDs list
 USER_FACING_ASSESSMENT_LABEL: 評価（ICメモ、社内整理等）
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
