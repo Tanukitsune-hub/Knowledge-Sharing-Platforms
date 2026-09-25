@@ -169,13 +169,23 @@ Google Drive上のauthoritative source rootはproduct brandから切り離し、
 
 ~~~text
 記録・資料
+├─ 面談記録
+├─ 保存資料
+├─ ニュース
+└─ 内部評価（ICメモ、社内整理等）
 ~~~
 
-- 面談メモ、保存資料、ニュース、内部評価のauthoritative sourceを格納するroot。
-- new installationはこの名称で作成する。
-- legacy exact `Private Assets Knowledge` はstored folder IDを維持したままin-place renameする。
+- root直下をsource typeごとの4 folderに分ける。
+- `面談記録`: Meeting Google Docs。
+- `保存資料`: Pitchbook / standalone保存資料の原本。
+- `ニュース`: News direct-input Docs / uploaded originals。
+- `内部評価（ICメモ、社内整理等）`: Internal Assessment direct-input Docs / uploaded originals。
+- new installationはこのlayoutで作成する。
+- legacy exact `Private Assets Knowledge` はstored root folder IDを維持したまま `記録・資料` へin-place renameする。
+- legacy `Meeting Records` / `Pitchbooks` はstored child folder IDsを維持したまま `面談記録` / `保存資料` へin-place renameする。
 - custom manual renameは強制的に上書きしない。
 - product titleの将来変更に連動してfolder名を再変更しない。
+- Knowledge Exports等のderived artifact folderはauthoritative source root外のcurrent contractを維持する。
 
 ## Stable source identity
 
@@ -546,6 +556,7 @@ confidentiality = source-specific classification
 - 長時間処理でglobal lockを保持せず、AI/Digest等のderived processingをauthoritative saveの同期critical pathから分離する。
 - 利用者向けproduct titleは `Alternative Assets Intelligence` とする。internal contractの名称はbrandingだけを理由に変更しない。
 - Google Driveのauthoritative source rootのdefault名は `記録・資料` とする。product brandとは独立させる。
+- `記録・資料` の直下は `面談記録 / 保存資料 / ニュース / 内部評価（ICメモ、社内整理等）` の4 folderでsource type別に分離する。
 
 ## Open implementation questions
 
@@ -553,7 +564,6 @@ confidentiality = source-specific classification
 
 - 内部評価 / News用のphysical Index schema
 - Backend sheet追加 vs common Source Index
-- Shared Drive folder hierarchy
 - multi-Entity relationshipのexact persistence model
 - default Knowledge Search source scope
 - Internal Assessment Digestのexact schema / generation timing / refresh rule
