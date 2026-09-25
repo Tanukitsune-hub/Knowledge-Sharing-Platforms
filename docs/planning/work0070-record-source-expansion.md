@@ -320,7 +320,7 @@ repository-only。target-runtime mutationは0。
 
 ### CODEX-03 — isolated target-runtime migration and qualification
 
-CODEX-02のsource repairをChatGPTが受入れた後に作成する。smallest isolated Apps Script / Workspace mutationでschema9 migration、folder identity-preserving rename、persistence、browser behavior、team concurrencyをqualificationする。
+CODEX-02 source repairはChatGPT reviewで受入れ済み。CODEX-03はQUALIFICATION modeへStrategy Resetし、最初にPR #103をlatest mainへnormal mergeでreconcileしたうえで、smallest isolated Apps Script / Workspace mutationでschema9 migration、folder identity-preserving rename、persistence、browser behavior、team concurrencyをqualificationする。
 
 No company production migration occurs in Work0070 unless separately authorized.
 
