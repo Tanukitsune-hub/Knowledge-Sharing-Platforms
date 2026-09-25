@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-21
+Current as of: 2026-09-25
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -14,6 +14,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | Work ID | Outcome | Status | Dependency | Next action |
 |---|---|---|---|---|
 | 0069 | Source-aware knowledge expansion implementation plan | ACCEPTED | Work0068 current baseline | Start API-independent record-layer implementation under a new Work ID when authorized; AI/provider phase remains credential/policy-gated |
+| 0070 | Source-aware record layer expansion — 4-source authoritative record/storage/UI, schema9, team concurrency | READY | Work0069 ACCEPTED | Run `0070-CODEX-01`; source implementation + deterministic validation, then ChatGPT review before runtime qualification |
 
 Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
 
