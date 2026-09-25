@@ -25,6 +25,7 @@ Before substantial work, record the following in the task handoff or working pla
 | Non-goals | Adjacent work that must not enter this Work |
 | Authorization boundary | External writes, deployments, destructive actions, data, exposure, billing, and approval limits |
 | Execution budget | Retry, hypothesis, mutation, deployment, evaluator, or handoff limits when material |
+| User-native action budget | `0` by default; if greater than zero, state the unique native evidence required and how actions will be aggregated |
 | Strategy-reset trigger | Condition that ends the current approach |
 | Closed conclusions | Previously proven facts that may not be reopened without contradictory evidence |
 | Follow-ups | Non-blocking issues routed outside current scope |
