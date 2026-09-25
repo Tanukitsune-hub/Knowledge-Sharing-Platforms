@@ -373,6 +373,17 @@ Integrity:
 - Digest生成失敗やprovider未利用はsource保存・通常検索をblockしない。
 - approved providerが利用可能になればeligibleな未生成/stale Digestをbackground処理で自動回収する。
 
+### Record-layer implementation defaults
+
+- News stable ID: `NEWS-000001` pattern。
+- Internal Assessment stable ID: `ASMT-000001` pattern。
+- News / Assessmentのmulti-Entity relationはsorted / uniqueな `Counterparty_IDs` canonical listとしてIndexへ保存する。
+- News / Assessmentは1 recordにつき `DIRECT_TEXT` または `UPLOAD_FILE` のexactly one authoritative content routeを持つ。
+- registrationでは両sourceとも日付、title、1件以上のCounterpartyを必須とし、Newsはpublisher、Assessmentはassessment typeも必須とする。
+- save成功後はshared fieldsを保持し、active tab固有入力だけresetする。global `クリア` は4tab全体をresetする。
+
+Exact columns and validation are canonicalized in `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`.
+
 ## Retrieval and File Search
 
 現在の実装は `Meeting` と `Pitchbook` をAI Source Typeとして扱う。
@@ -561,17 +572,14 @@ confidentiality = source-specific classification
 
 ## Open implementation questions
 
-以下は方向性として未確定であり、実装Workで決める。
+以下は将来Workへdeferし、record-layer implementation開始をblockしない。
 
-- 内部評価 / News用のphysical Index schema
-- Backend sheet追加 vs common Source Index
-- multi-Entity relationshipのexact persistence model
-- default Knowledge Search source scope
-- Internal Assessment Digestのexact schema / generation timing / refresh rule
-- source-specific confidentiality taxonomy
-- provider-specific index policy UX
+- source-specific confidentiality taxonomy / provider-specific index policy UX
 - 内部評価 / NewsをEntity Summary timelineへどの粒度で表示するか
-- Newsの保存可能範囲・契約上の扱い
+- News全文の保存・AI利用に関する契約 / 社内policyの最終確認
+- company rollout時のactual multi-user Web App access scope
+
+physical Index schema、7-sheet/schema9方針、multi-Entity persistence、default Knowledge Search source scope、Digest automation contractはWork0069 implementation planでclosed済み。
 
 ## Implementation plan
 
