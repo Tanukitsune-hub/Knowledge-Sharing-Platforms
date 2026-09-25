@@ -16,7 +16,7 @@ ROUTE: A -> C when implementation starts
 
 Canonical direction:
 
-`docs/product/interaction-stability-and-layout-shift.md`
+`docs/product/stable-interaction-layout.md`
 
 ## Initial Scope
 
