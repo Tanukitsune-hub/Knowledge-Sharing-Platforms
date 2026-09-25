@@ -15,6 +15,8 @@ Web Appの通常画面からsynthetic Counterpartyを2件、Meetingを1件登録
 
 移行前fixtureに必須の親付きPitchbook用TXTを添付する際、Chrome browser automationのfile chooser取得がbutton pathと実際の`input[type=file]` pathの両方でtimeoutし、接続が外れた。Web Appのupload failureやapplication defectは観測していない。native file selectionが必要なため、同じDispatch IDを`BALL: USER / STATUS: ACTION_REQUIRED`として停止する。Pitchbook未作成のままschema9へ進めるとmigration preservation evidenceを失うため、candidate source sync、migration、後続matrixは実施していない。
 
+本人から最初の「選択したよ」返信後に隔離Backendをread-only照合したが、`Pitchbook_Index`はheaderのみでrow 0だった。その時Chromeに残っていたWeb Appタブは今回の隔離deploymentとは別のURLであり、そのタブの内容やデータは触っていない。Apps Script editorのowner-only deployment導線から正しい隔離Web Appを開き直し、`過去の記録`の`MTG-000001`詳細で`親記録: MTG-000001`の資料追加欄を表示した。現在、その欄のupload buttonはfile未選択でdisabledである。正しいタブでのnative選択を待つ。
+
 ## Work contract / evidence hierarchy
 
 - MODE: `QUALIFICATION`。Work0069 / Work0070のClosed DecisionsとCODEX-02の受入れ済みsourceは変更しない。
@@ -115,7 +117,7 @@ Web Appの通常画面からsynthetic Counterpartyを2件、Meetingを1件登録
 
 ## 再開に必要なnative操作
 
-隔離Web Appの`記録を追加`画面は保存済み`MTG-000001`の添付欄で待機している。本人が`添付資料を選択`を押し、local private operator folderの`synthetic-pitchbook.txt`を選択する。**選択だけ**行い、登録や再読込はしない。画面をそのまま残して「選択完了」と返信する。その後Codexがupload completion、`Pitchbook_Index`、Drive fileとparent relationをreadbackする。同じtarget・branch・Dispatch IDを使い、source syncやsetupを再試行しない。
+新たに開いた正しい隔離Web Appの`過去の記録`で、`MTG-000001`詳細の`親記録: MTG-000001`と表示される資料追加欄が待機している。本人が`添付資料を選択`を押し、local private operator folderの`synthetic-pitchbook.txt`を選択する。**選択だけ**行い、登録や再読込はしない。画面をそのまま残して「隔離タブで選択完了」と返信する。その後Codexがupload completion、`Pitchbook_Index`、Drive fileとparent relationをreadbackする。同じtarget・branch・Dispatch IDを使い、source syncやsetupを再試行しない。
 
 ## Shared Knowledge
 

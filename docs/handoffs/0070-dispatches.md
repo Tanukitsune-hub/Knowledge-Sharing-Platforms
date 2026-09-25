@@ -99,4 +99,5 @@ CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPT
 - 移行前に必要な親付きPitchbookのTXT選択でChrome browser automationのfile chooser取得がtimeout。application defectは観測していない。
 - native file selection待ちのため、candidate source sync、schema9 migration、4-source matrixはNOT RUN。
 - 0070-CODEX-03は引き続き`BALL: USER / STATUS: ACTION_REQUIRED`。隔離Web Appの保存済みMeeting添付欄で`synthetic-pitchbook.txt`を選択するだけでよく、保存操作はCodexが続行する。
+- 最初の選択返信後、隔離`Pitchbook_Index`はrow 0。残っていたWeb Appタブが別deploymentだったため、そのタブは操作せず、owner-only deploymentから正しい隔離タブを開き直した。現在は`過去の記録`の`MTG-000001`詳細で`親記録: MTG-000001`の資料追加欄が待機中。正しいタブでのnative選択を待つ。
 
