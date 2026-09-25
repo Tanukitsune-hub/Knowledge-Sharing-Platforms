@@ -7,6 +7,8 @@ STATUS: READY
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: PHASE_A_REPAIR
+USER_NATIVE_ACTION_BUDGET: 0
+USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 
 ## Primary Outcome
 
@@ -21,6 +23,7 @@ PHASE: PHASE_A_REPAIR
 - primary issueはfeedback不足ではなく、feedback/content追加によるgeometry movement。
 - fullscreen overlay / fake progress / schema/provider changeはしない。
 - CODEX-01はPhase A implementation + Phase B auditまで。Phase B surface-specific implementationは別Dispatch。
+- development / qualificationはPC前のuser presenceを前提にしない。actual Web Appのautomated file injection + persisted readbackを優先し、OS picker操作は今回のAcceptanceに含めない。
 
 ## Dispatch Table
 
