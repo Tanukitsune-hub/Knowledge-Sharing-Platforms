@@ -75,7 +75,7 @@ PR #103はcontroller-side main commitsとの履歴divergenceにより現時点�
 - company production migration / real users / confidential data / provider call / broad access / physical delete = 0。
 - application defectを観測した場合はsource patchせずmatrixを停止し、次Dispatchへ返す。
 
-## CODEX-03 native action checkpoint
+## CODEX-03 OAuth checkpoint（履歴）
 
 - PR #103はlatest mainとのnormal merge後にmergeable PASS。
 - isolated targetへschema8 baseline sourceを1回syncし、remote source identityを確認済み。
@@ -90,7 +90,7 @@ PR #103はcontroller-side main commitsとの履歴divergenceにより現時点�
 
 CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPTEDにしない。
 
-## CODEX-03 baseline実行後のcheckpoint（上記native action checkpointを更新）
+## CODEX-03 baseline実行後のcheckpoint（履歴）
 
 - ユーザーのGoogle OAuth承認後、同じ隔離targetのread-only preflightをPASS。
 - schema8 baseline installerは1回実行し`READY_FOR_DEPLOYMENT`。Backend 5シート、schema8、AI sync falseをpersisted readback。
@@ -100,4 +100,15 @@ CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPT
 - native file selection待ちのため、candidate source sync、schema9 migration、4-source matrixはNOT RUN。
 - 0070-CODEX-03は引き続き`BALL: USER / STATUS: ACTION_REQUIRED`。隔離Web Appの保存済みMeeting添付欄で`synthetic-pitchbook.txt`を選択するだけでよく、保存操作はCodexが続行する。
 - 最初の選択返信後、隔離`Pitchbook_Index`はrow 0。残っていたWeb Appタブが別deploymentだったため、そのタブは操作せず、owner-only deploymentから正しい隔離タブを開き直した。現在は`過去の記録`の`MTG-000001`詳細で`親記録: MTG-000001`の資料追加欄が待機中。正しいタブでのnative選択を待つ。
+
+## CODEX-03 migration後のcheckpoint（最新）
+
+- 親付きbaseline Pitchbookを通常Web Appで保存し、Index/File/Meeting relationをreadback。続いて受入れ済みcandidate sourceを同じ隔離Apps Scriptへ1回sync、immutable version 2を作成し、同じowner-only Web App deploymentを1回更新。saved source/version/deployment parityとaccess boundaryをreadback。
+- schema8→9 migrationを1回実行。exact 7 Backend sheets、同一IDでのroot/Meeting/Pitchbook folder rename、新News/評価folder、既存Meeting/Pitchbook保持、AI sync falseを確認。
+- idempotency setup 1回とcustom-name preservation setup 1回を実施し、resource/record/counterの安定性を確認。custom folder名は同じIDでtest-only復元。
+- News/評価のDIRECT_TEXTを通常Web Appで各1件作成。multi-Entity、Past/detail、原本、edit、Inactive→Reactivate、Auditを確認。Version progressionとsource/File ID維持をreadback。
+- Add/Pastの4 tab、product title、実際のupload accept、shared/source-specific input分離をbrowserで確認。
+- Chrome file chooser automationにより元タブの接続が失われた。standalone TXTは元タブで選択されたが読み取れず、保存操作は未実行。新しい同一隔離Web Appタブでstandaloneフォームの日付とsynthetic面談先を準備し、本人のnative file selectionを待つ。application defectは未観測。
+- standalone、News/評価のUPLOAD_FILE、390px、distinct concurrent create、same-record stale edit、残るbrowser state、trigger readbackはNOT RUN。詳細は`0070-CODEX-03-target-runtime-qualification-report.md`。
+- `BALL: USER / STATUS: ACTION_REQUIRED`を維持。同じDispatchで再開し、source sync/version/deployment/setupは再実行しない。
 

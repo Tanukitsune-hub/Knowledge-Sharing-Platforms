@@ -7,43 +7,33 @@ STATUS: ACTION_REQUIRED
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
 
-## 結果と停止点
+## Outcome / stop point
 
-OAuth承認後、同じ個人所有の隔離targetをread-onlyで再確認してから、schema8 baseline installerを1回実行した。Apps Scriptの実行ログは`READY_FOR_DEPLOYMENT / NONE`と正常終了を示した。実際のBackendは5シート、`SCHEMA_VERSION=8`、`APP_VERSION=0.1.2`、`AI_SYNC_ENABLED=FALSE`である。baseline immutable version 1を作成し、owner-only / execute-as-ownerのversioned Web Appを1件作成した。
+個人所有の隔離Apps Script / Workspace / owner-only Web Appでschema8 baselineを作り、synthetic Meetingと親付きPitchbookを保存した。受入れ済みcandidateを同一projectへ配置し、schema9 migrationを1回実行した。7-sheet Backend、旧folderの同一ID名称変更、既存2 recordの保持、2回目setupの冪等性、custom-name preservationをpersisted readbackで確認した。単一owner-only Web Appをimmutable version 1から2へ1回更新し、source parityとaccess boundaryをreadbackした。
 
-Web Appの通常画面からsynthetic Counterpartyを2件、Meetingを1件登録した。Meetingのstable ID、Index row、Google Docの本文、AuditのTarget / Result / ActorをWorkspace readbackで確認した。
+Newsと評価のDIRECT_TEXTを通常Web Appから各1件保存し、本文・metadata・multi-Entity・Past/detail・編集・Inactive→Reactivate・Auditを確認した。いずれもstable source ID / Doc file IDを維持し、Versionは1→2→3→4と進んだ。Add/Pastの4 tab、title/header、shared input propagation、News保存後にNews固有入力のみclearされ評価tab未保存titleが残ることも確認した。
 
-移行前fixtureに必須の親付きPitchbook用TXTを添付する際、Chrome browser automationのfile chooser取得がbutton pathと実際の`input[type=file]` pathの両方でtimeoutし、接続が外れた。Web Appのupload failureやapplication defectは観測していない。native file selectionが必要なため、同じDispatch IDを`BALL: USER / STATUS: ACTION_REQUIRED`として停止する。Pitchbook未作成のままschema9へ進めるとmigration preservation evidenceを失うため、candidate source sync、migration、後続matrixは実施していない。
+次はstandalone資料とNews/評価のUPLOAD_FILE。Chromeのfile chooserをagentが取得する経路で元タブの接続が切れたため、本人のnative file selectionを待っている。最初のstandalone TXT選択は元タブで行われたが、接続を復旧できず選択名を読めなかった。新しい同一隔離Web Appタブでstandaloneフォームの日付とsynthetic面談先を入力済み。そこでのファイル選択を依頼中。standalone保存はまだ行っていない。application upload defectは未観測。
 
-本人から最初の「選択したよ」返信後に隔離Backendをread-only照合したが、`Pitchbook_Index`はheaderのみでrow 0だった。その時Chromeに残っていたWeb Appタブは今回の隔離deploymentとは別のURLであり、そのタブの内容やデータは触っていない。Apps Script editorのowner-only deployment導線から正しい隔離Web Appを開き直し、`過去の記録`の`MTG-000001`詳細で`親記録: MTG-000001`の資料追加欄を表示した。現在、その欄のupload buttonはfile未選択でdisabledである。正しいタブでのnative選択を待つ。
+## Contract and identity
 
-## Work contract / evidence hierarchy
+- MODE: QUALIFICATION。Closed DecisionsとCODEX-02 sourceを変更しない。
+- Evidence hierarchy: actual persisted Workspace / browser、Apps Script source/deployment readback、CODEX-02 deterministic evidence。
+- Isolation: 個人所有synthetic fixtureのみ。会社production、real confidential data、provider、AI indexing、billing、broad access、physical deleteは0。
+- PR_RECONCILED_WITH_MAIN: PASS — normal merge 1回、production source conflict 0。後続controller docs-only更新も取込み。
+- PR_MERGEABLE: PASS — Draft PR #103はcontent conflictなし。
+- QUALIFIED_HEAD: reconciled candidate `06f55ebe7a72a206ac3ea4d171822deef81a6abc`のproduction source。後続commitはdocs-onlyでsource不変。
+- TARGET_RUNTIME_IDENTITY: PRIVATE / NOT_REPORTED。script/host owner、bound relation、隔離folder、owner-only deploymentを確認。private ID / URL / account identifierはlocal private operator mapのみ。
+- Deployment: baseline release 0.1.2/schema8を1回syncしてversion 1。candidate release 0.2.0/schema9を1回syncしてversion 2。同一versioned Web Appを1回更新。remote source / immutable version / local bundleの一致をreadback。accessは`WEB_APP / MYSELF / USER_DEPLOYING / /exec`を維持。
 
-- MODE: `QUALIFICATION`。Work0069 / Work0070のClosed DecisionsとCODEX-02の受入れ済みsourceは変更しない。
-- Outcome: exact candidateのschema8→schema9 migration、4-source persistence、browser、concurrency、Auditをactual targetで観測する。
-- Evidence: Workspace persisted state / native browser、Apps Script project・deployment readback、CODEX-02 deterministic evidenceの順。
-- Boundary: 個人所有のsynthetic resourceのみ。会社production、provider、billing、credential設定、AI indexing、physical deleteは行わない。
-- Reset condition: target identity不一致、material application/data-integrity defect、stateful mutationの失敗。今回はbrowser file pickerのautomation制約で停止した。
+## Migration and record evidence
 
-## PRとsource identity
-
-| 項目 | 結果 |
-|---|---|
-| PR_RECONCILED_WITH_MAIN | PASS — original normal mergeで`origin/main`を取込み、後続のcontroller-side dispatch-only更新はdocs-only commitで整合。production source conflict 0 |
-| PR_MERGEABLE | PASS — PR #103 `MERGEABLE`、local content conflict 0 |
-| QUALIFIED_HEAD | `06f55ebe7a72a206ac3ea4d171822deef81a6abc`。このHEADのproduction sourceは受入れ済みCODEX-02候補`2e31ae723dcb562a6de46703283fea86f3907260`から不変。**candidate runtime qualificationは未実施** |
-| TARGET_RUNTIME_IDENTITY | PRIVATE / NOT_REPORTED。script owner、bound host owner、親関係、専用fixture folderを照合。private ID、URL、account identifierは記録しない |
-| Baseline source | pre-Work0070 `ebfd13b3b2b7b806a0da17956d95b6c7b3ff3c62`のrelease 0.1.2 / schema8。remote sourceとimmutable version 1の`Code.gs`がlocal baselineに一致 |
-| Deployment | version 1を指す1件のversioned `WEB_APP`、URLは`/exec`、`MYSELF`、`USER_DEPLOYING`をAPIとEditor UIでreadback。platform-created unversioned metadataはversioned releaseに数えない |
-
-## Baseline Workspace readback
-
-- Backendは`Counterparty_Master / Option_Master / Meeting_Index / Pitchbook_Index / Settings`の5シートのみ。
-- Settingsは`SCHEMA_VERSION=8`、`APP_VERSION=0.1.2`、`AI_SYNC_ENABLED=FALSE`、`GEMINI_ENABLED=FALSE`、`OPENAI_ENABLED=FALSE`。root、子folder、Backend、Auditのresource参照は専用隔離resourceと一致した。Settingsの`ENVIRONMENT=PROD`はbaseline定数の文字列であり、実resourceは個人所有の隔離fixtureである。
-- Root `Private Assets Knowledge`の直下は`Meeting Records`と`Pitchbooks`のみ。各IDはprivate operator mapに保持した。
-- Web Appからsynthetic Entity A/Bを登録。Meeting `MTG-000001`のIndex row 2はActive / Version 1、Entity A、PE、Google Doc File IDあり。Doc本文に期待したsynthetic文が存在し、ID・row・Doc IDはprivate operator mapへ記録した。
-- Restricted AuditはEntity 2件の追加とMeeting 1件の作成を`Success`として記録。Meeting Targetは`MTG-000001`、Actor分類は`EMAIL`。reportに識別子を記載しない。
-- provider call、AI indexing callは各0。会社dataとconfidential contentは使用していない。
+- Baseline: exact 5 sheets、schema8、release 0.1.2、AI sync false。通常Web Appでsynthetic Counterparty 2件、Meeting 1件、親付きPitchbook TXT 1件を作成。Index row / Doc本文 / Drive file / parent relationをreadback。
+- Migration: schema9、release 0.2.0、exact 7 sheets。root、Meeting、Pitchbook folderはそれぞれ同じIDで`記録・資料 / 面談記録 / 保存資料`へrename。新規`ニュース / 評価（ICメモ、社内整理等）`を同じroot直下に作成。exact 4 child、重複なし。Meeting/PitchbookのID、row、Doc/File ID、Status、relationを保持、本文/fileも読取可能。
+- Idempotency: second setup 1回でresource/counter/source row不変、setup時刻のみ更新。新News childをsynthetic custom nameへ変更後のsetupも1回で同じID/名前を保持し、canonical重複なし。test-onlyで同じIDを用いて元の名前へ復元。
+- News DIRECT_TEXT: synthetic面談先2件をcanonical sorted unique ID listとして保持。1 authoritative Doc、News folder、source URL、本文、Past/detailを確認。metadata/body editとInactive→Reactivateで同じsource/Doc IDを維持。
+- 評価 DIRECT_TEXT: stable Assessment Type code / 日本語label、synthetic Meeting/News relation、1 authoritative Doc、評価folder、本文、Past/detailを確認。editとInactive→Reactivateで同じsource/Doc IDを維持。
+- Restricted Audit: 代表的なEntity/Meeting/Pitchbook/News/評価 mutation計13件がSuccess、target対応、Actor分類`EMAIL`、source本文複製なし。
 
 ## Acceptance matrix
 
@@ -51,79 +41,61 @@ Web Appの通常画面からsynthetic Counterpartyを2件、Meetingを1件登録
 
 | Field | State |
 |---|---|
-| BASELINE_SCHEMA8 | PASS — installer実行とpersisted Settings readback |
-| BASELINE_5_SHEETS | PASS — Workspace metadataでexact 5 |
-| MIGRATION_SCHEMA9 | NOT RUN |
-| BACKEND_7_SHEETS | NOT RUN |
-| LEGACY_ROOT_SAME_ID_RENAME | NOT RUN |
-| LEGACY_MEETING_FOLDER_SAME_ID_RENAME | NOT RUN |
-| LEGACY_PITCHBOOK_FOLDER_SAME_ID_RENAME | NOT RUN |
-| NEWS_FOLDER_CREATED | NOT RUN |
-| ASSESSMENT_FOLDER_CREATED | NOT RUN |
-| MIGRATION_EXISTING_MEETING_PRESERVED | NOT RUN |
-| MIGRATION_EXISTING_PITCHBOOK_PRESERVED | NOT RUN — baseline親付きPitchbook未作成 |
-| SECOND_SETUP_IDEMPOTENT | NOT RUN |
-| CUSTOM_NAME_PRESERVED | NOT RUN |
-| PRODUCT_TITLE | NOT RUN — candidate Web App未配置 |
-| ADD_4_TABS | NOT RUN |
-| PAST_4_TABS | NOT RUN |
-| BROWSER_DESKTOP | BASELINE only。candidate NOT RUN |
+| BASELINE_SCHEMA8 / BASELINE_5_SHEETS | PASS — persisted Settings / exact 5 sheets |
+| MIGRATION_SCHEMA9 / BACKEND_7_SHEETS | PASS — persisted Settings / exact 7 sheets |
+| LEGACY_ROOT_SAME_ID_RENAME | PASS — same ID, 記録・資料 |
+| LEGACY_MEETING_FOLDER_SAME_ID_RENAME | PASS — same ID, 面談記録 |
+| LEGACY_PITCHBOOK_FOLDER_SAME_ID_RENAME | PASS — same ID, 保存資料 |
+| NEWS_FOLDER_CREATED / ASSESSMENT_FOLDER_CREATED | PASS — same root, exact 4 children |
+| MIGRATION_EXISTING_MEETING_PRESERVED | PASS — row / Doc / body / status |
+| MIGRATION_EXISTING_PITCHBOOK_PRESERVED | PASS — row / File / relation / bytes |
+| SECOND_SETUP_IDEMPOTENT / CUSTOM_NAME_PRESERVED | PASS — resources/counters/rows stable、custom name保持 |
+| PRODUCT_TITLE / ADD_4_TABS / PAST_4_TABS | PASS — actual candidate Web App |
+| BROWSER_DESKTOP | PASS — candidate 4-tabと代表News/評価flow、material visual issueなし |
 | BROWSER_390 | NOT RUN |
-| UPLOAD_ACCEPT_REAL | baseline inputの`accept=.pdf,.pptx,.xlsx,.docx,.txt,.eml`をDOM確認。candidate NOT RUN |
-| STANDALONE_ASSET_REQUIRED | NOT RUN |
-| STANDALONE_PITCHBOOK | NOT RUN |
-| NEWS_DIRECT | NOT RUN |
-| NEWS_UPLOAD | NOT RUN |
-| NEWS_MULTI_ENTITY | NOT RUN |
-| NEWS_EDIT_LIFECYCLE | NOT RUN |
-| ASSESSMENT_DIRECT | NOT RUN |
-| ASSESSMENT_UPLOAD | NOT RUN |
-| ASSESSMENT_EDIT_LIFECYCLE | NOT RUN |
-| CONCURRENT_DISTINCT_CREATE | NOT RUN |
-| STALE_EDIT_REJECTED | NOT RUN |
-| CROSS_SESSION_INPUT_BLEED | NOT RUN |
-| AUDIT_TARGET_TRACE | baseline Entity / Meeting PASS、4-source matrix NOT RUN |
-| AUDIT_ACTOR_CLASS | baseline `EMAIL`、4-source matrix NOT RUN |
-| AI_SYNC | `FALSE` persisted baseline。migration後はNOT RUN |
-| PROVIDER_CALL_COUNT | 0 |
-| AI_INDEX_CALL_COUNT | 0 |
-| TRIGGER_STATE | baseline setup後の最終readbackはNOT RUN。AI triggerは意図的に作成していない |
-| COMPANY_DATA_MUTATION_COUNT | 0 |
-| CONFIDENTIAL_DATA_COUNT | 0 |
-| PHYSICAL_DELETE_COUNT | 0 |
-| LOGIC_VALIDATION | CODEX-02 716/716受入れ済み。今回source変更なし、全面再実行なし |
-| TARGET_RUNTIME_QUALIFICATION | PARTIAL — schema8 baseline PASS、schema9 candidate NOT RUN |
-| SIDE_EFFECT_STATE | TEST_ONLY: fixture folder、bound host、script、baseline setup/control resources、synthetic Counterparty 2件とMeeting 1件。未使用hostは可逆的にTrash。candidate sync/version/update 0 |
-| BLOCKER | browser automationがnative file chooserを取得できない。親付きsynthetic PitchbookのTXT選択待ち。application defectは未観測 |
-| FOLLOW_UP | 同じDispatchでnative selection後、Pitchbook保存・readbackを完了してからcandidate migrationへ進む |
+| UPLOAD_ACCEPT_REAL | PASS — candidate DOMのfile accept = .pdf,.pptx,.xlsx,.docx,.txt,.eml |
+| STANDALONE_ASSET_REQUIRED / STANDALONE_PITCHBOOK | NOT RUN — new tabでnative selection待ち |
+| NEWS_DIRECT / NEWS_MULTI_ENTITY / NEWS_EDIT_LIFECYCLE | PASS — browser、Index/Doc/Version |
+| NEWS_UPLOAD | NOT RUN — native selection待ち |
+| ASSESSMENT_DIRECT / ASSESSMENT_EDIT_LIFECYCLE | PASS — browser、Index/Doc/Version |
+| ASSESSMENT_UPLOAD | NOT RUN — native selection待ち |
+| CONCURRENT_DISTINCT_CREATE / STALE_EDIT_REJECTED | NOT RUN |
+| CROSS_SESSION_INPUT_BLEED | PARTIAL — tab内shared/source-specific分離PASS。独立session/reload/global clear NOT RUN |
+| AUDIT_TARGET_TRACE / AUDIT_ACTOR_CLASS | PASS — 13 Success、Actor分類EMAIL、本文複製なし |
+| AI_SYNC | FALSE — migration後persisted Settings |
+| PROVIDER_CALL_COUNT / AI_INDEX_CALL_COUNT | 0 / 0 |
+| TRIGGER_STATE | NOT RUN — final readback待ち |
+| COMPANY_DATA_MUTATION_COUNT / CONFIDENTIAL_DATA_COUNT / PHYSICAL_DELETE_COUNT | 0 / 0 / 0 |
+| LOGIC_VALIDATION | CODEX-02 716/716 accepted。今回source変更なし、全面再実行なし |
+| TARGET_RUNTIME_QUALIFICATION | PARTIAL — migration/DIRECT_TEXT PASS、UPLOAD/concurrency/390等NOT RUN |
+| SIDE_EFFECT_STATE | TEST_ONLY — isolated fixtures/resourcesとsynthetic records。provider側変更なし |
+| BLOCKER | browser file chooser automation制約によるnative selection待ち。application defect未観測 |
+| FOLLOW_UP | 同じDispatchでstandalone、News/評価upload、concurrency、browser残項目、trigger readback |
 | READY | NO |
 
 ## Mutation budget
 
-| 操作 | 使用 / 上限 |
+| Operation | Used / Max |
 |---|---:|
 | normal merge | 1 / 1 |
-| new isolated Apps Script target | 1 / 1 |
-| baseline source sync | 1 / 1 |
-| candidate source sync | 0 / 1 |
-| immutable versions | 1 / 2 |
-| owner-only versioned Web App deployment | 1 / 1 |
-| existing deployment update | 0 / 1 |
-| baseline setup | 1 / 1 |
-| migration / idempotency / custom-name setup | 0 / 各1 |
-| synthetic source records | Meeting 1 / 目安8 |
-| concurrency distinct-create pair | 0 / 1 |
-| same-record stale-edit scenario | 0 / 1 |
+| new isolated target | 1 / 1 |
+| baseline / candidate source sync | 各1 / 1 |
+| immutable versions | 2 / 2 |
+| owner-only deployment / existing update | 各1 / 1 |
+| baseline / migration / idempotency / custom-name setup | 各1 / 1 |
+| synthetic source records | 4 / 目安8（Meeting、親付きPitchbook、News DIRECT、評価 DIRECT） |
+| concurrent distinct-create pair | 0 / 1 |
+| same-record stale edit scenario | 0 / 1 |
 
-## 再開に必要なnative操作
+## Native step to resume
 
-新たに開いた正しい隔離Web Appの`過去の記録`で、`MTG-000001`詳細の`親記録: MTG-000001`と表示される資料追加欄が待機している。本人が`添付資料を選択`を押し、local private operator folderの`synthetic-pitchbook.txt`を選択する。**選択だけ**行い、登録や再読込はしない。画面をそのまま残して「隔離タブで選択完了」と返信する。その後Codexがupload completion、`Pitchbook_Index`、Drive fileとparent relationをreadbackする。同じtarget・branch・Dispatch IDを使い、source syncやsetupを再試行しない。
+新しく開いた隔離Web Appの`記録を追加 > 資料保存`で、日付とsynthetic面談先は入力済み、アセットクラスは未選択。本人が`添付資料を選択`からlocal private operator folderの`synthetic-standalone.txt`を選択し、保存せずそのまま返信する。Codexがファイル名とparentなしのform stateを確認後、Asset Class未選択validationを見て、PE指定で1回保存する。元の接続切れタブは操作しない。
 
 ## Shared Knowledge
 
 KNOWLEDGE_RETRIEVAL: PAT-0004, RULE-0002, PAT-0002
 KNOWLEDGE_APPLIED: PAT-0004, RULE-0002, PAT-0002
-NEW_KNOWLEDGE_CANDIDATE: YES — Apps Script bound host identityとChrome file picker制約を別々に検証する必要がある
+NEW_KNOWLEDGE_CANDIDATE: YES — isolated migration evidenceとChrome file picker limitationの分類
 
 WORK_ID: 0070
 DISPATCH_ID: 0070-CODEX-03
