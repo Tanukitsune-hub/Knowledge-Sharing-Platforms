@@ -3,16 +3,16 @@
   "product": "Alternative Assets Intelligence",
   "release_version": "0.2.0",
   "schema_version": 9,
-  "bundle_source_commit": "61d5abdb7fe95616a5a0ae3519910c429d4ebb3b",
-  "canonical_bundle_sha256": "f7f445e78fa0d88231bba655edfc5651e6ebc88a26f8a8d26ec6aa4cdfda16e4",
-  "canonical_bundle_payload_sha256": "7672bf887749a31cd3555a86a8a2d1ddade6eada76da79ed77a3db1b26f8856a",
-  "concatenated_bytes": 1415764,
-  "concatenated_sha256": "f7f445e78fa0d88231bba655edfc5651e6ebc88a26f8a8d26ec6aa4cdfda16e4",
+  "bundle_source_commit": "d54837074c1061bd11cafb8c126bf0373f682ffa",
+  "canonical_bundle_sha256": "ca115698cc3e70885d621f9229ac89b3befa6c21f570a39b55b198d4ef1fe10a",
+  "canonical_bundle_payload_sha256": "9904edfb00b954ff4f7d861d0e39b5aa19730758e7eb4916273c942e43c0c515",
+  "concatenated_bytes": 1416811,
+  "concatenated_sha256": "ca115698cc3e70885d621f9229ac89b3befa6c21f570a39b55b198d4ef1fe10a",
   "ordered_files": [
     {
       "name": "00_BundleResources.gs",
-      "bytes": 418014,
-      "sha256": "9fa1d9e37edb9e77621f8fbe2bc8e9ac4526cf9d0414d07d853015970eaebb9d",
+      "bytes": 419061,
+      "sha256": "5feff739c51dcfa6839bf1b1cd5232633351a0592b31b6bab625a1d3caa2225d",
       "text_attachment": "00_BundleResources.txt",
       "source_sections": []
     },
