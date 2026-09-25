@@ -168,6 +168,17 @@ error      : same slot
 
 長文errorは無制限にslotを伸ばさず、短いsummary + explicit detailを検討する。ただしretry/unknown outcome等の重要情報は自動消去しない。
 
+### File identity marker
+
+User decision 2026-09-26:
+
+- upload file rowのfilename先頭に小さな朱色の丸markerを恒常表示する。
+- markerはfile identity / scannability用で、状態表示ではない。
+- markerはSelected / Saving / Saved / Retry requiredで不変。
+- stateはbadge/textで伝え、色だけに依存しない。
+- decorative markerはassistive technologyから隠し、filename/detailへのkeyboard accessは維持する。
+- long filename / 1件 / 複数件 / max件数でmarker列とprimary action geometryの安定を確認する。
+
 ### Stable File Queue
 
 - original filenameをprimary row identityに固定。
