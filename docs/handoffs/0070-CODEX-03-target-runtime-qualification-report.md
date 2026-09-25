@@ -13,7 +13,7 @@ VALIDATION_TIER: TIER_3_HIGH
 
 Newsと評価のDIRECT_TEXTを通常Web Appから各1件保存し、本文・metadata・multi-Entity・Past/detail・編集・Inactive→Reactivate・Auditを確認した。いずれもstable source ID / Doc file IDを維持し、Versionは1→2→3→4と進んだ。Add/Pastの4 tab、title/header、shared input propagation、News保存後にNews固有入力のみclearされ評価tab未保存titleが残ることも確認した。
 
-standalone保存資料のTXTは新しい同一隔離Web Appタブで選択名・61 Bを確認した。Asset Class未選択の送信では具体的errorと該当field focusが出て、Index行は増えず、client sourceでもprepare RPC前にreturnする。PE指定後の1回の保存で新しいActiveのDOC行を作成し、Parent_Meeting_IDは空、synthetic面談先B、PE、実Drive file 61 B、保存資料folderへの配置をreadbackした。既存Meeting Versionは不変。次はNews/評価のUPLOAD_FILE。Chrome file chooserをagentが取得する経路に制約があるため、Newsのnative file selectionを本人へ依頼中。application upload defectは未観測。
+standalone保存資料のTXTは新しい同一隔離Web Appタブで選択名・61 Bを確認した。Asset Class未選択の送信では具体的errorと該当field focusが出て、Index行は増えず、client sourceでもprepare RPC前にreturnする。PE指定後の1回の保存で新しいActiveのDOC行を作成し、Parent_Meeting_IDは空、synthetic面談先B、PE、実Drive file 61 B、保存資料folderへの配置をreadbackした。既存Meeting Versionは不変。News UPLOAD_FILEでは別tabにsynthetic metadataを入力し、`synthetic-news-upload.txt`のnative選択名を確認、未保存のまま保持。さらに独立tabで評価UPLOAD_FILEのsynthetic metadataを準備し、`synthetic-assessment-upload.txt`のnative選択を本人へ依頼中。この2件の保存を同時に開始してconcurrency pairを兼ねる。application upload defectは未観測。
 
 ## Contract and identity
 
@@ -70,7 +70,7 @@ standalone保存資料のTXTは新しい同一隔離Web Appタブで選択名・
 | LOGIC_VALIDATION | CODEX-02 716/716 accepted。今回source変更なし、全面再実行なし |
 | TARGET_RUNTIME_QUALIFICATION | PARTIAL — migration/DIRECT_TEXT/standalone PASS、News/評価UPLOAD・concurrency/390等NOT RUN |
 | SIDE_EFFECT_STATE | TEST_ONLY — isolated fixtures/resourcesとsynthetic records。provider側変更なし |
-| BLOCKER | browser file chooser automation制約によるNews native selection待ち。application defect未観測 |
+| BLOCKER | browser file chooser automation制約による評価 native selection待ち。application defect未観測 |
 | FOLLOW_UP | 同じDispatchでNews/評価upload、concurrency、browser残項目、trigger readback。PRのdispatch docs-only conflictはChatGPT側でreconcile判断 |
 | READY | NO |
 
@@ -90,7 +90,7 @@ standalone保存資料のTXTは新しい同一隔離Web Appタブで選択名・
 
 ## Native step to resume
 
-隔離Web Appの`記録を追加 > ニュース`で、日付・synthetic面談先B・発行元・タイトル・UPLOAD_FILE modeを入力済み。本人が`原本ファイル`からlocal private operator folderの`synthetic-news-upload.txt`を選択し、保存せずそのまま返信する。Codexが選択名を確認後、評価UPLOAD_FILEを別の独立tabで準備し、2件のcreateを同時開始する計画。元の接続切れタブは操作しない。
+隔離Web AppのNewsタブでは`synthetic-news-upload.txt`を選択済みで未保存。前面に開いた別の隔離Web App tabの`記録を追加 > 評価（ICメモ、社内整理等）`では日付・Asset Class・評価種別・synthetic面談先A・タイトル・UPLOAD_FILE modeを入力済み。本人が`原本ファイル`からlocal private operator folderの`synthetic-assessment-upload.txt`を選択し、両tabとも保存せずそのまま返信する。Codexが選択名を確認後、2件のcreateを近いタイミングで開始し、Index/Drive/Auditをreadbackする。
 
 ## Shared Knowledge
 

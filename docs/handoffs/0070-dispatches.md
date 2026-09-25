@@ -114,4 +114,5 @@ CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPT
 - 現在のDraft PR #103は、後着のmain側OAuth checkpoint commitと`0070-dispatches.md`だけでcontent conflict。production source/tests/generated artifactsのconflictは0。normal merge上限1/1を使用済みのため追加mergeは行わず、ChatGPTにreconcile判断を返す。
 - 新しい同一隔離Web App tabでstandalone TXT 61 Bを選択。Asset Class未選択ではfield error/focus、Index不変、prepare前returnを確認。PE指定後にActiveのparentなしDOCを1件保存し、synthetic面談先B、実File/保存資料folder、Meeting Version不変、Audit Successをreadback。
 - 現在はNews UPLOAD_FILEのsynthetic項目を入力済みで`synthetic-news-upload.txt`のnative選択待ち。続いて評価UPLOAD_FILEを別tabで準備し、この2 createをconcurrency pairとして使用する。source record countは現時点5。
+- News UPLOAD_FILEの`synthetic-news-upload.txt`選択名を確認し未保存。独立tabの評価UPLOAD_FILEにsynthetic項目を入力済みで、`synthetic-assessment-upload.txt`のnative選択待ち。2件を同時開始予定。現時点のNews/評価Index各1行、NEXT ID各2、cross-tab input bleedなし。
 
