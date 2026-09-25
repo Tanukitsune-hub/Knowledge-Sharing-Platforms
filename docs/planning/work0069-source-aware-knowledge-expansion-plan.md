@@ -1318,6 +1318,15 @@ API credential is NOT required.
 - Internal Assessment indexing is authorized
 - digest adds decision value beyond raw File Search
 
+## Implementation handoff
+
+Work0069のAPI-independent record-layer implementationはWork0070へ引き継いだ。
+
+- Plan: `docs/planning/work0070-record-source-expansion.md`
+- Active Dispatch: `0070-CODEX-01`
+- Instruction: `docs/handoffs/0070-CODEX-01-record-source-expansion-instruction.md`
+- Dispatch register: `docs/handoffs/0070-dispatches.md`
+
 ## Non-Goals of This Plan Work
 
 - source code implementation
@@ -1335,7 +1344,7 @@ API credential is NOT required.
 ~~~text
 PLAN_REVIEWED_AGAINST_CHAT: YES
 PLAN_REVIEWED_AGAINST_CURRENT_MAIN: YES
-NEXT_IMPLEMENTATION_WORK: UNASSIGNED
+NEXT_IMPLEMENTATION_WORK: 0070
 FULL_OUTPUT_PITCHBOOK_OMISSION: MUST_FIX
 CLEAR_SCOPE: ALL_4_ADD_TABS
 AI_PROVIDER_GATE: DEFERRED_UNTIL_APPROVED
