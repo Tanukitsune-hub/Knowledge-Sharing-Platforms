@@ -1,12 +1,12 @@
 # Work 0071 dispatch control
 
 WORK_ID: 0071
-ACTIVE_DISPATCH_ID: 0071-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
-MODE: QUALIFICATION
+ACTIVE_DISPATCH_ID: 0071-CODEX-04
+BALL: CODEX
+STATUS: READY
+MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
-PHASE: PHASE_A_FINAL_INTEGRATION
+PHASE: PHASE_B_FOCUS_RECOVERY
 USER_NATIVE_ACTION_BUDGET: 0
 USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 
@@ -31,7 +31,8 @@ USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 |---|---|---|---|---|---|---|---|
 | 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` / Draft PR #104 | — |
 | 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-report.md` / Draft PR #104 | — |
-| 0071-CODEX-03 | latest-main reconcile + canonical check + Phase A integration readiness | QUALIFICATION | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-instruction.md` | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-report.md` / Draft PR #104 | — |
+| 0071-CODEX-03 | latest-main reconcile + canonical check + Phase A integration readiness | QUALIFICATION | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-instruction.md` | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-report.md` / PR #104 | — |
+| 0071-CODEX-04 | Phase B focus continuity + Past edit validation recovery | BUILD | CODEX | READY | `docs/handoffs/0071-CODEX-04-phase-b-focus-recovery-instruction.md` | pending | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -80,6 +81,26 @@ Main-side canonical-check blocker:
 - ChatGPT repaired latest main without raising/weaking the validator; detailed unattended policy remains in the decision doc.
 - CODEX-03 only reconciles latest main and reruns canonical deterministic gates. No runtime mutation.
 
+## Phase A integration
+
+ChatGPT final review: PASS.
+
+```text
+PR: #104
+MERGE: e9c759c569660331a1eb447cd44787ab1051c427
+RELEASE: 0.2.1
+SCHEMA: 9
+PHASE_A_LOGIC_VALIDATION: PASS
+CANONICAL_CHECK: PASS
+PHASE_A_INTEGRATION_READY: YES
+BLOCKER: NONE
+USER_ACTION_REQUIRED: NO
+```
+
+The valid-file exact-candidate runtime state remains `NOT_OBSERVED_AUTOMATION_LIMITATION`; this limitation is preserved rather than rewritten as a direct PASS. Prior native-upload evidence is reused because the native picker/upload transport/server persistence semantics were not changed.
+
+Phase A is integrated and closed unless material contradictory evidence appears. Work0071 overall remains ACTIVE for evidence-gated Phase B.
+
 ## Authorization Boundary
 
 Allowed:
@@ -108,6 +129,6 @@ Work0071はまだACCEPTEDにしない。
 CODEX-03 return: latest main normal merge後もPhase A sourceと0.2.1/schema9 distribution identityは不変。agent foundation、`npm run check` 717/717、diff hygieneはPASS。valid-file exact-candidate runtime stateの未直接観測は`AUTOMATION_LIMITATION`として明記し、ChatGPT判断によりPhase A integrationの非BLOCKERとする。CODEX-03のruntime mutationとuser native actionは0。Phase A integration ready、Work全体のACCEPTED判定は未実施。
 
 WORK_ID: 0071
-DISPATCH_ID: 0071-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0071-CODEX-04
+BALL: CODEX
+STATUS: READY
