@@ -112,7 +112,7 @@ el('standalone-pitchbook-form').addEventListener('submit',async event=>{
   const error=sourceValidateStandalone();if(error){showStatus('standalone-pitchbook-status','error',error);return}
   pitchbookMode='standalone';const completed=await completeParentAttachments(el('standalone-pitchbook-submit'));
   if(completed){sourceClearStandaloneSpecific();showStatus('standalone-pitchbook-status','success','資料を保存しました。')}
-  else showStatus('standalone-pitchbook-status','warning','未完了の資料保存があります。未完了分を再試行してください。');
+  else{const fileStatus=el('pitchbook-status'),kind=fileStatus.classList.contains('error')?'error':'warning';showStatus('standalone-pitchbook-status',kind,fileStatus.textContent||'未完了の資料保存があります。未完了分を再試行してください。')}
 });
 function sourcePastSelect(type){pastSelectedTab=type;showPage('meeting-past')}
 function sourcePastPayload(type){return{dateFrom:el(type+'-past-dateFrom').value,dateTo:el(type+'-past-dateTo').value,counterpartyId:el(type+'-past-counterpartyId').value,assetClassId:el(type+'-past-assetClassId').value,status:el(type+'-past-statusFilter').value,limit:100}}

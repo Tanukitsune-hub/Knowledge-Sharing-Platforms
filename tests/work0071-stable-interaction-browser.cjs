@@ -15,7 +15,9 @@ const fixtures={
   getPhase1MaintenanceBootstrapData:{ok:true,options,masters:{counterparties:[entity],options:[{id:'AC-SYNTH',type:'ASSET_CLASS',name:'Private Equity',status:'Active',sortOrder:1}]}},
   getSourceRecordBootstrapData:{ok:true,options,uploadFormats:[{extension:'pdf'},{extension:'pptx'},{extension:'xlsx'},{extension:'docx'},{extension:'txt',mimeType:'text/plain',acceptedMimeTypes:['text/plain']},{extension:'eml'}],assessmentTypes:[{code:'IC_DECISION',label:'IC / 投資判断'}]},
   getKnowledgeSearchBootstrapData:{ok:true,options,providers:{OPENAI:{configured:false},GEMINI:{configured:false}},modelPolicies:{OPENAI:{profiles:[]},GEMINI:{profiles:[]}},modeDefinitions:[]},
-  registerMeeting:{ok:true,meeting:{id:'MTG-SYNTH',version:1,status:'Active'}}
+  registerMeeting:{ok:true,meeting:{id:'MTG-SYNTH',version:1,status:'Active'}},
+  preparePitchbookBatch:{ok:true,slots:[{batchId:'B-SYNTH',documentId:'DOC-SYNTH',slotFingerprint:'FP-SYNTH',originalFilename:'source.txt',parentMeetingId:'',status:'Pending'}]},
+  uploadPitchbookFile:{ok:true,fileSaved:true,linkConfirmed:true,slot:{fileSaved:true,linkConfirmed:true,savedFilename:'01_source.txt',status:'Active'}}
 };
 const server=http.createServer((request,response)=>{response.writeHead(request.url==='/'?200:204,{'content-type':'text/html;charset=utf-8'});response.end(request.url==='/'?html:'')});
 const eps=1;
@@ -34,6 +36,8 @@ async function run(browser,url,width,zoom){
           window.__work0071Calls.push({name,payload});
           if(name==='registerMeeting'&&window.__holdMeeting){window.__resolveMeeting=()=>success(data.registerMeeting);return}
           if(name==='registerNews'&&window.__holdNews){window.__resolveNews=()=>success({ok:true,record:{id:'NEWS-SYNTH'}});return}
+          if(name==='preparePitchbookBatch'&&window.__holdPrepare){window.__resolvePrepare=()=>success(data.preparePitchbookBatch);return}
+          if(name==='preparePitchbookBatch'&&window.__failPrepareOnce){window.__failPrepareOnce=false;queueMicrotask(()=>success({ok:false,error:{message:'予約に失敗しました。'}}));return}
           queueMicrotask(()=>success(JSON.parse(JSON.stringify(data[name]||{ok:true}))));
         }}});
       }};
@@ -53,13 +57,66 @@ async function run(browser,url,width,zoom){
     await page.evaluate(id=>clearStatus(id),item.status);
     stable(before,await measure(page,item.button,item.status),`${width} ${item.tab} idle`);
     if(item.tab==='meeting'||item.tab==='pitchbook'){
-      await page.locator('#pitchbook-files').setInputFiles(Array.from({length:10},(_,i)=>({name:`資料${i+1}_`+'長いファイル名'.repeat(8)+'.txt',mimeType:'text/plain',buffer:Buffer.from('Synthetic content')})));
+      await page.locator('#pitchbook-files').setInputFiles(['一件目_長い名前'.repeat(5)+'.txt','second_long_filename_'.repeat(6)+'.txt','third.txt'].map(name=>({name,mimeType:'text/plain',buffer:Buffer.from('Synthetic content')})));
+      assert.equal(await page.locator('#pitchbook-file-list .file-identity-marker[aria-hidden="true"]').count(),3,'multiple file markers');
+      stable(before,await measure(page,item.button,item.status),`${width} ${item.tab} three files`);
+      await page.locator('#pitchbook-files').setInputFiles(Array.from({length:10},(_,i)=>({name:i===0?'Long_Latin_Filename_'.repeat(9)+'.txt':`資料${i+1}_`+'長いファイル名'.repeat(8)+'.txt',mimeType:'text/plain',buffer:Buffer.from('Synthetic content')})));
       stable(before,await measure(page,item.button,item.status),`${width} ${item.tab} ten files`);
       assert.equal(await page.locator('#pitchbook-file-list details').count(),10);
+      assert.equal(await page.locator('#pitchbook-file-list .file-identity-marker[aria-hidden="true"]').count(),10,'every file has one decorative marker');
+      const marker=await page.locator('#pitchbook-file-list .file-identity-marker').first().evaluate(node=>{const style=getComputedStyle(node);return{width:style.width,height:style.height,color:style.backgroundColor}});
+      assert.deepEqual(marker,{width:'8px',height:'8px',color:'rgb(217, 74, 42)'},`${width} fixed vermilion marker`);
       await page.locator('#pitchbook-file-list summary').first().focus();await page.keyboard.press('Enter');
       assert.equal(await page.locator('#pitchbook-file-list details').first().getAttribute('open'),'');
       assert.match(await page.locator('#pitchbook-file-list details').first().innerText(),/元ファイル名:/);
+      assert.match(await page.locator('#pitchbook-file-list summary').first().innerText(),/Long_Latin_Filename_/,'original filename remains accessible');
+      if(item.tab==='pitchbook'&&width===1440&&!zoom){
+        for(const state of ['Selected','Saving','Active','Failed']){
+          await page.evaluate(status=>{pitchbookSlots=[{ordinal:1,originalFilename:'元ファイル名_長い資料.txt',savedFilename:status==='Active'?'01_saved.txt':'',sizeBytes:12,status,linkConfirmed:status==='Active'}];renderPitchbookFiles()},state);
+          const current=await page.locator('#pitchbook-file-list .file-identity-marker').first().evaluate(node=>{const style=getComputedStyle(node);return{width:style.width,height:style.height,color:style.backgroundColor}});
+          assert.deepEqual(current,marker,`${state} marker stays identity-only`);
+          assert.match(await page.locator('#pitchbook-file-list summary').first().innerText(),/元ファイル名_長い資料.txt/);
+          stable(before,await measure(page,item.button,item.status),`pitchbook ${state} marker geometry`);
+        }
+        await page.evaluate(()=>{pitchbookSlots=[];renderPitchbookFiles()});
+      }
       await page.locator('#pitchbook-clear').click();
+    }
+    if(item.tab==='pitchbook'&&width===1440&&!zoom){
+      const prepareCalls=()=>page.evaluate(()=>window.__work0071Calls.filter(call=>call.name==='preparePitchbookBatch').length);
+      await page.locator('#standalone-pitchbook-submit').focus();await page.keyboard.press('Enter');
+      assert.match(await page.locator('#standalone-pitchbook-status').innerText(),/ファイルを1つ以上選択してください/);
+      assert.equal(await page.locator('#pitchbook-drop-zone').getAttribute('aria-invalid'),'true');
+      assert.equal(await prepareCalls(),0,'no-file invalid submit must not call server');
+      await page.locator('#pitchbook-files').setInputFiles({name:'source.txt',mimeType:'text/plain',buffer:Buffer.from('Synthetic content')});
+      assert.equal(await page.locator('#standalone-pitchbook-status').innerText(),'','valid file clears obsolete primary error');
+      assert.equal(await page.locator('#pitchbook-drop-zone').getAttribute('aria-invalid'),null);
+      assert.equal(await page.locator('#pitchbook-file-list .file-identity-marker').count(),1);
+      stable(before,await measure(page,item.button,item.status),'pitchbook valid file selected',{scroll:false});
+      await page.evaluate(()=>{window.__holdPrepare=true});
+      await page.locator('#standalone-pitchbook-submit').click();
+      await page.waitForFunction(()=>Boolean(window.__resolvePrepare));
+      assert.match(await page.locator('#standalone-pitchbook-status').innerText(),/資料を保存中/,'primary status is truthful while pending');
+      assert.match(await page.locator('#pitchbook-status').innerText(),/資料を保存中/,'file-local status agrees with primary');
+      assert.equal(await page.evaluate(()=>document.activeElement.id),'standalone-pitchbook-submit','pending focus');
+      stable(before,await measure(page,item.button,item.status),'pitchbook pending',{scroll:false});
+      await page.evaluate(()=>window.__resolvePrepare());
+      await page.waitForFunction(()=>document.getElementById('standalone-pitchbook-status').textContent.includes('資料を保存しました'));
+      assert.equal(await page.evaluate(()=>document.activeElement.id),'standalone-pitchbook-submit','success focus');
+      assert.equal(await page.locator('#pitchbook-file-list .file-row').count(),0,'completed file queue clears');
+      stable(before,await measure(page,item.button,item.status),'pitchbook success',{scroll:false});
+      await page.locator('#pitchbook-counterpartyId').selectOption('CP-SYNTH');
+      await page.locator('#pitchbook-files').setInputFiles({name:'source.txt',mimeType:'text/plain',buffer:Buffer.from('Synthetic retry content')});
+      assert.equal(await page.locator('#standalone-pitchbook-status').innerText(),'','new valid selection clears prior success');
+      await page.evaluate(()=>{window.__holdPrepare=false;window.__failPrepareOnce=true});
+      await page.locator('#standalone-pitchbook-submit').click();
+      await page.waitForFunction(()=>document.getElementById('standalone-pitchbook-status').textContent.includes('予約に失敗しました'));
+      assert.equal(await page.locator('#standalone-pitchbook-status').innerText(),await page.locator('#pitchbook-status').innerText(),'primary and file-local errors agree');
+      assert.equal(await page.locator('#pitchbook-file-list .file-identity-marker').count(),1,'failed upload retains file identity');
+      await page.locator('#pitchbook-retry').click();
+      await page.waitForFunction(()=>document.getElementById('pitchbook-status').textContent.includes('資料を保存しました'));
+      assert.equal(await page.locator('#standalone-pitchbook-status').innerText(),await page.locator('#pitchbook-status').innerText(),'retry success statuses agree');
+      stable(before,await measure(page,item.button,item.status),'pitchbook retry success',{scroll:false});
     }
     if(item.tab==='meeting'&&width===1440&&!zoom){
       await page.locator('#meeting-date').fill('2026-09-25');

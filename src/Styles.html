@@ -238,7 +238,11 @@ button.primary:not(:disabled):hover{background:linear-gradient(180deg,var(--them
 #meeting-form>.grid>#attachment-section{grid-column:8/span 5;grid-row:4/span 2}
 .file-row{min-height:66px;min-width:0}
 .file-identity{min-width:0}
-.file-identity summary{cursor:pointer;min-width:0}
+.file-identity summary{cursor:pointer;min-width:0;display:flex;align-items:flex-start;gap:10px;list-style:none}
+.file-identity summary::-webkit-details-marker{display:none}
+.file-identity summary::after{content:'▸';margin-left:auto;color:var(--theme-text-secondary);font-size:13px}
+.file-identity[open] summary::after{content:'▾'}
+.file-identity-marker{display:block;flex:0 0 8px;width:8px;height:8px;margin-top:6px;border-radius:50%;background:#D94A2A}
 .file-primary-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
 .file-detail{padding:7px 0 0;overflow-wrap:anywhere;font-size:12px;color:var(--theme-text-secondary)}
 .source-field-error{display:block;margin-top:4px;color:var(--theme-state-error,#9B2027);font-size:12px;font-weight:700;line-height:1.4}
