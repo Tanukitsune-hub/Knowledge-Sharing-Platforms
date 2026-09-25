@@ -20,7 +20,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
 
 Work0071 plan: `docs/planning/work0071-interaction-stability-ux.md`
-Product direction: `docs/product/interaction-stability-and-layout-shift.md`
+Product direction: `docs/product/stable-interaction-layout.md`
 
 ## Current delivery sequence
 
