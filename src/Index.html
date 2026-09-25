@@ -170,7 +170,7 @@
         </div>
         <div id="source-add-meeting" class="source-add-panel" role="tabpanel" aria-labelledby="source-add-tab-meeting">
         <form id="meeting-form" novalidate>
-          <div class="ksp-stable-action"><div class="meeting-field-submit"><button id="meeting-submit" class="action primary" type="submit" disabled>登録</button></div><div id="meeting-status" class="status ksp-stable-status" role="status" aria-live="polite" tabindex="0"></div></div>
+          <div class="ksp-stable-action"><div class="meeting-field-submit"><button id="meeting-submit" class="action primary ksp-keep-focus-busy" type="submit" disabled>登録</button></div><div id="meeting-status" class="status ksp-stable-status" role="status" aria-live="polite" tabindex="0"></div></div>
           <div class="grid">
             <div class="field meeting-field-date"><label class="required" for="meeting-date">日付</label><input id="meeting-date" type="date" required><span id="meeting-date-error" class="meeting-field-error" hidden>日付を入力してください。</span></div>
             <div class="field meeting-field-time"><label for="meeting-time">時間</label><input id="meeting-time" type="time"></div>
@@ -195,7 +195,7 @@
         </div>
         <div id="source-add-pitchbook" class="source-add-panel" role="tabpanel" aria-labelledby="source-add-tab-pitchbook" hidden>
           <form id="standalone-pitchbook-form" novalidate>
-            <div class="ksp-stable-action"><div class="actions"><button id="standalone-pitchbook-submit" class="action primary" type="submit">資料を保存</button></div><div id="standalone-pitchbook-status" class="status ksp-stable-status" role="status" aria-live="polite" tabindex="0"></div></div>
+            <div class="ksp-stable-action"><div class="actions"><button id="standalone-pitchbook-submit" class="action primary ksp-keep-focus-busy" type="submit">資料を保存</button></div><div id="standalone-pitchbook-status" class="status ksp-stable-status" role="status" aria-live="polite" tabindex="0"></div></div>
             <div class="grid source-form-grid">
               <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
               <div class="field"><label class="required" for="pitchbook-counterpartyId">面談先</label><select id="pitchbook-counterpartyId" required><option value="">未選択</option></select></div>
@@ -209,7 +209,7 @@
         </div>
         <div id="source-add-news" class="source-add-panel" role="tabpanel" aria-labelledby="source-add-tab-news" hidden>
           <form id="news-add-form" class="source-record-form" novalidate>
-            <div class="ksp-stable-action"><div class="actions"><button id="news-add-submit" class="action primary" type="submit">ニュースを保存</button></div><div id="news-add-status" class="status ksp-stable-status" role="status" aria-live="polite" tabindex="0"></div></div>
+            <div class="ksp-stable-action"><div class="actions"><button id="news-add-submit" class="action primary ksp-keep-focus-busy" type="submit">ニュースを保存</button></div><div id="news-add-status" class="status ksp-stable-status" role="status" aria-live="polite" tabindex="0"></div></div>
             <div class="grid source-form-grid">
               <div class="field"><label class="required" for="news-date">公開日</label><input id="news-date" type="date" required></div>
               <div class="field"><label for="news-assetClassId">アセットクラス</label><select id="news-assetClassId"><option value="">未選択</option></select></div>
@@ -226,7 +226,7 @@
         </div>
         <div id="source-add-assessment" class="source-add-panel" role="tabpanel" aria-labelledby="source-add-tab-assessment" hidden>
           <form id="assessment-add-form" class="source-record-form" novalidate>
-            <div class="ksp-stable-action"><div class="actions"><button id="assessment-add-submit" class="action primary" type="submit">評価を保存</button></div><div id="assessment-add-status" class="status ksp-stable-status" role="status" aria-live="polite" tabindex="0"></div></div>
+            <div class="ksp-stable-action"><div class="actions"><button id="assessment-add-submit" class="action primary ksp-keep-focus-busy" type="submit">評価を保存</button></div><div id="assessment-add-status" class="status ksp-stable-status" role="status" aria-live="polite" tabindex="0"></div></div>
             <div class="grid source-form-grid">
               <div class="field"><label class="required" for="assessment-date">評価日</label><input id="assessment-date" type="date" required></div>
               <div class="field"><label for="assessment-assetClassId">アセットクラス</label><select id="assessment-assetClassId"><option value="">未選択</option></select></div>
@@ -259,7 +259,7 @@
       <input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"></div></div>
       <div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div>
     </section>
-    <div id="meeting-file-actions" class="attachment-action-column"><button id="pitchbook-clear" class="action secondary" type="button">資料選択をクリア</button><button id="pitchbook-retry" class="action warning" type="button" disabled>未完了分を再試行</button><button id="pitchbook-submit" class="action primary" type="button" hidden disabled>この記録へ資料を追加</button></div>
+    <div id="meeting-file-actions" class="attachment-action-column"><button id="pitchbook-clear" class="action secondary" type="button">資料選択をクリア</button><button id="pitchbook-retry" class="action warning ksp-keep-focus-busy" type="button" disabled>未完了分を再試行</button><button id="pitchbook-submit" class="action primary ksp-keep-focus-busy" type="button" hidden disabled>この記録へ資料を追加</button></div>
 
     <?!= include_('MaintenancePages'); ?>
     <?!= include_('EntityWorkspacePage'); ?>
@@ -347,7 +347,7 @@ async function submitMeetingWithFiles(event){
   if(retryContext){payload.retryMeetingId=retryContext.meetingId;payload.retryFingerprint=retryContext.fingerprint}
   // Relationships use the limited relation-only facade after the parent commit.
   payload.relatedPitchbookIds=[];
-  meetingFlowBusy=true;setMeetingBusy(true);
+  meetingFlowBusy=true;showStatus('meeting-status','info busy','記録を保存中…');setMeetingBusy(true);
   try{
     writeEnvelope('ksp.meeting.outcomeUnknown.v1',{pending:true});
     const result=await serverCall('registerMeeting',payload);
@@ -362,7 +362,7 @@ async function submitMeetingWithFiles(event){
     const attachmentsComplete=await completeParentAttachments();
     if(attachmentsComplete){clearMeetingSpecificDraft();pitchbookParent=null;savePitchbookSlots();setRegisteredMeetingLocked(false);el('pitchbook-submit').hidden=true;selectedPitchbookFiles=[];fileInput.value='';renderPitchbookFiles();showStatus('meeting-status','success','記録を保存しました: '+meeting.id)}
   }catch(error){saveMeetingDraft();showStatus('meeting-status','error',(error.message||String(error))+' 入力と保存済みIDは保持されています。')}
-  finally{meetingFlowBusy=false;setMeetingBusy(false);if(pitchbookParent)el('meeting-submit').disabled=true}
+  finally{meetingFlowBusy=false;setMeetingBusy(false);if(pitchbookParent){if(document.activeElement===el('meeting-submit'))el('meeting-status').focus({preventScroll:true});el('meeting-submit').disabled=true}}
 }
 el('meeting-form').addEventListener('submit',submitMeetingWithFiles);
 el('meeting-clear').onclick=()=>clearAllSourceDrafts();
