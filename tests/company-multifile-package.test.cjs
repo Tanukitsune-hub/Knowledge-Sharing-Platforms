@@ -32,7 +32,7 @@ test('seven ordered .gs files raw-concatenate to the accepted bundle', () => {
   const parts = names.map((name) => fs.readFileSync(path.join(packageDir, name)));
   const concatenated = Buffer.concat(parts);
   assert.ok(concatenated.equals(acceptedBundle));
-  assert.equal(sha256(concatenated), 'cc05693d92e9d66951cf06c3c56ee88b63329d3e768a228ed58da022a04b3144');
+  assert.equal(sha256(concatenated), 'a227b3390b3c591399c2ef38c3cb319994fd8953fb325905bbfd229c817954d4');
   assert.equal(packageManifest.concatenated_sha256, sha256(concatenated));
   assert.equal(packageManifest.canonical_bundle_sha256, acceptedRelease.bundle_file_sha256);
   assert.equal(packageManifest.canonical_bundle_payload_sha256, acceptedRelease.bundle_payload_sha256);
