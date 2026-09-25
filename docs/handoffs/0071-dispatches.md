@@ -1,12 +1,12 @@
 # Work 0071 dispatch control
 
 WORK_ID: 0071
-ACTIVE_DISPATCH_ID: 0071-CODEX-02
+ACTIVE_DISPATCH_ID: 0071-CODEX-03
 BALL: CODEX
 STATUS: READY
-MODE: BUILD
+MODE: QUALIFICATION
 VALIDATION_TIER: TIER_2_STANDARD
-PHASE: PHASE_A_REPAIR
+PHASE: PHASE_A_FINAL_INTEGRATION
 USER_NATIVE_ACTION_BUDGET: 0
 USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 
@@ -30,7 +30,8 @@ USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
 | 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` / Draft PR #104 | — |
-| 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CODEX | READY | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | pending | — |
+| 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-report.md` / Draft PR #104 | — |
+| 0071-CODEX-03 | latest-main reconcile + canonical check + Phase A integration readiness | QUALIFICATION | CODEX | READY | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-instruction.md` | pending | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -53,6 +54,31 @@ BLOCKER / repair findings:
 - Work0071 bundle must use a new patch release identity instead of reusing Work0070 release 0.2.0; target release = 0.2.1, schema remains 9
 
 CODEX-02 performs only these repairs and one bounded isolated target-runtime requalification. Phase B remains FOLLOW_UP.
+
+## CODEX-02 ChatGPT review
+
+Accepted:
+
+- standalone status source repair
+- vermilion file identity marker
+- release 0.2.1 / schema9
+- exact distribution source/hash pin restoration
+- focused browser and regression evidence
+- exact candidate deployment/version identity
+- user-native action budget 0 compliance
+
+Classification:
+
+- valid-file exact-candidate runtime state was not directly observed because the browser harness could not populate the file input.
+- this is `AUTOMATION_LIMITATION`, not application-defect evidence.
+- OS picker/native upload path is unchanged and prior accepted native-path evidence is reused.
+- no user action and no further deployment is required for Phase A.
+
+Main-side canonical-check blocker:
+
+- CODEX-02 found root AGENTS.md over 12 KiB.
+- ChatGPT repaired latest main without raising/weaking the validator; detailed unattended policy remains in the decision doc.
+- CODEX-03 only reconciles latest main and reruns canonical deterministic gates. No runtime mutation.
 
 ## Authorization Boundary
 
@@ -80,6 +106,6 @@ CODEX-01 return後にChatGPTがbefore/after geometry、diff、browser/runtime ev
 Work0071はまだACCEPTEDにしない。
 
 WORK_ID: 0071
-DISPATCH_ID: 0071-CODEX-02
+DISPATCH_ID: 0071-CODEX-03
 BALL: CODEX
 STATUS: READY
