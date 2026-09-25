@@ -13,7 +13,7 @@ VALIDATION_TIER: TIER_3_HIGH
 
 Newsと評価のDIRECT_TEXTを通常Web Appから各1件保存し、本文・metadata・multi-Entity・Past/detail・編集・Inactive→Reactivate・Auditを確認した。いずれもstable source ID / Doc file IDを維持し、Versionは1→2→3→4と進んだ。Add/Pastの4 tab、title/header、shared input propagation、News保存後にNews固有入力のみclearされ評価tab未保存titleが残ることも確認した。
 
-次はstandalone資料とNews/評価のUPLOAD_FILE。Chromeのfile chooserをagentが取得する経路で元タブの接続が切れたため、本人のnative file selectionを待っている。最初のstandalone TXT選択は元タブで行われたが、接続を復旧できず選択名を読めなかった。新しい同一隔離Web Appタブでstandaloneフォームの日付とsynthetic面談先を入力済み。そこでのファイル選択を依頼中。standalone保存はまだ行っていない。application upload defectは未観測。
+standalone保存資料のTXTは新しい同一隔離Web Appタブで選択名・61 Bを確認した。Asset Class未選択の送信では具体的errorと該当field focusが出て、Index行は増えず、client sourceでもprepare RPC前にreturnする。PE指定後の1回の保存で新しいActiveのDOC行を作成し、Parent_Meeting_IDは空、synthetic面談先B、PE、実Drive file 61 B、保存資料folderへの配置をreadbackした。既存Meeting Versionは不変。次はNews/評価のUPLOAD_FILE。Chrome file chooserをagentが取得する経路に制約があるため、Newsのnative file selectionを本人へ依頼中。application upload defectは未観測。
 
 ## Contract and identity
 
@@ -33,7 +33,8 @@ Newsと評価のDIRECT_TEXTを通常Web Appから各1件保存し、本文・met
 - Idempotency: second setup 1回でresource/counter/source row不変、setup時刻のみ更新。新News childをsynthetic custom nameへ変更後のsetupも1回で同じID/名前を保持し、canonical重複なし。test-onlyで同じIDを用いて元の名前へ復元。
 - News DIRECT_TEXT: synthetic面談先2件をcanonical sorted unique ID listとして保持。1 authoritative Doc、News folder、source URL、本文、Past/detailを確認。metadata/body editとInactive→Reactivateで同じsource/Doc IDを維持。
 - 評価 DIRECT_TEXT: stable Assessment Type code / 日本語label、synthetic Meeting/News relation、1 authoritative Doc、評価folder、本文、Past/detailを確認。editとInactive→Reactivateで同じsource/Doc IDを維持。
-- Restricted Audit: 代表的なEntity/Meeting/Pitchbook/News/評価 mutation計13件がSuccess、target対応、Actor分類`EMAIL`、source本文複製なし。
+- standalone Pitchbook: 新しいDOC行はParent_Meeting_ID空、Active、synthetic面談先B、PE、TXT 61 B。Drive metadataで保存資料folderを確認。Meeting relation/Versionに変更なし。
+- Restricted Audit: 代表的なEntity/Meeting/Pitchbook/News/評価 mutation計14件がSuccess、target対応、Actor分類`EMAIL`、source本文複製なし。
 
 ## Acceptance matrix
 
@@ -54,23 +55,23 @@ Newsと評価のDIRECT_TEXTを通常Web Appから各1件保存し、本文・met
 | BROWSER_DESKTOP | PASS — candidate 4-tabと代表News/評価flow、material visual issueなし |
 | BROWSER_390 | NOT RUN |
 | UPLOAD_ACCEPT_REAL | PASS — candidate DOMのfile accept = .pdf,.pptx,.xlsx,.docx,.txt,.eml |
-| STANDALONE_ASSET_REQUIRED / STANDALONE_PITCHBOOK | NOT RUN — new tabでnative selection待ち |
+| STANDALONE_ASSET_REQUIRED / STANDALONE_PITCHBOOK | PASS — invalid focus/errorとIndex不変、valid save後parent空/実File/保存資料folder |
 | NEWS_DIRECT / NEWS_MULTI_ENTITY / NEWS_EDIT_LIFECYCLE | PASS — browser、Index/Doc/Version |
 | NEWS_UPLOAD | NOT RUN — native selection待ち |
 | ASSESSMENT_DIRECT / ASSESSMENT_EDIT_LIFECYCLE | PASS — browser、Index/Doc/Version |
 | ASSESSMENT_UPLOAD | NOT RUN — native selection待ち |
 | CONCURRENT_DISTINCT_CREATE / STALE_EDIT_REJECTED | NOT RUN |
 | CROSS_SESSION_INPUT_BLEED | PARTIAL — tab内shared/source-specific分離PASS。独立session/reload/global clear NOT RUN |
-| AUDIT_TARGET_TRACE / AUDIT_ACTOR_CLASS | PASS — 13 Success、Actor分類EMAIL、本文複製なし |
+| AUDIT_TARGET_TRACE / AUDIT_ACTOR_CLASS | PASS — 14 Success、Actor分類EMAIL、本文複製なし |
 | AI_SYNC | FALSE — migration後persisted Settings |
 | PROVIDER_CALL_COUNT / AI_INDEX_CALL_COUNT | 0 / 0 |
 | TRIGGER_STATE | NOT RUN — final readback待ち |
 | COMPANY_DATA_MUTATION_COUNT / CONFIDENTIAL_DATA_COUNT / PHYSICAL_DELETE_COUNT | 0 / 0 / 0 |
 | LOGIC_VALIDATION | CODEX-02 716/716 accepted。今回source変更なし、全面再実行なし |
-| TARGET_RUNTIME_QUALIFICATION | PARTIAL — migration/DIRECT_TEXT PASS、UPLOAD/concurrency/390等NOT RUN |
+| TARGET_RUNTIME_QUALIFICATION | PARTIAL — migration/DIRECT_TEXT/standalone PASS、News/評価UPLOAD・concurrency/390等NOT RUN |
 | SIDE_EFFECT_STATE | TEST_ONLY — isolated fixtures/resourcesとsynthetic records。provider側変更なし |
-| BLOCKER | browser file chooser automation制約によるnative selection待ち。application defect未観測 |
-| FOLLOW_UP | 同じDispatchでstandalone、News/評価upload、concurrency、browser残項目、trigger readback。PRのdispatch docs-only conflictはChatGPT側でreconcile判断 |
+| BLOCKER | browser file chooser automation制約によるNews native selection待ち。application defect未観測 |
+| FOLLOW_UP | 同じDispatchでNews/評価upload、concurrency、browser残項目、trigger readback。PRのdispatch docs-only conflictはChatGPT側でreconcile判断 |
 | READY | NO |
 
 ## Mutation budget
@@ -83,13 +84,13 @@ Newsと評価のDIRECT_TEXTを通常Web Appから各1件保存し、本文・met
 | immutable versions | 2 / 2 |
 | owner-only deployment / existing update | 各1 / 1 |
 | baseline / migration / idempotency / custom-name setup | 各1 / 1 |
-| synthetic source records | 4 / 目安8（Meeting、親付きPitchbook、News DIRECT、評価 DIRECT） |
+| synthetic source records | 5 / 目安8（Meeting、親付きPitchbook、standalone Pitchbook、News DIRECT、評価 DIRECT） |
 | concurrent distinct-create pair | 0 / 1 |
 | same-record stale edit scenario | 0 / 1 |
 
 ## Native step to resume
 
-新しく開いた隔離Web Appの`記録を追加 > 資料保存`で、日付とsynthetic面談先は入力済み、アセットクラスは未選択。本人が`添付資料を選択`からlocal private operator folderの`synthetic-standalone.txt`を選択し、保存せずそのまま返信する。Codexがファイル名とparentなしのform stateを確認後、Asset Class未選択validationを見て、PE指定で1回保存する。元の接続切れタブは操作しない。
+隔離Web Appの`記録を追加 > ニュース`で、日付・synthetic面談先B・発行元・タイトル・UPLOAD_FILE modeを入力済み。本人が`原本ファイル`からlocal private operator folderの`synthetic-news-upload.txt`を選択し、保存せずそのまま返信する。Codexが選択名を確認後、評価UPLOAD_FILEを別の独立tabで準備し、2件のcreateを同時開始する計画。元の接続切れタブは操作しない。
 
 ## Shared Knowledge
 
