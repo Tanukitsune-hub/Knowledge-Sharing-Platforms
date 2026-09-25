@@ -443,6 +443,68 @@ AI index開始条件:
 
 API key aloneでInternal Assessmentやlicensed News全文を自動indexしない。
 
+## Multi-user concurrency contract
+
+将来の通常運用では、複数のauthorized usersが同じWeb Appを同時に開き、それぞれ別のsourceを入力・登録できることを必須要件とする。
+
+### Current implementation assessment
+
+Current pilot deploymentは `execute as self / access self only` であり、実際の複数利用者アクセスはまだproduction-qualifiedされていない。multi-user behaviorを「実機で確認済み」とは扱わない。
+
+一方、authoritative write pathには既にconcurrency protectionがある。
+
+- Meeting ID allocation: `LockService.getScriptLock()` 下で `NEXT_MEETING_ID` を採番。
+- Meeting Google Doc create/reuse: ScriptLockで同名作成raceを防止。
+- Meeting Index append: ScriptLock + unique `Meeting_ID` check。
+- Pitchbook batch / `DOC-` reservation: ScriptLock下でbatch/document countersとIndex reservationを更新。
+- Pitchbook upload: per-reservation claim + ScriptLockでclaim/updateを保護。
+- Meeting/Pitchbook maintenance edit: edit claim + Version / `Updated_At` compare-and-swap。stale writerはfail closed。
+- ScriptLock取得に失敗した場合はtimeout errorとし、silent overwriteしない。
+
+したがって、異なるrecordを同時登録する場合、各利用者の入力sessionは独立し、server側の短いcritical writeだけが直列化される設計である。
+
+### Browser state isolation
+
+Current 24h draftはbrowser `localStorage` を使うため、別device / 別browser profileでは独立するが、同じbrowser profile / originの複数tabでは共有され得る。
+
+Work Aでは24h silent draft restoreを廃止し、通常の未保存入力stateはtab-localなin-memory stateへ移す。
+
+Closed rules:
+
+- user Aのtab入力がuser Bの画面へ現れない。
+- 同一browser profileで複数tabを開いても通常input stateを共有しない。
+- `クリア` はそのtabの4-source Add stateだけに作用し、他user / 他tabのinput stateを変更しない。
+- retry / unknown-outcome / partial-upload recovery tokenはrecord-operation単位の安全stateとして保持し、通常input stateと分離する。
+
+### Same-record conflict
+
+異なるrecordの同時createは許容する。
+
+同じ既存recordを複数利用者が同時編集する場合はlast-write-winsにしない。
+
+- edit claimを優先。
+- commit時にVersion / `Updated_At` を再確認。
+- stale editorは保存を拒否し、「他の利用者が先に更新しています。最新情報を読み直してください。」相当でfail closed。
+- source update / lifecycle / relationship updateでも同等のCAS原則を維持する。
+
+### Duplicate semantic submissions
+
+同じ内容を別利用者が意図的または誤って新規登録した場合、content equalityだけで自動mergeしない。それぞれ別stable IDを持つnew recordとして扱う。
+
+### Work A concurrency acceptance
+
+Record-layer WorkのAcceptanceへ以下を追加する。
+
+- 2つ以上の独立browser sessionsから異なるMeetingをnear-simultaneous createし、unique IDs / distinct Docs / distinct Index rowsを確認。
+- standalone Pitchbook / News / Internal Assessmentについてもnear-simultaneous createでstable ID collision / lost row / cross-user field bleed = 0。
+- concurrent different-source createでshared counters / resource stateが破損しない。
+- same-record concurrent editは1件がacceptedされた後、stale commitがfail closed。
+- one user's `クリア` が別sessionへ影響しない。
+- lock timeout / interrupted requestでsilent overwriteせず、safe error / retry pathへ入る。
+- Auditのactor / target IDが可能な範囲で各operationに対応し、authoritative record successをaudit failureがrollbackしない既存policyを維持する。
+
+このmatrixはmulti-user accessを実際に許可したcompany rollout時にもtarget-runtimeで再qualificationする。
+
 ## Proposed Record-layer Architecture
 
 ### Backend
@@ -632,6 +694,7 @@ Acceptance Evidence:
 - no confidential/production data
 - target-runtime Apps Script + Workspace evidence on isolated test resources
 - canonical check / bundle parity / company package parity
+- multi-session concurrent create / same-record stale-write matrix PASS
 
 ### Future implementation Work B — Source-aware Full Output parity, API-independent
 
