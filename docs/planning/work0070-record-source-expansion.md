@@ -306,9 +306,21 @@ Implement the full production-source change, tests, generated artifacts and docu
 
 Return a Draft PR for ChatGPT review.
 
-### CODEX-02 — isolated target-runtime migration and qualification
+### CODEX-02 — source review repair
 
-Created only after CODEX-01 review. It will authorize the smallest isolated Apps Script / Workspace mutation necessary to prove schema9 migration, folder identity-preserving rename, persistence, browser behavior and concurrency.
+CODEX-01のChatGPT reviewで確認したdeterministic contract defectsを、PR #103内で限定修正する。
+
+- browser upload acceptのreal bootstrap shape整合
+- standalone 保存資料のAsset Class required整合
+- News / Assessment text-length client/server整合
+- explicit SOURCE_REQUEST_EXPIRED recovery
+- new source errorのsafe public message整合
+
+repository-only。target-runtime mutationは0。
+
+### CODEX-03 — isolated target-runtime migration and qualification
+
+CODEX-02のsource repairをChatGPTが受入れた後に作成する。smallest isolated Apps Script / Workspace mutationでschema9 migration、folder identity-preserving rename、persistence、browser behavior、team concurrencyをqualificationする。
 
 No company production migration occurs in Work0070 unless separately authorized.
 
@@ -327,7 +339,7 @@ No company production migration occurs in Work0070 unless separately authorized.
 
 ## Completion Latch
 
-Only after CODEX-02 target-runtime evidence and final ChatGPT review:
+Only after CODEX-03 target-runtime evidence and final ChatGPT review:
 
 ```text
 LOGIC_VALIDATION: PASS
