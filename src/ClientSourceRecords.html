@@ -11,6 +11,7 @@ const sourcePastBusy={news:false,assessment:false};
 let sourceUploadFormats=[];
 function sourceOperationKey(type){return 'ksp.'+type+'.operation.v1'}
 function sourceNewRequestId(){return't'+Date.now()+'_'+crypto.randomUUID().replace(/-/g,'')}
+function sourceDraftFingerprint(payload){return JSON.stringify({...payload,retryRecordId:undefined,retryFingerprint:undefined,file:payload.file&&{...payload.file,base64Data:'[bytes]'}})}
 function sourceStoreOperation(type,value){sourceRecordOperations[type]=value;try{if(value)sessionStorage.setItem(sourceOperationKey(type),JSON.stringify(value));else sessionStorage.removeItem(sourceOperationKey(type))}catch(error){}}
 function sourceRestoreOperations(){['news','assessment'].forEach(type=>{try{const saved=sessionStorage.getItem(sourceOperationKey(type));if(saved){sourceRecordOperations[type]=JSON.parse(saved);showStatus(type+'-add-status','warning','前回の保存結果または再試行が未解決です。同じ内容で再試行し、結果を確認してください。')}}catch(error){sourceRecordOperations[type]={unknown:true};showStatus(type+'-add-status','warning','前回の保存状態を確認できません。')}})}
 function sourcePitchbookRecoveryPending(){return Boolean(pitchbookSlots.length||pendingExistingDocumentIds.length||pitchbookPrepareUnknown||pitchbookPrepareRequest)}
@@ -50,9 +51,10 @@ function bootstrapSourceRecords(result){
   ['assessment-assessmentType','assessment-past-edit-assessmentType'].forEach(id=>{const select=el(id);(result.assessmentTypes||[]).forEach(item=>{const option=document.createElement('option');option.value=item.code;option.textContent=item.label;select.appendChild(option)})});
   sourceUploadFormats=Array.isArray(result.uploadFormats)?result.uploadFormats:[];
   if(sourceUploadFormats.length)KSP_ALLOWED_EXTENSIONS=sourceUploadFormats.map(item=>String(item.extension||'').replace(/^\./,'').toLowerCase());
-  const accept=sourceUploadFormats.length?sourceUploadFormats.map(item=>item.extension).join(','):KSP_ALLOWED_EXTENSIONS.map(item=>'.'+item).join(',');
+  const accept=KSP_ALLOWED_EXTENSIONS.map(item=>'.'+item).join(','),formatHelp=KSP_ALLOWED_EXTENSIONS.map(item=>item.toUpperCase()).join(' / ');
   ['news','assessment','pitchbook'].forEach(type=>{const input=el(type==='pitchbook'?'pitchbook-files':type+'-file');if(input)input.accept=accept});
-  ['news','assessment'].forEach(type=>el(type+'-file-help').textContent='対応形式: '+accept+'。原本ファイルは1件です。');
+  el('pitchbook-file-formats').textContent=formatHelp+'、25MB/ファイル、最大10件、合計100MB';
+  ['news','assessment'].forEach(type=>el(type+'-file-help').textContent='対応形式: '+formatHelp+'。原本ファイルは1件です。');
   sourceRestoreOperations();
 }
 function sourceInputModeChanged(type){const upload=el(type+'-inputMode').value==='UPLOAD_FILE';el(type+'-file').required=upload;el(type+'-directText').required=!upload;document.querySelector('[data-source-route="'+type+'-direct"]').hidden=upload;document.querySelector('[data-source-route="'+type+'-upload"]').hidden=!upload}
@@ -69,11 +71,11 @@ async function sourceRegister(type,event){
     const payload={requestId:prior&&prior.requestId||sourceNewRequestId(),inputMode,date:el(type+'-date').value,title:el(type+'-title').value.trim(),counterpartyIds:selectedOptionValues(type+'-counterpartyIds'),assetClassId:el(type+'-assetClassId').value,fundStrategy:el(type+'-fundStrategy').value.trim()};
     if(type==='news'){payload.publisher=el('news-publisher').value.trim();payload.url=el('news-url').value.trim()}else{payload.assessmentType=el('assessment-assessmentType').value;payload.decisionOrAction=el('assessment-decisionOrAction').value.trim();payload.relatedMeetingIds=sourceCommaIds(el('assessment-relatedMeetingIds').value);payload.relatedDocumentIds=sourceCommaIds(el('assessment-relatedDocumentIds').value);payload.relatedNewsIds=sourceCommaIds(el('assessment-relatedNewsIds').value)}
     if(inputMode==='DIRECT_TEXT')payload.directText=el(type+'-directText').value;else{const file=el(type+'-file').files[0];payload.file={originalFilename:file.name,sizeBytes:file.size,mimeType:file.type||'application/octet-stream',base64Data:await readBase64(file)}}
-    const fingerprint=JSON.stringify({...payload,file:payload.file&&{...payload.file,base64Data:'[bytes]'}});
+    const fingerprint=sourceDraftFingerprint(payload);
     if(prior&&prior.fingerprint&&prior.fingerprint!==fingerprint)throw new Error('前回の保存結果が未解決です。同じ入力内容で再試行してください。');
     if(prior&&prior.retryRecordId){payload.retryRecordId=prior.retryRecordId;payload.retryFingerprint=prior.retryFingerprint}
     sourceStoreOperation(type,{requestId:payload.requestId,fingerprint,unknown:true,retryRecordId:prior&&prior.retryRecordId||'',retryFingerprint:prior&&prior.retryFingerprint||''});
-    const result=await serverCall(KSP_SOURCE_RECORD_CONFIG[type].register,payload);if(!result||!result.ok){if(result&&result.retry)sourceStoreOperation(type,{requestId:payload.requestId,fingerprint,unknown:false,retryRecordId:result.retry.retryRecordId||'',retryFingerprint:result.retry.retryFingerprint||''});else if(!result||prior||/^SOURCE_REQUEST_/.test(String(result.error&&result.error.code||'')))sourceStoreOperation(type,{requestId:payload.requestId,fingerprint,unknown:true,retryRecordId:prior&&prior.retryRecordId||'',retryFingerprint:prior&&prior.retryFingerprint||''});else sourceStoreOperation(type,null);throw new Error(result&&result.error?result.error.message:'保存できませんでした。')}
+    const result=await serverCall(KSP_SOURCE_RECORD_CONFIG[type].register,payload);if(!result||!result.ok){const code=String(result&&result.error&&result.error.code||'');if(result&&result.retry)sourceStoreOperation(type,{requestId:payload.requestId,fingerprint,unknown:false,retryRecordId:result.retry.retryRecordId||'',retryFingerprint:result.retry.retryFingerprint||''});else if(code==='SOURCE_REQUEST_EXPIRED'){const retryId=prior&&prior.retryRecordId||'',nextRequestId=sourceNewRequestId();sourceStoreOperation(type,retryId?{requestId:nextRequestId,fingerprint:sourceDraftFingerprint({...payload,requestId:nextRequestId}),unknown:false,retryRecordId:retryId,retryFingerprint:prior.retryFingerprint||''}:null)}else if(!result||prior||/^SOURCE_REQUEST_/.test(code))sourceStoreOperation(type,{requestId:payload.requestId,fingerprint,unknown:true,retryRecordId:prior&&prior.retryRecordId||'',retryFingerprint:prior&&prior.retryFingerprint||''});else sourceStoreOperation(type,null);throw new Error(result&&result.error?result.error.message:'保存できませんでした。')}
     sourceStoreOperation(type,null);sourceClearSpecific(type);showStatus(type+'-add-status','success',KSP_SOURCE_RECORD_CONFIG[type].label+'を保存しました: '+(result.record&&result.record.id||''));
   }catch(error){showStatus(type+'-add-status','error',(error.message||String(error))+' 入力内容は保持されています。')}
   finally{sourceBusy[type]=false;kspSetActionBusy(button,false)}
@@ -94,6 +96,7 @@ el('standalone-pitchbook-form').addEventListener('submit',async event=>{
   event.preventDefault();if(pitchbookBusy)return;
   if(!el('pitchbook-date').value){el('pitchbook-date').focus();showStatus('standalone-pitchbook-status','error','日付を入力してください。');return}
   if(!el('pitchbook-counterpartyId').value){el('pitchbook-counterpartyId').focus();showStatus('standalone-pitchbook-status','error','面談先を選択してください。');return}
+  if(!el('pitchbook-assetClassId').value){el('pitchbook-assetClassId').focus();showStatus('standalone-pitchbook-status','error','アセットクラスを選択してください。');return}
   const error=validateFiles(selectedPitchbookFiles);if(error){showStatus('standalone-pitchbook-status','error',error);return}
   pitchbookMode='standalone';const completed=await completeParentAttachments(el('standalone-pitchbook-submit'));
   if(completed){sourceClearStandaloneSpecific();showStatus('standalone-pitchbook-status','success','資料を保存しました。')}

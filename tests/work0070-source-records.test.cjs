@@ -164,6 +164,66 @@ test('bootstrap derives six uploader formats and five stable Assessment codes', 
   assert.deepEqual(Array.from(result.options.counterparties, item => item.id), ['CP-000001', 'CP-000002']);
 });
 
+test('News and Assessment enforce 255-character title and publisher limits on create and edit', () => {
+  const env = fakeEnvironment();
+  const title255 = 'T'.repeat(255), publisher255 = 'P'.repeat(255);
+  const created = ksp.kspRegisterSourceRecord_(env, 'NEWS', newsInput({ title: title255, publisher: publisher255 }));
+  assert.equal(created.ok, true, JSON.stringify(created));
+  const edited = ksp.kspUpdateSourceMaintenance_(env, 'NEWS', {
+    newsId: created.record.newsId, expectedVersion: 1, title: title255, publisher: publisher255
+  });
+  assert.equal(edited.ok, true, JSON.stringify(edited));
+  for (const [field, value, code] of [
+    ['title', 'T'.repeat(256), 'SOURCE_TITLE_INVALID'],
+    ['publisher', 'P'.repeat(256), 'NEWS_PUBLISHER_REQUIRED']
+  ]) {
+    const failedCreate = ksp.kspRegisterSourceRecord_(fakeEnvironment(), 'NEWS', newsInput({ [field]: value }));
+    assert.equal(failedCreate.ok, false);
+    assert.equal(failedCreate.error.code, code);
+    const failedEdit = ksp.kspUpdateSourceMaintenance_(env, 'NEWS', {
+      newsId: created.record.newsId, expectedVersion: 2, [field]: value
+    });
+    assert.equal(failedEdit.ok, false);
+    assert.equal(failedEdit.error.code, code);
+  }
+  assert.equal(env.debug.rows.News_Index[0].Version, 2);
+  assert.equal(env.debug.rows.News_Index[0].Title, title255);
+  assert.equal(env.debug.rows.News_Index[0].Publisher, publisher255);
+  const assessmentEnv = fakeEnvironment();
+  const assessment = ksp.kspRegisterSourceRecord_(assessmentEnv, 'ASSESSMENT', assessmentInput({ title: title255 }));
+  assert.equal(assessment.ok, true, JSON.stringify(assessment));
+  const assessmentEdit = ksp.kspUpdateSourceMaintenance_(assessmentEnv, 'ASSESSMENT', {
+    assessmentId: assessment.record.assessmentId, expectedVersion: 1, title: title255
+  });
+  assert.equal(assessmentEdit.ok, true, JSON.stringify(assessmentEdit));
+  assert.equal(ksp.kspRegisterSourceRecord_(fakeEnvironment(), 'ASSESSMENT',
+    assessmentInput({ title: 'T'.repeat(256) })).error.code, 'SOURCE_TITLE_INVALID');
+  const rejectedEdit = ksp.kspUpdateSourceMaintenance_(assessmentEnv, 'ASSESSMENT', {
+    assessmentId: assessment.record.assessmentId, expectedVersion: 2, title: 'T'.repeat(256)
+  });
+  assert.equal(rejectedEdit.error.code, 'SOURCE_TITLE_INVALID');
+  assert.equal(assessmentEnv.debug.rows.Internal_Assessment_Index[0].Version, 2);
+});
+
+test('new source validation and retry failures have safe actionable public messages', () => {
+  const expected = {
+    SOURCE_TITLE_INVALID: 'タイトルを1〜255文字で入力してください。',
+    NEWS_PUBLISHER_REQUIRED: '発行元を1〜255文字で入力してください。',
+    SOURCE_REQUEST_EXPIRED: '登録操作の期限が切れました。もう一度お試しください。',
+    SOURCE_COUNTERPARTY_UNAVAILABLE: '選択した面談先を確認してください。',
+    SOURCE_REFERENCE_UNAVAILABLE: '関連記録が見つからないか、利用できません。',
+    SOURCE_UPLOAD_MIME_MISMATCH: 'ファイルの形式を確認してください。',
+    SOURCE_RETRY_CONFLICT: '前回の登録内容と一致しません。入力内容を確認してください。',
+    ASSESSMENT_TYPE_INVALID: '評価種別を選択してください。'
+  };
+  for (const [code, message] of Object.entries(expected)) {
+    assert.equal(ksp.kspSafePublicErrorMessage_(code, 'MAINTENANCE'), message);
+    assert.doesNotMatch(message, /[A-Z]{3,}-\d+|https?:|[\\/]|stack|query/i);
+  }
+  assert.equal(ksp.kspSafePublicErrorMessage_('SOURCE_UNKNOWN_INTERNAL', 'MAINTENANCE'),
+    '管理処理を完了できませんでした。');
+});
+
 test('News direct registration persists one canonical multi-Entity row and replays without duplicate', () => {
   const env = fakeEnvironment();
   const first = ksp.kspRegisterSourceRecord_(env, 'NEWS', newsInput());

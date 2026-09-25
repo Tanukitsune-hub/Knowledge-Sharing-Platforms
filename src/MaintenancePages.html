@@ -134,9 +134,9 @@
       <div class="grid source-form-grid">
         <div class="field"><label for="news-past-edit-date">公開日</label><input id="news-past-edit-date" type="date" required></div>
         <div class="field"><label for="news-past-edit-assetClassId">アセットクラス</label><select id="news-past-edit-assetClassId"><option value="">未選択</option></select></div>
-        <div class="field"><label for="news-past-edit-fundStrategy">Fund / Strategy</label><input id="news-past-edit-fundStrategy"></div>
-        <div class="field"><label for="news-past-edit-publisher">発行元</label><input id="news-past-edit-publisher" required></div>
-        <div class="field full"><label for="news-past-edit-title">タイトル</label><input id="news-past-edit-title" required></div>
+        <div class="field"><label for="news-past-edit-fundStrategy">Fund / Strategy</label><input id="news-past-edit-fundStrategy" maxlength="500"></div>
+        <div class="field"><label for="news-past-edit-publisher">発行元</label><input id="news-past-edit-publisher" maxlength="255" required></div>
+        <div class="field full"><label for="news-past-edit-title">タイトル</label><input id="news-past-edit-title" maxlength="255" required></div>
         <div class="field full"><label for="news-past-edit-counterpartyIds">面談先</label><select id="news-past-edit-counterpartyIds" multiple size="5" required></select></div>
         <div class="field full"><label for="news-past-edit-url">URL</label><input id="news-past-edit-url" type="url"></div>
         <div class="field full" id="news-past-edit-direct-wrap"><label for="news-past-edit-directText">本文</label><textarea id="news-past-edit-directText"></textarea></div>
@@ -176,9 +176,9 @@
       <div class="grid source-form-grid">
         <div class="field"><label for="assessment-past-edit-date">評価日</label><input id="assessment-past-edit-date" type="date" required></div>
         <div class="field"><label for="assessment-past-edit-assetClassId">アセットクラス</label><select id="assessment-past-edit-assetClassId"><option value="">未選択</option></select></div>
-        <div class="field"><label for="assessment-past-edit-fundStrategy">Fund / Strategy</label><input id="assessment-past-edit-fundStrategy"></div>
+        <div class="field"><label for="assessment-past-edit-fundStrategy">Fund / Strategy</label><input id="assessment-past-edit-fundStrategy" maxlength="500"></div>
         <div class="field"><label for="assessment-past-edit-assessmentType">評価種別</label><select id="assessment-past-edit-assessmentType" required><option value="">選択してください</option></select></div>
-        <div class="field full"><label for="assessment-past-edit-title">タイトル</label><input id="assessment-past-edit-title" required></div>
+        <div class="field full"><label for="assessment-past-edit-title">タイトル</label><input id="assessment-past-edit-title" maxlength="255" required></div>
         <div class="field full"><label for="assessment-past-edit-counterpartyIds">面談先</label><select id="assessment-past-edit-counterpartyIds" multiple size="5" required></select></div>
         <div class="field full"><label for="assessment-past-edit-decisionOrAction">判断・対応</label><textarea id="assessment-past-edit-decisionOrAction"></textarea></div>
         <div class="field"><label for="assessment-past-edit-relatedMeetingIds">関連Meeting ID</label><input id="assessment-past-edit-relatedMeetingIds"></div>

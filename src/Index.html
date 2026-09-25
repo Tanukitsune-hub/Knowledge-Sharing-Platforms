@@ -198,7 +198,7 @@
             <div class="grid source-form-grid">
               <div class="field"><label class="required" for="pitchbook-date">日付</label><input id="pitchbook-date" type="date" required></div>
               <div class="field"><label class="required" for="pitchbook-counterpartyId">面談先</label><select id="pitchbook-counterpartyId" required><option value="">未選択</option></select></div>
-              <div class="field"><label for="pitchbook-assetClassId">アセットクラス</label><select id="pitchbook-assetClassId"><option value="">未選択</option></select></div>
+              <div class="field"><label class="required" for="pitchbook-assetClassId">アセットクラス</label><select id="pitchbook-assetClassId" required><option value="">未選択</option></select></div>
               <div class="field"><label for="pitchbook-fundStrategy">Fund / Strategy</label><input id="pitchbook-fundStrategy" maxlength="500"></div>
               <div class="field" hidden aria-hidden="true"><label for="pitchbook-capitalTypeId">Equity / Debt</label><select id="pitchbook-capitalTypeId"><option value="">未選択</option></select></div>
             </div>
@@ -214,8 +214,8 @@
               <div class="field"><label class="required" for="news-date">公開日</label><input id="news-date" type="date" required></div>
               <div class="field"><label for="news-assetClassId">アセットクラス</label><select id="news-assetClassId"><option value="">未選択</option></select></div>
               <div class="field"><label for="news-fundStrategy">Fund / Strategy</label><input id="news-fundStrategy" maxlength="500"></div>
-              <div class="field"><label class="required" for="news-publisher">発行元</label><input id="news-publisher" maxlength="500" required></div>
-              <div class="field full"><label class="required" for="news-title">タイトル</label><input id="news-title" maxlength="500" required></div>
+              <div class="field"><label class="required" for="news-publisher">発行元</label><input id="news-publisher" maxlength="255" required></div>
+              <div class="field full"><label class="required" for="news-title">タイトル</label><input id="news-title" maxlength="255" required></div>
               <div class="field full"><label class="required" for="news-counterpartyIds">面談先（複数選択可）</label><select id="news-counterpartyIds" multiple size="5" required></select><span class="hint">Ctrl / Command キーで複数選択できます。</span></div>
               <div class="field full"><label for="news-url">URL（任意）</label><input id="news-url" type="url" maxlength="2000"></div>
               <div class="field full"><label for="news-inputMode">原本の入力方法</label><select id="news-inputMode"><option value="DIRECT_TEXT">本文を入力</option><option value="UPLOAD_FILE">ファイルをアップロード</option></select></div>
@@ -233,7 +233,7 @@
               <div class="field"><label for="assessment-assetClassId">アセットクラス</label><select id="assessment-assetClassId"><option value="">未選択</option></select></div>
               <div class="field"><label for="assessment-fundStrategy">Fund / Strategy</label><input id="assessment-fundStrategy" maxlength="500"></div>
               <div class="field"><label class="required" for="assessment-assessmentType">評価種別</label><select id="assessment-assessmentType" required><option value="">選択してください</option></select></div>
-              <div class="field full"><label class="required" for="assessment-title">タイトル</label><input id="assessment-title" maxlength="500" required></div>
+              <div class="field full"><label class="required" for="assessment-title">タイトル</label><input id="assessment-title" maxlength="255" required></div>
               <div class="field full"><label class="required" for="assessment-counterpartyIds">面談先（複数選択可）</label><select id="assessment-counterpartyIds" multiple size="5" required></select><span class="hint">Ctrl / Command キーで複数選択できます。</span></div>
               <div class="field full"><label for="assessment-decisionOrAction">判断・対応（任意）</label><textarea id="assessment-decisionOrAction" maxlength="2000"></textarea></div>
               <div class="field"><label for="assessment-relatedMeetingIds">関連Meeting ID（任意、カンマ区切り）</label><input id="assessment-relatedMeetingIds"></div>
@@ -257,7 +257,7 @@
     </div>
     <section id="meeting-file-panel" class="attachment-panel">
       <h3>資料を添付（任意）</h3><p id="pitchbook-parent-label" class="hint"></p>
-      <div class="attachment-workspace"><div class="attachment-drop-column"><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="添付資料を選択">ファイルをドロップ、またはクリックして選択<br><span class="hint">PDF / PPTX / XLSX / DOCX / TXT / EML、25MB/ファイル、最大10件、合計100MB</span></div>
+      <div class="attachment-workspace"><div class="attachment-drop-column"><div id="pitchbook-drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="添付資料を選択">ファイルをドロップ、またはクリックして選択<br><span id="pitchbook-file-formats" class="hint">対応形式を読み込み中…</span></div>
       <input id="pitchbook-files" class="hidden-input" type="file" multiple accept=".pdf,.pptx,.xlsx,.docx,.txt,.eml"></div></div>
       <div id="pitchbook-file-summary" class="summary"></div><div id="pitchbook-file-list" class="file-list"></div>
       <div id="pitchbook-status" class="status" role="status" aria-live="polite"></div>
