@@ -443,6 +443,35 @@ AI index開始条件:
 
 API key aloneでInternal Assessmentやlicensed News全文を自動indexしない。
 
+## Team-first operating model
+
+本製品は個人用入力ツールではなく、複数名が同一のauthoritative Backend / Shared Driveを同時利用する業務システムとして設計・最適化する。
+
+Closed principles:
+
+- normal user input stateはbrowser tab / session localとし、他user・他tabへ漏らさない。
+- serverは利用者の長寿命UI stateを保持せず、各mutationをrequest-scoped / idempotentに扱う。
+- stable ID採番、Index commit、relation mutation、lifecycle change等の共有状態変更だけを短いcritical sectionで保護する。
+- file upload、document materialization、AI call、Digest generation等の長時間処理中にglobal ScriptLockを保持しない。
+- createは異なるrecordなら並行利用を許容し、同一record editだけoptimistic concurrency / claimで競合制御する。
+- last-write-winsを採らず、stale writerをfail closedする。
+- user-facing save完了はauthoritative Workspace保存を基準にし、Audit / AI index / Digest等のderived処理失敗で正本保存をrollbackしない。
+- background / derived workはsource ID + content hash / revision tokenでdeduplicateし、複数user操作から同じ派生処理が重複しても最終状態を一意に収束させる。
+- read-only search / Full Outputは原則lock-freeとし、preview fingerprint / revision tokenでsnapshot driftを検知する。
+- Shared master更新後、他userのopen pageがstale optionを持つ可能性を前提に、commit時はserver-side current masterを再検証する。必要時のみ再読込を促す。
+- duplicate-looking new recordsは自動mergeしない。semantic duplicate detectionを入れる場合もwarningに留め、authoritative mergeは別操作とする。
+- all authorized Web App usersが同じActive source corpusへアクセスするcurrent shared-access modelを前提とする。user-level source ACLは具体的要件が出るまで導入しない。
+- Audit actorは取得可能なemailを優先し、取得不能時はtemporary active-user key等の既存fallbackを維持する。team rolloutではactor traceabilityを実機確認する。
+
+Performance / contention design:
+
+- global locksは採番・CAS・Index row reservation等の最短区間だけ。
+- per-record claim / tokenをglobal lockより優先できる箇所では採用する。
+- UIは他userの処理待ちを常時表示する共同編集型にはしない。通常は独立操作し、保存時にのみ競合を解決する。
+- AI sync / Digestはsave requestの同期critical pathに入れない。
+- 大量Full Output / materializationはrecord create/edit lockと分離する。
+- concurrency protectionはsource typeごとに別実装を乱立させず、共通mutation primitivesへ寄せる。
+
 ## Multi-user concurrency contract
 
 将来の通常運用では、複数のauthorized usersが同じWeb Appを同時に開き、それぞれ別のsourceを入力・登録できることを必須要件とする。
@@ -695,6 +724,9 @@ Acceptance Evidence:
 - target-runtime Apps Script + Workspace evidence on isolated test resources
 - canonical check / bundle parity / company package parity
 - multi-session concurrent create / same-record stale-write matrix PASS
+- global lock is held only for bounded shared-state critical sections; long file/AI/materialization operations run outside it
+- concurrent create across different source types causes no lost rows, ID collisions, cross-session state bleed, or derived-job duplication
+- server-side validation detects stale master/reference state without overwriting newer authoritative data
 
 ### Future implementation Work B — Source-aware Full Output parity, API-independent
 
@@ -1084,6 +1116,7 @@ FULL_OUTPUT_PITCHBOOK_OMISSION: MUST_FIX
 CLEAR_SCOPE: ALL_4_ADD_TABS
 AI_PROVIDER_GATE: DEFERRED_UNTIL_APPROVED
 DIGEST_POLICY: AUTOMATIC_HIDDEN_DERIVED_LAYER
+TEAM_OPERATING_MODEL: MULTI_USER_FIRST
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 ~~~
