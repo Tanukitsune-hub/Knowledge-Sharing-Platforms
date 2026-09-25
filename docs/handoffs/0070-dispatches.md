@@ -2,8 +2,8 @@
 
 WORK_ID: 0070
 ACTIVE_DISPATCH_ID: 0070-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: USER
+STATUS: ACTION_REQUIRED
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
 PHASE: TARGET_RUNTIME_QUALIFICATION
@@ -30,7 +30,7 @@ API providerなしで、`面談メモ / 保存資料 / ニュース / 評価（I
 |---|---|---|---|---|---|---|---|
 | 0070-CODEX-01 | production source実装 + deterministic validation | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-01-record-source-expansion-instruction.md` | `docs/handoffs/0070-CODEX-01-record-source-expansion-report.md` / Draft PR #103 | — |
 | 0070-CODEX-02 | ChatGPT source review findingsの限定修正 | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-02-source-review-repair-instruction.md` | `docs/handoffs/0070-CODEX-02-source-review-repair-report.md` / Draft PR #103 | — |
-| 0070-CODEX-03 | isolated target-runtime migration / persistence / browser / concurrency qualification | QUALIFICATION | CODEX | READY | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-instruction.md` | pending | — |
+| 0070-CODEX-03 | isolated target-runtime migration / persistence / browser / concurrency qualification | QUALIFICATION | USER | ACTION_REQUIRED | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-instruction.md` | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-report.md`（中間checkpoint） / Draft PR #103 | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -74,6 +74,13 @@ PR #103はcontroller-side main commitsとの履歴divergenceにより現時点�
 - exact reconciled PR candidateのみをactual Apps Script / Workspace / Web Appでisolated synthetic qualification。
 - company production migration / real users / confidential data / provider call / broad access / physical delete = 0。
 - application defectを観測した場合はsource patchせずmatrixを停止し、次Dispatchへ返す。
+
+## CODEX-03 native action checkpoint
+
+- latest mainとのnormal mergeとPR #103の`MERGEABLE` readbackはPASS。runtime候補HEADは`2e31ae723dcb562a6de46703283fea86f3907260`。
+- 個人所有のisolated targetを1組作成し、schema8 baseline source sync 1回とremote SHA一致まで確認。Apps Script実行履歴0、trigger0、versioned deployment0。
+- baseline installerはGoogle OAuthの未確認アプリ警告で実行前に停止。本人のnative承認が必要で、ユーザーは現時点で操作不可。schema8 installation以降のmatrixは`NOT RUN`。application defectではない。
+- 同じDispatch IDを維持する。本人が操作可能になった後、期待権限のみ承認し、read-only preflightから再開する。追加target・baseline source sync・source patch・provider callは行わない。
 
 ## Completion Gate
 
