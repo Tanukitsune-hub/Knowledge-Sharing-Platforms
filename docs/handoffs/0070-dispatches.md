@@ -111,4 +111,5 @@ CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPT
 - Chrome file chooser automationにより元タブの接続が失われた。standalone TXTは元タブで選択されたが読み取れず、保存操作は未実行。新しい同一隔離Web Appタブでstandaloneフォームの日付とsynthetic面談先を準備し、本人のnative file selectionを待つ。application defectは未観測。
 - standalone、News/評価のUPLOAD_FILE、390px、distinct concurrent create、same-record stale edit、残るbrowser state、trigger readbackはNOT RUN。詳細は`0070-CODEX-03-target-runtime-qualification-report.md`。
 - `BALL: USER / STATUS: ACTION_REQUIRED`を維持。同じDispatchで再開し、source sync/version/deployment/setupは再実行しない。
+- 現在のDraft PR #103は、後着のmain側OAuth checkpoint commitと`0070-dispatches.md`だけでcontent conflict。production source/tests/generated artifactsのconflictは0。normal merge上限1/1を使用済みのため追加mergeは行わず、ChatGPTにreconcile判断を返す。
 

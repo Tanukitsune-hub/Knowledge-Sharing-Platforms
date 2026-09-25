@@ -21,7 +21,7 @@ Newsと評価のDIRECT_TEXTを通常Web Appから各1件保存し、本文・met
 - Evidence hierarchy: actual persisted Workspace / browser、Apps Script source/deployment readback、CODEX-02 deterministic evidence。
 - Isolation: 個人所有synthetic fixtureのみ。会社production、real confidential data、provider、AI indexing、billing、broad access、physical deleteは0。
 - PR_RECONCILED_WITH_MAIN: PASS — normal merge 1回、production source conflict 0。後続controller docs-only更新も取込み。
-- PR_MERGEABLE: PASS — Draft PR #103はcontent conflictなし。
+- PR_MERGEABLE: CURRENTLY CONFLICTING — latest `origin/main`のcontroller-side OAuth checkpoint commitが`docs/handoffs/0070-dispatches.md`だけで競合。runtime着手時はmergeable readback済み。production source/tests/generated artifactsのconflictは0。normal merge budget 1/1を使用済みのため再mergeせずChatGPTへrouting。
 - QUALIFIED_HEAD: reconciled candidate `06f55ebe7a72a206ac3ea4d171822deef81a6abc`のproduction source。後続commitはdocs-onlyでsource不変。
 - TARGET_RUNTIME_IDENTITY: PRIVATE / NOT_REPORTED。script/host owner、bound relation、隔離folder、owner-only deploymentを確認。private ID / URL / account identifierはlocal private operator mapのみ。
 - Deployment: baseline release 0.1.2/schema8を1回syncしてversion 1。candidate release 0.2.0/schema9を1回syncしてversion 2。同一versioned Web Appを1回更新。remote source / immutable version / local bundleの一致をreadback。accessは`WEB_APP / MYSELF / USER_DEPLOYING / /exec`を維持。
@@ -70,7 +70,7 @@ Newsと評価のDIRECT_TEXTを通常Web Appから各1件保存し、本文・met
 | TARGET_RUNTIME_QUALIFICATION | PARTIAL — migration/DIRECT_TEXT PASS、UPLOAD/concurrency/390等NOT RUN |
 | SIDE_EFFECT_STATE | TEST_ONLY — isolated fixtures/resourcesとsynthetic records。provider側変更なし |
 | BLOCKER | browser file chooser automation制約によるnative selection待ち。application defect未観測 |
-| FOLLOW_UP | 同じDispatchでstandalone、News/評価upload、concurrency、browser残項目、trigger readback |
+| FOLLOW_UP | 同じDispatchでstandalone、News/評価upload、concurrency、browser残項目、trigger readback。PRのdispatch docs-only conflictはChatGPT側でreconcile判断 |
 | READY | NO |
 
 ## Mutation budget
