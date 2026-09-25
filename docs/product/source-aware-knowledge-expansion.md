@@ -8,9 +8,19 @@ Work ID: Not assigned
 
 ## Purpose
 
-Private Assets Intelligenceを、MeetingとPitchbookを検索する仕組みから、Entityを軸に性質の異なる知識を蓄積・検索・比較できるPrivate Assets intelligence基盤へ拡張する方向性を記録する。
+Alternative Assets Intelligenceを、MeetingとPitchbookを検索する仕組みから、Entityを軸に性質の異なる知識を蓄積・検索・比較できるPrivate Assets intelligence基盤へ拡張する方向性を記録する。
 
 この文書は将来方向の正本であり、現在の実装済みarchitectureやschemaを直ちに変更するものではない。実装時は別Workでscope、storage/schema、security、migration、target-runtime evidenceを確定する。
+
+## Product name
+
+Current future-facing product title:
+
+`Alternative Assets Intelligence`
+
+The implementation plan must replace the normal user-visible `Private Assets Intelligence` title with `Alternative Assets Intelligence`.
+
+This is a visible brand/title change only. Internal `KSP_*` / `ksp...` namespaces, APIs, schema, stable IDs, filenames, installer entrypoints, runtime resource names used as contracts, and historical evidence are not renamed merely for branding.
 
 ## Direction
 
@@ -520,6 +530,7 @@ confidentiality = source-specific classification
 - Internal Assessment Digestは利用者操作なしで要否判定・生成・利用・更新を自動化する。Digestはhidden derived layerで、final citationは原本へ解決する。
 - 製品は個人利用ではなく複数名同時利用を前提とし、入力state分離・atomic mutation・stale-write拒否を設計原則とする。
 - 長時間処理でglobal lockを保持せず、AI/Digest等のderived processingをauthoritative saveの同期critical pathから分離する。
+- 利用者向けproduct titleは `Alternative Assets Intelligence` とする。internal contractの名称はbrandingだけを理由に変更しない。
 
 ## Open implementation questions
 
