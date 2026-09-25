@@ -253,6 +253,38 @@ For selected, pending, saved, partial/retry rows:
 - `npm run check` once after focused tests
 - `git diff --check`
 
+## Unattended-first validation override
+
+User decision 2026-09-26:
+
+```text
+USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
+USER_NATIVE_ACTION_BUDGET: 0
+```
+
+This Dispatch must not assume the user is at the test PC.
+
+For file selection on the actual isolated Web App, use this order:
+
+1. Playwright/browser automation `setInputFiles()`
+2. browser `filechooser.setFiles()` equivalent
+3. page-native `File` + `DataTransfer` assignment to the actual `input[type=file]`, followed by the same `change` event path, only when it exercises the production client code rather than a test-only helper
+4. authoritative readback of selected filename/input state, client queue state, upload result and persisted Drive/Index result
+
+OS native file picker interaction is NOT Acceptance Evidence for CODEX-02. CODEX-01/Work0070 already established the native upload path, and this repair does not change the browser/OS picker integration.
+
+Do not ask the user to select a file manually in this Dispatch merely because the browser harness cannot operate the OS dialog.
+
+If all safe automated methods fail because of a tooling limitation:
+
+- classify it as `AUTOMATION_LIMITATION`
+- preserve the previously accepted native-path evidence
+- complete every other decision-relevant check
+- do not redeploy or mutate again to work around the harness
+- return to ChatGPT only if the remaining unobserved state would materially change acceptance
+
+OAuth consent or another security prompt must never be bypassed. If fresh authorization becomes genuinely unavoidable, stop safely and report that separately; do not weaken security controls.
+
 ## Target-runtime Requalification
 
 New Dispatch authorizes one new bounded repair qualification cycle on the existing isolated owner-only target.
@@ -272,7 +304,7 @@ Use exact final repaired candidate.
 Minimum actual Web App evidence:
 
 1. standalone no-file error
-2. native/synthetic valid file selection
+2. automated valid file selection on the actual Web App input/event path
 3. stale primary error clears
 4. vermilion marker visible before filename
 5. submit -> primary pending status correct
@@ -281,7 +313,7 @@ Minimum actual Web App evidence:
 8. 390px marker/queue/action smoke
 9. material console error/warn 0
 
-If browser automation cannot perform file selection, return same Dispatch as `BALL: USER / STATUS: ACTION_REQUIRED`; do not classify as application defect.
+Do not request native file selection from the user in this Dispatch. If target-runtime file selection cannot be automated after the allowed methods above, classify it as `AUTOMATION_LIMITATION`, preserve closed native-path evidence, and return to ChatGPT only when that missing observation is decision-critical.
 
 Do not repeat migration/concurrency/provider qualification.
 
@@ -337,6 +369,8 @@ Update branch copy:
 Do not mark Work0071 ACCEPTED or apply Completion Latch.
 
 ## Mandatory final identity
+
+Normal expectation is a user-presence-independent return.
 
 On normal return:
 
