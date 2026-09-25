@@ -1,17 +1,17 @@
 {
   "product": "Alternative Assets Intelligence",
-  "release_version": "0.2.0",
+  "release_version": "0.2.1",
   "schema_version": 9,
-  "source_git_commit": "d54837074c1061bd11cafb8c126bf0373f682ffa",
+  "source_git_commit": "5519a8af66617196aff640a65b9a8168ad8a172f",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "9904edfb00b954ff4f7d861d0e39b5aa19730758e7eb4916273c942e43c0c515",
-  "bundle_file_sha256": "ca115698cc3e70885d621f9229ac89b3befa6c21f570a39b55b198d4ef1fe10a",
+  "bundle_payload_sha256": "316b3348d96f86869aba0808efba59ef8b69725a053c418d7fe8966c5eb1f622",
+  "bundle_file_sha256": "681600c6b1494edc4e67616c25405edb59a46f9960a44f84e81d97d5e3158da5",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "1d04e4b03bf18a4268a8f91669aa9031abf33f03f6a4d8936500f59cbdeeba8a",
   "bundle_metrics": {
-    "bytes": 1416811,
-    "characters": 1364088,
+    "bytes": 1418012,
+    "characters": 1365251,
     "lines": 20756,
     "server_source_count": 67,
     "embedded_html_count": 24
@@ -20,7 +20,7 @@
     {
       "file": "src/00_Core.gs",
       "bytes": 35635,
-      "sha256": "5073b27ca7faa9853f085927eb0d418b7fb98acbe4c6ae1dbe6fae8785431eee"
+      "sha256": "d52fc10fbc51bb6044d018b963ab8a9f3dd020533a2781dcb3ac106dd15f404a"
     },
     {
       "file": "src/01_DistributionResources.gs",
@@ -65,7 +65,7 @@
     {
       "file": "src/30_MeetingCore.gs",
       "bytes": 27840,
-      "sha256": "8cff8b39b10dced72429416b61ac624a0ea361c63c815ab81ee899b3fed65f2a"
+      "sha256": "2975490fa03f410a896e701f9c31d4153916198f201c4d150a74a637f4d021b1"
     },
     {
       "file": "src/40_MeetingService.gs",
@@ -411,13 +411,13 @@
     },
     {
       "file": "src/ClientPitchbookFiles.html",
-      "bytes": 7932,
-      "sha256": "4a9302ea435a77f024c166cd54aa51c2c5a0a9c94ef29318cf96e71826978319"
+      "bytes": 8640,
+      "sha256": "f9077179b49344e65730148e06a40707ab13e1632de5866d30e013058ebe74ed"
     },
     {
       "file": "src/ClientPitchbookFlow.html",
-      "bytes": 9871,
-      "sha256": "47a1e3390a0159242666027790c89a2e4bcd6a3d478b612dd757dd6cf4bbf7df"
+      "bytes": 9831,
+      "sha256": "4ed44079609f19b9f7fdc7ead4ecdae1c0e6823a19c834bc4f59cec25dd4700b"
     },
     {
       "file": "src/ClientRelationshipExplorer.html",
@@ -426,8 +426,8 @@
     },
     {
       "file": "src/ClientSourceRecords.html",
-      "bytes": 25801,
-      "sha256": "af465a9e60363d2da679cd41d4614d4c298b9a0e2706044833c54b1e01fc44cc"
+      "bytes": 25922,
+      "sha256": "9bde4196db40cb0a70f063a223a1c63a79687cfd7dcadfc8f4c8f9e931cdb2f3"
     },
     {
       "file": "src/ClientThemeSettings.html",
@@ -471,8 +471,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 64803,
-      "sha256": "805ba2a4640fdd127f803dcd306884f81c74206516c846c349fdb59ef1a46152"
+      "bytes": 65210,
+      "sha256": "4c36717bb347ccbd7dd311451c90fbd8cb3b8c18a2bdc2d88ae6599c0640d39d"
     }
   ]
 }
