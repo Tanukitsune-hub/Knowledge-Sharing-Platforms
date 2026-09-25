@@ -3,7 +3,7 @@
 WORK_ID: 0071
 DISPATCH_ID: N/A
 BALL: NONE
-STATUS: READY
+STATUS: ACTIVE
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 ROUTE: A -> C
@@ -305,5 +305,13 @@ GOOGLE_WEB_UX_KB_REVIEWED: YES
 ADOPTION_MATRIX: docs/product/work0071-google-web-ux-adoption.md
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: UNASSIGNED
+NEXT_DISPATCH: 0071-CODEX-01
 ```
+
+
+## Active Dispatch
+
+`0071-CODEX-01` — before geometry measurement、Phase A implementation、isolated target-runtime qualification、Phase B audit。
+
+Instruction: `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md`  
+Dispatch register: `docs/handoffs/0071-dispatches.md`
