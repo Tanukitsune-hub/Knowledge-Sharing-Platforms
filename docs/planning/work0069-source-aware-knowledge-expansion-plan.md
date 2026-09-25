@@ -577,17 +577,17 @@ Google Drive上のauthoritative source root folderはproduct titleから切り�
 Accepted default:
 
 ~~~text
-投資関連記録・資料
+記録・資料
 ~~~
 
 このfolderには面談メモ、保存資料、ニュース、内部評価等のauthoritative sourceを格納する。
 
 Migration rule:
 
-- new installation: `投資関連記録・資料` を作成する。
+- new installation: `記録・資料` を作成する。
 - existing installation: stored `knowledgeRootFolderId` をauthoritative identityとして使う。
-- existing rootのnameがlegacy exact `Private Assets Knowledge` の場合だけ、同じfolder IDをin-placeで `投資関連記録・資料` へrenameする。
-- already `投資関連記録・資料` ならno-op。
+- existing rootのnameがlegacy exact `Private Assets Knowledge` の場合だけ、同じfolder IDをin-placeで `記録・資料` へrenameする。
+- already `記録・資料` ならno-op。
 - 利用者が別名へ手動rename済みなら、そのcustom nameを強制上書きしない。stored IDを維持し、必要ならwarningのみ。
 - renameのためにfolderを新規作成、移動、copy、source file再配置しない。
 - child folder IDs / source file IDs / Settingsのstored resource IDsを変更しない。
@@ -600,7 +600,7 @@ Reason:
 
 Acceptance:
 
-- fresh install root folder = `投資関連記録・資料`
+- fresh install root folder = `記録・資料`
 - legacy exact-name rootはsame folder IDのままrename
 - child/source IDs unchanged
 - custom renamed rootはpreserved
@@ -640,7 +640,7 @@ Current 5-sheet architectureはimplementation開始まではcurrent truthとし�
 default proposal:
 
 ~~~text
-投資関連記録・資料
+記録・資料
 ├─ Meeting Records
 ├─ Pitchbooks
 ├─ News
@@ -703,7 +703,7 @@ API provider無しでも、利用者が4 source typesを 記録を追加 / 過�
 Scope:
 
 1. schema9 migration
-   - rename legacy root folder `Private Assets Knowledge` -> `投資関連記録・資料` in-place by stored ID
+   - rename legacy root folder `Private Assets Knowledge` -> `記録・資料` in-place by stored ID
    - add News_Index
    - add Internal_Assessment_Index
    - add Drive folders
@@ -1187,7 +1187,7 @@ AI_PROVIDER_GATE: DEFERRED_UNTIL_APPROVED
 DIGEST_POLICY: AUTOMATIC_HIDDEN_DERIVED_LAYER
 TEAM_OPERATING_MODEL: MULTI_USER_FIRST
 PRODUCT_TITLE: Alternative Assets Intelligence
-KNOWLEDGE_ROOT_DEFAULT_NAME: 投資関連記録・資料
+KNOWLEDGE_ROOT_DEFAULT_NAME: 記録・資料
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 ~~~
