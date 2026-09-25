@@ -2,8 +2,8 @@
 
 WORK_ID: 0071
 ACTIVE_DISPATCH_ID: 0071-CODEX-01
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: PHASE_A_IMPLEMENTATION
@@ -26,11 +26,11 @@ PHASE: PHASE_A_IMPLEMENTATION
 
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
-| 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | USER | ACTION_REQUIRED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` | — |
+| 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` | — |
 
 ## Current handoff
 
-Phase A source、generated artifacts、deterministic validation、面談/News/評価の隔離target-runtime確認は完了。standalone資料保存のfile chooserをbrowser automationで取得できなかったため、同じ隔離Web Appの「記録を追加 > 資料保存」で用意済みsynthetic TXTのnative選択だけを本人に依頼する。選択後に同一Dispatchでfile flowとfinal evidenceを確認し、BALLをChatGPTへ返す。Work0071は未ACCEPTED。
+Phase A source、generated artifacts、deterministic validation、面談/News/評価の隔離target-runtime確認は完了。本人によるnative file selection後、standaloneのsynthetic資料保存も成功したが、file選択後からpending中まで以前の「ファイルを1つ以上選択してください。」が主要status欄に残るapplication defectを観測した。隔離deployment更新budget 2回を使い切ったため、追加deployせずmatrixを停止。ChatGPTがreportとDraft PRをreviewし、限定修正・再qualificationの次Dispatchを判断する。Work0071は未ACCEPTED。
 
 ## Authorization Boundary
 
@@ -59,5 +59,5 @@ Work0071はまだACCEPTEDにしない。
 
 WORK_ID: 0071
 DISPATCH_ID: 0071-CODEX-01
-BALL: USER
-STATUS: ACTION_REQUIRED
+BALL: CHATGPT
+STATUS: RETURNED
