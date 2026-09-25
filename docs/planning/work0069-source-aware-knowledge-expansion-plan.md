@@ -570,6 +570,42 @@ Acceptance:
 - internal contract rename = 0
 - historical evidence rewrite = 0
 
+### 15. Knowledge root folder name
+
+Google Drive上のauthoritative source root folderはproduct titleから切り離し、用途が分かる名称へ変更する。
+
+Accepted default:
+
+~~~text
+投資関連記録・資料
+~~~
+
+このfolderには面談メモ、保存資料、ニュース、内部評価等のauthoritative sourceを格納する。
+
+Migration rule:
+
+- new installation: `投資関連記録・資料` を作成する。
+- existing installation: stored `knowledgeRootFolderId` をauthoritative identityとして使う。
+- existing rootのnameがlegacy exact `Private Assets Knowledge` の場合だけ、同じfolder IDをin-placeで `投資関連記録・資料` へrenameする。
+- already `投資関連記録・資料` ならno-op。
+- 利用者が別名へ手動rename済みなら、そのcustom nameを強制上書きしない。stored IDを維持し、必要ならwarningのみ。
+- renameのためにfolderを新規作成、移動、copy、source file再配置しない。
+- child folder IDs / source file IDs / Settingsのstored resource IDsを変更しない。
+
+Reason:
+
+- folder名だけで「面談メモや資料等を保存する場所」と理解できる。
+- product title `Alternative Assets Intelligence` とcoupleしないため、将来product renameがあってもDrive structureを再renameする必要がない。
+- current setupはstored resource IDをauthoritativeに扱うため、identity-preserving renameと整合する。
+
+Acceptance:
+
+- fresh install root folder = `投資関連記録・資料`
+- legacy exact-name rootはsame folder IDのままrename
+- child/source IDs unchanged
+- custom renamed rootはpreserved
+- duplicate root folder creation = 0
+
 ## Proposed Record-layer Architecture
 
 ### Backend
@@ -604,12 +640,13 @@ Current 5-sheet architectureはimplementation開始まではcurrent truthとし�
 default proposal:
 
 ~~~text
-Private Assets Knowledge
+投資関連記録・資料
 ├─ Meeting Records
 ├─ Pitchbooks
 ├─ News
-├─ Internal Assessments
-└─ Knowledge Exports
+└─ Internal Assessments
+
+※ Knowledge Exportsはcurrent contractどおりauthoritative root外
 ~~~
 
 News / Internal Assessments folderはsetupでexact-name + stored-ID idempotent作成。
@@ -666,6 +703,7 @@ API provider無しでも、利用者が4 source typesを 記録を追加 / 過�
 Scope:
 
 1. schema9 migration
+   - rename legacy root folder `Private Assets Knowledge` -> `投資関連記録・資料` in-place by stored ID
    - add News_Index
    - add Internal_Assessment_Index
    - add Drive folders
@@ -746,6 +784,7 @@ Non-Goals:
 Acceptance Evidence:
 
 - schema8 -> schema9 isolated migration preserves old data and creates exactly the intended resources once
+- legacy `Private Assets Knowledge` root is renamed in-place with the same folder ID; no duplicate root
 - second setup run = idempotent
 - existing Meeting create/edit/past/attachment path PASS
 - existing Pitchbook stable IDs / Meeting relation PASS
@@ -1106,18 +1145,6 @@ API credentials are NOT a blocker.
 
 ### Work B can start when
 
-- at least one provider is approved/configured
-- source-type AI use policy is known
-- Work A source schema is accepted
-
-### Work C can start when
-
-- Work C retrieval/citation is stable
-- Internal Assessment indexing is authorized
-- digest adds decision value beyond raw File Search
-
-### Work B can start when
-
 - Work A source schema / record flows are accepted
 - provider-independent materialization strategy for the common upload formats is fixed
 
@@ -1160,6 +1187,7 @@ AI_PROVIDER_GATE: DEFERRED_UNTIL_APPROVED
 DIGEST_POLICY: AUTOMATIC_HIDDEN_DERIVED_LAYER
 TEAM_OPERATING_MODEL: MULTI_USER_FIRST
 PRODUCT_TITLE: Alternative Assets Intelligence
+KNOWLEDGE_ROOT_DEFAULT_NAME: 投資関連記録・資料
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 ~~~
