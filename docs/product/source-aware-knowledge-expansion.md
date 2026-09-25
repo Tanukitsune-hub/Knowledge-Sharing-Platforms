@@ -58,7 +58,7 @@ Meeting / Memo、Pitchbook、内部評価、Newsは、それぞれ専用の登�
 #### 記録を追加
 
 ```text
-面談メモ | 資料保存 | ニュース | 内部評価
+面談メモ | 資料保存 | ニュース | 評価（ICメモ、社内整理等）
 ```
 
 - 初回表示はclear stateとし、以前の入力を自動で復元して埋めない。既存の24時間draft自動復元は、この将来UXでは廃止する方向とする。
@@ -72,7 +72,7 @@ Meeting / Memo、Pitchbook、内部評価、Newsは、それぞれ専用の登�
 #### 過去の記録
 
 ```text
-面談メモ | 保存資料 | ニュース | 内部評価
+面談メモ | 保存資料 | ニュース | 評価（ICメモ、社内整理等）
 ```
 
 - `記録を追加` で選択中のtabとは独立して動作する。
@@ -172,14 +172,14 @@ Google Drive上のauthoritative source rootはproduct brandから切り離し、
 ├─ 面談記録
 ├─ 保存資料
 ├─ ニュース
-└─ 内部評価（ICメモ、社内整理等）
+└─ 評価（ICメモ、社内整理等）
 ~~~
 
 - root直下をsource typeごとの4 folderに分ける。
 - `面談記録`: Meeting Google Docs。
 - `保存資料`: Pitchbook / standalone保存資料の原本。
 - `ニュース`: News direct-input Docs / uploaded originals。
-- `内部評価（ICメモ、社内整理等）`: Internal Assessment direct-input Docs / uploaded originals。
+- `評価（ICメモ、社内整理等）`: Internal Assessment direct-input Docs / uploaded originals。
 - new installationはこのlayoutで作成する。
 - legacy exact `Private Assets Knowledge` はstored root folder IDを維持したまま `記録・資料` へin-place renameする。
 - legacy `Meeting Records` / `Pitchbooks` はstored child folder IDsを維持したまま `面談記録` / `保存資料` へin-place renameする。
@@ -457,7 +457,7 @@ Knowledge Searchでは、検索対象の情報ソースをcheckboxで明示選�
 ☑ 面談メモ
 ☐ 保存資料
 ☐ ニュース
-☐ 評価（IC、社内整理）
+☐ 評価（ICメモ、社内整理等）
 ```
 
 default stateは `面談メモ` のみcheckedとする。
@@ -468,7 +468,7 @@ default stateは `面談メモ` のみcheckedとする。
 面談メモ                 -> Meeting
 保存資料                 -> Pitchbook
 ニュース                 -> News
-評価（IC、社内整理）     -> Internal Assessment
+評価（ICメモ、社内整理等）     -> Internal Assessment
 ```
 
 原則:
@@ -480,7 +480,7 @@ default stateは `面談メモ` のみcheckedとする。
 - Source Type selectionは他のstructured filtersとは独立したfilter axisとして扱う。
 - 回答では選択されたsourceを混ぜて一つの事実のように扱わず、source別Evidenceとprovenanceを維持する。
 - `保存資料` は利用者向けlabelであり、canonical Source Type / stable ID / AI metadataは既存Pitchbook contractを継承する。
-- `評価（IC、社内整理）` は利用者向けlabelであり、canonical Source TypeはInternal Assessmentとする。
+- `評価（ICメモ、社内整理等）` は利用者向けlabelであり、canonical Source TypeはInternal Assessmentとする。
 
 用途例:
 
@@ -550,13 +550,14 @@ confidentiality = source-specific classification
 - Newsは直接入力とファイルアップロードの両方を許容する。
 - 全upload surfaceの対応拡張子はshared format contractで一元管理する。
 - Knowledge Searchのsource scopeはcheckboxで複数選択可能とし、初期値は`面談メモ`のみとする。
-- Knowledge Searchの利用者向けsource labelは `面談メモ / 保存資料 / ニュース / 評価（IC、社内整理）` とする。
+- Knowledge Searchの利用者向けsource labelは `面談メモ / 保存資料 / ニュース / 評価（ICメモ、社内整理等）` とする。
 - Internal Assessment Digestは利用者操作なしで要否判定・生成・利用・更新を自動化する。Digestはhidden derived layerで、final citationは原本へ解決する。
 - 製品は個人利用ではなく複数名同時利用を前提とし、入力state分離・atomic mutation・stale-write拒否を設計原則とする。
 - 長時間処理でglobal lockを保持せず、AI/Digest等のderived processingをauthoritative saveの同期critical pathから分離する。
 - 利用者向けproduct titleは `Alternative Assets Intelligence` とする。internal contractの名称はbrandingだけを理由に変更しない。
 - Google Driveのauthoritative source rootのdefault名は `記録・資料` とする。product brandとは独立させる。
-- `記録・資料` の直下は `面談記録 / 保存資料 / ニュース / 内部評価（ICメモ、社内整理等）` の4 folderでsource type別に分離する。
+- user-facing assessment labelは `評価（ICメモ、社内整理等）` に統一する。canonical Source Typeは `Internal Assessment` のまま維持する。
+- `記録・資料` の直下は `面談記録 / 保存資料 / ニュース / 評価（ICメモ、社内整理等）` の4 folderでsource type別に分離する。
 
 ## Open implementation questions
 
