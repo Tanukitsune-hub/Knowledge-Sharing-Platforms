@@ -13,11 +13,21 @@ Canonical product direction: YES
 
 目標は「処理状態が変わっても、押す場所を探し直さなくてよい」ことである。処理状態の通知を隠したり、重要なエラーを省略したりして見かけ上の安定を作らない。
 
+## Web UX KBとの接続
+
+Project Source `web_ux_knowledge_v1_20260925.md`（Document ID `GOOGLE-WEB-UX-KB`, v1.0, 原典確認日2026-09-25）をWork0071の参照知識として使用する。
+
+同資料のGUIDE-03に従い、64ルールを一律適用せず、現在の症状と主要タスクへ影響するruleだけを選ぶ。詳細なrule mappingとexplicit deferは `docs/product/work0071-google-web-ux-adoption.md` を正本とする。
+
+特にWork0071では `UX-CLS-002/003/004/005`, `UX-INP-001`, `UX-FORM-003/004/005/007`, `UX-A11Y-002/003/008`, `UX-RWD-001/004`, `UX-QA-001/002/005/006` を中心に採用する。
+
+Work0049のbusy feedback standardを置き換えず、「feedbackはあるがgeometryが動く」問題を解く。
+
 ## 現在のWorkとの境界
 
-- Work0070 / 0070-CODEX-03の実装範囲、固定済みcandidate、Acceptance Evidence、権限、実行上限を変更しない。
-- 本方針をWork0070の追加Acceptanceや完了阻害要因にしない。現在のWorkを先にレビュー・収束させる。
-- UI改善の実装Workは0071として予約済み。本書の追加だけではCodex Dispatchを開始せず、Work0070完了後に別Dispatchを発番する。
+- Work0070のACCEPTED baselineとAcceptance Evidenceを再度開かない。
+- 本方針はWork0071で実装し、Work0070の追加Acceptanceへ遡及させない。
+- UI改善の実装Workは0071。source adoption reviewは完了しており、実装Dispatchを別途発番する。
 - 保存・採番・retry・競合制御・権限・schema・provider・全文出力の内容範囲は本方針だけでは変更しない。
 
 ## 共通原則
