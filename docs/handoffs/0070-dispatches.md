@@ -30,7 +30,7 @@ API providerなしで、`面談メモ / 保存資料 / ニュース / 評価（I
 |---|---|---|---|---|---|---|---|
 | 0070-CODEX-01 | production source実装 + deterministic validation | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-01-record-source-expansion-instruction.md` | `docs/handoffs/0070-CODEX-01-record-source-expansion-report.md` / Draft PR #103 | — |
 | 0070-CODEX-02 | ChatGPT source review findingsの限定修正 | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-02-source-review-repair-instruction.md` | `docs/handoffs/0070-CODEX-02-source-review-repair-report.md` / Draft PR #103 | — |
-| 0070-CODEX-03 | isolated target-runtime migration / persistence / browser / concurrency qualification | QUALIFICATION | USER | ACTION_REQUIRED | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-instruction.md` | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-report.md`（中間checkpoint） / Draft PR #103 | — |
+| 0070-CODEX-03 | isolated target-runtime migration / persistence / browser / concurrency qualification | QUALIFICATION | USER | ACTION_REQUIRED | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-instruction.md` | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-report.md`（baseline実行後の中間checkpoint） / Draft PR #103 | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -77,14 +77,13 @@ PR #103はcontroller-side main commitsとの履歴divergenceにより現時点�
 
 ## CODEX-03 native action checkpoint
 
-- PR #103はlatest mainとのnormal merge後にmergeable PASS。
-- isolated targetへschema8 baseline sourceを1回syncし、remote source identityを確認済み。
-- Apps Script実行履歴0、trigger0、versioned deployment0。
-- baseline installerはGoogle OAuthの「未確認アプリ」承認画面で実行前に停止。
-- schema8 persisted installation、schema9 migration、4-source runtime matrixはまだNOT RUN。
-- application defectではなく、本人のnative OAuth承認待ち。
-- 承認前に権限scopeを確認し、想定外の権限があれば承認しない。
-- 承認後は同じ0070-CODEX-03を再開し、read-only preflightから続行する。
+- ユーザーのGoogle OAuth承認後、同じ隔離targetのread-only preflightをPASS。
+- schema8 baseline installerは1回実行し`READY_FOR_DEPLOYMENT`。Backend 5シート、schema8、AI sync falseをpersisted readback。
+- baseline immutable version 1を作成し、owner-only / execute-as-ownerのWeb App deployment 1件を作成。
+- synthetic Counterparty 2件、Meeting 1件を通常Web App flowで作成。Meeting Index / Doc本文 / Auditをreadback。
+- 移行前に必要な親付きPitchbookのTXT選択でChrome browser automationのfile chooser取得がtimeout。application defectは観測していない。
+- native file selection待ちのため、candidate source sync、schema9 migration、4-source matrixはNOT RUN。
+- 同じ0070-CODEX-03を`BALL: USER / STATUS: ACTION_REQUIRED`として保持。ユーザーは隔離Web Appの保存済みMeeting添付欄で`synthetic-pitchbook.txt`を選択するだけでよく、保存操作はCodexが続行する。
 
 ## Completion Gate
 
