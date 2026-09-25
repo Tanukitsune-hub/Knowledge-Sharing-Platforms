@@ -150,7 +150,7 @@ source固有の項目は各sourceのcontractに残す。
 
 ## Team usage principle
 
-Private Assets Intelligenceは、複数名が同時に異なる記録を入力・保存・検索・編集するteam-use業務システムとして設計する。
+Alternative Assets Intelligenceは、複数名が同時に異なる記録を入力・保存・検索・編集するteam-use業務システムとして設計する。
 
 - 各browser tabの未保存入力は独立し、他user / 他tabと共有しない。
 - shared authoritative stateのmutationだけをatomic / idempotentに保護する。
@@ -162,6 +162,20 @@ Private Assets Intelligenceは、複数名が同時に異なる記録を入力�
 - read-only search / Full Outputは原則lock-freeとし、revision token等でsource更新との整合を確認する。
 - current shared-access modelではauthorized Web App usersは同じActive corpusを参照する。user-level ACLは初期scope外。
 - team rollout前にmulti-session target-runtime concurrency qualificationを必須とする。
+
+## Knowledge root folder name
+
+Google Drive上のauthoritative source rootはproduct brandから切り離し、用途が分かる名称とする。
+
+~~~text
+投資関連記録・資料
+~~~
+
+- 面談メモ、保存資料、ニュース、内部評価のauthoritative sourceを格納するroot。
+- new installationはこの名称で作成する。
+- legacy exact `Private Assets Knowledge` はstored folder IDを維持したままin-place renameする。
+- custom manual renameは強制的に上書きしない。
+- product titleの将来変更に連動してfolder名を再変更しない。
 
 ## Stable source identity
 
@@ -531,6 +545,7 @@ confidentiality = source-specific classification
 - 製品は個人利用ではなく複数名同時利用を前提とし、入力state分離・atomic mutation・stale-write拒否を設計原則とする。
 - 長時間処理でglobal lockを保持せず、AI/Digest等のderived processingをauthoritative saveの同期critical pathから分離する。
 - 利用者向けproduct titleは `Alternative Assets Intelligence` とする。internal contractの名称はbrandingだけを理由に変更しない。
+- Google Driveのauthoritative source rootのdefault名は `投資関連記録・資料` とする。product brandとは独立させる。
 
 ## Open implementation questions
 
