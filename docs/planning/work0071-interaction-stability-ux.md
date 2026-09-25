@@ -8,6 +8,8 @@ MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 ROUTE: A -> C
 BASELINE: Work0070 ACCEPTED / release 0.2.0 / schema9
+TARGET_RELEASE: 0.2.1
+TARGET_SCHEMA: 9
 
 ## Primary Outcome
 
@@ -305,7 +307,7 @@ GOOGLE_WEB_UX_KB_REVIEWED: YES
 ADOPTION_MATRIX: docs/product/work0071-google-web-ux-adoption.md
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: 0071-CODEX-01
+NEXT_DISPATCH: 0071-CODEX-02
 ```
 
 
@@ -315,3 +317,25 @@ NEXT_DISPATCH: 0071-CODEX-01
 
 Instruction: `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md`  
 Dispatch register: `docs/handoffs/0071-dispatches.md`
+
+
+## CODEX-01 review checkpoint
+
+Accepted:
+
+- before/after geometry evidence
+- Phase A shared action/status/file queue direction
+- Meeting / News / Assessment runtime evidence
+- 1440 / 390 interaction geometry
+- local 320 / zoom / reduced-motion
+- deterministic 716/716
+
+Repair before acceptance:
+
+- standalone primary status consistency
+- user-approved vermilion file identity marker
+- revert unrelated AGENTS.md rewrite
+- restore strong Work0023 distribution integrity pinning
+- target release 0.2.1 / schema9
+
+Active repair dispatch: `0071-CODEX-02`.
