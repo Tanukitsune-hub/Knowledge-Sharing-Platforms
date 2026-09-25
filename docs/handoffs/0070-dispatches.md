@@ -77,11 +77,16 @@ PR #103はcontroller-side main commitsとの履歴divergenceにより現時点�
 
 ## CODEX-03 native action checkpoint
 
-- latest mainとのnormal mergeとPR #103の`MERGEABLE` readbackはPASS。runtime候補HEADは`2e31ae723dcb562a6de46703283fea86f3907260`。
-- 個人所有のisolated targetを1組作成し、schema8 baseline source sync 1回とremote SHA一致まで確認。Apps Script実行履歴0、trigger0、versioned deployment0。
-- baseline installerはGoogle OAuthの未確認アプリ警告で実行前に停止。本人のnative承認が必要で、ユーザーは現時点で操作不可。schema8 installation以降のmatrixは`NOT RUN`。application defectではない。
-- 同じDispatch IDを維持する。本人が操作可能になった後、期待権限のみ承認し、read-only preflightから再開する。追加target・baseline source sync・source patch・provider callは行わない。
+- PR #103はlatest mainとのnormal merge後にmergeable PASS。
+- isolated targetへschema8 baseline sourceを1回syncし、remote source identityを確認済み。
+- Apps Script実行履歴0、trigger0、versioned deployment0。
+- baseline installerはGoogle OAuthの「未確認アプリ」承認画面で実行前に停止。
+- schema8 persisted installation、schema9 migration、4-source runtime matrixはまだNOT RUN。
+- application defectではなく、本人のnative OAuth承認待ち。
+- 承認前に権限scopeを確認し、想定外の権限があれば承認しない。
+- 承認後は同じ0070-CODEX-03を再開し、read-only preflightから続行する。
 
 ## Completion Gate
 
 CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPTEDにしない。
+
