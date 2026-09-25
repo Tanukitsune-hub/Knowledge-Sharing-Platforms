@@ -2,11 +2,11 @@
 
 WORK_ID: 0070
 ACTIVE_DISPATCH_ID: 0070-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_3_HIGH
-PHASE: SOURCE_IMPLEMENTATION
+PHASE: SOURCE_REVIEW
 
 ## Primary Outcome
 
@@ -28,7 +28,7 @@ API providerなしで、`面談メモ / 保存資料 / ニュース / 評価（I
 
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
-| 0070-CODEX-01 | production source実装 + deterministic validation | BUILD | CODEX | READY | `docs/handoffs/0070-CODEX-01-record-source-expansion-instruction.md` | pending | — |
+| 0070-CODEX-01 | production source実装 + deterministic validation | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-01-record-source-expansion-instruction.md` | `docs/handoffs/0070-CODEX-01-record-source-expansion-report.md` / Draft PR [#103](https://github.com/Tanukitsune-hub/Knowledge-Sharing-Platforms/pull/103) | — |
 
 ## CODEX-01 Boundary
 
@@ -47,5 +47,5 @@ CODEX-01のChatGPT review後、必要なら:
 
 WORK_ID: 0070
 DISPATCH_ID: 0070-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
