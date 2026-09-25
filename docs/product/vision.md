@@ -403,8 +403,20 @@ The company may enable OpenAI, Gemini, both, or neither.
 
 `docs/product/source-aware-knowledge-expansion.md`
 
-Work0070 CODEX-01はrepository sourceとdeterministic validationまでを対象とする。schema9 migrationと新source保存のtarget-runtime qualificationはplanned CODEX-02で実施する。
+Work0070はPR #103でACCEPTED / merged。release 0.2.0 / schema9の4-source record layerをcurrent baselineとする。
 
+
+## Interaction stability and Web UX quality
+
+User-facing async UIは、処理状態の追加表示によって主要actionや読位置を不必要に動かさない。
+
+- primary actionを伸縮する本文/file list/resultから分離する。
+- busy/success/errorはstable status regionで更新し、重要なretry/error stateを隠さない。
+- feedback、focus、keyboard、narrow viewport、error recoveryを一組で検証する。
+- Google Web UX KBは全ruleを機械適用せず、症状・適用条件・例外に基づいて選択する。
+
+Canonical UX direction: `docs/product/stable-interaction-layout.md`  
+Work0071 adoption matrix: `docs/product/work0071-google-web-ux-adoption.md`
 
 ## Principles
 
