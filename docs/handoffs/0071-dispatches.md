@@ -2,8 +2,8 @@
 
 WORK_ID: 0071
 ACTIVE_DISPATCH_ID: 0071-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: PHASE_A_REPAIR
@@ -30,7 +30,7 @@ USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
 | 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` / Draft PR #104 | — |
-| 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CODEX | READY | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | pending | — |
+| 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-report.md` / Draft PR #104 | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -53,6 +53,8 @@ BLOCKER / repair findings:
 - Work0071 bundle must use a new patch release identity instead of reusing Work0070 release 0.2.0; target release = 0.2.1, schema remains 9
 
 CODEX-02 performs only these repairs and one bounded isolated target-runtime requalification. Phase B remains FOLLOW_UP.
+
+CODEX-02 return: source / focused logicは修正済み。隔離deploymentはexact `0.2.1` candidateのversion 5を提供する。actual Web Appのno-file errorと1440/390pxのread-only smokeは確認した。filechooser automationが実file inputを設定できず、valid選択後/pending/success/Drive・Index readbackは`AUTOMATION_LIMITATION`で未観測。`npm run check`はlatest mainと同一のroot `AGENTS.md`が12 KiB gateを超えるためFAIL。詳細はCODEX-02 reportを正本とする。
 
 ## Authorization Boundary
 
@@ -81,5 +83,5 @@ Work0071はまだACCEPTEDにしない。
 
 WORK_ID: 0071
 DISPATCH_ID: 0071-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
