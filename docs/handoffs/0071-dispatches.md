@@ -1,12 +1,12 @@
 # Work 0071 dispatch control
 
 WORK_ID: 0071
-ACTIVE_DISPATCH_ID: 0071-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
-MODE: BUILD
+ACTIVE_DISPATCH_ID: 0071-CODEX-03
+BALL: CODEX
+STATUS: READY
+MODE: QUALIFICATION
 VALIDATION_TIER: TIER_2_STANDARD
-PHASE: PHASE_A_REPAIR
+PHASE: PHASE_A_FINAL_INTEGRATION
 USER_NATIVE_ACTION_BUDGET: 0
 USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 
@@ -31,6 +31,7 @@ USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 |---|---|---|---|---|---|---|---|
 | 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` / Draft PR #104 | — |
 | 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-report.md` / Draft PR #104 | — |
+| 0071-CODEX-03 | latest-main reconcile + canonical check + Phase A integration readiness | QUALIFICATION | CODEX | READY | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-instruction.md` | pending | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -54,7 +55,30 @@ BLOCKER / repair findings:
 
 CODEX-02 performs only these repairs and one bounded isolated target-runtime requalification. Phase B remains FOLLOW_UP.
 
-CODEX-02 return: source / focused logicは修正済み。隔離deploymentはexact `0.2.1` candidateのversion 5を提供する。actual Web Appのno-file errorと1440/390pxのread-only smokeは確認した。filechooser automationが実file inputを設定できず、valid選択後/pending/success/Drive・Index readbackは`AUTOMATION_LIMITATION`で未観測。`npm run check`はlatest mainと同一のroot `AGENTS.md`が12 KiB gateを超えるためFAIL。詳細はCODEX-02 reportを正本とする。
+## CODEX-02 ChatGPT review
+
+Accepted:
+
+- standalone status source repair
+- vermilion file identity marker
+- release 0.2.1 / schema9
+- exact distribution source/hash pin restoration
+- focused browser and regression evidence
+- exact candidate deployment/version identity
+- user-native action budget 0 compliance
+
+Classification:
+
+- valid-file exact-candidate runtime state was not directly observed because the browser harness could not populate the file input.
+- this is `AUTOMATION_LIMITATION`, not application-defect evidence.
+- OS picker/native upload path is unchanged and prior accepted native-path evidence is reused.
+- no user action and no further deployment is required for Phase A.
+
+Main-side canonical-check blocker:
+
+- CODEX-02 found root AGENTS.md over 12 KiB.
+- ChatGPT repaired latest main without raising/weaking the validator; detailed unattended policy remains in the decision doc.
+- CODEX-03 only reconciles latest main and reruns canonical deterministic gates. No runtime mutation.
 
 ## Authorization Boundary
 
@@ -82,6 +106,6 @@ CODEX-01 return後にChatGPTがbefore/after geometry、diff、browser/runtime ev
 Work0071はまだACCEPTEDにしない。
 
 WORK_ID: 0071
-DISPATCH_ID: 0071-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0071-CODEX-03
+BALL: CODEX
+STATUS: READY

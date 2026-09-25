@@ -316,7 +316,7 @@ GOOGLE_WEB_UX_KB_REVIEWED: YES
 ADOPTION_MATRIX: docs/product/work0071-google-web-ux-adoption.md
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: 0071-CODEX-02
+NEXT_DISPATCH: 0071-CODEX-03
 ```
 
 
@@ -348,3 +348,28 @@ Repair before acceptance:
 - target release 0.2.1 / schema9
 
 Active repair dispatch: `0071-CODEX-02`.
+
+
+## CODEX-02 review checkpoint
+
+Accepted source/evidence:
+
+- standalone primary/file-local status consistency repair
+- vermilion file identity marker
+- 0.2.1 / schema9 distribution identity
+- independent exact source/hash pins
+- focused browser/regression suite
+- exact isolated Web App candidate identity
+
+Closed classification:
+
+```text
+VALID_FILE_EXACT_CANDIDATE_DIRECT_RUNTIME_STATE: NOT_OBSERVED
+CLASSIFICATION: AUTOMATION_LIMITATION
+USER_ACTION_REQUIRED: NO
+NATIVE_UPLOAD_PATH_ACCEPTED_EVIDENCE: REUSED
+```
+
+The missing OS-picker observation is not a Phase A blocker because picker/upload transport semantics did not change and prior native-path evidence is closed. Do not re-request user file selection.
+
+Main AGENTS compact-context gate was repaired by ChatGPT without changing the validator limit. Active dispatch `0071-CODEX-03` is reconciliation/canonical qualification only; target-runtime mutation is prohibited.
