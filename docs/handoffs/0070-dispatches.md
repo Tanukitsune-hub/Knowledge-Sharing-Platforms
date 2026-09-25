@@ -30,7 +30,7 @@ API providerなしで、`面談メモ / 保存資料 / ニュース / 評価（I
 |---|---|---|---|---|---|---|---|
 | 0070-CODEX-01 | production source実装 + deterministic validation | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-01-record-source-expansion-instruction.md` | `docs/handoffs/0070-CODEX-01-record-source-expansion-report.md` / Draft PR #103 | — |
 | 0070-CODEX-02 | ChatGPT source review findingsの限定修正 | BUILD | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-02-source-review-repair-instruction.md` | `docs/handoffs/0070-CODEX-02-source-review-repair-report.md` / Draft PR #103 | — |
-| 0070-CODEX-03 | isolated target-runtime migration / persistence / browser / concurrency qualification | QUALIFICATION | USER | ACTION_REQUIRED | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-instruction.md` | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-report.md`（中間checkpoint） / Draft PR #103 | — |
+| 0070-CODEX-03 | isolated target-runtime migration / persistence / browser / concurrency qualification | QUALIFICATION | CHATGPT | RETURNED | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-instruction.md` | `docs/handoffs/0070-CODEX-03-target-runtime-qualification-report.md` / Draft PR #103 | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -101,7 +101,7 @@ CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPT
 - 0070-CODEX-03は引き続き`BALL: USER / STATUS: ACTION_REQUIRED`。隔離Web Appの保存済みMeeting添付欄で`synthetic-pitchbook.txt`を選択するだけでよく、保存操作はCodexが続行する。
 - 最初の選択返信後、隔離`Pitchbook_Index`はrow 0。残っていたWeb Appタブが別deploymentだったため、そのタブは操作せず、owner-only deploymentから正しい隔離タブを開き直した。現在は`過去の記録`の`MTG-000001`詳細で`親記録: MTG-000001`の資料追加欄が待機中。正しいタブでのnative選択を待つ。
 
-## CODEX-03 migration後のcheckpoint（最新）
+## CODEX-03 migration後のcheckpoint（履歴）
 
 - 親付きbaseline Pitchbookを通常Web Appで保存し、Index/File/Meeting relationをreadback。続いて受入れ済みcandidate sourceを同じ隔離Apps Scriptへ1回sync、immutable version 2を作成し、同じowner-only Web App deploymentを1回更新。saved source/version/deployment parityとaccess boundaryをreadback。
 - schema8→9 migrationを1回実行。exact 7 Backend sheets、同一IDでのroot/Meeting/Pitchbook folder rename、新News/評価folder、既存Meeting/Pitchbook保持、AI sync falseを確認。
@@ -115,4 +115,14 @@ CODEX-03 target-runtime evidenceをChatGPTがreviewするまでWork0070はACCEPT
 - 新しい同一隔離Web App tabでstandalone TXT 61 Bを選択。Asset Class未選択ではfield error/focus、Index不変、prepare前returnを確認。PE指定後にActiveのparentなしDOCを1件保存し、synthetic面談先B、実File/保存資料folder、Meeting Version不変、Audit Successをreadback。
 - 現在はNews UPLOAD_FILEのsynthetic項目を入力済みで`synthetic-news-upload.txt`のnative選択待ち。続いて評価UPLOAD_FILEを別tabで準備し、この2 createをconcurrency pairとして使用する。source record countは現時点5。
 - News UPLOAD_FILEの`synthetic-news-upload.txt`選択名を確認し未保存。独立tabの評価UPLOAD_FILEにsynthetic項目を入力済みで、`synthetic-assessment-upload.txt`のnative選択待ち。2件を同時開始予定。現時点のNews/評価Index各1行、NEXT ID各2、cross-tab input bleedなし。
+
+## CODEX-03 qualification完了とChatGPTへの返却
+
+- ユーザーがNews/評価のsynthetic TXTをそれぞれnative選択。2独立tabから近接同時に1回ずつ保存し、`NEWS-000002`と`ASMT-000002`のActive/UPLOAD_FILE rows、各実File、正しいfolder、Past/detail、各counterの進行をreadback。重複・lost rowなし。source record総数7。
+- 同一News Version 4を2独立tabで編集し、Aの更新はVersion 5、Bのstale saveは安全な競合messageで拒否。Index/DocはAのみ、File ID不変。
+- 新規session/reloadでは通常draftのsilent restoreなし。4 Add tabの未保存値はglobal `クリア`確認後に全て消去。390px actual viewportでAdd/Past各4 tabのmaterial horizontal overflowなし。material browser console error/warning 0。
+- Restricted Auditは代表mutation計17 rows、target対応、Actor分類EMAIL、本文複製なし。AI_SYNC_ENABLED=false、provider/AI indexing call 0。triggerはtest-only daily backup 1件、AI sync 0。
+- Isolated target-runtime qualificationはPASS。会社production/secret/provider/billing/physical deleteの変更0。source patchなし、CODEX-02 deterministic 716/716を再実行していない。Work0070は未ACCEPTED、Completion Latch未適用。
+- Draft PR #103は後着main commitにより`docs/handoffs/0070-dispatches.md`のみcontent conflict。production source/tests/generated artifactsのconflict 0。normal merge budget 1/1のため追加mergeはせず、ChatGPTのfinal reviewでdocs reconcileとmerge判断を行う。
+- `BALL: CHATGPT / STATUS: RETURNED`。詳細は`0070-CODEX-03-target-runtime-qualification-report.md`。
 
