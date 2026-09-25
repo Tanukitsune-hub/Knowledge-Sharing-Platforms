@@ -140,6 +140,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 - Work 0023 uses every gate in its decision and plan.
 - Use the Work's validation tier. Run targeted tests first; run the canonical check, browser/runtime checks, and broader regression only when that tier or a concrete dependency requires them.
 - Target-runtime evidence uses exact tested source and isolated data; mocks/test loaders may not inject missing production business behavior.
+- Development and qualification are user-presence-independent by default: do not assume the user is at the test PC. Default `USER_NATIVE_ACTION_BUDGET: 0`; prefer automation against the actual target runtime plus authoritative readback. Require a user-native action only when that native/OS/permission behavior is itself decision-relevant and no safe automated equivalent exists; reuse accepted native-path evidence when unchanged, aggregate unavoidable actions into one checkpoint, and treat harness inability as `AUTOMATION_LIMITATION`, not an application defect.
 - Report `LOGIC_VALIDATION`, `TARGET_RUNTIME_QUALIFICATION`, `SIDE_EFFECT_STATE`, and `READY` separately.
 
 ## Completion and routing
