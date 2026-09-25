@@ -87,7 +87,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 
 ## Purpose and sources
 
-- Build a private-assets knowledge base for Meeting records and Pitchbook/source materials with source-traceable Gemini retrieval.
+- Build Alternative Assets Intelligence for Meeting, Pitchbook, News, and Internal Assessment records, with source-traceable retrieval when separately authorized.
 - Product/UX: `docs/product/vision.md`.
 - Architecture: `docs/architecture/target-architecture.md`.
 - Current implementation plan: `docs/planning/apps-script-implementation-plan.md`.
@@ -110,7 +110,7 @@ REPOSITORY_RULES_STATUS: ACTIVE
 
 - Shared Drive is authoritative; Gemini File Search is derived and rebuildable.
 - One organization-controlled Web App serves authorized users.
-- Backend baseline remains `Counterparty_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `Settings`; schema7 `GP_Master` is migrated in place and no sixth storage layer is added.
+- Backend schema9 has exactly seven authoritative sheets: `Counterparty_Master`, `Option_Master`, `Meeting_Index`, `Pitchbook_Index`, `News_Index`, `Internal_Assessment_Index`, and `Settings`. Schema7 `GP_Master` remains an in-place migration source; do not add a generic eighth storage sheet.
 - Audit uses a separate Restricted Spreadsheet; normal users do not directly edit backend/Audit/File Search.
 - `src/` is authoritative; `dist/KnowledgeShare.bundle.gs` is generated reproducibly and never hand-edited.
 - `setupKnowledgePlatform_()` and underlying helpers remain private/idempotent. Any Work 0023 editor-visible wrapper is externally invocable, must authorize the active administrator before mutation, and must reject normal/unidentified callers.
@@ -122,7 +122,8 @@ REPOSITORY_RULES_STATUS: ACTIVE
 ## Product and security boundaries
 
 - Meeting requires Date, Counterparty, Asset Class; GP is only one `Counterparty_Type`. Google Doc body is authoritative and is not duplicated into Index.
-- Pitchbook requires file, Date, Counterparty, Asset Class; parent-bound material inherits the Meeting Counterparty. Sequence starts at `01`, continues from destination max, and gaps are not closed.
+- Pitchbook requires file, Date, Counterparty, Asset Class; parent-bound material inherits the Meeting Counterparty, while standalone material has no Meeting parent. Sequence starts at `01`, continues from destination max, and gaps are not closed.
+- News and Internal Assessment each use one authoritative direct-text Doc or uploaded original, a stable source ID, and one or more canonical Counterparty IDs in their own Index sheet. Their provider indexing and retrieval remain separately scoped work.
 - Initial upload policy: 25MB/file, 10 files, 100MB total; lower it if actual Apps Script behavior requires, rather than adding unjustified transport architecture.
 - Normal lifecycle is Active / Inactive / Reactivate, not physical deletion.
 - Actor is best-effort: email → `TEMP_USER:<key>` → `UNIDENTIFIED`; missing persistent identity does not block normal operation.

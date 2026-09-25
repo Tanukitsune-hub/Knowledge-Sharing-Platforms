@@ -14,11 +14,15 @@ function kspUploadPitchbookFile_(environment, rawInput) {
     context = kspLoadPitchbookRuntimeContext_(environment);
     row = environment.findRowByKey(context.backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX,
       'Document_ID', input.documentId);
-    kspAssert_(row && row.Parent_Meeting_ID && String(row.Parent_Meeting_ID) === input.parentMeetingId,
+    kspAssert_(row && String(row.Parent_Meeting_ID || '') === input.parentMeetingId,
       'PITCHBOOK_PARENT_CONFLICT', '資料の登録元記録が一致しません。');
-    var parent = environment.findRowByKey(context.backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX,
-      'Meeting_ID', input.parentMeetingId);
-    kspAssert_(parent && parent.Status === KSP_STATUS.ACTIVE, 'PITCHBOOK_PARENT_UNAVAILABLE', '親記録を利用できません。');
+    if (!input.parentMeetingId) kspAssert_(input.expectedParentVersion === 0,
+      'PITCHBOOK_PARENT_CONFLICT', '親記録なしの資料に親記録の更新番号は指定できません。');
+    if (input.parentMeetingId) {
+      var parent = environment.findRowByKey(context.backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX,
+        'Meeting_ID', input.parentMeetingId);
+      kspAssert_(parent && parent.Status === KSP_STATUS.ACTIVE, 'PITCHBOOK_PARENT_UNAVAILABLE', '親記録を利用できません。');
+    }
     if (row && String(row.Status) === KSP_PITCHBOOK_STATUS.ACTIVE && row.File_ID) {
       kspAssert_(String(row.Batch_ID) === input.batchId, 'PITCHBOOK_BATCH_CONFLICT', 'Batch IDが一致しません。');
       kspAssert_(String(row.Original_Filename) === input.originalFilename, 'PITCHBOOK_FILENAME_CONFLICT',
@@ -35,10 +39,12 @@ function kspUploadPitchbookFile_(environment, rawInput) {
     reservation = environment.getPitchbookReservation(input.batchId);
     reservedFile = kspFindPitchbookReservationFile_(reservation, input.documentId);
     kspValidatePitchbookUploadInput_(input, row, reservation);
-    kspRequirePitchbookParent_(environment, context.backendSpreadsheetId, input.parentMeetingId, input.expectedParentVersion);
-    parentClaim = environment.claimRecordEdit('Meeting', input.parentMeetingId, KSP_SHEET_NAMES.MEETING_INDEX,
-      'Meeting_ID', 'Version', input.expectedParentVersion, environment.nowIso(), KSP_MAINTENANCE_LIMITS.EDIT_CLAIM_TTL_MS);
-    kspAssert_(parentClaim.row.Status === KSP_STATUS.ACTIVE, 'PITCHBOOK_PARENT_UNAVAILABLE', '親記録を利用できません。');
+    if (input.parentMeetingId) {
+      kspRequirePitchbookParent_(environment, context.backendSpreadsheetId, input.parentMeetingId, input.expectedParentVersion);
+      parentClaim = environment.claimRecordEdit('Meeting', input.parentMeetingId, KSP_SHEET_NAMES.MEETING_INDEX,
+        'Meeting_ID', 'Version', input.expectedParentVersion, environment.nowIso(), KSP_MAINTENANCE_LIMITS.EDIT_CLAIM_TTL_MS);
+      kspAssert_(parentClaim.row.Status === KSP_STATUS.ACTIVE, 'PITCHBOOK_PARENT_UNAVAILABLE', '親記録を利用できません。');
+    }
     reservationValidated = true;
 
     var decoded = environment.decodeBase64(input.base64Data);
@@ -97,8 +103,7 @@ function kspUploadPitchbookFile_(environment, rawInput) {
     });
     if (auditWarning) warnings.push(auditWarning);
 
-    environment.releaseRecordEditClaim(parentClaim);
-    parentClaim = null;
+    if (parentClaim) { environment.releaseRecordEditClaim(parentClaim); parentClaim = null; }
     return kspFinishPitchbookLink_(environment, input, { ok: true, workId: KSP_PITCHBOOK_WORK_ID,
       slot: kspPitchbookSlotFromRow_(row, reservedFile, reservation.totalBytes),
       reusedFile: Boolean(fileInfo.reused), warnings: warnings });
@@ -141,6 +146,14 @@ function kspUploadPitchbookFile_(environment, rawInput) {
 }
 
 function kspFinishPitchbookLink_(environment, input, response) {
+  if (!input.parentMeetingId) {
+    response.fileSaved = true;
+    response.linkConfirmed = true;
+    response.slot.parentMeetingId = '';
+    response.slot.parentVersion = 0;
+    response.parentVersion = 0;
+    return response;
+  }
   var linked = kspUpdateMeetingRelations_(environment, {meetingId:input.parentMeetingId,
     expectedVersion:input.expectedParentVersion,documentId:input.documentId,operation:'add'});
   response.fileSaved = true;

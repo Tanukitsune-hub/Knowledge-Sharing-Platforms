@@ -6,14 +6,14 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const source = name => fs.readFileSync(path.join(root, 'src', name), 'utf8');
 
-test('the accepted brand appears in the main and standalone titles without a subtitle', () => {
+test('the current brand appears in the main and standalone titles without a subtitle', () => {
   const main = source('Index.html');
   const standalone = source('KnowledgeSearch.html');
   const webApp = source('90_WebApp.gs');
-  assert.match(main, /<title>Private Assets Intelligence<\/title>/);
-  assert.match(main, /<div class="brand"><h1>Private Assets Intelligence<\/h1><\/div>/);
-  assert.match(standalone, /<title>ナレッジ検索 \| Private Assets Intelligence<\/title>/);
-  assert.match(webApp, /Private Assets Intelligence/);
+  assert.match(main, /<title>Alternative Assets Intelligence<\/title>/);
+  assert.match(main, /<div class="brand"><h1>Alternative Assets Intelligence<\/h1><\/div>/);
+  assert.match(standalone, /<title>ナレッジ検索 \| Alternative Assets Intelligence<\/title>/);
+  assert.match(webApp, /Alternative Assets Intelligence/);
   assert.doesNotMatch(main + standalone, /Knowledge Share|Knowledge Sharing Platforms|PRIVATE ASSETS KNOWLEDGE/);
 });
 
@@ -33,9 +33,9 @@ test('public copy uses the agreed terms and hides internal error vocabulary', ()
   assert.doesNotMatch(pages + publicErrors, /権威ある|authoritative|materialize|fail closed|stale source|provider response/i);
 });
 
-test('brand migration preserves internal Drive resource names', () => {
+test('source-root naming changes preserve internal Backend and Audit resource names', () => {
   const core = source('00_Core.gs');
-  assert.match(core, /KNOWLEDGE_ROOT: 'Private Assets Knowledge'/);
+  assert.match(core, /KNOWLEDGE_ROOT: '記録・資料'/);
   assert.match(core, /Knowledge Platform Backend/);
   assert.match(core, /Knowledge Platform Audit/);
 });

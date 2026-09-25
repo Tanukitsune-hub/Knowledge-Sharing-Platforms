@@ -1,8 +1,8 @@
 var KSP_COMPONENT_WORK_ID = '0004';
-var KSP_RELEASE_VERSION = '0.1.2';
+var KSP_RELEASE_VERSION = '0.2.0';
 var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
 var KSP_APP_VERSION = KSP_RELEASE_VERSION;
-var KSP_SCHEMA_VERSION = 8;
+var KSP_SCHEMA_VERSION = 9;
 
 var KSP_PROPERTY_KEYS = Object.freeze({
   BOOTSTRAP_CONFIG_JSON: 'BOOTSTRAP_CONFIG_JSON',
@@ -13,19 +13,29 @@ var KSP_PROPERTY_KEYS = Object.freeze({
 });
 
 var KSP_RESOURCE_NAMES = Object.freeze({
-  KNOWLEDGE_ROOT: 'Private Assets Knowledge',
-  MEETING_RECORDS: 'Meeting Records',
-  PITCHBOOKS: 'Pitchbooks',
+  KNOWLEDGE_ROOT: '記録・資料',
+  MEETING_RECORDS: '面談記録',
+  PITCHBOOKS: '保存資料',
+  NEWS: 'ニュース',
+  INTERNAL_ASSESSMENTS: '評価（ICメモ、社内整理等）',
   KNOWLEDGE_EXPORTS: 'Knowledge Exports',
   BACKUP_FOLDER: 'Knowledge Platform Backups',
   BACKEND_SPREADSHEET: 'Knowledge Platform Backend',
   AUDIT_SPREADSHEET: 'Knowledge Platform Audit'
 });
 
+var KSP_LEGACY_RESOURCE_NAMES = Object.freeze({
+  KNOWLEDGE_ROOT: 'Private Assets Knowledge',
+  MEETING_RECORDS: 'Meeting Records',
+  PITCHBOOKS: 'Pitchbooks'
+});
+
 var KSP_RESOURCE_KEYS = Object.freeze({
   KNOWLEDGE_ROOT: 'knowledgeRootFolderId',
   MEETING_RECORDS: 'meetingRecordsFolderId',
   PITCHBOOKS: 'pitchbooksFolderId',
+  NEWS: 'newsFolderId',
+  INTERNAL_ASSESSMENTS: 'internalAssessmentsFolderId',
   KNOWLEDGE_EXPORTS: 'knowledgeExportsFolderId',
   BACKUP_FOLDER: 'backupFolderId',
   BACKEND_SPREADSHEET: 'backendSpreadsheetId',
@@ -42,6 +52,8 @@ var KSP_SHEET_NAMES = Object.freeze({
   OPTION_MASTER: 'Option_Master',
   MEETING_INDEX: 'Meeting_Index',
   PITCHBOOK_INDEX: 'Pitchbook_Index',
+  NEWS_INDEX: 'News_Index',
+  INTERNAL_ASSESSMENT_INDEX: 'Internal_Assessment_Index',
   SETTINGS: 'Settings',
   AUDIT_LOG: 'Audit_Log'
 });
@@ -406,6 +418,26 @@ function kspGetBackendSchemas_() {
     'Parent_Meeting_ID', 'Counterparty_Type', 'Counterparty_ID', 'Related_GP_IDs'
   ];
 
+  schemas[KSP_SHEET_NAMES.NEWS_INDEX] = [
+    'News_ID', 'Published_Date', 'Publisher', 'Title', 'URL',
+    'Counterparty_IDs', 'Asset_Class_ID', 'Fund_Strategy', 'Input_Mode',
+    'Source_File_ID', 'Source_URL', 'Source_Mime_Type', 'Original_Filename',
+    'Saved_Filename', 'Status', 'Version', 'Created_At', 'Updated_At',
+    'Created_By', 'Updated_By', 'AI_Document_Name', 'AI_Index_Status',
+    'AI_Indexed_At', 'AI_Content_Hash', 'AI_Last_Error', 'AI_Provider_State_JSON'
+  ];
+
+  schemas[KSP_SHEET_NAMES.INTERNAL_ASSESSMENT_INDEX] = [
+    'Assessment_ID', 'Assessment_Date', 'Assessment_Type', 'Title',
+    'Counterparty_IDs', 'Asset_Class_ID', 'Fund_Strategy', 'Decision_Or_Action',
+    'Input_Mode', 'Source_File_ID', 'Source_URL', 'Source_Mime_Type',
+    'Original_Filename', 'Saved_Filename', 'Related_Meeting_IDs',
+    'Related_Document_IDs', 'Related_News_IDs', 'Status', 'Version',
+    'Created_At', 'Updated_At', 'Created_By', 'Updated_By', 'AI_Document_Name',
+    'AI_Index_Status', 'AI_Indexed_At', 'AI_Content_Hash', 'AI_Last_Error',
+    'AI_Provider_State_JSON'
+  ];
+
   schemas[KSP_SHEET_NAMES.SETTINGS] = [
     'Key', 'Value', 'Description', 'Updated_At'
   ];
@@ -551,9 +583,11 @@ function kspBuildSettingsRows_(config, resources, nowIso) {
     { Key: 'KNOWLEDGE_ROOT_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT], Description: 'Authoritative knowledge root folder.', Updated_At: nowIso },
     { Key: 'MEETING_RECORDS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.MEETING_RECORDS], Description: 'Meeting records folder.', Updated_At: nowIso },
     { Key: 'PITCHBOOKS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.PITCHBOOKS], Description: 'Pitchbooks/source-material folder.', Updated_At: nowIso },
+    { Key: 'NEWS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.NEWS], Description: 'News source folder.', Updated_At: nowIso },
+    { Key: 'INTERNAL_ASSESSMENTS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.INTERNAL_ASSESSMENTS], Description: 'Internal Assessment source folder.', Updated_At: nowIso },
     { Key: 'KNOWLEDGE_EXPORTS_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS], Description: 'Derived Knowledge Exports folder outside the authoritative root.', Updated_At: nowIso },
     { Key: 'BACKUP_FOLDER_ID', Value: resources[KSP_RESOURCE_KEYS.BACKUP_FOLDER], Description: 'Restricted Backend-only daily backup folder.', Updated_At: nowIso },
-    { Key: 'BACKEND_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET], Description: 'Five-sheet backend spreadsheet.', Updated_At: nowIso },
+    { Key: 'BACKEND_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET], Description: 'Seven-sheet backend spreadsheet.', Updated_At: nowIso },
     { Key: 'AUDIT_LOG_SPREADSHEET_ID', Value: resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET], Description: 'Separate restricted audit spreadsheet.', Updated_At: nowIso },
     { Key: 'ADMIN_EMAILS', Value: adminEmails, Description: 'Administrative contacts; not an application authentication mechanism.', Updated_At: nowIso },
     { Key: 'AI_SYNC_ENABLED', Value: String(config.aiSyncEnabled), Description: 'Whether the scheduled AI sync trigger should be active.', Updated_At: nowIso },
@@ -561,6 +595,8 @@ function kspBuildSettingsRows_(config, resources, nowIso) {
     { Key: 'NEXT_MEETING_ID', Value: '1', Description: 'Next Meeting numeric sequence.', Updated_At: nowIso },
     { Key: 'NEXT_DOCUMENT_ID', Value: '1', Description: 'Next source Document numeric sequence.', Updated_At: nowIso },
     { Key: 'NEXT_BATCH_ID', Value: '1', Description: 'Next Pitchbook batch numeric sequence.', Updated_At: nowIso },
+    { Key: 'NEXT_NEWS_ID', Value: '1', Description: 'Next News numeric sequence.', Updated_At: nowIso },
+    { Key: 'NEXT_ASSESSMENT_ID', Value: '1', Description: 'Next Internal Assessment numeric sequence.', Updated_At: nowIso },
     { Key: 'GEMINI_FILE_SEARCH_STORE_NAME', Value: '', Description: 'Configured during the Gemini implementation Work.', Updated_At: nowIso },
     { Key: 'AI_DEFAULT_MODEL', Value: '', Description: 'Configured Gemini Flash model ID.', Updated_At: nowIso },
     { Key: 'OPENAI_ENABLED', Value: 'false', Description: 'Whether the administrator has enabled the ChatGPT / OpenAI provider.', Updated_At: nowIso },
@@ -583,6 +619,8 @@ function kspGetSettingsPreserveExistingKeys_() {
     'NEXT_MEETING_ID',
     'NEXT_DOCUMENT_ID',
     'NEXT_BATCH_ID',
+    'NEXT_NEWS_ID',
+    'NEXT_ASSESSMENT_ID',
     'GEMINI_FILE_SEARCH_STORE_NAME',
     'AI_DEFAULT_MODEL',
     'OPENAI_ENABLED',

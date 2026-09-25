@@ -12,7 +12,7 @@ Architecture boundary: `docs/architecture/target-architecture.md`
 
 ## 1. Operating principle
 
-Private Assets Intelligence runs as an organization-controlled Google Apps Script HTML Service Web App backed by Google Workspace resources and, when authorized, Gemini File Search.
+Alternative Assets Intelligenceのrepository source targetは、組織管理のGoogle Apps Script HTML Service Web AppとGoogle Workspace resourcesを使用する。承認された場合のみFile Search providerを利用し、4-source record layerはprovider credentialなしでも使える設計とする。現在配信中のversionのqualificationは、このsource targetとは別に行う。
 
 The application should fail explicitly and safely rather than silently guessing resource identity, weakening integrity, or presenting partial failure as success.
 
@@ -181,7 +181,7 @@ NotIndexed / Pending / Indexed / Failed
 
 Rules:
 
-- authoritative Meeting/Pitchbook save succeeds independently of AI;
+- authoritative sourceの保存はAIから独立して成功する。Work0070のNews/Assessmentはprovider indexingの対象外とする。
 - worker processes bounded batches;
 - retry uses exponential backoff / bounded attempts;
 - permanent errors stop retrying;

@@ -96,7 +96,7 @@ async function runViewport(browser, url, width, height) {
   try {
     await page.goto(url);
     assert.equal(page.url(), url);
-    assert.equal(await page.title(), 'Private Assets Intelligence');
+    assert.equal(await page.title(), 'Alternative Assets Intelligence');
     assert.match(await page.locator('#page-knowledge').innerText(), /AI検索モード/);
     assert.doesNotMatch(await page.locator('body').innerText(), /Internal Server Error|Vite error|Next.js error/);
     await page.waitForFunction(() => !document.getElementById('knowledge-submit').disabled);

@@ -1,4 +1,7 @@
 <section id="page-meeting-past" class="page">
+  <div class="source-tabs" role="tablist" aria-label="過去の記録の種類">
+    <button class="source-tab active" type="button" role="tab" aria-selected="true" data-source-past-tab="meeting">面談メモ</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="pitchbook">保存資料</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="news">ニュース</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="assessment">評価（ICメモ、社内整理等）</button>
+  </div>
   <div id="meeting-past-search-area" class="card" aria-busy="false">
     <div class="section-heading"><div><h2>過去の記録</h2><p class="hint">記録の詳細から原本・関連資料・編集を開けます。</p></div></div>
     <div class="filter-grid meeting-past-filter-grid">
@@ -67,6 +70,9 @@
 </section>
 
 <section id="page-pitchbook-past" class="page">
+  <div class="source-tabs" role="tablist" aria-label="過去の記録の種類">
+    <button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="meeting">面談メモ</button><button class="source-tab active" type="button" role="tab" aria-selected="true" data-source-past-tab="pitchbook">保存資料</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="news">ニュース</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="assessment">評価（ICメモ、社内整理等）</button>
+  </div>
   <div class="card">
     <div class="section-heading"><div><h2>過去の保存資料</h2><p class="hint">原本ファイルを残したまま、登録情報とStatusを更新できます。</p></div></div>
     <div class="filter-grid pitchbook-past-filter-grid">
@@ -96,6 +102,93 @@
       <div class="actions"><span class="hint">保存先が変わる場合は、移動先の次の番号を使います。</span><button class="action primary" type="submit">変更を保存</button></div>
     </form>
     <div id="pitchbook-edit-status" class="status" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="page-news-past" class="page">
+  <div class="source-tabs" role="tablist" aria-label="過去の記録の種類">
+    <button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="meeting">面談メモ</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="pitchbook">保存資料</button><button class="source-tab active" type="button" role="tab" aria-selected="true" data-source-past-tab="news">ニュース</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="assessment">評価（ICメモ、社内整理等）</button>
+  </div>
+  <div class="card">
+    <h2>過去のニュース</h2>
+    <div class="filter-grid source-past-filter-grid">
+      <div class="field"><label for="news-past-dateFrom">開始日</label><input id="news-past-dateFrom" type="date"></div>
+      <div class="field"><label for="news-past-dateTo">終了日</label><input id="news-past-dateTo" type="date"></div>
+      <div class="field"><label for="news-past-counterpartyId">面談先</label><select id="news-past-counterpartyId"><option value="">未選択</option></select></div>
+      <div class="field"><label for="news-past-assetClassId">アセットクラス</label><select id="news-past-assetClassId"><option value="">未選択</option></select></div>
+      <div class="field"><label for="news-past-statusFilter">Status</label><select id="news-past-statusFilter"><option value="Active">有効</option><option value="Inactive">削除済み</option><option value="">すべて</option></select></div>
+    </div>
+    <div class="actions"><button id="news-past-search" class="action primary" type="button">検索</button></div>
+    <div id="news-past-status" class="status" role="status" aria-live="polite"></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>タイトル</th><th>面談先</th><th>Status</th><th>操作</th></tr></thead><tbody id="news-past-results"></tbody></table></div>
+  </div>
+  <div id="news-past-detail" class="card source-past-detail" hidden>
+    <div class="section-heading"><h2 id="news-past-detail-heading" tabindex="-1">ニュースの詳細</h2><button type="button" class="small-button" data-source-close="news">閉じる</button></div>
+    <div id="news-past-detail-content"></div>
+    <div class="actions"><a id="news-past-original" class="small-link" target="_blank" rel="noopener">原本を開く</a><button id="news-past-edit-open" class="small-button" type="button">編集</button><button id="news-past-deactivate" class="small-button" type="button">記録を削除</button></div>
+    <div id="news-past-detail-status" class="status" role="status" aria-live="polite"></div>
+  </div>
+  <div id="news-past-edit" class="card" hidden>
+    <h2>ニュースを編集</h2>
+    <form id="news-past-edit-form" class="source-record-form" novalidate>
+      <div class="grid source-form-grid">
+        <div class="field"><label for="news-past-edit-date">公開日</label><input id="news-past-edit-date" type="date" required></div>
+        <div class="field"><label for="news-past-edit-assetClassId">アセットクラス</label><select id="news-past-edit-assetClassId"><option value="">未選択</option></select></div>
+        <div class="field"><label for="news-past-edit-fundStrategy">Fund / Strategy</label><input id="news-past-edit-fundStrategy"></div>
+        <div class="field"><label for="news-past-edit-publisher">発行元</label><input id="news-past-edit-publisher" required></div>
+        <div class="field full"><label for="news-past-edit-title">タイトル</label><input id="news-past-edit-title" required></div>
+        <div class="field full"><label for="news-past-edit-counterpartyIds">面談先</label><select id="news-past-edit-counterpartyIds" multiple size="5" required></select></div>
+        <div class="field full"><label for="news-past-edit-url">URL</label><input id="news-past-edit-url" type="url"></div>
+        <div class="field full" id="news-past-edit-direct-wrap"><label for="news-past-edit-directText">本文</label><textarea id="news-past-edit-directText"></textarea></div>
+      </div>
+      <div class="actions"><button class="action primary" type="submit">変更を保存</button><button type="button" class="action secondary" data-source-edit-close="news">編集を終了</button></div>
+    </form>
+    <div id="news-past-edit-status" class="status" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="page-assessment-past" class="page">
+  <div class="source-tabs" role="tablist" aria-label="過去の記録の種類">
+    <button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="meeting">面談メモ</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="pitchbook">保存資料</button><button class="source-tab" type="button" role="tab" aria-selected="false" data-source-past-tab="news">ニュース</button><button class="source-tab active" type="button" role="tab" aria-selected="true" data-source-past-tab="assessment">評価（ICメモ、社内整理等）</button>
+  </div>
+  <div class="card">
+    <h2>過去の評価（ICメモ、社内整理等）</h2>
+    <div class="filter-grid source-past-filter-grid">
+      <div class="field"><label for="assessment-past-dateFrom">開始日</label><input id="assessment-past-dateFrom" type="date"></div>
+      <div class="field"><label for="assessment-past-dateTo">終了日</label><input id="assessment-past-dateTo" type="date"></div>
+      <div class="field"><label for="assessment-past-counterpartyId">面談先</label><select id="assessment-past-counterpartyId"><option value="">未選択</option></select></div>
+      <div class="field"><label for="assessment-past-assetClassId">アセットクラス</label><select id="assessment-past-assetClassId"><option value="">未選択</option></select></div>
+      <div class="field"><label for="assessment-past-statusFilter">Status</label><select id="assessment-past-statusFilter"><option value="Active">有効</option><option value="Inactive">削除済み</option><option value="">すべて</option></select></div>
+    </div>
+    <div class="actions"><button id="assessment-past-search" class="action primary" type="button">検索</button></div>
+    <div id="assessment-past-status" class="status" role="status" aria-live="polite"></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>日付</th><th>タイトル</th><th>面談先</th><th>Status</th><th>操作</th></tr></thead><tbody id="assessment-past-results"></tbody></table></div>
+  </div>
+  <div id="assessment-past-detail" class="card source-past-detail" hidden>
+    <div class="section-heading"><h2 id="assessment-past-detail-heading" tabindex="-1">評価の詳細</h2><button type="button" class="small-button" data-source-close="assessment">閉じる</button></div>
+    <div id="assessment-past-detail-content"></div>
+    <div class="actions"><a id="assessment-past-original" class="small-link" target="_blank" rel="noopener">原本を開く</a><button id="assessment-past-edit-open" class="small-button" type="button">編集</button><button id="assessment-past-deactivate" class="small-button" type="button">記録を削除</button></div>
+    <div id="assessment-past-detail-status" class="status" role="status" aria-live="polite"></div>
+  </div>
+  <div id="assessment-past-edit" class="card" hidden>
+    <h2>評価を編集</h2>
+    <form id="assessment-past-edit-form" class="source-record-form" novalidate>
+      <div class="grid source-form-grid">
+        <div class="field"><label for="assessment-past-edit-date">評価日</label><input id="assessment-past-edit-date" type="date" required></div>
+        <div class="field"><label for="assessment-past-edit-assetClassId">アセットクラス</label><select id="assessment-past-edit-assetClassId"><option value="">未選択</option></select></div>
+        <div class="field"><label for="assessment-past-edit-fundStrategy">Fund / Strategy</label><input id="assessment-past-edit-fundStrategy"></div>
+        <div class="field"><label for="assessment-past-edit-assessmentType">評価種別</label><select id="assessment-past-edit-assessmentType" required><option value="">選択してください</option></select></div>
+        <div class="field full"><label for="assessment-past-edit-title">タイトル</label><input id="assessment-past-edit-title" required></div>
+        <div class="field full"><label for="assessment-past-edit-counterpartyIds">面談先</label><select id="assessment-past-edit-counterpartyIds" multiple size="5" required></select></div>
+        <div class="field full"><label for="assessment-past-edit-decisionOrAction">判断・対応</label><textarea id="assessment-past-edit-decisionOrAction"></textarea></div>
+        <div class="field"><label for="assessment-past-edit-relatedMeetingIds">関連Meeting ID</label><input id="assessment-past-edit-relatedMeetingIds"></div>
+        <div class="field"><label for="assessment-past-edit-relatedDocumentIds">関連Document ID</label><input id="assessment-past-edit-relatedDocumentIds"></div>
+        <div class="field"><label for="assessment-past-edit-relatedNewsIds">関連News ID</label><input id="assessment-past-edit-relatedNewsIds"></div>
+        <div class="field full" id="assessment-past-edit-direct-wrap"><label for="assessment-past-edit-directText">本文</label><textarea id="assessment-past-edit-directText"></textarea></div>
+      </div>
+      <div class="actions"><button class="action primary" type="submit">変更を保存</button><button type="button" class="action secondary" data-source-edit-close="assessment">編集を終了</button></div>
+    </form>
+    <div id="assessment-past-edit-status" class="status" role="status" aria-live="polite"></div>
   </div>
 </section>
 

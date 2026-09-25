@@ -7,23 +7,45 @@ function kspAttachPitchbookIndexAdapters_(meetingEnvironment, scriptProperties) 
       var claimKey = kspMaintenanceClaimKey_('Meeting', parentId);
       var stored = kspSafeParseJson_(scriptProperties.getProperty(claimKey), claimKey);
       var nowMs = Date.now();
-      kspAssert_(parentId && String(row.Parent_Meeting_ID || '') === parentId &&
-        Number.isInteger(expectedVersion) && expectedVersion > 0 &&
-        claim && claim.claimKey === claimKey && claim.claimToken &&
-        stored && stored.claimToken === claim.claimToken && stored.entity === 'Meeting' &&
-        String(stored.recordId) === parentId && String(stored.expectedToken) === String(expectedVersion) &&
-        Number.isFinite(Number(stored.expiresAtMs)) && Number(stored.expiresAtMs) > nowMs,
-        'PITCHBOOK_COMPLETION_CONFLICT', '親記録の処理権が変更または失効しました。最新情報で再試行してください。');
-      var parentSheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.MEETING_INDEX);
-      kspAssert_(parentSheet, 'PITCHBOOK_COMPLETION_CONFLICT', '親記録を確認できません。');
-      var parents = kspReadObjectsFromSheet_(parentSheet, kspReadHeadersFromSheet_(parentSheet)).filter(function (parent) {
-        return String(parent.Meeting_ID || '') === parentId;
-      });
-      kspAssert_(parents.length === 1 && parents[0].Status === KSP_STATUS.ACTIVE &&
-        parents[0].Doc_File_ID && Number(parents[0].Version) === expectedVersion &&
-        (row.Status === KSP_PITCHBOOK_STATUS.PENDING || row.Status === KSP_PITCHBOOK_STATUS.FAILED || row.Status === KSP_PITCHBOOK_STATUS.ACTIVE),
-        'PITCHBOOK_COMPLETION_CONFLICT', '親記録または資料が変更されました。最新情報で再試行してください。');
+      if (parentId) {
+        kspAssert_(String(row.Parent_Meeting_ID || '') === parentId &&
+          Number.isInteger(expectedVersion) && expectedVersion > 0 &&
+          claim && claim.claimKey === claimKey && claim.claimToken &&
+          stored && stored.claimToken === claim.claimToken && stored.entity === 'Meeting' &&
+          String(stored.recordId) === parentId && String(stored.expectedToken) === String(expectedVersion) &&
+          Number.isFinite(Number(stored.expiresAtMs)) && Number(stored.expiresAtMs) > nowMs,
+          'PITCHBOOK_COMPLETION_CONFLICT', '親記録の処理権が変更または失効しました。最新情報で再試行してください。');
+        var parentSheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.MEETING_INDEX);
+        kspAssert_(parentSheet, 'PITCHBOOK_COMPLETION_CONFLICT', '親記録を確認できません。');
+        var parents = kspReadObjectsFromSheet_(parentSheet, kspReadHeadersFromSheet_(parentSheet)).filter(function (parent) {
+          return String(parent.Meeting_ID || '') === parentId;
+        });
+        kspAssert_(parents.length === 1 && parents[0].Status === KSP_STATUS.ACTIVE &&
+          parents[0].Doc_File_ID && Number(parents[0].Version) === expectedVersion,
+          'PITCHBOOK_COMPLETION_CONFLICT', '親記録または資料が変更されました。最新情報で再試行してください。');
+      } else {
+        kspAssert_(!String(row.Parent_Meeting_ID || '') && (!claim || !claim.claimToken) &&
+          expectedVersion === 0,
+          'PITCHBOOK_COMPLETION_CONFLICT', '資料の親記録情報が変更されました。');
+      }
+      kspAssert_(row.Status === KSP_PITCHBOOK_STATUS.PENDING || row.Status === KSP_PITCHBOOK_STATUS.FAILED ||
+        row.Status === KSP_PITCHBOOK_STATUS.ACTIVE,
+        'PITCHBOOK_COMPLETION_CONFLICT', '資料の状態が変更されました。');
       if (String(row.Status) === KSP_PITCHBOOK_STATUS.ACTIVE && row.File_ID) return row;
+      if (!parentId) {
+        var counterpartySheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.COUNTERPARTY_MASTER);
+        var optionSheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.OPTION_MASTER);
+        kspAssert_(counterpartySheet && optionSheet, 'PITCHBOOK_MASTER_UNAVAILABLE', 'マスターを確認できません。');
+        var catalog = kspBuildPitchbookCatalog_(
+          kspReadObjectsFromSheet_(counterpartySheet, kspReadHeadersFromSheet_(counterpartySheet)),
+          kspReadObjectsFromSheet_(optionSheet, kspReadHeadersFromSheet_(optionSheet))
+        );
+        kspRequirePitchbookCounterparty_({ counterpartyId: String(row.Counterparty_ID || '') }, catalog);
+        kspRequireCatalogItem_(catalog.assetClasses, String(row.Asset_Class_ID || ''),
+          'PITCHBOOK_ASSET_CLASS_UNAVAILABLE', '選択されたアセットクラスは利用できません。');
+        if (row.Capital_Type_ID) kspRequireCatalogItem_(catalog.capitalTypes, String(row.Capital_Type_ID),
+          'PITCHBOOK_CAPITAL_TYPE_UNAVAILABLE', '選択されたEquity / Debtは利用できません。');
+      }
       row.File_ID = fileInfo.id;
       row.File_URL = fileInfo.url || '';
       row.Status = KSP_PITCHBOOK_STATUS.ACTIVE;

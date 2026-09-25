@@ -130,7 +130,7 @@ async function captureCrossTabLayout(page,width,height,label){
     assert.equal(observation.pageVisible,true,label+' '+name+' active');
     assert.equal(observation.pageNonblank,true,label+' '+name+' nonblank');
     assert.ok(observation.overflowPx<=maxOverflow,label+' '+name+' overflow '+observation.overflowPx+'px');
-    assert.equal(observation.brand,'Private Assets Intelligence');
+    assert.equal(observation.brand,'Alternative Assets Intelligence');
     assert.equal(observation.brandChildren,1);
     assert.equal(observation.brandOverflow,false,label+' '+name+' brand overflow');
     assert.deepEqual(observation.forbidden,[],label+' '+name+' forbidden copy');
@@ -154,7 +154,7 @@ async function main(){
   try{
     await page.addInitScript(()=>{window.EyeDropper=class{async open(){return{sRGBHex:'#abcdef'}}};Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{window.__copiedHex=value}}})});
     await page.goto(url);await page.waitForFunction(()=>document.getElementById('meeting-submit').disabled===false);
-    assert.equal(await page.title(),'Private Assets Intelligence');assert.equal(page.url(),url);
+    assert.equal(await page.title(),'Alternative Assets Intelligence');assert.equal(page.url(),url);
     assert.equal(await page.locator('.nav button').count(),7);assert.equal(await page.locator('.nav button.active').count(),1);
     assert.equal(await page.locator('#nav-ai-provider-settings').innerText(),'管理者ページ');
     assert.equal(await page.locator('#page-knowledge').isVisible(),true);assert.equal(await page.locator('#knowledge-mode').inputValue(),'要約');checks.push('identity / nav7 / default Knowledge Search summary');

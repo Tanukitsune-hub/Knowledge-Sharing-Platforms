@@ -5,9 +5,9 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const BASIS = Object.freeze({
-  product: 'Private Assets Intelligence',
-  release: '0.1.2',
-  schema: 8,
+  product: 'Alternative Assets Intelligence',
+  release: '0.2.0',
+  schema: 9,
   sourceCommit: '4f092183d6f5804b79b5ef802c40b234aedd6131',
   bundleSha256: '8ef7c362af8c5da23c792cf20046c8b6f08a044f16fa5b71e3d40f7f46601c27',
   payloadSha256: '4f307fe4717c3190349f5d80ab0c01126ed39cd3f38c0f1b4ce41607163da690'
@@ -124,9 +124,9 @@ function balancedServerParts(sections) {
 
 function installationGuide() {
   const lines = [
-    '# Private Assets Intelligence 0.1.2 — 7ファイル導入手順',
+    '# Alternative Assets Intelligence 0.2.0 — 7ファイル導入手順',
     '',
-    'このpackageはaccepted single-file bundleと同じ内容の手動導入用代替artifactです。canonical sourceやruntime behaviorは変更していません。',
+    'このpackageは同じsource commitから生成したsingle-file bundleとbyte-identicalな手動導入用代替artifactです。',
     'release source commit: ' + BASIS.sourceCommit,
     'canonical bundle SHA-256: ' + BASIS.bundleSha256,
     '',

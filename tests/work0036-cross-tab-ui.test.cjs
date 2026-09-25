@@ -18,7 +18,7 @@ const styles = read('Styles.html');
 
 test('Equity and Debt remains hidden and preserved, not selectable in normal UI', () => {
   assert.match(index, /meeting-field-backend-only" hidden aria-hidden="true"><label for="meeting-capitalTypeId">Equity \/ Debt/);
-  assert.match(index, /meeting-field-backend-only" hidden aria-hidden="true"><label for="pitchbook-capitalTypeId">Equity \/ Debt/);
+  assert.match(index, /<div class="field" hidden aria-hidden="true"><label for="pitchbook-capitalTypeId">Equity \/ Debt/);
   assert.match(knowledge, /<div hidden>[\s\S]*id="knowledge-capitalTypeId"/);
   for (const id of ['meeting-past-capitalTypeId', 'meeting-edit-capitalTypeId', 'pitchbook-past-capitalTypeId', 'pitchbook-edit-capitalTypeId']) {
     assert.match(pages, new RegExp(`hidden aria-hidden="true"><label for="${id}">Equity \/ Debt`), id);

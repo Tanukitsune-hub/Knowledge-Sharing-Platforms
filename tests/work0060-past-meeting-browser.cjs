@@ -100,7 +100,7 @@ async function runViewport(browser, url, width, height) {
   try {
     await page.goto(url);
     assert.equal(page.url(), url);
-    assert.equal(await page.title(), 'Private Assets Intelligence');
+    assert.equal(await page.title(), 'Alternative Assets Intelligence');
     await page.locator('#nav-meeting-past').click();
     assert.equal(await page.locator('#page-meeting-past').isVisible(), true);
     assert.match(await page.locator('#page-meeting-past').innerText(), /過去の記録/);

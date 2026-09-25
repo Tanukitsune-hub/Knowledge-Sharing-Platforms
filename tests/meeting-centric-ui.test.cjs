@@ -66,8 +66,10 @@ test('parent-first flow passes authoritative binding and updates version before 
   });fileSetup(h);h.run("selectedPitchbookFiles.push({name:'Second.pdf',size:1,type:'application/pdf'})");
   await h.run('submitMeetingWithFiles({preventDefault(){}})');
   assert.equal(h.calls[0].name,'registerMeeting');assert.deepEqual(h.calls.filter(x=>x.name==='uploadPitchbookFile').map(x=>x.payload.expectedParentVersion),[1,2]);
-  assert.equal(h.run('pitchbookParent.version'),3);assert.equal(h.run('pitchbookSlots.length'),0);
-  await h.run('submitMeetingWithFiles({preventDefault(){}})');assert.equal(h.calls.filter(x=>x.name==='registerMeeting').length,1);
+  assert.equal(h.run('pitchbookParent'),null);assert.equal(h.run('pitchbookSlots.length'),0);
+  assert.equal(h.nodes.get('meeting-counterpartyId').value,'');
+  assert.equal(h.nodes.get('meeting-date').value,'2026-09-08','shared date survives successful save');
+  assert.equal(h.calls.filter(x=>x.name==='registerMeeting').length,1);
 });
 test('file-saved/link-failed retries only relation on same Document_ID without file selection',async()=>{
   let linked=false;

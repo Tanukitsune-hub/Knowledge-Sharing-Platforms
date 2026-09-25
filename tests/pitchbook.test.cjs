@@ -39,7 +39,7 @@ function makeEnv(options={}){
   getActor(){if(options.actorError)throw new Error('actor unavailable');return options.actor||'user@example.com';},
   readRows(id,sheet){return sheet==='Counterparty_Master'?gpRows:sheet==='Option_Master'?optionRows:rows.map(r=>({...r}));},
   reservePitchbookBatch(id,input,selected,totalBytes,actor,nowIso){
-   ksp.kspApplyPitchbookParentContext_(input,parent);
+   if(input.parentMeetingId)ksp.kspApplyPitchbookParentContext_(input,parent);
    const validation=ksp.kspValidatePitchbookBatchInput_(input,ksp.kspBuildPitchbookCatalog_(gpRows,optionRows));selected=validation.selected;totalBytes=validation.totalBytes;
    const max=rows.filter(r=>ksp.kspCanonicalPitchbookDateKey_(r.Date)===ksp.kspCanonicalPitchbookDateKey_(input.date)&&r.Counterparty_ID===input.counterpartyId&&r.Asset_Class_ID===input.assetClassId&&String(r.Capital_Type_ID||'')===input.capitalTypeId).reduce((m,r)=>Math.max(m,Number(r.Sequence_No)||0),0);
    const batchId=ksp.kspFormatBatchId_(batchCounter++);
@@ -64,7 +64,7 @@ function makeEnv(options={}){
  };return env;
 }
 async function prepare(env,input=batchInput()){return ksp.kspPreparePitchbookBatch_(env,input)}
-async function upload(env,slot,file={name:slot.originalFilename,bytes:Buffer.from('0123456789'),mime:slot.mimeType||'application/octet-stream'}){return ksp.kspUploadPitchbookFile_(env,{parentMeetingId:slot.parentMeetingId,expectedParentVersion:env._debug.parent?.Version,batchId:slot.batchId,documentId:slot.documentId,slotFingerprint:slot.slotFingerprint,originalFilename:file.name,sizeBytes:file.bytes.length,mimeType:file.mime,base64Data:file.bytes.toString('base64')})}
+async function upload(env,slot,file={name:slot.originalFilename,bytes:Buffer.from('0123456789'),mime:slot.mimeType||'application/octet-stream'}){return ksp.kspUploadPitchbookFile_(env,{parentMeetingId:slot.parentMeetingId,expectedParentVersion:slot.parentMeetingId?env._debug.parent?.Version:0,batchId:slot.batchId,documentId:slot.documentId,slotFingerprint:slot.slotFingerprint,originalFilename:file.name,sizeBytes:file.bytes.length,mimeType:file.mime,base64Data:file.bytes.toString('base64')})}
 
 test('publishes exact initial upload limits and allowed extensions',()=>{assert.equal(ksp.KSP_PITCHBOOK_LIMITS.FILE_BYTES,25*1024*1024);assert.equal(ksp.KSP_PITCHBOOK_LIMITS.FILE_COUNT,10);assert.equal(ksp.KSP_PITCHBOOK_LIMITS.TOTAL_BYTES,100*1024*1024);assert.deepEqual(Array.from(ksp.KSP_PITCHBOOK_ALLOWED_EXTENSIONS),['pdf','pptx','xlsx','docx','txt','eml']);});
 test('validates file count, size, total size, and extension',()=>{const catalog=ksp.kspBuildPitchbookCatalog_(gpRows,optionRows);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([])),catalog),/1つ以上/);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([{originalFilename:'x.pdf',sizeBytes:25*1024*1024+1}])),catalog),/25MB/);assert.throws(()=>ksp.kspValidatePitchbookBatchInput_(ksp.kspNormalizePitchbookBatchInput_(batchInput([{originalFilename:'x.exe',sizeBytes:1}])),catalog),/対応していない/);});
@@ -115,10 +115,24 @@ test('upload rejects a file whose actual size differs from its reserved descript
   assert.equal(env._debug.files.size,0);assert.equal(env._debug.rows[0].Status,'Pending');
 });
 
-test('parent missing/inactive/stale rejects prepare with zero file/index/link mutations',async()=>{
- for(const [opts,input,code] of [[{parent:null},batchInput(),'PITCHBOOK_PARENT_UNAVAILABLE'],[{parent:{Status:'Inactive'}},batchInput(),'PITCHBOOK_PARENT_UNAVAILABLE'],[{}, {...batchInput(),expectedParentVersion:9},'STALE_RECORD_VERSION'],[{}, {...batchInput(),parentMeetingId:''},'PITCHBOOK_PARENT_REQUIRED']]){
+test('parent missing/inactive/stale or malformed parentless request rejects before mutation',async()=>{
+ for(const [opts,input,code] of [[{parent:null},batchInput(),'PITCHBOOK_PARENT_UNAVAILABLE'],[{parent:{Status:'Inactive'}},batchInput(),'PITCHBOOK_PARENT_UNAVAILABLE'],[{}, {...batchInput(),expectedParentVersion:9},'STALE_RECORD_VERSION'],[{}, {...batchInput(),parentMeetingId:''},'PITCHBOOK_PARENT_CONFLICT'],[{}, {...batchInput(),parentMeetingId:'',expectedParentVersion:undefined},'PITCHBOOK_PARENT_CONFLICT']]){
   const env=makeEnv(opts);const result=await prepare(env,input);assert.equal(result.ok,false);assert.equal(result.error.code,code);assert.equal(env._debug.rows.length,0);assert.equal(env._debug.files.size,0);assert.equal(env._debug.parent?.Related_Pitchbook_IDs||'','');
  }
+});
+test('standalone Pitchbook uses existing DOC batch/upload path without Meeting relation',async()=>{
+ const env=makeEnv({parent:null});
+ const input={...batchInput(),parentMeetingId:'',expectedParentVersion:0};
+ const prepared=await prepare(env,input);
+ assert.equal(prepared.ok,true,JSON.stringify(prepared));
+ assert.equal(prepared.slots[0].parentVersion,0);
+ assert.equal(env._debug.rows[0].Parent_Meeting_ID,'');
+ const uploaded=await upload(env,prepared.slots[0]);
+ assert.equal(uploaded.ok,true,JSON.stringify(uploaded));
+ assert.equal(uploaded.fileSaved,true);assert.equal(uploaded.linkConfirmed,true);
+ assert.equal(uploaded.slot.parentMeetingId,'');assert.equal(uploaded.slot.parentVersion,0);
+ assert.equal(env._debug.rows[0].Status,'Active');
+ assert.equal(env._debug.files.size,1);
 });
 test('generic Counterparty is bound from the authoritative parent and legacy GP fields stay blank',async()=>{
  const env=makeEnv();

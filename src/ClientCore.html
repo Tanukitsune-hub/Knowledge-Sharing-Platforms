@@ -6,7 +6,7 @@ const KSP_MEETING_RETRY_KEY='ksp.meeting.retry.v1';
 const KSP_PITCHBOOK_SLOT_KEY='ksp.pitchbook.slots.v1';
 const KSP_DRAFT_TTL_MS=24*60*60*1000;
 const KSP_PITCHBOOK_LIMITS={fileBytes:25*1024*1024,fileCount:10,totalBytes:100*1024*1024};
-const KSP_ALLOWED_EXTENSIONS=['pdf','pptx','xlsx','docx','txt','eml'];
+let KSP_ALLOWED_EXTENSIONS=['pdf','pptx','xlsx','docx','txt','eml'];
 const SHARED_FIELDS=['date','assetClassId','capitalTypeId','fundStrategy'];
 const MEETING_FIELDS=['time','locationId','counterpartyId','teamId','counterparty','internalParticipants','followUpNote','notes'];
 let meetingRelatedPitchbookCatalog=[];
@@ -20,11 +20,14 @@ const pages={
   'ai-provider-settings':document.getElementById('page-ai-provider-settings'),
   'meeting-past':document.getElementById('page-meeting-past'),
   'pitchbook-past':document.getElementById('page-pitchbook-past'),
+  'news-past':document.getElementById('page-news-past'),
+  'assessment-past':document.getElementById('page-assessment-past'),
   masters:document.getElementById('page-masters')
 };
 let retryContext=null,meetingLoading=true,pitchbookLoading=true,selectedPitchbookFiles=[],pitchbookSlots=[];
+let pastSelectedTab='meeting';
 function el(id){return document.getElementById(id)}
-function showPage(name){if(name==='pitchbook'||name==='pitchbook-past'||name==='relationship-explorer')name='meeting-past';Object.keys(pages).forEach(key=>{if(pages[key])pages[key].classList.toggle('active',key===name);const button=el('nav-'+key);if(button)button.classList.toggle('active',key===name)});if(typeof window!=='undefined'&&typeof window.scrollTo==='function')window.scrollTo({top:0,behavior:'auto'})}
+function showPage(name){if(name==='pitchbook'||name==='relationship-explorer')name='meeting-past';if(name==='meeting-past')name=pastSelectedTab==='meeting'?'meeting-past':pastSelectedTab+'-past';else if(['pitchbook-past','news-past','assessment-past'].includes(name))pastSelectedTab=name.slice(0,-5);const pastPage=['meeting-past','pitchbook-past','news-past','assessment-past'].includes(name);Object.keys(pages).forEach(key=>{if(pages[key])pages[key].classList.toggle('active',key===name);const button=el('nav-'+key);if(button)button.classList.toggle('active',key===(pastPage?'meeting-past':name))});if(typeof window!=='undefined'&&typeof window.scrollTo==='function')window.scrollTo({top:0,behavior:'auto'})}
 function kspFocusHeading(heading){if(!heading||typeof heading.focus!=='function')return;heading.tabIndex=-1;heading.focus({preventScroll:true})}
 Object.keys(pages).forEach(name=>{const button=el('nav-'+name);if(button){button.onclick=()=>showPage(name);button.addEventListener('click',event=>{if(event.detail!==0)return;const activePage=Object.values(pages).find(page=>page&&page.classList.contains('active'));kspFocusHeading(activePage&&activePage.querySelector('h1,h2'))})}});
 function kspSafeDriveUrl(value){const candidate=String(value==null?'':value).trim();return /^https:\/\/(?:drive|docs)\.google\.com\//.test(candidate)?candidate:''}
@@ -58,18 +61,18 @@ function kspSetRegionBusy(region,busy){if(region)region.setAttribute('aria-busy'
 function safeGet(key){try{return localStorage.getItem(key)}catch(e){return null}}function safeSet(key,value){try{localStorage.setItem(key,value)}catch(e){}}function safeRemove(key){try{localStorage.removeItem(key)}catch(e){}}
 function readEnvelope(key){const raw=safeGet(key);if(!raw)return null;try{const env=JSON.parse(raw);if(!env||typeof env.savedAt!=='number'||Date.now()-env.savedAt>KSP_DRAFT_TTL_MS){safeRemove(key);return null}return env.data||null}catch(e){safeRemove(key);return null}}
 function writeEnvelope(key,data){safeSet(key,JSON.stringify({savedAt:Date.now(),data}))}
-function sharedId(page,field){return page+'-'+field}function getShared(page){const out={};SHARED_FIELDS.forEach(field=>out[field]=el(sharedId(page,field)).value);return out}
-function applyShared(values){if(!values)return;['meeting','pitchbook'].forEach(page=>SHARED_FIELDS.forEach(field=>{const node=el(sharedId(page,field));if(node&&values[field]!=null)node.value=String(values[field])}))}
-function syncShared(sourcePage){const values=getShared(sourcePage);applyShared(values);writeEnvelope(KSP_SHARED_DRAFT_KEY,values);clearRetryContext()}
+function sharedId(page,field){return page+'-'+field}function getShared(page){const out={};SHARED_FIELDS.forEach(field=>{const node=el(sharedId(page,field));if(node)out[field]=node.value});return out}
+function applyShared(values){if(!values)return;['meeting','pitchbook','news','assessment'].forEach(page=>SHARED_FIELDS.forEach(field=>{const node=el(sharedId(page,field));if(node&&values[field]!=null)node.value=String(values[field])}))}
+function syncShared(sourcePage){const values=getShared(sourcePage);applyShared(values)}
 function addOptions(id,options){const select=el(id);if(!select)return;const current=select.value;select.innerHTML='<option value="">未選択</option>';(options||[]).forEach(option=>{const node=document.createElement('option');node.value=option.id;node.textContent=option.name+(option.status==='Inactive'?'（Inactive）':'');select.appendChild(node)});if([...select.options].some(option=>option.value===current))select.value=current}
-function populateSharedOptions(options){['meeting','pitchbook'].forEach(page=>{addOptions(page+'-assetClassId',options.assetClasses);addOptions(page+'-capitalTypeId',options.capitalTypes)});if(Array.isArray(options.locations))addOptions('meeting-locationId',options.locations);if(Array.isArray(options.teams))addOptions('meeting-teamId',options.teams);if(Array.isArray(options.counterpartyEntities)){meetingCounterpartyEntities=options.counterpartyEntities;refreshMeetingCounterpartyEntities();addOptions('pitchbook-counterpartyId',options.counterpartyEntities)}if(Array.isArray(options.relatedPitchbooks)){meetingRelatedPitchbookCatalog=options.relatedPitchbooks;refreshMeetingRelatedPitchbooks()}}
+function populateSharedOptions(options){['meeting','pitchbook','news','assessment'].forEach(page=>{addOptions(page+'-assetClassId',options.assetClasses);addOptions(page+'-capitalTypeId',options.capitalTypes)});if(Array.isArray(options.locations))addOptions('meeting-locationId',options.locations);if(Array.isArray(options.teams))addOptions('meeting-teamId',options.teams);if(Array.isArray(options.counterpartyEntities)){meetingCounterpartyEntities=options.counterpartyEntities;refreshMeetingCounterpartyEntities();addOptions('pitchbook-counterpartyId',options.counterpartyEntities)}if(Array.isArray(options.relatedPitchbooks)){meetingRelatedPitchbookCatalog=options.relatedPitchbooks;refreshMeetingRelatedPitchbooks()}}
 function refreshMeetingCounterpartyEntities(preferred){const node=el('meeting-counterpartyId');if(!node)return;const selected=preferred===undefined?node.value:String(preferred||'');node.innerHTML='<option value="">未選択</option>';meetingCounterpartyEntities.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.name+'（'+(item.typeLabel||item.type)+'）'+(item.status==='Inactive'?'（Inactive）':'');node.appendChild(option)});if([...node.options].some(option=>option.value===selected))node.value=selected}
 function selectedOptionValues(id){const node=el(id);return node?[...node.options].filter(option=>option.selected).map(option=>option.value).filter(Boolean):[]}
 function setSelectedOptionValues(id,values){const selected=new Set((values||[]).map(String));const node=el(id);if(node)[...node.options].forEach(option=>option.selected=selected.has(option.value))}
 function meetingTypeValues(prefix){return[...document.querySelectorAll('[data-meeting-type="'+prefix+'"]:checked')].map(node=>node.value)}
 function setMeetingTypeValues(prefix,values){const selected=new Set((values||[]).map(String));document.querySelectorAll('[data-meeting-type="'+prefix+'"]').forEach(node=>node.checked=selected.has(node.value))}
 function refreshMeetingRelatedPitchbooks(previousSelection){const node=el('meeting-relatedPitchbookIds');if(!node)return;const selected=new Set((previousSelection||selectedOptionValues('meeting-relatedPitchbookIds')).map(String));const counterpartyId=el('meeting-counterpartyId').value,asset=el('meeting-assetClassId').value;const choices=meetingRelatedPitchbookCatalog.filter(item=>selected.has(item.id)||(item.status==='Active'&&item.counterpartyId===counterpartyId&&item.assetClassId===asset));node.innerHTML='';choices.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.date+' / '+item.id+' / '+item.title;option.selected=selected.has(item.id);node.appendChild(option)})}
-SHARED_FIELDS.forEach(field=>['meeting','pitchbook'].forEach(page=>el(sharedId(page,field)).addEventListener('change',()=>syncShared(page))));
+SHARED_FIELDS.forEach(field=>['meeting','pitchbook','news','assessment'].forEach(page=>{const node=el(sharedId(page,field));if(node){node.addEventListener('input',()=>syncShared(page));node.addEventListener('change',()=>syncShared(page))}}));
 el('meeting-counterpartyId').addEventListener('change',()=>{el('pitchbook-counterpartyId').value=el('meeting-counterpartyId').value;refreshMeetingRelatedPitchbooks([])});
 el('meeting-assetClassId').addEventListener('change',()=>refreshMeetingRelatedPitchbooks([]));
 function serverCall(name,payload){return new Promise((resolve,reject)=>{let runner=google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);runner[name](payload)})}
