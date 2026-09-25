@@ -20,7 +20,7 @@ Current as of: 2026-09-25
 面談メモ
 保存資料
 ニュース
-評価（IC、社内整理）
+評価（ICメモ、社内整理等）
 ~~~
 
 canonical source:
@@ -159,7 +159,7 @@ Current Full OutputはMeeting本文を中心にmaterializeし、Pitchbookはauth
 面談メモ
 保存資料
 ニュース
-評価（IC、社内整理）
+評価（ICメモ、社内整理等）
 ~~~
 
 canonical:
@@ -205,13 +205,13 @@ Top-level sidebarは引き続き:
 記録を追加 tabs:
 
 ~~~text
-面談メモ | 資料保存 | ニュース | 内部評価
+面談メモ | 資料保存 | ニュース | 評価（ICメモ、社内整理等）
 ~~~
 
 過去の記録 tabs:
 
 ~~~text
-面談メモ | 保存資料 | ニュース | 内部評価
+面談メモ | 保存資料 | ニュース | 評価（ICメモ、社内整理等）
 ~~~
 
 両pageのselected tab stateは連動させない。両方とも初期tabは面談メモを実装defaultとする。
@@ -241,7 +241,7 @@ Rules:
 - browser reload / new sessionを跨いでshared stateをsilent restoreしない。
 - in-flight retry / unknown-outcome / partial-upload recovery stateは安全機構として残す。
 
-クリア は4tabすべてに適用する。shared fieldsに加え、面談メモ・資料保存・ニュース・内部評価の未保存source-specific入力、選択済みファイル、通常の一時UI stateをまとめてclearする。in-flight retry / unknown-outcome / partial-upload recovery等の安全stateが残る場合は、既存と同様にclearを拒否して先に回復を要求し、重複・orphanを生まない。
+クリア は4tabすべてに適用する。shared fieldsに加え、面談メモ・資料保存・ニュース・評価（ICメモ、社内整理等）の未保存source-specific入力、選択済みファイル、通常の一時UI stateをまとめてclearする。in-flight retry / unknown-outcome / partial-upload recovery等の安全stateが残る場合は、既存と同様にclearを拒否して先に回復を要求し、重複・orphanを生まない。
 
 ### 5. Meeting内uploadとstandalone資料保存
 
@@ -311,9 +311,13 @@ Automatic crawl / RSS / News API ingestionはinitial Non-Goal。
 
 ### 8. Internal Assessment
 
-User-facing:
+User-facing labelは各surfaceで統一する。
 
-内部評価（Knowledge Search checkboxでは 評価（IC、社内整理））
+~~~text
+評価（ICメモ、社内整理等）
+~~~
+
+canonical Source Typeは Internal Assessment のまま維持する。
 
 対象はformal ICだけに限定しない。
 
@@ -365,7 +369,7 @@ UI:
 ☑ 面談メモ
 ☐ 保存資料
 ☐ ニュース
-☐ 評価（IC、社内整理）
+☐ 評価（ICメモ、社内整理等）
 ~~~
 
 defaultは毎回Meeting only。
@@ -390,7 +394,7 @@ Default answer structure:
 面談メモ
 保存資料
 ニュース
-評価（IC、社内整理）
+評価（ICメモ、社内整理等）
 横断整理
   - 一致
   - 相違 / 食い違い
@@ -584,12 +588,12 @@ Accepted default:
 
 Migration rule:
 
-- new installation: root `記録・資料` を作成し、その直下に `面談記録` / `保存資料` / `ニュース` / `内部評価（ICメモ、社内整理等）` を作成する。
+- new installation: root `記録・資料` を作成し、その直下に `面談記録` / `保存資料` / `ニュース` / `評価（ICメモ、社内整理等）` を作成する。
 - existing installation: stored `knowledgeRootFolderId` と各child folder IDをauthoritative identityとして使う。
 - existing rootのnameがlegacy exact `Private Assets Knowledge` の場合だけ、同じfolder IDをin-placeで `記録・資料` へrenameする。
 - existing `Meeting Records` は同じfolder IDのまま `面談記録` へrenameする。
 - existing `Pitchbooks` は同じfolder IDのまま `保存資料` へrenameする。
-- `ニュース` / `内部評価（ICメモ、社内整理等）` はnew source folderとしてroot直下へ追加する。
+- `ニュース` / `評価（ICメモ、社内整理等）` はnew source folderとしてroot直下へ追加する。
 - already target nameならno-op。
 - 利用者がrootまたはexisting childを別名へ手動rename済みなら、そのcustom nameを強制上書きしない。stored IDを維持し、必要ならwarningのみ。
 - renameのためにfolderを新規作成、移動、copy、source file再配置しない。
@@ -647,7 +651,7 @@ default proposal:
 ├─ 面談記録
 ├─ 保存資料
 ├─ ニュース
-└─ 内部評価（ICメモ、社内整理等）
+└─ 評価（ICメモ、社内整理等）
 
 ※ Knowledge Exportsはcurrent contractどおりauthoritative root外
 ~~~
@@ -708,7 +712,7 @@ Scope:
 1. schema9 migration
    - rename legacy root folder `Private Assets Knowledge` -> `記録・資料` in-place by stored ID
    - rename legacy child folders `Meeting Records` -> `面談記録`, `Pitchbooks` -> `保存資料` in-place by stored IDs
-   - create `ニュース` / `内部評価（ICメモ、社内整理等）` under the same root
+   - create `ニュース` / `評価（ICメモ、社内整理等）` under the same root
    - add News_Index
    - add Internal_Assessment_Index
    - add Drive folders
@@ -730,7 +734,7 @@ Scope:
    - 面談メモ
    - 資料保存
    - ニュース
-   - 内部評価
+   - 評価（ICメモ、社内整理等）
 
 5. registration state
    - initial clear
@@ -791,7 +795,7 @@ Acceptance Evidence:
 - schema8 -> schema9 isolated migration preserves old data and creates exactly the intended resources once
 - legacy `Private Assets Knowledge` root is renamed in-place with the same folder ID; no duplicate root
 - legacy `Meeting Records` / `Pitchbooks` child folders are renamed in-place with the same folder IDs
-- root direct children are `面談記録` / `保存資料` / `ニュース` / `内部評価（ICメモ、社内整理等）` for fresh/default installs
+- root direct children are `面談記録` / `保存資料` / `ニュース` / `評価（ICメモ、社内整理等）` for fresh/default installs
 - second setup run = idempotent
 - existing Meeting create/edit/past/attachment path PASS
 - existing Pitchbook stable IDs / Meeting relation PASS
@@ -830,7 +834,7 @@ Knowledge Searchの4-source checkboxをprovider-independent source scopeとし�
 Scope:
 
 1. source checkbox UI
-   - 面談メモ / 保存資料 / ニュース / 評価（IC、社内整理）
+   - 面談メモ / 保存資料 / ニュース / 評価（ICメモ、社内整理等）
    - initial Meeting only
    - multi-select / zero-selection blocked
    - no silent restore
@@ -1195,7 +1199,8 @@ DIGEST_POLICY: AUTOMATIC_HIDDEN_DERIVED_LAYER
 TEAM_OPERATING_MODEL: MULTI_USER_FIRST
 PRODUCT_TITLE: Alternative Assets Intelligence
 KNOWLEDGE_ROOT_DEFAULT_NAME: 記録・資料
-SOURCE_FOLDER_LAYOUT: 面談記録 / 保存資料 / ニュース / 内部評価（ICメモ、社内整理等）
+SOURCE_FOLDER_LAYOUT: 面談記録 / 保存資料 / ニュース / 評価（ICメモ、社内整理等）
+USER_FACING_ASSESSMENT_LABEL: 評価（ICメモ、社内整理等）
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 ~~~
