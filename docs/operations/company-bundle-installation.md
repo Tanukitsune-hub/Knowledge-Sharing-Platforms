@@ -1,6 +1,6 @@
-# Company installation of Private Assets Intelligence
+# Company installation of Alternative Assets Intelligence
 
-Current as of: 2026-09-24
+Current as of: 2026-09-25
 
 Status: Active company installation flow
 
@@ -9,7 +9,7 @@ Audience: non-specialist company administrator
 ## What you need
 
 ```text
-Private_Assets_Intelligence_KnowledgeShare_bundle_v0.1.2.txt（会社PCへ渡すテキスト版）
+release-manifest.jsonと同じreleaseから作成したKnowledgeShare.bundle.gsのテキスト版
 release-manifest.json or the release checksum page
 this installation guide
 permission to create files/folders in the target Shared Drive folder
@@ -24,7 +24,7 @@ Use only the bundle and release manifest from the same accepted release. Do not 
 
 ### 1. Create the host Spreadsheet
 
-In the Shared Drive folder where Private Assets Intelligence should be installed, create one new Google Spreadsheet.
+In the Shared Drive folder where Alternative Assets Intelligence should be installed, create one new Google Spreadsheet.
 
 Recommended name:
 
@@ -63,7 +63,7 @@ Confirm that the text-file bundle belongs to the same release/source commit as `
 Open the default code file, remove its sample content, and paste the complete contents of:
 
 ```text
-Private_Assets_Intelligence_KnowledgeShare_bundle_v0.1.2.txt
+KnowledgeShare.bundle.gsとbyte-identicalなrelease-matchedテキスト版
 ```
 
 The text file content is the exact generated `KnowledgeShare.bundle.gs` content.
@@ -76,7 +76,7 @@ checkKnowledgeShareReadiness
 confirmKnowledgeShareDeploymentSecurity
 ```
 
-Do not split the bundle into multiple files, edit generated sections, or replace only part of an older bundle.
+単一bundleを分割・編集したり、旧bundleの一部だけを置き換えたりしないでください。別途生成する`dist/company-multifile/` packageには、7-file用の導入手順とparity manifestがあります。
 
 ### 5. Run the installer
 
@@ -177,9 +177,11 @@ Share the Web App URL with approved internal users. Users do not need the bundle
 ```text
 Selected Shared Drive folder
 ├─ Private Assets Intelligence Control
-├─ Private Assets Knowledge
-│  ├─ Meeting Records
-│  └─ Pitchbooks
+├─ 記録・資料
+│  ├─ 面談記録
+│  ├─ 保存資料
+│  ├─ ニュース
+│  └─ 評価（ICメモ、社内整理等）
 ├─ Knowledge Exports
 ├─ Knowledge Platform Backend
 └─ Knowledge Platform Audit

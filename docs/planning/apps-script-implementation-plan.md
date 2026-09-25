@@ -2,7 +2,7 @@
 
 Work ID: 0003 (historical planning origin; active Work state belongs in handoffs and PRs)
 
-Current as of: 2026-09-18
+Current as of: 2026-09-25
 
 Status: Active under `docs/decisions/target-runtime-first-development.md`
 
@@ -22,7 +22,7 @@ ChatGPT and Gemini use independent File Search adapters. Full output uses one ca
 
 New Work implements the shortest coherent vertical slice in the production source path, executes it in the actual target runtime with isolated data/resources, and expands only after native readback.
 
-The current entity/storage baseline is schema8: one `Counterparty_Master`, generic `CP-*` identity, and GP only as `Counterparty_Type=GP`. Meeting and Material/Pitchbook normal flows use one Counterparty selector/identity; schema7 GP and non-GP option fields are migration compatibility only.
+現在のrecord-layer source targetはschema9で、`Counterparty_Master`、`Option_Master`、`Meeting_Index`、`Pitchbook_Index`、`News_Index`、`Internal_Assessment_Index`、`Settings`の7 sheetとする。Counterparty identityは汎用`CP-*`を維持し、GPは`Counterparty_Type=GP`とする。schema7のGP/non-GP option fieldはmigration互換として残す。NewsとInternal Assessmentの複数面談先はcanonical `Counterparty_IDs` listに保持する。Work0070 CODEX-01ではrepository sourceをdeterministicに検証し、isolated target-runtimeでのmigrationと永続化qualificationはCODEX-02に予定する。
 
 ## 2. Standard delivery flow
 

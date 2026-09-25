@@ -74,6 +74,21 @@ function createFakeEnvironment(options = {}) {
         if (sheet === 'Option_Master') return ['Option_ID','Type','Name','Sort_Order','Status','Created_At','Updated_At','Created_By','Updated_By'];
         if (sheet === 'Meeting_Index') return ['Meeting_ID','Date','Time','Location_ID','GP_ID','Asset_Class_ID','Capital_Type_ID','Counterparty','Internal_Participants','Doc_File_ID','Doc_URL','Saved_Filename','Status','Version','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs','Admin_Check_Completed','Admin_Check_Updated_At','Admin_Check_Updated_By','AI_Provider_State_JSON'];
         if (sheet === 'Pitchbook_Index') return ['Document_ID','Batch_ID','Date','GP_ID','Asset_Class_ID','Capital_Type_ID','Sequence_No','File_ID','File_URL','Original_Filename','Saved_Filename','Status','Created_At','Updated_At','Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At','AI_Content_Hash','AI_Last_Error','Fund_Strategy','AI_Provider_State_JSON','Parent_Meeting_ID','Counterparty_Type','Counterparty_ID','Related_GP_IDs'];
+        if (sheet === 'News_Index') return [
+          'News_ID','Published_Date','Publisher','Title','URL','Counterparty_IDs','Asset_Class_ID',
+          'Fund_Strategy','Input_Mode','Source_File_ID','Source_URL','Source_Mime_Type',
+          'Original_Filename','Saved_Filename','Status','Version','Created_At','Updated_At',
+          'Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At',
+          'AI_Content_Hash','AI_Last_Error','AI_Provider_State_JSON'
+        ];
+        if (sheet === 'Internal_Assessment_Index') return [
+          'Assessment_ID','Assessment_Date','Assessment_Type','Title','Counterparty_IDs',
+          'Asset_Class_ID','Fund_Strategy','Decision_Or_Action','Input_Mode','Source_File_ID',
+          'Source_URL','Source_Mime_Type','Original_Filename','Saved_Filename','Related_Meeting_IDs',
+          'Related_Document_IDs','Related_News_IDs','Status','Version','Created_At','Updated_At',
+          'Created_By','Updated_By','AI_Document_Name','AI_Index_Status','AI_Indexed_At',
+          'AI_Content_Hash','AI_Last_Error','AI_Provider_State_JSON'
+        ];
         if (sheet === 'Settings') return ['Key','Value','Description','Updated_At'];
       }
       if (id === 'audit' && sheet === 'Audit_Log') return ['Event_Timestamp','Actor','Action','Target_Type','Target_ID','Result','Changed_Fields','Before_Metadata_JSON','After_Metadata_JSON','Batch_ID','Error_Code','Error_Message','Search_Mode','Question_Or_Instruction','Date_From','Date_To','GP_Filter','Counterparty_Filter','Counterparty_Type_Filter','Asset_Class_Filter','Capital_Type_Filter','Source_Type_Filter','Model_ID','Cited_Source_IDs'];

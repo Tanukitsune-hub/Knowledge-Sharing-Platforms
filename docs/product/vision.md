@@ -1,12 +1,12 @@
 # Product Vision
 
-Current as of: 2026-09-18
+Current as of: 2026-09-25
 
 Status: Active
 
 ## Purpose
 
-プライベートアセット領域のMeeting recordsとPitchbook / source materialsを、利用者の入力負荷を抑えながら継続的に蓄積し、後から検索・修正・整理・要約・比較できる状態を作る。
+Alternative Assets Intelligenceは、面談メモ・保存資料・ニュース・評価（ICメモ、社内整理等）を、利用者の入力負荷を抑えながら継続的に蓄積し、後から検索・修正・整理・要約・比較できる状態を作る。
 
 Google Workspaceを正本・運用基盤とし、その上にOpenAI/Gemini File Searchを独立した再生成可能な検索レイヤーとして載せる。APIを使わない全文出力も同じ対象資料・指示・構造を使い、コピー、Google Docs、PDFへ安全に持ち出せる、シンプルで監査可能な業務ツールを目指す。
 
@@ -16,8 +16,8 @@ Google Workspaceを正本・運用基盤とし、その上にOpenAI/Gemini File 
 
 主要surface:
 
-1. `面談記録` — 新規登録 / 過去記録 / edit / lifecycle
-2. `Pitchbook` — 新規登録 / 過去資料 / edit / lifecycle
+1. `記録を追加` — 面談メモ / 資料保存 / ニュース / 評価（ICメモ、社内整理等）
+2. `過去の記録` — 4 source別の検索 / 詳細 / edit / lifecycle
 3. `面談先サマリー`
 4. `Activity Analytics`
 5. `Relationship Explorer`
@@ -107,19 +107,25 @@ YYYY-MM-DD_Counterparty_AssetClass_Equity-or-Debt_Sequence.ext
 
 Parent-bound material inherits the parent Meeting `Counterparty_ID`; standalone material selects one Counterparty directly.
 
+Standalone `資料保存`も既存の`DOC-`、`Pitchbook_Index`、upload/retry contractを使い、Meeting parentを必要としない。Meeting内の関連資料uploadは引き続き利用できる。
+
+## News and Internal Assessment
+
+ニュースは公開日、媒体、Title、1件以上の面談先を必須とし、評価（ICメモ、社内整理等）は評価日、Assessment Type、Title、1件以上の面談先を必須とする。いずれも直接入力のGoogle Doc、または共通upload形式の原本ファイルのどちらか一方を正本とする。`NEWS-`と`ASMT-`の独立したstable IDを使い、複数面談先は1つのIndex rowのcanonical `Counterparty_IDs`へ保持する。
+
+Assessment Typeは英語の固定codeと日本語表示名を分ける。通常のlifecycleはActive / Inactive / Reactivate。直接入力本文はGoogle Docで更新し、upload原本は初期Workでbytesを置き換えない。AI indexing/retrieval、Full Output 4-source化、Digest生成は別Workとする。
+
 ## Registration context and drafts
 
-Meeting and Pitchbook share browser state for:
+4つのAdd tabで共有する通常入力は:
 
 - Date
-- Counterparty
 - Asset Class
-- Equity / Debt
 - Fund / Strategy
 
 Counterparty Type is a master attribute. It may be shown as secondary text or used as a filter, but is not a required first selection.
 
-Registration success keeps shared values and clears page-specific values only. Text/selection draft persists for 24h in the same browser. File handles need not survive reload/tab close.
+通常入力はbrowser tab内のin-memory stateに留め、reloadや新sessionで24時間draftをsilent restoreしない。tab切替と保存成功ではshared fieldsを保持し、成功したtabのsource-specific入力だけをclearする。global `クリア`は4 tabの未保存入力とfile選択を消すが、retry / unknown-outcome / partial-uploadの未解決安全stateがあれば拒否する。
 
 ## Past records and corrections
 
@@ -162,20 +168,24 @@ Real department/entity names are not guessed as seeds.
 ## Authoritative storage
 
 ```text
-Private Assets Knowledge
-├─ Meeting Records
-└─ Pitchbooks
+記録・資料
+├─ 面談記録
+├─ 保存資料
+├─ ニュース
+└─ 評価（ICメモ、社内整理等）
 ```
 
 Keep source folders flat.
 
-Backend remains exactly five sheets:
+Backend schema9はexactly seven authoritative sheets:
 
 1. `Counterparty_Master`
 2. `Option_Master`
 3. `Meeting_Index`
 4. `Pitchbook_Index`
-5. `Settings`
+5. `News_Index`
+6. `Internal_Assessment_Index`
+7. `Settings`
 
 Schema evolution is append-only where practical. Audit remains a separate Restricted admin-only Spreadsheet.
 
@@ -385,15 +395,15 @@ The company may enable OpenAI, Gemini, both, or neither.
 → final production qualification
 ```
 
-## Future direction: source-aware knowledge expansion
+## Source-aware knowledge expansion
 
-将来のKnowledge Sourceとして、Meeting / Memo、Pitchbook、IC Memo、Newsを入口・provenance・AI出力で明確に区別しつつ、provider-neutralなretrieval基盤で横断検索できる方向を採る。
+4 sourceのauthoritative record layerをschema9で実装する。provider-neutralな4-source retrieval、source-separated AI出力、Full Output source parityとDigestは後続Workで扱う。
 
 詳細な方向性、Closed Conclusions、未確定のimplementation questionsは以下を参照する。
 
 `docs/product/source-aware-knowledge-expansion.md`
 
-この方向性は現行の5-sheet baselineやMeeting / Pitchbook中心の実装contractを直ちに変更しない。実装時は別Workでstorage/schema/security/migration/target-runtime evidenceを確定する。
+Work0070 CODEX-01はrepository sourceとdeterministic validationまでを対象とする。schema9 migrationと新source保存のtarget-runtime qualificationはplanned CODEX-02で実施する。
 
 
 ## Principles

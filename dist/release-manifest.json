@@ -1,31 +1,31 @@
 {
-  "product": "Private Assets Intelligence",
-  "release_version": "0.1.2",
-  "schema_version": 8,
-  "source_git_commit": "4f092183d6f5804b79b5ef802c40b234aedd6131",
+  "product": "Alternative Assets Intelligence",
+  "release_version": "0.2.0",
+  "schema_version": 9,
+  "source_git_commit": "25c6e62d601e6c2e7a4f3f8faf4629e8a2627904",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "4f307fe4717c3190349f5d80ab0c01126ed39cd3f38c0f1b4ce41607163da690",
-  "bundle_file_sha256": "8ef7c362af8c5da23c792cf20046c8b6f08a044f16fa5b71e3d40f7f46601c27",
+  "bundle_payload_sha256": "1c89c32a5ff641951f90cdb9f22609d608dd5e3e924ea245c9d77984a5a52c89",
+  "bundle_file_sha256": "3e31e792b1292af8b21d730e7ab2e07efcb7be74ee2f03de78daaa6f99635f88",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
-  "source_order_sha256": "ce4aafc9b472432bcb8963308664f8c7acba0db7eed73e87ab5ce0bbd2d61ee5",
+  "source_order_sha256": "1d04e4b03bf18a4268a8f91669aa9031abf33f03f6a4d8936500f59cbdeeba8a",
   "bundle_metrics": {
-    "bytes": 1300179,
-    "characters": 1253970,
-    "lines": 19708,
-    "server_source_count": 63,
-    "embedded_html_count": 23
+    "bytes": 1410098,
+    "characters": 1357405,
+    "lines": 20756,
+    "server_source_count": 67,
+    "embedded_html_count": 24
   },
   "server_sources": [
     {
       "file": "src/00_Core.gs",
-      "bytes": 30360,
-      "sha256": "c25faafafde1d401699af2f153be3a402321e4bb324b7621b5e1e0374659f39f"
+      "bytes": 35635,
+      "sha256": "5073b27ca7faa9853f085927eb0d418b7fb98acbe4c6ae1dbe6fae8785431eee"
     },
     {
       "file": "src/01_DistributionResources.gs",
-      "bytes": 1462,
-      "sha256": "7ba73a7d93cfff6871591a1d881566d549245336e52e42a62a1e787920121ebe"
+      "bytes": 1466,
+      "sha256": "f278b228f4c2e09990982ba53cccfbab4ae0c729c00dfd7e6ff6b5e3e17f85b6"
     },
     {
       "file": "src/05_TemporalContracts.gs",
@@ -39,8 +39,8 @@
     },
     {
       "file": "src/10_Setup.gs",
-      "bytes": 18899,
-      "sha256": "c66a3e871e2ce9cb540201d381eca18ae09031f3465c6d1cab9cdc5f3dda9a4e"
+      "bytes": 21347,
+      "sha256": "276bd081cb9db8493581fd37c9b764cf0342af18769774c166f308c33af038c2"
     },
     {
       "file": "src/15_Installer.gs",
@@ -49,8 +49,8 @@
     },
     {
       "file": "src/20_LiveEnvironment.gs",
-      "bytes": 18086,
-      "sha256": "e6beb6bfd032a4b1111ea191d8b24b194d1123337516a06125729f0560cb911a"
+      "bytes": 18425,
+      "sha256": "87c166bd49aa0e265ccb3933d6570d269613c21a191b8765ba0862addb3f42d2"
     },
     {
       "file": "src/21_BackendBackup.gs",
@@ -79,13 +79,13 @@
     },
     {
       "file": "src/60_PitchbookConstants.gs",
-      "bytes": 661,
-      "sha256": "b6df301b69bb7a6ac564f405e415c4b6a1f95462aaba8a8a31be18f552d4e193"
+      "bytes": 2737,
+      "sha256": "ce765d8cbc261cb7ca215f81317ae1df6bdf3dfa63550eb157efd3764f67c89d"
     },
     {
       "file": "src/61_PitchbookValidation.gs",
-      "bytes": 8257,
-      "sha256": "07dcab6beb9c3bbf72b730091a6e061b9ed026ec64079a074204ca3437f5f900"
+      "bytes": 8315,
+      "sha256": "971afdc641d1d6b7415b587303a70dcaacd9d9ccc175e284066a3ff98b63f9a6"
     },
     {
       "file": "src/62_PitchbookIdentity.gs",
@@ -99,13 +99,13 @@
     },
     {
       "file": "src/70_PitchbookPrepareService.gs",
-      "bytes": 2707,
-      "sha256": "805dac149a559d258b7e43d1b3149b021c3df56d0ec05b87a18c2fa12cfb36f6"
+      "bytes": 2932,
+      "sha256": "ed808eaccee10d5fef4b7c000e67c59260934a8b2486cc9271b7852c78dd639f"
     },
     {
       "file": "src/71_PitchbookUploadService.gs",
-      "bytes": 7832,
-      "sha256": "fbd58aba3d3356c3eaa9b761eade6b0c1f5ae7ac9aed333141cb160b08dccabf"
+      "bytes": 8350,
+      "sha256": "9789d567f30d524caad967c153fc87f7a7fdf9f073056fa45671790c7ff02fc3"
     },
     {
       "file": "src/72_PitchbookContext.gs",
@@ -124,8 +124,8 @@
     },
     {
       "file": "src/81_PitchbookReservationAdapters.gs",
-      "bytes": 15265,
-      "sha256": "bf73eb224964e8a231950cce4205de10bb3f6f0b8555621c2be512908ad62b77"
+      "bytes": 15497,
+      "sha256": "2312d904be3384553f529e19cb61b481e41a3b5cfe75aa99817e64647a4817cf"
     },
     {
       "file": "src/82_PitchbookClaimAdapters.gs",
@@ -139,13 +139,33 @@
     },
     {
       "file": "src/84_PitchbookIndexAdapters.gs",
-      "bytes": 5237,
-      "sha256": "4b9b963051c111cbc8796a9b6d1c0cbd6209231fb31c8b41754323c28eced51c"
+      "bytes": 6737,
+      "sha256": "a93b645ef4afc80f06ad1bb1daaa90fcd6f03ab345e7179e6ea16c1f9200ac4c"
+    },
+    {
+      "file": "src/85_SourceRecordCore.gs",
+      "bytes": 12362,
+      "sha256": "f400fd32e3c1a6f4f1b1f7986a3daadbfffcedc6174bcb1ef294f523e0679e48"
+    },
+    {
+      "file": "src/86_SourceRecordService.gs",
+      "bytes": 5894,
+      "sha256": "cedc0dec0fc9e70cb050e9467093004769a3a43eb503b9be2d5dbefb1e2779df"
+    },
+    {
+      "file": "src/87_SourceRecordLiveEnvironment.gs",
+      "bytes": 15549,
+      "sha256": "f7ad28f823725c2dd4ec90ee1fd4f9effbec9aa308b2ceaef18f1f53fa9aa4db"
+    },
+    {
+      "file": "src/88_SourceRecordMaintenance.gs",
+      "bytes": 13188,
+      "sha256": "d1abc9c067976db13b4c68ec6a94e24221272539b2c23ecd9e6f9e883b0cba7c"
     },
     {
       "file": "src/90_WebApp.gs",
-      "bytes": 4137,
-      "sha256": "69fbf59718a0d248378f2f28226b40ff90759e36729c3cf0af53260221eaf5f2"
+      "bytes": 5632,
+      "sha256": "ac24413dc5e9218505013425cca531be790bf61b00d46f8b739369d7ca1a6714"
     },
     {
       "file": "src/99_EntryPoints.gs",
@@ -341,8 +361,8 @@
     },
     {
       "file": "src/AiProviderSettingsPage.html",
-      "bytes": 13940,
-      "sha256": "1c8f2571eeaed3b36e510bd3478729cce513bd48e18b0bf7b1da3b48dc5707c3"
+      "bytes": 14252,
+      "sha256": "f66348f0da8fd9f80fbfe96f707343c564f046c92ebae70afbcd47d7c6d52f6f"
     },
     {
       "file": "src/ClientActivityAnalytics.html",
@@ -351,18 +371,18 @@
     },
     {
       "file": "src/ClientAiProviderSettings.html",
-      "bytes": 18685,
-      "sha256": "0de3642406d39289ed5df68fa58dd2388507052d0ae7d62eb880656a4057d5ef"
+      "bytes": 20343,
+      "sha256": "73be9a792cfedbe3e48289b167064f74a7789105cbc9d89c748a4f3e6cef786c"
     },
     {
       "file": "src/ClientBootstrap.html",
-      "bytes": 2515,
-      "sha256": "a6d73b0bc1326295dfd3a99ef07491892f68fcd850981a97d6e23fac5db40038"
+      "bytes": 2550,
+      "sha256": "e173ad8fde4ac7aed39e95b0d3c83803d6cae8c6e327fd050deae04e947ff18e"
     },
     {
       "file": "src/ClientCore.html",
-      "bytes": 11399,
-      "sha256": "d5da2edef723dff2451c76f9f7b05f5b0b9892b660f0eed872cf964db3af08b1"
+      "bytes": 11954,
+      "sha256": "18ef5e70a308949f5ebfdf33682b365095b6c1aee8247a59223fccc580100afa"
     },
     {
       "file": "src/ClientDateControls.html",
@@ -386,23 +406,28 @@
     },
     {
       "file": "src/ClientMaintenanceEnhancements.html",
-      "bytes": 23301,
-      "sha256": "229ccbf8e48c83ca88f5a9a21aecab9c229ef00fc83d5a5466bf3511c0af5ba9"
+      "bytes": 23281,
+      "sha256": "3c907c1f003402645c673dc0465b221138965f3a4adee4e5cf82ed65eda00b9f"
     },
     {
       "file": "src/ClientPitchbookFiles.html",
-      "bytes": 6344,
-      "sha256": "de625cec94a3581b257a59767885cbf5c3367a827d28ffaa0c297c30dbb4e432"
+      "bytes": 6876,
+      "sha256": "2f406f58df59bd75973f98d8fe8155ad9289d49dc7526b4e79e649521d4fa862"
     },
     {
       "file": "src/ClientPitchbookFlow.html",
-      "bytes": 9154,
-      "sha256": "814c291232c1f47f2076cb38324e0e53782c2ca28e9979ae73c7a9710a5782c5"
+      "bytes": 9795,
+      "sha256": "71c267ff49af4798a9fd0d805989b3a0e34b84c9dbaa06291e124700b437730e"
     },
     {
       "file": "src/ClientRelationshipExplorer.html",
       "bytes": 12061,
       "sha256": "657cc4d0b39dd51fcd8f5d3ab5b7ad708ef980ae06f964a1f4cac4bd9d4b6085"
+    },
+    {
+      "file": "src/ClientSourceRecords.html",
+      "bytes": 24487,
+      "sha256": "18edfe2173df79a8a9f9cdfd6f3592f686fcf9717f0dccc5586adb1dd87b612d"
     },
     {
       "file": "src/ClientThemeSettings.html",
@@ -421,13 +446,13 @@
     },
     {
       "file": "src/Index.html",
-      "bytes": 24998,
-      "sha256": "77204e50c2d650e25f7fa01d9c0f114e81cb40776ead6bc6397b4e027730239f"
+      "bytes": 30986,
+      "sha256": "119633f9e625d5fe515cd63244d4d1db5dde2db300dad858ab83529288943a5a"
     },
     {
       "file": "src/KnowledgeSearch.html",
-      "bytes": 901,
-      "sha256": "a970dbe7e32af55e932a188ea0b2af4a4d1ed6dd1ddb7410fe7ea9e9e01c997f"
+      "bytes": 905,
+      "sha256": "455cb08b7b0be95cc9330cc7777097edc68992d74c9eb7ca88be7b57d895a5d9"
     },
     {
       "file": "src/KnowledgeSearchPage.html",
@@ -436,8 +461,8 @@
     },
     {
       "file": "src/MaintenancePages.html",
-      "bytes": 16606,
-      "sha256": "eedf00c8685d54dc8bd61adfe25082fb0df70cc94743a682567276e331d61f18"
+      "bytes": 27879,
+      "sha256": "ca5056640375b44fb74e8681fe606fe97c4fec2c18dc5090f769f1fa4bd29078"
     },
     {
       "file": "src/RelationshipExplorerPage.html",
@@ -446,8 +471,8 @@
     },
     {
       "file": "src/Styles.html",
-      "bytes": 61274,
-      "sha256": "0d9f0fe8fa38c720bb959c6f5189a2bb4c74f9362228ca502256cf071de14fa8"
+      "bytes": 62755,
+      "sha256": "e09113347270cad01140283f7212c7680fd9be618a8f52b1e8914f0de288dfb5"
     }
   ]
 }

@@ -44,6 +44,7 @@ function createFakeEnvironment(options = {}) {
   const children = new Map();
   const spreadsheets = new Map();
   const triggers = (options.triggers || []).map((trigger) => ({ ...trigger }));
+  const renames = [];
 
   function childKey(parentId, name, mimeType) {
     return `${parentId}::${name}::${mimeType}`;
@@ -97,6 +98,17 @@ function createFakeEnvironment(options = {}) {
         parents: [parentId]
       };
       addResource(resource);
+      return { ...resource };
+    },
+    renameResource(id, name) {
+      const resource = resources.get(id);
+      if (!resource) throw new Error(`Resource not found: ${id}`);
+      const previousKey = childKey(resource.parents[0], resource.name, resource.mimeType);
+      children.set(previousKey, (children.get(previousKey) || []).filter((candidate) => candidate !== id));
+      resource.name = name;
+      const nextKey = childKey(resource.parents[0], resource.name, resource.mimeType);
+      children.set(nextKey, [...(children.get(nextKey) || []), id]);
+      renames.push({ id, name });
       return { ...resource };
     },
     createSpreadsheet(parentId, name) {
@@ -240,6 +252,7 @@ function createFakeEnvironment(options = {}) {
       resources,
       spreadsheets,
       triggers,
+      renames,
       addResource
     }
   };
@@ -285,10 +298,11 @@ test('returns a safe bootstrap template without credentials', () => {
   assert.equal(Object.hasOwn(template, 'apiKey'), false);
 });
 
-test('defines exactly five baseline backend sheets', () => {
+test('defines exactly seven schema9 backend sheets and source-specific columns', () => {
   const schemas = ksp.kspGetBackendSchemas_();
   assert.deepEqual(Object.keys(schemas).sort(), [
-    'Counterparty_Master', 'Meeting_Index', 'Option_Master', 'Pitchbook_Index', 'Settings'
+    'Counterparty_Master', 'Internal_Assessment_Index', 'Meeting_Index',
+    'News_Index', 'Option_Master', 'Pitchbook_Index', 'Settings'
   ]);
   assert.deepEqual(Array.from(schemas.Counterparty_Master), [
     'Counterparty_ID', 'Counterparty_Name', 'Counterparty_Type', 'Status',
@@ -299,6 +313,23 @@ test('defines exactly five baseline backend sheets', () => {
   assert.ok(schemas.Pitchbook_Index.includes('Original_Filename'));
   assert.deepEqual(Array.from(schemas.Meeting_Index.slice(-13)), ['Team_ID','Fund_Strategy','Meeting_Type_Codes','Related_Pitchbook_IDs','Follow_Up_Required','Follow_Up_Note','Counterparty_Type','Counterparty_ID','Related_GP_IDs','Admin_Check_Completed','Admin_Check_Updated_At','Admin_Check_Updated_By','AI_Provider_State_JSON']);
   assert.deepEqual(Array.from(schemas.Pitchbook_Index.slice(-5)), ['AI_Provider_State_JSON','Parent_Meeting_ID','Counterparty_Type','Counterparty_ID','Related_GP_IDs']);
+  assert.deepEqual(Array.from(schemas.News_Index), [
+    'News_ID', 'Published_Date', 'Publisher', 'Title', 'URL', 'Counterparty_IDs',
+    'Asset_Class_ID', 'Fund_Strategy', 'Input_Mode', 'Source_File_ID', 'Source_URL',
+    'Source_Mime_Type', 'Original_Filename', 'Saved_Filename', 'Status', 'Version',
+    'Created_At', 'Updated_At', 'Created_By', 'Updated_By', 'AI_Document_Name',
+    'AI_Index_Status', 'AI_Indexed_At', 'AI_Content_Hash', 'AI_Last_Error',
+    'AI_Provider_State_JSON'
+  ]);
+  assert.deepEqual(Array.from(schemas.Internal_Assessment_Index), [
+    'Assessment_ID', 'Assessment_Date', 'Assessment_Type', 'Title', 'Counterparty_IDs',
+    'Asset_Class_ID', 'Fund_Strategy', 'Decision_Or_Action', 'Input_Mode',
+    'Source_File_ID', 'Source_URL', 'Source_Mime_Type', 'Original_Filename',
+    'Saved_Filename', 'Related_Meeting_IDs', 'Related_Document_IDs',
+    'Related_News_IDs', 'Status', 'Version', 'Created_At', 'Updated_At',
+    'Created_By', 'Updated_By', 'AI_Document_Name', 'AI_Index_Status',
+    'AI_Indexed_At', 'AI_Content_Hash', 'AI_Last_Error', 'AI_Provider_State_JSON'
+  ]);
 });
 
 test('defines a separate audit log schema', () => {
@@ -426,6 +457,178 @@ function bootstrap() {
   });
 }
 
+function schema8Installation(folderNames = {}) {
+  const folderMime = 'application/vnd.google-apps.folder';
+  const spreadsheetMime = 'application/vnd.google-apps.spreadsheet';
+  const resources = {
+    knowledgeRootFolderId: 'legacy-root',
+    meetingRecordsFolderId: 'legacy-meetings',
+    pitchbooksFolderId: 'legacy-pitchbooks',
+    knowledgeExportsFolderId: 'legacy-exports',
+    backupFolderId: 'legacy-backup',
+    backendSpreadsheetId: 'backend',
+    auditSpreadsheetId: 'audit'
+  };
+  const config = JSON.parse(bootstrap());
+  const state = { schemaVersion: 8, releaseVersion: '0.1.2', config, resources,
+    updatedAt: '2026-08-15T00:00:00.000Z' };
+  const env = createFakeEnvironment({
+    properties: { KSP_INSTALLATION_STATE_JSON: JSON.stringify(state) },
+    resources: [
+      { id: resources.knowledgeRootFolderId, name: folderNames.root || 'Private Assets Knowledge',
+        mimeType: folderMime, parents: ['knowledge-parent'] },
+      { id: resources.meetingRecordsFolderId, name: folderNames.meetings || 'Meeting Records',
+        mimeType: folderMime, parents: [resources.knowledgeRootFolderId] },
+      { id: resources.pitchbooksFolderId, name: folderNames.pitchbooks || 'Pitchbooks',
+        mimeType: folderMime, parents: [resources.knowledgeRootFolderId] },
+      { id: resources.knowledgeExportsFolderId, name: 'Knowledge Exports',
+        mimeType: folderMime, parents: ['knowledge-parent'] },
+      { id: resources.backupFolderId, name: 'Knowledge Platform Backups',
+        mimeType: folderMime, parents: ['control-folder'] },
+      { id: resources.backendSpreadsheetId, name: 'Knowledge Platform Backend',
+        mimeType: spreadsheetMime, parents: ['control-folder'] },
+      { id: resources.auditSpreadsheetId, name: 'Knowledge Platform Audit',
+        mimeType: spreadsheetMime, parents: ['control-folder'] }
+    ]
+  });
+  const backend = env._debug.spreadsheets.get(resources.backendSpreadsheetId);
+  const schemas = ksp.kspGetBackendSchemas_();
+  for (const name of ['Counterparty_Master', 'Option_Master', 'Meeting_Index', 'Pitchbook_Index', 'Settings'])
+    env.ensureSheet(resources.backendSpreadsheetId, name, Array.from(schemas[name]));
+  env.ensureSheet(resources.auditSpreadsheetId, 'Audit_Log', Array.from(ksp.kspGetAuditSchema_().Audit_Log));
+  const counterparty = ksp.kspBuildCounterpartySeedRows_('2026-08-01T00:00:00.000Z')[0];
+  backend.sheets.get('Counterparty_Master').rows.push(counterparty);
+  const meeting = { Meeting_ID: 'MTG-000321', Date: new Date('2026-08-15T15:00:00.000Z'),
+    Counterparty_Type: 'GP', Counterparty_ID: counterparty.Counterparty_ID,
+    Doc_File_ID: 'existing-meeting-doc', Related_Pitchbook_IDs: 'DOC-000654',
+    Version: 7, Status: 'Active', AI_Index_Status: 'Indexed' };
+  const pitchbook = { Document_ID: 'DOC-000654', Date: '2026-08-16',
+    Counterparty_Type: 'GP', Counterparty_ID: counterparty.Counterparty_ID,
+    Parent_Meeting_ID: meeting.Meeting_ID, File_ID: 'existing-pitchbook-file',
+    Status: 'Active', AI_Index_Status: 'Indexed' };
+  backend.sheets.get('Meeting_Index').rows.push(meeting);
+  backend.sheets.get('Pitchbook_Index').rows.push(pitchbook);
+  backend.sheets.get('Settings').rows.push(
+    { Key: 'SCHEMA_VERSION', Value: '8' },
+    { Key: 'NEXT_MEETING_ID', Value: '400' },
+    { Key: 'NEXT_DOCUMENT_ID', Value: '700' },
+    { Key: 'NEXT_BATCH_ID', Value: '80' },
+    { Key: 'OPENAI_ENABLED', Value: 'true' },
+    { Key: 'OPENAI_VECTOR_STORE_ID', Value: 'synthetic-store' }
+  );
+  return { env, resources, backend, meeting, pitchbook };
+}
+
+test('schema8 installation migrates in place to seven sheets and preserves IDs, rows and stored resources', () => {
+  const { env, resources, backend, meeting, pitchbook } = schema8Installation();
+  const meetingBefore = { ...meeting }, pitchbookBefore = { ...pitchbook };
+  assert.equal(backend.sheets.size, 5);
+  const first = ksp.kspRunSetup_(env);
+  assert.equal(first.ok, true, JSON.stringify(first.errors));
+  assert.equal(backend.sheets.size, 7);
+  assert.deepEqual([...backend.sheets.keys()].sort(), Object.keys(ksp.kspGetBackendSchemas_()).sort());
+  assert.deepEqual(backend.sheets.get('News_Index').headers, Array.from(ksp.kspGetBackendSchemas_().News_Index));
+  assert.deepEqual(backend.sheets.get('Internal_Assessment_Index').headers,
+    Array.from(ksp.kspGetBackendSchemas_().Internal_Assessment_Index));
+  assert.equal(backend.sheets.get('Meeting_Index').rows[0], meeting);
+  assert.equal(backend.sheets.get('Pitchbook_Index').rows[0], pitchbook);
+  assert.deepEqual(meeting, meetingBefore);
+  assert.deepEqual(pitchbook, pitchbookBefore);
+  const migratedState = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
+  assert.equal(migratedState.schemaVersion, 9);
+  for (const [key, id] of Object.entries(resources)) assert.equal(migratedState.resources[key], id);
+  const settings = backend.sheets.get('Settings').rows;
+  for (const [key, expected] of Object.entries({ SCHEMA_VERSION: '9', NEXT_MEETING_ID: '400',
+    NEXT_DOCUMENT_ID: '700', NEXT_BATCH_ID: '80', NEXT_NEWS_ID: '1', NEXT_ASSESSMENT_ID: '1',
+    OPENAI_ENABLED: 'true', OPENAI_VECTOR_STORE_ID: 'synthetic-store' }))
+    assert.equal(settings.find(row => row.Key === key).Value, expected, key);
+  assert.deepEqual(env._debug.renames, [
+    { id: resources.knowledgeRootFolderId, name: '記録・資料' },
+    { id: resources.meetingRecordsFolderId, name: '面談記録' },
+    { id: resources.pitchbooksFolderId, name: '保存資料' }
+  ]);
+  assert.equal(first.actions.filter(action => action.category === 'migration' && action.action === 'renamed').length, 3);
+  for (const [key, name] of [['newsFolderId', 'ニュース'],
+    ['internalAssessmentsFolderId', '評価（ICメモ、社内整理等）']]) {
+    const folder = env._debug.resources.get(migratedState.resources[key]);
+    assert.equal(folder.name, name);
+    assert.deepEqual(folder.parents, [resources.knowledgeRootFolderId]);
+  }
+  assert.deepEqual(env._debug.resources.get(resources.knowledgeExportsFolderId).parents, ['knowledge-parent']);
+  assert.equal(ksp.kspRunValidation_(env).ok, true);
+
+  const second = ksp.kspRunSetup_(env);
+  assert.equal(second.ok, true, JSON.stringify(second.errors));
+  assert.equal(second.actions.filter(action => action.category === 'migration' && action.action === 'renamed').length, 0);
+  assert.equal(second.actions.filter(action => action.category === 'resource' && action.action === 'created').length, 0);
+  assert.equal(second.actions.filter(action => action.category === 'schema' && action.action === 'created').length, 0);
+  assert.equal(env._debug.resources.size, 9);
+  assert.equal(backend.sheets.size, 7);
+  assert.equal(backend.sheets.get('Meeting_Index').rows[0], meeting);
+  assert.equal(backend.sheets.get('Pitchbook_Index').rows[0], pitchbook);
+  assert.deepEqual(meeting, meetingBefore);
+  assert.deepEqual(pitchbook, pitchbookBefore);
+  assert.equal(settings.find(row => row.Key === 'NEXT_MEETING_ID').Value, '400');
+  assert.equal(settings.find(row => row.Key === 'NEXT_DOCUMENT_ID').Value, '700');
+});
+
+test('schema8 migration preserves manually customized folder names and stored IDs', () => {
+  const custom = { root: 'Team Knowledge', meetings: 'Team Interviews', pitchbooks: 'Team Materials' };
+  const { env, resources } = schema8Installation(custom);
+  const result = ksp.kspRunSetup_(env);
+  assert.equal(result.ok, true, JSON.stringify(result.errors));
+  assert.deepEqual(env._debug.renames, []);
+  for (const [key, name] of [['knowledgeRootFolderId', custom.root],
+    ['meetingRecordsFolderId', custom.meetings], ['pitchbooksFolderId', custom.pitchbooks]])
+    assert.equal(env._debug.resources.get(resources[key]).name, name);
+  assert.equal(result.warnings.filter(warning => warning.code === 'STORED_RESOURCE_RENAMED').length, 3);
+  assert.equal(env._debug.resources.get(result.resources.newsFolderId).parents[0], resources.knowledgeRootFolderId);
+  assert.equal(env._debug.resources.get(result.resources.internalAssessmentsFolderId).parents[0], resources.knowledgeRootFolderId);
+});
+
+test('legacy name without stored ID and in-place rename conflict fail before duplicate creation', () => {
+  const folderMime = 'application/vnd.google-apps.folder';
+  const orphan = createFakeEnvironment({ properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() },
+    resources: [{ id: 'orphan', name: 'Private Assets Knowledge', mimeType: folderMime,
+      parents: ['knowledge-parent'] }] });
+  const orphanResult = ksp.kspRunSetup_(orphan);
+  assert.equal(orphanResult.ok, false);
+  assert.equal(orphanResult.errors[0].code, 'LEGACY_RESOURCE_ID_REQUIRED');
+  assert.equal(orphan._debug.resources.size, 1);
+  assert.deepEqual(orphan._debug.renames, []);
+
+  const { env } = schema8Installation();
+  env._debug.addResource({ id: 'conflicting-root', name: '記録・資料', mimeType: folderMime,
+    parents: ['knowledge-parent'] });
+  const conflict = ksp.kspRunSetup_(env);
+  assert.equal(conflict.ok, false);
+  assert.equal(conflict.errors[0].code, 'RESOURCE_RENAME_CONFLICT');
+  assert.deepEqual(env._debug.renames, []);
+});
+
+test('live rename adapter updates only the stored Drive resource name in place', () => {
+  const originalProperties = ksp.PropertiesService;
+  const originalDrive = ksp.Drive;
+  const calls = [];
+  ksp.PropertiesService = { getScriptProperties: () => ({}) };
+  ksp.Drive = { Files: { update(body, id, media, options) {
+    calls.push({ body, id, media, options });
+    return { id, name: body.name, mimeType: 'application/vnd.google-apps.folder',
+      parents: ['knowledge-parent'] };
+  } } };
+  try {
+    const result = ksp.kspCreateAppsScriptEnvironment_().renameResource('stored-root', '記録・資料');
+    assert.equal(result.id, 'stored-root');
+    assert.equal(result.name, '記録・資料');
+    assert.deepEqual(Array.from(result.parents), ['knowledge-parent']);
+    assert.deepEqual(JSON.parse(JSON.stringify(calls)), [{ body: { name: '記録・資料' }, id: 'stored-root', media: null,
+      options: { supportsAllDrives: true, fields: 'id,name,mimeType,parents' } }]);
+  } finally {
+    ksp.PropertiesService = originalProperties;
+    ksp.Drive = originalDrive;
+  }
+});
+
 test('first setup creates resources, schemas, seeds, settings, and state', () => {
   const env = createFakeEnvironment({
     properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() }
@@ -434,7 +637,7 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   const report = ksp.kspRunSetup_(env);
   assert.equal(report.ok, true, JSON.stringify(report.errors));
   assert.equal(report.mode, 'SETUP');
-  assert.equal(Object.keys(report.resources).length, 7);
+  assert.equal(Object.keys(report.resources).length, 9);
   assert.ok(report.actions.some((action) => action.resource === 'knowledgeRootFolderId' && action.action === 'created'));
   assert.ok(report.actions.some((action) => action.resource === 'knowledgeExportsFolderId' && action.action === 'created'));
   assert.equal(env._debug.properties.has('BOOTSTRAP_CONFIG_JSON'), false);
@@ -450,14 +653,23 @@ test('first setup creates resources, schemas, seeds, settings, and state', () =>
   assert.equal(backupFolder.name, 'Knowledge Platform Backups');
   assert.deepEqual(backupFolder.parents, ['control-folder']);
   assert.deepEqual(env._debug.triggers.map(trigger=>trigger.handler), ['runBackendDailyBackup_']);
-  assert.equal(state.schemaVersion, 8);
-  assert.equal(backend.sheets.size, 5);
+  assert.equal(state.schemaVersion, 9);
+  assert.equal(backend.sheets.size, 7);
+  assert.deepEqual([...backend.sheets.keys()].sort(), Object.keys(ksp.kspGetBackendSchemas_()).sort());
   assert.equal(audit.sheets.size, 1);
   assert.equal(backend.sheets.get('Counterparty_Master').rows.length, 30);
   assert.equal(backend.sheets.get('Option_Master').rows.length, 16);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'AUDIT_LOG_SPREADSHEET_ID').Value, state.resources.auditSpreadsheetId);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'KNOWLEDGE_EXPORTS_FOLDER_ID').Value, state.resources.knowledgeExportsFolderId);
   assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'BACKUP_FOLDER_ID').Value, state.resources.backupFolderId);
+  assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'NEXT_NEWS_ID').Value, '1');
+  assert.equal(backend.sheets.get('Settings').rows.find((row) => row.Key === 'NEXT_ASSESSMENT_ID').Value, '1');
+  for (const [key, name] of [['newsFolderId', 'ニュース'],
+    ['internalAssessmentsFolderId', '評価（ICメモ、社内整理等）']]) {
+    const folder = env._debug.resources.get(state.resources[key]);
+    assert.equal(folder.name, name);
+    assert.deepEqual(folder.parents, [state.resources.knowledgeRootFolderId]);
+  }
 });
 
 test('second setup reuses all resources and does not duplicate seeds', () => {
@@ -469,7 +681,7 @@ test('second setup reuses all resources and does not duplicate seeds', () => {
   assert.equal(first.ok, true);
   const second = ksp.kspRunSetup_(env);
   assert.equal(second.ok, true, JSON.stringify(second.errors));
-  assert.equal(second.actions.filter((action) => action.category === 'resource' && action.action === 'reused').length, 7);
+  assert.equal(second.actions.filter((action) => action.category === 'resource' && action.action === 'reused').length, 9);
   assert.equal(env._debug.triggers.filter(trigger=>trigger.handler==='runBackendDailyBackup_').length,1);
 
   const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
@@ -495,8 +707,8 @@ test('multiple exact-name candidates fail explicitly', () => {
   const env = createFakeEnvironment({
     properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() },
     resources: [
-      { id: 'dup-1', name: 'Private Assets Knowledge', mimeType: folderMime, parents: ['knowledge-parent'] },
-      { id: 'dup-2', name: 'Private Assets Knowledge', mimeType: folderMime, parents: ['knowledge-parent'] }
+      { id: 'dup-1', name: '記録・資料', mimeType: folderMime, parents: ['knowledge-parent'] },
+      { id: 'dup-2', name: '記録・資料', mimeType: folderMime, parents: ['knowledge-parent'] }
     ]
   });
 
@@ -514,6 +726,8 @@ test('second setup preserves operational counters and future AI configuration', 
   settings.find((row) => row.Key === 'NEXT_MEETING_ID').Value = '42';
   settings.find((row) => row.Key === 'NEXT_DOCUMENT_ID').Value = '43';
   settings.find((row) => row.Key === 'NEXT_BATCH_ID').Value = '44';
+  settings.find((row) => row.Key === 'NEXT_NEWS_ID').Value = '45';
+  settings.find((row) => row.Key === 'NEXT_ASSESSMENT_ID').Value = '46';
   settings.find((row) => row.Key === 'GEMINI_FILE_SEARCH_STORE_NAME').Value = 'stores/synthetic';
   settings.find((row) => row.Key === 'AI_DEFAULT_MODEL').Value = 'gemini-flash-selected-later';
 
@@ -522,6 +736,8 @@ test('second setup preserves operational counters and future AI configuration', 
   assert.equal(settings.find((row) => row.Key === 'NEXT_MEETING_ID').Value, '42');
   assert.equal(settings.find((row) => row.Key === 'NEXT_DOCUMENT_ID').Value, '43');
   assert.equal(settings.find((row) => row.Key === 'NEXT_BATCH_ID').Value, '44');
+  assert.equal(settings.find((row) => row.Key === 'NEXT_NEWS_ID').Value, '45');
+  assert.equal(settings.find((row) => row.Key === 'NEXT_ASSESSMENT_ID').Value, '46');
   assert.equal(settings.find((row) => row.Key === 'GEMINI_FILE_SEARCH_STORE_NAME').Value, 'stores/synthetic');
   assert.equal(settings.find((row) => row.Key === 'AI_DEFAULT_MODEL').Value, 'gemini-flash-selected-later');
 });
@@ -546,6 +762,21 @@ test('validation passes after a fake setup', () => {
   const validationReport = ksp.kspRunValidation_(env);
   assert.equal(validationReport.ok, true, JSON.stringify(validationReport.errors));
   assert.ok(validationReport.actions.some((action) => action.resource === 'master-seeds'));
+});
+
+test('readiness requires both new source folder bindings after schema9 setup', () => {
+  const env = createFakeEnvironment({ properties: { BOOTSTRAP_CONFIG_JSON: bootstrap() } });
+  assert.equal(ksp.kspRunSetup_(env).ok, true);
+  const state = JSON.parse(env._debug.properties.get('KSP_INSTALLATION_STATE_JSON'));
+  delete state.resources.newsFolderId;
+  delete state.resources.internalAssessmentsFolderId;
+  env._debug.properties.set('KSP_INSTALLATION_STATE_JSON', JSON.stringify(state));
+  const status = ksp.kspGetStatus_(env);
+  assert.equal(status.installed, false);
+  assert.deepEqual(Array.from(status.missingResourceKeys), ['newsFolderId', 'internalAssessmentsFolderId']);
+  const validation = ksp.kspRunValidation_(env);
+  assert.equal(validation.ok, false);
+  assert.equal(validation.errors[0].code, 'RESOURCE_ID_MISSING');
 });
 
 function report() {

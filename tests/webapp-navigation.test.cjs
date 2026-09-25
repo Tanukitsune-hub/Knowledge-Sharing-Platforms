@@ -152,7 +152,7 @@ test('showPage switches Knowledge Search, Counterparty Summary, and Meeting with
   assert.equal(node('page-activity-analytics').classList.contains('active'), false);
   assert.equal(node('nav-entity-workspace').classList.contains('active'), true);
 
-  for(const legacy of ['relationship-explorer','pitchbook','pitchbook-past']){
+  for(const legacy of ['relationship-explorer','pitchbook']){
     context.showPage(legacy);
     assert.equal(node('page-meeting-past').classList.contains('active'),true);
     assert.equal(node('nav-meeting-past').classList.contains('active'),true);
@@ -160,4 +160,8 @@ test('showPage switches Knowledge Search, Counterparty Summary, and Meeting with
     assert.equal(node('page-pitchbook-past').classList.contains('active'),false);
     assert.equal(node('nav-relationship-explorer').classList.contains('active'),false);
   }
+  context.showPage('pitchbook-past');
+  assert.equal(node('page-pitchbook-past').classList.contains('active'), true);
+  assert.equal(node('nav-meeting-past').classList.contains('active'), true);
+  assert.equal(node('page-meeting-past').classList.contains('active'), false);
 });

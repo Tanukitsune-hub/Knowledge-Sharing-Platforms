@@ -1,12 +1,10 @@
-# Private Assets Intelligence
+# Alternative Assets Intelligence
 
-プライベートアセット領域のMeeting recordsとPitchbook / source materialsを、Google Workspaceを正本として蓄積し、検索・整理・比較・面談準備へつなげるApps Script-firstのナレッジ基盤です。
+面談メモ、保存資料、ニュース、評価（ICメモ、社内整理等）をGoogle Workspaceに正本として蓄積し、検索・整理・比較・面談準備へつなげるApps Script-firstのナレッジ基盤です。
 
 ## Status
 
-Works 0004–0014はmainへ統合済みです。Meeting/Pitchbook登録・maintenance、Masters、Restricted Audit、Knowledge Export、構造化Meeting context等が実装されています。
-
-Work 0015はGP Workspace / one-page summaryをDraft PR #20で進めています。
+Work0070 CODEX-01は4-source record layerをschema9へ拡張するrepository source実装です。target-runtime qualificationは別DispatchのCODEX-02に予定しています。既存のMeeting/Pitchbook、Masters、Restricted Audit、Knowledge Export等を維持します。
 
 個人/synthetic環境で得たevidenceは、会社Shared Drive、real users、confidential data、production Gemini billing、scheduled triggersを含むproduction readinessを意味しません。
 
@@ -16,8 +14,8 @@ Work 0015はGP Workspace / one-page summaryをDraft PR #20で進めています�
 
 ```text
 Apps Script Web App
-  ├─ Meeting: New / Past
-  ├─ Pitchbook: New / Past
+  ├─ 記録を追加: 面談メモ / 資料保存 / ニュース / 評価（ICメモ、社内整理等）
+  ├─ 過去の記録: 同じ4 sourceの検索 / 詳細 / 編集 / lifecycle
   ├─ GP / Entity Workspace
   ├─ Activity Analytics
   ├─ Relationship Explorer
@@ -31,20 +29,24 @@ Backend/Audit/File Searchは通常利用者が直接操作しません。
 ## Authoritative storage
 
 ```text
-Private Assets Knowledge
-├─ Meeting Records
-└─ Pitchbooks
+記録・資料
+├─ 面談記録
+├─ 保存資料
+├─ ニュース
+└─ 評価（ICメモ、社内整理等）
 ```
 
-Meeting Google Docと元Pitchbook/source fileが正本です。Gemini File SearchとKnowledge Exportはderived/rebuildableです。
+MeetingのGoogle Doc、保存資料の元file、News/Assessmentの直接入力Docまたはupload原本が正本です。File SearchとKnowledge Exportはderived/rebuildableです。
 
-Backend remains exactly five sheets:
+schema9のBackendはexactly 7 sheetです:
 
 ```text
-GP_Master
+Counterparty_Master
 Option_Master
 Meeting_Index
 Pitchbook_Index
+News_Index
+Internal_Assessment_Index
 Settings
 ```
 
@@ -52,9 +54,9 @@ Audit is a separate Restricted Spreadsheet.
 
 ## Meeting model
 
-Current accepted structured fields include Date, GP, Asset Class, Team, Fund/Strategy, Meeting Type, Related Pitchbooks, follow-up, person/role text, internal participants, and body notes.
+現在の面談required fieldsはDate、Counterparty、Asset Classです。Team、Fund/Strategy、Meeting Type、Related Pitchbooks、follow-up、person/role text、internal participants、body notesはoptionalです。
 
-Work 0016 prospectively replaces the global GP requirement with:
+Work0016で定めたCounterparty分類は、後続のschema8で汎用`Counterparty_Master`と`CP-*` identityへ統合されました:
 
 ```text
 Counterparty Type
@@ -72,8 +74,8 @@ Consultant / Gatekeeper
 その他
 ```
 
-- GP entities use `GP_Master`.
-- Non-GP entities use category-specific `Option_Master` Types.
+- GPは`Counterparty_Type=GP`として同じ`Counterparty_Master`に保持します。
+- 旧`GP_Master`とnon-GP option fieldはmigration互換として扱います。
 - The existing free-text person field remains and is clarified as `面談相手（氏名・役職）`.
 - Legacy GP Meetings retain stable IDs/Docs/files.
 - Non-GP Meetings may retain relevant manager context through `Related_GP_IDs`.
@@ -84,14 +86,16 @@ Detailed decision:
 
 ## Pitchbook model
 
-Pitchbooks remain GP-oriented for the selected roadmap.
+保存資料はMeeting関連付けあり・なしの両方を同じ`DOC-` / `Pitchbook_Index`で扱います。
 
-- required: file, Date, GP, Asset Class;
+- required: file, Date, Counterparty, Asset Class;
 - optional: Equity/Debt, Fund/Strategy;
 - stable Document ID / Batch ID / Drive File ID;
 - sequence starts at `_01` and continues from destination max;
 - file-granular partial success and idempotent retry;
 - 25MB/file, 10 files/selection, 100MB total.
+
+Newsと評価（ICメモ、社内整理等）は、各々のstable IDとIndex sheetを持ちます。直接入力はGoogle Doc、uploadは1件の原本fileを正本とし、複数Counterpartyをcanonical `Counterparty_IDs`に保存します。AI indexing / retrieval、Full Output 4-source化、DigestはWork0070の対象外です。
 
 ## Relationships and workspaces
 

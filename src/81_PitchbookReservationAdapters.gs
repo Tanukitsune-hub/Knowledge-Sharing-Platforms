@@ -13,9 +13,11 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
       delete semanticScope.expectedParentVersion;
       var scope = requestKey ? JSON.stringify([String(spreadsheetId), String(actor),
         input.prepareRequestScope || JSON.stringify(semanticScope)]) : '';
-      var parent = kspRequirePitchbookParent_(meetingEnvironment, spreadsheetId,
-        input.parentMeetingId, input.expectedParentVersion);
-      kspAssertNoParentEditClaim_(scriptProperties, input.parentMeetingId, nowIso);
+      var parent = input.parentMeetingId ? kspRequirePitchbookParent_(meetingEnvironment, spreadsheetId,
+        input.parentMeetingId, input.expectedParentVersion) : null;
+      if (parent) kspAssertNoParentEditClaim_(scriptProperties, input.parentMeetingId, nowIso);
+      else kspAssert_(input.expectedParentVersion === 0,
+        'PITCHBOOK_PARENT_CONFLICT', '親記録なしの資料に親記録の更新番号は指定できません。');
       var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
       var indexSheet = spreadsheet.getSheetByName(KSP_SHEET_NAMES.PITCHBOOK_INDEX);
       kspAssert_(indexSheet, 'SHEET_NOT_FOUND', 'Sheet not found: ' + KSP_SHEET_NAMES.PITCHBOOK_INDEX);
@@ -36,7 +38,7 @@ function kspAttachPitchbookReservationAdapters_(meetingEnvironment, scriptProper
         'PITCHBOOK_PREPARE_REQUEST_RETIRED', '古い予約tokenは再採番できません。保存結果を確認してください。');
       // Only a new allocation derives defaults from the current parent. Replay keeps
       // its original immutable row context, even after unrelated parent links advance CAS.
-      kspApplyPitchbookParentContext_(input, parent);
+      if (parent) kspApplyPitchbookParentContext_(input, parent);
       if (requestKey) {
         var catalog = kspBuildPitchbookCatalog_(
           meetingEnvironment.readRows(spreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER),

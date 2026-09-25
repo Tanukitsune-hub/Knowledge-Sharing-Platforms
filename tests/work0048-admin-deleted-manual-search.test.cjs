@@ -41,9 +41,10 @@ function createHarness() {
 
   ['admin-panel-provider', 'admin-panel-deleted', 'admin-panel-theme', 'admin-deleted-date-from',
     'admin-deleted-date-to', 'admin-deleted-counterparty-id', 'admin-deleted-asset-class-id',
-    'admin-deleted-status-filter', 'admin-deleted-search', 'admin-deleted-meetings',
+    'admin-deleted-status-filter', 'admin-deleted-source-type', 'admin-deleted-search', 'admin-deleted-meetings',
     'admin-deleted-status', 'admin-deleted-results', 'nav-ai-provider-settings'].forEach(id => makeNode(id));
   nodes.get('admin-deleted-status-filter').value = 'Inactive';
+  nodes.get('admin-deleted-source-type').value = 'meeting';
   nodes.get('admin-deleted-results').innerHTML = '<tr><td colspan="8" class="empty-cell">検索すると記録が表示されます。</td></tr>';
 
   const document = {

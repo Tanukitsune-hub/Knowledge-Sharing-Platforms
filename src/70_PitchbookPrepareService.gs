@@ -26,8 +26,10 @@ function kspPreparePitchbookBatch_(environment, rawInput) {
       delete semanticScope.expectedParentVersion; // CAS refresh is not a different allocation request.
       input.prepareRequestScope = JSON.stringify(semanticScope);
     }
-    var parent = kspRequirePitchbookParent_(environment, context.backendSpreadsheetId,
-      input.parentMeetingId, input.expectedParentVersion);
+    var parent = input.parentMeetingId ? kspRequirePitchbookParent_(environment, context.backendSpreadsheetId,
+      input.parentMeetingId, input.expectedParentVersion) : null;
+    if (!parent) kspAssert_(input.expectedParentVersion === 0,
+      'PITCHBOOK_PARENT_CONFLICT', '親記録なしの資料に親記録の更新番号は指定できません。');
     var validation = { selected: null, totalBytes: 0 };
     var reserved = environment.reservePitchbookBatch(
       context.backendSpreadsheetId,
@@ -46,7 +48,7 @@ function kspPreparePitchbookBatch_(environment, rawInput) {
       slots: reserved.rows.map(function (row) {
         var descriptor = kspFindPitchbookReservationFile_(reserved.reservation, row.Document_ID);
         var slot = kspPitchbookSlotFromRow_(row, descriptor, reserved.reservation.totalBytes);
-        slot.parentVersion = Number(parent.Version);
+        slot.parentVersion = parent ? Number(parent.Version) : 0;
         return slot;
       }),
       warnings: warnings

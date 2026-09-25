@@ -167,7 +167,7 @@ test('app-wide mutation and long-operation feedback matrix remains wired before 
     ['Master rename', maintenance, /setMasterRenameModalBusy\(true\)[\s\S]*?performMasterMutation\(payload\)/, /masterRenameModalStatus\('info busy/],
     ['Master deactivate or reactivate', maintenance, /kspSetActionBusy\(status,true,actionLabel\+'中…'\)[\s\S]*?performMasterMutation/, /masters-status','info busy/],
     ['Master reorder', maintenance, /kspSetActionBusy\(button,true,'保存中…'\)[\s\S]*?action:'REORDER_BATCH'/, /並び順を保存中…/],
-    ['Deleted record restore', admin, /kspSetActionBusy\(trigger,true,'復元中…'\)[\s\S]*?serverCall\('changeMeetingStatus'/, /admin-deleted-status','info busy/],
+    ['Deleted record restore', admin, /kspSetActionBusy\(trigger,true,'復元中…'\)[\s\S]*?serverCall\(config\.status,\{\[config\.idKey\]:record\[config\.idKey\]\|\|record\.id,expectedVersion:record\.version,targetStatus:'Active'\}/, /admin-deleted-status','info busy/],
     ['Theme save and reset', theme, /themeSettingsSetBusy\(true,themeSettingsElement\('theme-settings-save'\),'保存中…'\)[\s\S]*?serverCall\('mutateThemeSettings'/, /themeSettingsSetBusy\(true,themeSettingsElement\('theme-settings-reset'\),'初期化中…'\)/],
     ['Provider connect enable disable sync', admin, /kspSetActionBusy\(trigger,true,busyLabel\)[\s\S]*?serverCall\('mutateAiProviderSettings'/, /aiProviderAdminBusyLabel/],
     ['Model policy migrate save qualify', admin, /kspSetActionBusy\(trigger,true,busyLabel\)[\s\S]*?Object\.assign\(\{action\}/, /aiModelPolicyBusyLabel/],

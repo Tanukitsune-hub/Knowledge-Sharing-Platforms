@@ -107,6 +107,7 @@ function kspValidatePitchbookFileDescriptor_(file) {
   var extension = kspGetPitchbookExtension_(file.originalFilename);
   kspAssert_(KSP_PITCHBOOK_ALLOWED_EXTENSIONS.indexOf(extension.toLowerCase()) !== -1,
     'PITCHBOOK_EXTENSION_UNSUPPORTED', '対応していないファイル形式です: .' + extension);
+  kspValidateSourceUploadMime_(extension, file.mimeType);
   return extension;
 }
 

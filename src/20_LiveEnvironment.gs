@@ -92,6 +92,19 @@ function kspCreateAppsScriptEnvironment_() {
       };
     },
 
+    renameResource: function (id, name) {
+      var file = Drive.Files.update({ name: name }, id, null, {
+        supportsAllDrives: true,
+        fields: 'id,name,mimeType,parents'
+      });
+      return {
+        id: file.id,
+        name: file.name,
+        mimeType: file.mimeType,
+        parents: file.parents || []
+      };
+    },
+
     createSpreadsheet: function (parentId, name) {
       var file = Drive.Files.create({
         name: name,

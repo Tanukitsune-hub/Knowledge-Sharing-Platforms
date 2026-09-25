@@ -1,0 +1,119 @@
+<script>
+const KSP_SOURCE_TYPES=['meeting','pitchbook','news','assessment'];
+const KSP_SOURCE_RECORD_CONFIG={news:{label:'ニュース',idKey:'newsId',register:'registerNews',search:'searchNewsRecords',get:'getNewsMaintenanceRecord',update:'updateNewsMaintenance',status:'changeNewsStatus'},assessment:{label:'評価（ICメモ、社内整理等）',idKey:'assessmentId',register:'registerAssessment',search:'searchAssessmentRecords',get:'getAssessmentMaintenanceRecord',update:'updateAssessmentMaintenance',status:'changeAssessmentStatus'}};
+let sourceAddSelectedTab='meeting';
+const sourcePitchbookFileDrafts={meeting:[],pitchbook:[]};
+const sourceRecordOperations={news:null,assessment:null};
+const sourcePastRecords={news:[],assessment:[]};
+const sourcePastDetail={news:null,assessment:null};
+const sourceBusy={news:false,assessment:false};
+const sourcePastBusy={news:false,assessment:false};
+let sourceUploadFormats=[];
+function sourceOperationKey(type){return 'ksp.'+type+'.operation.v1'}
+function sourceNewRequestId(){return't'+Date.now()+'_'+crypto.randomUUID().replace(/-/g,'')}
+function sourceDraftFingerprint(payload){return JSON.stringify({...payload,retryRecordId:undefined,retryFingerprint:undefined,file:payload.file&&{...payload.file,base64Data:'[bytes]'}})}
+function sourceStoreOperation(type,value){sourceRecordOperations[type]=value;try{if(value)sessionStorage.setItem(sourceOperationKey(type),JSON.stringify(value));else sessionStorage.removeItem(sourceOperationKey(type))}catch(error){}}
+function sourceRestoreOperations(){['news','assessment'].forEach(type=>{try{const saved=sessionStorage.getItem(sourceOperationKey(type));if(saved){sourceRecordOperations[type]=JSON.parse(saved);showStatus(type+'-add-status','warning','前回の保存結果または再試行が未解決です。同じ内容で再試行し、結果を確認してください。')}}catch(error){sourceRecordOperations[type]={unknown:true};showStatus(type+'-add-status','warning','前回の保存状態を確認できません。')}})}
+function sourcePitchbookRecoveryPending(){return Boolean(pitchbookSlots.length||pendingExistingDocumentIds.length||pitchbookPrepareUnknown||pitchbookPrepareRequest)}
+function sourceAnyRecoveryPending(){return Boolean(retryContext||readEnvelope('ksp.meeting.outcomeUnknown.v1')||sourcePitchbookRecoveryPending()||sourceRecordOperations.news||sourceRecordOperations.assessment)}
+function sourceAddSelectTab(type,focus){
+  if(!KSP_SOURCE_TYPES.includes(type))return false;
+  if(['meeting','pitchbook'].includes(type)&&sourcePitchbookRecoveryPending()&&pitchbookMode!==(type==='pitchbook'?'standalone':'meeting')){showStatus('meeting-status','warning','未完了の資料保存を先に再試行してください。');return false}
+  if(['meeting','pitchbook'].includes(sourceAddSelectedTab))sourcePitchbookFileDrafts[sourceAddSelectedTab]=selectedPitchbookFiles.slice();
+  sourceAddSelectedTab=type;
+  if(['meeting','pitchbook'].includes(type)){
+    pitchbookMode=type==='pitchbook'?'standalone':'meeting';
+    selectedPitchbookFiles=sourcePitchbookFileDrafts[type].slice();
+    const panel=el('meeting-file-panel'),actions=el('meeting-file-actions');
+    el(type==='meeting'?'meeting-file-home':'standalone-pitchbook-file-home').appendChild(panel);
+    el(type==='meeting'?'meeting-file-actions-home':'standalone-pitchbook-actions-home').appendChild(actions);
+    el('pitchbook-submit').hidden=type!=='meeting'||!(pitchbookParent&&pitchbookParent.existing);
+    el('pitchbook-parent-label').textContent=type==='pitchbook'?'面談記録との関連付けなしで資料を保存します。':(pitchbookParent?'親記録: '+pitchbookParent.meetingId:'');
+    renderPitchbookFiles();
+  }
+  KSP_SOURCE_TYPES.forEach(candidate=>{const panel=el('source-add-'+candidate),button=el('source-add-tab-'+candidate);panel.hidden=candidate!==type;button.classList.toggle('active',candidate===type);button.setAttribute('aria-selected',String(candidate===type))});
+  if(focus)el('source-add-tab-'+type).focus({preventScroll:true});
+  return true;
+}
+document.querySelectorAll('[data-source-add-tab]').forEach(button=>button.addEventListener('click',()=>sourceAddSelectTab(button.dataset.sourceAddTab,false)));
+document.querySelectorAll('[data-source-past-tab]').forEach(button=>button.addEventListener('click',()=>{pastSelectedTab=button.dataset.sourcePastTab;showPage('meeting-past');document.querySelectorAll('[data-source-past-tab]').forEach(item=>{const active=item.dataset.sourcePastTab===pastSelectedTab;item.classList.toggle('active',active);item.setAttribute('aria-selected',String(active))});const page=pages[pastSelectedTab==='meeting'?'meeting-past':pastSelectedTab+'-past'];kspFocusHeading(page&&page.querySelector('h2'))}));
+function sourcePopulateMultiSelect(id,items){const node=el(id);if(!node)return;const selected=new Set(selectedOptionValues(id));node.innerHTML='';(items||[]).forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.name+(item.status==='Inactive'?'（Inactive）':'');option.selected=selected.has(option.value);node.appendChild(option)})}
+function bootstrapSourceRecords(result){
+  if(!result||!result.ok){['news','assessment'].forEach(type=>showStatus(type+'-add-status','error',result&&result.error?result.error.message:'記録の入力候補を読み込めませんでした。'));return}
+  const options=result.options||{};populateSharedOptions(options);
+  ['news','assessment'].forEach(type=>{
+    sourcePopulateMultiSelect(type+'-counterpartyIds',options.counterpartyEntities);
+    sourcePopulateMultiSelect(type+'-past-edit-counterpartyIds',options.counterpartyEntities);
+    populateCounterpartyEntitySelect(type+'-past-counterpartyId','',options.counterpartyEntities);
+    addOptions(type+'-past-assetClassId',options.assetClasses);
+    addOptions(type+'-past-edit-assetClassId',options.assetClasses);
+  });
+  ['assessment-assessmentType','assessment-past-edit-assessmentType'].forEach(id=>{const select=el(id);(result.assessmentTypes||[]).forEach(item=>{const option=document.createElement('option');option.value=item.code;option.textContent=item.label;select.appendChild(option)})});
+  sourceUploadFormats=Array.isArray(result.uploadFormats)?result.uploadFormats:[];
+  if(sourceUploadFormats.length)KSP_ALLOWED_EXTENSIONS=sourceUploadFormats.map(item=>String(item.extension||'').replace(/^\./,'').toLowerCase());
+  const accept=KSP_ALLOWED_EXTENSIONS.map(item=>'.'+item).join(','),formatHelp=KSP_ALLOWED_EXTENSIONS.map(item=>item.toUpperCase()).join(' / ');
+  ['news','assessment','pitchbook'].forEach(type=>{const input=el(type==='pitchbook'?'pitchbook-files':type+'-file');if(input)input.accept=accept});
+  el('pitchbook-file-formats').textContent=formatHelp+'、25MB/ファイル、最大10件、合計100MB';
+  ['news','assessment'].forEach(type=>el(type+'-file-help').textContent='対応形式: '+formatHelp+'。原本ファイルは1件です。');
+  sourceRestoreOperations();
+}
+function sourceInputModeChanged(type){const upload=el(type+'-inputMode').value==='UPLOAD_FILE';el(type+'-file').required=upload;el(type+'-directText').required=!upload;document.querySelector('[data-source-route="'+type+'-direct"]').hidden=upload;document.querySelector('[data-source-route="'+type+'-upload"]').hidden=!upload}
+['news','assessment'].forEach(type=>el(type+'-inputMode').addEventListener('change',()=>sourceInputModeChanged(type)));
+function sourceCommaIds(value){return String(value||'').split(/[，,\n]/).map(item=>item.trim()).filter(Boolean)}
+function sourceFileError(file){if(!file)return'原本ファイルを選択してください。';const error=validateFiles([file]);if(error)return error;const format=sourceUploadFormats.find(item=>String(item.extension||'').replace(/^\./,'').toLowerCase()===extension(file.name));if(format){const allowed=Array.isArray(format.acceptedMimeTypes)?format.acceptedMimeTypes:[format.mimeType,'application/octet-stream'];const mime=String(file.type||'application/octet-stream').split(';')[0].trim().toLowerCase();if(!allowed.map(item=>String(item).toLowerCase()).includes(mime))return'ファイルのMIME typeが拡張子と一致しません。'}return''}
+function sourceRequiredError(type){const required=type==='news'?['date','publisher','title']:['date','assessmentType','title'];for(const field of required){const node=el(type+'-'+field);if(!String(node.value||'').trim()){node.focus();return node.labels&&node.labels[0]?node.labels[0].textContent.trim()+'を入力してください。':'必須項目を入力してください。'}}if(!selectedOptionValues(type+'-counterpartyIds').length){el(type+'-counterpartyIds').focus();return'面談先を1件以上選択してください。'}if(el(type+'-inputMode').value==='DIRECT_TEXT'&&!el(type+'-directText').value.trim()){el(type+'-directText').focus();return'本文を入力してください。'}if(el(type+'-inputMode').value==='UPLOAD_FILE'){const error=sourceFileError(el(type+'-file').files[0]);if(error){el(type+'-file').focus();return error}}return''}
+async function sourceRegister(type,event){
+  event.preventDefault();if(sourceBusy[type])return;
+  const error=sourceRequiredError(type);if(error){showStatus(type+'-add-status','error',error);return}
+  sourceBusy[type]=true;const button=el(type+'-add-submit');kspSetActionBusy(button,true,'保存中…');showStatus(type+'-add-status','info busy','記録を保存中…');
+  try{
+    const prior=sourceRecordOperations[type],inputMode=el(type+'-inputMode').value;
+    const payload={requestId:prior&&prior.requestId||sourceNewRequestId(),inputMode,date:el(type+'-date').value,title:el(type+'-title').value.trim(),counterpartyIds:selectedOptionValues(type+'-counterpartyIds'),assetClassId:el(type+'-assetClassId').value,fundStrategy:el(type+'-fundStrategy').value.trim()};
+    if(type==='news'){payload.publisher=el('news-publisher').value.trim();payload.url=el('news-url').value.trim()}else{payload.assessmentType=el('assessment-assessmentType').value;payload.decisionOrAction=el('assessment-decisionOrAction').value.trim();payload.relatedMeetingIds=sourceCommaIds(el('assessment-relatedMeetingIds').value);payload.relatedDocumentIds=sourceCommaIds(el('assessment-relatedDocumentIds').value);payload.relatedNewsIds=sourceCommaIds(el('assessment-relatedNewsIds').value)}
+    if(inputMode==='DIRECT_TEXT')payload.directText=el(type+'-directText').value;else{const file=el(type+'-file').files[0];payload.file={originalFilename:file.name,sizeBytes:file.size,mimeType:file.type||'application/octet-stream',base64Data:await readBase64(file)}}
+    const fingerprint=sourceDraftFingerprint(payload);
+    if(prior&&prior.fingerprint&&prior.fingerprint!==fingerprint)throw new Error('前回の保存結果が未解決です。同じ入力内容で再試行してください。');
+    if(prior&&prior.retryRecordId){payload.retryRecordId=prior.retryRecordId;payload.retryFingerprint=prior.retryFingerprint}
+    sourceStoreOperation(type,{requestId:payload.requestId,fingerprint,unknown:true,retryRecordId:prior&&prior.retryRecordId||'',retryFingerprint:prior&&prior.retryFingerprint||''});
+    const result=await serverCall(KSP_SOURCE_RECORD_CONFIG[type].register,payload);if(!result||!result.ok){const code=String(result&&result.error&&result.error.code||''),unresolvedPrior=Boolean(prior&&prior.unknown&&!prior.retryRecordId);if(result&&result.retry)sourceStoreOperation(type,{requestId:payload.requestId,fingerprint,unknown:false,retryRecordId:result.retry.retryRecordId||'',retryFingerprint:result.retry.retryFingerprint||''});else if(code==='SOURCE_REQUEST_EXPIRED'){const retryId=prior&&prior.retryRecordId||'',nextRequestId=sourceNewRequestId();sourceStoreOperation(type,retryId?{requestId:nextRequestId,fingerprint:sourceDraftFingerprint({...payload,requestId:nextRequestId}),unknown:false,retryRecordId:retryId,retryFingerprint:prior.retryFingerprint||''}:unresolvedPrior?prior:null)}else if(!result||prior||/^SOURCE_REQUEST_/.test(code))sourceStoreOperation(type,{requestId:payload.requestId,fingerprint,unknown:true,retryRecordId:prior&&prior.retryRecordId||'',retryFingerprint:prior&&prior.retryFingerprint||''});else sourceStoreOperation(type,null);throw new Error(code==='SOURCE_REQUEST_EXPIRED'&&unresolvedPrior?'前回の保存結果が不明です。記録一覧で結果を確認し、管理者に連絡してください。':result&&result.error?result.error.message:'保存できませんでした。')}
+    sourceStoreOperation(type,null);sourceClearSpecific(type);showStatus(type+'-add-status','success',KSP_SOURCE_RECORD_CONFIG[type].label+'を保存しました: '+(result.record&&result.record.id||''));
+  }catch(error){showStatus(type+'-add-status','error',(error.message||String(error))+' 入力内容は保持されています。')}
+  finally{sourceBusy[type]=false;kspSetActionBusy(button,false)}
+}
+['news','assessment'].forEach(type=>el(type+'-add-form').addEventListener('submit',event=>sourceRegister(type,event)));
+function sourceClearSpecific(type){const shared=getShared(type),form=el(type+'-add-form');form.reset();[...form.querySelectorAll('select[multiple]')].forEach(select=>[...select.options].forEach(option=>option.selected=false));const file=el(type+'-file');file.value='';sourceInputModeChanged(type);applyShared(shared)}
+function sourceClearStandaloneSpecific(){el('pitchbook-counterpartyId').value='';sourcePitchbookFileDrafts.pitchbook=[];selectedPitchbookFiles=[];fileInput.value='';renderPitchbookFiles();clearStatus('standalone-pitchbook-status')}
+function clearAllSourceDrafts(){
+  if(pitchbookBusy||meetingFlowBusy||sourceBusy.news||sourceBusy.assessment)return false;
+  if(sourceAnyRecoveryPending()){showStatus('meeting-status','warning','保存結果または未完了資料が残っています。先に再試行・確認してください。');return false}
+  if(!confirm('4種類の未保存入力と共通項目をクリアしますか？'))return false;
+  clearMeetingSpecificDraft();pitchbookParent=null;savePitchbookSlots();setRegisteredMeetingLocked(false);el('pitchbook-submit').hidden=true;
+  sourcePitchbookFileDrafts.meeting=[];sourcePitchbookFileDrafts.pitchbook=[];selectedPitchbookFiles=[];fileInput.value='';renderPitchbookFiles();el('pitchbook-counterpartyId').value='';
+  ['news','assessment'].forEach(type=>{el(type+'-add-form').reset();el(type+'-file').value='';sourceInputModeChanged(type);clearStatus(type+'-add-status')});
+  applyShared({date:'',assetClassId:'',capitalTypeId:'',fundStrategy:''});safeRemove(KSP_SHARED_DRAFT_KEY);safeRemove(KSP_MEETING_DRAFT_KEY);clearStatus('meeting-status');clearStatus('standalone-pitchbook-status');return true;
+}
+el('standalone-pitchbook-form').addEventListener('submit',async event=>{
+  event.preventDefault();if(pitchbookBusy)return;
+  if(!el('pitchbook-date').value){el('pitchbook-date').focus();showStatus('standalone-pitchbook-status','error','日付を入力してください。');return}
+  if(!el('pitchbook-counterpartyId').value){el('pitchbook-counterpartyId').focus();showStatus('standalone-pitchbook-status','error','面談先を選択してください。');return}
+  if(!el('pitchbook-assetClassId').value){el('pitchbook-assetClassId').focus();showStatus('standalone-pitchbook-status','error','アセットクラスを選択してください。');return}
+  const error=validateFiles(selectedPitchbookFiles);if(error){showStatus('standalone-pitchbook-status','error',error);return}
+  pitchbookMode='standalone';const completed=await completeParentAttachments(el('standalone-pitchbook-submit'));
+  if(completed){sourceClearStandaloneSpecific();showStatus('standalone-pitchbook-status','success','資料を保存しました。')}
+  else showStatus('standalone-pitchbook-status','warning','未完了の資料保存があります。未完了分を再試行してください。');
+});
+function sourcePastSelect(type){pastSelectedTab=type;showPage('meeting-past')}
+function sourcePastPayload(type){return{dateFrom:el(type+'-past-dateFrom').value,dateTo:el(type+'-past-dateTo').value,counterpartyId:el(type+'-past-counterpartyId').value,assetClassId:el(type+'-past-assetClassId').value,status:el(type+'-past-statusFilter').value,limit:100}}
+async function sourceSearch(type){if(sourcePastBusy[type])return;sourcePastBusy[type]=true;const button=el(type+'-past-search');kspSetActionBusy(button,true,'検索中…');showStatus(type+'-past-status','info busy','検索中…');try{const result=await serverCall(KSP_SOURCE_RECORD_CONFIG[type].search,sourcePastPayload(type));if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'検索できませんでした。');sourcePastRecords[type]=result.records||[];const idKey=KSP_SOURCE_RECORD_CONFIG[type].idKey;el(type+'-past-results').innerHTML=sourcePastRecords[type].map(record=>'<tr><td>'+kspEscapeHtml(record.date||'')+'</td><td>'+kspEscapeHtml(record.title||'')+'</td><td>'+kspEscapeHtml((record.counterpartyNames||[]).join(' / '))+'</td><td>'+kspEscapeHtml(record.status||'')+'</td><td><button class="small-button" type="button" data-source-detail="'+kspEscapeHtml(type)+'" data-source-id="'+kspEscapeHtml(record[idKey]||record.id)+'">詳細</button></td></tr>').join('')||'<tr><td colspan="5" class="empty-cell">該当なし</td></tr>';showStatus(type+'-past-status','info',sourcePastRecords[type].length+'件を表示しました。')}catch(error){showStatus(type+'-past-status','error',error.message||String(error))}finally{sourcePastBusy[type]=false;kspSetActionBusy(button,false)}}
+['news','assessment'].forEach(type=>el(type+'-past-search').addEventListener('click',()=>sourceSearch(type)));
+function sourceRenderDetail(type,record){const idKey=KSP_SOURCE_RECORD_CONFIG[type].idKey;sourcePastDetail[type]=record;const rows=[['ID',record[idKey]||record.id],['日付',record.date],['タイトル',record.title],['面談先',(record.counterpartyNames||[]).join(' / ')],['アセットクラス',record.assetClassName],['Fund / Strategy',record.fundStrategy],['Status',record.status],['更新番号',record.version]];if(type==='news')rows.push(['発行元',record.publisher],['URL',record.url]);else rows.push(['評価種別',record.assessmentTypeLabel||record.assessmentType],['判断・対応',record.decisionOrAction],['関連Meeting ID',(record.relatedMeetingIds||[]).join(', ')],['関連Document ID',(record.relatedDocumentIds||[]).join(', ')],['関連News ID',(record.relatedNewsIds||[]).join(', ')]);const html=rows.map(([label,value])=>'<div><strong>'+kspEscapeHtml(label)+'</strong> '+kspEscapeHtml(value||'—')+'</div>').join('');el(type+'-past-detail-content').innerHTML='<div class="source-detail-rows">'+html+'</div>'+(record.inputMode==='DIRECT_TEXT'?'<h3>本文</h3><div class="record-body">'+kspEscapeHtml(record.directText||record.body||'')+'</div>':'');const link=el(type+'-past-original'),url=kspSafeDriveUrl(record.sourceUrl||record.fileUrl);link.hidden=!url;if(url)link.href=url;else link.removeAttribute('href');el(type+'-past-deactivate').disabled=record.status!=='Active';el(type+'-past-detail').hidden=false;el(type+'-past-detail').scrollIntoView({behavior:'smooth',block:'start'});kspFocusHeading(el(type+'-past-detail-heading'))}
+async function sourceOpenDetail(type,id){const cfg=KSP_SOURCE_RECORD_CONFIG[type];showStatus(type+'-past-status','info busy','記録を読み込んでいます…');try{const result=await serverCall(cfg.get,id);if(!result||!result.ok||!result.record)throw new Error(result&&result.error?result.error.message:'記録を読み込めませんでした。');sourceRenderDetail(type,result.record);clearStatus(type+'-past-status')}catch(error){showStatus(type+'-past-status','error',error.message||String(error))}}
+['news','assessment'].forEach(type=>el(type+'-past-results').addEventListener('click',event=>{const button=event.target.closest('[data-source-detail]');if(button)sourceOpenDetail(type,button.dataset.sourceId)}));
+document.querySelectorAll('[data-source-close]').forEach(button=>button.addEventListener('click',()=>{const type=button.dataset.sourceClose;el(type+'-past-detail').hidden=true;el(type+'-past-edit').hidden=true;sourcePastDetail[type]=null}));
+function sourceFillEdit(type,record){const prefix=type+'-past-edit-';const fields=type==='news'?['date','title','publisher','url','assetClassId','fundStrategy']:['date','title','assessmentType','decisionOrAction','assetClassId','fundStrategy'];fields.forEach(field=>el(prefix+field).value=record[field]||'');setSelectedOptionValues(prefix+'counterpartyIds',record.counterpartyIds||[]);if(type==='assessment')['relatedMeetingIds','relatedDocumentIds','relatedNewsIds'].forEach(field=>el(prefix+field).value=(record[field]||[]).join(', '));el(prefix+'directText').value=record.directText||record.body||'';el(type+'-past-edit-direct-wrap').hidden=record.inputMode!=='DIRECT_TEXT';el(type+'-past-edit').hidden=false;el(type+'-past-edit').scrollIntoView({behavior:'smooth',block:'start'})}
+['news','assessment'].forEach(type=>{el(type+'-past-edit-open').addEventListener('click',()=>{if(sourcePastDetail[type])sourceFillEdit(type,sourcePastDetail[type])});document.querySelector('[data-source-edit-close="'+type+'"]').addEventListener('click',()=>el(type+'-past-edit').hidden=true)});
+async function sourceUpdate(type,event){event.preventDefault();if(sourcePastBusy[type])return;const record=sourcePastDetail[type];if(!record)return;const prefix=type+'-past-edit-',cfg=KSP_SOURCE_RECORD_CONFIG[type],payload={[cfg.idKey]:record[cfg.idKey]||record.id,expectedVersion:record.version,date:el(prefix+'date').value,title:el(prefix+'title').value.trim(),counterpartyIds:selectedOptionValues(prefix+'counterpartyIds'),assetClassId:el(prefix+'assetClassId').value,fundStrategy:el(prefix+'fundStrategy').value};if(!payload.date||!payload.title||!payload.counterpartyIds.length){showStatus(type+'-past-edit-status','error','日付、タイトル、面談先を入力してください。');return}if(type==='news'){payload.publisher=el(prefix+'publisher').value.trim();payload.url=el(prefix+'url').value.trim();if(!payload.publisher){showStatus(type+'-past-edit-status','error','発行元を入力してください。');return}}else{payload.assessmentType=el(prefix+'assessmentType').value;payload.decisionOrAction=el(prefix+'decisionOrAction').value;payload.relatedMeetingIds=sourceCommaIds(el(prefix+'relatedMeetingIds').value);payload.relatedDocumentIds=sourceCommaIds(el(prefix+'relatedDocumentIds').value);payload.relatedNewsIds=sourceCommaIds(el(prefix+'relatedNewsIds').value);if(!payload.assessmentType){showStatus(type+'-past-edit-status','error','評価種別を選択してください。');return}}if(record.inputMode==='DIRECT_TEXT')payload.directText=el(prefix+'directText').value;sourcePastBusy[type]=true;showStatus(type+'-past-edit-status','info busy','保存中…');try{const result=await serverCall(cfg.update,payload);if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'更新できませんでした。');el(type+'-past-edit').hidden=true;await sourceOpenDetail(type,payload[cfg.idKey]);showStatus(type+'-past-detail-status','success','更新しました。')}catch(error){showStatus(type+'-past-edit-status','error',error.message||String(error))}finally{sourcePastBusy[type]=false}}
+['news','assessment'].forEach(type=>el(type+'-past-edit-form').addEventListener('submit',event=>sourceUpdate(type,event)));
+async function sourceDeactivate(type){if(sourcePastBusy[type])return;const record=sourcePastDetail[type],cfg=KSP_SOURCE_RECORD_CONFIG[type];if(!record||record.status!=='Active'||!confirm(KSP_SOURCE_RECORD_CONFIG[type].label+'を削除しますか？管理者ページから復元できます。'))return;sourcePastBusy[type]=true;showStatus(type+'-past-detail-status','info busy','削除中…');try{const result=await serverCall(cfg.status,{[cfg.idKey]:record[cfg.idKey]||record.id,expectedVersion:record.version,targetStatus:'Inactive'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'削除できませんでした。');el(type+'-past-detail').hidden=true;el(type+'-past-edit').hidden=true;sourcePastDetail[type]=null;sourcePastBusy[type]=false;await sourceSearch(type)}catch(error){showStatus(type+'-past-detail-status','error',error.message||String(error))}finally{sourcePastBusy[type]=false}}
+['news','assessment'].forEach(type=>el(type+'-past-deactivate').addEventListener('click',()=>sourceDeactivate(type)));
+</script>

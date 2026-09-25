@@ -1,6 +1,6 @@
 # Target Architecture
 
-Current as of: 2026-09-18
+Current as of: 2026-09-25
 
 Status: Active
 
@@ -20,8 +20,8 @@ Authorized users
         |
         v
 Apps Script HTML Service Web App
-  ├─ Meeting: New / Past
-  ├─ Pitchbook: New / Past
+  ├─ 記録を追加: 面談メモ / 資料保存 / ニュース / 評価（ICメモ、社内整理等）
+  ├─ 過去の記録: 同じ4 sourceの検索 / 詳細 / 編集 / lifecycle
   ├─ Counterparty Summary
   ├─ Activity Analytics
   ├─ Relationship Explorer
@@ -47,11 +47,13 @@ Google Apps Script V8
    +----+--------------------------+--------------------------+
    |                               |                          |
    v                               v                          v
-Backend Spreadsheet            Shared Drive          Derived AI/Export layer
-  ├─ Counterparty_Master         ├─ Meeting Records     ├─ OpenAI Vector Store
-  ├─ Option_Master               └─ Pitchbooks          ├─ Gemini File Search Store
-  ├─ Meeting_Index                                      └─ Knowledge Export artifacts
-  ├─ Pitchbook_Index
+Backend Spreadsheet            Shared Drive              Derived AI/Export layer
+  ├─ Counterparty_Master         ├─ 記録・資料                ├─ OpenAI Vector Store
+  ├─ Option_Master               │  ├─ 面談記録              ├─ Gemini File Search Store
+  ├─ Meeting_Index               │  ├─ 保存資料              └─ Knowledge Export artifacts
+  ├─ Pitchbook_Index             │  ├─ ニュース
+  ├─ News_Index                  │  └─ 評価（ICメモ、社内整理等）
+  ├─ Internal_Assessment_Index   └─ Knowledge Exports（source root外）
   └─ Settings
 
 Separate Restricted Audit Spreadsheet
@@ -92,25 +94,32 @@ Production business helpers must exist in production source. A test loader may n
 ### Shared Drive
 
 ```text
-Private Assets Knowledge
-├─ Meeting Records
-└─ Pitchbooks
+記録・資料
+├─ 面談記録
+├─ 保存資料
+├─ ニュース
+└─ 評価（ICメモ、社内整理等）
 ```
 
 - Meeting Google Doc is authoritative for body text.
-- Original Pitchbook/source file is authoritative.
+- 保存資料の原本ファイルを正本とする。standaloneの保存資料には親Meetingを設けない。
+- NewsとInternal AssessmentはGoogle Docへの直接入力、またはupload原本1件のどちらか一方を正本とする。
+- schema9 setupでは旧既定名に完全一致するfolderだけを保存済みIDで改名し、custom名は保持する。命名変更でfileの移動・複製をしない。
+- Knowledge Exportsは正本source rootの外側に置く。
 - AI indexes and Knowledge Export are derived and rebuildable.
 - Source folders remain flat unless a concrete operating requirement changes the decision.
 
-### Five-sheet Backend
+### Seven-sheet Backend (schema9)
 
 1. `Counterparty_Master`
 2. `Option_Master`
 3. `Meeting_Index`
 4. `Pitchbook_Index`
-5. `Settings`
+5. `News_Index`
+6. `Internal_Assessment_Index`
+7. `Settings`
 
-Stable IDs—not row numbers, filenames, URLs, or sort positions—are durable identity. Schema evolution is append-only where practical. No relation/entity/analytics/provider-state sheet is added without a new explicit decision.
+永続identityはrow番号・file名・URL・表示順ではなくstable IDとする。schema変更は可能な範囲でappend-onlyにする。Newsは`NEWS-`、Internal Assessmentは`ASMT-`を使い、各sourceのCounterparty IDをsort・deduplicateしたうえで1行のIndexに保持する。明示的な新決定なくrelation/entity/analytics/provider-state用の8枚目を追加しない。
 
 ### Restricted Audit
 
@@ -131,7 +140,7 @@ validateInstallation_()
 getInstallationStatus_()
 ```
 
-Setup creates/reuses/migrates/repairs folders, five Backend sheets, Audit Spreadsheet, Masters, schemas, Settings, and authorized triggers.
+Setupはsource folder、Backend 7 sheet、Audit Spreadsheet、Masters、schema、Settings、許可済みtriggerを作成・再利用・移行・修復する。
 
 Rules:
 
@@ -252,18 +261,17 @@ Analytics reads `Meeting_Index`, not Meeting Doc bodies. Follow-up stays an info
 
 ## 10. Browser state and maintenance
 
-Always shared between Meeting/Pitchbook:
+4つのsource tabで共有する通常のAdd入力:
 
 ```text
 Date
 Asset Class
-Equity / Debt
 Fund / Strategy
 ```
 
-Counterparty is shared across Meeting/Pitchbook flows. A parent-bound material always inherits its parent Meeting Counterparty.
+既存のEquity / Debt fieldは内部値として保持する。Counterpartyの選択はsourceごとに独立させ、親Meetingに紐付く資料は親のCounterpartyを継承する。
 
-Drafts persist 24h in one browser. Normal lifecycle is Active/Inactive/Reactivate. Stable IDs and optimistic locking remain durable.
+通常の未保存入力は現在のbrowser tab内に保持し、reload後に自動復元しない。tab切替では共有fieldと各source固有の入力を保持し、保存成功時は保存したsource固有の入力だけを消す。global clearは4 tabを対象とするが、retry・unknown-outcome・partial-uploadの回復が未解決なら停止する。安全回復stateの期限付き保存は維持する。通常のlifecycleはActive/Inactive/Reactivateとし、stable IDとoptimistic lockingを維持する。
 
 ## 11. Provider-neutral AI source and request architecture
 
@@ -348,7 +356,7 @@ File Search is the required default source-reading path for both providers. Full
 
 OpenAI and Gemini derived state is independent. A single ambiguous `AI_Index_Status` cannot represent both providers.
 
-Work 0020 performs append-only migration while retaining exactly five Backend sheets. Preferred authoritative representation is one validated versioned provider-state object per source keyed by `OPENAI` and `GEMINI`, with migration from legacy Gemini-oriented fields when blank.
+Work0020のprovider-state移行はBackendが5 sheetだった時点の履歴である。schema9では既存Meeting/PitchbookのID・行・provider stateを維持し、`News_Index`と`Internal_Assessment_Index`を追加する。新sourceのprovider indexing/retrievalはWork0070 CODEX-01の対象外とする。各sourceが後にprovider対象となる場合も、`OPENAI`と`GEMINI`をkeyとする検証済みversion付きprovider-state objectを正本とする。
 
 Per provider:
 

@@ -1,8 +1,9 @@
 <script>
-let pitchbookParent=null,pitchbookBusy=false,meetingFlowBusy=false,pendingExistingDocumentIds=[],pitchbookPrepareUnknown=false,pitchbookPrepareRequest=null;
+let pitchbookParent=null,pitchbookBusy=false,meetingFlowBusy=false,pendingExistingDocumentIds=[],pitchbookPrepareUnknown=false,pitchbookPrepareRequest=null,pitchbookMode='meeting';
 function bindPitchbookParent(record,existing){
   if(!record||!record.meetingId||!Number.isInteger(Number(record.version))||Number(record.version)<1||record.status!=='Active')throw new Error('保存済みActive記録のIDとVersionを確認できません。');
   if(pitchbookSlots.some(slot=>slot.parentMeetingId!==record.meetingId))throw new Error('別の親記録の未完了資料があります。先にその記録で回復してください。');
+  pitchbookMode='meeting';
   pitchbookParent={meetingId:record.meetingId,version:Number(record.version),existing:Boolean(existing)};
   el('pitchbook-parent-label').textContent='親記録: '+record.meetingId+' / 更新番号 '+record.version+'（新規記録は作成しません）';
   el('pitchbook-submit').hidden=!existing;savePitchbookSlots();
@@ -21,7 +22,8 @@ async function linkParentDocument(documentId,operation){
   pitchbookParent.version=Number(result.version);savePitchbookSlots();return result;
 }
 async function uploadSlot(slot){
-  if(!pitchbookParent||slot.parentMeetingId!==pitchbookParent.meetingId)return{ok:false,slot,error:{message:'親記録の不一致により停止しました。'}};
+  const standalone=pitchbookMode==='standalone';
+  if(standalone?Boolean(slot.parentMeetingId):(!pitchbookParent||slot.parentMeetingId!==pitchbookParent.meetingId))return{ok:false,slot,error:{message:'親記録の不一致により停止しました。'}};
   try{
     if(slot.outcomeUnknown){
       const readback=await serverCall('getPitchbookMaintenanceRecord',slot.documentId);
@@ -33,10 +35,11 @@ async function uploadSlot(slot){
       slot.outcomeUnknown=false;
     }
     if(slot.fileSaved){
+      if(standalone)return{ok:true,fileSaved:true,linkConfirmed:true,slot:{...slot,status:'Active',fileSaved:true,linkConfirmed:true,parentVersion:0}};
       const linked=await linkParentDocument(slot.documentId,'add');
       return{ok:true,fileSaved:true,linkConfirmed:true,slot:{...slot,status:'Active',fileSaved:true,linkConfirmed:true,parentVersion:linked.version}};
     }
-    const parent=await readPitchbookParent(),file=fileForSlot(slot);
+    const parent=standalone?{meetingId:'',version:0}:await readPitchbookParent(),file=fileForSlot(slot);
     if(!file)throw new Error(slot.originalFilename+' を再選択してください。');
     const base64Data=await readBase64(file);
     slot.outcomeUnknown=true;savePitchbookSlots();
@@ -44,7 +47,7 @@ async function uploadSlot(slot){
     if(!result)throw new Error('ファイル保存結果を確認できません。');
     const returned=result.slot||{},saved=result.fileSaved===true||returned.fileSaved===true,linked=result.linkConfirmed===true||returned.linkConfirmed===true;
     const version=Number(result.parentVersion||returned.parentVersion||parent.version);
-    pitchbookParent.version=version;pitchbookSlots.forEach(item=>{if(item.parentMeetingId===slot.parentMeetingId)item.parentVersion=version});
+    if(!standalone)pitchbookParent.version=version;pitchbookSlots.forEach(item=>{if(item.parentMeetingId===slot.parentMeetingId)item.parentVersion=version});
     return{...result,ok:saved&&linked,slot:{...slot,...returned,parentVersion:version,fileSaved:saved,linkConfirmed:linked,outcomeUnknown:false,status:linked?'Active':saved?'LinkPending':'Failed'}};
   }catch(error){return{ok:false,slot:{...slot,status:slot.fileSaved?'LinkPending':'Failed'},error:{message:error.message||String(error)}}}
 }
@@ -55,17 +58,17 @@ async function processSlots(slots){
 }
 function summarizeResults(results){
   const failed=pitchbookSlots.filter(slot=>!slot.linkConfirmed).length+pendingExistingDocumentIds.length;
-  showStatus('pitchbook-status',failed?'warning':'success',failed?'親記録と保存済みファイルを維持しています。未完了 '+failed+'件。未完了分を再試行してください。':'記録・資料の関連付けを完了しました。');
+  showStatus('pitchbook-status',failed?'warning':'success',failed?'保存済みIDを維持しています。未完了 '+failed+'件。未完了分を再試行してください。':pitchbookMode==='standalone'?'資料を保存しました。':'記録・資料の関連付けを完了しました。');
   if(!failed){pitchbookPrepareRequest=null;pitchbookPrepareUnknown=false;pitchbookSlots=[];selectedPitchbookFiles=[];fileInput.value='';savePitchbookSlots();renderPitchbookFiles()}
 }
 async function completeParentAttachments(trigger){
   if(pitchbookBusy)return;
   setPitchbookBusy(true,trigger);showStatus('pitchbook-status','info busy','資料を保存中…');
   try{
-    if(!pitchbookParent)throw new Error('先に親記録を保存してください。');
+    if(pitchbookMode!=='standalone'&&!pitchbookParent)throw new Error('先に親記録を保存してください。');
     if(!pitchbookSlots.length&&(selectedPitchbookFiles.length||pitchbookPrepareRequest)){
       if(!pitchbookPrepareRequest){const error=validateFiles(selectedPitchbookFiles);if(error)throw new Error(error)}
-      const parent=await readPitchbookParent();
+      const parent=pitchbookMode==='standalone'?{meetingId:'',version:0}:await readPitchbookParent();
       if(!pitchbookPrepareRequest){
         const admission=await serverCall('getPitchbookBootstrapData');
         if(!admission||!admission.ok||!Number.isSafeInteger(admission.prepareRequestGeneration)||admission.prepareRequestGeneration<1)throw new Error('予約tokenを確認できません。再送は行いません。');
@@ -80,12 +83,13 @@ async function completeParentAttachments(trigger){
     const results=await processSlots(pitchbookSlots.filter(slot=>!slot.linkConfirmed));
     for(const id of pendingExistingDocumentIds.slice()){await linkParentDocument(id,'add');pendingExistingDocumentIds=pendingExistingDocumentIds.filter(item=>item!==id);savePitchbookSlots()}
     summarizeResults(results);
-    if(pitchbookParent.existing)await openMeetingDetail(pitchbookParent.meetingId);
-  }catch(error){showStatus('pitchbook-status','error',error.message||String(error))}
+    if(pitchbookParent&&pitchbookParent.existing&&pitchbookMode!=='standalone')await openMeetingDetail(pitchbookParent.meetingId);
+    return !pitchbookSlots.length&&!pendingExistingDocumentIds.length&&!pitchbookPrepareUnknown&&!pitchbookPrepareRequest;
+  }catch(error){showStatus('pitchbook-status','error',error.message||String(error));return false}
   finally{setPitchbookBusy(false);renderPitchbookFiles()}
 }
 el('pitchbook-submit').onclick=event=>completeParentAttachments(event.currentTarget);
 el('pitchbook-retry').onclick=event=>completeParentAttachments(event.currentTarget);
 el('pitchbook-clear').onclick=()=>{if(pitchbookSlots.length||pendingExistingDocumentIds.length){showStatus('pitchbook-status','warning','未完了IDは破棄できません。再試行または親記録で状態を確認してください。');return}selectedPitchbookFiles=[];fileInput.value='';renderPitchbookFiles()};
-function setRegisteredMeetingLocked(locked){el('meeting-form').querySelectorAll('input,select,textarea,button').forEach(node=>{if(!el('meeting-file-panel').contains(node)&&!el('meeting-file-actions').contains(node))node.disabled=locked});el('meeting-clear').disabled=false;el('meeting-clear').textContent=locked?'新しい記録を入力':'下書きをクリア';el('meeting-entry-actions').classList.toggle('registered-parent',locked);const status=el('meeting-status');if(locked&&(!status.classList.contains('visible')||status.textContent==='面談入力の準備ができました。'))showStatus('meeting-status','info','前回保存済みの記録を表示しています。新しい記録を登録するには、ここから入力を切り替えてください。')}
+function setRegisteredMeetingLocked(locked){el('meeting-form').querySelectorAll('input,select,textarea,button').forEach(node=>{if(!el('meeting-file-panel').contains(node)&&!el('meeting-file-actions').contains(node))node.disabled=locked});el('meeting-clear').disabled=false;el('meeting-clear').textContent=locked?'新しい記録を入力':'クリア';el('meeting-entry-actions').classList.toggle('registered-parent',locked);const status=el('meeting-status');if(locked&&(!status.classList.contains('visible')||status.textContent==='面談入力の準備ができました。'))showStatus('meeting-status','info','前回保存済みの記録を表示しています。新しい記録を登録するには、ここから入力を切り替えてください。')}
 </script>

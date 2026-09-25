@@ -193,7 +193,7 @@ test('Meeting Date cells use the configured Asia Tokyo business date', () => {
   assert.equal(ksp.kspMeetingCellDate_('2026-08-29'), '2026-08-29');
 });
 
-test('UI preserves shared context, stores retry context, and clears it on changes', () => {
+test('UI keeps shared state in the tab and preserves unresolved retry context', () => {
   const html = [
     fs.readFileSync(path.join(root, 'src', 'Index.html'), 'utf8'),
     fs.readFileSync(path.join(root, 'src', 'ClientCore.html'), 'utf8'),
@@ -201,13 +201,13 @@ test('UI preserves shared context, stores retry context, and clears it on change
     fs.readFileSync(path.join(root, 'src', 'ClientMaintenanceEnhancements.html'), 'utf8'),
     fs.readFileSync(path.join(root, 'src', 'MaintenancePages.html'), 'utf8')
   ].join('\n');
-  assert.match(html, /KSP_SHARED_DRAFT_KEY/); assert.match(html, /KSP_MEETING_DRAFT_KEY/); assert.match(html, /KSP_MEETING_RETRY_KEY/); assert.match(html, /24\s*\*\s*60\s*\*\s*60\s*\*\s*1000/);
-  assert.match(html, /payload\.retryMeetingId\s*=\s*retryContext\.meetingId/); assert.match(html, /clearRetryContext\(\);\s*saveDraft\(\);?/);
+  assert.match(html, /KSP_SHARED_DRAFT_KEY/); assert.match(html, /KSP_MEETING_DRAFT_KEY/); assert.match(html, /KSP_MEETING_RETRY_KEY/);
+  assert.match(html, /payload\.retryMeetingId\s*=\s*retryContext\.meetingId/);
+  assert.doesNotMatch(html, /writeEnvelope\(KSP_SHARED_DRAFT_KEY|writeEnvelope\(KSP_MEETING_DRAFT_KEY/);
+  assert.match(html, /function restoreMeetingDraft\(\)\{safeRemove\(KSP_SHARED_DRAFT_KEY\);safeRemove\(KSP_MEETING_DRAFT_KEY\)/);
   const clearMeetingLine = html.split(/\r?\n/).find(line => line.includes('function clearMeetingSpecificDraft'));
   assert.ok(clearMeetingLine);
-  assert.match(clearMeetingLine, /safeStorageRemove\(KSP_MEETING_DRAFT_KEY\)/);
-  assert.doesNotMatch(clearMeetingLine, /safeStorageRemove\(KSP_SHARED_DRAFT_KEY\)/);
-  assert.match(clearMeetingLine, /writeEnvelope\(KSP_SHARED_DRAFT_KEY/);
+  assert.doesNotMatch(clearMeetingLine, /writeEnvelope|safeStorageRemove/);
   assert.match(html, /入力と保存済みIDは保持されています/);
   assert.match(html,/saveMeetingDraft\(\);showStatus\('meeting-status','error'/);
   ['meeting-teamId','meeting-fundStrategy','meeting-relatedPitchbookIds','meeting-followUpRequired','meeting-followUpNote','pitchbook-fundStrategy'].forEach(id=>assert.match(html,new RegExp(id)));
@@ -218,7 +218,7 @@ test('UI preserves shared context, stores retry context, and clears it on change
   assert.match(html, /親記録の保存後に関連付けます。資料のStatusは変更しません/);
   assert.match(html,/payload\.relatedPitchbookIds=\[\]/);
   assert.match(html,/pendingExistingDocumentIds=existingIds/);
-  assert.match(html, /clearRetryContext\(\);refreshMeetingCounterpartyEntities\([^\n]+saveMeetingDraft\(\)/);
+  assert.doesNotMatch(html, /clearRetryContext\(\);refreshMeetingCounterpartyEntities\([^\n]+saveMeetingDraft\(\)/);
   assert.doesNotMatch(html, /meeting-relatedGpIds|const gpNode=el\(page\+'-gpId'\)/);
   assert.doesNotMatch(html, /shared\.gpId=result\.gp\.id/);
   assert.doesNotMatch(html, /ensureMeetingEditPrimaryGpRelated/);

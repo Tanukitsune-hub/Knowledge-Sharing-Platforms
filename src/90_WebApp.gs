@@ -5,7 +5,7 @@ function doGet(event) {
   // is the security boundary. Rendering never performs confirmation.
   if (page === 'deployment-security') {
     return kspCreateHtmlTemplate_('DeploymentSecurityOperator').evaluate()
-      .setTitle('デプロイ設定の確認 | Private Assets Intelligence')
+      .setTitle('デプロイ設定の確認 | Alternative Assets Intelligence')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
 
@@ -13,14 +13,14 @@ function doGet(event) {
     var knowledgeTemplate = kspCreateHtmlTemplate_('KnowledgeSearch');
     knowledgeTemplate.themeHeadMarkup = kspGetThemeHeadMarkup_();
     return knowledgeTemplate.evaluate()
-      .setTitle('ナレッジ検索 | Private Assets Intelligence')
+      .setTitle('ナレッジ検索 | Alternative Assets Intelligence')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
 
   var indexTemplate = kspCreateHtmlTemplate_('Index');
   indexTemplate.themeHeadMarkup = kspGetThemeHeadMarkup_();
   return indexTemplate.evaluate()
-    .setTitle('Private Assets Intelligence')
+    .setTitle('Alternative Assets Intelligence')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }
 
@@ -82,6 +82,50 @@ function updatePitchbookMaintenance(input) {
 
 function changePitchbookStatus(input) {
   return kspChangePitchbookStatus_(kspCreateMaintenanceEnvironment_(), input);
+}
+
+function getSourceRecordBootstrapData() {
+  return kspGetSourceRecordBootstrapData_(kspCreateSourceRecordEnvironment_());
+}
+
+function registerNews(input) {
+  return kspRegisterSourceRecord_(kspCreateSourceRecordEnvironment_(), 'NEWS', input);
+}
+
+function registerAssessment(input) {
+  return kspRegisterSourceRecord_(kspCreateSourceRecordEnvironment_(), 'ASSESSMENT', input);
+}
+
+function searchNewsRecords(input) {
+  return kspSearchSourceRecords_(kspCreateSourceRecordEnvironment_(), 'NEWS', input);
+}
+
+function searchAssessmentRecords(input) {
+  return kspSearchSourceRecords_(kspCreateSourceRecordEnvironment_(), 'ASSESSMENT', input);
+}
+
+function getNewsMaintenanceRecord(newsId) {
+  return kspGetSourceMaintenanceRecord_(kspCreateSourceRecordEnvironment_(), 'NEWS', newsId);
+}
+
+function getAssessmentMaintenanceRecord(assessmentId) {
+  return kspGetSourceMaintenanceRecord_(kspCreateSourceRecordEnvironment_(), 'ASSESSMENT', assessmentId);
+}
+
+function updateNewsMaintenance(input) {
+  return kspUpdateSourceMaintenance_(kspCreateSourceRecordEnvironment_(), 'NEWS', input);
+}
+
+function updateAssessmentMaintenance(input) {
+  return kspUpdateSourceMaintenance_(kspCreateSourceRecordEnvironment_(), 'ASSESSMENT', input);
+}
+
+function changeNewsStatus(input) {
+  return kspChangeSourceStatus_(kspCreateSourceRecordEnvironment_(), 'NEWS', input);
+}
+
+function changeAssessmentStatus(input) {
+  return kspChangeSourceStatus_(kspCreateSourceRecordEnvironment_(), 'ASSESSMENT', input);
 }
 
 function mutateMaster(input) {

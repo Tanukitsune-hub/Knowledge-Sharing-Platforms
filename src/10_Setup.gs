@@ -122,6 +122,7 @@ function kspResolveAllResources_(environment, storedResources, config, report) {
     key: KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT,
     parentId: config.knowledgeParentFolderId,
     name: KSP_RESOURCE_NAMES.KNOWLEDGE_ROOT,
+    legacyName: KSP_LEGACY_RESOURCE_NAMES.KNOWLEDGE_ROOT,
     mimeType: KSP_MIME_TYPES.FOLDER
   });
 
@@ -129,6 +130,7 @@ function kspResolveAllResources_(environment, storedResources, config, report) {
     key: KSP_RESOURCE_KEYS.MEETING_RECORDS,
     parentId: knowledgeRoot.id,
     name: KSP_RESOURCE_NAMES.MEETING_RECORDS,
+    legacyName: KSP_LEGACY_RESOURCE_NAMES.MEETING_RECORDS,
     mimeType: KSP_MIME_TYPES.FOLDER
   });
 
@@ -136,6 +138,21 @@ function kspResolveAllResources_(environment, storedResources, config, report) {
     key: KSP_RESOURCE_KEYS.PITCHBOOKS,
     parentId: knowledgeRoot.id,
     name: KSP_RESOURCE_NAMES.PITCHBOOKS,
+    legacyName: KSP_LEGACY_RESOURCE_NAMES.PITCHBOOKS,
+    mimeType: KSP_MIME_TYPES.FOLDER
+  });
+
+  kspResolveResource_(environment, resources, report, {
+    key: KSP_RESOURCE_KEYS.NEWS,
+    parentId: knowledgeRoot.id,
+    name: KSP_RESOURCE_NAMES.NEWS,
+    mimeType: KSP_MIME_TYPES.FOLDER
+  });
+
+  kspResolveResource_(environment, resources, report, {
+    key: KSP_RESOURCE_KEYS.INTERNAL_ASSESSMENTS,
+    parentId: knowledgeRoot.id,
+    name: KSP_RESOURCE_NAMES.INTERNAL_ASSESSMENTS,
     mimeType: KSP_MIME_TYPES.FOLDER
   });
 
@@ -183,7 +200,23 @@ function kspResolveResource_(environment, resources, report, specification) {
     kspAssert_((resource.parents || []).indexOf(specification.parentId) !== -1,
       'STORED_RESOURCE_PARENT_MISMATCH',
       'Stored resource is outside the configured parent boundary: ' + specification.key + '.');
-    if (resource.name !== specification.name) {
+    if (specification.legacyName && resource.name === specification.legacyName) {
+      var conflicts = environment.findChildren(
+        specification.parentId, specification.name, specification.mimeType
+      ).filter(function (candidate) { return candidate.id !== storedId; });
+      kspAssert_(conflicts.length === 0, 'RESOURCE_RENAME_CONFLICT',
+        'A canonical-name resource already exists for ' + specification.key + '.');
+      var renamed = environment.renameResource(storedId, specification.name);
+      kspAssert_(renamed && renamed.id === storedId && renamed.name === specification.name,
+        'RESOURCE_RENAME_FAILED', 'Stored resource could not be renamed: ' + specification.key + '.');
+      resource = environment.getResource(storedId);
+      kspAssert_(resource && resource.name === specification.name &&
+        (resource.parents || []).indexOf(specification.parentId) !== -1,
+      'RESOURCE_RENAME_READBACK_FAILED', 'Stored resource rename could not be verified: ' + specification.key + '.');
+      kspAddAction_(report, 'migration', specification.key, 'renamed', {
+        id: storedId, fromName: specification.legacyName, name: specification.name
+      });
+    } else if (resource.name !== specification.name) {
       kspAddWarning_(report, 'STORED_RESOURCE_RENAMED',
         'Stored resource name differs from the accepted default; the stored ID remains authoritative.', {
           key: specification.key,
@@ -198,6 +231,14 @@ function kspResolveResource_(environment, resources, report, specification) {
       source: 'stored-id'
     });
     return resource;
+  }
+
+  if (specification.legacyName) {
+    var legacyMatches = environment.findChildren(
+      specification.parentId, specification.legacyName, specification.mimeType
+    );
+    kspAssert_(legacyMatches.length === 0, 'LEGACY_RESOURCE_ID_REQUIRED',
+      'A legacy resource exists without an authoritative stored ID: ' + specification.key + '.');
   }
 
   var matches = environment.findChildren(
@@ -339,6 +380,8 @@ function kspRunValidation_(environment) {
       [KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.MEETING_RECORDS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.PITCHBOOKS, KSP_MIME_TYPES.FOLDER],
+      [KSP_RESOURCE_KEYS.NEWS, KSP_MIME_TYPES.FOLDER],
+      [KSP_RESOURCE_KEYS.INTERNAL_ASSESSMENTS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.BACKUP_FOLDER, KSP_MIME_TYPES.FOLDER],
       [KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET, KSP_MIME_TYPES.SPREADSHEET],
@@ -359,6 +402,8 @@ function kspRunValidation_(environment) {
       [KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT, config.knowledgeParentFolderId],
       [KSP_RESOURCE_KEYS.MEETING_RECORDS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
       [KSP_RESOURCE_KEYS.PITCHBOOKS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
+      [KSP_RESOURCE_KEYS.NEWS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
+      [KSP_RESOURCE_KEYS.INTERNAL_ASSESSMENTS, state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_ROOT]],
       [KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS, config.knowledgeParentFolderId],
       [KSP_RESOURCE_KEYS.BACKUP_FOLDER, config.controlFolderId],
       [KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET, config.controlFolderId],

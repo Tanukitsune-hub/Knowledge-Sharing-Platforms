@@ -1,8 +1,8 @@
 # Documentation
 
-Current as of: 2026-08-29
+Current as of: 2026-09-25
 
-This directory records the active product, architecture, runtime, security, roadmap, distribution, and delivery contracts for Private Assets Intelligence.
+このdirectoryにはAlternative Assets Intelligenceの現行product、architecture、runtime、security、roadmap、distribution、delivery contractを記録します。
 
 Historical Work/qualification files remain evidence of what they observed. They do not override newer accepted decisions.
 
@@ -46,6 +46,8 @@ Historical Work/qualification files remain evidence of what they observed. They 
 - `planning/work0020-personal-pc-gemini-core-qualification.md` — AI Provider Core / dual File Search / full output
 - `planning/work0021-knowledge-search-filters-multi-entity-comparison.md` — filters / five modes / comparison / provider parity
 - `planning/work0023-bundle-installer-distribution.md` — generated bundle / guarded installer / fresh-install qualification
+- `planning/work0069-source-aware-knowledge-expansion-plan.md` — 4-sourceのClosed Decisions
+- `planning/work0070-record-source-expansion.md` — schema9 record layerの実装・qualification境界
 
 ### Runtime, distribution, AI, and security
 
@@ -67,11 +69,11 @@ Historical Work/qualification files remain evidence of what they observed. They 
 ## Current product baseline
 
 - one organization-controlled Apps Script Web App;
-- Shared Drive authoritative Meeting/Pitchbook sources;
-- five-sheet Backend with append-only evolution;
+- Shared Driveの4-source正本（面談メモ、保存資料、ニュース、評価）;
+- schema9の7-sheet Backendとappend-only evolution;
 - separate Restricted Audit Spreadsheet;
-- stable Meeting/Document/Batch/Master IDs;
-- Meeting/Pitchbook registration and maintenance;
+- stable Meeting/Document/News/Assessment/Batch/Master IDs;
+- 4-sourceの登録・過去記録・maintenance（Work0070 CODEX-01はdeterministic source validationまで）;
 - Counterparty Type -> Entity classification;
 - Team, Fund/Strategy, Meeting Type, Related Pitchbooks, and follow-up metadata;
 - GP/Entity Workspaces;

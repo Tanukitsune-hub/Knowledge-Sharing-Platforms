@@ -30,7 +30,7 @@ Scope: files under `src/`.
 - For Luna Max defect work, ChatGPT owns root-cause analysis. The handoff must state one falsifiable hypothesis, exact files/functions, expected pre-fix failing test, one minimal repair, focused checks, one live confirmation, and stop conditions.
 - Luna Max must stop when the hypothesis is not reproduced, the one repair attempt fails focused checks, the live case still fails after deterministic PASS, or evidence points to another cause. It must not explore a second hypothesis or broaden the investigation in the same run.
 - Subagents remain mandatory, but for bounded Luna defect work they are limited to independent hypothesis verification and patch/regression review, not competing root-cause exploration.
-- Release version remains `0.1.2` unless an observed defect repair materially changes the application release contract; qualification-only evidence does not by itself require a version bump.
+- Work0070's four-source record layer and schema9 target release is `0.2.0`. A later qualification-only evidence update does not by itself require another version bump.
 - Preserve the accepted Gemini-independent Knowledge Export contract: resolve Active sources from the Backend Index and keep Audit metadata-only and content-redacted.
 - Use `kspCanonicalBusinessDate_`, `kspCanonicalBusinessTime_`, and `kspCanonicalInstantIso_` at temporal boundaries. Business Date/Time values use the configured `KSP_DEFAULTS.TIMEZONE`; Created/Updated/Audit/AI timestamps use UTC ISO milliseconds.
 - Do not derive Business Date/Time with UTC or local calendar getters, serialize physical Sheets Date/Time values directly, or add feature-specific temporal parsing algorithms. Preserve untouched physical cells during metadata-only writes.
