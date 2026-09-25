@@ -580,15 +580,18 @@ Accepted default:
 記録・資料
 ~~~
 
-このfolderには面談メモ、保存資料、ニュース、内部評価等のauthoritative sourceを格納する。
+このroot folderにはauthoritative sourceをsource type別の4つの直下folderへ分けて格納する。
 
 Migration rule:
 
-- new installation: `記録・資料` を作成する。
-- existing installation: stored `knowledgeRootFolderId` をauthoritative identityとして使う。
+- new installation: root `記録・資料` を作成し、その直下に `面談記録` / `保存資料` / `ニュース` / `内部評価（ICメモ、社内整理等）` を作成する。
+- existing installation: stored `knowledgeRootFolderId` と各child folder IDをauthoritative identityとして使う。
 - existing rootのnameがlegacy exact `Private Assets Knowledge` の場合だけ、同じfolder IDをin-placeで `記録・資料` へrenameする。
-- already `記録・資料` ならno-op。
-- 利用者が別名へ手動rename済みなら、そのcustom nameを強制上書きしない。stored IDを維持し、必要ならwarningのみ。
+- existing `Meeting Records` は同じfolder IDのまま `面談記録` へrenameする。
+- existing `Pitchbooks` は同じfolder IDのまま `保存資料` へrenameする。
+- `ニュース` / `内部評価（ICメモ、社内整理等）` はnew source folderとしてroot直下へ追加する。
+- already target nameならno-op。
+- 利用者がrootまたはexisting childを別名へ手動rename済みなら、そのcustom nameを強制上書きしない。stored IDを維持し、必要ならwarningのみ。
 - renameのためにfolderを新規作成、移動、copy、source file再配置しない。
 - child folder IDs / source file IDs / Settingsのstored resource IDsを変更しない。
 
@@ -641,10 +644,10 @@ default proposal:
 
 ~~~text
 記録・資料
-├─ Meeting Records
-├─ Pitchbooks
-├─ News
-└─ Internal Assessments
+├─ 面談記録
+├─ 保存資料
+├─ ニュース
+└─ 内部評価（ICメモ、社内整理等）
 
 ※ Knowledge Exportsはcurrent contractどおりauthoritative root外
 ~~~
@@ -704,6 +707,8 @@ Scope:
 
 1. schema9 migration
    - rename legacy root folder `Private Assets Knowledge` -> `記録・資料` in-place by stored ID
+   - rename legacy child folders `Meeting Records` -> `面談記録`, `Pitchbooks` -> `保存資料` in-place by stored IDs
+   - create `ニュース` / `内部評価（ICメモ、社内整理等）` under the same root
    - add News_Index
    - add Internal_Assessment_Index
    - add Drive folders
@@ -785,6 +790,8 @@ Acceptance Evidence:
 
 - schema8 -> schema9 isolated migration preserves old data and creates exactly the intended resources once
 - legacy `Private Assets Knowledge` root is renamed in-place with the same folder ID; no duplicate root
+- legacy `Meeting Records` / `Pitchbooks` child folders are renamed in-place with the same folder IDs
+- root direct children are `面談記録` / `保存資料` / `ニュース` / `内部評価（ICメモ、社内整理等）` for fresh/default installs
 - second setup run = idempotent
 - existing Meeting create/edit/past/attachment path PASS
 - existing Pitchbook stable IDs / Meeting relation PASS
@@ -1188,6 +1195,7 @@ DIGEST_POLICY: AUTOMATIC_HIDDEN_DERIVED_LAYER
 TEAM_OPERATING_MODEL: MULTI_USER_FIRST
 PRODUCT_TITLE: Alternative Assets Intelligence
 KNOWLEDGE_ROOT_DEFAULT_NAME: 記録・資料
+SOURCE_FOLDER_LAYOUT: 面談記録 / 保存資料 / ニュース / 内部評価（ICメモ、社内整理等）
 BLOCKER: NONE
 COMPLETION_LATCH: APPLIED
 ~~~
