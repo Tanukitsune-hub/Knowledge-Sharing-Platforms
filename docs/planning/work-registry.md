@@ -15,7 +15,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 |---|---|---|---|---|
 | 0069 | Source-aware knowledge expansion implementation plan | ACCEPTED | Work0068 current baseline | Start API-independent record-layer implementation under a new Work ID when authorized; AI/provider phase remains credential/policy-gated |
 | 0070 | Source-aware record layer expansion — 4-source authoritative record/storage/UI, schema9, team concurrency | ACCEPTED | Work0069 ACCEPTED | PR #103 / merge `00ac5618c0c0f0ef771cb4b79602853ab0d43e9b`; preserve accepted evidence |
-| 0071 | Interaction-stable async UX — Google Web UX KBを選択適用し、save/upload/statusのlayout shift・focus・recoveryを改善 | ACTIVE | Work0070 ACCEPTED baseline | Phase A merged in PR #104; run `0071-CODEX-04` for evidence-gated focus continuity / Past edit recovery |
+| 0071 | Interaction-stable async UX — Google Web UX KBを選択適用し、save/upload/statusのlayout shift・focus・recoveryを改善 | ACCEPTED | Work0070 ACCEPTED baseline | PR #104 + #105; final release 0.2.2 / schema9; preserve accepted evidence |
 
 Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
 
