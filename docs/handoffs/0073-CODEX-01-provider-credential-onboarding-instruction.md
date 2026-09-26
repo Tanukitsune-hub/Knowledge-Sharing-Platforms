@@ -253,17 +253,39 @@ Clear raw candidate input after terminal success/failure.
 
 Do not persist raw key in `localStorage` or `sessionStorage`.
 
-### I. Progressive disclosure
+### I. Progressive disclosure and model lifecycle resilience
 
 Move model-policy editing behind `詳細設定`.
 
-The primary onboarding path must not require editing:
+The primary onboarding path must not require editing Profile ID, family, raw thinking syntax, output ceiling or internal qualification state.
 
-- Profile ID
-- family
-- raw thinking profile syntax
-- output ceiling
-- internal qualification state
+Normal model administration must tolerate provider model churn without a source-code release.
+
+Implement/reuse a provider-neutral advanced flow:
+
+```text
+provider discovery (optional/advisory)
+or direct Model ID entry
+-> register profile
+-> qualify exact model + thinking tuple
+-> explicitly promote to provider default/user-visible
+```
+
+Requirements:
+
+- server-side model discovery when the provider exposes a list endpoint;
+- direct Model ID entry remains available as fallback;
+- no hard-coded current-model list as the exhaustive normal-runtime gate;
+- discovery does not auto-enable/auto-qualify;
+- provider discovery failure preserves existing registered/qualified/default profiles;
+- model-list freshness is visible or represented in returned state;
+- model/thinking qualification is exact and profile-specific;
+- an unavailable configured model becomes unavailable/reverify, not silently replaced;
+- no automatic model failover or automatic upgrade;
+- rolling/latest aliases, if supported, require explicit administrator choice and clear labeling;
+- provider-reported lifecycle metadata may be surfaced safely when available.
+
+Review current OpenAI default-model constants and Gemini hard-coded allowlists/candidate paths. Historical qualification fixtures may remain only if they no longer constrain the normal Work0073 registration/selection path.
 
 Move manual exact-source sync behind `同期・診断`.
 
@@ -434,7 +456,13 @@ At minimum:
 7. status response contains no raw key/private secret material;
 8. remove requires disabled provider + Credential Operator;
 9. disable preserves active credential/resource;
-10. raw candidate is cleared from UI after terminal operation.
+10. raw candidate is cleared from UI after terminal operation;
+11. newly discovered/manual Model ID can be registered without source code change;
+12. discovery never bypasses qualification;
+13. discovery failure preserves current qualified/default profiles;
+14. unavailable configured model does not silently fall back;
+15. rolling/latest alias, if supported, requires explicit selection and labeling;
+16. only qualified thinking/reasoning options become selectable.
 
 ### Provider/resource lifecycle tests
 
@@ -583,6 +611,12 @@ PERMANENT_KEY_FIELD_REMOVED
 ROTATION_UX
 DISABLE_VS_REMOVE
 MODEL_ADVANCED_DISCLOSURE
+MODEL_DISCOVERY
+MODEL_MANUAL_ID_FALLBACK
+MODEL_QUALIFICATION_GATE
+MODEL_UNAVAILABLE_NO_FALLBACK
+MODEL_ALIAS_POLICY
+THINKING_PROFILE_QUALIFICATION
 SYNC_DIAGNOSTICS_DISCLOSURE
 FOUR_SOURCE_SELECTION
 FOUR_SOURCE_EXACT_RESOLUTION
