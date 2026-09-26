@@ -14,6 +14,7 @@ const enhancements = read('src/ClientMaintenanceEnhancements.html');
 const pitchbookFiles = read('src/ClientPitchbookFiles.html');
 const pitchbookFlow = read('src/ClientPitchbookFlow.html');
 const admin = read('src/ClientAiProviderSettings.html');
+const modelSetup = read('src/ClientAiModelSetup.html');
 const theme = read('src/ClientThemeSettings.html');
 const analytics = read('src/ClientActivityAnalytics.html');
 const knowledge = read('src/ClientKnowledgeSearch.html');
@@ -169,8 +170,9 @@ test('app-wide mutation and long-operation feedback matrix remains wired before 
     ['Master reorder', maintenance, /kspSetActionBusy\(button,true,'保存中…'\)[\s\S]*?action:'REORDER_BATCH'/, /並び順を保存中…/],
     ['Deleted record restore', admin, /kspSetActionBusy\(trigger,true,'復元中…'\)[\s\S]*?serverCall\(config\.status,\{\[config\.idKey\]:record\[config\.idKey\]\|\|record\.id,expectedVersion:record\.version,targetStatus:'Active'\}/, /admin-deleted-status','info busy/],
     ['Theme save and reset', theme, /themeSettingsSetBusy\(true,themeSettingsElement\('theme-settings-save'\),'保存中…'\)[\s\S]*?serverCall\('mutateThemeSettings'/, /themeSettingsSetBusy\(true,themeSettingsElement\('theme-settings-reset'\),'初期化中…'\)/],
-    ['Provider connect enable disable sync', admin, /kspSetActionBusy\(trigger,true,busyLabel\)[\s\S]*?serverCall\('mutateAiProviderSettings'/, /aiProviderAdminBusyLabel/],
-    ['Model policy migrate save qualify', admin, /kspSetActionBusy\(trigger,true,busyLabel\)[\s\S]*?Object\.assign\(\{action\}/, /aiModelPolicyBusyLabel/],
+    ['Provider stop', modelSetup, /kspSetActionBusy\(button,true,'停止中…'\)[\s\S]*?serverCall\('mutateAiProviderSettings'/, /接続を停止しました/],
+    ['Provider model save', modelSetup, /aiSetupSetBusy\(true\)[\s\S]*?serverCall\(aiSetupCredentialMode\?'saveAiCredentialSetup':'saveAiModelSetup'/, /選択したモデルで4種類の合成資料を確認中/],
+    ['Provider sync', modelSetup, /aiSetupSetBusy\(true\);aiSetupMessage\('ai-setup-sync-status','info busy','選択資料を同期中…'\)[\s\S]*?serverCall\('mutateAiProviderSettings'/, /aiProviderAdminSyncMessage/],
     ['Analytics Admin Check', analytics, /checkbox\.setAttribute\('aria-busy','true'\)[\s\S]*?serverCall\('updateMeetingAdminCheck'/, /activity-admin-check-status','info busy/],
     ['AI search and pending', knowledge, /kShowStatus\('info busy','AI検索を開始中…'\);kSetBusy\(true\)[\s\S]*?kStartKnowledgeQuery/, /kShowPendingStatus[\s\S]*?busy/],
     ['Full Output Docs PDF', knowledge, /kSetExportBusy\(true,trigger,label\)[\s\S]*?kServerCall\('createKnowledgeExport'/, /PDFを作成中…/]

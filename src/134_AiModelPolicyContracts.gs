@@ -140,6 +140,10 @@ function kspAiModelPolicyProfile_(raw) {
       'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
     qualifiedRequestProfileVersion: kspAiModelPolicySafeText_(value.qualifiedRequestProfileVersion, 80,
       'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
+    qualifiedCredentialGeneration: kspAiModelPolicySafeText_(value.qualifiedCredentialGeneration, 80,
+      'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
+    qualifiedTupleFingerprint: kspAiModelPolicySafeText_(value.qualifiedTupleFingerprint, 64,
+      'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
     createdAt: kspAiModelPolicySafeText_(value.createdAt, 40, 'AI_MODEL_TIMESTAMP_INVALID', false),
     updatedAt: kspAiModelPolicySafeText_(value.updatedAt, 40, 'AI_MODEL_TIMESTAMP_INVALID', false),
     qualifiedAt: qualifiedAt,
@@ -158,7 +162,8 @@ function kspNormalizeAiModelPolicy_(raw) {
   kspAiModelPolicyAssert_(schemaVersion === KSP_AI_DEFAULTS.MODEL_POLICY_SCHEMA_VERSION,
     'AI_MODEL_POLICY_SCHEMA_UNSUPPORTED');
   var profiles = Array.isArray(value.profiles) ? value.profiles : [];
-  kspAiModelPolicyAssert_(profiles.length > 0 && profiles.length <= 50, 'AI_MODEL_PROFILES_INVALID');
+  // A newly installed provider may have a credential but no chosen model yet.
+  kspAiModelPolicyAssert_(profiles.length <= 50, 'AI_MODEL_PROFILES_INVALID');
   var profileSeen = {};
   var defaults = {};
   var enabledProviders = {};
@@ -179,6 +184,10 @@ function kspNormalizeAiModelPolicy_(raw) {
   return {
     schemaVersion: schemaVersion,
     updatedAt: kspAiModelPolicySafeText_(value.updatedAt, 40, 'AI_MODEL_TIMESTAMP_INVALID', false),
+    lastOperationId: kspAiModelPolicySafeText_(value.lastOperationId, 80,
+      'AI_MODEL_POLICY_INVALID', false),
+    lastOperationProfileId: kspAiModelPolicySafeText_(value.lastOperationProfileId, 80,
+      'AI_MODEL_POLICY_INVALID', false),
     profiles: profiles
   };
 }
@@ -299,6 +308,13 @@ function kspResolveAiModelSelection_(settings, provider, rawInput, config, nowIs
     'AI_MODEL_PROFILE_INACCESSIBLE');
   kspAiModelPolicyAssert_(profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch,
     'AI_MODEL_PROFILE_UNQUALIFIED');
+  if (profile.qualifiedTupleFingerprint) {
+    var selectedStore = normalizedProvider === KSP_AI_PROVIDERS.OPENAI
+      ? kspAiTrim_(config && config.vectorStoreId) : kspAiTrim_(config && config.storeName);
+    kspAiModelPolicyAssert_(profile.qualifiedTupleFingerprint ===
+      kspAiSetupTupleFingerprint_(profile, config && config.credentialGeneration, selectedStore),
+    'AI_MODEL_PROFILE_UNQUALIFIED');
+  }
   if (normalizedProvider === KSP_AI_PROVIDERS.GEMINI) {
     kspAiModelPolicyAssert_(profile.qualifiedStoreName &&
       profile.qualifiedStoreName === kspAiTrim_(config && config.storeName) &&
@@ -350,10 +366,16 @@ function kspGetEffectiveAiModelChoices_(settings, provider, config, nowIso) {
       var currentGeminiIdentity = normalizedProvider !== KSP_AI_PROVIDERS.GEMINI ||
         (profile.qualifiedStoreName && profile.qualifiedStoreName === kspAiTrim_(config.storeName) &&
           profile.qualifiedRequestProfileVersion === KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION);
+      var selectedStore = normalizedProvider === KSP_AI_PROVIDERS.OPENAI
+        ? kspAiTrim_(config.vectorStoreId) : kspAiTrim_(config.storeName);
+      var currentTupleIdentity = !profile.qualifiedTupleFingerprint ||
+        profile.qualifiedTupleFingerprint ===
+          kspAiSetupTupleFingerprint_(profile, config.credentialGeneration, selectedStore);
       return profile.provider === normalizedProvider && profile.enabled && profile.userVisible && defaultThinking &&
         defaultThinking.enabled && defaultThinking.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED &&
         profile.apiAccess === KSP_AI_MODEL_ACCESS_STATES.AVAILABLE &&
-        profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch && currentGeminiIdentity;
+        profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch &&
+        currentGeminiIdentity && currentTupleIdentity;
     }).map(function (profile) {
       return {
         profileId: profile.profileId,
@@ -380,6 +402,8 @@ function kspAiModelPolicyForAdmin_(policy) {
       var safe = kspDeepClone_(profile);
       delete safe.qualifiedStoreName;
       delete safe.qualifiedRequestProfileVersion;
+      delete safe.qualifiedCredentialGeneration;
+      delete safe.qualifiedTupleFingerprint;
       return safe;
     })
   };
@@ -424,6 +448,8 @@ function kspUpsertAiModelProfile_(policy, rawProfile, nowIso) {
   nextRaw.qualifiedAt = existing ? existing.qualifiedAt : '';
   nextRaw.qualifiedStoreName = existing ? existing.qualifiedStoreName : '';
   nextRaw.qualifiedRequestProfileVersion = existing ? existing.qualifiedRequestProfileVersion : '';
+  nextRaw.qualifiedCredentialGeneration = existing ? existing.qualifiedCredentialGeneration : '';
+  nextRaw.qualifiedTupleFingerprint = existing ? existing.qualifiedTupleFingerprint : '';
   nextRaw.createdAt = existing ? existing.createdAt : nowIso;
   nextRaw.updatedAt = nowIso;
   if (existing && input.fileSearch === undefined) nextRaw.fileSearch = existing.fileSearch;
@@ -448,6 +474,8 @@ function kspUpsertAiModelProfile_(policy, rawProfile, nowIso) {
     normalizedProfile.qualifiedAt = '';
     normalizedProfile.qualifiedStoreName = '';
     normalizedProfile.qualifiedRequestProfileVersion = '';
+    normalizedProfile.qualifiedCredentialGeneration = '';
+    normalizedProfile.qualifiedTupleFingerprint = '';
     normalizedProfile.thinkingProfiles.forEach(function (thinking) {
       thinking.qualification = KSP_AI_MODEL_QUALIFICATION_STATES.UNQUALIFIED;
       thinking.qualifiedAt = '';

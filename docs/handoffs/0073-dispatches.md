@@ -1,16 +1,18 @@
 # Work 0073 Dispatch Register
 
 WORK_ID: 0073
-DISPATCH_ID: 0073-CODEX-02
-ACTIVE_DISPATCH_ID: 0073-CODEX-02
-ACTIVE_DISPATCH: 0073-CODEX-02
-BALL: CODEX
-STATUS: READY
+DISPATCH_ID: 0073-CODEX-03
+ACTIVE_DISPATCH_ID: 0073-CODEX-03
+ACTIVE_DISPATCH: 0073-CODEX-03
+BALL: CHATGPT
+STATUS: RETURNED
 
-更新日: 2026-09-26
-実行状態: ユーザーがWork0073未実行と確認。CODEX-02は引き渡し準備完了であり、Codex実行開始の観測ではない。
+更新日: 2026-09-27
+実行状態: CODEX-03はChatGPT reviewの2件のBLOCKERだけをDraft PR #109上で修正して返却。CODEX-02のClosed Evidenceを維持。Work全体のACCEPTED判定とruntime qualificationは未実施。
 
 ## 現在の実行正本
+
+- [CODEX-03 repair instruction](0073-CODEX-03-model-setup-review-repair-instruction.md)
 
 - [CODEX-02 instruction](0073-CODEX-02-simple-model-setup-instruction.md)
 - [実装計画 revision 2](../planning/work0073-provider-credential-onboarding.md)
@@ -21,27 +23,30 @@ STATUS: READY
 | Dispatch ID | 内容 | Mode | BALL | STATUS | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
 | 0073-CODEX-01 | 初期のAPIキー/モデル設定指示。ユーザー確認で未実行 | BUILD | NONE | SUPERSEDED | [旧01案内](0073-CODEX-01-provider-credential-onboarding-instruction.md) | 未作成・実行なし | — |
-| 0073-CODEX-02 | 1フォーム/確認して保存、初回既定なし、候補一覧の非依存化、4-source整合 | BUILD | CODEX | READY | [02指示](0073-CODEX-02-simple-model-setup-instruction.md) | 未作成 | 0073-CODEX-01 |
+| 0073-CODEX-02 | 1フォーム/確認して保存、初回既定なし、候補一覧の非依存化、4-source整合 | BUILD | CHATGPT | RETURNED | [02指示](0073-CODEX-02-simple-model-setup-instruction.md) | [実装報告](0073-CODEX-02-simple-model-setup-report.md) | 0073-CODEX-01 |
+| 0073-CODEX-03 | ChatGPT final review repair: Gemini Model ID canonicalization + fresh model-empty state | BUILD | CHATGPT | RETURNED | [03指示](0073-CODEX-03-model-setup-review-repair-instruction.md) | [修正報告](0073-CODEX-03-model-setup-review-repair-report.md) | 0073-CODEX-02 |
 
-未実行でも、発行済みinstructionの実行契約を差し替えるためdispatch-control.mdに従い次番号にする。旧01の番号や履歴を再利用・改番しない。activeは02だけ。
+未実行でも、発行済みinstructionの実行契約を差し替えるためdispatch-control.mdに従い次番号にする。旧01の番号や履歴を再利用・改番しない。現在activeなのは03だけ。
 
 ## Scopeと権限
 
 安全なキー登録/更新、モデルの選択/直接入力から確認・保存までの共通処理、既定なし初回設定、標準思考設定、状態表示、4種類の情報源の同期/選択/resetの整合まで。
 
-CODEX-02はrepository BUILDとdeterministic/local browser検証。実provider・実キー・実Store・Apps Script/Workspace/deploy・会社データ・Secret Manager・Azureの操作予算は0。詳しい受入Matrixと終了条件は実装計画だけを正本にする。
+CODEX-03はPR #109の限定repair BUILD。実provider・実キー・実Store・Apps Script/Workspace/deploy・会社データ・Secret Manager・Azureの操作予算は0。repair範囲と検証はCODEX-03 instructionを正本にし、Work全体の受入条件は実装計画を維持する。
 
 ## 返却
 
-Report予定path: `docs/handoffs/0073-CODEX-02-simple-model-setup-report.md`
+CODEX-02 Report: [0073-CODEX-02-simple-model-setup-report.md](0073-CODEX-02-simple-model-setup-report.md)
 
-Codexはbranch上でこのregisterを次へ更新する。
+CODEX-03 Report: [0073-CODEX-03-model-setup-review-repair-report.md](0073-CODEX-03-model-setup-review-repair-report.md)
+
+CODEX-03はsource freeze、生成配布物、focused/全体check、合成browser検証を記録してChatGPTへ返却した。
 
 ```text
 WORK_ID: 0073
-DISPATCH_ID: 0073-CODEX-02
-ACTIVE_DISPATCH_ID: 0073-CODEX-02
-ACTIVE_DISPATCH: 0073-CODEX-02
+DISPATCH_ID: 0073-CODEX-03
+ACTIVE_DISPATCH_ID: 0073-CODEX-03
+ACTIVE_DISPATCH: 0073-CODEX-03
 BALL: CHATGPT
 STATUS: RETURNED
 ```
@@ -55,6 +60,6 @@ STATUS: RETURNED
 Shared Knowledge利用: `agent-knowledge-base/docs/knowledge/index.md`からOBS-0018を読み、実行設定に紐づくqualificationと、省略/明示値の区別へ適用。Project Source `GOOGLE-WEB-UX-KB`のFORM-006、FORM-005、NAV-005等を、入力削減と障害復旧へ適用。モデル一覧APIの確認範囲と設計採用理由はDecision末尾に記録。
 
 WORK_ID: 0073
-DISPATCH_ID: 0073-CODEX-02
+DISPATCH_ID: 0073-CODEX-03
 BALL: CODEX
 STATUS: READY

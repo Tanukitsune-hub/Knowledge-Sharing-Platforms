@@ -1,6 +1,8 @@
 // ===== BEGIN src/161_GeminiRestClient.gs =====
 function kspGeminiApiKeyLive_() {
-  var apiKey = PropertiesService.getScriptProperties().getProperty(KSP_AI_PROPERTY_KEYS.API_KEY);
+  var snapshot = kspAiActiveCredentialSnapshotLive_(KSP_AI_PROVIDERS.GEMINI);
+  var apiKey = snapshot ? snapshot.key :
+    PropertiesService.getScriptProperties().getProperty(KSP_AI_PROPERTY_KEYS.API_KEY);
   kspAssert_(apiKey, 'AI_CREDENTIAL_NOT_CONFIGURED', 'Gemini API credentialが設定されていません。');
   return apiKey;
 }
@@ -410,7 +412,7 @@ function kspGeminiJsonRequestLive_(method, path, payload, options) {
   var requestOptions = {
     method: String(method || 'GET').toLowerCase(),
     headers: (function () {
-      var headers = { 'x-goog-api-key': kspGeminiApiKeyLive_() };
+      var headers = { 'x-goog-api-key': settings.apiKeyOverride || kspGeminiApiKeyLive_() };
       Object.keys(settings.headers || {}).forEach(function (key) {
         headers[key] = settings.headers[key];
       });
@@ -509,7 +511,7 @@ function kspGeminiStartInteractionLive_(request) {
   return { status: 'in_progress', interactionId: interactionId };
 }
 
-function kspGeminiQueryInteractionLive_(request) {
+function kspGeminiQueryInteractionLive_(request, apiKeyOverride) {
   var payload = {};
   Object.keys(request || {}).forEach(function (key) { payload[key] = request[key]; });
   delete payload.background;
@@ -518,7 +520,8 @@ function kspGeminiQueryInteractionLive_(request) {
     stage: 'QUERY_HTTP',
     errorCode: 'AI_QUERY_HTTP_FAILED',
     parseErrorCode: 'AI_QUERY_RESPONSE_INVALID',
-    includeResponseMetadata: true
+    includeResponseMetadata: true,
+    apiKeyOverride: apiKeyOverride
   });
   var status = kspGeminiInteractionStatus_(current);
   if (status === 'completed' || (!status && Array.isArray(current && current.steps))) return current;
@@ -658,7 +661,8 @@ function kspGeminiUploadSessionStatus_(response) {
   };
 }
 
-function kspGeminiRecoverUploadFinalize_(uploadUrl, metadata, payloadBytes, primaryError, normalizedStore, source) {
+function kspGeminiRecoverUploadFinalize_(uploadUrl, metadata, payloadBytes, primaryError, normalizedStore, source,
+    apiKeyOverride) {
   var queryResponse;
   try {
     queryResponse = kspGeminiFetchResponseLive_(String(uploadUrl), kspGeminiBuildUploadQueryRequest_(), {
@@ -672,7 +676,7 @@ function kspGeminiRecoverUploadFinalize_(uploadUrl, metadata, payloadBytes, prim
   }
   var session = kspGeminiUploadSessionStatus_(queryResponse);
   if (session.status === 'final' || session.status === 'finalized' || session.status === 'complete') {
-    return { document: kspReconcileGeminiDocumentLive_(normalizedStore, source), response: null };
+    return { document: kspReconcileGeminiDocumentLive_(normalizedStore, source, apiKeyOverride), response: null };
   }
   if (session.status !== 'active' || !Number.isInteger(session.offset) ||
       session.offset < 0 || session.offset > payloadBytes.length) {
@@ -708,11 +712,11 @@ function kspGeminiPrepareUploadBytes_(bytes, metadata) {
   });
 }
 
-function kspGeminiUploadSourceLive_(storeName, source, bytes) {
+function kspGeminiUploadSourceLive_(storeName, source, bytes, apiKeyOverride) {
   var normalizedStore = kspAiStoreResourcePath_(storeName);
   var metadata = kspBuildFileSearchUploadMetadata_(source);
   var payloadBytes = kspGeminiPrepareUploadBytes_(bytes, metadata);
-  var apiKey = kspGeminiApiKeyLive_();
+  var apiKey = apiKeyOverride || kspGeminiApiKeyLive_();
   var startUrl = kspGeminiAppendApiKey_(
     KSP_AI_API.UPLOAD_BASE_URL + '/' + normalizedStore + ':uploadToFileSearchStore', apiKey
   );
@@ -758,7 +762,7 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
       primaryError.permanent = true;
     }
     var recovery = kspGeminiRecoverUploadFinalize_(String(uploadUrl), metadata, payloadBytes,
-      primaryError, normalizedStore, source);
+      primaryError, normalizedStore, source, apiKeyOverride);
     if (recovery.document) return recovery.document;
     uploadResponse = recovery.response;
   }
@@ -778,7 +782,7 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
     throw kspGeminiStageError_('AI_OPERATION_POLL_FAILED', 'OPERATION_POLL', code, headers, false);
   }
   kspAssert_(operation && operation.name, 'AI_OPERATION_POLL_FAILED', 'File Search operationが返されませんでした。');
-  operation = kspPollFileSearchOperationLive_(operation);
+  operation = kspPollFileSearchOperationLive_(operation, apiKeyOverride);
   if (operation.error) {
     throw kspGeminiStageError_('AI_UPLOAD_OPERATION_FAILED', 'OPERATION_RESULT', 0, {}, false);
   }
@@ -790,17 +794,44 @@ function kspGeminiUploadSourceLive_(storeName, source, bytes) {
     documentValue = null;
   }
   if (documentValue && documentValue.name) {
-    return kspReadAndVerifyFileSearchDocumentLive_(documentValue.name, source);
+    return kspReadAndVerifyFileSearchDocumentLive_(documentValue.name, source, apiKeyOverride);
   }
-  return kspReconcileGeminiDocumentLive_(normalizedStore, source);
+  return kspReconcileGeminiDocumentLive_(normalizedStore, source, apiKeyOverride);
 }
 
-function kspUploadSourceLive_(storeName, source) {
+function kspGeminiQualificationInteractionLive_(request, apiKeyOverride) {
+  var payload = {};
+  Object.keys(request || {}).forEach(function (key) { payload[key] = request[key]; });
+  delete payload.background;
+  var current = kspGeminiJsonRequestLive_('POST', KSP_AI_API.INTERACTIONS_PATH, payload, {
+    retryPolicy: KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE,
+    stage: 'QUERY_HTTP', errorCode: 'AI_QUERY_HTTP_FAILED',
+    parseErrorCode: 'AI_QUERY_RESPONSE_INVALID', apiKeyOverride: apiKeyOverride
+  });
+  for (var attempt = 0; attempt <= KSP_AI_DEFAULTS.MAX_OPERATION_POLLS; attempt += 1) {
+    var status = kspGeminiInteractionStatus_(current);
+    if (status === 'completed' || (!status && Array.isArray(current && current.steps))) return current;
+    if (kspGeminiInteractionIsTerminal_(status)) throw kspGeminiInteractionTerminalError_(status, current);
+    var interactionId = kspGeminiInteractionId_(current);
+    kspAssert_(interactionId && attempt < KSP_AI_DEFAULTS.MAX_OPERATION_POLLS &&
+      (status === 'queued' || status === 'in_progress'),
+    'AI_QUERY_ASYNC_REQUIRED', 'Gemini qualification did not complete in the bounded window.');
+    Utilities.sleep(KSP_AI_DEFAULTS.OPERATION_POLL_MILLIS);
+    current = kspGeminiJsonRequestLive_('GET', kspGeminiInteractionPath_(interactionId), null, {
+      retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+      stage: 'QUERY_POLL', errorCode: 'AI_QUERY_HTTP_FAILED',
+      parseErrorCode: 'AI_QUERY_RESPONSE_INVALID', apiKeyOverride: apiKeyOverride
+    });
+  }
+  throw kspAiSetupError_('AI_SETUP_QUALIFICATION_FAILED');
+}
+
+function kspUploadSourceLive_(storeName, source, apiKeyOverride) {
   var bytes = Utilities.newBlob(String(source.text || ''), source.mimeType || 'text/plain', source.displayName).getBytes();
-  return kspGeminiUploadSourceLive_(storeName, source, bytes);
+  return kspGeminiUploadSourceLive_(storeName, source, bytes, apiKeyOverride);
 }
 
-function kspPollFileSearchOperationLive_(operation) {
+function kspPollFileSearchOperationLive_(operation, apiKeyOverride) {
   var current = operation || {};
   if (!current.done && !current.name) {
     throw kspGeminiStageError_('AI_OPERATION_POLL_FAILED', 'OPERATION_POLL', 0, {}, false);
@@ -810,7 +841,7 @@ function kspPollFileSearchOperationLive_(operation) {
     current = kspNormalizeFileSearchOperation_(kspGeminiJsonRequestLive_(
       'GET', '/' + current.name, null,
       { retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
-        stage: 'OPERATION_POLL', errorCode: 'AI_OPERATION_POLL_FAILED' }
+        stage: 'OPERATION_POLL', errorCode: 'AI_OPERATION_POLL_FAILED', apiKeyOverride: apiKeyOverride }
     ));
   }
   if (!current.done) {
@@ -835,15 +866,15 @@ function kspGeminiDocumentMatchesSource_(documentValue, source) {
     Boolean(String(source && source.contentHash || ''));
 }
 
-function kspReconcileGeminiDocumentLive_(storeName, source) {
+function kspReconcileGeminiDocumentLive_(storeName, source, apiKeyOverride) {
   var maxAttempts = 3;
   for (var attempt = 0; attempt < maxAttempts; attempt += 1) {
-    var documents = kspListAllFileSearchDocumentsLive_(storeName);
+    var documents = kspListAllFileSearchDocumentsLive_(storeName, apiKeyOverride);
     var matching = documents.filter(function (documentValue) {
       return kspGeminiDocumentMatchesSource_(documentValue, source);
     });
     if (matching.length === 1) {
-      return kspReadAndVerifyFileSearchDocumentLive_(matching[0].name, source);
+      return kspReadAndVerifyFileSearchDocumentLive_(matching[0].name, source, apiKeyOverride);
     }
     if (matching.length > 1 || attempt === maxAttempts - 1) {
       throw kspGeminiStageError_('AI_DOCUMENT_READBACK_FAILED', 'DOCUMENT_READBACK', 0, {}, false);
@@ -855,7 +886,7 @@ function kspReconcileGeminiDocumentLive_(storeName, source) {
   throw kspGeminiStageError_('AI_DOCUMENT_READBACK_FAILED', 'DOCUMENT_READBACK', 0, {}, false);
 }
 
-function kspReadAndVerifyFileSearchDocumentLive_(documentName, source) {
+function kspReadAndVerifyFileSearchDocumentLive_(documentName, source, apiKeyOverride) {
   var name = kspAiTrim_(documentName);
   kspAssert_(/^fileSearchStores\/[^/]+\/documents\/[^/]+$/.test(name),
     'AI_DOCUMENT_READBACK_FAILED', 'File Search Document response is invalid.');
@@ -863,7 +894,8 @@ function kspReadAndVerifyFileSearchDocumentLive_(documentName, source) {
   try {
     response = kspGeminiJsonRequestLive_('GET', '/' + name, null, {
       retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
-      stage: 'DOCUMENT_READBACK', errorCode: 'AI_DOCUMENT_READBACK_FAILED'
+      stage: 'DOCUMENT_READBACK', errorCode: 'AI_DOCUMENT_READBACK_FAILED',
+      apiKeyOverride: apiKeyOverride
     });
     response = kspNormalizeFileSearchDocument_(response);
   } catch (error) {
@@ -884,7 +916,7 @@ function kspReadAndVerifyFileSearchDocumentLive_(documentName, source) {
   return response;
 }
 
-function kspListAllFileSearchDocumentsLive_(storeName) {
+function kspListAllFileSearchDocumentsLive_(storeName, apiKeyOverride) {
   var store = kspAiStoreResourcePath_(storeName);
   var documents = [];
   var pageToken = '';
@@ -895,7 +927,8 @@ function kspListAllFileSearchDocumentsLive_(storeName) {
     try {
       normalized = kspNormalizeFileSearchDocumentList_(kspGeminiJsonRequestLive_('GET', path, null, {
         retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
-        stage: 'DOCUMENT_READBACK', errorCode: 'AI_DOCUMENT_READBACK_FAILED'
+        stage: 'DOCUMENT_READBACK', errorCode: 'AI_DOCUMENT_READBACK_FAILED',
+        apiKeyOverride: apiKeyOverride
       }));
     } catch (error) {
       if (error && error.code === 'AI_DOCUMENT_READBACK_FAILED') throw error;
@@ -1048,7 +1081,9 @@ var KSP_OPENAI_FILE_STATUS = Object.freeze({
 function kspOpenAiApiKeyLive_() {
   kspAssert_(typeof PropertiesService !== 'undefined' && PropertiesService.getScriptProperties,
     'OPENAI_CREDENTIALS_UNAVAILABLE', 'ChatGPTの設定を確認できません。');
-  var key = PropertiesService.getScriptProperties().getProperty(KSP_AI_PROPERTY_KEYS.OPENAI_API_KEY);
+  var snapshot = kspAiActiveCredentialSnapshotLive_(KSP_AI_PROVIDERS.OPENAI);
+  var key = snapshot ? snapshot.key :
+    PropertiesService.getScriptProperties().getProperty(KSP_AI_PROPERTY_KEYS.OPENAI_API_KEY);
   kspAssert_(key, 'OPENAI_CREDENTIALS_UNAVAILABLE', 'ChatGPTの設定を確認できません。');
   return String(key);
 }
@@ -1070,13 +1105,13 @@ function kspOpenAiResponseText_(response) {
   }
 }
 
-function kspOpenAiJsonRequestLive_(method, path, payload) {
+function kspOpenAiJsonRequestLive_(method, path, payload, apiKeyOverride) {
   var normalizedPath = String(path || '');
   kspAssert_(normalizedPath.charAt(0) === '/', 'OPENAI_PATH_INVALID', 'OpenAI request path is invalid.');
   var options = {
     method: String(method || 'get').toLowerCase(),
     headers: {
-      Authorization: 'Bearer ' + kspOpenAiApiKeyLive_(),
+      Authorization: 'Bearer ' + (apiKeyOverride || kspOpenAiApiKeyLive_()),
       Accept: 'application/json',
       'OpenAI-Beta': 'assistants=v2'
     },
@@ -1120,13 +1155,13 @@ function kspBuildOpenAiUploadPayload_(source) {
   };
 }
 
-function kspOpenAiUploadSourceLive_(vectorStoreId, source) {
+function kspOpenAiUploadSourceLive_(vectorStoreId, source, apiKeyOverride) {
   var storeId = kspAiTrim_(vectorStoreId);
   kspAssert_(storeId, 'OPENAI_VECTOR_STORE_NOT_CONFIGURED', 'ChatGPT Vector Storeが設定されていません。');
   var uploadResponse = UrlFetchApp.fetch(KSP_OPENAI_API.BASE_URL + KSP_OPENAI_API.FILES_PATH, {
     method: 'post',
     headers: {
-      Authorization: 'Bearer ' + kspOpenAiApiKeyLive_(),
+      Authorization: 'Bearer ' + (apiKeyOverride || kspOpenAiApiKeyLive_()),
       Accept: 'application/json',
       'OpenAI-Beta': 'assistants=v2'
     },
@@ -1148,8 +1183,8 @@ function kspOpenAiUploadSourceLive_(vectorStoreId, source) {
   try {
     var attached = kspOpenAiJsonRequestLive_('POST',
       KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files',
-      { file_id: String(uploaded.id), attributes: attributes });
-    var vectorStoreFile = kspOpenAiWaitVectorStoreFileLive_(storeId, String(uploaded.id), attached);
+      { file_id: String(uploaded.id), attributes: attributes }, apiKeyOverride);
+    var vectorStoreFile = kspOpenAiWaitVectorStoreFileLive_(storeId, String(uploaded.id), attached, apiKeyOverride);
     return {
       name: 'openai:' + storeId + '/files/' + String(uploaded.id),
       providerDocumentId: String(uploaded.id),
@@ -1160,34 +1195,36 @@ function kspOpenAiUploadSourceLive_(vectorStoreId, source) {
       customMetadata: attributes
     };
   } catch (primaryError) {
-    var cleanup = kspOpenAiCleanupDocumentResourcesLive_(storeId, String(uploaded.id));
+    var cleanup = kspOpenAiCleanupDocumentResourcesLive_(storeId, String(uploaded.id), apiKeyOverride);
     kspOpenAiAddCleanupDiagnostics_(primaryError, cleanup.diagnostics);
     throw primaryError;
   }
 }
 
-function kspOpenAiCreateVectorStoreLive_(displayName) {
+function kspOpenAiCreateVectorStoreLive_(displayName, apiKeyOverride) {
   var name = kspAiTrim_(displayName);
   kspAssert_(name, 'OPENAI_VECTOR_STORE_NAME_INVALID', 'ChatGPT Vector Store名が不正です。');
-  var store = kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.VECTOR_STORES_PATH, { name: name });
+  var store = kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.VECTOR_STORES_PATH,
+    { name: name }, apiKeyOverride);
   kspAssert_(store && kspAiTrim_(store.id), 'OPENAI_VECTOR_STORE_INVALID', 'ChatGPT Vector Storeを作成できませんでした。');
   return store;
 }
 
-function kspOpenAiGetVectorStoreLive_(vectorStoreId) {
+function kspOpenAiGetVectorStoreLive_(vectorStoreId, apiKeyOverride) {
   var storeId = kspAiTrim_(vectorStoreId);
   kspAssert_(storeId, 'OPENAI_VECTOR_STORE_NOT_CONFIGURED', 'ChatGPT Vector Storeが設定されていません。');
   var store = kspOpenAiJsonRequestLive_('GET',
-    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId));
+    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId), null, apiKeyOverride);
   kspAssert_(store && String(store.id || store.name || '') === storeId,
     'OPENAI_VECTOR_STORE_INVALID', 'ChatGPT Vector Storeを確認できません。');
   return store;
 }
 
-function kspOpenAiDeleteUploadedFileLive_(fileId) {
+function kspOpenAiDeleteUploadedFileLive_(fileId, apiKeyOverride) {
   var normalized = kspAiTrim_(fileId);
   kspAssert_(normalized, 'OPENAI_DOCUMENT_INVALID', 'ChatGPT document identity is invalid.');
-  kspOpenAiJsonRequestLive_('DELETE', KSP_OPENAI_API.FILES_PATH + '/' + encodeURIComponent(normalized));
+  kspOpenAiJsonRequestLive_('DELETE', KSP_OPENAI_API.FILES_PATH + '/' + encodeURIComponent(normalized),
+    null, apiKeyOverride);
   return true;
 }
 
@@ -1203,14 +1240,15 @@ function kspOpenAiAddCleanupDiagnostics_(error, diagnostics) {
   return error;
 }
 
-function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId) {
+function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId, apiKeyOverride) {
   var storeId = kspAiTrim_(vectorStoreId);
   var normalizedFileId = kspAiTrim_(fileId);
   var firstError = null;
   var diagnostics = [];
   try {
     kspOpenAiJsonRequestLive_('DELETE',
-      KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(normalizedFileId));
+      KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files/' +
+      encodeURIComponent(normalizedFileId), null, apiKeyOverride);
   } catch (attachmentError) {
     firstError = attachmentError;
     diagnostics.push('OPENAI_ATTACHMENT_CLEANUP_FAILED');
@@ -1218,7 +1256,7 @@ function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId) {
   try {
     // File cleanup is independent from attachment cleanup and must always be
     // attempted after a successful /files upload.
-    kspOpenAiDeleteUploadedFileLive_(normalizedFileId);
+    kspOpenAiDeleteUploadedFileLive_(normalizedFileId, apiKeyOverride);
   } catch (fileError) {
     if (!firstError) firstError = fileError;
     diagnostics.push('OPENAI_FILE_CLEANUP_FAILED');
@@ -1226,9 +1264,10 @@ function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId) {
   return { error: firstError, diagnostics: diagnostics };
 }
 
-function kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId) {
+function kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId, apiKeyOverride) {
   return kspOpenAiJsonRequestLive_('GET',
-    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(vectorStoreId) + '/files/' + encodeURIComponent(fileId));
+    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(vectorStoreId) + '/files/' +
+    encodeURIComponent(fileId), null, apiKeyOverride);
 }
 
 function kspOpenAiProviderDocumentFromVectorStoreFile_(vectorStoreId, entry) {
@@ -1258,7 +1297,7 @@ function kspOpenAiUpdateVectorStoreFileAttributesLive_(vectorStoreId, documentVa
   return kspOpenAiProviderDocumentFromVectorStoreFile_(storeId, current);
 }
 
-function kspOpenAiWaitVectorStoreFileLive_(vectorStoreId, fileId, initial) {
+function kspOpenAiWaitVectorStoreFileLive_(vectorStoreId, fileId, initial, apiKeyOverride) {
   var current = initial || {};
   var status = kspAiTrim_(current.status);
   for (var attempt = 0; attempt < KSP_AI_DEFAULTS.MAX_OPERATION_POLLS; attempt += 1) {
@@ -1269,7 +1308,7 @@ function kspOpenAiWaitVectorStoreFileLive_(vectorStoreId, fileId, initial) {
     if (attempt > 0 && typeof Utilities !== 'undefined' && Utilities.sleep) {
       Utilities.sleep(KSP_AI_DEFAULTS.OPERATION_POLL_MILLIS);
     }
-    current = kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId);
+    current = kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId, apiKeyOverride);
     status = kspAiTrim_(current.status);
   }
   throw kspOpenAiError_('OPENAI_INDEX_TIMEOUT', 'ChatGPT source indexing timed out.', 408, true);
@@ -1315,7 +1354,7 @@ function kspOpenAiDeleteDocumentLive_(vectorStoreId, documentValue) {
   return true;
 }
 
-function kspOpenAiQueryFileSearchLive_(request) {
+function kspOpenAiQueryFileSearchLive_(request, apiKeyOverride) {
   var value = request || {};
   kspAssert_(value.model, 'OPENAI_MODEL_NOT_CONFIGURED', 'ChatGPT modelが設定されていません。');
   kspAssert_(value.vectorStoreId, 'OPENAI_VECTOR_STORE_NOT_CONFIGURED', 'ChatGPT Vector Storeが設定されていません。');
@@ -1337,7 +1376,12 @@ function kspOpenAiQueryFileSearchLive_(request) {
   if (value.maxOutputTokens !== null && value.maxOutputTokens !== undefined) {
     payload.max_output_tokens = Number(value.maxOutputTokens);
   }
-  return kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.RESPONSES_PATH, payload);
+  return kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.RESPONSES_PATH, payload, apiKeyOverride);
+}
+
+function kspOpenAiDeleteVectorStoreLive_(vectorStoreId, apiKeyOverride) {
+  return kspOpenAiJsonRequestLive_('DELETE', KSP_OPENAI_API.VECTOR_STORES_PATH + '/' +
+    encodeURIComponent(vectorStoreId), null, apiKeyOverride);
 }
 // ===== END src/163_OpenAiRestClient.gs =====
 
@@ -1998,6 +2042,7 @@ function kspCreateProviderNeutralAiEnvironment_() {
   base.getProviderConfig = function (provider) {
     var context = base.loadAiContext();
     var config = kspBuildAiProviderConfig_(kspNormalizeAiSettings_(context.settings), provider);
+    config.credentialGeneration = base.getAiCredentialGeneration(provider);
     if (config.provider === KSP_AI_PROVIDERS.OPENAI && config.enabled) {
       try {
         kspOpenAiApiKeyLive_();

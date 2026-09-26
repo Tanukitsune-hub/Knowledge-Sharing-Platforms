@@ -1,0 +1,308 @@
+<script>
+/* Work 0073: one candidate/Model ID -> confirm and save flow. No credential is stored in browser storage. */
+let aiSetupBusy=false;
+let aiSetupCredentialMode=false;
+let aiSetupUnknown=false;
+let aiSetupOperationId='';
+let aiSetupCandidates=[];
+let aiSetupSyncRecords=[];
+const aiSetupEl=id=>document.getElementById(id);
+function aiSetupMessage(id,kind,message){showStatus(id,kind,message)}
+function aiSetupDefaultProfile(provider){return (aiProviderAdminState&&aiProviderAdminState.modelPolicy&&aiProviderAdminState.modelPolicy.profiles||[]).find(item=>item.provider===provider&&item.isProviderDefault)}
+function aiSetupRender(){
+  const state=aiProviderAdminState;
+  const stale=typeof aiProviderAdminStateStale!=='undefined'&&aiProviderAdminStateStale;
+  for(const [provider,suffix] of [['OPENAI','openai'],['GEMINI','gemini']]){
+    const item=state&&state[suffix]||{};
+    const current=aiSetupDefaultProfile(provider);
+    const status=!state?'状態を取得できません':item.enabled?'利用中':item.keyConfigured?'停止中または準備中':'未設定';
+    aiSetupEl('ai-setup-'+suffix+'-state').textContent=stale&&state?'前回取得時点: '+status:status;
+    aiSetupEl('ai-setup-'+suffix+'-model').textContent='現在のモデル: '+(current&&current.modelId||'未設定');
+    aiSetupEl('ai-setup-'+suffix+'-detail').textContent='APIキー: '+(item.keyConfigured?'設定済み':'未設定')+' / 検索データ: '+(item.vectorStoreReady||item.storeReady?'準備済み':'未作成')+' / '+aiProviderAdminStatusLabel(item.status||'DISABLED');
+    aiSetupEl('ai-setup-'+suffix+'-model-button').disabled=!state||stale||!item.keyConfigured||aiSetupBusy;
+    aiSetupEl('ai-setup-'+suffix+'-key-button').disabled=!state||stale||!state.credentialOperator||aiSetupBusy;
+    aiSetupEl('ai-setup-'+suffix+'-start-button').disabled=!state||stale||item.enabled||!item.keyConfigured||!current||current.qualification!=='QUALIFIED'||aiSetupBusy;
+    aiSetupEl('ai-setup-'+suffix+'-stop-button').disabled=!state||stale||!item.enabled||aiSetupBusy;
+  }
+  aiSetupEl('ai-setup-remove').disabled=!state||stale||!state.credentialOperator||aiSetupBusy;
+}
+const aiSetupOriginalLoad=loadAiProviderAdminData;
+loadAiProviderAdminData=async function(preserveNotice){
+  await aiSetupOriginalLoad(preserveNotice);
+  aiSetupRender();
+};
+function aiSetupClearKey(){aiSetupEl('ai-setup-key').value=''}
+function aiSetupClose(){
+  aiSetupClearKey();
+  if(!aiSetupUnknown)aiSetupOperationId='';
+  aiSetupEl('ai-setup-form').hidden=true;
+  aiSetupEl('ai-setup-model-id').value='';
+  aiSetupEl('ai-setup-candidate').replaceChildren(new Option('候補を取得できます',''));
+  aiSetupCandidates=[];
+  aiSetupEl('ai-setup-advanced').open=false;
+  aiSetupEl('ai-setup-thinking-raw').value='';
+  aiSetupEl('ai-setup-profile-label').value='';
+}
+function aiSetupRenderProfileChoices(provider){
+  const select=aiSetupEl('ai-setup-profile-target');
+  select.replaceChildren(new Option('既定モデル','default'),new Option('新しい設定違いを追加','new-variant'));
+  (aiProviderAdminState&&aiProviderAdminState.modelPolicy&&aiProviderAdminState.modelPolicy.profiles||[])
+    .filter(item=>item.provider===provider&&!item.isProviderDefault)
+    .forEach(item=>select.add(new Option('設定違い: '+(item.displayName||item.modelId),item.profileId)));
+  select.value='default';
+  select.disabled=aiSetupCredentialMode;
+}
+function aiSetupProfileTargetChanged(){
+  const provider=aiSetupEl('ai-setup-provider').value;
+  const target=aiSetupEl('ai-setup-profile-target').value;
+  const profiles=aiProviderAdminState&&aiProviderAdminState.modelPolicy&&aiProviderAdminState.modelPolicy.profiles||[];
+  const selected=target==='default'?profiles.find(item=>item.provider===provider&&item.isProviderDefault):
+    profiles.find(item=>item.provider===provider&&item.profileId===target);
+  if(selected)aiSetupEl('ai-setup-model-id').value=selected.modelId;
+  aiSetupEl('ai-setup-profile-label').value=target==='default'?'':selected&&selected.displayName||'';
+  aiSetupEl('ai-setup-profile-enabled').checked=selected?selected.enabled!==false:true;
+  aiSetupEl('ai-setup-profile-visible').checked=selected?selected.userVisible!==false:true;
+  for(const id of ['ai-setup-profile-label','ai-setup-profile-enabled','ai-setup-profile-visible'])
+    aiSetupEl(id).disabled=target==='default';
+  aiSetupUpdateAdvanced();
+}
+function aiSetupUpdateAdvanced(){
+  const provider=aiSetupEl('ai-setup-provider').value;
+  const modelId=aiSetupEl('ai-setup-model-id').value.trim()||aiSetupEl('ai-setup-candidate').value;
+  const target=aiSetupEl('ai-setup-profile-target').value;
+  const profile=(aiProviderAdminState&&aiProviderAdminState.modelPolicy&&aiProviderAdminState.modelPolicy.profiles||[])
+    .find(item=>item.provider===provider&&(target!=='default'&&target!=='new-variant'
+      ?item.profileId===target:item.modelId===modelId&&item.defaultThinkingProfileId));
+  const select=aiSetupEl('ai-setup-thinking');
+  select.replaceChildren(new Option('プロバイダ標準','provider-default'));
+  if(profile)(profile.thinkingProfiles||[]).filter(item=>item.enabled&&item.thinkingProfileId!=='provider-default')
+    .forEach(item=>select.add(new Option(item.label||item.thinkingProfileId,item.thinkingProfileId)));
+  select.value=profile&&profile.defaultThinkingProfileId||'provider-default';
+  const ceiling=aiSetupEl('ai-setup-max-output');
+  ceiling.value=profile&&profile.maxOutputTokens!=null?String(profile.maxOutputTokens):'';
+  ceiling.dataset.initial=ceiling.value;
+}
+function aiSetupSetBusy(value){
+  aiSetupBusy=value;
+  aiSetupEl('ai-setup-fields').disabled=value;
+  for(const id of ['ai-setup-refresh','ai-setup-save','ai-setup-cancel'])aiSetupEl(id).disabled=value||id==='ai-setup-save'&&aiSetupUnknown;
+  kspSetRegionBusy(aiSetupEl('ai-setup-form'),value);
+  aiSetupRender();
+}
+function aiSetupOpen(provider,credentialMode){
+  if(aiSetupBusy)return;
+  aiSetupClose();
+  aiSetupCredentialMode=credentialMode;
+  aiSetupEl('ai-setup-provider').value=provider;
+  aiSetupEl('ai-setup-key-wrap').hidden=!credentialMode;
+  aiSetupEl('ai-setup-form-heading').textContent=credentialMode?'APIキーとモデルを設定':'モデルを変更';
+  aiSetupEl('ai-setup-form').hidden=false;
+  aiSetupRenderProfileChoices(provider);
+  const profile=aiSetupDefaultProfile(provider);
+  aiSetupEl('ai-setup-model-id').value=profile&&profile.modelId||'';
+  aiSetupProfileTargetChanged();
+  clearStatus('ai-setup-result');
+  aiSetupEl('ai-setup-candidate-status').textContent=credentialMode?'APIキー入力後に候補を取得できます。Model IDの直接入力もできます。':'候補を取得中…';
+  if(aiSetupUnknown)aiSetupMessage('ai-setup-result','warning','前の保存結果が不明です。再送せず画面を再読込して現在の設定を確認してください。');
+  aiSetupEl('ai-setup-save').disabled=aiSetupUnknown;
+  aiSetupEl('ai-setup-model-id').focus();
+  if(!credentialMode)aiSetupLoadCandidates();
+}
+async function aiSetupLoadCandidates(){
+  if(aiSetupBusy)return;
+  const provider=aiSetupEl('ai-setup-provider').value;
+  const key=aiSetupEl('ai-setup-key').value;
+  if(aiSetupCredentialMode&&!key){aiSetupMessage('ai-setup-result','error','APIキーを入力してから候補を取得してください。');return}
+  aiSetupSetBusy(true);
+  aiSetupEl('ai-setup-candidate-status').textContent='候補を取得中…';
+  try{
+    const result=await serverCall(aiSetupCredentialMode?'getAiCredentialModelCandidates':'getAiModelSetupCandidates',
+      aiSetupCredentialMode?{provider,apiKey:key}:{provider});
+    if(!result||!result.ok)throw Error(result&&result.error&&result.error.message||'候補を取得できませんでした。');
+    aiSetupCandidates=result.models||[];
+    const select=aiSetupEl('ai-setup-candidate');
+    select.replaceChildren(new Option('候補を選択、またはModel IDを直接入力',''));
+    aiSetupCandidates.forEach(item=>select.add(new Option(item.displayName+' / '+item.modelId,item.modelId)));
+    aiSetupEl('ai-setup-candidate-status').textContent=aiSetupCandidates.length?
+      '取得: '+result.fetchedAt+(result.partial?' / 一覧は一部です':'')+(result.cached?' / キャッシュ':''):
+      '候補はありません。Model IDを直接入力できます。';
+    clearStatus('ai-setup-result');
+  }catch(error){
+    aiSetupEl('ai-setup-candidate-status').textContent='候補を取得できませんでした。Model IDを直接入力できます。';
+    aiSetupMessage('ai-setup-result','warning','保存済みの設定は維持されています。');
+  }finally{aiSetupSetBusy(false)}
+}
+function aiSetupNewOperationId(){
+  if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
+  const bytes=new Uint8Array(20);crypto.getRandomValues(bytes);
+  return Array.from(bytes,value=>value.toString(16).padStart(2,'0')).join('');
+}
+async function aiSetupSave(){
+  if(aiSetupBusy||aiSetupUnknown)return;
+  const provider=aiSetupEl('ai-setup-provider').value;
+  const modelId=aiSetupEl('ai-setup-model-id').value.trim()||aiSetupEl('ai-setup-candidate').value;
+  const key=aiSetupEl('ai-setup-key').value;
+  if(!modelId){aiSetupMessage('ai-setup-result','error','モデル候補を選ぶかModel IDを入力してください。');aiSetupEl('ai-setup-model-id').focus();return}
+  if(aiSetupCredentialMode&&!key){aiSetupMessage('ai-setup-result','error','APIキーを入力してください。');aiSetupEl('ai-setup-key').focus();return}
+  aiSetupOperationId=aiSetupNewOperationId();
+  aiSetupSetBusy(true);
+  aiSetupMessage('ai-setup-result','info busy','選択したモデルで4種類の合成資料を確認中…');
+  try{
+    const match=aiSetupCandidates.find(item=>item.modelId===modelId);
+    const payload={provider,modelId,displayName:match&&match.displayName||modelId,operationId:aiSetupOperationId};
+    const target=aiSetupEl('ai-setup-profile-target').value;
+    if(target!=='default'){
+      payload.makeDefault=false;
+      if(target==='new-variant')payload.saveAsVariant=true;
+      else payload.profileId=target;
+      payload.displayName=aiSetupEl('ai-setup-profile-label').value.trim()||modelId;
+      payload.enabled=aiSetupEl('ai-setup-profile-enabled').checked;
+      payload.userVisible=aiSetupEl('ai-setup-profile-visible').checked;
+    }
+    payload.thinkingProfileId=aiSetupEl('ai-setup-thinking').value;
+    if(aiSetupEl('ai-setup-thinking-raw').value.trim())payload.thinkingRawValue=aiSetupEl('ai-setup-thinking-raw').value.trim();
+    const ceiling=aiSetupEl('ai-setup-max-output');
+    if(ceiling.value!==ceiling.dataset.initial)payload.maxOutputTokens=ceiling.value?Number(ceiling.value):null;
+    if(aiSetupCredentialMode)payload.apiKey=key;
+    const result=await serverCall(aiSetupCredentialMode?'saveAiCredentialSetup':'saveAiModelSetup',payload);
+    if(!result||!result.ok){aiSetupMessage('ai-setup-result','error',result&&result.error&&result.error.message||'確認して保存できませんでした。');return}
+    aiSetupMessage('ai-setup-result','success','モデルを確認して保存しました。資料同期と利用開始は別の操作です。');
+    aiSetupUnknown=false;
+    await loadAiProviderAdminData(true);
+  }catch(error){
+    aiSetupUnknown=true;
+    aiSetupMessage('ai-setup-result','warning','保存結果を確認中です。再送せずに操作結果を照会します。');
+    try{
+      const result=await serverCall('getAiModelSetupOperation',{provider,operationId:aiSetupOperationId,credentialMode:aiSetupCredentialMode});
+      if(result&&result.ok&&result.status==='SAVED'){
+        aiSetupUnknown=false;aiSetupMessage('ai-setup-result','success','保存を確認しました。');await loadAiProviderAdminData(true);
+      }else aiSetupMessage('ai-setup-result','warning','結果が不明です。画面を再読込して現在の設定を確認してください。');
+    }catch(ignored){aiSetupMessage('ai-setup-result','warning','結果が不明です。画面を再読込して現在の設定を確認してください。')}
+  }finally{
+    aiSetupClearKey();aiSetupSetBusy(false);
+    if(!aiSetupUnknown)aiSetupOperationId='';
+  }
+}
+async function aiSetupStop(provider,button){
+  if(aiSetupBusy)return;
+  aiSetupSetBusy(true);kspSetActionBusy(button,true,'停止中…');
+  try{
+    const result=await serverCall('mutateAiProviderSettings',{action:provider==='OPENAI'?'DISABLE_OPENAI':'DISABLE_GEMINI'});
+    aiSetupMessage('ai-provider-admin-notice',result&&result.ok?'success':'error',result&&result.ok?'接続を停止しました。APIキーと検索データは保持されます。':result&&result.error&&result.error.message||'停止できませんでした。');
+    await loadAiProviderAdminData(true);
+  }catch(ignored){aiSetupMessage('ai-provider-admin-notice','error','停止結果を確認できませんでした。再読込してください。')}
+  finally{kspSetActionBusy(button,false);aiSetupSetBusy(false)}
+}
+async function aiSetupStart(provider,button){
+  if(aiSetupBusy)return;
+  aiSetupSetBusy(true);kspSetActionBusy(button,true,'利用開始中…');
+  try{
+    const result=await serverCall('startAiProvider',{provider});
+    aiSetupMessage('ai-provider-admin-notice',result&&result.ok?'success':'error',result&&result.ok?'接続準備ができました。資料の同期を進められます。':result&&result.error&&result.error.message||'利用を開始できませんでした。');
+    await loadAiProviderAdminData(true);
+  }catch(ignored){aiSetupMessage('ai-provider-admin-notice','error','利用開始の結果を確認できませんでした。再読込してください。')}
+  finally{kspSetActionBusy(button,false);aiSetupSetBusy(false)}
+}
+function aiSetupRenderSyncCandidates(){
+  const type=aiSetupEl('ai-setup-sync-type').value;
+  const select=aiSetupEl('ai-setup-sync-source');
+  select.replaceChildren(new Option('資料を選択してください',''));
+  aiSetupSyncRecords.filter(item=>!type||item.sourceType===type).forEach(item=>select.add(new Option(item.label+' / '+item.syncStatus,item.sourceType+'|'+item.sourceId)));
+}
+async function aiSetupLoadSyncCandidates(){
+  if(aiSetupBusy)return;
+  const provider=aiSetupEl('ai-setup-sync-provider').value;
+  aiSetupMessage('ai-setup-sync-status','info busy','資料を読み込み中…');
+  try{
+    const result=await serverCall('getAiSyncCandidates',{provider});
+    if(!result||!result.ok)throw Error();
+    aiSetupSyncRecords=result.records||[];aiSetupRenderSyncCandidates();
+    const stale=aiSetupSyncRecords.filter(item=>item.staleForStore).length;
+    aiSetupMessage('ai-setup-sync-status','info',aiSetupSyncRecords.length+'件を表示しました。'+(result.partial?'一覧は一部です。':'')+(stale?' 接続先変更後の古い派生状態 '+stale+'件。':''));
+  }catch(ignored){aiSetupMessage('ai-setup-sync-status','error','同期対象を取得できませんでした。')}
+}
+async function aiSetupSync(){
+  if(aiSetupBusy)return;
+  const provider=aiSetupEl('ai-setup-sync-provider').value;
+  const selected=aiSetupEl('ai-setup-sync-source');
+  const record=aiSetupSyncRecords.find(item=>item.sourceType+'|'+item.sourceId===selected.value);
+  if(!record){aiSetupMessage('ai-setup-sync-status','error','資料を選択してください。');return}
+  if(!window.confirm(provider+'へ「'+record.label+'」を同期します。'))return;
+  aiSetupSetBusy(true);aiSetupMessage('ai-setup-sync-status','info busy','選択資料を同期中…');
+  let refresh=false;
+  let summaryMessage='';
+  let summaryKind='success';
+  try{
+    const result=await serverCall('mutateAiProviderSettings',{action:provider==='OPENAI'?'SYNC':'SYNC_GEMINI',sourceType:record.sourceType,sourceId:record.sourceId});
+    if(!result||!result.ok)throw Error(result&&result.error&&result.error.message||'同期できませんでした。');
+    summaryKind=result.sync&&(result.sync.partial||result.sync.remaining)?'warning':'success';
+    summaryMessage=aiProviderAdminSyncMessage(result.sync)+' 残り '+Number(result.sync&&result.sync.remaining||0)+'件。';
+    aiSetupMessage('ai-setup-sync-status',summaryKind,summaryMessage);
+    refresh=true;
+  }catch(error){aiSetupMessage('ai-setup-sync-status','error',error.message||'同期できませんでした。選択資料だけ再試行できます。')}
+  finally{aiSetupSetBusy(false)}
+  if(refresh){await aiSetupLoadSyncCandidates();aiSetupMessage('ai-setup-sync-status',summaryKind,summaryMessage)}
+}
+async function aiSetupSyncRemaining(){
+  if(aiSetupBusy)return;
+  const provider=aiSetupEl('ai-setup-sync-provider').value;
+  const sourceType=aiSetupEl('ai-setup-sync-type').value;
+  if(!window.confirm(provider+'へ'+(sourceType||'4種類')+'の未完了資料を同期します。'))return;
+  aiSetupSetBusy(true);aiSetupMessage('ai-setup-sync-status','info busy','未完了資料を同期中…');
+  try{
+    const result=await serverCall('mutateAiProviderSettings',{action:provider==='OPENAI'?'SYNC':'SYNC_GEMINI',sourceType});
+    if(!result||!result.ok)throw Error(result&&result.error&&result.error.message||'同期できませんでした。');
+    const sync=result.sync||{};
+    aiSetupMessage('ai-setup-sync-status',sync.partial||sync.remaining?'warning':'success',
+      aiProviderAdminSyncMessage(sync)+' 残り '+Number(sync.remaining||0)+'件。'+(sync.batchComplete?'全体完了。':'残りを同期で続行できます。'));
+  }catch(error){aiSetupMessage('ai-setup-sync-status','error',error.message||'同期できませんでした。')}
+  finally{aiSetupSetBusy(false)}
+}
+async function aiSetupReset(){
+  if(aiSetupBusy)return;
+  const provider=aiSetupEl('ai-setup-sync-provider').value;
+  if(!window.confirm(provider+'の古い接続先に紐付いた派生状態だけを初期化します。接続を停止してから続行してください。'))return;
+  aiSetupSetBusy(true);
+  try{
+    const result=await serverCall('resetAiProviderDerivedState',{provider});
+    if(!result||!result.ok)throw Error(result&&result.error&&result.error.message||'初期化できませんでした。');
+    aiSetupMessage('ai-setup-sync-status','success',Number(result.reset||0)+'件の古い派生状態を初期化しました。残り '+Number(result.remaining||0)+'件を同期できます。');
+  }catch(error){aiSetupMessage('ai-setup-sync-status','error',error.message||'初期化できませんでした。')}
+  finally{aiSetupSetBusy(false)}
+}
+async function aiSetupRemove(){
+  if(aiSetupBusy)return;
+  const provider=aiSetupEl('ai-setup-sync-provider').value;
+  if(!window.confirm(provider+'の保存済みAPIキーを削除します。接続は停止している必要があります。'))return;
+  aiSetupSetBusy(true);
+  try{
+    const result=await serverCall('removeAiCredential',{provider});
+    aiSetupMessage('ai-setup-sync-status',result&&result.ok?'success':'error',result&&result.ok?'このアプリのAPIキーを削除しました。':result&&result.error&&result.error.message||'削除できませんでした。');
+    if(result&&result.ok)await loadAiProviderAdminData(true);
+  }catch(ignored){aiSetupMessage('ai-setup-sync-status','error','削除結果を確認できませんでした。再読込してください。')}
+  finally{aiSetupSetBusy(false)}
+}
+for(const [provider,suffix] of [['OPENAI','openai'],['GEMINI','gemini']]){
+  aiSetupEl('ai-setup-'+suffix+'-model-button').addEventListener('click',()=>aiSetupOpen(provider,false));
+  aiSetupEl('ai-setup-'+suffix+'-key-button').addEventListener('click',()=>aiSetupOpen(provider,true));
+  aiSetupEl('ai-setup-'+suffix+'-start-button').addEventListener('click',event=>aiSetupStart(provider,event.currentTarget));
+  aiSetupEl('ai-setup-'+suffix+'-stop-button').addEventListener('click',event=>aiSetupStop(provider,event.currentTarget));
+}
+aiSetupEl('ai-setup-provider').addEventListener('change',event=>aiSetupOpen(event.target.value,aiSetupCredentialMode));
+aiSetupEl('ai-setup-candidate').addEventListener('change',event=>{if(event.target.value)aiSetupEl('ai-setup-model-id').value=event.target.value;aiSetupUpdateAdvanced()});
+aiSetupEl('ai-setup-model-id').addEventListener('change',aiSetupUpdateAdvanced);
+aiSetupEl('ai-setup-profile-target').addEventListener('change',aiSetupProfileTargetChanged);
+aiSetupEl('ai-setup-refresh').addEventListener('click',aiSetupLoadCandidates);
+aiSetupEl('ai-setup-save').addEventListener('click',aiSetupSave);
+aiSetupEl('ai-setup-cancel').addEventListener('click',()=>{aiSetupClose();aiSetupEl('ai-setup-'+aiSetupEl('ai-setup-provider').value.toLowerCase()+'-model-button').focus()});
+aiSetupEl('ai-setup-sync-load').addEventListener('click',aiSetupLoadSyncCandidates);
+aiSetupEl('ai-setup-sync-type').addEventListener('change',aiSetupRenderSyncCandidates);
+aiSetupEl('ai-setup-sync-provider').addEventListener('change',()=>{aiSetupSyncRecords=[];aiSetupRenderSyncCandidates()});
+aiSetupEl('ai-setup-sync-run').addEventListener('click',aiSetupSync);
+aiSetupEl('ai-setup-sync-remaining').addEventListener('click',aiSetupSyncRemaining);
+aiSetupEl('ai-setup-sync-reset').addEventListener('click',aiSetupReset);
+aiSetupEl('ai-setup-remove').addEventListener('click',aiSetupRemove);
+document.querySelectorAll('[data-admin-tab]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.adminTab!=='provider')aiSetupClose()}));
+window.addEventListener('pagehide',aiSetupClearKey);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)aiSetupClearKey()});
+</script>

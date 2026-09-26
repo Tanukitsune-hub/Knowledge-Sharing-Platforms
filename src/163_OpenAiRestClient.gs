@@ -15,7 +15,9 @@ var KSP_OPENAI_FILE_STATUS = Object.freeze({
 function kspOpenAiApiKeyLive_() {
   kspAssert_(typeof PropertiesService !== 'undefined' && PropertiesService.getScriptProperties,
     'OPENAI_CREDENTIALS_UNAVAILABLE', 'ChatGPTの設定を確認できません。');
-  var key = PropertiesService.getScriptProperties().getProperty(KSP_AI_PROPERTY_KEYS.OPENAI_API_KEY);
+  var snapshot = kspAiActiveCredentialSnapshotLive_(KSP_AI_PROVIDERS.OPENAI);
+  var key = snapshot ? snapshot.key :
+    PropertiesService.getScriptProperties().getProperty(KSP_AI_PROPERTY_KEYS.OPENAI_API_KEY);
   kspAssert_(key, 'OPENAI_CREDENTIALS_UNAVAILABLE', 'ChatGPTの設定を確認できません。');
   return String(key);
 }
@@ -37,13 +39,13 @@ function kspOpenAiResponseText_(response) {
   }
 }
 
-function kspOpenAiJsonRequestLive_(method, path, payload) {
+function kspOpenAiJsonRequestLive_(method, path, payload, apiKeyOverride) {
   var normalizedPath = String(path || '');
   kspAssert_(normalizedPath.charAt(0) === '/', 'OPENAI_PATH_INVALID', 'OpenAI request path is invalid.');
   var options = {
     method: String(method || 'get').toLowerCase(),
     headers: {
-      Authorization: 'Bearer ' + kspOpenAiApiKeyLive_(),
+      Authorization: 'Bearer ' + (apiKeyOverride || kspOpenAiApiKeyLive_()),
       Accept: 'application/json',
       'OpenAI-Beta': 'assistants=v2'
     },
@@ -87,13 +89,13 @@ function kspBuildOpenAiUploadPayload_(source) {
   };
 }
 
-function kspOpenAiUploadSourceLive_(vectorStoreId, source) {
+function kspOpenAiUploadSourceLive_(vectorStoreId, source, apiKeyOverride) {
   var storeId = kspAiTrim_(vectorStoreId);
   kspAssert_(storeId, 'OPENAI_VECTOR_STORE_NOT_CONFIGURED', 'ChatGPT Vector Storeが設定されていません。');
   var uploadResponse = UrlFetchApp.fetch(KSP_OPENAI_API.BASE_URL + KSP_OPENAI_API.FILES_PATH, {
     method: 'post',
     headers: {
-      Authorization: 'Bearer ' + kspOpenAiApiKeyLive_(),
+      Authorization: 'Bearer ' + (apiKeyOverride || kspOpenAiApiKeyLive_()),
       Accept: 'application/json',
       'OpenAI-Beta': 'assistants=v2'
     },
@@ -115,8 +117,8 @@ function kspOpenAiUploadSourceLive_(vectorStoreId, source) {
   try {
     var attached = kspOpenAiJsonRequestLive_('POST',
       KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files',
-      { file_id: String(uploaded.id), attributes: attributes });
-    var vectorStoreFile = kspOpenAiWaitVectorStoreFileLive_(storeId, String(uploaded.id), attached);
+      { file_id: String(uploaded.id), attributes: attributes }, apiKeyOverride);
+    var vectorStoreFile = kspOpenAiWaitVectorStoreFileLive_(storeId, String(uploaded.id), attached, apiKeyOverride);
     return {
       name: 'openai:' + storeId + '/files/' + String(uploaded.id),
       providerDocumentId: String(uploaded.id),
@@ -127,34 +129,36 @@ function kspOpenAiUploadSourceLive_(vectorStoreId, source) {
       customMetadata: attributes
     };
   } catch (primaryError) {
-    var cleanup = kspOpenAiCleanupDocumentResourcesLive_(storeId, String(uploaded.id));
+    var cleanup = kspOpenAiCleanupDocumentResourcesLive_(storeId, String(uploaded.id), apiKeyOverride);
     kspOpenAiAddCleanupDiagnostics_(primaryError, cleanup.diagnostics);
     throw primaryError;
   }
 }
 
-function kspOpenAiCreateVectorStoreLive_(displayName) {
+function kspOpenAiCreateVectorStoreLive_(displayName, apiKeyOverride) {
   var name = kspAiTrim_(displayName);
   kspAssert_(name, 'OPENAI_VECTOR_STORE_NAME_INVALID', 'ChatGPT Vector Store名が不正です。');
-  var store = kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.VECTOR_STORES_PATH, { name: name });
+  var store = kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.VECTOR_STORES_PATH,
+    { name: name }, apiKeyOverride);
   kspAssert_(store && kspAiTrim_(store.id), 'OPENAI_VECTOR_STORE_INVALID', 'ChatGPT Vector Storeを作成できませんでした。');
   return store;
 }
 
-function kspOpenAiGetVectorStoreLive_(vectorStoreId) {
+function kspOpenAiGetVectorStoreLive_(vectorStoreId, apiKeyOverride) {
   var storeId = kspAiTrim_(vectorStoreId);
   kspAssert_(storeId, 'OPENAI_VECTOR_STORE_NOT_CONFIGURED', 'ChatGPT Vector Storeが設定されていません。');
   var store = kspOpenAiJsonRequestLive_('GET',
-    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId));
+    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId), null, apiKeyOverride);
   kspAssert_(store && String(store.id || store.name || '') === storeId,
     'OPENAI_VECTOR_STORE_INVALID', 'ChatGPT Vector Storeを確認できません。');
   return store;
 }
 
-function kspOpenAiDeleteUploadedFileLive_(fileId) {
+function kspOpenAiDeleteUploadedFileLive_(fileId, apiKeyOverride) {
   var normalized = kspAiTrim_(fileId);
   kspAssert_(normalized, 'OPENAI_DOCUMENT_INVALID', 'ChatGPT document identity is invalid.');
-  kspOpenAiJsonRequestLive_('DELETE', KSP_OPENAI_API.FILES_PATH + '/' + encodeURIComponent(normalized));
+  kspOpenAiJsonRequestLive_('DELETE', KSP_OPENAI_API.FILES_PATH + '/' + encodeURIComponent(normalized),
+    null, apiKeyOverride);
   return true;
 }
 
@@ -170,14 +174,15 @@ function kspOpenAiAddCleanupDiagnostics_(error, diagnostics) {
   return error;
 }
 
-function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId) {
+function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId, apiKeyOverride) {
   var storeId = kspAiTrim_(vectorStoreId);
   var normalizedFileId = kspAiTrim_(fileId);
   var firstError = null;
   var diagnostics = [];
   try {
     kspOpenAiJsonRequestLive_('DELETE',
-      KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(normalizedFileId));
+      KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeId) + '/files/' +
+      encodeURIComponent(normalizedFileId), null, apiKeyOverride);
   } catch (attachmentError) {
     firstError = attachmentError;
     diagnostics.push('OPENAI_ATTACHMENT_CLEANUP_FAILED');
@@ -185,7 +190,7 @@ function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId) {
   try {
     // File cleanup is independent from attachment cleanup and must always be
     // attempted after a successful /files upload.
-    kspOpenAiDeleteUploadedFileLive_(normalizedFileId);
+    kspOpenAiDeleteUploadedFileLive_(normalizedFileId, apiKeyOverride);
   } catch (fileError) {
     if (!firstError) firstError = fileError;
     diagnostics.push('OPENAI_FILE_CLEANUP_FAILED');
@@ -193,9 +198,10 @@ function kspOpenAiCleanupDocumentResourcesLive_(vectorStoreId, fileId) {
   return { error: firstError, diagnostics: diagnostics };
 }
 
-function kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId) {
+function kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId, apiKeyOverride) {
   return kspOpenAiJsonRequestLive_('GET',
-    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(vectorStoreId) + '/files/' + encodeURIComponent(fileId));
+    KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(vectorStoreId) + '/files/' +
+    encodeURIComponent(fileId), null, apiKeyOverride);
 }
 
 function kspOpenAiProviderDocumentFromVectorStoreFile_(vectorStoreId, entry) {
@@ -225,7 +231,7 @@ function kspOpenAiUpdateVectorStoreFileAttributesLive_(vectorStoreId, documentVa
   return kspOpenAiProviderDocumentFromVectorStoreFile_(storeId, current);
 }
 
-function kspOpenAiWaitVectorStoreFileLive_(vectorStoreId, fileId, initial) {
+function kspOpenAiWaitVectorStoreFileLive_(vectorStoreId, fileId, initial, apiKeyOverride) {
   var current = initial || {};
   var status = kspAiTrim_(current.status);
   for (var attempt = 0; attempt < KSP_AI_DEFAULTS.MAX_OPERATION_POLLS; attempt += 1) {
@@ -236,7 +242,7 @@ function kspOpenAiWaitVectorStoreFileLive_(vectorStoreId, fileId, initial) {
     if (attempt > 0 && typeof Utilities !== 'undefined' && Utilities.sleep) {
       Utilities.sleep(KSP_AI_DEFAULTS.OPERATION_POLL_MILLIS);
     }
-    current = kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId);
+    current = kspOpenAiGetVectorStoreFileLive_(vectorStoreId, fileId, apiKeyOverride);
     status = kspAiTrim_(current.status);
   }
   throw kspOpenAiError_('OPENAI_INDEX_TIMEOUT', 'ChatGPT source indexing timed out.', 408, true);
@@ -282,7 +288,7 @@ function kspOpenAiDeleteDocumentLive_(vectorStoreId, documentValue) {
   return true;
 }
 
-function kspOpenAiQueryFileSearchLive_(request) {
+function kspOpenAiQueryFileSearchLive_(request, apiKeyOverride) {
   var value = request || {};
   kspAssert_(value.model, 'OPENAI_MODEL_NOT_CONFIGURED', 'ChatGPT modelが設定されていません。');
   kspAssert_(value.vectorStoreId, 'OPENAI_VECTOR_STORE_NOT_CONFIGURED', 'ChatGPT Vector Storeが設定されていません。');
@@ -304,5 +310,10 @@ function kspOpenAiQueryFileSearchLive_(request) {
   if (value.maxOutputTokens !== null && value.maxOutputTokens !== undefined) {
     payload.max_output_tokens = Number(value.maxOutputTokens);
   }
-  return kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.RESPONSES_PATH, payload);
+  return kspOpenAiJsonRequestLive_('POST', KSP_OPENAI_API.RESPONSES_PATH, payload, apiKeyOverride);
+}
+
+function kspOpenAiDeleteVectorStoreLive_(vectorStoreId, apiKeyOverride) {
+  return kspOpenAiJsonRequestLive_('DELETE', KSP_OPENAI_API.VECTOR_STORES_PATH + '/' +
+    encodeURIComponent(vectorStoreId), null, apiKeyOverride);
 }

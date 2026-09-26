@@ -1,6 +1,7 @@
 function kspAiProviderAdminSafeMessage_(code) {
   var messages = {
     AI_PROVIDER_ADMIN_ACTION_INVALID: 'AIプロバイダ操作が不正です。',
+    AI_CREDENTIAL_FACADE_REQUIRED: 'APIキーの設定は専用の管理者操作を使用してください。',
     OPENAI_API_KEY_NOT_CONFIGURED: 'OpenAI APIキーがScript Propertiesに設定されていません。',
     OPENAI_API_KEY_INVALID: 'OpenAI APIキーを確認できませんでした。',
     OPENAI_ACTIVATION_FAILED: 'OpenAIを有効化できませんでした。APIキーと権限を確認してください。',
@@ -171,7 +172,10 @@ function kspAiProviderAdminResetOpenAiState_(environment, context) {
   if (!environment || typeof environment.updateAiProviderState !== 'function') return;
   var sources = [
     { type: KSP_AI_SOURCE_TYPES.MEETING, rows: context && context.meetingRows || [], key: 'Meeting_ID' },
-    { type: KSP_AI_SOURCE_TYPES.PITCHBOOK, rows: context && context.pitchbookRows || [], key: 'Document_ID' }
+    { type: KSP_AI_SOURCE_TYPES.PITCHBOOK, rows: context && context.pitchbookRows || [], key: 'Document_ID' },
+    { type: KSP_AI_SOURCE_TYPES.NEWS, rows: context && context.newsRows || [], key: 'News_ID' },
+    { type: KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT,
+      rows: context && context.assessmentRows || [], key: 'Assessment_ID' }
   ];
   sources.forEach(function (group) {
     (group.rows || []).forEach(function (row) {
@@ -1873,18 +1877,18 @@ function kspGetAiProviderAdminData_(environment, input) {
     var geminiKeyConfigured = kspAiProviderAdminGeminiCredentialConfigured_(environment);
     var geminiStoreReady = Boolean(settings.geminiStoreName);
     var geminiEnabled = Boolean(settings.geminiEnabled);
-    var policy = settings.modelPolicyJson
-      ? kspNormalizeAiModelPolicy_(settings.modelPolicyJson)
-      : kspBuildMigratedOpenAiModelPolicy_(settings, {
-        modelId: settings.openaiModelId,
+    var policy = kspAiSetupPolicy_(settings, environment.nowIso(), {
         accessible: keyConfigured,
-        qualified: enabled && (status === 'ACTIVE' || status === 'ACTIVE_WITH_SYNC_ERRORS'),
-        nowIso: environment.nowIso()
+        qualified: enabled && (status === 'ACTIVE' || status === 'ACTIVE_WITH_SYNC_ERRORS')
       });
+    var credentialOperator = false;
+    try { kspAssertAiCredentialOperator_(environment); credentialOperator = true; }
+    catch (ignoredOperator) {}
     return {
       ok: true,
       workId: '0029',
       canMutate: true,
+      credentialOperator: credentialOperator,
       openai: {
         keyConfigured: keyConfigured,
         vectorStoreReady: storeReady,
@@ -1910,8 +1914,6 @@ function kspGetAiProviderAdminData_(environment, input) {
 }
 
 function kspConnectGeminiProvider_(environment, context, input) {
-  var suppliedKey = kspAiTrim_(input && (input.apiKey || input.geminiApiKey));
-  if (suppliedKey) kspAiProviderAdminSaveGeminiApiKey_(environment, suppliedKey);
   kspAssert_(kspAiProviderAdminGeminiCredentialConfigured_(environment),
     'GEMINI_API_KEY_NOT_CONFIGURED', 'Gemini API key is not configured.');
   if (environment && typeof environment.ensureAiSettings === 'function') {
@@ -1930,8 +1932,6 @@ function kspConnectGeminiProvider_(environment, context, input) {
 }
 
 function kspConnectOpenAiProvider_(environment, context, input) {
-  var suppliedKey = kspAiTrim_(input && (input.apiKey || input.openaiApiKey));
-  if (suppliedKey) kspAiProviderAdminSaveOpenAiApiKey_(environment, suppliedKey);
   kspAssert_(kspAiProviderAdminCredentialConfigured_(environment),
     'OPENAI_API_KEY_NOT_CONFIGURED', 'OpenAI API key is not configured.');
   if (environment && typeof environment.ensureAiSettings === 'function') {
@@ -2002,6 +2002,11 @@ function kspEnableOpenAiProvider_(environment, context, input) {
 }
 
 function kspMutateAiProviderSettings_(environment, input) {
+  if (input && (Object.prototype.hasOwnProperty.call(input, 'apiKey') ||
+      Object.prototype.hasOwnProperty.call(input, 'openaiApiKey') ||
+      Object.prototype.hasOwnProperty.call(input, 'geminiApiKey'))) {
+    return kspAiProviderAdminFailure_('AI_CREDENTIAL_FACADE_REQUIRED');
+  }
   var action = kspAiTrim_(input && input.action).toUpperCase();
   if (action === 'ENABLE' || action === 'ENABLE_OPENAI' || action === 'CONNECT_OPENAI' || action === 'SAVE_OPENAI_KEY_AND_TEST') action = 'CONNECT_OPENAI';
   if (action === 'DISABLE') action = 'DISABLE_OPENAI';
@@ -2175,24 +2180,30 @@ function kspMutateAiProviderSettings_(environment, input) {
     }
     if (action === 'SYNC_GEMINI') {
       var geminiSelection = kspNormalizeProviderAiSelection_(input);
-      kspAssert_(geminiSelection.sourceId, 'AI_SYNC_SOURCE_ID_INVALID', 'Gemini admin sync must be exact.');
       var geminiSettings = kspNormalizeAiSettings_(context.settings);
+      kspAssert_(geminiSelection.sourceId || geminiSettings.geminiEnabled,
+        'GEMINI_NOT_READY', 'Gemini must be enabled before batch sync.');
       kspAssert_(kspAiProviderAdminGeminiCredentialConfigured_(environment) && geminiSettings.geminiStoreName,
         'GEMINI_NOT_READY', 'Gemini credential and Store are required.');
-      kspSelectProviderAiWorkItems_(context.meetingRows, context.pitchbookRows, environment.nowIso(),
-        geminiSettings, KSP_AI_PROVIDERS.GEMINI, geminiSelection);
+      if (geminiSelection.sourceId) kspSelectProviderAiWorkItems_(
+        context.meetingRows, context.pitchbookRows, environment.nowIso(),
+        geminiSettings, KSP_AI_PROVIDERS.GEMINI, geminiSelection,
+        context.newsRows, context.assessmentRows);
       var geminiSync = kspRunProviderNeutralAiSync_(environment, {
         force: true,
         sourceType: geminiSelection.sourceType,
         sourceId: geminiSelection.sourceId,
         providers: [KSP_AI_PROVIDERS.GEMINI],
-        allowDisabledExactProvider: true
+        allowDisabledExactProvider: Boolean(geminiSelection.sourceId)
       });
       var geminiSyncSummary = kspAiProviderAdminSafeSyncSummary_(geminiSync);
-      kspAssert_(geminiSyncSummary.usable && geminiSyncSummary.failed === 0,
+      kspAssert_(geminiSyncSummary.usable,
         'GEMINI_SYNC_FAILED', 'Gemini exact sync failed.');
       geminiSyncSummary.sourceType = geminiSelection.sourceType;
-      geminiSyncSummary.exact = true;
+      geminiSyncSummary.exact = Boolean(geminiSelection.sourceId);
+      geminiSyncSummary.remaining = kspAiProviderRemainingCount_(environment.loadAiContext(),
+        KSP_AI_PROVIDERS.GEMINI, geminiSettings.geminiStoreName);
+      geminiSyncSummary.batchComplete = geminiSyncSummary.remaining === 0 && !geminiSyncSummary.partial;
       return { ok: true, workId: '0026', action: action, sync: geminiSyncSummary };
     }
     if (action === 'DISABLE_OPENAI') {
@@ -2209,7 +2220,8 @@ function kspMutateAiProviderSettings_(environment, input) {
       'OPENAI_NOT_READY_FOR_SYNC', 'OpenAI connection test is required before source sync.');
     if (sourceId) {
       kspSelectProviderAiWorkItems_(context.meetingRows, context.pitchbookRows, environment.nowIso(),
-        currentSettings, KSP_AI_PROVIDERS.OPENAI, normalizedSelection);
+        currentSettings, KSP_AI_PROVIDERS.OPENAI, normalizedSelection,
+        context.newsRows, context.assessmentRows);
     }
     kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_ENABLED, 'true');
     var syncOptions = {
@@ -2231,6 +2243,9 @@ function kspMutateAiProviderSettings_(environment, input) {
     var summary = kspAiProviderAdminSafeSyncSummary_(sync);
     summary.sourceType = sourceType;
     summary.exact = Boolean(sourceId);
+    summary.remaining = kspAiProviderRemainingCount_(environment.loadAiContext(),
+      KSP_AI_PROVIDERS.OPENAI, currentSettings.openaiVectorStoreId);
+    summary.batchComplete = summary.remaining === 0 && !summary.partial;
     kspAiProviderAdminWriteSetting_(environment, context, KSP_AI_SETTINGS.OPENAI_READINESS,
       summary.partial ? 'ACTIVE_WITH_SYNC_ERRORS' : 'ACTIVE');
     return { ok: true, workId: '0020', action: action, sync: summary };

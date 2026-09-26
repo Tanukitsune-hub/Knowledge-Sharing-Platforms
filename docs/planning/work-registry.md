@@ -17,7 +17,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 0070 | Source-aware record layer expansion — 4-source authoritative record/storage/UI, schema9, team concurrency | ACCEPTED | Work0069 ACCEPTED | PR #103 / merge `00ac5618c0c0f0ef771cb4b79602853ab0d43e9b`; preserve accepted evidence |
 | 0071 | Interaction-stable async UX — Google Web UX KBを選択適用し、save/upload/statusのlayout shift・focus・recoveryを改善 | ACCEPTED | Work0070 ACCEPTED baseline | PR #104 + #105; final release 0.2.2 / schema9; preserve accepted evidence |
 | 0072 | Four-source Knowledge Search / AI layer — Meeting / Pitchbook / News / Internal Assessmentの検索・provenance・Full Output scope統合 | BLOCKED | Core merged in PR #106 / release 0.2.3 | Live qualification blocked by `NO_AUTHORIZED_PROVIDER_CREDENTIAL`; resume after Work0073 safe credential onboarding |
-| 0073 | Provider credential onboarding / secret-handling redesign through four-source alignment | READY | Work0072 core integrated | Plan accepted through 4-source alignment; next authorized action is Route C `0073-CODEX-01`; Secret Manager remains follow-up |
+| 0073 | Provider credential onboarding / secret-handling redesign through four-source alignment | ACTIVE | Work0072 core integrated | `0073-CODEX-02`のDraft PRをChatGPTがreview。R1/R2は後続の許可済みruntime qualification。旧01は未実行のままSUPERSEDED。Secret Managerはfollow-up |
 
 Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
 
