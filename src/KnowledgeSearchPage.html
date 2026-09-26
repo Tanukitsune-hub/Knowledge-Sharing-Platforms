@@ -4,13 +4,18 @@
     #page-knowledge .knowledge-filter-row{margin-top:14px}
     #page-knowledge .knowledge-mode-row{margin:14px 0}
     #page-knowledge .knowledge-date-from-field{grid-column:1/span 2}.knowledge-date-to-field{grid-column:3/span 2}.knowledge-all-period-field{grid-column:5/span 2}
-    #page-knowledge .knowledge-counterparty-field{grid-column:1/span 6}.knowledge-asset-field{grid-column:7/span 2}.knowledge-team-field{grid-column:9/span 2}.knowledge-source-field{grid-column:11/span 2}
+    #page-knowledge .knowledge-counterparty-field{grid-column:1/span 6}.knowledge-asset-field{grid-column:7/span 2}.knowledge-team-field{grid-column:9/span 4}
+    #page-knowledge .knowledge-source-field{grid-column:1/-1;margin:0;padding:0;border:0;min-width:0}
+    #page-knowledge .knowledge-source-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 14px}
+    #page-knowledge .knowledge-source-options label{display:flex;align-items:flex-start;gap:8px;min-width:0;line-height:1.5;font-weight:500}
+    #page-knowledge .knowledge-source-options input{width:auto;min-height:0;margin:3px 0 0;flex:none}
     #page-knowledge .knowledge-mode-field{grid-column:1/span 3}.knowledge-model-field{grid-column:4/span 3}.knowledge-full-output-field{grid-column:7/span 2}
     #page-knowledge .knowledge-instruction-field{margin-top:14px}
     #page-knowledge .knowledge-actions{justify-content:flex-start}
     #page-knowledge .knowledge-actions .action-group{order:-1}
     #page-knowledge [hidden]{display:none!important}
-    @media(max-width:720px){#page-knowledge .knowledge-period-row,#page-knowledge .knowledge-filter-row,#page-knowledge .knowledge-mode-row{grid-template-columns:1fr}#page-knowledge .knowledge-period-row>.field,#page-knowledge .knowledge-filter-row>.field,#page-knowledge .knowledge-mode-row>.field{grid-column:1}.knowledge-full-output-field{align-items:flex-start}}
+    @media(max-width:960px){#page-knowledge .knowledge-source-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:720px){#page-knowledge .knowledge-period-row,#page-knowledge .knowledge-filter-row,#page-knowledge .knowledge-mode-row{grid-template-columns:1fr}#page-knowledge .knowledge-period-row>.field,#page-knowledge .knowledge-filter-row>.field,#page-knowledge .knowledge-mode-row>.field{grid-column:1}#page-knowledge .knowledge-source-options{grid-template-columns:1fr}.knowledge-full-output-field{align-items:flex-start}}
   </style>
   <section class="card">
     <form id="knowledge-form" novalidate>
@@ -23,7 +28,15 @@
         <div class="field knowledge-counterparty-field"><label id="knowledge-entity-label" for="knowledge-entityKey">面談先</label><select id="knowledge-entityKey"><option value="">未選択</option></select></div>
         <div class="field knowledge-asset-field"><label for="knowledge-assetClassId">アセットクラス</label><select id="knowledge-assetClassId"><option value="">未選択</option></select></div>
         <div class="field knowledge-team-field"><label for="knowledge-teamId">チーム</label><select id="knowledge-teamId"><option value="">未選択</option></select></div>
-        <div class="field knowledge-source-field"><label for="knowledge-sourceType">対象資料</label><select id="knowledge-sourceType" aria-describedby="knowledge-source-help"><option value="">面談記録・保存資料</option><option value="Meeting">面談記録のみ</option><option value="Pitchbook">保存資料のみ</option></select></div>
+        <fieldset id="knowledge-source-group" class="field knowledge-source-field" aria-describedby="knowledge-source-help">
+          <legend class="field-label">情報ソース</legend>
+          <div class="knowledge-source-options">
+            <label for="knowledge-source-meeting"><input id="knowledge-source-meeting" type="checkbox" value="Meeting" checked>面談メモ</label>
+            <label for="knowledge-source-pitchbook"><input id="knowledge-source-pitchbook" type="checkbox" value="Pitchbook">保存資料</label>
+            <label for="knowledge-source-news"><input id="knowledge-source-news" type="checkbox" value="News">ニュース</label>
+            <label for="knowledge-source-assessment"><input id="knowledge-source-assessment" type="checkbox" value="Internal Assessment">評価（ICメモ、社内整理等）</label>
+          </div>
+        </fieldset>
       </div>
       <div class="knowledge-mode-row">
       <div class="field mode-field knowledge-mode-field">
@@ -60,7 +73,7 @@
       <div class="field full knowledge-instruction-field">
         <label id="knowledge-instruction-label" class="required" for="knowledge-instruction">質問・追加指示</label>
         <textarea id="knowledge-instruction" maxlength="5000" placeholder="例: 最近の資料では、APACインフラの投資機会についてどのような見解が示されていますか？"></textarea>
-        <div id="knowledge-help-line" class="hint knowledge-help-line"><span id="knowledge-mode-help">自由質問では質問を入力してください。</span> <span id="knowledge-source-help">チームは「面談記録のみ」で利用できます。</span></div>
+        <div id="knowledge-help-line" class="hint knowledge-help-line"><span id="knowledge-mode-help">自由質問では質問を入力してください。</span> <span id="knowledge-source-help">チーム・MTG種別などの面談条件は「面談メモ」のみを選択した場合に利用できます。</span></div>
       </div>
       <div class="actions knowledge-actions">
         <span class="hint">追加・更新した資料が検索に反映されるまで、最大約15分かかります。</span>
@@ -80,12 +93,12 @@
     <div class="section-heading">
       <div>
         <h2>対象資料の書き出し</h2>
-        <p class="hint">面談記録のGoogle Docs全文を書き出します。保存資料の本文は含みません。</p>
+        <p class="hint">選択した情報ソースの原文を、出典を分けて書き出します。未対応のファイル形式は明示して停止します。</p>
       </div>
     </div>
-    <p id="knowledge-export-scope" class="hint" aria-live="polite">面談記録のみを対象に、選択した面談先・期間・条件を適用します。</p>
+    <p id="knowledge-export-scope" class="hint" aria-live="polite">選択した情報ソースと期間・条件を適用します。</p>
     <div class="actions">
-      <span class="hint">まず対象資料を確認してください。面談記録の原文と登録情報を書き出します。</span>
+      <span class="hint">まず対象資料を確認してください。原文と出典情報を書き出します。</span>
       <div class="action-group">
         <button id="knowledge-export-preview-button" class="action secondary" type="button">対象資料を確認</button>
       </div>
@@ -99,7 +112,7 @@
       </div>
     </div>
     <div id="knowledge-export-hard-stop" class="status error" role="alert" aria-live="assertive"></div>
-    <div id="knowledge-export-preview-body" class="knowledge-export-preview-body" tabindex="0" aria-label="面談記録の全文プレビュー"><pre id="knowledge-export-body-preview"></pre></div>
+    <div id="knowledge-export-preview-body" class="knowledge-export-preview-body" tabindex="0" aria-label="対象資料の全文プレビュー"><pre id="knowledge-export-body-preview"></pre></div>
     <div class="actions">
       <div class="action-group">
         <button id="knowledge-export-prompt" class="action secondary" type="button">AI用プロンプトをコピー</button>

@@ -73,9 +73,12 @@ test('catalog validation accepts historical stable IDs and rejects stale IDs and
   } }), catalog()), (error) => error.code === 'AI_FUND_STRATEGY_FILTER_UNAVAILABLE');
 });
 
-test('empty filters are omitted while false follow-up remains an exact clause', () => {
-  const unset = ksp.kspBuildOpenAiFilter_(canonical({ filters: {} }));
-  assert.equal(unset, undefined);
+test('legacy empty filters retain the canonical Meeting/Pitchbook source scope while false follow-up remains exact', () => {
+  const unset = plain(ksp.kspBuildOpenAiFilter_(canonical({ filters: {} })));
+  assert.deepEqual(unset, { type: 'or', filters: [
+    { type: 'eq', key: 'source_type', value: 'Meeting' },
+    { type: 'eq', key: 'source_type', value: 'Pitchbook' }
+  ] });
   const notRequired = plain(ksp.kspBuildOpenAiFilter_(canonical({ filters: {
     followUp: 'NOT_REQUIRED', sourceType: 'Meeting'
   } })));
@@ -170,14 +173,14 @@ test('FULL_OUTPUT package preserves common scope and Meeting body independently 
     mode: '比較', questionOrInstruction: 'Compare periods', filters: { sourceType: 'Meeting' }
   }));
   const model = plain(ksp.kspBuildKnowledgeExportRenderModel_(request, [{
-    source: { sourceId: 'MTG-1', date: '2026-08-01', canonicalUrl: 'https://docs.google.com/document/d/doc-1/edit', row: rows().meetings[0] },
+    source: { sourceType: 'Meeting', sourceId: 'MTG-1', date: '2026-08-01',
+      canonicalUrl: 'https://docs.google.com/document/d/doc-1/edit',
+      counterpartyIds: ['CP-000031'], row: rows().meetings[0] },
     body: 'AUTHORITATIVE MEETING BODY'
-  }], [{
-    source: { sourceId: 'DOC-1', date: '2026-08-02', canonicalUrl: 'https://drive.google.com/open?id=file-1', row: rows().pitchbooks[0] }
-  }], { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} }, 'Synthetic package'));
+  }], [], { gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {}, counterparty: {} }, 'Synthetic package'));
   const text = ksp.kspBuildKnowledgeExportPlainText_(model);
-  assert.match(text, /面談記録の全文出力/);
-  assert.match(text, /対象範囲: 対象資料 面談記録/);
+  assert.match(text, /選択資料の全文出力/);
+  assert.match(text, /対象範囲: 対象資料 面談メモ/);
   assert.doesNotMatch(text, /Mode: 比較|Compare periods/);
   assert.match(text, /AUTHORITATIVE MEETING BODY/);
   assert.doesNotMatch(text, /Pitchbooks \/ reference|file-1|Document ID: DOC-1/);

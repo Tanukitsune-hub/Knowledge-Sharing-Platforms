@@ -57,5 +57,5 @@ test('the top-level 管理者ページ label and its three tabs remain', () => {
 
 test('naturalized prompts preserve the investment and source-use boundaries', () => {
   assert.match(source('152_KnowledgeFilterContracts.gs'), /投資判断を自動生成しないでください。/);
-  assert.match(source('155_KnowledgeExportContracts.gs'), /別途添付した原本を、許可された資料検索で参照してください。/);
+  assert.match(source('155_KnowledgeExportContracts.gs'), /添付した選択資料の全文だけを根拠に、日本語で回答してください。/);
 });

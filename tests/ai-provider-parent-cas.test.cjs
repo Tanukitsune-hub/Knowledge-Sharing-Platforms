@@ -27,7 +27,11 @@ test('provider allowlist excludes orphan and inactive sources, retains explicit 
   c.pitchbookRows[0].Status = 'Inactive';
   assert.ok(!ksp.kspRestrictKnowledgeEligibleSources_(input(), c).resolvedSourceIds.includes('DOC-000001'));
   for (let i = 0; i <= ksp.KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX; i++) c.meetingRows.push({ Meeting_ID: 'MTG-X' + i, Status: 'Active' });
-  assert.throws(() => ksp.kspRestrictKnowledgeEligibleSources_(input(), c), e => e.code === 'AI_ADVANCED_FILTER_TOO_BROAD');
+  const broad = ksp.kspRestrictKnowledgeEligibleSources_(input(), c);
+  assert.ok(broad.resolvedSourceIds.length > ksp.KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX);
+  assert.throws(() => ksp.kspBuildProviderSearchRequest_('GEMINI',
+    { modelId: 'synthetic', storeName: 'fileSearchStores/synthetic' }, broad),
+  e => e.code === 'AI_ADVANCED_FILTER_TOO_BROAD');
 });
 
 test('large repository is bounded after authoritative common filters and compare/advanced intersection', () => {

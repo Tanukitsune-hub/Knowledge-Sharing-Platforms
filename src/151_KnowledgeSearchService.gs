@@ -10,7 +10,7 @@ function kspGetKnowledgeSearchBootstrap_(environment) {
       implementedModes: [KSP_AI_SEARCH_MODES.FREE_QUESTION],
       targetModes: ['自由質問', '要約', '時系列', '比較', '面談準備'],
       options: kspBuildKnowledgeSearchCatalog_(kspContextCounterpartyRows_(context), context.optionRows,
-        context.meetingRows, context.pitchbookRows),
+        context.meetingRows, context.pitchbookRows, context.newsRows, context.assessmentRows),
       syncIntervalMinutes: settings.syncIntervalMinutes
     };
   } catch (error) {
@@ -58,7 +58,7 @@ function kspRunFreeQuestion_(environment, rawInput) {
     kspAssert_(settings.modelId, 'AI_MODEL_NOT_CONFIGURED', 'Gemini Flash model IDが設定されていません。');
 
     var catalog = kspBuildKnowledgeSearchCatalog_(kspContextCounterpartyRows_(context), context.optionRows,
-      context.meetingRows, context.pitchbookRows);
+      context.meetingRows, context.pitchbookRows, context.newsRows, context.assessmentRows);
     kspValidateKnowledgeFilterIds_(input, catalog);
     var metadataFilter = kspBuildMetadataFilter_(input);
     var request = kspBuildInteractionRequest_({
@@ -72,7 +72,8 @@ function kspRunFreeQuestion_(environment, rawInput) {
     var citationContext = environment.loadAiContext();
     var mapped = kspMapKnowledgeCitations_(
       parsed.citations,
-      kspBuildAuthoritativeSourceMaps_(citationContext.meetingRows, citationContext.pitchbookRows)
+      kspBuildAuthoritativeSourceMaps_(citationContext.meetingRows, citationContext.pitchbookRows,
+        citationContext.newsRows, citationContext.assessmentRows), input
     );
     warnings = warnings.concat(mapped.warnings);
 

@@ -121,16 +121,49 @@ function kspNormalizeKnowledgeFilters_(value) {
     teamId: kspAiTrim_(source.teamId),
     fundStrategy: kspAiTrim_(source.fundStrategy),
     followUp: kspNormalizeKnowledgeFollowUpFilter_(source.followUp !== undefined ? source.followUp : source.followUpRequired),
-    sourceType: kspAiTrim_(source.sourceType),
+    sourceTypes: kspNormalizeKnowledgeSourceTypes_(source),
     sourceId: kspAiTrim_(source.sourceId),
     relatedGpId: kspAiTrim_(source.relatedGpId || source.relatedGp),
     meetingTypeCode: kspAiTrim_(source.meetingTypeCode || source.meetingType).toUpperCase()
   };
 }
 
+function kspNormalizeKnowledgeSourceTypes_(value) {
+  var source = value && typeof value === 'object' ? value : {};
+  var filters = source.filters && typeof source.filters === 'object' ? source.filters : {};
+  if (Object.prototype.hasOwnProperty.call(source, 'sourceTypes') &&
+      Object.prototype.hasOwnProperty.call(filters, 'sourceTypes')) {
+    var topTypes = kspNormalizeKnowledgeSourceTypes_({ sourceTypes: source.sourceTypes });
+    var nestedTypes = kspNormalizeKnowledgeSourceTypes_({ sourceTypes: filters.sourceTypes });
+    kspAssert_(JSON.stringify(topTypes) === JSON.stringify(nestedTypes),
+      'AI_SOURCE_TYPES_CONFLICT', '対象資料の選択が一致しません。');
+  }
+  var hasExplicit = Object.prototype.hasOwnProperty.call(source, 'sourceTypes') ||
+    Object.prototype.hasOwnProperty.call(filters, 'sourceTypes');
+  var explicit = Object.prototype.hasOwnProperty.call(source, 'sourceTypes')
+    ? source.sourceTypes : filters.sourceTypes;
+  var legacy = kspAiTrim_(source.sourceType || filters.sourceType);
+  var raw = hasExplicit ? explicit :
+    (legacy ? [legacy] : [KSP_AI_SOURCE_TYPES.MEETING, KSP_AI_SOURCE_TYPES.PITCHBOOK]);
+  kspAssert_(Array.isArray(raw), 'AI_SOURCE_TYPES_INVALID', '対象資料の選択が不正です。');
+  var selected = {};
+  raw.forEach(function (value) {
+    var type = kspAiTrim_(value);
+    kspAssert_(Boolean(kspAiSourceLabel_(type)), 'AI_SOURCE_TYPE_INVALID', 'Source Typeが不正です。');
+    selected[type] = true;
+  });
+  var normalized = KSP_AI_SOURCE_DEFINITIONS.map(function (definition) { return definition.id; })
+    .filter(function (type) { return selected[type]; });
+  kspAssert_(normalized.length > 0, 'AI_SOURCE_TYPES_REQUIRED', '対象資料を1件以上選択してください。');
+  return normalized;
+}
+
 function kspKnowledgeRequestFilters_(request) {
   var source = request && typeof request === 'object' ? request : {};
-  return kspNormalizeKnowledgeFilters_(source.filters && typeof source.filters === 'object' ? source.filters : source);
+  var filterSource = source.filters && typeof source.filters === 'object' ? source.filters : source;
+  return kspNormalizeKnowledgeFilters_(Object.assign({}, filterSource, {
+    sourceTypes: kspNormalizeKnowledgeSourceTypes_(source)
+  }));
 }
 
 function kspKnowledgeRequestWithLegacyFilterAliases_(request) {
@@ -138,6 +171,8 @@ function kspKnowledgeRequestWithLegacyFilterAliases_(request) {
   var filters = kspKnowledgeRequestFilters_(output);
   output.filters = filters;
   Object.keys(filters).forEach(function (key) { output[key] = filters[key]; });
+  output.sourceTypes = filters.sourceTypes.slice();
+  delete output.sourceType;
   return output;
 }
 
@@ -147,16 +182,17 @@ function kspNormalizeCanonicalKnowledgeRequest_(input) {
     (source.question !== undefined ? source.question : source.instruction);
   var rawEntities = Array.isArray(source.selectedEntityKeys) ? source.selectedEntityKeys :
     (Array.isArray(source.selectedEntities) ? source.selectedEntities : []);
-  var filters = kspKnowledgeRequestFilters_(source);
+  var sourceTypes = kspNormalizeKnowledgeSourceTypes_(source);
+  var filterSource = source.filters && typeof source.filters === 'object' ? source.filters : source;
+  var filters = kspNormalizeKnowledgeFilters_(Object.assign({}, filterSource, { sourceTypes: sourceTypes }));
+  filters.sourceTypes = sourceTypes;
   var selectedEntityKeys = rawEntities.map(kspAiTrim_).filter(Boolean);
-  if ((filters.relatedGpId || filters.meetingTypeCode) && !filters.sourceType) {
-    filters.sourceType = KSP_AI_SOURCE_TYPES.MEETING;
-  }
   return {
     route: kspAiTrim_(source.route || source.provider).toUpperCase(),
     mode: kspAiTrim_(source.mode) || KSP_KNOWLEDGE_SEARCH_MODES.FREE_QUESTION,
     questionOrInstruction: kspAiTrim_(instruction),
     filters: filters,
+    sourceTypes: sourceTypes,
     selectedEntityKeys: selectedEntityKeys,
     resolvedSourceIds: Array.isArray(source.resolvedSourceIds)
       ? source.resolvedSourceIds.map(kspAiTrim_).filter(Boolean) : [],
@@ -180,10 +216,8 @@ function kspValidateCanonicalKnowledgeRequest_(request) {
   if (filters.dateFrom && filters.dateTo) {
     kspAssert_(filters.dateFrom <= filters.dateTo, 'AI_DATE_RANGE_INVALID', 'Date FromはDate To以前にしてください。');
   }
-  if (filters.sourceType) {
-    kspAssert_(filters.sourceType === KSP_AI_SOURCE_TYPES.MEETING || filters.sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK,
-      'AI_SOURCE_TYPE_INVALID', 'Source Typeが不正です。');
-  }
+  kspAssert_(input.sourceTypes.length >= 1 && input.sourceTypes.length <= KSP_AI_SOURCE_DEFINITIONS.length,
+    'AI_SOURCE_TYPES_REQUIRED', '対象資料を1件以上選択してください。');
   if (filters.entityKey) {
     kspAssert_(Boolean(kspCounterpartyIdFromEntityKey_(filters.entityKey)),
       'AI_ENTITY_FILTER_INVALID', 'Counterparty Entityが不正です。');
@@ -219,9 +253,9 @@ function kspValidateCanonicalKnowledgeRequest_(request) {
       '面談準備ではCounterparty EntityまたはGPを選択してください。');
   }
   if ((filters.teamId || filters.followUp || filters.relatedGpId || filters.meetingTypeCode) &&
-      filters.sourceType !== KSP_AI_SOURCE_TYPES.MEETING) {
+      !(input.sourceTypes.length === 1 && input.sourceTypes[0] === KSP_AI_SOURCE_TYPES.MEETING)) {
     kspAssert_(false, 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE',
-      'チーム、MTG種別はMeetingにのみ適用できます。Source TypeをMeetingにしてください。');
+      'チーム、MTG種別、follow-upは面談メモのみで利用できます。');
   }
   return input;
 }
@@ -250,8 +284,7 @@ function kspKnowledgeScopeSummary_(request) {
   if (filters.teamId) parts.push('チーム 指定あり');
   if (filters.fundStrategy) parts.push('Fund / Strategy ' + filters.fundStrategy);
   if (filters.meetingTypeCode) parts.push('MTG種別 指定あり');
-  parts.push('対象資料 ' + (filters.sourceType === 'Meeting' ? '面談記録' :
-    filters.sourceType === 'Pitchbook' ? '保存資料' : '面談記録と保存資料'));
+  parts.push('対象資料 ' + filters.sourceTypes.map(kspAiSourceLabel_).join('・'));
   return parts.join(' / ');
 }
 
@@ -267,6 +300,16 @@ function kspBuildCanonicalKnowledgePrompt_(request) {
     'モード: ' + definition.mode,
     '選択範囲: ' + kspKnowledgeScopeSummary_(input)
   ].concat(definition.apiInstructions || []);
+  if (input.sourceTypes.length > 1) {
+    lines.push('複数の資料種別に根拠がある場合は、該当する資料種別ごとに出典を分けて示してください。');
+    input.sourceTypes.forEach(function (sourceType) {
+      lines.push('- ' + kspAiSourceLabel_(sourceType));
+    });
+    lines.push('最後に「横断整理」で、一致、相違・食い違い、追加確認事項、次回面談論点を根拠のある範囲で整理してください。');
+  }
+  if (input.sourceTypes.indexOf(KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT) !== -1) {
+    lines.push('評価は「当時の社内評価」と明示し、外部事実と混同しないでください。');
+  }
   if ((input.selectedEntityKeys || []).length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN) {
     lines.push('比較対象Entity（この安定キー以外を根拠に含めない）:');
     input.selectedEntityKeys.forEach(function (entityKey) { lines.push('- ' + entityKey); });
@@ -285,8 +328,8 @@ function kspResolveKnowledgeAdvancedSourceIds_(request, meetingRows) {
   var input = kspKnowledgeRequestWithLegacyFilterAliases_(kspNormalizeCanonicalKnowledgeRequest_(request));
   var filters = kspKnowledgeRequestFilters_(input);
   if (!filters.relatedGpId && !filters.meetingTypeCode) return input;
-  input.filters.sourceType = KSP_AI_SOURCE_TYPES.MEETING;
-  input.sourceType = KSP_AI_SOURCE_TYPES.MEETING;
+  kspAssert_(input.sourceTypes.length === 1 && input.sourceTypes[0] === KSP_AI_SOURCE_TYPES.MEETING,
+    'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE', '旧形式の検索条件は面談メモのみで利用できます。');
   var sourceIds = (meetingRows || []).filter(function (row) {
     if (String(row.Status || '') !== KSP_STATUS.ACTIVE) return false;
     if (filters.relatedGpId && kspKnowledgeExactTokens_(kspMeetingRelatedGpIds_(row)).indexOf(filters.relatedGpId) === -1) return false;
@@ -306,7 +349,10 @@ function kspBuildKnowledgeEntityEvidence_(request, catalog, citations) {
   var entities = catalog && catalog.counterpartyEntities || [];
   return selected.map(function (entityKey) {
     var catalogItem = entities.filter(function (item) { return item.entityKey === entityKey; })[0] || {};
-    var entityCitations = (citations || []).filter(function (citation) { return citation.entityKey === entityKey; });
+    var entityCitations = (citations || []).filter(function (citation) {
+      return citation.entityKey === entityKey ||
+        (citation.entityKeys || []).indexOf(entityKey) !== -1;
+    });
     return {
       entityKey: entityKey,
       counterpartyType: catalogItem.type || '',
@@ -327,7 +373,7 @@ function kspGuardKnowledgeComparisonCitations_(request, catalog, citations) {
   selected.forEach(function (entityKey) { allowed[entityKey] = true; });
   var rejected = false;
   var kept = (citations || []).filter(function (citation) {
-    if (allowed[citation.entityKey]) return true;
+    if (allowed[citation.entityKey] || (citation.entityKeys || []).some(function (key) { return allowed[key]; })) return true;
     rejected = true;
     return false;
   });

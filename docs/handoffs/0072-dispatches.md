@@ -2,8 +2,8 @@
 
 WORK_ID: 0072
 ACTIVE_DISPATCH_ID: 0072-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: FOUR_SOURCE_CORE
@@ -33,7 +33,7 @@ Meeting / Pitchbook / News / Internal Assessmentを同じcanonical source scope�
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report |
 |---|---|---|---|---|---|---|
 | 0072-CODEX-01 | provider-disabled four-source Knowledge Search core + provenance + provider-independent Full Output subset | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md` | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-report.md` / Draft PR #106 |
-| 0072-CODEX-02 | separate authoritative source scope from provider 40-ID cap and restore Full Output thresholds | BUILD | CODEX | READY | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-instruction.md` | pending |
+| 0072-CODEX-02 | separate authoritative source scope from provider 40-ID cap and restore Full Output thresholds | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-instruction.md` | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-report.md` / Draft PR #106 |
 
 ## CODEX-01 ChatGPT review
 
@@ -57,7 +57,7 @@ BLOCKER:
 
 `kspRestrictKnowledgeEligibleSources_()` applies the provider-oriented `KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX = 40` cap to provider-independent Full Output. This changes the accepted Full Output threshold contract. The PR also changed the historical 51-Meeting test from successful preview hard-stop to `AI_ADVANCED_FILTER_TOO_BROAD`, which is not accepted.
 
-Required repair: `0072-CODEX-02`.
+CODEX-02 candidateで修復し、ChatGPT final diff/evidence review待ち。historical Full Output thresholdとprovider queryの分離結果はCODEX-02 reportを参照。
 
 ## Authorization
 
@@ -71,11 +71,11 @@ APPS_SCRIPT_DEPLOYMENT_MUTATION: 0
 
 ## Completion Gate
 
-CODEX-01 return後、ChatGPTがsource/filter/citation/Full Output diffとdeterministic/browser evidenceをreviewする。
+CODEX-02 return後、ChatGPTがscope-limit修復とexact distribution evidenceをreviewする。
 
 Work0072をACCEPTEDにしない。
 
 WORK_ID: 0072
 DISPATCH_ID: 0072-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED

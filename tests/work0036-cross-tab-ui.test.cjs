@@ -47,7 +47,7 @@ test('Counterparty Type is selectable only in the shared registration modal', ()
 test('cross-tab grids use the accepted 12-column and 14px production language', () => {
   assert.match(knowledge, /knowledge-period-row[^}]*grid-template-columns:repeat\(12,minmax\(0,1fr\)\)[^}]*column-gap:14px[^}]*row-gap:14px/);
   assert.match(knowledge, /knowledge-counterparty-field\{grid-column:1\/span 6\}/);
-  assert.match(knowledge, /knowledge-source-field\{grid-column:11\/span 2\}/);
+  assert.match(knowledge, /knowledge-source-field\{grid-column:1\/-1/);
   assert.match(knowledge, /knowledge-date-from-field\{grid-column:1\/span 2\}/);
   assert.match(knowledge, /knowledge-date-to-field\{grid-column:3\/span 2\}/);
   assert.match(knowledge, /knowledge-all-period-field\{grid-column:5\/span 2\}/);

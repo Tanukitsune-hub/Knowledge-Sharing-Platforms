@@ -51,15 +51,15 @@ test('Knowledge Search row three uses the frozen AI controls order and placement
   assert.match(knowledge, /@media\(max-width:720px\)[\s\S]*\.knowledge-mode-row>\.field\{grid-column:1\}/);
 });
 
-test('Knowledge Search renders dynamic mode help and Team source help in one inline container', () => {
+test('Knowledge Search renders dynamic mode help and Meeting-only source help in one inline container', () => {
   const line = knowledge.match(/<div id="knowledge-help-line" class="hint knowledge-help-line">[\s\S]*?<\/div>/)?.[0] || '';
   const modeHelp = line.indexOf('id="knowledge-mode-help"');
   const sourceHelp = line.indexOf('id="knowledge-source-help"');
   assert.ok(modeHelp >= 0 && modeHelp < sourceHelp, 'mode help -> source help');
   assert.match(line, /<span id="knowledge-mode-help">/);
-  assert.match(line, /<span id="knowledge-source-help">チームは「面談記録のみ」で利用できます。<\/span>/);
+  assert.match(line, /<span id="knowledge-source-help">チーム・MTG種別などの面談条件は「面談メモ」のみを選択した場合に利用できます。<\/span>/);
   assert.doesNotMatch(line, /<br\b|<p\b/);
-  assert.equal((knowledge.match(/チームは「面談記録のみ」で利用できます。/g) || []).length, 1);
+  assert.equal((knowledge.match(/チーム・MTG種別などの面談条件は「面談メモ」のみを選択した場合に利用できます。/g) || []).length, 1);
   assert.match(knowledgeClient, /'表示された質問は読み取り専用です。選択した条件の資料を横断して整理します。'/);
 });
 

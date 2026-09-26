@@ -76,6 +76,82 @@ function kspAiSourceKey_(sourceType, sourceId) {
   return String(sourceType) + ':' + String(sourceId);
 }
 
+function kspAiSourceRowKey_(sourceType) {
+  var keys = {};
+  keys[KSP_AI_SOURCE_TYPES.MEETING] = 'Meeting_ID';
+  keys[KSP_AI_SOURCE_TYPES.PITCHBOOK] = 'Document_ID';
+  keys[KSP_AI_SOURCE_TYPES.NEWS] = 'News_ID';
+  keys[KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT] = 'Assessment_ID';
+  kspAssert_(keys[sourceType], 'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+  return keys[sourceType];
+}
+
+function kspAiSourceRows_(context, sourceType) {
+  var value = context || {};
+  if (sourceType === KSP_AI_SOURCE_TYPES.MEETING) return value.meetingRows || [];
+  if (sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK) return value.pitchbookRows || [];
+  if (sourceType === KSP_AI_SOURCE_TYPES.NEWS) return value.newsRows || [];
+  if (sourceType === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT) return value.assessmentRows || [];
+  kspAssert_(false, 'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+}
+
+function kspBuildSourceRecordAiSource_(row, sourceType, maps, text, contentHash) {
+  var news = sourceType === KSP_AI_SOURCE_TYPES.NEWS;
+  kspAssert_(news || sourceType === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT,
+    'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+  var sourceId = kspAiTrim_(row && row[kspAiSourceRowKey_(sourceType)]);
+  kspAssert_(sourceId && row.Source_File_ID, 'AI_SOURCE_ROW_INVALID', 'AI source record is invalid.');
+  var counterpartyIds = kspUniqueStrings_(kspMaintenanceSplitCodes_(row.Counterparty_IDs).map(kspAiTrim_).filter(Boolean));
+  var firstId = counterpartyIds.length === 1 ? counterpartyIds[0] : '';
+  var counterpartyType = firstId ? String((maps.counterpartyTypes || {})[firstId] || '') : '';
+  var date = kspCanonicalBusinessDate_(row[news ? 'Published_Date' : 'Assessment_Date']);
+  var source = {
+    sourceType: sourceType, sourceId: sourceId, dateKey: date,
+    gpId: counterpartyType === 'GP' ? firstId : '',
+    gpName: counterpartyType === 'GP' ? ((maps.gps || {})[firstId] || firstId) : '',
+    entityKey: firstId ? kspCounterpartyEntityKey_(firstId) : '',
+    counterpartyType: counterpartyType, counterpartyId: firstId,
+    counterpartyIds: counterpartyIds,
+    counterpartyName: firstId ? ((maps.counterparties || {})[firstId] || firstId) : '',
+    assetClassId: String(row.Asset_Class_ID || ''),
+    assetClassName: (maps.assetClasses || {})[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
+    fundStrategy: String(row.Fund_Strategy || ''),
+    title: String(row.Title || ''), publisher: news ? String(row.Publisher || '') : '',
+    assessmentType: news ? '' : String(row.Assessment_Type || ''),
+    decisionOrAction: news ? '' : String(row.Decision_Or_Action || ''),
+    relatedMeetingIds: news ? '' : String(row.Related_Meeting_IDs || ''),
+    relatedDocumentIds: news ? '' : String(row.Related_Document_IDs || ''),
+    relatedNewsIds: news ? '' : String(row.Related_News_IDs || ''),
+    inputMode: String(row.Input_Mode || ''),
+    driveUrl: String(row.Source_URL || ''),
+    savedFilename: String(row.Saved_Filename || row.Original_Filename || sourceId),
+    displayName: String(row.Saved_Filename || row.Original_Filename || sourceId),
+    mimeType: 'text/plain', text: String(text || ''),
+    contentHash: String(contentHash || '')
+  };
+  if (!news && source.text) {
+    source.text = [
+      '資料種別: ' + kspAiSourceLabel_(sourceType),
+      '位置付け: 当時の社内評価',
+      '評価種別: ' + source.assessmentType,
+      '評価日: ' + source.dateKey,
+      '原本ID: ' + source.sourceId,
+      '', source.text
+    ].join('\n');
+  }
+  return source;
+}
+
+function kspSourceRecordAiContextHash_(environment, source) {
+  source.contentHash = environment.hashText(JSON.stringify([
+    source.contentHash, source.sourceType, source.sourceId, source.dateKey,
+    source.counterpartyIds, source.assetClassId, source.fundStrategy,
+    source.title, source.publisher, source.assessmentType, source.decisionOrAction,
+    source.relatedMeetingIds, source.relatedDocumentIds, source.relatedNewsIds
+  ]));
+  return source;
+}
+
 function kspBuildMeetingAiSource_(row, maps, text, contentHash) {
   kspAssert_(row && row.Meeting_ID, 'AI_MEETING_ROW_INVALID', 'Meeting row is invalid.');
   kspAssert_(row.Doc_File_ID, 'AI_MEETING_DOC_MISSING', 'Meeting Google Doc is missing.');
@@ -151,7 +227,7 @@ function kspBuildPitchbookAiSource_(row, maps, text, contentHash) {
 function kspAiWorkItemFromRow_(sourceType, row) {
   return {
     sourceType: sourceType,
-    sourceId: sourceType === KSP_AI_SOURCE_TYPES.MEETING ? String(row.Meeting_ID || '') : String(row.Document_ID || ''),
+    sourceId: String(row[kspAiSourceRowKey_(sourceType)] || ''),
     row: row
   };
 }
@@ -173,7 +249,7 @@ function kspIsAiWorkEligible_(item, nowIso, settings) {
     kspTemporalInstantComparisonKey_(lastError.nextAttemptAt) <= kspTemporalInstantComparisonKey_(nowIso);
 }
 
-function kspSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
+function kspSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings, newsRows, assessmentRows) {
   var items = [];
   (meetingRows || []).forEach(function (row) {
     var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.MEETING, row);
@@ -187,6 +263,15 @@ function kspSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
       return;
     }
     if (kspIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
+  });
+  [
+    { type: KSP_AI_SOURCE_TYPES.NEWS, rows: newsRows || [] },
+    { type: KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT, rows: assessmentRows || [] }
+  ].forEach(function (group) {
+    group.rows.forEach(function (row) {
+      var item = kspAiWorkItemFromRow_(group.type, row);
+      if (kspIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
+    });
   });
   items.sort(function (left, right) {
     var leftInactive = String(left.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
@@ -206,6 +291,20 @@ function kspBuildAiSource_(environment, item, maps) {
   if (item.sourceType === KSP_AI_SOURCE_TYPES.MEETING) {
     text = environment.readMeetingText(String(row.Doc_File_ID || ''));
     return kspBuildMeetingAiSource_(row, maps, text, environment.hashText(text));
+  }
+  if (item.sourceType === KSP_AI_SOURCE_TYPES.NEWS ||
+      item.sourceType === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT) {
+    var fileId = String(row.Source_File_ID || '');
+    if (String(row.Input_Mode || '') === 'DIRECT_TEXT') {
+      text = environment.readMeetingText(fileId);
+    } else {
+      kspAssert_(kspGetPitchbookExtensionForAi_(row) === 'txt', 'AI_FORMAT_DEFERRED_TO_WORK_0009',
+        'This source format requires the provider-neutral source builder.');
+      text = environment.readTextFile(fileId);
+    }
+    return kspSourceRecordAiContextHash_(environment,
+      kspBuildSourceRecordAiSource_(row, item.sourceType, maps, text,
+        environment.hashText(text)));
   }
   var extension = kspGetPitchbookExtensionForAi_(row);
   if (extension !== 'txt') {

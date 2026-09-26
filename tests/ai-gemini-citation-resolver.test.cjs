@@ -19,9 +19,9 @@ function sourceRow(sourceType, sourceId, documentName, options = {}) {
       : options.providerState
   };
   return sourceType === 'Meeting'
-    ? { ...common, Meeting_ID: sourceId, Doc_File_ID: 'fixture-meeting-id', Doc_URL: 'https://drive.test/fixture-meeting',
+    ? { ...common, Meeting_ID: sourceId, Doc_File_ID: 'fixture-meeting-id', Doc_URL: 'https://docs.google.com/document/d/fixture-meeting-id/edit',
       Saved_Filename: options.filename || 'fixture-meeting' }
-    : { ...common, Document_ID: sourceId, File_ID: 'fixture-pitchbook-id', File_URL: 'https://drive.test/fixture-pitchbook',
+    : { ...common, Document_ID: sourceId, File_ID: 'fixture-pitchbook-id', File_URL: 'https://drive.google.com/open?id=fixture-pitchbook-id',
       Saved_Filename: options.filename || 'fixture-source.txt' };
 }
 

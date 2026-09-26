@@ -16,6 +16,8 @@ function kspCreateAiEnvironment_() {
       settings: kspReadSettingsMapLive_(backendSpreadsheetId),
       meetingRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX),
       pitchbookRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX),
+      newsRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.NEWS_INDEX),
+      assessmentRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.INTERNAL_ASSESSMENT_INDEX),
       counterpartyRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER),
       optionRows: base.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER)
     };
@@ -170,10 +172,15 @@ function kspCreateAiEnvironment_() {
 
   base.updateAiRow = function (sourceType, sourceId, patch) {
     var context = base.loadAiContext();
-    var sheetName = sourceType === KSP_AI_SOURCE_TYPES.MEETING
-      ? KSP_SHEET_NAMES.MEETING_INDEX
-      : KSP_SHEET_NAMES.PITCHBOOK_INDEX;
-    var keyColumn = sourceType === KSP_AI_SOURCE_TYPES.MEETING ? 'Meeting_ID' : 'Document_ID';
+    var routes = {};
+    routes[KSP_AI_SOURCE_TYPES.MEETING] = [KSP_SHEET_NAMES.MEETING_INDEX, 'Meeting_ID'];
+    routes[KSP_AI_SOURCE_TYPES.PITCHBOOK] = [KSP_SHEET_NAMES.PITCHBOOK_INDEX, 'Document_ID'];
+    routes[KSP_AI_SOURCE_TYPES.NEWS] = [KSP_SHEET_NAMES.NEWS_INDEX, 'News_ID'];
+    routes[KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT] = [KSP_SHEET_NAMES.INTERNAL_ASSESSMENT_INDEX, 'Assessment_ID'];
+    var route = routes[sourceType];
+    kspAssert_(route, 'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+    var sheetName = route[0];
+    var keyColumn = route[1];
     return kspUpdateRowPatchLive_(context.backendSpreadsheetId, sheetName, keyColumn, sourceId, patch);
   };
 

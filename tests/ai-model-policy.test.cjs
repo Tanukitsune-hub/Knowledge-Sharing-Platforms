@@ -303,6 +303,8 @@ test('Knowledge Search UI exposes policy selectors and hides them from FULL_EXPO
   }
   const payload = client.slice(client.indexOf('function kExportPayload()'), client.indexOf('\n', client.indexOf('function kExportPayload()')));
   assert.match(payload, /route:'FULL_EXPORT'/);
-  assert.match(payload, /sourceType='Meeting'/);
-  assert.doesNotMatch(payload, /modelProfileId|thinkingProfileId|questionOrInstruction|selectedEntityKeys/);
+  assert.match(payload, /kCommonKnowledgeFilters\(\)/);
+  assert.doesNotMatch(payload, /sourceType='Meeting'/);
+  assert.match(payload, /selectedEntityKeys/);
+  assert.doesNotMatch(payload, /modelProfileId|thinkingProfileId|questionOrInstruction/);
 });
