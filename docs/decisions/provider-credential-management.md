@@ -2,7 +2,13 @@
 
 Current as of: 2026-09-26
 
-Status: PROPOSED FOR WORK0073
+Status: ACCEPTED FOR WORK0073
+
+Implementation boundary confirmed: 2026-09-26
+
+- Work0073 implements Phase A through four-source operational alignment.
+- Google Secret Manager remains a follow-up Phase B decision and is not part of the current implementation scope.
+- The AI setup UI does not need a notice explaining the difference between a ChatGPT subscription and OpenAI API billing.
 
 ## Problem
 
@@ -222,26 +228,27 @@ ChatGPT / OpenAI
 [設定を開始]
 ```
 
-Wizard:
+User-facing setup flow:
 
 ```text
-Step 1  利用環境を確認
-Step 2  APIキーを用意
-Step 3  資格情報を安全に登録
-Step 4  接続を確認（synthetic）
-Step 5  4-source検索を確認（synthetic）
-Step 6  利用開始
+Step 1  利用環境と接続先を確認
+Step 2  APIキーを登録・確認
+        -> connection verification
+        -> synthetic four-source qualification
+Step 3  利用開始
 ```
+
+The three visible steps may contain internal subchecks, but the user should not have to understand the provider-specific state machine.
 
 Each step shows:
 
 - what will happen;
-- whether provider calls/cost/resource creation occurs;
+- whether an external provider call or temporary resource creation occurs;
 - whether the operation is reversible;
-- exact next action;
+- the exact next action;
 - no secret values after submission.
 
-Do not merge save + enable + production sync into one button.
+Do not merge credential save, provider enablement, and production-source sync into one button. Production-source sync remains a separate operational action after enablement.
 
 ### 10. Rotation flow
 
@@ -292,16 +299,17 @@ From the project Web UX knowledge:
 
 Work0073 should implement the smallest safe slice:
 
-Phase A:
+Current Work0073 implementation scope:
 - provider-neutral setup state machine;
 - separate routine status from credential mutation;
 - candidate-test-promote for Script Properties;
-- first-run / rotation UX;
+- first-run / rotation UX using the three-step user-facing flow;
 - model and manual-sync progressive disclosure;
-- four-source admin sync terminology;
-- all four source reset/rebuild correctness.
+- four-source admin sync terminology and source selection;
+- all four source reset/rebuild correctness;
+- clear distinction between unknown/error/unconfigured states.
 
-Phase B (evidence-gated):
-- evaluate / implement Google Secret Manager backend only after the actual Apps Script Cloud project type, IAM, OAuth scopes and company deployment boundary are confirmed.
+Follow-up after Work0073:
+- evaluate / implement Google Secret Manager only after the actual Apps Script Cloud project type, IAM, OAuth scopes and company deployment boundary are confirmed.
 
 Work0072 live-provider qualification resumes after Phase A can provision a clearly dedicated qualification credential without exposing it to normal Web App users or overwriting a known-good key before test.
