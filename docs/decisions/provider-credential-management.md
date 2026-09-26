@@ -1,344 +1,127 @@
-# Provider credential management
+# APIキー・モデル設定の管理方針
 
-Current as of: 2026-09-26
+更新日: 2026-09-26
+DESIGN_STATUS: ACCEPTED FOR WORK0073
+DESIGN_REVISION: 2
+IMPLEMENTATION_STATUS: NOT_STARTED_USER_CONFIRMED
 
-Status: ACCEPTED FOR WORK0073
+実装範囲・受入条件: [Work0073実装計画](../planning/work0073-provider-credential-onboarding.md)
+現在の実行指示: [Dispatch Register](../handoffs/0073-dispatches.md)
 
-Implementation boundary confirmed: 2026-09-26
+## 決定の要旨
 
-- Work0073 implements Phase A through four-source operational alignment.
-- Google Secret Manager remains a follow-up Phase B decision and is not part of the current implementation scope.
-- The AI setup UI does not need a notice explaining the difference between a ChatGPT subscription and OpenAI API billing.
+通常は保存済みの既定モデルを使う。変更時だけモデルを選び、`確認して保存`で完了する。モデル一覧にないものはModel IDを直接入力できる。新規の思考設定は`プロバイダ標準`を初期値とし、必要な場合だけ上書きする。
 
-## Problem
+認証情報の安全な登録・更新、接続準備、モデル変更、資料同期は内部責任を分離する。ただし、モデルの登録・確認・既定化を利用者に別々の操作として管理させない。安全性を保つための内部確認と、利用者の操作回数を混同しない。
 
-Current `管理者ページ > AI設定` combines several different concerns:
+今回の対象は4種類の情報源との整合まで。Secret Manager、Azure OpenAI、会社展開は後続とする。ChatGPTのサブスクリプションとOpenAI APIの請求の違いを説明する注意書きは追加しない。
 
-- credential entry
-- secret persistence
-- connection test
-- provider Store creation/readback
-- provider enable/disable
-- manual source sync
-- exact-source sync
-- model policy editing
-- model / thinking qualification
+## 1. 画面と操作
 
-OpenAI and Gemini also expose different sequences.
+`管理者ページ > AI設定`の入口は維持する。通常カードには現在のモデル、利用状態、次の操作を表示する。APIキーの空入力欄、Profile ID、モデル系列、検索Store ID、資格確認の内部項目を常設しない。接続・検索・同期の内訳は必要時に展開する。
 
-Current source stores `KSP_OPENAI_API_KEY` and `KSP_GEMINI_API_KEY` in Apps Script Script Properties. The Web App accepts raw credentials in password inputs and the server persists the supplied value before the full connection check succeeds.
+初回設定は以下の3段階とする。
 
-This creates three problems:
+1. 利用環境と接続先の確認。環境はサーバー側構成で決まり、利用者が任意に制約を解除できない。
+2. APIキーとモデルの設定。既定モデルがあれば初期選択し、なければ候補選択またはModel ID直接入力へ進む。`確認して保存`で選んだ設定の必要な確認と採用まで実施する。
+3. 利用開始。接続の有効化・運用Store準備はここで行う。業務資料の同期は別の明示操作とする。
 
-1. a failed rotation can replace a previously usable credential before the candidate is proven;
-2. credential provisioning is mixed into routine provider operations, making environment ownership and next action unclear;
-3. the normal Web App management surface is intentionally roleless for ordinary administration, while secret provisioning is a materially stronger security boundary than theme/deleted-record operations.
-
-Work0072 also expanded provider/index contracts to four sources, while the current manual AI-settings sync controls still present Meeting/Pitchbook-only terminology and exact-ID affordances.
-
-## External evidence
-
-### Google / Apps Script
-
-Apps Script `PropertiesService` is an app-wide key/value configuration store. Script properties are shared at script scope. It is practical for developer configuration, but it is not a dedicated secret-management service.
-
-Google Secret Manager provides IAM, versions, access audit, rotation patterns and a dedicated API for secrets. Google recommends least privilege, environment separation, direct Secret Manager access rather than copying secrets to additional datastores, and disabling old versions before destructive deletion.
-
-Apps Script can call Google APIs that are not built in by using `ScriptApp.getOAuthToken()` with explicit scopes. Using Secret Manager therefore requires deliberate Cloud-project / OAuth-scope / IAM design rather than being treated as a drop-in UI change.
-
-For complex applications that need manual control of Cloud APIs and IAM, Google recommends an Apps Script standard Cloud project rather than relying indefinitely on the default project.
-
-### OpenAI
-
-OpenAI recommends unique API keys rather than shared personal keys, project-scoped organization of usage, expiration/rotation, and secure server-side storage. OpenAI Projects can scope usage, members/service accounts, budgets and API-key permissions.
-
-A shared server application should not depend on an individual developer's generic personal key when a dedicated project/service-account or dedicated project key is available.
-
-### Gemini / Google API keys
-
-Google recommends keeping API keys out of client code and repositories, isolating keys per application/environment, restricting APIs, rotating keys and monitoring usage. Gemini API keys can be restricted specifically to Gemini API.
-
-### Community patterns
-
-Apps Script developers commonly use Script Properties for simple/private projects, but community discussions repeatedly note that it is not a strong security boundary against script editors. For stronger organizational controls, developers use Google Secret Manager or a separate credential-handling service/library.
-
-Community Secret Manager wrappers demonstrate feasibility, but Alternative Assets Intelligence should not take a third-party secret library dependency merely for convenience. If Secret Manager is adopted, prefer a small first-party repository adapter against the official API.
-
-## Decision direction
-
-### 1. Separate credential provisioning from provider operations
-
-Normal provider state and provider operation UI may remain visible to authorized Web App users.
-
-Raw credential create/replace/delete is a separate `Credential Operator` boundary.
-
-This is NOT a return to a general app-wide admin role.
-
-Credential Operator should reuse or align with the existing installer/deployment-security operator boundary because secret mutation can change billing/data-exfiltration capability.
-
-Normal users may see only redacted state:
+モデルの変更フォームは1つとする。
 
 ```text
-未設定
-設定済み
-接続確認済み
-4-source資格化済み
-有効
-要再確認
-エラー
+利用モデルを変更
+モデル      [候補から選択]
+            [一覧を更新] [Model IDを直接指定]
+思考設定    [プロバイダ標準]
+詳細設定 >
+[キャンセル] [確認して保存]
 ```
 
-Raw key value, provider private resource IDs, secret refs and provider account identifiers are not returned to the browser.
+候補選択と直接入力は同じ正規化・検証・保存処理を使う。Model ID以外の必須入力は原則増やさず、表示名は補完、内部Profile IDは自動生成する。既存のProfile IDや明示設定は保持する。
 
-### 2. Do not save a replacement key before it passes validation
+通常のモデル変更でAPIキーを再入力させない。検索のたびにモデルや思考設定を選び直させない。既存の利用者向け任意選択は維持し、確認済み設定だけを選べるようにする。
 
-Credential rotation uses candidate -> validate -> promote.
+## 2. モデル候補と保存済み設定
 
-For Script Properties backend:
+候補一覧は選択支援であり、実行設定の正本ではない。サーバー側で取得し、モデル変更画面を開いたときのキャッシュミス、または明示更新時だけ外部APIへ問い合わせる。通常検索は候補一覧APIに依存しない。
 
-```text
-candidate key received by one server call
--> use only in call-local memory
--> bounded synthetic connection/qualification
--> success: atomically replace active key
--> failure: active key remains unchanged
--> candidate is not persisted
-```
+候補一覧の取得失敗・空結果・一覧からの消失だけで、保存済みモデルを削除、無効化、再資格確認要求にしない。手入力は一覧の有無に依存させない。取得情報は表示名・Model ID・確認できた能力情報等の必要最小限とし、取得日時と不完全な一覧を区別する。
 
-If a qualification cannot fit safely in one call, stop and redesign rather than persisting plaintext candidate state casually.
+APIの一覧に出たことを、File Searchや思考設定が使える証拠にしない。モデル名や作成日時から性能順位、対応パラメータ、固定版であることを推定しない。
 
-For Secret Manager backend:
+新しいModel IDを設定だけで追加できる範囲は、既存のAPI経路・要求形式で動作するものに限る。新APIや未対応パラメータ形式には小さなprovider adapter更新が必要になり得る。全将来仕様を吸収する汎用設定エンジンは作らない。
 
-```text
-create candidate secret version
--> qualify exact version
--> promote app reference to exact version
--> keep prior version available for rollback
--> disable old version after successful cutover
--> destroy/delete only under separate retention policy
-```
+正常系を古いモデル名の列挙に限定しない。一方、既知のモデルに対する初期候補や正しいパラメータ変換のための限定的な定義は許容する。それらを登録可能なモデルの完全なallowlistにしない。過去の固定モデルqualification fixtureは、通常設定の経路から切り離し、過去証拠として保持できる。
 
-### 3. Introduce a credential backend abstraction
+## 3. 思考設定
 
-Application code consumes provider credentials through one server-side interface.
+新規設定の`プロバイダ標準`は、任意の思考パラメータを省略するという意味で保持する。文字列`auto`や推定した`low`等へ置換しない。アプリが明示的に送る出力上限等は別に保持し、実際に送る設定で検証する。
 
-Initial backends:
+保存済みの明示設定は自動的に標準へ戻さない。対応が確認できているモデルには対応する選択肢だけを出し、未知のモデルには標準での確認経路を残す。未知であることだけを理由に既存APIでの試行を拒否しない。
 
-- `SCRIPT_PROPERTIES` — permitted for isolated/personal development and bounded qualification when script-editor access is tightly controlled.
-- `GOOGLE_SECRET_MANAGER` — preferred target for managed company/staging/production environments when the standard Cloud project, IAM and OAuth-scope boundary is approved.
+モデルと設定違いは同じプロファイル体系で扱う。Low/Medium/Highごとに同一モデルを別登録しない。上書きは必要時だけ詳細設定で扱い、既存adapterが送信できる型・形式に限定する。任意JSON、URL、ヘッダーを入力させない。利用者の指定が失敗しても、別モデル・別の思考値に無言で置き換えない。
 
-Do not store a secret value in the Backend Settings sheet.
+## 4. 内部構造と確認結果
 
-Non-secret runtime metadata may record:
+既存のモデルポリシーを再利用し、以下の役割だけを分ける。新しい3つのDBを作るという意味ではない。
 
-- provider
-- credential backend
-- environment class
-- purpose
-- configured yes/no
-- last validation timestamp
-- last qualification state
-- rotation required yes/no
+| 役割 | 内容 | 正本性 |
+|---|---|---|
+| 候補一覧 | 取得したModel ID、表示名、取得時刻等 | 一時キャッシュ。設定を上書きしない |
+| 保存済み設定 | 採用モデル、思考設定、既定・表示設定 | 既存モデルポリシーが実行の正本 |
+| 動作確認結果 | 実行に影響する設定と確認時点・確認範囲 | 一致する設定にだけ再利用 |
 
-Do not persist the raw key, key prefix/fragment, private provider project ID, secret resource name, or private store IDs in user-visible settings/Audit/GitHub.
+候補から採用までの内部段階を、それぞれ新しい永続状態や独立管理画面として増設しない。利用状態は保存済み設定と確認結果から導出し、非同期操作状態・同期状態と分ける。
 
-### 4. Environment-specific policy
+確認対象は、採用しようとするモデル・思考設定・出力設定の組み合わせだけ。4種類の合成情報源を使う検索・引用確認は内部でまとめる。全モデル・全思考値の総当たり、網羅ベンチマークは行わない。
 
-#### Isolated personal / qualification environment
+確認結果はprovider、接続境界、認証情報世代、Model ID、パラメータの省略/指定、出力上限、検索ツール/要求形式の互換性に紐づける。実行に影響する変更は再確認、表示名・表示順だけの変更は確認不要とする。既存Storeとのアクセス確認と、合成テストStoreでの能力確認は区別する。
 
-Fast path:
+表示・確認済みフラグをクライアントが申告しても信用しない。通常実行時もサーバーで現在の設定と確認結果を照合する。
 
-- dedicated provider project/key for this app or qualification purpose;
-- never use a generic key whose ownership/purpose cannot be established;
-- Script Properties is acceptable as the minimum viable backend if editor access remains owner-controlled;
-- temporary qualification key should use provider-supported expiry/rotation and bounded spend where available;
-- provider resources use explicit synthetic/test names and bounded cleanup.
+## 5. 保存と認証情報の安全性
 
-#### Company environment
+モデル設定は`候補を検証 → 世代を比較 → 採用`とする。成功時だけ既定設定を切り替え、候補の失敗では現在のモデル・キー・有効/無効・Store・同期状態を保持する。既定変更はこの1操作で完了し、別の登録・資格確認・既定化ボタンを要求しない。
 
-Target policy:
+APIキーはScript Propertiesを小さなcredential interface経由で使用する。認証情報を受け取る操作は、通常のモデル変更とは異なるCredential Operator認可をサーバーで必要とする。既存installer/deployment-securityの本人確認境界に合わせるが、認可のためにowner latchやbootstrapを変更しない。一般の管理者ロールや共有パスワードは導入しない。
 
-- Direct OpenAI is not the company production OpenAI route; Work0030 Azure OpenAI remains separately governed.
-- Any non-Azure provider credential enabled by company policy must use a company-approved secret backend.
-- Prefer Google Secret Manager when its standard Cloud project / IAM / OAuth-scope implications are accepted.
-- No raw key input on the ordinary roleless Web App surface.
+通常の設定RPCはraw credentialを拒否する。候補キーによる一覧取得もCredential Operator経路に限定する。候補キーは入力中フォームと各RPCのローカルメモリだけで扱い、検証前のScript Properties、CacheService、Sheet、ログ、Audit、ブラウザ永続保存へ置かない。一覧取得の戻り値にもキーや断片を含めない。
 
-### 5. Provider setup state machine
+キー更新に成功するまでは、現在の有効キーを一時的にも置換しない。既存運用Storeへ候補キーでアクセスできない場合は切替を拒否し、別Storeを自動作成しない。長い外部呼び出し中に全体ロックを保持せず、保存時の短いロックと世代照合で同時更新を保護する。
 
-Use one provider-neutral state model.
+タイムアウトは未実行とは限らない。秘密を含まない操作識別と結果照会で復帰し、不明な結果を即時再送・成功・失敗に決め打ちしない。複数保存先を無条件に原子的とみなさず、途中失敗でも古い動作設定が新しい未確認状態と混ざらない契約を実装する。
 
-```text
-UNCONFIGURED
-CREDENTIAL_PRESENT
-CONNECTION_VERIFIED
-FOUR_SOURCE_QUALIFIED
-ENABLED
-REVERIFY_REQUIRED
-ERROR
-```
+## 6. モデルの変更・廃止・障害
 
-Substates/errors may be provider-specific, but the main user journey is the same.
+新モデルを発見しても自動採用しない。一覧取得失敗、非推奨、終了予定、実呼び出しでの利用不可、一時的制限は分ける。非推奨情報だけでは既存設定を即停止せず、実行不能が確認された対象だけを要対応にする。
 
-`enabled` is not inferred merely from presence of a key/store/model.
+固定版/aliasの性質は確認できた範囲で小さく表示する。専用の選択モードや追加同意画面は作らない。利用者によるModel IDの明示選択を採用意思とし、アプリ側の自動切替はしない。aliasを含む確認結果は、将来も同一の背後モデルである保証にはしない。
 
-### 6. Provider resource lifecycle is separate from credential lifecycle
+モデル変更だけでAPIキーの再登録、運用Storeの作り直し、業務資料の全件再同期は行わない。埋め込みモデルやStore・接続先の移行は別scopeとする。
 
-Credential registration must not silently create/replace a production provider Store.
+## 7. 利用開始・無効化・削除・4-source
 
-A connection check may create a bounded temporary synthetic Store and clean it up.
+利用開始は運用Store準備と接続有効化の明示操作。モデル設定の保存だけで停止中接続を再開しない。資料同期はさらに別操作とする。
 
-Provider operational Store creation/reuse belongs to `利用開始` / provider enablement, after credential and synthetic qualification are successful.
+無効化はキーとStoreを保持する。資格情報削除は停止中かつCredential Operatorのみ許可し、このアプリの保存キーだけを除去する。provider側キーの失効や既存Store削除は自動実行しない。
 
-Replacing an inaccessible Store must not leave News/Assessment derived state pointing to a stale Store. Four-source reset/rebuild behavior must cover all four canonical source types.
+`同期・診断`では面談メモ、保存資料、ニュース、評価を名前・日付等で選択できる。内部IDだけの入力を必須にしない。選択・同期・失敗再試行・provider派生状態のreset/rebuildを4種類で整合させ、部分完了を全件完了と表示しない。
 
-### 7. Model policy is advanced configuration and must tolerate model churn
+## 8. 今回採用しないもの
 
-First-time setup should not require the user to understand:
+Secret Manager、Cloud/IAM/OAuth構成変更、Azure、本番展開、定期モデル巡回、外部カタログ依存、全モデル評価、能力の完全自動推定、自動アップグレード、自動failover、別のモデル管理DB、任意JSON入力、不要な請求説明は対象外。
 
-- Profile ID
-- family
-- raw thinking values
-- output ceilings
+## 根拠と適用範囲
 
-Move model-policy editing behind `詳細設定`.
+前回調査のDify（通常設定と手動追加）、Open WebUI（一覧取得と実行の分離）、LibreChat（保存済み候補の保持）、OpenCode（同一モデル内の設定違い）の設計を参考に、今回の要件へ統合した製品側の判断である。各サービスの全面複製や操作時間改善の実測結果ではない。
 
-Model availability is not a static application constant. New models, aliases, reasoning options and deprecations can change independently of this repository.
+API上の確認範囲: OpenAI Modelsの基本一覧情報とGemini Modelsの対応メソッド等を2026-09-26に確認。一覧だけをこのアプリのFile Search/引用対応の証明にしない。
 
-The normal runtime path therefore uses this lifecycle:
+- https://developers.openai.com/api/reference/resources/models/methods/list
+- https://ai.google.dev/api/models
+- https://docs.dify.ai/en/guides/model-configuration/readme
+- https://docs.openwebui.com/getting-started/quick-start/connect-a-provider/starting-with-openai-compatible/
+- https://www.librechat.ai/docs/configuration/librechat_yaml/object_structure/custom_endpoint
+- https://opencode.ai/docs/models/
 
-```text
-provider-discovered candidate or manually entered Model ID
--> registered profile
--> API/capability verification
--> File Search + thinking qualification
--> qualified profile
--> optional provider default / user-visible selection
-```
-
-Rules:
-
-- do not require a source-code release merely to add a new provider model ID;
-- keep direct Model ID entry as a canonical fallback even when provider discovery is available;
-- provider model discovery is server-side, credential/environment-specific and advisory;
-- a model returned by a provider list endpoint is not automatically enabled or user-visible;
-- qualification, not name matching, proves that the exact model/thinking tuple works with this application's required provider path;
-- thinking/reasoning options belong to the model profile and must not be assumed identical across models;
-- discovery failure must not delete or disable existing qualified profiles merely because the list could not be refreshed;
-- a configured model that becomes unavailable moves to an unavailable/reverify state; do not silently switch to another model;
-- no automatic model failover;
-- no automatic upgrade from one stable model ID to a newer model;
-- if a rolling/latest alias is supported and selected, label it as rolling behavior and require explicit administrator choice;
-- provider-supplied lifecycle metadata such as shutdown/deprecation information may be surfaced when available, but absence of metadata is not proof of long-term availability.
-
-Hard-coded model IDs may remain only where they are historical qualification fixtures or compatibility evidence. They must not be the exhaustive allowlist for normal model registration/selection.
-
-The primary setup flow uses an approved qualified profile. Administrators can refresh/discover candidates or enter a new Model ID under `詳細設定`, qualify it, and then promote it to provider default without a code deployment.
-
-### 8. Manual source sync is advanced operations
-
-Credential setup must not ask for Meeting ID / Document ID.
-
-Manual exact-source sync belongs under a separate `同期・診断` advanced section.
-
-Any manual source selector must reflect all four source categories introduced by Work0072.
-
-### 9. Recommended setup flow
-
-Landing card:
-
-```text
-ChatGPT / OpenAI
-資格情報       未設定
-接続確認       未実施
-4-source検索   未実施
-検索データ     未作成
-状態           利用開始前
-
-[設定を開始]
-```
-
-User-facing setup flow:
-
-```text
-Step 1  利用環境と接続先を確認
-Step 2  APIキーを登録・確認
-        -> connection verification
-        -> synthetic four-source qualification
-Step 3  利用開始
-```
-
-The three visible steps may contain internal subchecks, but the user should not have to understand the provider-specific state machine.
-
-Each step shows:
-
-- what will happen;
-- whether an external provider call or temporary resource creation occurs;
-- whether the operation is reversible;
-- the exact next action;
-- no secret values after submission.
-
-Do not merge credential save, provider enablement, and production-source sync into one button. Production-source sync remains a separate operational action after enablement.
-
-### 10. Rotation flow
-
-Normal provider card has `APIキーを更新`, not a permanently visible empty password field.
-
-Rotation:
-
-1. explain that current key remains active until validation passes;
-2. accept new candidate;
-3. validate candidate;
-4. promote on success;
-5. show `更新完了`;
-6. keep provider enabled only if the new credential satisfies the existing readiness contract;
-7. on failure, preserve old credential and show actionable error.
-
-### 11. Removal / disable
-
-`プロバイダを無効化` and `資格情報を削除` are distinct.
-
-Disabling stops use but keeps the credential for reversible recovery.
-
-Credential removal requires explicit confirmation and provider disabled state.
-
-Secret Manager versions should be disabled before destructive deletion when adopted.
-
-## UX rules applied
-
-From the project Web UX knowledge:
-
-- form validation appears at a meaningful point and is also enforced server-side;
-- errors identify the field, reason and correction path;
-- save/test flows have explicit idle/validating/pending/success/error states;
-- secrets are not stored indefinitely in browser/local draft state;
-- keyboard/focus order remains natural and visible;
-- async state areas preserve action positions and do not redraw the whole card.
-
-## Non-goals
-
-- Work0030 Azure OpenAI implementation
-- company rollout
-- historical source migration
-- new app-wide user/admin role system
-- automatic provider failover
-- storing provider credentials in Backend Sheets
-- adopting a third-party Secret Manager library as a runtime dependency
-
-## Follow-up implementation
-
-Work0073 should implement the smallest safe slice:
-
-Current Work0073 implementation scope:
-- provider-neutral setup state machine;
-- separate routine status from credential mutation;
-- candidate-test-promote for Script Properties;
-- first-run / rotation UX using the three-step user-facing flow;
-- model and manual-sync progressive disclosure;
-- four-source admin sync terminology and source selection;
-- all four source reset/rebuild correctness;
-- clear distinction between unknown/error/unconfigured states.
-
-Follow-up after Work0073:
-- evaluate / implement Google Secret Manager only after the actual Apps Script Cloud project type, IAM, OAuth scopes and company deployment boundary are confirmed.
-
-Work0072 live-provider qualification resumes after Phase A can provision a clearly dedicated qualification credential without exposing it to normal Web App users or overwriting a known-good key before test.
+Project Source `GOOGLE-WEB-UX-KB` v1.0のFORM-003/004/005/006/007、CLS-002/005、NAV-005、A11Y-002/003、QA-002/005/006を必要箇所に適用する。Shared KnowledgeのOBS-0018を、確認結果の有効範囲を実行設定へ結び付ける判断に適用する。全文の転載や全ルールの一律適用は行わない。
