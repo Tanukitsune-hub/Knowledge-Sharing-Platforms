@@ -16,7 +16,7 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 0069 | Source-aware knowledge expansion implementation plan | ACCEPTED | Work0068 current baseline | Start API-independent record-layer implementation under a new Work ID when authorized; AI/provider phase remains credential/policy-gated |
 | 0070 | Source-aware record layer expansion — 4-source authoritative record/storage/UI, schema9, team concurrency | ACCEPTED | Work0069 ACCEPTED | PR #103 / merge `00ac5618c0c0f0ef771cb4b79602853ab0d43e9b`; preserve accepted evidence |
 | 0071 | Interaction-stable async UX — Google Web UX KBを選択適用し、save/upload/statusのlayout shift・focus・recoveryを改善 | ACCEPTED | Work0070 ACCEPTED baseline | PR #104 + #105; final release 0.2.2 / schema9; preserve accepted evidence |
-| 0072 | Four-source Knowledge Search / AI layer — Meeting / Pitchbook / News / Internal Assessmentの検索・provenance・Full Output scope統合 | ACTIVE | Work0070 + Work0071 ACCEPTED | Run `0072-CODEX-01`: provider-disabled four-source core; no provider/company/migration/rollout mutation |
+| 0072 | Four-source Knowledge Search / AI layer — Meeting / Pitchbook / News / Internal Assessmentの検索・provenance・Full Output scope統合 | ACTIVE | Work0070 + Work0071 ACCEPTED | Run `0072-CODEX-02`: repair provider 40-ID cap leakage into Full Output; continue Draft PR #106 |
 
 Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
 
