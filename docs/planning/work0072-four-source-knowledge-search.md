@@ -486,7 +486,7 @@ COMPANY_ROLLOUT: DEFERRED
 WORK0030_AZURE: DEFERRED_BY_USER
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: 0072-CODEX-01
+NEXT_DISPATCH: 0072-CODEX-02
 ```
 
 
@@ -496,3 +496,32 @@ NEXT_DISPATCH: 0072-CODEX-01
 
 Instruction: `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md`  
 Dispatch: `docs/handoffs/0072-dispatches.md`
+
+
+## CODEX-01 review checkpoint
+
+Accepted implementation/evidence:
+
+- 4-source canonical registry and `sourceTypes[]`
+- scalar compatibility
+- four-source checkbox UI
+- authoritative source/citation/provenance mapping
+- multi-Counterparty membership without source duplication
+- Active-only normal retrieval
+- provider-fake matrix
+- Full Output Meeting / direct News / direct Assessment / TXT / EML / XLSX
+- explicit PDF / PPTX / DOCX unsupported materialization
+- 1440 / 390 / 320 browser PASS
+- Work0071 regression PASS
+- `npm run check` 730/730 PASS
+
+Repair required before integration:
+
+```text
+BLOCKER: PROVIDER_SOURCE_ID_LIMIT_LEAKS_INTO_FULL_OUTPUT
+ROOT_CAUSE: authoritative source resolution and provider 40-ID allowlist cap are coupled
+HISTORICAL_FULL_OUTPUT_THRESHOLD_CONTRACT: RESTORE
+ACTIVE_DISPATCH: 0072-CODEX-02
+```
+
+The provider `KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX=40` limit must apply only when a provider query actually requires an explicit source-ID allowlist. Provider-independent Full Output must use its own existing limits (Meeting 50, Pitchbook 200, character limits) and preserve index-only hard-stop before body reads.

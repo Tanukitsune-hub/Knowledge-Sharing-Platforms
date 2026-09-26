@@ -1,9 +1,9 @@
 # Work 0072 dispatch control
 
 WORK_ID: 0072
-ACTIVE_DISPATCH_ID: 0072-CODEX-01
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: 0072-CODEX-02
+BALL: CODEX
+STATUS: READY
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: FOUR_SOURCE_CORE
@@ -32,7 +32,32 @@ Meeting / Pitchbook / News / Internal Assessmentを同じcanonical source scope�
 
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report |
 |---|---|---|---|---|---|---|
-| 0072-CODEX-01 | provider-disabled four-source Knowledge Search core + provenance + provider-independent Full Output subset | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md` | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-report.md` |
+| 0072-CODEX-01 | provider-disabled four-source Knowledge Search core + provenance + provider-independent Full Output subset | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md` | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-report.md` / Draft PR #106 |
+| 0072-CODEX-02 | separate authoritative source scope from provider 40-ID cap and restore Full Output thresholds | BUILD | CODEX | READY | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-instruction.md` | pending |
+
+## CODEX-01 ChatGPT review
+
+Accepted:
+
+- 4 canonical source types / shared labels
+- canonical `sourceTypes[]` + scalar compatibility
+- 4 checkbox UI / fresh-load Meeting-only default
+- 0-source validation
+- Active-only four-source authoritative mapping
+- multi-Counterparty News/Assessment resolved once
+- citation/provenance mapping
+- provider-fake query matrix
+- TXT / EML / XLSX Full Output materialization
+- PDF / PPTX / DOCX explicit unsupported-materialization hard-stop
+- responsive browser 1440 / 390 / 320
+- Work0071 coupled regressions
+- release 0.2.3 / schema9 direction
+
+BLOCKER:
+
+`kspRestrictKnowledgeEligibleSources_()` applies the provider-oriented `KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX = 40` cap to provider-independent Full Output. This changes the accepted Full Output threshold contract. The PR also changed the historical 51-Meeting test from successful preview hard-stop to `AI_ADVANCED_FILTER_TOO_BROAD`, which is not accepted.
+
+Required repair: `0072-CODEX-02`.
 
 ## Authorization
 
@@ -51,6 +76,6 @@ CODEX-01 return後、ChatGPTがsource/filter/citation/Full Output diffとdetermi
 Work0072をACCEPTEDにしない。
 
 WORK_ID: 0072
-DISPATCH_ID: 0072-CODEX-01
-BALL: CHATGPT
-STATUS: RETURNED
+DISPATCH_ID: 0072-CODEX-02
+BALL: CODEX
+STATUS: READY
