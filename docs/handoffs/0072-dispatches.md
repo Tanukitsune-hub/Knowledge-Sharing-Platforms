@@ -2,8 +2,8 @@
 
 WORK_ID: 0072
 ACTIVE_DISPATCH_ID: 0072-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
 PHASE: LIVE_PROVIDER_QUALIFICATION
@@ -24,7 +24,7 @@ Meeting / Pitchbook / News / Internal Assessmentを同じcanonical source scope�
 - 0 selected invalid.
 - News / Assessment multi-Counterparty source is stored/resolved once, not duplicated.
 - normal retrieval = Active only.
-- provider/company/migration/rollout are not authorized.
+- 今回のCODEX-03はisolated synthetic provider qualificationのみ承認済み。会社data/provider、migration、rolloutは未承認。
 - historical migration and final company rollout are deferred by current user priority.
 - Work0030 Azure transition remains DEFERRED_BY_USER.
 
@@ -34,7 +34,7 @@ Meeting / Pitchbook / News / Internal Assessmentを同じcanonical source scope�
 |---|---|---|---|---|---|---|
 | 0072-CODEX-01 | provider-disabled four-source Knowledge Search core + provenance + provider-independent Full Output subset | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md` | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-report.md` / Draft PR #106 |
 | 0072-CODEX-02 | separate authoritative source scope from provider 40-ID cap and restore Full Output thresholds | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-instruction.md` | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-report.md` / PR #106 |
-| 0072-CODEX-03 | bounded live provider four-source qualification with synthetic data | QUALIFICATION | CODEX | READY | `docs/handoffs/0072-CODEX-03-live-provider-four-source-qualification-instruction.md` | pending |
+| 0072-CODEX-03 | bounded live provider four-source qualification with synthetic data | QUALIFICATION | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-03-live-provider-four-source-qualification-instruction.md` | `docs/handoffs/0072-CODEX-03-live-provider-four-source-qualification-report.md` |
 
 ## CODEX-01 ChatGPT review
 
@@ -58,9 +58,9 @@ BLOCKER:
 
 `kspRestrictKnowledgeEligibleSources_()` applies the provider-oriented `KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX = 40` cap to provider-independent Full Output. This changes the accepted Full Output threshold contract. The PR also changed the historical 51-Meeting test from successful preview hard-stop to `AI_ADVANCED_FILTER_TOO_BROAD`, which is not accepted.
 
-CODEX-02 candidateで修復し、ChatGPT final diff/evidence review待ち。historical Full Output thresholdとprovider queryの分離結果はCODEX-02 reportを参照。
+CODEX-02 candidateで修復し、当時ChatGPT final diff/evidence reviewへ返した。historical Full Output thresholdとprovider queryの分離結果はCODEX-02 reportを参照。
 
-## Authorization
+## CODEX-01/02 authorization（履歴）
 
 ```text
 PROVIDER_CALL_BUDGET: 0
@@ -72,14 +72,14 @@ APPS_SCRIPT_DEPLOYMENT_MUTATION: 0
 
 ## Completion Gate
 
-CODEX-02 return後、ChatGPTがscope-limit修復とexact distribution evidenceをreviewする。
+PR #106の4-source coreとCODEX-02修復はChatGPT reviewでmainへ統合済み。CODEX-03のlive provider matrixは`NO_AUTHORIZED_PROVIDER_CREDENTIAL`で未実行のまま返却した。provider-runtime acceptanceはChatGPTの次判断待ち。
 
 Work0072をACCEPTEDにしない。
 
 WORK_ID: 0072
 DISPATCH_ID: 0072-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 
 ## Core integration
@@ -104,13 +104,13 @@ CORE_BLOCKER: NONE
 
 Accepted core includes canonical `sourceTypes[]`, 4 checkbox UI, authoritative source resolution, multi-Counterparty membership, Active-only retrieval, citation/provenance, fake-provider query contracts, Full Output parity for supported deterministic formats, unsupported PDF/PPTX/DOCX fail-closed behavior, and separation of provider 40-ID limits from Full Output limits.
 
-## Remaining authorization boundary
+## CODEX-03 authorization and remaining boundary
 
 Work0072 overall is not yet ACCEPTED because live provider qualification for the new four-source path has not run.
 
-Any such qualification may incur provider calls/billing and provider index/store mutation. Do not create or run another Codex Dispatch until the user explicitly authorizes that boundary.
+2026-09-26に、既存のisolated/test credentialだけを使用するbounded synthetic qualificationが承認された。今回のpreflightでは対象credentialが確認できず、callとmutationは開始していない。次の実行境界はChatGPTが判断する。
 
-Current pending decision:
+Authorization state:
 
 ```text
 LIVE_PROVIDER_QUALIFICATION: AUTHORIZED_2026-09-26
@@ -122,4 +122,4 @@ COMPANY_ROLLOUT: DEFERRED
 WORK0030_AZURE: DEFERRED_BY_USER
 ```
 
-User authorized bounded synthetic live-provider qualification. Active Dispatch is `0072-CODEX-03`; company/confidential data remains prohibited.
+User authorized bounded synthetic live-provider qualification. Dispatch `0072-CODEX-03`を返却した。現行isolated Apps Script targetのScript PropertiesにDirect OpenAI / Geminiのkey項目はなく、generic local OpenAI keyのtest境界も未証明であるため、`NO_AUTHORIZED_PROVIDER_CREDENTIAL`でQ1〜Q4は`NOT_RUN`。provider call、index、source sync、version、deployment updateは各0。詳細はCODEX-03 reportを参照。会社/機密dataは引き続き対象外。
