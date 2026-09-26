@@ -70,11 +70,12 @@ function kspAssertAiCredentialOperator_(environment) {
   return active;
 }
 
-function kspAiSetupPolicy_(settings, nowIso) {
+function kspAiSetupPolicy_(settings, nowIso, runtime) {
   if (settings.modelPolicyJson) return kspNormalizeAiModelPolicy_(settings.modelPolicyJson);
   if (settings.openaiModelId) return kspBuildMigratedOpenAiModelPolicy_(settings, {
-    modelId: settings.openaiModelId, accessible: Boolean(settings.openaiEnabled),
-    qualified: Boolean(settings.openaiEnabled &&
+    modelId: settings.openaiModelId,
+    accessible: runtime ? runtime.accessible === true : Boolean(settings.openaiEnabled),
+    qualified: runtime ? runtime.qualified === true : Boolean(settings.openaiEnabled &&
       ['ACTIVE', 'ACTIVE_WITH_SYNC_ERRORS', 'READY_FOR_SYNC'].indexOf(settings.openaiReadiness) !== -1),
     nowIso: nowIso
   });
@@ -83,9 +84,15 @@ function kspAiSetupPolicy_(settings, nowIso) {
   });
 }
 
-function kspAiSetupModelId_(value) {
+function kspAiSetupModelId_(value, provider) {
   var modelId = kspAiTrim_(value);
+  if (provider === KSP_AI_PROVIDERS.GEMINI && modelId.indexOf('models/') === 0) {
+    modelId = modelId.slice('models/'.length);
+  }
   if (!modelId || modelId.length > 128 || !/^[A-Za-z0-9][A-Za-z0-9._:/-]*$/.test(modelId)) {
+    throw kspAiSetupError_('AI_SETUP_MODEL_INVALID');
+  }
+  if (provider === KSP_AI_PROVIDERS.GEMINI && modelId.indexOf('models/') === 0) {
     throw kspAiSetupError_('AI_SETUP_MODEL_INVALID');
   }
   return modelId;
@@ -109,7 +116,7 @@ function kspAiSetupProfile_(policy, provider, modelId, displayName, nowIso, opti
   }
   var rawThinkingId = requestedRaw ? 'setting-' + kspAiSetupDigest_(requestedRaw).slice(0, 12) : '';
   var matching = policy.profiles.filter(function (item) {
-    return item.provider === provider && item.modelId === modelId;
+    return item.provider === provider && kspAiSetupModelId_(item.modelId, provider) === modelId;
   });
   var existing = requestedProfileId ? policy.profiles.filter(function (item) {
     return item.provider === provider && item.profileId === requestedProfileId;
@@ -326,13 +333,13 @@ function kspRunFourSourceAiSetupQualification_(environment, input) {
     sourceTypes: KSP_AI_SETUP_SOURCE_TYPES.slice(), fingerprint: request.fingerprint };
 }
 
-function kspAiSetupSafeCandidates_(raw) {
+function kspAiSetupSafeCandidates_(raw, provider) {
   var response = raw || {};
   var seen = {};
   var candidates = [];
   (Array.isArray(response.models) ? response.models : []).forEach(function (item) {
     var modelId;
-    try { modelId = kspAiSetupModelId_(item && item.modelId); } catch (ignored) { return; }
+    try { modelId = kspAiSetupModelId_(item && item.modelId, provider); } catch (ignored) { return; }
     if (seen[modelId] || candidates.length >= 100) return;
     seen[modelId] = true;
     candidates.push({ modelId: modelId,
@@ -355,9 +362,13 @@ function kspListAiModelSetupCandidates_(environment, input, credentialMode) {
     var generation = environment.getAiCredentialGeneration(provider);
     var cached = !credentialMode && environment.getAiModelCandidateCache
       ? environment.getAiModelCandidateCache(provider, generation) : null;
-    if (cached) return { ok: true, workId: '0073', provider: provider,
-      models: cached.models, partial: cached.partial, fetchedAt: cached.fetchedAt, cached: true };
-    var result = kspAiSetupSafeCandidates_(environment.listAiProviderModels(provider, candidateKey));
+    if (cached) {
+      var safeCached = kspAiSetupSafeCandidates_(cached, provider);
+      return { ok: true, workId: '0073', provider: provider,
+        models: safeCached.models, partial: safeCached.partial,
+        fetchedAt: cached.fetchedAt, cached: true };
+    }
+    var result = kspAiSetupSafeCandidates_(environment.listAiProviderModels(provider, candidateKey), provider);
     result.fetchedAt = environment.nowIso();
     if (!credentialMode && environment.putAiModelCandidateCache) {
       environment.putAiModelCandidateCache(provider, generation, result, 600);
@@ -379,7 +390,12 @@ function kspSaveAiModelSetup_(environment, input, credentialMode) {
       throw kspAiSetupError_('AI_SETUP_FACADE_REQUIRED');
     }
     var candidateKey = credentialMode ? kspAiSetupCandidateKey_(payload.apiKey) : '';
-    var modelId = kspAiSetupModelId_(payload.modelId);
+    if (!credentialMode) {
+      var credentialConfigured = provider === KSP_AI_PROVIDERS.OPENAI
+        ? environment.isOpenAiCredentialConfigured() : environment.isGeminiCredentialConfigured();
+      if (!credentialConfigured) throw kspAiSetupError_('AI_SETUP_CREDENTIAL_REQUIRED');
+    }
+    var modelId = kspAiSetupModelId_(payload.modelId, provider);
     var operationId = kspAiTrim_(payload.operationId);
     if (!/^[a-zA-Z0-9-]{20,80}$/.test(operationId)) throw kspAiSetupError_('AI_SETUP_OPERATION_INVALID');
     var makeDefault = payload.makeDefault !== false;

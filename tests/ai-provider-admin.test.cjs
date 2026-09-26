@@ -898,6 +898,23 @@ test('admin provider surface uses one safe model save and four-source sync contr
   assert.doesNotMatch(page + client, /KSP_OPENAI_API_KEY|OPENAI_VECTOR_STORE_ID|OPENAI_DEFAULT_MODEL|gpt-5\.6-terra/);
 });
 
+test('fresh admin state has no fabricated default while a saved legacy OpenAI model remains visible', () => {
+  const fresh=makeAdminEnvironment({key:false,geminiKey:false,model:'',geminiModel:''});
+  const before=JSON.stringify(fresh._debug.context.settings);
+  const state=plain(ksp.kspGetAiProviderAdminData_(fresh));
+  assert.equal(state.ok,true);
+  assert.equal(state.openai.keyConfigured,false);
+  assert.equal(state.gemini.keyConfigured,false);
+  assert.deepEqual(state.modelPolicy.profiles,[]);
+  assert.equal(state.modelPolicyPersisted,false);
+  assert.equal(JSON.stringify(fresh._debug.context.settings),before);
+  const legacy=plain(ksp.kspGetAiProviderAdminData_(makeAdminEnvironment({
+    key:true,model:'gpt-saved-legacy',storeId:'vs-synthetic-existing'})));
+  assert.equal(legacy.ok,true);
+  assert.equal(legacy.modelPolicy.profiles.length,1);
+  assert.equal(legacy.modelPolicy.profiles[0].modelId,'gpt-saved-legacy');
+});
+
 test('administrator migrates the accepted OpenAI default into a persisted qualified model policy', () => {
   const env = makeAdminEnvironment({
     enabled: true, storeId: 'vs-synthetic-existing', model: 'gpt-5.6-terra', readiness: 'ACTIVE'

@@ -27,7 +27,10 @@ async function serverCall(name,payload){
   }
   if(name==='getAiCredentialModelCandidates'||name==='getAiModelSetupCandidates'){
     if(window.__failList)throw Error('synthetic list failure');
-    return {ok:true,models:[{modelId:'gpt-synthetic-list',displayName:'Synthetic model'}],
+    const models=payload.provider==='GEMINI'
+      ?[{modelId:'gemini-synthetic',displayName:'Gemini Synthetic'}]
+      :[{modelId:'gpt-synthetic-list',displayName:'Synthetic model'}];
+    return {ok:true,models,
       fetchedAt:'2026-09-26T00:00:00Z',partial:false,cached:false};
   }
   if(name==='saveAiCredentialSetup'||name==='saveAiModelSetup'){
@@ -79,6 +82,17 @@ async function main(){
       assert.equal(await page.title(),'Work0073 synthetic AI settings');
       await page.waitForFunction(()=>document.getElementById('ai-setup-openai-state').textContent==='未設定');
       assert.equal(await page.locator('#ai-setup-openai-state').textContent(),'未設定');
+      assert.equal(await page.locator('#ai-setup-openai-model').textContent(),'現在のモデル: 未設定');
+      assert.equal(await page.locator('#ai-setup-gemini-model').textContent(),'現在のモデル: 未設定');
+      assert.equal(await page.locator('#ai-setup-openai-model-button').isDisabled(),true);
+      assert.equal(await page.locator('#ai-setup-gemini-model-button').isDisabled(),true);
+      assert.equal(await page.locator('#ai-setup-openai-key-button').isEnabled(),true);
+      assert.equal(await page.locator('#ai-setup-gemini-key-button').isEnabled(),true);
+      await page.screenshot({path:path.join(evidenceDir,label+'-fresh.png'),fullPage:false});
+      await page.evaluate(async()=>{window.__serverState.credentialOperator=false;await loadAiProviderAdminData(false)});
+      assert.equal(await page.locator('#ai-setup-openai-key-button').isDisabled(),true);
+      assert.equal(await page.locator('#ai-setup-gemini-key-button').isDisabled(),true);
+      await page.evaluate(async()=>{window.__serverState.credentialOperator=true;await loadAiProviderAdminData(false)});
       await page.locator('#ai-setup-openai-key-button').click();
       assert.equal(await page.locator('#ai-setup-key').isVisible(),true);
       await page.locator('#ai-setup-key').fill('synthetic-secret');
@@ -87,10 +101,24 @@ async function main(){
       await page.locator('#ai-setup-candidate').selectOption('gpt-synthetic-list');
       await page.locator('#ai-setup-save').click();
       await page.waitForFunction(()=>document.getElementById('ai-setup-openai-model').textContent.includes('gpt-synthetic-list'));
+      assert.equal(await page.locator('#ai-setup-openai-model-button').isEnabled(),true);
       assert.equal(await page.locator('#ai-setup-key').inputValue(),'');
       assert.match(await page.locator('#ai-setup-result').textContent(),/保存しました/);
       await page.locator('#ai-setup-cancel').click();
       assert.equal(await page.locator('#ai-setup-openai-model-button').evaluate(node=>node===document.activeElement),true);
+      await page.locator('#ai-setup-gemini-key-button').click();
+      await page.locator('#ai-setup-key').fill('synthetic-secret');
+      await page.locator('#ai-setup-refresh').click();
+      await page.waitForFunction(()=>document.getElementById('ai-setup-candidate').options.length===2);
+      await page.locator('#ai-setup-candidate').selectOption('gemini-synthetic');
+      await page.locator('#ai-setup-save').click();
+      await page.waitForFunction(()=>document.getElementById('ai-setup-gemini-model').textContent.includes('gemini-synthetic'));
+      assert.equal(await page.locator('#ai-setup-gemini-model-button').isEnabled(),true);
+      assert.equal(await page.locator('#ai-setup-key').inputValue(),'');
+      assert.equal(await page.evaluate(()=>window.__calls.some(item=>item.name==='saveAiCredentialSetup'&&
+        item.payload.provider==='GEMINI'&&item.payload.modelId==='gemini-synthetic')),true);
+      await page.locator('#ai-setup-cancel').click();
+      await page.locator('#ai-setup-openai-model-button').focus();
       await page.keyboard.press('Enter');
       await page.evaluate(()=>window.__failList=true);
       await page.locator('#ai-setup-refresh').click();
@@ -132,10 +160,13 @@ async function main(){
       assert.deepEqual(errors,[]);
       await page.screenshot({path:path.join(evidenceDir,label+'.png'),fullPage:false});
       findings.push({viewport:[width,height],page:url,overflow:false,consoleErrors:errors,
-        savedModels:['gpt-synthetic-list','gpt-manual-unlisted'],unknownResultNoRetry:true,
+        freshModelUnset:true,modelChangeRequiresCredential:true,credentialOperatorOnly:true,
+        savedModels:['gpt-synthetic-list','gpt-manual-unlisted','gemini-synthetic'],
+        geminiBareCandidateSaved:true,unknownResultNoRetry:true,
         fourSourceCandidates:true,expertVariantSameSave:true,staleReadDeniedSecretAction:true,
         syncPartialAndComplete:true,
-        screenshot:path.join(evidenceDir,label+'.png')});
+        screenshot:path.join(evidenceDir,label+'.png'),
+        freshScreenshot:path.join(evidenceDir,label+'-fresh.png')});
       await page.close();
     }
     process.stdout.write(JSON.stringify({classification:'SYNTHETIC_BROWSER_RENDER',result:'PASS',findings},null,2)+'\n');

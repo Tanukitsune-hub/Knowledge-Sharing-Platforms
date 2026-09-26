@@ -1877,13 +1877,9 @@ function kspGetAiProviderAdminData_(environment, input) {
     var geminiKeyConfigured = kspAiProviderAdminGeminiCredentialConfigured_(environment);
     var geminiStoreReady = Boolean(settings.geminiStoreName);
     var geminiEnabled = Boolean(settings.geminiEnabled);
-    var policy = settings.modelPolicyJson
-      ? kspNormalizeAiModelPolicy_(settings.modelPolicyJson)
-      : kspBuildMigratedOpenAiModelPolicy_(settings, {
-        modelId: settings.openaiModelId,
+    var policy = kspAiSetupPolicy_(settings, environment.nowIso(), {
         accessible: keyConfigured,
-        qualified: enabled && (status === 'ACTIVE' || status === 'ACTIVE_WITH_SYNC_ERRORS'),
-        nowIso: environment.nowIso()
+        qualified: enabled && (status === 'ACTIVE' || status === 'ACTIVE_WITH_SYNC_ERRORS')
       });
     var credentialOperator = false;
     try { kspAssertAiCredentialOperator_(environment); credentialOperator = true; }

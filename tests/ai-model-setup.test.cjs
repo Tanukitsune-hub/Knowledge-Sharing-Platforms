@@ -15,6 +15,8 @@ function setupEnvironment(options = {}) {
     nowIso: () => '2026-09-26T00:00:00.000Z',
     loadAiContext: () => context,
     getAiCredentialGeneration: () => generation,
+    isOpenAiCredentialConfigured: () => options.openaiCredentialConfigured !== false,
+    isGeminiCredentialConfigured: () => options.geminiCredentialConfigured !== false,
     getSessionIdentities: () => ({ active: options.active === undefined ? 'owner@example.com' : options.active,
       effective: 'owner@example.com' }),
     getInstallationState: () => ({ config: { adminEmails: ['owner@example.com'] } }),
@@ -188,6 +190,74 @@ test('operation result can be read back without a second qualification', () => {
     modelId: 'models/gemini-synthetic', apiKey: 'synthetic-secret', operationId }, true));
   assert.equal(repeated.status, 'SAVED');
   assert.equal(env._debug.calls.qualify.length, 1);
+});
+
+test('Gemini official list and direct resource name share one bare request Model ID', () => {
+  const originalMaintenance = ksp.kspCreateMaintenanceEnvironment_;
+  const originalProperties = ksp.PropertiesService;
+  const originalGemini = ksp.kspGeminiJsonRequestLive_;
+  try {
+    ksp.kspCreateMaintenanceEnvironment_ = () => ({});
+    ksp.PropertiesService = { getScriptProperties: () => ({}) };
+    ksp.kspGeminiJsonRequestLive_ = (_method, _path) => ({models:[
+      {name:'models/gemini-synthetic',baseModelId:'gemini-synthetic',displayName:'Gemini Synthetic'},
+      {name:'models/gemini-fallback',displayName:'Gemini Fallback'},
+      {name:'models/gemini-resource-alias',baseModelId:'gemini-base',displayName:'Gemini Base'}
+    ]});
+    const adapter = ksp.kspCreateAiEnvironment_();
+    const env = setupEnvironment({models: adapter.listAiProviderModels('GEMINI','synthetic-secret').models});
+    const list = plain(ksp.kspListAiModelSetupCandidates_(env,
+      {provider:'GEMINI',apiKey:'synthetic-secret'},true));
+    assert.deepEqual(list.models.map(item=>item.modelId),
+      ['gemini-synthetic','gemini-fallback','gemini-base']);
+    assert.equal(list.models[0].displayName,'Gemini Synthetic');
+    env.putAiModelCandidateCache('GEMINI','legacy',{models:[
+      {modelId:'models/gemini-synthetic',displayName:'Gemini Synthetic'}],
+      partial:false,fetchedAt:'2026-09-26T00:00:00Z'},600);
+    const cached=plain(ksp.kspListAiModelSetupCandidates_(env,{provider:'GEMINI'},false));
+    assert.equal(cached.cached,true);
+    assert.equal(cached.models[0].modelId,'gemini-synthetic');
+    const selected = plain(ksp.kspSaveAiModelSetup_(env,{provider:'GEMINI',
+      modelId:list.models[0].modelId,apiKey:'synthetic-secret',operationId:'synthetic-operation-000077'},true));
+    assert.equal(selected.ok,true,JSON.stringify(selected));
+    assert.equal(selected.modelId,'gemini-synthetic');
+    assert.equal(env._debug.calls.qualify[0].profile.modelId,'gemini-synthetic');
+    assert.equal(env._debug.calls.commit[0].modelId,'gemini-synthetic');
+    const direct = plain(ksp.kspSaveAiModelSetup_(env,{provider:'GEMINI',
+      modelId:'models/gemini-synthetic',operationId:'synthetic-operation-000078'},false));
+    assert.equal(direct.ok,true,JSON.stringify(direct));
+    assert.equal(direct.modelId,'gemini-synthetic');
+    assert.equal(env._debug.calls.qualify.length,1);
+    assert.equal(JSON.parse(env._debug.settings.AI_MODEL_POLICY_JSON).profiles.length,1);
+    assert.equal(JSON.parse(env._debug.settings.AI_MODEL_POLICY_JSON).profiles[0].modelId,'gemini-synthetic');
+    assert.equal(ksp.kspBuildProviderSearchRequest_('GEMINI',{modelId:direct.modelId,
+      storeName:'fileSearchStores/synthetic'},{questionOrInstruction:'synthetic query'}).modelId,'gemini-synthetic');
+    const legacy=JSON.parse(env._debug.settings.AI_MODEL_POLICY_JSON);
+    legacy.profiles[0].modelId='models/gemini-synthetic';
+    env._debug.settings.AI_MODEL_POLICY_JSON=JSON.stringify(legacy);
+    env._debug.settings.GEMINI_DEFAULT_MODEL='models/gemini-synthetic';
+    const repaired=plain(ksp.kspSaveAiModelSetup_(env,{provider:'GEMINI',
+      modelId:'gemini-synthetic',operationId:'synthetic-operation-000081'},false));
+    assert.equal(repaired.ok,true,JSON.stringify(repaired));
+    assert.equal(JSON.parse(env._debug.settings.AI_MODEL_POLICY_JSON).profiles.length,1);
+    assert.equal(env._debug.settings.GEMINI_DEFAULT_MODEL,'gemini-synthetic');
+    assert.equal(plain(ksp.kspSaveAiModelSetup_(env,{provider:'OPENAI',
+      modelId:'models/gpt-synthetic',operationId:'synthetic-operation-000079'},false)).modelId,
+      'models/gpt-synthetic');
+  } finally {
+    ksp.kspCreateMaintenanceEnvironment_ = originalMaintenance;
+    ksp.PropertiesService = originalProperties;
+    ksp.kspGeminiJsonRequestLive_ = originalGemini;
+  }
+});
+
+test('model-only save without a configured credential stops before qualification or commit', () => {
+  const env=setupEnvironment({openaiCredentialConfigured:false});
+  const result=plain(ksp.kspSaveAiModelSetup_(env,{provider:'OPENAI',
+    modelId:'gpt-synthetic',operationId:'synthetic-operation-000080'},false));
+  assert.equal(result.ok,false);
+  assert.equal(env._debug.calls.qualify.length,0);
+  assert.equal(env._debug.calls.commit.length,0);
 });
 
 test('four-source OpenAI fake campaign uses scoped requests, validates citations and cleans the exact Store', () => {

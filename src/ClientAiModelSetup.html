@@ -19,7 +19,7 @@ function aiSetupRender(){
     aiSetupEl('ai-setup-'+suffix+'-state').textContent=stale&&state?'前回取得時点: '+status:status;
     aiSetupEl('ai-setup-'+suffix+'-model').textContent='現在のモデル: '+(current&&current.modelId||'未設定');
     aiSetupEl('ai-setup-'+suffix+'-detail').textContent='APIキー: '+(item.keyConfigured?'設定済み':'未設定')+' / 検索データ: '+(item.vectorStoreReady||item.storeReady?'準備済み':'未作成')+' / '+aiProviderAdminStatusLabel(item.status||'DISABLED');
-    aiSetupEl('ai-setup-'+suffix+'-model-button').disabled=!state||stale||aiSetupBusy;
+    aiSetupEl('ai-setup-'+suffix+'-model-button').disabled=!state||stale||!item.keyConfigured||aiSetupBusy;
     aiSetupEl('ai-setup-'+suffix+'-key-button').disabled=!state||stale||!state.credentialOperator||aiSetupBusy;
     aiSetupEl('ai-setup-'+suffix+'-start-button').disabled=!state||stale||item.enabled||!item.keyConfigured||!current||current.qualification!=='QUALIFIED'||aiSetupBusy;
     aiSetupEl('ai-setup-'+suffix+'-stop-button').disabled=!state||stale||!item.enabled||aiSetupBusy;
