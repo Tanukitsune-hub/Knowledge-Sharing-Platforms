@@ -486,7 +486,7 @@ COMPANY_ROLLOUT: DEFERRED
 WORK0030_AZURE: DEFERRED_BY_USER
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: 0072-CODEX-02
+NEXT_DISPATCH: PENDING_USER_AUTHORIZATION
 ```
 
 
@@ -525,3 +525,25 @@ ACTIVE_DISPATCH: 0072-CODEX-02
 ```
 
 The provider `KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX=40` limit must apply only when a provider query actually requires an explicit source-ID allowlist. Provider-independent Full Output must use its own existing limits (Meeting 50, Pitchbook 200, character limits) and preserve index-only hard-stop before body reads.
+
+
+## Core integrated — PR #106
+
+```text
+MERGE: 309040b2f834c1964283c52740f4ea84a2d6442a
+RELEASE: 0.2.3
+SCHEMA: 9
+FOUR_SOURCE_CORE: INTEGRATED
+LOGIC_VALIDATION: PASS
+NPM_RUN_CHECK: 734/734 PASS
+BLOCKER_IN_CORE: NONE
+```
+
+The provider-disabled core is integrated. Work0072 remains ACTIVE because no live provider/index qualification was authorized or run.
+
+Next decision is authorization, not implementation:
+
+- if user authorizes bounded synthetic live provider qualification, allocate `0072-CODEX-03`;
+- otherwise preserve 0.2.3 as the integrated provider-disabled core and defer provider-runtime qualification to a future explicitly authorized Work/rollout boundary.
+
+No company data, historical migration, company rollout, or Work0030 Azure transition is implied.
