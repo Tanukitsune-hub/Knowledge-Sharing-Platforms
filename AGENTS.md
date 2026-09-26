@@ -65,7 +65,7 @@ REPOSITORY_RULES_SCHEMA_VERSION: 2.2
 - Use assigned zero-padded Work IDs. Give each distinct Codex request a unique `<WORK_ID>-CODEX-<NN>` Dispatch ID and track `BALL` / `STATUS` under `docs/agent-governance/dispatch-control.md`.
 - Validate delegated outputs and the final relevant diff before delivery.
 - A Work is complete when the usable outcome exists, required logic and target-runtime evidence pass, no blocker remains, and residuals are routed.
-- Completion reports distinguish outcome, logic validation, target-runtime qualification, side-effect state, blocker status, and bounded limitations.
+- Completion reports distinguish outcome, logic validation, target-runtime qualification, side-effect state, blocker status, and bounded limitations, and must include `KNOWLEDGE_RETRIEVAL`, `KNOWLEDGE_APPLIED`, and `NEW_KNOWLEDGE_CANDIDATE` when a durable final report is written.
 
 ## 8. Instruction and knowledge routing
 
