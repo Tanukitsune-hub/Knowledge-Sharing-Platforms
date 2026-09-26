@@ -3,7 +3,7 @@
 WORK_ID: 0071
 DISPATCH_ID: N/A
 BALL: NONE
-STATUS: ACTIVE
+STATUS: ACCEPTED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 ROUTE: A -> C
@@ -317,7 +317,7 @@ GOOGLE_WEB_UX_KB_REVIEWED: YES
 ADOPTION_MATRIX: docs/product/work0071-google-web-ux-adoption.md
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: 0071-CODEX-04
+NEXT_DISPATCH: NONE
 ```
 
 
@@ -400,3 +400,33 @@ Accepted Phase A:
 The exact-candidate valid-file runtime transition remains `NOT_OBSERVED_AUTOMATION_LIMITATION` and is not reopened without material contradictory evidence.
 
 Phase B active dispatch: `0071-CODEX-04`.
+
+
+## Completion — 2026-09-26
+
+Phase A:
+- PR #104
+- merge `e9c759c569660331a1eb447cd44787ab1051c427`
+- release 0.2.1 / schema9
+
+Phase B:
+- PR #105
+- merge `e72d299af7ebf361efce491679d35b7a754d683e`
+- release 0.2.2 / schema9
+
+Final evidence:
+
+```text
+LOGIC_VALIDATION: PASS
+TARGET_BROWSER_CHANGED_SURFACE: PASS
+APPS_SCRIPT_EXACT_0_2_2_DEPLOYMENT: NOT RUN
+TARGET_IDENTITY_UNCONFIRMED: NON_BLOCKING_ENVIRONMENT_LIMITATION
+USER_NATIVE_ACTION_REQUIRED: NO
+READY: YES
+BLOCKER: NONE
+COMPLETION_LATCH: APPLIED
+```
+
+The Phase B target requirement was reset after final diff review because all Phase B production changes were browser/client-only and exact production HTML/browser evidence directly covered the changed behavior; server/API/schema/permission/lifecycle contracts were unchanged.
+
+Completion report: `docs/handoffs/0071-completion-report.md`.
