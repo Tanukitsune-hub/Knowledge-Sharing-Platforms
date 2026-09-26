@@ -211,8 +211,9 @@ el('meeting-detail-edit').onclick=event=>{if(meetingDetailRecord)openMeetingEdit
 el('meeting-detail-lifecycle').onclick=async()=>{
   if(meetingDetailBusy||pitchbookBusy||!meetingDetailRecord)return;
   const record=meetingDetailRecord;if(record.status!=='Active'||!confirm('この記録を削除します。記録本体は完全には削除されず、管理者ページから復元できます。'+(meetingEditIsDirty()?' 未保存の面談編集内容も破棄されます。':'')))return;
+  const focus=kspPastListFocusSnapshot('meeting-past-results',record.meetingId,'data-meeting-detail');
   meetingDetailBusy=true;kspSetActionBusy(el('meeting-detail-lifecycle'),true,'削除中…');kspSetRegionBusy(el('meeting-detail-card'),true);showStatus('meeting-detail-status','info busy','削除中…');
-  try{const result=await serverCall('changeMeetingStatus',{meetingId:record.meetingId,expectedVersion:record.version,targetStatus:'Inactive'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'削除できません。');resetMeetingDetailSelection(true);await searchMeetings()}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}finally{meetingDetailBusy=false;kspSetActionBusy(el('meeting-detail-lifecycle'),false);kspSetRegionBusy(el('meeting-detail-card'),false);if(meetingDetailRecord)el('meeting-detail-lifecycle').disabled=false}
+  try{const result=await serverCall('changeMeetingStatus',{meetingId:record.meetingId,expectedVersion:record.version,targetStatus:'Inactive'});if(!result||!result.ok)throw new Error(result&&result.error?result.error.message:'削除できません。');resetMeetingDetailSelection(true);if(await searchMeetings())kspRestorePastListFocus('meeting-past-results',focus,'data-meeting-status','data-meeting-detail','meeting-past-search')}catch(error){showStatus('meeting-detail-status','error',error.message||String(error))}finally{meetingDetailBusy=false;kspSetActionBusy(el('meeting-detail-lifecycle'),false);kspSetRegionBusy(el('meeting-detail-card'),false);if(meetingDetailRecord)el('meeting-detail-lifecycle').disabled=false}
 };
 el('meeting-detail-add-files').onclick=()=>{
   if(pitchbookBusy||meetingDetailBusy||!meetingDetailRecord)return;
