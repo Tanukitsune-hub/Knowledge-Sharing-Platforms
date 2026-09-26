@@ -26,13 +26,13 @@ STATUS: READY
 | 0073-CODEX-02 | 1フォーム/確認して保存、初回既定なし、候補一覧の非依存化、4-source整合 | BUILD | CHATGPT | RETURNED | [02指示](0073-CODEX-02-simple-model-setup-instruction.md) | [実装報告](0073-CODEX-02-simple-model-setup-report.md) | 0073-CODEX-01 |
 | 0073-CODEX-03 | ChatGPT final review repair: Gemini Model ID canonicalization + fresh model-empty state | BUILD | CODEX | READY | [03指示](0073-CODEX-03-model-setup-review-repair-instruction.md) | 未作成 | 0073-CODEX-02 |
 
-未実行でも、発行済みinstructionの実行契約を差し替えるためdispatch-control.mdに従い次番号にする。旧01の番号や履歴を再利用・改番しない。activeは02だけ。
+未実行でも、発行済みinstructionの実行契約を差し替えるためdispatch-control.mdに従い次番号にする。旧01の番号や履歴を再利用・改番しない。現在activeなのは03だけ。
 
 ## Scopeと権限
 
 安全なキー登録/更新、モデルの選択/直接入力から確認・保存までの共通処理、既定なし初回設定、標準思考設定、状態表示、4種類の情報源の同期/選択/resetの整合まで。
 
-CODEX-02はrepository BUILDとdeterministic/local browser検証。実provider・実キー・実Store・Apps Script/Workspace/deploy・会社データ・Secret Manager・Azureの操作予算は0。詳しい受入Matrixと終了条件は実装計画だけを正本にする。
+CODEX-03はPR #109の限定repair BUILD。実provider・実キー・実Store・Apps Script/Workspace/deploy・会社データ・Secret Manager・Azureの操作予算は0。repair範囲と検証はCODEX-03 instructionを正本にし、Work全体の受入条件は実装計画を維持する。
 
 ## 返却
 
@@ -61,5 +61,5 @@ Shared Knowledge利用: `agent-knowledge-base/docs/knowledge/index.md`からOBS-
 
 WORK_ID: 0073
 DISPATCH_ID: 0073-CODEX-03
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: CODEX
+STATUS: READY
