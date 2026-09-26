@@ -1,9 +1,9 @@
 # Work 0072 dispatch control
 
 WORK_ID: 0072
-ACTIVE_DISPATCH_ID: 0072-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+ACTIVE_DISPATCH_ID: NONE
+BALL: USER
+STATUS: ACTION_REQUIRED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: FOUR_SOURCE_CORE
@@ -77,5 +77,48 @@ Work0072をACCEPTEDにしない。
 
 WORK_ID: 0072
 DISPATCH_ID: 0072-CODEX-02
-BALL: CHATGPT
-STATUS: RETURNED
+BALL: USER
+STATUS: ACTION_REQUIRED
+
+
+## Core integration
+
+ChatGPT final core review: PASS.
+
+```text
+PR: #106
+MERGE: 309040b2f834c1964283c52740f4ea84a2d6442a
+RELEASE: 0.2.3
+SCHEMA: 9
+FOUR_SOURCE_CORE: INTEGRATED
+LOGIC_VALIDATION: PASS
+NPM_RUN_CHECK: 734/734 PASS
+PROVIDER_CALL_COUNT: 0
+AI_INDEX_MUTATION_COUNT: 0
+APPS_SCRIPT_DEPLOYMENT: 0
+COMPANY_DATA_MUTATION_COUNT: 0
+USER_NATIVE_ACTION_COUNT: 0
+CORE_BLOCKER: NONE
+```
+
+Accepted core includes canonical `sourceTypes[]`, 4 checkbox UI, authoritative source resolution, multi-Counterparty membership, Active-only retrieval, citation/provenance, fake-provider query contracts, Full Output parity for supported deterministic formats, unsupported PDF/PPTX/DOCX fail-closed behavior, and separation of provider 40-ID limits from Full Output limits.
+
+## Remaining authorization boundary
+
+Work0072 overall is not yet ACCEPTED because live provider qualification for the new four-source path has not run.
+
+Any such qualification may incur provider calls/billing and provider index/store mutation. Do not create or run another Codex Dispatch until the user explicitly authorizes that boundary.
+
+Current pending decision:
+
+```text
+LIVE_PROVIDER_QUALIFICATION: NOT_AUTHORIZED_YET
+PROVIDER_CALLS: REQUIRE_EXPLICIT_USER_APPROVAL
+AI_INDEX_MUTATION: REQUIRE_EXPLICIT_USER_APPROVAL
+COMPANY_DATA: NOT_AUTHORIZED
+HISTORICAL_MIGRATION: DEFERRED
+COMPANY_ROLLOUT: DEFERRED
+WORK0030_AZURE: DEFERRED_BY_USER
+```
+
+If authorized, create the next unused Dispatch `0072-CODEX-03` with isolated synthetic data, explicit provider-call/index-mutation budgets, no company/confidential data, and user-native action budget 0.
