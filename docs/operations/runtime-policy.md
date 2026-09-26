@@ -181,7 +181,7 @@ NotIndexed / Pending / Indexed / Failed
 
 Rules:
 
-- authoritative sourceの保存はAIから独立して成功する。Work0070のNews/Assessmentはprovider indexingの対象外とする。
+- authoritative sourceの保存はAIから独立して成功する。Work0072以降、News/Assessmentもprovider indexing contractへ参加できるが、company/confidential sourceの実indexingはprovider qualificationと別途rollout認可を満たすまで行わない。
 - worker processes bounded batches;
 - retry uses exponential backoff / bounded attempts;
 - permanent errors stop retrying;
