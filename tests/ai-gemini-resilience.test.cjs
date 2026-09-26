@@ -23,7 +23,8 @@ function withGeminiFakes(fetch, callback) {
   const originalUtilities = ksp.Utilities;
   const sleeps = [];
   ksp.PropertiesService = {
-    getScriptProperties: () => ({ getProperty: () => 'synthetic-key' })
+    getScriptProperties: () => ({ getProperty: name =>
+      name === 'KSP_GEMINI_API_KEY' ? 'synthetic-key' : '' })
   };
   ksp.UrlFetchApp = { fetch };
   ksp.Utilities = {

@@ -23,6 +23,42 @@ function mutateAiProviderSettings(input) {
   return kspMutateAiProviderSettings_(kspCreateProviderNeutralAiEnvironment_(), input || {});
 }
 
+function getAiModelSetupCandidates(input) {
+  return kspListAiModelSetupCandidates_(kspCreateProviderNeutralAiEnvironment_(), input || {}, false);
+}
+
+function getAiCredentialModelCandidates(input) {
+  return kspListAiModelSetupCandidates_(kspCreateProviderNeutralAiEnvironment_(), input || {}, true);
+}
+
+function saveAiModelSetup(input) {
+  return kspSaveAiModelSetup_(kspCreateProviderNeutralAiEnvironment_(), input || {}, false);
+}
+
+function saveAiCredentialSetup(input) {
+  return kspSaveAiModelSetup_(kspCreateProviderNeutralAiEnvironment_(), input || {}, true);
+}
+
+function getAiModelSetupOperation(input) {
+  return kspGetAiModelSetupOperation_(kspCreateProviderNeutralAiEnvironment_(), input || {});
+}
+
+function removeAiCredential(input) {
+  return kspRemoveAiCredential_(kspCreateProviderNeutralAiEnvironment_(), input || {});
+}
+
+function startAiProvider(input) {
+  return kspStartAiProvider_(kspCreateProviderNeutralAiEnvironment_(), input || {});
+}
+
+function getAiSyncCandidates(input) {
+  return kspGetAiSyncCandidates_(kspCreateProviderNeutralAiEnvironment_(), input || {});
+}
+
+function resetAiProviderDerivedState(input) {
+  return kspResetAiProviderDerivedState_(kspCreateProviderNeutralAiEnvironment_(), input || {});
+}
+
 function getThemeSettingsData() {
   return kspGetThemeSettingsData_(kspCreateThemeSettingsEnvironment_());
 }

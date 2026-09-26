@@ -2,6 +2,304 @@ function kspCreateAiEnvironment_() {
   var base = kspCreateMaintenanceEnvironment_();
   var scriptProperties = PropertiesService.getScriptProperties();
 
+  base.getSessionIdentities = function () {
+    var active = '';
+    var effective = '';
+    try { active = Session.getActiveUser().getEmail() || ''; } catch (ignoredActive) {}
+    try { effective = Session.getEffectiveUser().getEmail() || ''; } catch (ignoredEffective) {}
+    return { active: String(active), effective: String(effective) };
+  };
+
+  base.getAiCredentialGeneration = function (provider) {
+    var snapshot = kspAiActiveCredentialSnapshotLive_(provider);
+    return snapshot ? snapshot.generation : 'legacy';
+  };
+
+  base.listAiProviderModels = function (provider, candidateKey) {
+    var models = [];
+    if (provider === KSP_AI_PROVIDERS.OPENAI) {
+      var openAi = kspOpenAiJsonRequestLive_('GET', '/models', null, candidateKey || '');
+      (Array.isArray(openAi && openAi.data) ? openAi.data : []).forEach(function (item) {
+        models.push({ modelId: item.id, displayName: item.id });
+      });
+      return { models: models, partial: models.length > 100 };
+    }
+    var token = '';
+    for (var page = 0; page < 2; page += 1) {
+      var path = '/models?pageSize=50' + (token ? '&pageToken=' + encodeURIComponent(token) : '');
+      var response = kspGeminiJsonRequestLive_('GET', path, null, {
+        apiKeyOverride: candidateKey || '', retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+        stage: 'MODELS_LIST', errorCode: 'AI_GEMINI_MODELS_LIST_FAILED'
+      });
+      (Array.isArray(response && response.models) ? response.models : []).forEach(function (item) {
+        models.push({ modelId: item.name, displayName: item.displayName || item.name });
+      });
+      token = String(response && response.nextPageToken || '');
+      if (!token) break;
+    }
+    return { models: models, partial: Boolean(token) };
+  };
+
+  base.verifyAiProviderStoreCredential = function (provider, storeName, candidateKey) {
+    try {
+      if (provider === KSP_AI_PROVIDERS.OPENAI) {
+        var store = kspOpenAiJsonRequestLive_('GET',
+          KSP_OPENAI_API.VECTOR_STORES_PATH + '/' + encodeURIComponent(storeName), null, candidateKey);
+        return Boolean(store && store.id === storeName);
+      }
+      var gemini = kspGeminiJsonRequestLive_('GET', '/' + kspAiStoreResourcePath_(storeName), null, {
+        apiKeyOverride: candidateKey, retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+        stage: 'STORE_READ', errorCode: 'AI_STORE_READ_FAILED'
+      });
+      return Boolean(gemini && gemini.name === kspAiStoreResourcePath_(storeName));
+    } catch (ignored) { return false; }
+  };
+
+  base.getAiModelCandidateCache = function (provider, generation) {
+    var state = base.getInstallationState();
+    var backend = state && state.resources && state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
+    var cacheKey = 'KSP_AI_MODELS_' + kspAiSetupDigest_(provider + '|' + generation + '|' + backend).slice(0, 40);
+    var raw = CacheService.getScriptCache().get(cacheKey);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (ignored) { return null; }
+  };
+
+  base.putAiModelCandidateCache = function (provider, generation, result, seconds) {
+    var state = base.getInstallationState();
+    var backend = state && state.resources && state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
+    var cacheKey = 'KSP_AI_MODELS_' + kspAiSetupDigest_(provider + '|' + generation + '|' + backend).slice(0, 40);
+    CacheService.getScriptCache().put(cacheKey, JSON.stringify(result), seconds);
+  };
+
+  base.getAiSetupOperation = function (operationId, credentialMode, provider) {
+    var context = base.loadAiSettingsSnapshot();
+    var settings = kspNormalizeAiSettings_(context.settings);
+    if (!settings.modelPolicyJson) return null;
+    var policy = kspNormalizeAiModelPolicy_(settings.modelPolicyJson);
+    if (policy.lastOperationId !== operationId) return null;
+    if (credentialMode) {
+      var snapshot = kspAiActiveCredentialSnapshotLive_(provider);
+      if (!snapshot || snapshot.lastOperationId !== operationId) return null;
+    }
+    var selected = policy.profiles.filter(function (item) {
+      return item.provider === provider && item.profileId === policy.lastOperationProfileId;
+    })[0];
+    var scalarModel = provider === KSP_AI_PROVIDERS.OPENAI
+      ? settings.openaiModelId : settings.geminiModelId;
+    if (!selected || (selected.isProviderDefault && selected.modelId !== scalarModel) ||
+        selected.qualifiedCredentialGeneration !== base.getAiCredentialGeneration(provider)) return null;
+    return selected ? { ok: true, workId: '0073', provider: provider,
+      modelId: selected.modelId, status: 'SAVED' } : null;
+  };
+
+  base.loadAiSettingsSnapshot = function () {
+    var state = base.getInstallationState();
+    var backendSpreadsheetId = state && state.resources &&
+      state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
+    kspAssert_(backendSpreadsheetId, 'BACKEND_SPREADSHEET_MISSING', 'Backend Spreadsheetがありません。');
+    return { backendSpreadsheetId: backendSpreadsheetId,
+      settings: kspReadSettingsMapLive_(backendSpreadsheetId) };
+  };
+
+  base.commitAiModelSetup = function (request) {
+    var lock = base.acquireScriptLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS);
+    try {
+      var context = base.loadAiSettingsSnapshot();
+      var currentPolicy = context.settings[KSP_AI_SETTINGS.MODEL_POLICY_JSON] || '';
+      if (currentPolicy !== request.expectedPolicyJson ||
+          base.getAiCredentialGeneration(request.provider) !== request.expectedCredentialGeneration) {
+        throw kspAiSetupError_('AI_SETUP_STALE');
+      }
+      var policyKey = KSP_AI_SETTINGS.MODEL_POLICY_JSON;
+      var modelKey = request.provider === KSP_AI_PROVIDERS.OPENAI
+        ? KSP_AI_SETTINGS.OPENAI_MODEL_ID : KSP_AI_SETTINGS.GEMINI_MODEL_ID;
+      var priorModel = context.settings[modelKey] || '';
+      var backend = context.backendSpreadsheetId;
+      try {
+        kspWriteSettingLive_(backend, policyKey, JSON.stringify(request.policy), base.nowIso());
+        if (request.makeDefault !== false) kspWriteSettingLive_(backend, modelKey, request.modelId, base.nowIso());
+        if (request.candidateKey) {
+          var snapshotKey = request.provider === KSP_AI_PROVIDERS.OPENAI
+            ? KSP_AI_PROPERTY_KEYS.OPENAI_ACTIVE_SNAPSHOT : KSP_AI_PROPERTY_KEYS.GEMINI_ACTIVE_SNAPSHOT;
+          scriptProperties.setProperty(snapshotKey, JSON.stringify({ version: 1,
+            key: request.candidateKey, generation: request.nextCredentialGeneration,
+            lastOperationId: request.operationId }));
+        }
+      } catch (writeError) {
+        try {
+          kspWriteSettingLive_(backend, modelKey, priorModel, base.nowIso());
+          kspWriteSettingLive_(backend, policyKey, currentPolicy, base.nowIso());
+        } catch (ignoredRollback) { /* New tuple stays fail-closed until its generation is committed. */ }
+        throw kspAiSetupError_('AI_SETUP_WRITE_FAILED');
+      }
+    } finally { base.releaseScriptLock(lock); }
+  };
+
+  base.createAiQualificationStore = function (provider, key) {
+    if (provider === KSP_AI_PROVIDERS.OPENAI) {
+      var openAi = kspOpenAiCreateVectorStoreLive_('KSP-0073-synthetic-qualification', key);
+      return { name: String(openAi.id) };
+    }
+    var gemini = kspGeminiJsonRequestLive_('POST', KSP_AI_API.STORES_PATH,
+      kspBuildFileSearchStoreCreateRequest_('KSP-0073-synthetic-qualification', ''), {
+        apiKeyOverride: key, retryPolicy: KSP_GEMINI_RETRY_POLICIES.MUTATING_CREATE,
+        stage: 'STORE_CREATE', errorCode: 'AI_STORE_CREATE_FAILED'
+      });
+    return { name: String(gemini && gemini.name || '') };
+  };
+
+  base.uploadAiQualificationSource = function (provider, storeName, source, key) {
+    return provider === KSP_AI_PROVIDERS.OPENAI
+      ? kspOpenAiUploadSourceLive_(storeName, source, key)
+      : kspUploadSourceLive_(storeName, source, key);
+  };
+
+  base.readAiQualificationSource = function (provider, storeName, documentValue, source, key) {
+    if (provider === KSP_AI_PROVIDERS.OPENAI) {
+      var fileId = String(documentValue.fileId || documentValue.providerDocumentId || '');
+      return kspOpenAiProviderDocumentFromVectorStoreFile_(storeName,
+        kspOpenAiGetVectorStoreFileLive_(storeName, fileId, key));
+    }
+    return kspReadAndVerifyFileSearchDocumentLive_(documentValue.name, source, key);
+  };
+
+  base.queryAiQualificationSource = function (provider, config, request, key) {
+    return provider === KSP_AI_PROVIDERS.OPENAI
+      ? kspOpenAiQueryFileSearchLive_(request, key)
+      : kspGeminiQualificationInteractionLive_(kspBuildFeatureFreezeInteractionRequest_(request), key);
+  };
+
+  base.deleteAiQualificationDocument = function (provider, storeName, documentValue, key) {
+    if (provider !== KSP_AI_PROVIDERS.OPENAI) return true;
+    var cleanup = kspOpenAiCleanupDocumentResourcesLive_(storeName,
+      String(documentValue.fileId || documentValue.providerDocumentId || ''), key);
+    if (cleanup.error) throw cleanup.error;
+    return true;
+  };
+
+  base.deleteAiQualificationStore = function (provider, storeName, key) {
+    if (provider === KSP_AI_PROVIDERS.OPENAI) return kspOpenAiDeleteVectorStoreLive_(storeName, key);
+    kspGeminiJsonRequestLive_('DELETE', '/' + kspAiStoreResourcePath_(storeName) + '?force=true', null, {
+      apiKeyOverride: key, retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+      stage: 'STORE_DELETE', errorCode: 'AI_STORE_DELETE_FAILED'
+    });
+    return true;
+  };
+
+  base.confirmAiQualificationStoreDeleted = function (provider, storeName, key) {
+    try {
+      if (provider === KSP_AI_PROVIDERS.OPENAI) kspOpenAiGetVectorStoreLive_(storeName, key);
+      else kspGeminiJsonRequestLive_('GET', '/' + kspAiStoreResourcePath_(storeName), null, {
+        apiKeyOverride: key, retryPolicy: KSP_GEMINI_RETRY_POLICIES.IDEMPOTENT,
+        stage: 'STORE_DELETE_CONFIRM', errorCode: 'AI_STORE_DELETE_CONFIRM_FAILED'
+      });
+      return false;
+    } catch (error) { return Number(error && error.httpStatus || 0) === 404; }
+  };
+
+  base.qualifyFourSourceAiModel = function (request) {
+    return kspRunFourSourceAiSetupQualification_(base, request);
+  };
+
+  base.removeAiCredential = function (provider) {
+    var lock = base.acquireScriptLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS);
+    try {
+      var settings = kspNormalizeAiSettings_(base.loadAiSettingsSnapshot().settings);
+      if (provider === KSP_AI_PROVIDERS.OPENAI ? settings.openaiEnabled : settings.geminiEnabled) {
+        throw kspAiSetupError_('AI_SETUP_STOP_REQUIRED');
+      }
+      if (provider === KSP_AI_PROVIDERS.OPENAI) {
+        scriptProperties.deleteProperty(KSP_AI_PROPERTY_KEYS.OPENAI_ACTIVE_SNAPSHOT);
+        scriptProperties.deleteProperty(KSP_AI_PROPERTY_KEYS.OPENAI_API_KEY);
+      } else {
+        scriptProperties.deleteProperty(KSP_AI_PROPERTY_KEYS.GEMINI_ACTIVE_SNAPSHOT);
+        scriptProperties.deleteProperty(KSP_AI_PROPERTY_KEYS.API_KEY);
+      }
+      return true;
+    } finally { base.releaseScriptLock(lock); }
+  };
+
+  base.startAiProvider = function (provider) {
+    var context = base.loadAiContext();
+    var settings = kspNormalizeAiSettings_(context.settings);
+    var policy = kspAiSetupPolicy_(settings, base.nowIso());
+    var profile = policy.profiles.filter(function (item) {
+      return item.provider === provider && item.isProviderDefault && item.enabled &&
+        item.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED;
+    })[0];
+    if (!profile) throw kspAiSetupError_('AI_SETUP_QUALIFICATION_FAILED');
+    var configured = provider === KSP_AI_PROVIDERS.OPENAI
+      ? base.isOpenAiCredentialConfigured() : base.isGeminiCredentialConfigured();
+    if (!configured) throw kspAiSetupError_('AI_SETUP_CREDENTIAL_REQUIRED');
+    var storeKey = provider === KSP_AI_PROVIDERS.OPENAI
+      ? KSP_AI_SETTINGS.OPENAI_VECTOR_STORE_ID : KSP_AI_SETTINGS.STORE_NAME;
+    var enabledKey = provider === KSP_AI_PROVIDERS.OPENAI
+      ? KSP_AI_SETTINGS.OPENAI_ENABLED : KSP_AI_SETTINGS.GEMINI_ENABLED;
+    var readinessKey = provider === KSP_AI_PROVIDERS.OPENAI
+      ? KSP_AI_SETTINGS.OPENAI_READINESS : KSP_AI_SETTINGS.GEMINI_READINESS;
+    var originalStore = provider === KSP_AI_PROVIDERS.OPENAI
+      ? settings.openaiVectorStoreId : settings.geminiStoreName;
+    var generation = base.getAiCredentialGeneration(provider);
+    if (profile.qualifiedTupleFingerprint !==
+        kspAiSetupTupleFingerprint_(profile, generation, originalStore)) {
+      throw kspAiSetupError_('AI_SETUP_STALE');
+    }
+    var storeName = originalStore;
+    var createdName = '';
+    var adopted = false;
+    try {
+      if (!storeName) {
+        var created = provider === KSP_AI_PROVIDERS.OPENAI
+          ? base.createOpenAiVectorStore(KSP_AI_DEFAULTS.STORE_DISPLAY_NAME)
+          : base.createFileSearchStore(kspBuildFileSearchStoreCreateRequest_(
+            KSP_AI_DEFAULTS.STORE_DISPLAY_NAME, settings.embeddingModel));
+        createdName = String(created && (created.id || created.name) || '');
+        storeName = createdName;
+      }
+      if (!storeName) throw kspAiSetupError_('AI_SETUP_STORE_ACCESS_FAILED');
+      var readback = provider === KSP_AI_PROVIDERS.OPENAI
+        ? base.getOpenAiVectorStore(storeName) : base.getFileSearchStore(storeName);
+      if (String(readback && (readback.id || readback.name) || '') !== storeName) {
+        throw kspAiSetupError_('AI_SETUP_STORE_ACCESS_FAILED');
+      }
+      var lock = base.acquireScriptLock(KSP_DEFAULTS.LOCK_TIMEOUT_MS);
+      try {
+        var current = base.loadAiSettingsSnapshot();
+        var currentSettings = kspNormalizeAiSettings_(current.settings);
+        var currentStore = provider === KSP_AI_PROVIDERS.OPENAI
+          ? currentSettings.openaiVectorStoreId : currentSettings.geminiStoreName;
+        if (currentStore !== originalStore ||
+            (current.settings[KSP_AI_SETTINGS.MODEL_POLICY_JSON] || '') !==
+              (context.settings[KSP_AI_SETTINGS.MODEL_POLICY_JSON] || '') ||
+            base.getAiCredentialGeneration(provider) !== generation) {
+          throw kspAiSetupError_('AI_SETUP_STALE');
+        }
+        if (createdName) {
+          kspWriteSettingLive_(current.backendSpreadsheetId, storeKey, storeName, base.nowIso());
+          adopted = true;
+          profile.qualifiedStoreName = storeName;
+          profile.qualifiedTupleFingerprint = kspAiSetupTupleFingerprint_(profile, generation, storeName);
+          policy.profiles = policy.profiles.map(function (item) {
+            return item.profileId === profile.profileId ? profile : item;
+          });
+          kspWriteSettingLive_(current.backendSpreadsheetId, KSP_AI_SETTINGS.MODEL_POLICY_JSON,
+            JSON.stringify(kspNormalizeAiModelPolicy_(policy)), base.nowIso());
+        }
+        kspWriteSettingLive_(current.backendSpreadsheetId, readinessKey, 'READY_FOR_SYNC', base.nowIso());
+        kspWriteSettingLive_(current.backendSpreadsheetId, enabledKey, 'true', base.nowIso());
+      } finally { base.releaseScriptLock(lock); }
+      return { ok: true, workId: '0073', provider: provider, status: 'READY_FOR_SYNC' };
+    } catch (error) {
+      if (createdName && !adopted) {
+        try {
+          if (provider === KSP_AI_PROVIDERS.OPENAI) kspOpenAiDeleteVectorStoreLive_(createdName);
+          else base.deleteFileSearchStore(createdName);
+        } catch (ignoredCleanup) { throw kspAiSetupError_('AI_SETUP_CLEANUP_REQUIRED'); }
+      }
+      throw error;
+    }
+  };
+
   base.loadAiContext = function () {
     var state = base.getInstallationState();
     kspAssert_(state && state.resources, 'INSTALLATION_STATE_MISSING', 'Installation stateがありません。');

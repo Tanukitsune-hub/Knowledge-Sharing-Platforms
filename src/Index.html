@@ -323,6 +323,7 @@
 <?!= include_('ClientEntityWorkspace'); ?>
 <?!= include_('ClientKnowledgeSearch'); ?>
 <?!= include_('ClientAiProviderSettings'); ?>
+<?!= include_('ClientAiModelSetup'); ?>
 <?!= include_('ClientThemeSettings'); ?>
 <script>
 function meetingValues(){return{date:el('meeting-date').value,time:el('meeting-time').value,locationId:el('meeting-locationId').value,counterpartyId:el('meeting-counterpartyId').value,assetClassId:el('meeting-assetClassId').value,capitalTypeId:el('meeting-capitalTypeId').value,teamId:el('meeting-teamId').value,fundStrategy:el('meeting-fundStrategy').value,meetingTypeCodes:meetingTypeValues('meeting'),relatedPitchbookIds:selectedOptionValues('meeting-relatedPitchbookIds'),followUpRequired:el('meeting-followUpRequired').checked,followUpNote:el('meeting-followUpNote').value,counterparty:el('meeting-counterparty').value,internalParticipants:el('meeting-internalParticipants').value,notes:el('meeting-notes').value}}

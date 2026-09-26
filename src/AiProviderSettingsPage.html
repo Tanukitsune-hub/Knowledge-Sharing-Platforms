@@ -65,6 +65,80 @@
       <div><h2>AI設定</h2><p class="hint">OpenAIとGeminiの接続状態を表示します。APIキーは表示しません。</p></div>
     </div>
     <div id="ai-provider-admin-notice" class="status" role="status" aria-live="polite"></div>
+    <div class="ai-setup-cards">
+      <section class="card ai-provider-card" aria-labelledby="ai-setup-openai-heading">
+        <h3 id="ai-setup-openai-heading">OpenAI</h3>
+        <p id="ai-setup-openai-state" role="status">読み込み中…</p>
+        <p id="ai-setup-openai-model" class="hint"></p>
+        <details><summary>接続と同期の詳細</summary><p id="ai-setup-openai-detail"></p></details>
+        <div class="actions"><div class="action-group">
+          <button id="ai-setup-openai-model-button" type="button" class="action primary">モデルを変更</button>
+          <button id="ai-setup-openai-key-button" type="button" class="action secondary">APIキーを設定・更新</button>
+          <button id="ai-setup-openai-start-button" type="button" class="action secondary">利用開始</button>
+          <button id="ai-setup-openai-stop-button" type="button" class="action secondary">停止</button>
+        </div></div>
+      </section>
+      <section class="card ai-provider-card" aria-labelledby="ai-setup-gemini-heading">
+        <h3 id="ai-setup-gemini-heading">Gemini</h3>
+        <p id="ai-setup-gemini-state" role="status">読み込み中…</p>
+        <p id="ai-setup-gemini-model" class="hint"></p>
+        <details><summary>接続と同期の詳細</summary><p id="ai-setup-gemini-detail"></p></details>
+        <div class="actions"><div class="action-group">
+          <button id="ai-setup-gemini-model-button" type="button" class="action primary">モデルを変更</button>
+          <button id="ai-setup-gemini-key-button" type="button" class="action secondary">APIキーを設定・更新</button>
+          <button id="ai-setup-gemini-start-button" type="button" class="action secondary">利用開始</button>
+          <button id="ai-setup-gemini-stop-button" type="button" class="action secondary">停止</button>
+        </div></div>
+      </section>
+    </div>
+    <section id="ai-setup-form" class="card ai-provider-card" aria-labelledby="ai-setup-form-heading" hidden>
+      <h3 id="ai-setup-form-heading">モデル設定</h3>
+      <fieldset id="ai-setup-fields">
+        <div class="filter-grid">
+          <div class="field"><label for="ai-setup-provider">接続先</label><select id="ai-setup-provider"><option value="OPENAI">OpenAI</option><option value="GEMINI">Gemini</option></select></div>
+          <div class="field" id="ai-setup-key-wrap" hidden><label for="ai-setup-key">APIキー</label><input id="ai-setup-key" type="password" autocomplete="new-password" spellcheck="false"></div>
+          <div class="field"><label for="ai-setup-candidate">モデル候補</label><select id="ai-setup-candidate"><option value="">候補を取得できます</option></select></div>
+          <div class="field"><label for="ai-setup-model-id">Model IDを直接入力（候補外も可）</label><input id="ai-setup-model-id" type="text" autocomplete="off" spellcheck="false" maxlength="128"></div>
+        </div>
+      </fieldset>
+      <details id="ai-setup-advanced"><summary>詳細設定</summary>
+        <p class="hint">既存モデルで確認済みの思考設定を選べます。新しいModel IDはプロバイダ標準で確認します。</p>
+        <div class="filter-grid">
+          <div class="field"><label for="ai-setup-profile-target">保存先</label><select id="ai-setup-profile-target"><option value="default">既定モデル</option></select></div>
+          <div class="field"><label for="ai-setup-profile-label">設定違いの表示名</label><input id="ai-setup-profile-label" type="text" maxlength="120" autocomplete="off"></div>
+          <div class="field"><label><input id="ai-setup-profile-enabled" type="checkbox" checked> 設定違いを有効にする</label></div>
+          <div class="field"><label><input id="ai-setup-profile-visible" type="checkbox" checked> 利用者に表示する</label></div>
+          <div class="field"><label for="ai-setup-thinking">思考設定</label><select id="ai-setup-thinking"><option value="provider-default">プロバイダ標準</option></select></div>
+          <div class="field"><label for="ai-setup-thinking-raw">新しい思考値（詳細設定のみ）</label><input id="ai-setup-thinking-raw" type="text" autocomplete="off" spellcheck="false" maxlength="32" placeholder="必要な場合のみ入力"></div>
+          <div class="field"><label for="ai-setup-max-output">出力上限（任意）</label><input id="ai-setup-max-output" type="number" min="1" max="65536" inputmode="numeric"></div>
+        </div>
+      </details>
+      <p id="ai-setup-candidate-status" class="hint" role="status"></p>
+      <div class="actions"><div class="action-group">
+        <button id="ai-setup-refresh" type="button" class="action secondary">候補一覧を更新</button>
+        <button id="ai-setup-save" type="button" class="action primary">確認して保存</button>
+        <button id="ai-setup-cancel" type="button" class="action secondary">キャンセル</button>
+      </div></div>
+      <div id="ai-setup-result" class="status" role="status" aria-live="polite"></div>
+    </section>
+    <section class="card ai-provider-card" aria-labelledby="ai-setup-sync-heading">
+      <h3 id="ai-setup-sync-heading">資料の同期</h3>
+      <p class="hint">同期先と資料を選択してください。完了済みの資料は通常の同期で再登録しません。</p>
+      <div class="filter-grid">
+        <div class="field"><label for="ai-setup-sync-provider">同期先</label><select id="ai-setup-sync-provider"><option value="OPENAI">OpenAI</option><option value="GEMINI">Gemini</option></select></div>
+        <div class="field"><label for="ai-setup-sync-type">種類</label><select id="ai-setup-sync-type"><option value="">すべて</option><option value="Meeting">面談メモ</option><option value="Pitchbook">保存資料</option><option value="News">ニュース</option><option value="Internal Assessment">評価（ICメモ、社内整理等）</option></select></div>
+        <div class="field full"><label for="ai-setup-sync-source">資料</label><select id="ai-setup-sync-source"><option value="">同期対象を読み込んでください</option></select></div>
+      </div>
+      <div class="actions"><div class="action-group">
+        <button id="ai-setup-sync-load" type="button" class="action secondary">同期対象を表示</button>
+        <button id="ai-setup-sync-run" type="button" class="action primary">選択資料を同期</button>
+        <button id="ai-setup-sync-remaining" type="button" class="action secondary">残りを同期</button>
+      </div></div>
+      <div id="ai-setup-sync-status" class="status" role="status" aria-live="polite"></div>
+      <details><summary>接続先の変更後に再構築</summary><p class="hint">停止中の接続で、以前の検索データに紐付いた派生状態だけを初期化します。原本と他の接続先は保持します。</p><button id="ai-setup-sync-reset" type="button" class="action secondary">古い派生状態を初期化</button></details>
+      <details><summary>資格情報の削除</summary><p class="hint">停止中のみ、このアプリに保存したAPIキーを削除できます。</p><button id="ai-setup-remove" type="button" class="action secondary">停止中の接続のAPIキーを削除</button></details>
+    </section>
+    <div hidden>
     <section class="card ai-provider-card" aria-labelledby="ai-provider-openai-heading">
       <h3 id="ai-provider-openai-heading">ChatGPT / OpenAI</h3>
       <dl class="ai-provider-state">
@@ -148,6 +222,7 @@
         <button id="ai-model-profile-qualify" class="action secondary" type="button" disabled>資料検索の接続確認</button>
       </div></div>
     </section>
+    </div>
     </section>
   </div>
 </section>

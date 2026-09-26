@@ -27,7 +27,8 @@ function withLiveFakes(
   const originalUtilities = ksp.Utilities;
   const sleeps = [];
   let getRequestCalls = 0;
-  ksp.PropertiesService = { getScriptProperties: () => ({ getProperty: () => 'synthetic-gemini-key' }) };
+  ksp.PropertiesService = { getScriptProperties: () => ({ getProperty: name =>
+    name === 'KSP_GEMINI_API_KEY' ? 'synthetic-gemini-key' : '' }) };
   ksp.UrlFetchApp = {
     fetch,
     getRequest: () => {

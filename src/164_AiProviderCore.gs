@@ -654,6 +654,7 @@ function kspCreateProviderNeutralAiEnvironment_() {
   base.getProviderConfig = function (provider) {
     var context = base.loadAiContext();
     var config = kspBuildAiProviderConfig_(kspNormalizeAiSettings_(context.settings), provider);
+    config.credentialGeneration = base.getAiCredentialGeneration(provider);
     if (config.provider === KSP_AI_PROVIDERS.OPENAI && config.enabled) {
       try {
         kspOpenAiApiKeyLive_();

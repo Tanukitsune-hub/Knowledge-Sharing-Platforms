@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const crypto = require('node:crypto');
 
 function formatDateInTimeZone(value, timezone, pattern) {
   const parts = new Intl.DateTimeFormat('en-CA', pattern === 'HH:mm' ? {
@@ -19,7 +20,9 @@ function loadAi() {
     Set, Map, Intl, encodeURIComponent,
     Utilities: {
       formatDate: formatDateInTimeZone,
-      getUuid: () => `test-query-token-${++uuidCounter}`
+      getUuid: () => `test-query-token-${++uuidCounter}`,
+      DigestAlgorithm: { SHA_256: 'SHA_256' }, Charset: { UTF_8: 'UTF_8' },
+      computeDigest: (_algorithm, value) => Array.from(crypto.createHash('sha256').update(String(value)).digest())
     }
   });
   const stub = `
@@ -43,10 +46,10 @@ function loadAi() {
   new vm.Script(stub, { filename: 'base-stub.gs' }).runInContext(context);
   const root = path.resolve(__dirname, '..');
   for (const file of [
-    '00_Core.gs','05_TemporalContracts.gs','30_MeetingCore.gs','85_SourceRecordCore.gs','100_MaintenanceCore.gs','130_AiConstants.gs','131_AiFileSearchContracts.gs','132_AiKnowledgeContracts.gs','133_AiRetryContracts.gs','134_AiModelPolicyContracts.gs','161_GeminiRestClient.gs','163_OpenAiRestClient.gs','164_AiProviderCore.gs',
+    '00_Core.gs','05_TemporalContracts.gs','15_Installer.gs','30_MeetingCore.gs','85_SourceRecordCore.gs','100_MaintenanceCore.gs','130_AiConstants.gs','131_AiFileSearchContracts.gs','132_AiKnowledgeContracts.gs','133_AiRetryContracts.gs','134_AiModelPolicyContracts.gs','161_GeminiRestClient.gs','163_OpenAiRestClient.gs','164_AiProviderCore.gs',
     '140_AiSourceModels.gs','141_AiSyncHelpers.gs','142_AiSyncWorker.gs',
     '150_KnowledgeSearchModels.gs','151_KnowledgeSearchService.gs','152_KnowledgeFilterContracts.gs','155_KnowledgeExportContracts.gs',
-    '180_FeatureFreezeFormats.gs','181_FeatureFreezeSync.gs','182_FeatureFreezeKnowledge.gs','190_FeatureFreezeDiagnostics.gs','165_AiProviderAdmin.gs','170_AiEntryPoints.gs'
+    '180_FeatureFreezeFormats.gs','181_FeatureFreezeSync.gs','182_FeatureFreezeKnowledge.gs','190_FeatureFreezeDiagnostics.gs','165_AiProviderAdmin.gs','166_AiModelSetup.gs','170_AiEntryPoints.gs'
   ]) {
     new vm.Script(fs.readFileSync(path.join(root,'src',file),'utf8'), { filename:file }).runInContext(context);
   }

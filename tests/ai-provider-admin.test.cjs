@@ -261,27 +261,28 @@ test('OpenAI key absence fails safely and leaves the provider disabled', () => {
   assert.doesNotMatch(JSON.stringify(result), /vs-synthetic|KSP_OPENAI_API_KEY|secret/i);
 });
 
-test('Gemini credential and Store administration is boolean-only inside the owner-only deployment', () => {
+test('legacy Gemini admin RPC rejects raw credentials before mutating any provider state', () => {
   const ownerOnly = makeAdminEnvironment({ geminiKey: false,
     geminiStore: 'fileSearchStores/private-store' });
   const directResult = plain(ksp.kspMutateAiProviderSettings_(ownerOnly, {
     action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
   }));
-  assert.equal(directResult.ok, true);
-  assert.equal(ownerOnly._debug.savedGeminiKeys.length, 1);
+  assert.equal(directResult.ok, false);
+  assert.equal(directResult.error.code, 'AI_CREDENTIAL_FACADE_REQUIRED');
+  assert.equal(ownerOnly._debug.savedGeminiKeys.length, 0);
   assert.doesNotMatch(JSON.stringify(directResult), /gemini-secret-synthetic|private-store/);
 
   const env = makeAdminEnvironment({ geminiKey: false, geminiStore: 'fileSearchStores/private-store' });
   const connected = plain(mutateAdmin(env, {
     action: 'CONNECT_GEMINI', apiKey: 'gemini-secret-synthetic'
   }));
-  assert.equal(connected.ok, true, JSON.stringify(connected));
-  assert.equal(connected.readyForQualification, true);
-  assert.equal(env._debug.savedGeminiKeys.length, 1);
+  assert.equal(connected.ok, false, JSON.stringify(connected));
+  assert.equal(connected.error.code, 'AI_CREDENTIAL_FACADE_REQUIRED');
+  assert.equal(env._debug.savedGeminiKeys.length, 0);
   assert.equal(env._debug.context.settings.GEMINI_ENABLED, 'false');
-  assert.equal(env._debug.context.settings.GEMINI_READINESS, 'READY_FOR_QUALIFICATION');
+  assert.notEqual(env._debug.context.settings.GEMINI_READINESS, 'READY_FOR_QUALIFICATION');
   const adminData = plain(ksp.kspGetAiProviderAdminData_(env));
-  assert.equal(adminData.gemini.keyConfigured, true);
+  assert.equal(adminData.gemini.keyConfigured, false);
   assert.equal(adminData.gemini.storeReady, true);
   assert.doesNotMatch(JSON.stringify(adminData), /gemini-secret-synthetic|private-store|KSP_GEMINI_API_KEY/);
 });
@@ -552,7 +553,8 @@ test('OpenAI Store creation uses a synthetic official REST POST and returns only
   const originalProperties = ksp.PropertiesService;
   const originalFetch = ksp.UrlFetchApp;
   const requests = [];
-  ksp.PropertiesService = { getScriptProperties: () => ({ getProperty: () => 'sk-synthetic-only' }) };
+  ksp.PropertiesService = { getScriptProperties: () => ({ getProperty: name =>
+    name === 'KSP_OPENAI_API_KEY' ? 'sk-synthetic-only' : '' }) };
   ksp.UrlFetchApp = {
     fetch(url, options) {
       requests.push({ url, options });
@@ -577,29 +579,21 @@ test('OpenAI Store creation uses a synthetic official REST POST and returns only
   }
 });
 
-test('OpenAI connection saves the key, runs an isolated synthetic self-test, and stops at READY_FOR_SYNC', () => {
+test('legacy OpenAI connection RPC rejects raw keys before Store or source mutation', () => {
   const env = makeAdminEnvironment({ key: false });
   const result = plain(mutateAdmin(env, {
     action: 'CONNECT_OPENAI', apiKey: 'sk-synthetic-only'
   }));
-  assert.equal(result.ok, true, JSON.stringify(result));
-  assert.equal(result.readyForSync, true);
-  assert.equal(result.enabled, false);
-  assert.deepEqual(env._debug.created, ['Private Assets Knowledge - OpenAI']);
-  assert.deepEqual(env._debug.read, ['vs-synthetic-created']);
-  assert.equal(env._debug.savedKeys.length, 1);
-  assert.equal(env._debug.connectionUploads.length, 1);
-  assert.equal(env._debug.connectionQueries.length, 1);
-  assert.deepEqual(env._debug.connectionQueries[0].request.filters, {
-    type: 'eq', key: 'source_id', value: 'KSP-OPENAI-CONNECTION-TEST'
-  });
-  assert.deepEqual(env._debug.connectionQueries[0].request.include, ['file_search_call.results']);
-  assert.equal(env._debug.connectionDeletes.length, 1);
+  assert.equal(result.ok, false, JSON.stringify(result));
+  assert.equal(result.error.code, 'AI_CREDENTIAL_FACADE_REQUIRED');
+  assert.deepEqual(env._debug.created, []);
+  assert.deepEqual(env._debug.read, []);
+  assert.equal(env._debug.savedKeys.length, 0);
+  assert.equal(env._debug.connectionUploads.length, 0);
+  assert.equal(env._debug.connectionQueries.length, 0);
+  assert.equal(env._debug.connectionDeletes.length, 0);
   assert.equal(env._debug.syncCalls.length, 0);
-  assert.equal(env._debug.context.settings.OPENAI_DEFAULT_MODEL, 'gpt-5.6-terra');
-  assert.equal(env._debug.context.settings.OPENAI_VECTOR_STORE_ID, 'vs-synthetic-created');
   assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
-  assert.equal(env._debug.context.settings.OPENAI_READINESS, 'READY_FOR_SYNC');
   assert.equal(JSON.stringify(result).includes('sk-synthetic-only'), false);
   assert.equal(JSON.stringify(result).includes('vs-synthetic-created'), false);
 });
@@ -653,7 +647,7 @@ test('inaccessible configured Store is replaced once and old provider state is n
   assert.doesNotMatch(JSON.stringify(result), /vs-inaccessible|vs-replacement/);
 });
 
-test('invalid OpenAI key fails before Store or source mutation', () => {
+test('legacy raw OpenAI key cannot reach Store creation or source mutation', () => {
   const env = makeAdminEnvironment({
     key: false,
     createError: Object.assign(new Error('private response'), { code: 'OPENAI_HTTP_401' })
@@ -662,7 +656,7 @@ test('invalid OpenAI key fails before Store or source mutation', () => {
     action: 'CONNECT_OPENAI', apiKey: 'sk-invalid-synthetic'
   }));
   assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'OPENAI_CONNECTION_TEST_FAILED');
+  assert.equal(result.error.code, 'AI_CREDENTIAL_FACADE_REQUIRED');
   assert.equal(env._debug.created.length, 0);
   assert.equal(env._debug.connectionUploads.length, 0);
   assert.equal(env._debug.connectionQueries.length, 0);
@@ -671,7 +665,7 @@ test('invalid OpenAI key fails before Store or source mutation', () => {
   assert.doesNotMatch(JSON.stringify(result), /sk-invalid-synthetic|private response|vs-/);
 });
 
-test('invalid OpenAI connection fails before source sync and cleans the synthetic document', () => {
+test('legacy raw OpenAI key is rejected before connection tests and source sync', () => {
   const env = makeAdminEnvironment({
     connectionQueryError: Object.assign(new Error('synthetic provider response'), { code: 'OPENAI_HTTP_401' })
   });
@@ -679,12 +673,12 @@ test('invalid OpenAI connection fails before source sync and cleans the syntheti
     action: 'CONNECT_OPENAI', apiKey: 'sk-invalid-synthetic'
   }));
   assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'OPENAI_CONNECTION_TEST_FAILED');
+  assert.equal(result.error.code, 'AI_CREDENTIAL_FACADE_REQUIRED');
   assert.equal(env._debug.context.settings.OPENAI_ENABLED, 'false');
-  assert.equal(env._debug.context.settings.OPENAI_READINESS, 'ERROR');
+  assert.notEqual(env._debug.context.settings.OPENAI_READINESS, 'ERROR');
   assert.equal(env._debug.syncCalls.length, 0);
-  assert.equal(env._debug.connectionUploads.length, 1);
-  assert.equal(env._debug.connectionDeletes.length, 1);
+  assert.equal(env._debug.connectionUploads.length, 0);
+  assert.equal(env._debug.connectionDeletes.length, 0);
   assert.doesNotMatch(JSON.stringify(result), /sk-invalid-synthetic|openai-connection-file|vs-synthetic-created/);
 });
 
