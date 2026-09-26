@@ -32,7 +32,7 @@ USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 | 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` / Draft PR #104 | — |
 | 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-report.md` / Draft PR #104 | — |
 | 0071-CODEX-03 | latest-main reconcile + canonical check + Phase A integration readiness | QUALIFICATION | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-instruction.md` | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-report.md` / PR #104 | — |
-| 0071-CODEX-04 | Phase B focus continuity + Past edit validation recovery | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-04-phase-b-focus-recovery-instruction.md` | `docs/handoffs/0071-CODEX-04-phase-b-focus-recovery-report.md` / Draft PR pending | — |
+| 0071-CODEX-04 | Phase B focus continuity + Past edit validation recovery | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-04-phase-b-focus-recovery-instruction.md` | `docs/handoffs/0071-CODEX-04-phase-b-focus-recovery-report.md` / Draft PR #105 | — |
 
 ## CODEX-01 ChatGPT review
 
