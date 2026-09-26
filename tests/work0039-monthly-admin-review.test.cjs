@@ -51,6 +51,13 @@ function createHarness(responder) {
       appendChild(child) { this.options.push(child); },
       setAttribute(name, next) { this[name] = next; },
       focus() { this.focused = true; },
+      querySelectorAll(selector) {
+        if (id !== 'activity-drill-results' || selector !== '[data-activity-admin-meeting]') return [];
+        return [...this.innerHTML.matchAll(/data-activity-admin-meeting="([^"]+)"/g)].map(match => ({
+          dataset: { activityAdminMeeting: match[1] },
+          focus: () => { this.focusedMeeting = match[1]; }
+        }));
+      },
       _listeners: listeners
     };
     nodes.set(id, value);
@@ -161,6 +168,7 @@ test('stale update reloads authoritative drill state and restores the checkbox s
   await harness.context.updateActivityAdminCheck(control);
   assert.deepEqual(harness.calls.map(call => call.method), ['updateMeetingAdminCheck', 'getMeetingActivityAnalytics']);
   assert.doesNotMatch(harness.node('activity-drill-results').innerHTML, /data-activity-admin-meeting="MTG-000039"[^>]* checked/);
+  assert.equal(harness.node('activity-drill-results').focusedMeeting, 'MTG-000039');
   assert.equal(harness.statuses.at(-1).kind, 'error');
   assert.match(harness.statuses.at(-1).message, /先に更新/);
 });

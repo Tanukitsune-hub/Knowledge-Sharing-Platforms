@@ -1,6 +1,6 @@
 // ===== BEGIN src/00_Core.gs =====
 var KSP_COMPONENT_WORK_ID = '0004';
-var KSP_RELEASE_VERSION = '0.2.1';
+var KSP_RELEASE_VERSION = '0.2.2';
 var KSP_WORK_ID = KSP_COMPONENT_WORK_ID;
 var KSP_APP_VERSION = KSP_RELEASE_VERSION;
 var KSP_SCHEMA_VERSION = 9;
@@ -2727,7 +2727,7 @@ function kspCreateBackendBackupEnvironment_() {
 
 // ===== BEGIN src/30_MeetingCore.gs =====
 var KSP_MEETING_WORK_ID = '0005';
-var KSP_MEETING_APP_VERSION = '0.2.1';
+var KSP_MEETING_APP_VERSION = '0.2.2';
 var KSP_MEETING_DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 
 var KSP_OPTION_TYPES = Object.freeze({

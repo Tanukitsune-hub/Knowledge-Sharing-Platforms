@@ -2,8 +2,8 @@
 
 WORK_ID: 0071
 ACTIVE_DISPATCH_ID: 0071-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: PHASE_B_FOCUS_RECOVERY
@@ -32,7 +32,7 @@ USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 | 0071-CODEX-01 | before geometry -> Phase A stable interaction implementation -> isolated runtime qualification -> Phase B audit | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-instruction.md` | `docs/handoffs/0071-CODEX-01-phase-a-interaction-stability-report.md` / Draft PR #104 | — |
 | 0071-CODEX-02 | standalone status repair + vermilion file marker + review cleanup + focused requalification | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-instruction.md` | `docs/handoffs/0071-CODEX-02-phase-a-repair-file-marker-report.md` / Draft PR #104 | — |
 | 0071-CODEX-03 | latest-main reconcile + canonical check + Phase A integration readiness | QUALIFICATION | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-instruction.md` | `docs/handoffs/0071-CODEX-03-phase-a-final-integration-qualification-report.md` / PR #104 | — |
-| 0071-CODEX-04 | Phase B focus continuity + Past edit validation recovery | BUILD | CODEX | READY | `docs/handoffs/0071-CODEX-04-phase-b-focus-recovery-instruction.md` | pending | — |
+| 0071-CODEX-04 | Phase B focus continuity + Past edit validation recovery | BUILD | CHATGPT | RETURNED | `docs/handoffs/0071-CODEX-04-phase-b-focus-recovery-instruction.md` | `docs/handoffs/0071-CODEX-04-phase-b-focus-recovery-report.md` / Draft PR #105 | — |
 
 ## CODEX-01 ChatGPT review
 
@@ -101,6 +101,10 @@ The valid-file exact-candidate runtime state remains `NOT_OBSERVED_AUTOMATION_LI
 
 Phase A is integrated and closed unless material contradictory evidence appears. Work0071 overall remains ACTIVE for evidence-gated Phase B.
 
+## CODEX-04 return
+
+Current main の4 finding は production HTML を使った synthetic browser で `REPRODUCED_MATERIAL`。修正後の 1440/390/320 focus/validation browser、canonical 717/717、0.2.2/schema9 bundle と7-file exact parity は PASS。隔離 target の現在の identity を独立確認できず、source sync / version / deployment update は0。`TARGET_RUNTIME_QUALIFICATION: NOT RUN`、`BLOCKER: TARGET_IDENTITY_UNCONFIRMED`、`READY: NO`。Phase A acceptance は再度開かず、Work0071 の ACCEPTED / Completion Latch は未適用。ChatGPT 最終 review 待ち。
+
 ## Authorization Boundary
 
 Allowed:
@@ -130,5 +134,5 @@ CODEX-03 return: latest main normal merge後もPhase A sourceと0.2.1/schema9 di
 
 WORK_ID: 0071
 DISPATCH_ID: 0071-CODEX-04
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
