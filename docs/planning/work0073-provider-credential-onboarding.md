@@ -45,9 +45,10 @@ UIから先に作り、現在の「保存してから確認する」server behav
 5. first-run / rotation / disable / removal UX
 6. 3-step setup flow
 7. model-policy and manual-sync progressive disclosure
-8. four-source source selection / sync / reset-rebuild alignment
-9. focused tests, browser behavior checks, bundle parity
-10. exact-source documentation updates needed by this Work
+8. model discovery/manual-ID registration that tolerates provider model churn
+9. four-source source selection / sync / reset-rebuild alignment
+10. focused tests, browser behavior checks, bundle parity
+11. exact-source documentation updates needed by this Work
 
 ### Non-Goals
 
@@ -342,21 +343,47 @@ This prevents `APIキー設定済み` from being treated as synonymous with `資
 
 ## Advanced Configuration
 
-### Model policy
+### Model policy and model churn
 
 Move raw model-profile fields behind `詳細設定`.
 
-Primary setup uses the approved provider default profile.
+Primary setup uses an approved qualified provider profile. Normal first-run flow must not require the user to understand or edit Profile ID, family, raw thinking values, output ceiling or internal qualification fields.
 
-Normal first-run flow must not require the user to understand or edit:
+Model selection must not depend on a source-code allowlist of current model names.
 
-- Profile ID
-- family
-- raw thinking values
-- output ceiling
-- internal qualification fields
+Implement a provider-neutral model-candidate contract, exact names flexible:
 
-Existing expert controls may remain when needed, but they are not part of the primary onboarding path.
+```text
+discoverCandidates(provider)
+registerProfile(provider, modelId, ...)
+qualifyProfile(profileId, thinkingProfileId)
+setProviderDefault(profileId)
+```
+
+Discovery behavior:
+
+- server-side only;
+- uses the configured provider credential;
+- returns sanitized non-secret candidate metadata;
+- may include modelId, displayName and provider-reported lifecycle/capability metadata when available;
+- records/returns `discoveredAt` or equivalent freshness information;
+- is advisory and never auto-enables a model.
+
+UI under `詳細設定`:
+
+- `利用可能モデルを更新` / equivalent explicit refresh;
+- candidate selection when discovery succeeds;
+- `Model IDを直接指定` fallback that does not require a code release;
+- registered/qualified/default state shown separately;
+- rolling/latest aliases, when supported, are visibly distinguished from pinned/stable IDs.
+
+Qualification remains mandatory for the exact model + thinking tuple before it can become the provider default/user-visible option.
+
+A model-list refresh failure preserves existing registered/qualified profiles.
+
+If the configured default later becomes unavailable, surface `要再確認` / unavailable and require an explicit replacement. Never silently move to a newly discovered model.
+
+Review existing hard-coded runtime paths such as OpenAI default-model constants and Gemini model allowlists/candidate campaigns. Historical Work0027 qualification fixtures may stay as historical compatibility code if they are no longer the normal registration/selection gate, but normal Work0073 model administration must not be limited by them.
 
 ### Manual source sync
 
@@ -459,7 +486,13 @@ Required logic evidence:
 13. partial sync summary does not render as complete;
 14. provider disable preserves credential/resource;
 15. credential remove requires disabled provider + Credential Operator;
-16. primary UI contains no ChatGPT-subscription-vs-OpenAI-API-billing explanatory notice.
+16. primary UI contains no ChatGPT-subscription-vs-OpenAI-API-billing explanatory notice;
+17. a newly discovered or manually entered valid Model ID can be registered without changing source code;
+18. discovery alone never makes a model qualified/default/user-visible;
+19. model discovery failure preserves existing qualified/default profiles;
+20. a previously configured model becoming unavailable produces unavailable/reverify state without silent fallback;
+21. rolling/latest alias selection, if supported, requires explicit administrator choice and is visibly distinguished from a pinned/stable Model ID;
+22. thinking/reasoning options are profile-specific and only qualified options become selectable.
 
 ### Browser behavior
 
@@ -562,6 +595,16 @@ Work0073 implementation is acceptable when all of the following are true:
 - model policy and manual sync are progressive-disclosure advanced operations;
 - failed operations retain a correction/retry path;
 - no ChatGPT-subscription-vs-OpenAI-API-billing explanatory notice is added.
+
+### Model lifecycle resilience
+
+- adding a new provider Model ID does not require a source-code release;
+- discovery and manual Model ID entry are both supported paths under advanced settings;
+- discovered, registered, qualified and default/user-visible states remain distinct;
+- exact model/thinking qualification gates activation;
+- unavailable/deprecated models do not silently fall back or upgrade;
+- provider discovery failure does not destroy known-good model policy state;
+- current hard-coded model IDs are not the exhaustive normal-runtime allowlist.
 
 ### Four-source correctness
 
