@@ -1,12 +1,12 @@
 # Work 0072 dispatch control
 
 WORK_ID: 0072
-ACTIVE_DISPATCH_ID: NONE
-BALL: USER
-STATUS: ACTION_REQUIRED
-MODE: BUILD
-VALIDATION_TIER: TIER_2_STANDARD
-PHASE: FOUR_SOURCE_CORE
+ACTIVE_DISPATCH_ID: 0072-CODEX-03
+BALL: CODEX
+STATUS: READY
+MODE: QUALIFICATION
+VALIDATION_TIER: TIER_3_HIGH
+PHASE: LIVE_PROVIDER_QUALIFICATION
 USER_NATIVE_ACTION_BUDGET: 0
 USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 
@@ -33,7 +33,8 @@ Meeting / Pitchbook / News / Internal Assessmentを同じcanonical source scope�
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report |
 |---|---|---|---|---|---|---|
 | 0072-CODEX-01 | provider-disabled four-source Knowledge Search core + provenance + provider-independent Full Output subset | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md` | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-report.md` / Draft PR #106 |
-| 0072-CODEX-02 | separate authoritative source scope from provider 40-ID cap and restore Full Output thresholds | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-instruction.md` | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-report.md` / Draft PR #106 |
+| 0072-CODEX-02 | separate authoritative source scope from provider 40-ID cap and restore Full Output thresholds | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-instruction.md` | `docs/handoffs/0072-CODEX-02-source-scope-limit-repair-report.md` / PR #106 |
+| 0072-CODEX-03 | bounded live provider four-source qualification with synthetic data | QUALIFICATION | CODEX | READY | `docs/handoffs/0072-CODEX-03-live-provider-four-source-qualification-instruction.md` | pending |
 
 ## CODEX-01 ChatGPT review
 
@@ -76,9 +77,9 @@ CODEX-02 return後、ChatGPTがscope-limit修復とexact distribution evidence�
 Work0072をACCEPTEDにしない。
 
 WORK_ID: 0072
-DISPATCH_ID: 0072-CODEX-02
-BALL: USER
-STATUS: ACTION_REQUIRED
+DISPATCH_ID: 0072-CODEX-03
+BALL: CODEX
+STATUS: READY
 
 
 ## Core integration
@@ -112,13 +113,13 @@ Any such qualification may incur provider calls/billing and provider index/store
 Current pending decision:
 
 ```text
-LIVE_PROVIDER_QUALIFICATION: NOT_AUTHORIZED_YET
-PROVIDER_CALLS: REQUIRE_EXPLICIT_USER_APPROVAL
-AI_INDEX_MUTATION: REQUIRE_EXPLICIT_USER_APPROVAL
+LIVE_PROVIDER_QUALIFICATION: AUTHORIZED_2026-09-26
+PROVIDER_CALLS: BOUNDED_SYNTHETIC_AUTHORIZED
+AI_INDEX_MUTATION: BOUNDED_SYNTHETIC_AUTHORIZED
 COMPANY_DATA: NOT_AUTHORIZED
 HISTORICAL_MIGRATION: DEFERRED
 COMPANY_ROLLOUT: DEFERRED
 WORK0030_AZURE: DEFERRED_BY_USER
 ```
 
-If authorized, create the next unused Dispatch `0072-CODEX-03` with isolated synthetic data, explicit provider-call/index-mutation budgets, no company/confidential data, and user-native action budget 0.
+User authorized bounded synthetic live-provider qualification. Active Dispatch is `0072-CODEX-03`; company/confidential data remains prohibited.
