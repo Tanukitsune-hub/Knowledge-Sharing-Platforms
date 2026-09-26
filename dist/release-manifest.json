@@ -2,17 +2,17 @@
   "product": "Alternative Assets Intelligence",
   "release_version": "0.2.4",
   "schema_version": 9,
-  "source_git_commit": "844024f55ad19c4a084aadedb4f8b21aa001446c",
+  "source_git_commit": "c73bb15d8566542ab598e3978869fea592a87a25",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "9e08fb72df104165eb424eb987e694d28f53c4c91d9df354ab443b39545935bd",
-  "bundle_file_sha256": "e3164d1de9520fc60ad48e0f0deef8589ed94525fd7fe04b53d97c0a5ee5e604",
+  "bundle_payload_sha256": "0d054b37f69426e2f9102811b36c65322ef90d30d5a130fbf4a6a4eace27b342",
+  "bundle_file_sha256": "01e3d541d536a0c68cc94405f1454f57c28e2d4db6c99e9949a9743e9ab9e464",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
   "source_order_sha256": "08300aa2bb7e1edcd1a3f18462893a0d8ecb2653ccb019d6e01184662c4466af",
   "bundle_metrics": {
-    "bytes": 1525063,
-    "characters": 1468450,
-    "lines": 22347,
+    "bytes": 1525912,
+    "characters": 1469299,
+    "lines": 22362,
     "server_source_count": 68,
     "embedded_html_count": 25
   },
@@ -294,8 +294,8 @@
     },
     {
       "file": "src/160_AiEnvironment.gs",
-      "bytes": 24184,
-      "sha256": "33f7be3f3a1da3419e9bda9480178a16593d59d8755318968762b0a1fb993ba1"
+      "bytes": 24344,
+      "sha256": "4994f52aff726e22b022e6fa9cb2d4dcaa48325a408eaacee87d56289f7b7c84"
     },
     {
       "file": "src/161_GeminiRestClient.gs",
@@ -319,13 +319,13 @@
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
-      "bytes": 119236,
-      "sha256": "357d863da4af6c32924d31f06661059fd07fe7f6bff054dab4bfcc4f3b03d4e2"
+      "bytes": 119068,
+      "sha256": "997f4d280647db15a335428c623936f66daf9f6d436152b4631abbe55eecb8dc"
     },
     {
       "file": "src/166_AiModelSetup.gs",
-      "bytes": 31041,
-      "sha256": "5150184b9a948e2ed9db3fabec8172d84b14a28ca4d0cab44128af4e4ecfbd59"
+      "bytes": 31877,
+      "sha256": "260963b5ada1dd2788bb406f58b5dcaee7db539fc5f6cfa3ec726bebe321e930"
     },
     {
       "file": "src/166_ThemeSettings.gs",
@@ -381,8 +381,8 @@
     },
     {
       "file": "src/ClientAiModelSetup.html",
-      "bytes": 21500,
-      "sha256": "7ec3a413f57de4a605fdcefc98db334e6dfceef4b0c0c884ecc79b5a0c6234cb"
+      "bytes": 21521,
+      "sha256": "9f51c4e83691ac9651f8b5042c675ebe520e69ea6d040fad5bba1cac8b918940"
     },
     {
       "file": "src/ClientBootstrap.html",

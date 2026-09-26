@@ -3,16 +3,16 @@
   "product": "Alternative Assets Intelligence",
   "release_version": "0.2.4",
   "schema_version": 9,
-  "bundle_source_commit": "844024f55ad19c4a084aadedb4f8b21aa001446c",
-  "canonical_bundle_sha256": "e3164d1de9520fc60ad48e0f0deef8589ed94525fd7fe04b53d97c0a5ee5e604",
-  "canonical_bundle_payload_sha256": "9e08fb72df104165eb424eb987e694d28f53c4c91d9df354ab443b39545935bd",
-  "concatenated_bytes": 1525063,
-  "concatenated_sha256": "e3164d1de9520fc60ad48e0f0deef8589ed94525fd7fe04b53d97c0a5ee5e604",
+  "bundle_source_commit": "c73bb15d8566542ab598e3978869fea592a87a25",
+  "canonical_bundle_sha256": "01e3d541d536a0c68cc94405f1454f57c28e2d4db6c99e9949a9743e9ab9e464",
+  "canonical_bundle_payload_sha256": "0d054b37f69426e2f9102811b36c65322ef90d30d5a130fbf4a6a4eace27b342",
+  "concatenated_bytes": 1525912,
+  "concatenated_sha256": "01e3d541d536a0c68cc94405f1454f57c28e2d4db6c99e9949a9743e9ab9e464",
   "ordered_files": [
     {
       "name": "00_BundleResources.gs",
-      "bytes": 437391,
-      "sha256": "724ba1a465d64ffbb590966ceadc54151411d306e1eba4ba2358a7363f2648f0",
+      "bytes": 437412,
+      "sha256": "b81427df22420f9b15a5be71766fda7ba39bdabffc881d76cb7982a0381d7344",
       "text_attachment": "00_BundleResources.txt",
       "source_sections": []
     },
@@ -89,8 +89,8 @@
     },
     {
       "name": "40_ServerPart04.gs",
-      "bytes": 169060,
-      "sha256": "931a7554f6c51f28bb87275faec6e6412559a73f2f1c032cee93e7fe960236b3",
+      "bytes": 169220,
+      "sha256": "e15be834cc4a8983aa52960221e266f4ae911635dca8395d1e45a78226146ed0",
       "text_attachment": "40_ServerPart04.txt",
       "source_sections": [
         "src/141_AiSyncHelpers.gs",
@@ -118,8 +118,8 @@
     },
     {
       "name": "60_ServerPart06.gs",
-      "bytes": 221184,
-      "sha256": "41106a0072190fc456030a458efb908f6d44675f762e1c4dded4750a07f1ec98",
+      "bytes": 221852,
+      "sha256": "228a1bfc03820a0a5b76ddba06c630754a4c71c3bee77f5d595ad6297ef29f4a",
       "text_attachment": "60_ServerPart06.txt",
       "source_sections": [
         "src/165_AiProviderAdmin.gs",

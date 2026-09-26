@@ -2900,7 +2900,10 @@ function kspCreateAiEnvironment_() {
         stage: 'MODELS_LIST', errorCode: 'AI_GEMINI_MODELS_LIST_FAILED'
       });
       (Array.isArray(response && response.models) ? response.models : []).forEach(function (item) {
-        models.push({ modelId: item.name, displayName: item.displayName || item.name });
+        var modelId;
+        try { modelId = kspAiSetupModelId_(item.baseModelId || item.name, KSP_AI_PROVIDERS.GEMINI); }
+        catch (ignoredModel) { return; }
+        models.push({ modelId: modelId, displayName: item.displayName || modelId });
       });
       token = String(response && response.nextPageToken || '');
       if (!token) break;

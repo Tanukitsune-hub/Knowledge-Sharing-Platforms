@@ -8,9 +8,9 @@ const BASIS = Object.freeze({
   product: 'Alternative Assets Intelligence',
   release: '0.2.4',
   schema: 9,
-  sourceCommit: '844024f55ad19c4a084aadedb4f8b21aa001446c',
-  bundleSha256: 'e3164d1de9520fc60ad48e0f0deef8589ed94525fd7fe04b53d97c0a5ee5e604',
-  payloadSha256: '9e08fb72df104165eb424eb987e694d28f53c4c91d9df354ab443b39545935bd'
+  sourceCommit: 'c73bb15d8566542ab598e3978869fea592a87a25',
+  bundleSha256: '01e3d541d536a0c68cc94405f1454f57c28e2d4db6c99e9949a9743e9ab9e464',
+  payloadSha256: '0d054b37f69426e2f9102811b36c65322ef90d30d5a130fbf4a6a4eace27b342'
 });
 const OUTPUT_DIR = path.join('dist', 'company-multifile');
 const GS_NAMES = Object.freeze([
