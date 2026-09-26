@@ -191,19 +191,48 @@ Provider operational Store creation/reuse belongs to `利用開始` / provider e
 
 Replacing an inaccessible Store must not leave News/Assessment derived state pointing to a stale Store. Four-source reset/rebuild behavior must cover all four canonical source types.
 
-### 7. Model-policy editing is advanced configuration
+### 7. Model policy is advanced configuration and must tolerate model churn
 
 First-time setup should not require the user to understand:
 
 - Profile ID
-- raw Model ID unless a default cannot be resolved
 - family
 - raw thinking values
 - output ceilings
 
 Move model-policy editing behind `詳細設定`.
 
-The primary setup flow uses an approved default profile and reports whether it qualifies.
+Model availability is not a static application constant. New models, aliases, reasoning options and deprecations can change independently of this repository.
+
+The normal runtime path therefore uses this lifecycle:
+
+```text
+provider-discovered candidate or manually entered Model ID
+-> registered profile
+-> API/capability verification
+-> File Search + thinking qualification
+-> qualified profile
+-> optional provider default / user-visible selection
+```
+
+Rules:
+
+- do not require a source-code release merely to add a new provider model ID;
+- keep direct Model ID entry as a canonical fallback even when provider discovery is available;
+- provider model discovery is server-side, credential/environment-specific and advisory;
+- a model returned by a provider list endpoint is not automatically enabled or user-visible;
+- qualification, not name matching, proves that the exact model/thinking tuple works with this application's required provider path;
+- thinking/reasoning options belong to the model profile and must not be assumed identical across models;
+- discovery failure must not delete or disable existing qualified profiles merely because the list could not be refreshed;
+- a configured model that becomes unavailable moves to an unavailable/reverify state; do not silently switch to another model;
+- no automatic model failover;
+- no automatic upgrade from one stable model ID to a newer model;
+- if a rolling/latest alias is supported and selected, label it as rolling behavior and require explicit administrator choice;
+- provider-supplied lifecycle metadata such as shutdown/deprecation information may be surfaced when available, but absence of metadata is not proof of long-term availability.
+
+Hard-coded model IDs may remain only where they are historical qualification fixtures or compatibility evidence. They must not be the exhaustive allowlist for normal model registration/selection.
+
+The primary setup flow uses an approved qualified profile. Administrators can refresh/discover candidates or enter a new Model ID under `詳細設定`, qualify it, and then promote it to provider default without a code deployment.
 
 ### 8. Manual source sync is advanced operations
 
