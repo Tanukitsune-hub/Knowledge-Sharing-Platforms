@@ -1,8 +1,27 @@
 # Shared administrator password mode
 
-Status: DECIDED
+Status: SUPERSEDED FOR ROUTINE WEB APP ADMINISTRATION
 Decision date: 2026-09-05
 Work: 0029
+
+## Supersession note
+
+Work0054 superseded this shared-password model for routine Web App administration.
+
+Current routine administration source of truth:
+
+`docs/decisions/admin-page-access-model.md`
+
+Current rule:
+
+- no app-level admin account/role;
+- no shared admin password/token for ordinary AI settings, deleted-record management, or theme settings;
+- authorized Web App users share the normal application feature boundary;
+- installer/deployment-security operator authorization remains separate.
+
+Work0073 introduces a narrower new concept: raw provider credential create/replace/delete is a **Credential Operator** security boundary because it changes secret/billing/data-exfiltration capability. This does not reactivate the Work0029 shared-password mechanism and does not create a general app-wide administrator role.
+
+Historical Work0029 evidence remains valid only for what it observed at that time.
 
 ## Decision
 
