@@ -6,11 +6,11 @@ const vm = require('node:vm');
 
 const BASIS = Object.freeze({
   product: 'Alternative Assets Intelligence',
-  release: '0.2.1',
+  release: '0.2.2',
   schema: 9,
-  sourceCommit: '5519a8af66617196aff640a65b9a8168ad8a172f',
-  bundleSha256: '681600c6b1494edc4e67616c25405edb59a46f9960a44f84e81d97d5e3158da5',
-  payloadSha256: '316b3348d96f86869aba0808efba59ef8b69725a053c418d7fe8966c5eb1f622'
+  sourceCommit: '55bac220d4ea25d2c9f965fd0e8d504f0a0128f6',
+  bundleSha256: '02758480684b5e985182270fc73705b75b29592bef990ebfb4821beee79cc406',
+  payloadSha256: '082d25b097ad1bbc9a6071040e58d2cfc4fac9abcf649630a8d810a92b309415'
 });
 const OUTPUT_DIR = path.join('dist', 'company-multifile');
 const GS_NAMES = Object.freeze([
@@ -124,7 +124,7 @@ function balancedServerParts(sections) {
 
 function installationGuide() {
   const lines = [
-    '# Alternative Assets Intelligence 0.2.1 — 7ファイル導入手順',
+    '# Alternative Assets Intelligence 0.2.2 — 7ファイル導入手順',
     '',
     'このpackageは同じsource commitから生成したsingle-file bundleとbyte-identicalな手動導入用代替artifactです。',
     'release source commit: ' + BASIS.sourceCommit,

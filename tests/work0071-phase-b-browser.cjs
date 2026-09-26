@@ -143,5 +143,5 @@ async function run(browser, url, width) {
     return { width, analyticsBefore, analyticsAfter, masterArrow, masterReset, masterSave, past, lifecycle, errors };
   } finally { await page.close(); }
 }
-async function main() { await new Promise(r => server.listen(0, '127.0.0.1', r)); const url = `http://127.0.0.1:${server.address().port}/`; const browser = await chromium.launch({ channel: 'chromium', headless: true }); try { for (const width of [1440, 390]) console.log(JSON.stringify(await run(browser, url, width))); } finally { await browser.close(); await new Promise(r => server.close(r)); } }
+async function main() { await new Promise(r => server.listen(0, '127.0.0.1', r)); const url = `http://127.0.0.1:${server.address().port}/`; const browser = await chromium.launch({ channel: 'chromium', headless: true }); try { for (const width of [1440, 390, 320]) console.log(JSON.stringify(await run(browser, url, width))); } finally { await browser.close(); await new Promise(r => server.close(r)); } }
 main().catch(e => { console.error(e.stack); process.exitCode = 1; });
