@@ -72,7 +72,7 @@ APPS_SCRIPT_DEPLOYMENT_MUTATION: 0
 
 ## Completion Gate
 
-PR #106の4-source coreとCODEX-02修復はChatGPT reviewでmainへ統合済み。CODEX-03のlive provider matrixは`NO_AUTHORIZED_PROVIDER_CREDENTIAL`で未実行のまま返却した。provider-runtime acceptanceはChatGPTの次判断待ち。
+PR #106の4-source coreとCODEX-02修復はChatGPT reviewでmainへ統合済み。CODEX-03の再preflightでは両provider credentialの設定を確認したが、安全なisolated provider Storeとexact cleanup経路を確立できず、live provider matrixは未実行。provider-runtime acceptanceはChatGPTの次判断待ち。
 
 Work0072をACCEPTEDにしない。
 
@@ -108,7 +108,7 @@ Accepted core includes canonical `sourceTypes[]`, 4 checkbox UI, authoritative s
 
 Work0072 overall is not yet ACCEPTED because live provider qualification for the new four-source path has not run.
 
-2026-09-26に、既存のisolated/test credentialだけを使用するbounded synthetic qualificationが承認された。今回のpreflightでは対象credentialが確認できず、callとmutationは開始していない。次の実行境界はChatGPTが判断する。
+2026-09-26に、既存のisolated/test credentialだけを使用するbounded synthetic qualificationが承認された。初回preflightでは対象credentialが未設定だったが、同Dispatch再実行時の現行targetではDirect OpenAI / Geminiの設定を確認した。安全なStore境界とexact cleanup経路が未証明のため、callとmutationは開始していない。次の実行境界はChatGPTが判断する。
 
 Authorization state:
 
@@ -122,4 +122,4 @@ COMPANY_ROLLOUT: DEFERRED
 WORK0030_AZURE: DEFERRED_BY_USER
 ```
 
-User authorized bounded synthetic live-provider qualification. Dispatch `0072-CODEX-03`を返却した。現行isolated Apps Script targetのScript PropertiesにDirect OpenAI / Geminiのkey項目はなく、generic local OpenAI keyのtest境界も未証明であるため、`NO_AUTHORIZED_PROVIDER_CREDENTIAL`でQ1〜Q4は`NOT_RUN`。provider call、index、source sync、version、deployment updateは各0。詳細はCODEX-03 reportを参照。会社/機密dataは引き続き対象外。
+User authorized bounded synthetic live-provider qualification. Dispatch `0072-CODEX-03`の再実行では、現行isolated Apps Script targetのScript PropertiesにDirect OpenAI / Geminiのkey項目を確認した。OpenAI既存Storeのtest-only帰属・内容とGemini通常Storeの安全な作成・cleanup経路が未証明のため、`SAFE_ISOLATED_PROVIDER_STORE_PATH_UNPROVEN`でQ1〜Q4は`NOT_RUN`。provider call、index、source sync、version、deployment updateは各0。詳細はCODEX-03 reportを参照。会社/機密dataは引き続き対象外。
