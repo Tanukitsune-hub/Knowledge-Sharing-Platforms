@@ -2,8 +2,8 @@
 
 WORK_ID: 0072
 ACTIVE_DISPATCH_ID: 0072-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 PHASE: FOUR_SOURCE_CORE
@@ -32,7 +32,7 @@ Meeting / Pitchbook / News / Internal Assessmentを同じcanonical source scope�
 
 | Dispatch ID | Purpose | Mode | Ball | Status | Instruction | Report |
 |---|---|---|---|---|---|---|
-| 0072-CODEX-01 | provider-disabled four-source Knowledge Search core + provenance + provider-independent Full Output subset | BUILD | CODEX | READY | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md` | pending |
+| 0072-CODEX-01 | provider-disabled four-source Knowledge Search core + provenance + provider-independent Full Output subset | BUILD | CHATGPT | RETURNED | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md` | `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-report.md` |
 
 ## Authorization
 
@@ -52,5 +52,5 @@ Work0072をACCEPTEDにしない。
 
 WORK_ID: 0072
 DISPATCH_ID: 0072-CODEX-01
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
