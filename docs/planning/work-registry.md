@@ -1,6 +1,6 @@
 # Work Registry and Delivery Order
 
-Current as of: 2026-09-25
+Current as of: 2026-09-26
 Status: Active planning source of truth
 
 ## Purpose and identity rules
@@ -21,6 +21,21 @@ Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
 
 Work0071 plan: `docs/planning/work0071-interaction-stability-ux.md`
 Product direction: `docs/product/stable-interaction-layout.md`
+
+
+## Post-0071 next-work decision
+
+Work0071 is ACCEPTED. No Work0072 has been allocated.
+
+Current candidate outcomes, in dependency order rather than priority:
+
+1. Source-aware AI layer: 4-source Knowledge Search source selection/provenance and provider-neutral Full Output parity from Work0069. Requires approved provider credential/data-policy boundary where provider calls are involved; provider-independent Full Output materialization can be split if useful.
+2. Historical-material migration: still PLANNED and unassigned; select approach from the actual corpus after current record/storage format is stable.
+3. Final company qualification and rollout: still PLANNED and unassigned; requires explicit company-environment authorization, credentials/Shared Drive/permissions readiness, migration choice, and rollout boundary.
+4. Work0030 Azure OpenAI provider transition remains DEFERRED_BY_USER and must not restart without explicit reactivation.
+
+Company production rollout of release 0.2.2 is not part of Work0071 and requires a new Work with explicit authorization.
+
 
 ## Current delivery sequence
 
@@ -56,10 +71,10 @@ Product direction: `docs/product/stable-interaction-layout.md`
 | 27 | 0050 | Theme Color Tool — picker + HEX/RGB + copy + token apply | ACCEPTED | Work0049 version31 | PR #72 / version32 accepted。Completion Latch済み |
 | 28 | 0051 | Backend daily backup + 30-day retention | ACCEPTED | Work0050 version32 | PR #73/#79/#80 / version33 accepted。Completion Latch済み |
 | 29 | 0052 | Missing source graceful failure | ACCEPTED | Work0051 version33 | PR #81/#82 / version34 accepted。Completion Latch済み |
-| 30 | 0053 | User-facing Japanese copy naturalization | ACTIVE | Work0052 version34 | PR #83 merged; CODEX-03 final runtime qualification / version35 target |
-| 31 | 0054 | Roleless Admin Page | PLANNED | Work0053 accepted baseline | Keep 管理者ページ; no account-level admin role; equal app permission for Web App users |
-| 32 | 0055 | Theme Color Tool hue bar / swatch refinement | PLANNED | Work0054 accepted baseline | Rainbow hue track + vertical indicator; selected-color swatch ~2x width |
-| 33 | 0056 | Entity Workspace 390px overflow fix | PLANNED | Work0055 accepted baseline | Pre-existing mobile overflow follow-up; all seven pages 390px overflow 0 |
+| 30 | 0053 | User-facing Japanese copy naturalization | ACCEPTED | Work0052 version34 | PR #83/#84 / version35 accepted; preserve evidence |
+| 31 | 0054 | Roleless Admin Page | ACCEPTED | Work0053 accepted baseline | PR #85 accepted; preserve roleless admin-page boundary |
+| 32 | 0055 | Theme Color Tool hue bar / swatch refinement | ACCEPTED | Work0054 accepted baseline | PR #87 accepted; preserve color-tool behavior |
+| 33 | 0056 | Entity Workspace 390px overflow fix | ACCEPTED | Work0055 accepted baseline | PR #88 accepted; 390px Entity Workspace overflow 0 |
 | 34 | Unassigned future Work | Optional admin-page shared password gate | DEFERRED | Near final rollout | Shared password to open 管理者ページ only; not account-level RBAC; user decision pending |
 | 35 | 0030 | Company Azure OpenAI provider transition + File Search qualification | DEFERRED | Counterparty-centered baseline acceptance後もuser holdを維持 | User hold 2026-09-17; explicit reactivation decisionまで開始しない |
 | 36 | Unassigned future Work | Representative large-file qualification/recovery | DEFERRED | Small synthetic path qualified | Allocate separate Work if needed |
