@@ -1,25 +1,25 @@
 {
   "format": "company-multifile-v1",
   "product": "Alternative Assets Intelligence",
-  "release_version": "0.2.2",
+  "release_version": "0.2.3",
   "schema_version": 9,
-  "bundle_source_commit": "55bac220d4ea25d2c9f965fd0e8d504f0a0128f6",
-  "canonical_bundle_sha256": "02758480684b5e985182270fc73705b75b29592bef990ebfb4821beee79cc406",
-  "canonical_bundle_payload_sha256": "082d25b097ad1bbc9a6071040e58d2cfc4fac9abcf649630a8d810a92b309415",
-  "concatenated_bytes": 1421541,
-  "concatenated_sha256": "02758480684b5e985182270fc73705b75b29592bef990ebfb4821beee79cc406",
+  "bundle_source_commit": "32f120eca8b1d94822c00762e59f4b202a7f1465",
+  "canonical_bundle_sha256": "60799e8afef33f29477a02924e40121fb384b522c7564029ffcb13dc1baf38fc",
+  "canonical_bundle_payload_sha256": "009e99f3dab080ff3cc0a6c589f4823bb8c3a22731f35ea82a978c58b1e051c6",
+  "concatenated_bytes": 1458996,
+  "concatenated_sha256": "60799e8afef33f29477a02924e40121fb384b522c7564029ffcb13dc1baf38fc",
   "ordered_files": [
     {
       "name": "00_BundleResources.gs",
-      "bytes": 423791,
-      "sha256": "95568e41fd49c000945073c55d1594c7bdc4de898536f7a7cdb8f66bca3efd17",
+      "bytes": 426734,
+      "sha256": "09165ef4fb3e67b93a425e7f1b41d6327793fea22e8f0226b640708d546b967e",
       "text_attachment": "00_BundleResources.txt",
       "source_sections": []
     },
     {
       "name": "10_ServerPart01.gs",
-      "bytes": 162777,
-      "sha256": "fc14103e09e9ddf6f791314eee8964b7accfb6b6024ab91b22884a686f31ec5e",
+      "bytes": 165613,
+      "sha256": "c02d267bbdab3cad2d6cafee2057d2ac26139a6deebdfe7e1ac0c3e94e7a454d",
       "text_attachment": "10_ServerPart01.txt",
       "source_sections": [
         "src/00_Core.gs",
@@ -33,16 +33,16 @@
         "src/22_BackendBackupLive.gs",
         "src/30_MeetingCore.gs",
         "src/40_MeetingService.gs",
-        "src/50_MeetingLiveEnvironment.gs"
+        "src/50_MeetingLiveEnvironment.gs",
+        "src/60_PitchbookConstants.gs"
       ]
     },
     {
       "name": "20_ServerPart02.gs",
-      "bytes": 159745,
-      "sha256": "b5dbb33030fb742de69d16ce1c544ec837d560a897aeeb7ffba15bb233c96408",
+      "bytes": 168853,
+      "sha256": "4e6cf37ffb64ccfea78cea1291358c914a27a47734cfed839ad75e6f29ade56c",
       "text_attachment": "20_ServerPart02.txt",
       "source_sections": [
-        "src/60_PitchbookConstants.gs",
         "src/61_PitchbookValidation.gs",
         "src/62_PitchbookIdentity.gs",
         "src/63_PitchbookAudit.gs",
@@ -61,16 +61,16 @@
         "src/88_SourceRecordMaintenance.gs",
         "src/90_WebApp.gs",
         "src/99_EntryPoints.gs",
-        "src/100_MaintenanceCore.gs"
+        "src/100_MaintenanceCore.gs",
+        "src/110_MaintenanceMeetingService.gs"
       ]
     },
     {
       "name": "30_ServerPart03.gs",
-      "bytes": 160614,
-      "sha256": "4d03f309e99f85d79624277c5ac73b91832d664f1c2d4dc28702dd90ebe2c270",
+      "bytes": 174985,
+      "sha256": "55b957104a84ccb58f7217a0273bb2704dc933a9704c87738c23a9a196555f8e",
       "text_attachment": "30_ServerPart03.txt",
       "source_sections": [
-        "src/110_MaintenanceMeetingService.gs",
         "src/111_MaintenancePitchbookMasterService.gs",
         "src/112_MaintenanceServiceHelpers.gs",
         "src/120_MaintenanceLiveEnvironment.gs",
@@ -82,16 +82,16 @@
         "src/130_AiConstants.gs",
         "src/131_AiFileSearchContracts.gs",
         "src/132_AiKnowledgeContracts.gs",
-        "src/133_AiRetryContracts.gs"
+        "src/133_AiRetryContracts.gs",
+        "src/134_AiModelPolicyContracts.gs"
       ]
     },
     {
       "name": "40_ServerPart04.gs",
-      "bytes": 167535,
-      "sha256": "0657852a96ed79d6a70411aa9fc4ef2496f6993a4c085a1ad8c6872f010b2943",
+      "bytes": 169858,
+      "sha256": "f40564c24ab5f3bb8f31002e41cd408b211209ef51480535194c66f45eb8c897",
       "text_attachment": "40_ServerPart04.txt",
       "source_sections": [
-        "src/134_AiModelPolicyContracts.gs",
         "src/140_AiSourceModels.gs",
         "src/141_AiSyncHelpers.gs",
         "src/142_AiSyncWorker.gs",
@@ -106,8 +106,8 @@
     },
     {
       "name": "50_ServerPart05.gs",
-      "bytes": 162337,
-      "sha256": "836f3f147281815edbed7a894945820a39dbafe83f7283894b8e19dce841294c",
+      "bytes": 165331,
+      "sha256": "9805c149291515ad48787f804390f928fde342a53203c369ed7fd29a0164e3db",
       "text_attachment": "50_ServerPart05.txt",
       "source_sections": [
         "src/161_GeminiRestClient.gs",
@@ -118,8 +118,8 @@
     },
     {
       "name": "60_ServerPart06.gs",
-      "bytes": 184742,
-      "sha256": "511b01f538296d7ba68b0f8f9c127cad42f6e6c3b437e726ea42add009f88039",
+      "bytes": 187622,
+      "sha256": "ed205bf7e49c3b7668b184fff9f091dedfce0b51d767bd60fcaa9bee6b27e235",
       "text_attachment": "60_ServerPart06.txt",
       "source_sections": [
         "src/165_AiProviderAdmin.gs",
