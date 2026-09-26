@@ -39,7 +39,7 @@ test('Knowledge Export UI is deterministic, keyboard-native, and Gemini-independ
   ]) {
     assert.ok((page + '\n' + client).includes(token), token);
   }
-  assert.match(page, /面談記録の原文と登録情報を書き出します/);
+  assert.match(page, /原文と出典情報を書き出します/);
   assert.match(page, /所属組織の利用ルールと許可されたサービスに従ってください/);
   assert.match(standalone, /include_\('KnowledgeSearchPage'\)/);
   assert.match(standalone, /include_\('ClientKnowledgeSearch'\)/);

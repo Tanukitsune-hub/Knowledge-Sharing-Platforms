@@ -335,6 +335,10 @@ function kspBuildOpenAiFilter_(filters) {
   var input = kspKnowledgeRequestFilters_(request);
   var clauses = [];
   var sourceTypes = kspNormalizeKnowledgeSourceTypes_(request);
+  var nestedFilters = request.filters && typeof request.filters === 'object' ? request.filters : {};
+  var explicitSourceSelection = Object.prototype.hasOwnProperty.call(request, 'sourceTypes') ||
+    Object.prototype.hasOwnProperty.call(nestedFilters, 'sourceTypes') ||
+    Boolean(kspAiTrim_(request.sourceType || nestedFilters.sourceType));
   var authoritativeOnly = request.advancedFilterResolved === true &&
     sourceTypes.some(function (type) {
       return type === KSP_AI_SOURCE_TYPES.NEWS || type === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT;
@@ -356,10 +360,12 @@ function kspBuildOpenAiFilter_(filters) {
     add('eq', 'follow_up_required', input.followUp === KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.REQUIRED ? 'true' :
       (input.followUp === KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.NOT_REQUIRED ? 'false' : ''));
   }
-  if (sourceTypes.length === 1) add('eq', 'source_type', sourceTypes[0]);
-  else clauses.push({ type: 'or', filters: sourceTypes.map(function (type) {
-    return { type: 'eq', key: 'source_type', value: type };
-  }) });
+  if (explicitSourceSelection) {
+    if (sourceTypes.length === 1) add('eq', 'source_type', sourceTypes[0]);
+    else clauses.push({ type: 'or', filters: sourceTypes.map(function (type) {
+      return { type: 'eq', key: 'source_type', value: type };
+    }) });
+  }
   add('eq', 'source_id', input.sourceId);
   var selectedEntityKeys = Array.isArray(request.selectedEntityKeys) ? request.selectedEntityKeys : [];
   if (!authoritativeOnly && selectedEntityKeys.length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN) {
