@@ -52,7 +52,9 @@ async function serverCall(name,payload){
     {sourceType:'Pitchbook',sourceId:'DOC-000001',label:'保存資料 / 2026-09-26 / Synthetic P / DOC-000001',syncStatus:'NotIndexed'},
     {sourceType:'News',sourceId:'NEWS-000001',label:'ニュース / 2026-09-26 / Synthetic N / NEWS-000001',syncStatus:'NotIndexed'},
     {sourceType:'Internal Assessment',sourceId:'ASMT-000001',label:'評価 / 2026-09-26 / Synthetic I / ASMT-000001',syncStatus:'NotIndexed'}]};
-  if(name==='mutateAiProviderSettings')return {ok:true,sync:{selected:1,indexed:1,remaining:3,batchComplete:false}};
+  if(name==='mutateAiProviderSettings')return {ok:true,sync:payload.sourceId
+    ?{selected:1,indexed:1,remaining:3,batchComplete:false}
+    :{selected:3,indexed:2,unchanged:1,remaining:0,batchComplete:true}};
   return {ok:true};
 }
 </script>`;
@@ -121,12 +123,18 @@ async function main(){
       await page.waitForFunction(()=>document.getElementById('ai-setup-sync-source').options.length===5);
       await page.locator('#ai-setup-sync-type').selectOption('News');
       assert.equal(await page.locator('#ai-setup-sync-source option').count(),2);
+      await page.locator('#ai-setup-sync-source').selectOption('News|NEWS-000001');
+      await page.locator('#ai-setup-sync-run').click();
+      await page.waitForFunction(()=>document.getElementById('ai-setup-sync-status').textContent.includes('残り 3件'));
+      await page.locator('#ai-setup-sync-remaining').click();
+      await page.waitForFunction(()=>document.getElementById('ai-setup-sync-status').textContent.includes('全体完了'));
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
       assert.deepEqual(errors,[]);
       await page.screenshot({path:path.join(evidenceDir,label+'.png'),fullPage:false});
       findings.push({viewport:[width,height],page:url,overflow:false,consoleErrors:errors,
         savedModels:['gpt-synthetic-list','gpt-manual-unlisted'],unknownResultNoRetry:true,
         fourSourceCandidates:true,expertVariantSameSave:true,staleReadDeniedSecretAction:true,
+        syncPartialAndComplete:true,
         screenshot:path.join(evidenceDir,label+'.png')});
       await page.close();
     }

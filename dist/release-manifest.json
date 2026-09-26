@@ -1,26 +1,26 @@
 {
   "product": "Alternative Assets Intelligence",
-  "release_version": "0.2.3",
+  "release_version": "0.2.4",
   "schema_version": 9,
-  "source_git_commit": "de0128791e4f29739ed6979989d466086bbf7a30",
+  "source_git_commit": "844024f55ad19c4a084aadedb4f8b21aa001446c",
   "bundle_profile": "company-single-file-v1",
   "hash_canonicalization_version": "ksp-bundle-payload-v1",
-  "bundle_payload_sha256": "7e403bf2fd48701dc0eab6c8c5fd81230ee97d7821d1413016d55ba34f9ace57",
-  "bundle_file_sha256": "ef4fa15273d16d6dfd19fe567f4fdfe75f5dfea1b19e5778bd9dc6df44377a66",
+  "bundle_payload_sha256": "9e08fb72df104165eb424eb987e694d28f53c4c91d9df354ab443b39545935bd",
+  "bundle_file_sha256": "e3164d1de9520fc60ad48e0f0deef8589ed94525fd7fe04b53d97c0a5ee5e604",
   "source_manifest_sha256": "c1d3d6b48cd4d66dbe4cf5d571bdeee35984bd8899ae4da798e5d954572e8e1f",
-  "source_order_sha256": "1d04e4b03bf18a4268a8f91669aa9031abf33f03f6a4d8936500f59cbdeeba8a",
+  "source_order_sha256": "08300aa2bb7e1edcd1a3f18462893a0d8ecb2653ccb019d6e01184662c4466af",
   "bundle_metrics": {
-    "bytes": 1460567,
-    "characters": 1406340,
-    "lines": 21331,
-    "server_source_count": 67,
-    "embedded_html_count": 24
+    "bytes": 1525063,
+    "characters": 1468450,
+    "lines": 22347,
+    "server_source_count": 68,
+    "embedded_html_count": 25
   },
   "server_sources": [
     {
       "file": "src/00_Core.gs",
       "bytes": 35635,
-      "sha256": "f237402cd276157929b0b758bc2c3155351e3b9a35e8feb72987ac0a9742f27d"
+      "sha256": "af9c2363418b1348fe3af3bf421c0d76b7437aebbfc0c4466327b16bb80243d5"
     },
     {
       "file": "src/01_DistributionResources.gs",
@@ -224,8 +224,8 @@
     },
     {
       "file": "src/130_AiConstants.gs",
-      "bytes": 9485,
-      "sha256": "cb8ea7123f50565fbb10d364d7a93891e0fe79307fe6dc428813507e862adaa0"
+      "bytes": 9611,
+      "sha256": "f81dce2074ac6b0477e325b8d20b2653342a008e5eb2bc60836842d44808d6d1"
     },
     {
       "file": "src/131_AiFileSearchContracts.gs",
@@ -244,8 +244,8 @@
     },
     {
       "file": "src/134_AiModelPolicyContracts.gs",
-      "bytes": 25035,
-      "sha256": "54168857b6547cc4caba66ab095d9d43e448989c9ab7ea6a6be07ef5a8a904a2"
+      "bytes": 26840,
+      "sha256": "8966096bff63bb72ccc57fb844a249528630993c6867e1c6983e62f048c78cfd"
     },
     {
       "file": "src/140_AiSourceModels.gs",
@@ -294,13 +294,13 @@
     },
     {
       "file": "src/160_AiEnvironment.gs",
-      "bytes": 8796,
-      "sha256": "8267873c2eb6149f999c04860f701cb60a79ff09ed9587e594089584b691ef78"
+      "bytes": 24184,
+      "sha256": "33f7be3f3a1da3419e9bda9480178a16593d59d8755318968762b0a1fb993ba1"
     },
     {
       "file": "src/161_GeminiRestClient.gs",
-      "bytes": 39998,
-      "sha256": "be3c185a89033fd4d5768d4f2b960c3858dddbcaeca3cd08485b60a9ca6b453f"
+      "bytes": 42144,
+      "sha256": "28a8d78c3977989d200a7e66fe3e6e9ffb3dae02d336b50b40a6fbd7f5c0e4b5"
     },
     {
       "file": "src/162_AiLiveDataAdapters.gs",
@@ -309,18 +309,23 @@
     },
     {
       "file": "src/163_OpenAiRestClient.gs",
-      "bytes": 13417,
-      "sha256": "cc92a322bdf09f0347ce800c0c976a29c7876f1a596d6830ac9c70375809404e"
+      "bytes": 14153,
+      "sha256": "7842dfbba54296149f6cab6d967377ce30262cbffba92a9ddd7dee6975638455"
     },
     {
       "file": "src/164_AiProviderCore.gs",
-      "bytes": 107320,
-      "sha256": "8197b90d7e956e4c7cf69178f0da7e3d4966bdce0902cfb3d6a99fe65cabbb7a"
+      "bytes": 107396,
+      "sha256": "8f5d43331a9769d0e376a0b896f0944f3e76da3573a070af1a5f0b8c68c83574"
     },
     {
       "file": "src/165_AiProviderAdmin.gs",
-      "bytes": 118040,
-      "sha256": "009963f621c3f4a842a38724fd91353de52dbac53989ee35037a8e355007a0b2"
+      "bytes": 119236,
+      "sha256": "357d863da4af6c32924d31f06661059fd07fe7f6bff054dab4bfcc4f3b03d4e2"
+    },
+    {
+      "file": "src/166_AiModelSetup.gs",
+      "bytes": 31041,
+      "sha256": "5150184b9a948e2ed9db3fabec8172d84b14a28ca4d0cab44128af4e4ecfbd59"
     },
     {
       "file": "src/166_ThemeSettings.gs",
@@ -329,8 +334,8 @@
     },
     {
       "file": "src/170_AiEntryPoints.gs",
-      "bytes": 1638,
-      "sha256": "8b29e1de5086ae94891ddea5dc8579e6a84007ff97f53016e50302dfd482c9dc"
+      "bytes": 2874,
+      "sha256": "cc1c794c903d25950a927beb9635595577276ce6888934cf781ff47b94149044"
     },
     {
       "file": "src/180_FeatureFreezeFormats.gs",
@@ -361,8 +366,8 @@
     },
     {
       "file": "src/AiProviderSettingsPage.html",
-      "bytes": 14252,
-      "sha256": "f66348f0da8fd9f80fbfe96f707343c564f046c92ebae70afbcd47d7c6d52f6f"
+      "bytes": 14517,
+      "sha256": "622ee6890c833e0fef8d662eab48f3fcdc0b94c30f8c74d9d08e7307a2002075"
     },
     {
       "file": "src/ClientActivityAnalytics.html",
@@ -371,8 +376,13 @@
     },
     {
       "file": "src/ClientAiProviderSettings.html",
-      "bytes": 20343,
-      "sha256": "73be9a792cfedbe3e48289b167064f74a7789105cbc9d89c748a4f3e6cef786c"
+      "bytes": 8834,
+      "sha256": "2ee3227ae232f2737a5afee5bd69135d68dd7060ba5c1bcca0816c962c05833f"
+    },
+    {
+      "file": "src/ClientAiModelSetup.html",
+      "bytes": 21500,
+      "sha256": "7ec3a413f57de4a605fdcefc98db334e6dfceef4b0c0c884ecc79b5a0c6234cb"
     },
     {
       "file": "src/ClientBootstrap.html",
@@ -446,8 +456,8 @@
     },
     {
       "file": "src/Index.html",
-      "bytes": 31587,
-      "sha256": "a66c4e11164afe65f843c6b0707d2a1daac43b74e9bfa7b845db30581f9599bb"
+      "bytes": 31627,
+      "sha256": "230f354c05bc5575e72726695b1373e30a4718d6e8ee65b9140fdd42442d4af5"
     },
     {
       "file": "src/KnowledgeSearch.html",

@@ -6,11 +6,11 @@ const vm = require('node:vm');
 
 const BASIS = Object.freeze({
   product: 'Alternative Assets Intelligence',
-  release: '0.2.3',
+  release: '0.2.4',
   schema: 9,
-  sourceCommit: 'de0128791e4f29739ed6979989d466086bbf7a30',
-  bundleSha256: 'ef4fa15273d16d6dfd19fe567f4fdfe75f5dfea1b19e5778bd9dc6df44377a66',
-  payloadSha256: '7e403bf2fd48701dc0eab6c8c5fd81230ee97d7821d1413016d55ba34f9ace57'
+  sourceCommit: '844024f55ad19c4a084aadedb4f8b21aa001446c',
+  bundleSha256: 'e3164d1de9520fc60ad48e0f0deef8589ed94525fd7fe04b53d97c0a5ee5e604',
+  payloadSha256: '9e08fb72df104165eb424eb987e694d28f53c4c91d9df354ab443b39545935bd'
 });
 const OUTPUT_DIR = path.join('dist', 'company-multifile');
 const GS_NAMES = Object.freeze([

@@ -1,329 +1,3 @@
-// ===== BEGIN src/111_MaintenancePitchbookMasterService.gs =====
-function kspGetPitchbookMaintenanceRecord_(environment, documentId) {
-  try {
-    var context = kspLoadMaintenanceContext_(environment);
-    var row = kspRequireSingleRow_(context.pitchbookRows, 'Document_ID', documentId, 'PITCHBOOK_NOT_FOUND');
-    return { ok: true, workId: KSP_MAINTENANCE_WORK_ID,
-      record: kspMapPitchbookSearchResult_(row, kspBuildCatalogMaps_(context.catalog)) };
-  } catch (error) {
-    return kspMaintenanceFailure_(error);
-  }
-}
-
-function kspUpdatePitchbookMaintenance_(environment, rawInput) {
-  var warnings = [];
-  var actor = kspGetMaintenanceActorSafely_(environment, warnings);
-  var context = null;
-  var claim = null;
-  var fileSnapshot = null;
-  var currentRow = null;
-  try {
-    context = kspLoadMaintenanceContext_(environment);
-    var input = kspNormalizePitchbookEditInput_(rawInput);
-    var storedContext = kspRequireSingleRow_(context.pitchbookRows, 'Document_ID', input.documentId, 'PITCHBOOK_NOT_FOUND');
-    if (storedContext.Parent_Meeting_ID) {
-      input.counterpartyId = kspMeetingCounterpartyId_(storedContext);
-    }
-    var selected = kspValidatePitchbookEditInput_(input, context.catalog);
-    input.counterpartyType = selected.counterpartyEntity.type;
-    claim = environment.claimRecordEdit(
-      'Pitchbook', input.documentId, KSP_SHEET_NAMES.PITCHBOOK_INDEX,
-      'Document_ID', 'Updated_At', input.expectedUpdatedAt, environment.nowIso(), KSP_MAINTENANCE_LIMITS.EDIT_CLAIM_TTL_MS
-    );
-    currentRow = claim.row;
-    kspAssert_(String(currentRow.File_ID || ''), 'PITCHBOOK_AUTHORITATIVE_FILE_MISSING',
-      'Drive原本がない資料はメタデータ編集できません。');
-    var sequenceNo = Number(currentRow.Sequence_No || 0);
-    if (kspPitchbookContextChanged_(currentRow, input)) {
-      sequenceNo = environment.reservePitchbookEditSequence(claim, input);
-    }
-    var filename = kspBuildPitchbookSavedFilename_(input, selected, sequenceNo, currentRow.Original_Filename);
-    fileSnapshot = environment.getDriveFileSnapshot(String(currentRow.File_ID));
-    environment.renameDriveFile(String(currentRow.File_ID), filename);
-    var nowIso = environment.nowIso();
-    var updatedRow = kspBuildPitchbookEditedRow_(currentRow, input, actor, nowIso, sequenceNo, filename);
-    var committed = environment.commitClaimedPitchbookEdit(
-      claim, input.documentId, input.expectedUpdatedAt, updatedRow
-    );
-    kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
-      timestamp: environment.nowIso(), actor: actor, action: KSP_MAINTENANCE_ACTIONS.PITCHBOOK_UPDATE,
-      targetType: 'Pitchbook', targetId: input.documentId, batchId: currentRow.Batch_ID,
-      result: KSP_AUDIT_RESULTS.SUCCESS, before: kspPitchbookAuditSnapshot_(currentRow),
-      after: kspPitchbookAuditSnapshot_(committed),
-      changedFields: kspChangedMetadataFields_(kspPitchbookAuditSnapshot_(currentRow), kspPitchbookAuditSnapshot_(committed))
-    }, warnings);
-    return { ok: true, workId: KSP_MAINTENANCE_WORK_ID,
-      record: kspMapPitchbookSearchResult_(committed, kspBuildCatalogMaps_(context.catalog)), warnings: warnings };
-  } catch (error) {
-    if (fileSnapshot && currentRow) {
-      try {
-        if (!claim || environment.isRecordEditClaimOwned(claim)) {
-          environment.restoreDriveFileSnapshot(String(currentRow.File_ID || ''), fileSnapshot);
-        } else {
-          warnings.push({ code: 'PITCHBOOK_FILENAME_RESTORE_SKIPPED', message: '編集権が別処理へ移ったため、古いfilename snapshotの復元を行いませんでした。' });
-        }
-      } catch (restoreError) { warnings.push({ code: 'PITCHBOOK_FILENAME_RESTORE_FAILED', message: kspSafeOperationalWarning_('PITCHBOOK_FILENAME_RESTORE_FAILED') }); }
-    }
-    if (claim) {
-      try { environment.releaseRecordEditClaim(claim); }
-      catch (releaseError) { warnings.push({ code: 'PITCHBOOK_EDIT_CLAIM_RELEASE_FAILED', message: kspSafeOperationalWarning_('PITCHBOOK_EDIT_CLAIM_RELEASE_FAILED') }); }
-    }
-    if (context) kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
-      timestamp: environment.nowIso(), actor: actor, action: KSP_MAINTENANCE_ACTIONS.PITCHBOOK_UPDATE,
-      targetType: 'Pitchbook', targetId: rawInput && rawInput.documentId,
-      result: KSP_AUDIT_RESULTS.FAILURE, errorCode: kspGetErrorCode_(error), errorMessage: kspSafePublicErrorMessage_(kspGetErrorCode_(error), 'MAINTENANCE')
-    }, warnings);
-    return kspMaintenanceFailure_(error, warnings);
-  }
-}
-
-function kspChangePitchbookStatus_(environment, rawInput) {
-  var warnings = [];
-  var actor = kspGetMaintenanceActorSafely_(environment, warnings);
-  var context = null;
-  try {
-    context = kspLoadMaintenanceContext_(environment);
-    var input = rawInput || {};
-    var documentId = kspMaintenanceTrim_(input.documentId);
-    var expectedUpdatedAt = kspMaintenanceTrim_(input.expectedUpdatedAt);
-    kspAssert_(expectedUpdatedAt, 'PITCHBOOK_EXPECTED_UPDATED_AT_REQUIRED', '更新トークンがありません。');
-    var targetStatus = kspMaintenanceTrim_(input.targetStatus);
-    kspParseDocumentId_(documentId);
-    kspAssert_(targetStatus === KSP_STATUS.ACTIVE || targetStatus === KSP_STATUS.INACTIVE,
-      'PITCHBOOK_TARGET_STATUS_INVALID', 'Pitchbook Statusが不正です。');
-    var result = environment.updatePitchbookStatusAtomic(
-      documentId, expectedUpdatedAt, targetStatus, actor, environment.nowIso()
-    );
-    var action = targetStatus === KSP_STATUS.ACTIVE
-      ? KSP_MAINTENANCE_ACTIONS.PITCHBOOK_REACTIVATE : KSP_MAINTENANCE_ACTIONS.PITCHBOOK_DEACTIVATE;
-    kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
-      timestamp: environment.nowIso(), actor: actor, action: action,
-      targetType: 'Pitchbook', targetId: documentId, batchId: result.after.Batch_ID,
-      result: KSP_AUDIT_RESULTS.SUCCESS, before: kspPitchbookAuditSnapshot_(result.before),
-      after: kspPitchbookAuditSnapshot_(result.after),
-      changedFields: ['Status', 'Updated_At', 'Updated_By', 'AI_Index_Status']
-    }, warnings);
-    return { ok: true, workId: KSP_MAINTENANCE_WORK_ID,
-      record: kspMapPitchbookSearchResult_(result.after, kspBuildCatalogMaps_(context.catalog)), warnings: warnings };
-  } catch (error) {
-    if (context) kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
-      timestamp: environment.nowIso(), actor: actor,
-      action: rawInput && rawInput.targetStatus === KSP_STATUS.ACTIVE
-        ? KSP_MAINTENANCE_ACTIONS.PITCHBOOK_REACTIVATE : KSP_MAINTENANCE_ACTIONS.PITCHBOOK_DEACTIVATE,
-      targetType: 'Pitchbook', targetId: rawInput && rawInput.documentId,
-      result: KSP_AUDIT_RESULTS.FAILURE, errorCode: kspGetErrorCode_(error), errorMessage: kspSafePublicErrorMessage_(kspGetErrorCode_(error), 'MAINTENANCE')
-    }, warnings);
-    return kspMaintenanceFailure_(error, warnings);
-  }
-}
-
-function kspMutateMaster_(environment, rawInput) {
-  var warnings = [];
-  var actor = kspGetMaintenanceActorSafely_(environment, warnings);
-  var context = null;
-  try {
-    context = kspLoadMaintenanceContext_(environment);
-    var input = kspValidateMasterMutation_(kspNormalizeMasterMutation_(rawInput));
-    var result = environment.mutateMasterAtomic(input, actor, environment.nowIso());
-    var action = kspMasterActionName_(input);
-    var beforeAudit = result.before ? kspMasterAuditSnapshot_(input.entity, result.before) : null;
-    var afterAudit = kspMasterAuditSnapshot_(input.entity, result.after);
-    var changedFields = result.before
-      ? kspChangedMetadataFields_(beforeAudit, afterAudit)
-      : Object.keys(afterAudit);
-    if (input.entity === KSP_MASTER_ENTITY.OPTION && input.action === KSP_MASTER_MUTATION.REORDER) {
-      beforeAudit = { moved: beforeAudit, affectedOptions: kspOptionOrderAuditSnapshot_(result.affectedBefore) };
-      afterAudit = { moved: afterAudit, affectedOptions: kspOptionOrderAuditSnapshot_(result.affectedRows) };
-      changedFields = ['Option_Order'];
-    } else if (input.entity === KSP_MASTER_ENTITY.OPTION && input.action === KSP_MASTER_MUTATION.REORDER_BATCH) {
-      beforeAudit = { affectedOptions: kspOptionOrderAuditSnapshot_(result.affectedBefore) };
-      afterAudit = { affectedOptions: kspOptionOrderAuditSnapshot_(result.affectedRows) };
-      changedFields = ['Option_Order'];
-    }
-    kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
-      timestamp: environment.nowIso(), actor: actor, action: action,
-      targetType: input.entity === KSP_MASTER_ENTITY.COUNTERPARTY ? 'Counterparty_Master' : 'Option_Master',
-      targetId: input.action === KSP_MASTER_MUTATION.REORDER_BATCH ? input.type :
-        (input.entity === KSP_MASTER_ENTITY.COUNTERPARTY ? result.after.Counterparty_ID : result.after.Option_ID),
-      result: KSP_AUDIT_RESULTS.SUCCESS,
-      before: beforeAudit,
-      after: afterAudit,
-      changedFields: changedFields
-    }, warnings);
-    var refreshed = kspLoadMaintenanceContext_(environment);
-    return { ok: true, workId: KSP_MAINTENANCE_WORK_ID,
-      record: result.after, masters: kspBuildMasterResponse_(refreshed.counterpartyRows, refreshed.optionRows), warnings: warnings };
-  } catch (error) {
-    if (context) kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
-      timestamp: environment.nowIso(), actor: actor,
-      action: kspMasterActionName_(kspNormalizeMasterMutation_(rawInput || {})),
-      targetType: rawInput && rawInput.entity,
-      targetId: rawInput && (rawInput.action === KSP_MASTER_MUTATION.REORDER_BATCH ? rawInput.type : rawInput.id),
-      result: KSP_AUDIT_RESULTS.FAILURE, errorCode: kspGetErrorCode_(error), errorMessage: kspSafePublicErrorMessage_(kspGetErrorCode_(error), 'MAINTENANCE')
-    }, warnings);
-    return kspMaintenanceFailure_(error, warnings);
-  }
-}
-
-function kspQuickAddCounterparty_(environment, name, type) {
-  var result = kspMutateMaster_(environment, { entity: KSP_MASTER_ENTITY.COUNTERPARTY,
-    action: KSP_MASTER_MUTATION.ADD, name: name, type: type, returnExistingOnDuplicate: true });
-  if (result.ok) result.counterparty = { id: result.record.Counterparty_ID,
-    name: result.record.Counterparty_Name, type: result.record.Counterparty_Type, status: result.record.Status };
-  return result;
-}
-
-function kspQuickAddGp_(environment, name) {
-  return kspQuickAddCounterparty_(environment, name, 'GP');
-}
-
-function kspRunAuditRetentionCleanup_(environment) {
-  var warnings = [];
-  var actor = kspGetMaintenanceActorSafely_(environment, warnings);
-  var context = null;
-  try {
-    context = kspLoadMaintenanceContext_(environment);
-    var nowIso = environment.nowIso();
-    var cutoff = kspAuditRetentionCutoff_(nowIso, KSP_AUDIT_RETENTION_YEARS);
-    var result = environment.deleteAuditRowsBefore(context.auditSpreadsheetId, cutoff);
-    kspTryMaintenanceAudit_(environment, context.auditSpreadsheetId, {
-      timestamp: environment.nowIso(), actor: actor, action: KSP_MAINTENANCE_ACTIONS.AUDIT_RETENTION_CLEANUP,
-      targetType: 'Audit_Log', targetId: '', result: KSP_AUDIT_RESULTS.SUCCESS,
-      after: { cutoff: cutoff, deletedRows: result.deletedRows }, changedFields: ['deletedRows']
-    }, warnings);
-    return { ok: true, workId: KSP_MAINTENANCE_WORK_ID,
-      cutoff: cutoff, deletedRows: result.deletedRows, warnings: warnings };
-  } catch (error) {
-    return kspMaintenanceFailure_(error, warnings);
-  }
-}
-// ===== END src/111_MaintenancePitchbookMasterService.gs =====
-
-// ===== BEGIN src/112_MaintenanceServiceHelpers.gs =====
-function kspWorkspaceSafeDriveLink_(value, fileId) {
-  var candidate = String(value || '').trim();
-  var expectedId = String(fileId || '').trim();
-  if (!expectedId || !/^https:\/\/(?:drive|docs)\.google\.com\//i.test(candidate)) return '';
-  var escapedId = expectedId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp('/d/' + escapedId + '(?:/|$)').test(candidate) ||
-    new RegExp('[?&]id=' + escapedId + '(?:&|$)').test(candidate) ? candidate : '';
-}
-
-function kspBuildMaintenanceCatalog_(counterpartyRows, optionRows) {
-  var counterparties = (counterpartyRows || []).map(function (row) {
-    var legacyGp = String(row.GP_ID || '');
-    return {
-      id: String(row.Counterparty_ID || legacyGp),
-      name: String(row.Counterparty_Name || row.GP_Name || ''),
-      type: String(row.Counterparty_Type || (legacyGp ? 'GP' : '')),
-      status: String(row.Status || '')
-    };
-  }).filter(function (row) { return row.id && row.name && row.type; })
-    .sort(function (left, right) {
-      return left.name.localeCompare(right.name, 'ja') || left.id.localeCompare(right.id);
-    });
-  var options = (optionRows || []).map(function (row) {
-    return {
-      id: String(row.Option_ID || ''),
-      type: String(row.Type || ''),
-      name: String(row.Name || ''),
-      sortOrder: Number(row.Sort_Order || 0),
-      status: String(row.Status || '')
-    };
-  }).filter(function (row) { return row.id && row.type && row.name; });
-  function byType(type) {
-    return options.filter(function (row) { return row.type === type; })
-      .sort(function (left, right) {
-        if (left.sortOrder !== right.sortOrder) return left.sortOrder - right.sortOrder;
-        return left.name.localeCompare(right.name, 'ja');
-      });
-  }
-  var counterpartyEntities = counterparties.map(function (counterparty) {
-    return { id: counterparty.id, type: counterparty.type, name: counterparty.name,
-      status: counterparty.status, entityKey: 'COUNTERPARTY:' + counterparty.id };
-  });
-  return {
-    counterparties: counterparties,
-    gps: counterparties.filter(function (item) { return item.type === 'GP'; }),
-    assetClasses: byType(KSP_OPTION_TYPES.ASSET_CLASS),
-    capitalTypes: byType(KSP_OPTION_TYPES.CAPITAL_TYPE),
-    locations: byType(KSP_OPTION_TYPES.LOCATION),
-    teams: byType(KSP_OPTION_TYPES.TEAM),
-    counterpartyTypes: KSP_COUNTERPARTY_TYPE_DEFINITIONS.map(function (definition) {
-      return { code: definition.code, label: definition.label, optionType: definition.optionType };
-    }),
-    counterpartyEntities: counterpartyEntities
-  };
-}
-
-function kspLoadMaintenanceContext_(environment) {
-  var state = environment.getInstallationState();
-  kspAssert_(state && state.resources, 'INSTALLATION_STATE_MISSING', 'Installation stateがありません。');
-  var backendSpreadsheetId = state.resources[KSP_RESOURCE_KEYS.BACKEND_SPREADSHEET];
-  var auditSpreadsheetId = state.resources[KSP_RESOURCE_KEYS.AUDIT_SPREADSHEET];
-  kspAssert_(backendSpreadsheetId, 'BACKEND_SPREADSHEET_MISSING', 'Backend Spreadsheetがありません。');
-  kspAssert_(auditSpreadsheetId, 'AUDIT_SPREADSHEET_MISSING', 'Audit Spreadsheetがありません。');
-  var counterpartyRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.COUNTERPARTY_MASTER);
-  var optionRows = environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.OPTION_MASTER);
-  return {
-    state: state,
-    backendSpreadsheetId: backendSpreadsheetId,
-    auditSpreadsheetId: auditSpreadsheetId,
-    meetingRows: environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.MEETING_INDEX),
-    pitchbookRows: environment.readRows(backendSpreadsheetId, KSP_SHEET_NAMES.PITCHBOOK_INDEX),
-    counterpartyRows: counterpartyRows,
-    optionRows: optionRows,
-    catalog: kspBuildMaintenanceCatalog_(counterpartyRows, optionRows)
-  };
-}
-
-function kspRequireSingleRow_(rows, keyColumn, keyValue, notFoundCode) {
-  var matches = (rows || []).filter(function (row) { return String(row[keyColumn]) === String(keyValue); });
-  kspAssert_(matches.length <= 1, 'DUPLICATE_KEY_ROWS', '同じIDの行が複数あります: ' + keyValue);
-  kspAssert_(matches.length === 1, notFoundCode, '対象レコードが見つかりません: ' + keyValue);
-  return matches[0];
-}
-
-function kspBuildMasterResponse_(counterpartyRows, optionRows) {
-  var counterparties = (counterpartyRows || []).map(function (row) {
-    var legacyGp = String(row.GP_ID || '');
-    return { id: String(row.Counterparty_ID || legacyGp), name: String(row.Counterparty_Name || row.GP_Name || ''),
-      type: String(row.Counterparty_Type || (legacyGp ? 'GP' : '')), status: String(row.Status || ''),
-      updatedAt: kspCanonicalInstantIso_(row.Updated_At) };
-  }).sort(function (left, right) { return left.name.localeCompare(right.name, 'ja') || left.id.localeCompare(right.id); });
-  var options = (optionRows || []).map(function (row) {
-    return { id: String(row.Option_ID || ''), type: String(row.Type || ''), name: String(row.Name || ''),
-      sortOrder: Number(row.Sort_Order || 0), status: String(row.Status || ''), updatedAt: kspCanonicalInstantIso_(row.Updated_At) };
-  }).sort(function (left, right) {
-    if (left.type !== right.type) return left.type.localeCompare(right.type);
-    if (left.sortOrder !== right.sortOrder) return left.sortOrder - right.sortOrder;
-    return left.name.localeCompare(right.name, 'ja');
-  });
-  return { counterparties: counterparties, options: options };
-}
-
-function kspGetMaintenanceActorSafely_(environment, warnings) {
-  try { return environment.getActor() || 'UNIDENTIFIED'; }
-  catch (error) { warnings.push({ code: 'ACTOR_RESOLUTION_FAILED', message: kspSafeOperationalWarning_('ACTOR_RESOLUTION_FAILED') }); return 'UNIDENTIFIED'; }
-}
-
-function kspTryMaintenanceAudit_(environment, auditSpreadsheetId, params, warnings) {
-  try { environment.appendRow(auditSpreadsheetId, KSP_SHEET_NAMES.AUDIT_LOG, kspBuildMaintenanceAuditRow_(params)); }
-  catch (error) { warnings.push({ code: 'AUDIT_WRITE_FAILED', message: kspSafeOperationalWarning_('AUDIT_WRITE_FAILED') }); }
-}
-
-function kspMaintenanceFailure_(error, warnings) {
-  return { ok: false, workId: KSP_MAINTENANCE_WORK_ID,
-    error: { code: kspGetErrorCode_(error), message: kspSafePublicErrorMessage_(kspGetErrorCode_(error), 'MAINTENANCE') }, warnings: warnings || [] };
-}
-
-function kspMasterActionName_(input) {
-  var entity = input && input.entity === KSP_MASTER_ENTITY.OPTION ? 'OPTION' : 'COUNTERPARTY';
-  var action = input && input.action ? input.action : 'UNKNOWN';
-  return KSP_MAINTENANCE_ACTIONS[entity + '_' + action] || (entity + '_' + action);
-}
-// ===== END src/112_MaintenanceServiceHelpers.gs =====
-
 // ===== BEGIN src/120_MaintenanceLiveEnvironment.gs =====
 function kspCreateMaintenanceEnvironment_() {
   var environment = kspCreateMeetingEnvironment_();
@@ -2710,6 +2384,8 @@ var KSP_AI_DEFAULTS = Object.freeze({
 var KSP_AI_PROPERTY_KEYS = Object.freeze({
   API_KEY: 'KSP_GEMINI_API_KEY',
   OPENAI_API_KEY: 'KSP_OPENAI_API_KEY',
+  OPENAI_ACTIVE_SNAPSHOT: 'KSP_OPENAI_ACTIVE_CREDENTIAL_JSON',
+  GEMINI_ACTIVE_SNAPSHOT: 'KSP_GEMINI_ACTIVE_CREDENTIAL_JSON',
   SOURCE_CLAIM_PREFIX: 'KSP_AI_SOURCE_CLAIM_'
 });
 
@@ -3403,6 +3079,10 @@ function kspAiModelPolicyProfile_(raw) {
       'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
     qualifiedRequestProfileVersion: kspAiModelPolicySafeText_(value.qualifiedRequestProfileVersion, 80,
       'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
+    qualifiedCredentialGeneration: kspAiModelPolicySafeText_(value.qualifiedCredentialGeneration, 80,
+      'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
+    qualifiedTupleFingerprint: kspAiModelPolicySafeText_(value.qualifiedTupleFingerprint, 64,
+      'AI_MODEL_QUALIFICATION_IDENTITY_INVALID', false),
     createdAt: kspAiModelPolicySafeText_(value.createdAt, 40, 'AI_MODEL_TIMESTAMP_INVALID', false),
     updatedAt: kspAiModelPolicySafeText_(value.updatedAt, 40, 'AI_MODEL_TIMESTAMP_INVALID', false),
     qualifiedAt: qualifiedAt,
@@ -3421,7 +3101,8 @@ function kspNormalizeAiModelPolicy_(raw) {
   kspAiModelPolicyAssert_(schemaVersion === KSP_AI_DEFAULTS.MODEL_POLICY_SCHEMA_VERSION,
     'AI_MODEL_POLICY_SCHEMA_UNSUPPORTED');
   var profiles = Array.isArray(value.profiles) ? value.profiles : [];
-  kspAiModelPolicyAssert_(profiles.length > 0 && profiles.length <= 50, 'AI_MODEL_PROFILES_INVALID');
+  // A newly installed provider may have a credential but no chosen model yet.
+  kspAiModelPolicyAssert_(profiles.length <= 50, 'AI_MODEL_PROFILES_INVALID');
   var profileSeen = {};
   var defaults = {};
   var enabledProviders = {};
@@ -3442,6 +3123,10 @@ function kspNormalizeAiModelPolicy_(raw) {
   return {
     schemaVersion: schemaVersion,
     updatedAt: kspAiModelPolicySafeText_(value.updatedAt, 40, 'AI_MODEL_TIMESTAMP_INVALID', false),
+    lastOperationId: kspAiModelPolicySafeText_(value.lastOperationId, 80,
+      'AI_MODEL_POLICY_INVALID', false),
+    lastOperationProfileId: kspAiModelPolicySafeText_(value.lastOperationProfileId, 80,
+      'AI_MODEL_POLICY_INVALID', false),
     profiles: profiles
   };
 }
@@ -3562,6 +3247,13 @@ function kspResolveAiModelSelection_(settings, provider, rawInput, config, nowIs
     'AI_MODEL_PROFILE_INACCESSIBLE');
   kspAiModelPolicyAssert_(profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch,
     'AI_MODEL_PROFILE_UNQUALIFIED');
+  if (profile.qualifiedTupleFingerprint) {
+    var selectedStore = normalizedProvider === KSP_AI_PROVIDERS.OPENAI
+      ? kspAiTrim_(config && config.vectorStoreId) : kspAiTrim_(config && config.storeName);
+    kspAiModelPolicyAssert_(profile.qualifiedTupleFingerprint ===
+      kspAiSetupTupleFingerprint_(profile, config && config.credentialGeneration, selectedStore),
+    'AI_MODEL_PROFILE_UNQUALIFIED');
+  }
   if (normalizedProvider === KSP_AI_PROVIDERS.GEMINI) {
     kspAiModelPolicyAssert_(profile.qualifiedStoreName &&
       profile.qualifiedStoreName === kspAiTrim_(config && config.storeName) &&
@@ -3613,10 +3305,16 @@ function kspGetEffectiveAiModelChoices_(settings, provider, config, nowIso) {
       var currentGeminiIdentity = normalizedProvider !== KSP_AI_PROVIDERS.GEMINI ||
         (profile.qualifiedStoreName && profile.qualifiedStoreName === kspAiTrim_(config.storeName) &&
           profile.qualifiedRequestProfileVersion === KSP_AI_DEFAULTS.QUERY_REQUEST_PROFILE_VERSION);
+      var selectedStore = normalizedProvider === KSP_AI_PROVIDERS.OPENAI
+        ? kspAiTrim_(config.vectorStoreId) : kspAiTrim_(config.storeName);
+      var currentTupleIdentity = !profile.qualifiedTupleFingerprint ||
+        profile.qualifiedTupleFingerprint ===
+          kspAiSetupTupleFingerprint_(profile, config.credentialGeneration, selectedStore);
       return profile.provider === normalizedProvider && profile.enabled && profile.userVisible && defaultThinking &&
         defaultThinking.enabled && defaultThinking.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED &&
         profile.apiAccess === KSP_AI_MODEL_ACCESS_STATES.AVAILABLE &&
-        profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch && currentGeminiIdentity;
+        profile.qualification === KSP_AI_MODEL_QUALIFICATION_STATES.QUALIFIED && profile.fileSearch &&
+        currentGeminiIdentity && currentTupleIdentity;
     }).map(function (profile) {
       return {
         profileId: profile.profileId,
@@ -3643,6 +3341,8 @@ function kspAiModelPolicyForAdmin_(policy) {
       var safe = kspDeepClone_(profile);
       delete safe.qualifiedStoreName;
       delete safe.qualifiedRequestProfileVersion;
+      delete safe.qualifiedCredentialGeneration;
+      delete safe.qualifiedTupleFingerprint;
       return safe;
     })
   };
@@ -3687,6 +3387,8 @@ function kspUpsertAiModelProfile_(policy, rawProfile, nowIso) {
   nextRaw.qualifiedAt = existing ? existing.qualifiedAt : '';
   nextRaw.qualifiedStoreName = existing ? existing.qualifiedStoreName : '';
   nextRaw.qualifiedRequestProfileVersion = existing ? existing.qualifiedRequestProfileVersion : '';
+  nextRaw.qualifiedCredentialGeneration = existing ? existing.qualifiedCredentialGeneration : '';
+  nextRaw.qualifiedTupleFingerprint = existing ? existing.qualifiedTupleFingerprint : '';
   nextRaw.createdAt = existing ? existing.createdAt : nowIso;
   nextRaw.updatedAt = nowIso;
   if (existing && input.fileSearch === undefined) nextRaw.fileSearch = existing.fileSearch;
@@ -3711,6 +3413,8 @@ function kspUpsertAiModelProfile_(policy, rawProfile, nowIso) {
     normalizedProfile.qualifiedAt = '';
     normalizedProfile.qualifiedStoreName = '';
     normalizedProfile.qualifiedRequestProfileVersion = '';
+    normalizedProfile.qualifiedCredentialGeneration = '';
+    normalizedProfile.qualifiedTupleFingerprint = '';
     normalizedProfile.thinkingProfiles.forEach(function (thinking) {
       thinking.qualification = KSP_AI_MODEL_QUALIFICATION_STATES.UNQUALIFIED;
       thinking.qualifiedAt = '';
@@ -3770,4 +3474,327 @@ function kspMarkAiModelProfileQualification_(policy, profileId, result, nowIso) 
   return kspNormalizeAiModelPolicy_(current);
 }
 // ===== END src/134_AiModelPolicyContracts.gs =====
+
+// ===== BEGIN src/140_AiSourceModels.gs =====
+function kspIsParentBoundPitchbookEligible_(row, meetingRows) {
+  if (!row || String(row.Status || '') !== KSP_STATUS.ACTIVE) return false;
+  if (!kspAiTrim_(row.Parent_Meeting_ID)) return true;
+  var documentId = kspAiTrim_(row.Document_ID);
+  return Boolean(documentId && (meetingRows || []).some(function (meeting) {
+    return meeting && kspAiTrim_(meeting.Meeting_ID) && String(meeting.Status || '') === KSP_STATUS.ACTIVE &&
+      kspMaintenanceSplitCodes_(meeting.Related_Pitchbook_IDs).indexOf(documentId) !== -1;
+  }));
+}
+
+function kspPitchbookAiContext_(row, maps) {
+  var bound = Boolean(kspAiTrim_(row.Parent_Meeting_ID));
+  var id = kspMeetingCounterpartyId_(row);
+  var type = String((maps && maps.counterpartyTypes || {})[id] || kspAiTrim_(row.Counterparty_Type));
+  var valid = /^(?:CP-\d{6}|GP-.+)$/.test(id) && (!type || KSP_COUNTERPARTY_TYPE_DEFINITIONS.some(function (item) {
+    return item.code === type;
+  }));
+  return {
+    valid: valid, parentMeetingId: kspAiTrim_(row.Parent_Meeting_ID),
+    counterpartyType: type, counterpartyId: id, entityKey: valid ? 'COUNTERPARTY:' + id : '',
+    relatedGpIds: ''
+  };
+}
+
+function kspApplyPitchbookAiContext_(source, row, maps) {
+  var context = kspPitchbookAiContext_(row, maps);
+  kspAssert_(!context.parentMeetingId || context.valid, 'AI_PARENT_SOURCE_CONTEXT_INVALID', '資料の面談先contextが不正です。');
+  source.parentMeetingId = context.parentMeetingId;
+  source.entityKey = context.entityKey;
+  source.counterpartyType = context.counterpartyType;
+  source.counterpartyId = context.counterpartyId;
+  source.counterpartyName = (maps.counterparties || {})[context.counterpartyId] || context.counterpartyId;
+  source.relatedGpIds = context.relatedGpIds;
+  if (context.parentMeetingId) {
+    source.gpId = context.counterpartyType === 'GP' ? context.counterpartyId : '';
+    source.gpName = source.gpId ? (maps.gps[source.gpId] || source.gpId) : '';
+  }
+  return source;
+}
+
+function kspParentBoundSourceHash_(environment, source) {
+  if (!source.parentMeetingId) return source;
+  // The immutable reservation context participates in derived identity, not the filename.
+  source.contentHash = environment.hashText(JSON.stringify([
+    source.contentHash, source.parentMeetingId, source.entityKey, source.relatedGpIds,
+    source.dateKey, source.assetClassId, source.capitalTypeId, source.fundStrategy
+  ]));
+  return source;
+}
+
+function kspBuildAiMasterMaps_(counterpartyRows, optionRows) {
+  var maps = { gps: {}, assetClasses: {}, capitalTypes: {}, teams: {}, counterparties: {}, counterpartyTypes: {} };
+  (counterpartyRows || []).forEach(function (row) {
+    var id = row && String(row.Counterparty_ID || row.GP_ID || '');
+    if (id) {
+      var name = String(row.Counterparty_Name || row.GP_Name || id);
+      var type = String(row.Counterparty_Type || (row.GP_ID ? 'GP' : ''));
+      maps.counterparties[id] = name;
+      maps.counterparties['COUNTERPARTY:' + id] = name;
+      maps.counterpartyTypes[id] = type;
+      if (type === 'GP') maps.gps[id] = name;
+    }
+  });
+  (optionRows || []).forEach(function (row) {
+    if (!row || !row.Option_ID) return;
+    var target = null;
+    if (String(row.Type) === 'ASSET_CLASS') target = maps.assetClasses;
+    if (String(row.Type) === 'CAPITAL_TYPE') target = maps.capitalTypes;
+    if (String(row.Type) === 'TEAM') target = maps.teams;
+    if (target) target[String(row.Option_ID)] = String(row.Name || row.Option_ID);
+  });
+  return maps;
+}
+
+function kspAiSourceKey_(sourceType, sourceId) {
+  return String(sourceType) + ':' + String(sourceId);
+}
+
+function kspAiSourceRowKey_(sourceType) {
+  var keys = {};
+  keys[KSP_AI_SOURCE_TYPES.MEETING] = 'Meeting_ID';
+  keys[KSP_AI_SOURCE_TYPES.PITCHBOOK] = 'Document_ID';
+  keys[KSP_AI_SOURCE_TYPES.NEWS] = 'News_ID';
+  keys[KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT] = 'Assessment_ID';
+  kspAssert_(keys[sourceType], 'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+  return keys[sourceType];
+}
+
+function kspAiSourceRows_(context, sourceType) {
+  var value = context || {};
+  if (sourceType === KSP_AI_SOURCE_TYPES.MEETING) return value.meetingRows || [];
+  if (sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK) return value.pitchbookRows || [];
+  if (sourceType === KSP_AI_SOURCE_TYPES.NEWS) return value.newsRows || [];
+  if (sourceType === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT) return value.assessmentRows || [];
+  kspAssert_(false, 'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+}
+
+function kspBuildSourceRecordAiSource_(row, sourceType, maps, text, contentHash) {
+  var news = sourceType === KSP_AI_SOURCE_TYPES.NEWS;
+  kspAssert_(news || sourceType === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT,
+    'AI_SYNC_SOURCE_TYPE_INVALID', 'AI sync source type is invalid.');
+  var sourceId = kspAiTrim_(row && row[kspAiSourceRowKey_(sourceType)]);
+  kspAssert_(sourceId && row.Source_File_ID, 'AI_SOURCE_ROW_INVALID', 'AI source record is invalid.');
+  var counterpartyIds = kspUniqueStrings_(kspMaintenanceSplitCodes_(row.Counterparty_IDs).map(kspAiTrim_).filter(Boolean));
+  var firstId = counterpartyIds.length === 1 ? counterpartyIds[0] : '';
+  var counterpartyType = firstId ? String((maps.counterpartyTypes || {})[firstId] || '') : '';
+  var date = kspCanonicalBusinessDate_(row[news ? 'Published_Date' : 'Assessment_Date']);
+  var source = {
+    sourceType: sourceType, sourceId: sourceId, dateKey: date,
+    gpId: counterpartyType === 'GP' ? firstId : '',
+    gpName: counterpartyType === 'GP' ? ((maps.gps || {})[firstId] || firstId) : '',
+    entityKey: firstId ? kspCounterpartyEntityKey_(firstId) : '',
+    counterpartyType: counterpartyType, counterpartyId: firstId,
+    counterpartyIds: counterpartyIds,
+    counterpartyName: firstId ? ((maps.counterparties || {})[firstId] || firstId) : '',
+    assetClassId: String(row.Asset_Class_ID || ''),
+    assetClassName: (maps.assetClasses || {})[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
+    fundStrategy: String(row.Fund_Strategy || ''),
+    title: String(row.Title || ''), publisher: news ? String(row.Publisher || '') : '',
+    assessmentType: news ? '' : String(row.Assessment_Type || ''),
+    decisionOrAction: news ? '' : String(row.Decision_Or_Action || ''),
+    relatedMeetingIds: news ? '' : String(row.Related_Meeting_IDs || ''),
+    relatedDocumentIds: news ? '' : String(row.Related_Document_IDs || ''),
+    relatedNewsIds: news ? '' : String(row.Related_News_IDs || ''),
+    inputMode: String(row.Input_Mode || ''),
+    driveUrl: String(row.Source_URL || ''),
+    savedFilename: String(row.Saved_Filename || row.Original_Filename || sourceId),
+    displayName: String(row.Saved_Filename || row.Original_Filename || sourceId),
+    mimeType: 'text/plain', text: String(text || ''),
+    contentHash: String(contentHash || '')
+  };
+  if (!news && source.text) {
+    source.text = [
+      '資料種別: ' + kspAiSourceLabel_(sourceType),
+      '位置付け: 当時の社内評価',
+      '評価種別: ' + source.assessmentType,
+      '評価日: ' + source.dateKey,
+      '原本ID: ' + source.sourceId,
+      '', source.text
+    ].join('\n');
+  }
+  return source;
+}
+
+function kspSourceRecordAiContextHash_(environment, source) {
+  source.contentHash = environment.hashText(JSON.stringify([
+    source.contentHash, source.sourceType, source.sourceId, source.dateKey,
+    source.counterpartyIds, source.assetClassId, source.fundStrategy,
+    source.title, source.publisher, source.assessmentType, source.decisionOrAction,
+    source.relatedMeetingIds, source.relatedDocumentIds, source.relatedNewsIds
+  ]));
+  return source;
+}
+
+function kspBuildMeetingAiSource_(row, maps, text, contentHash) {
+  kspAssert_(row && row.Meeting_ID, 'AI_MEETING_ROW_INVALID', 'Meeting row is invalid.');
+  kspAssert_(row.Doc_File_ID, 'AI_MEETING_DOC_MISSING', 'Meeting Google Doc is missing.');
+  var counterpartyType = String((maps.counterpartyTypes || {})[kspMeetingCounterpartyId_(row)] || kspMeetingCounterpartyType_(row));
+  var counterpartyId = kspMeetingCounterpartyId_(row);
+  return {
+    sourceType: KSP_AI_SOURCE_TYPES.MEETING,
+    sourceId: String(row.Meeting_ID),
+    dateKey: kspCanonicalBusinessDate_(row.Date),
+    gpId: String(row.GP_ID || ''),
+    gpName: maps.gps[String(row.GP_ID || '')] || String(row.GP_ID || ''),
+    entityKey: 'COUNTERPARTY:' + counterpartyId,
+    counterpartyType: counterpartyType,
+    counterpartyId: counterpartyId,
+    counterpartyName: (maps.counterparties || {})[counterpartyId] || counterpartyId,
+    relatedGpIds: '',
+    assetClassId: String(row.Asset_Class_ID || ''),
+    assetClassName: maps.assetClasses[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
+    capitalTypeId: String(row.Capital_Type_ID || ''),
+    capitalTypeName: maps.capitalTypes[String(row.Capital_Type_ID || '')] || String(row.Capital_Type_ID || ''),
+    teamId: String(row.Team_ID || ''),
+    teamName: (maps.teams || {})[String(row.Team_ID || '')] || String(row.Team_ID || ''),
+    fundStrategy: String(row.Fund_Strategy || ''),
+    meetingTypeCodes: String(row.Meeting_Type_Codes || ''),
+    relatedPitchbookIds: String(row.Related_Pitchbook_IDs || ''),
+    followUpRequired: kspToBoolean_(row.Follow_Up_Required, false),
+    driveUrl: String(row.Doc_URL || ''),
+    savedFilename: String(row.Saved_Filename || row.Meeting_ID),
+    displayName: String(row.Saved_Filename || row.Meeting_ID) + '.txt',
+    mimeType: 'text/plain',
+    text: String(text || ''),
+    contentHash: String(contentHash || '')
+  };
+}
+
+function kspGetPitchbookExtensionForAi_(row) {
+  var name = String((row && (row.Saved_Filename || row.Original_Filename)) || '');
+  var match = /\.([^.]+)$/.exec(name);
+  return match ? match[1].toLowerCase() : '';
+}
+
+function kspBuildPitchbookAiSource_(row, maps, text, contentHash) {
+  kspAssert_(row && row.Document_ID, 'AI_PITCHBOOK_ROW_INVALID', 'Pitchbook row is invalid.');
+  kspAssert_(row.File_ID, 'AI_PITCHBOOK_FILE_MISSING', 'Pitchbook source file is missing.');
+  var extension = kspGetPitchbookExtensionForAi_(row);
+  kspAssert_(extension === 'txt', 'AI_FORMAT_DEFERRED_TO_WORK_0009',
+    'Work 0008 indexes Meeting text and TXT sources only.');
+  return kspApplyPitchbookAiContext_({
+    sourceType: KSP_AI_SOURCE_TYPES.PITCHBOOK,
+    sourceId: String(row.Document_ID),
+    dateKey: kspCanonicalBusinessDate_(row.Date),
+    gpId: String(row.GP_ID || ''),
+    gpName: maps.gps[String(row.GP_ID || '')] || String(row.GP_ID || ''),
+    entityKey: 'COUNTERPARTY:' + kspMeetingCounterpartyId_(row),
+    counterpartyType: String((maps.counterpartyTypes || {})[kspMeetingCounterpartyId_(row)] || ''),
+    counterpartyId: kspMeetingCounterpartyId_(row),
+    counterpartyName: (maps.counterparties || {})[kspMeetingCounterpartyId_(row)] || kspMeetingCounterpartyId_(row),
+    relatedGpIds: '',
+    assetClassId: String(row.Asset_Class_ID || ''),
+    assetClassName: maps.assetClasses[String(row.Asset_Class_ID || '')] || String(row.Asset_Class_ID || ''),
+    capitalTypeId: String(row.Capital_Type_ID || ''),
+    capitalTypeName: maps.capitalTypes[String(row.Capital_Type_ID || '')] || String(row.Capital_Type_ID || ''),
+    fundStrategy: String(row.Fund_Strategy || ''),
+    driveUrl: String(row.File_URL || ''),
+    savedFilename: String(row.Saved_Filename || row.Original_Filename || row.Document_ID),
+    displayName: String(row.Saved_Filename || row.Original_Filename || row.Document_ID),
+    mimeType: 'text/plain',
+    text: String(text || ''),
+    contentHash: String(contentHash || '')
+  }, row, maps);
+}
+
+function kspAiWorkItemFromRow_(sourceType, row) {
+  return {
+    sourceType: sourceType,
+    sourceId: String(row[kspAiSourceRowKey_(sourceType)] || ''),
+    row: row
+  };
+}
+
+function kspIsAiWorkEligible_(item, nowIso, settings) {
+  var row = item.row || {};
+  var sourceStatus = String(row.Status || '');
+  var aiStatus = String(row.AI_Index_Status || KSP_AI_INDEX_STATUS.NOT_INDEXED);
+  if (sourceStatus === KSP_STATUS.INACTIVE) {
+    return Boolean(row.AI_Document_Name) || aiStatus === KSP_AI_INDEX_STATUS.INDEXED || aiStatus === KSP_AI_INDEX_STATUS.FAILED;
+  }
+  if (sourceStatus !== KSP_STATUS.ACTIVE) return false;
+  if (aiStatus === KSP_AI_INDEX_STATUS.PENDING) return true;
+  if (aiStatus === KSP_AI_INDEX_STATUS.INDEXED && !row.AI_Document_Name) return true;
+  if (aiStatus !== KSP_AI_INDEX_STATUS.FAILED) return false;
+  var lastError = kspParseAiLastError_(row.AI_Last_Error);
+  if (lastError.permanent || !lastError.retryable || lastError.attempt >= settings.maxRetryAttempts) return false;
+  return !lastError.nextAttemptAt ||
+    kspTemporalInstantComparisonKey_(lastError.nextAttemptAt) <= kspTemporalInstantComparisonKey_(nowIso);
+}
+
+function kspSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings, newsRows, assessmentRows) {
+  var items = [];
+  (meetingRows || []).forEach(function (row) {
+    var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.MEETING, row);
+    if (kspIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
+  });
+  (pitchbookRows || []).forEach(function (row) {
+    var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.PITCHBOOK, row);
+    item.retrievalEligible = kspIsParentBoundPitchbookEligible_(row, meetingRows);
+    if (!item.retrievalEligible && String(row.Status) === KSP_STATUS.ACTIVE) {
+      if (row.AI_Document_Name || row.AI_Content_Hash) items.push(item);
+      return;
+    }
+    if (kspIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
+  });
+  [
+    { type: KSP_AI_SOURCE_TYPES.NEWS, rows: newsRows || [] },
+    { type: KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT, rows: assessmentRows || [] }
+  ].forEach(function (group) {
+    group.rows.forEach(function (row) {
+      var item = kspAiWorkItemFromRow_(group.type, row);
+      if (kspIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
+    });
+  });
+  items.sort(function (left, right) {
+    var leftInactive = String(left.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
+    var rightInactive = String(right.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
+    if (leftInactive !== rightInactive) return leftInactive - rightInactive;
+    var leftTime = kspTemporalInstantComparisonKey_(left.row.Updated_At || left.row.Created_At);
+    var rightTime = kspTemporalInstantComparisonKey_(right.row.Updated_At || right.row.Created_At);
+    if (leftTime !== rightTime) return leftTime.localeCompare(rightTime);
+    return kspAiSourceKey_(left.sourceType, left.sourceId).localeCompare(kspAiSourceKey_(right.sourceType, right.sourceId));
+  });
+  return items.slice(0, settings.syncBatchSize);
+}
+
+function kspBuildAiSource_(environment, item, maps) {
+  var row = item.row;
+  var text;
+  if (item.sourceType === KSP_AI_SOURCE_TYPES.MEETING) {
+    text = environment.readMeetingText(String(row.Doc_File_ID || ''));
+    return kspBuildMeetingAiSource_(row, maps, text, environment.hashText(text));
+  }
+  if (item.sourceType === KSP_AI_SOURCE_TYPES.NEWS ||
+      item.sourceType === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT) {
+    var fileId = String(row.Source_File_ID || '');
+    if (String(row.Input_Mode || '') === 'DIRECT_TEXT') {
+      text = environment.readMeetingText(fileId);
+    } else {
+      kspAssert_(kspGetPitchbookExtensionForAi_(row) === 'txt', 'AI_FORMAT_DEFERRED_TO_WORK_0009',
+        'This source format requires the provider-neutral source builder.');
+      text = environment.readTextFile(fileId);
+    }
+    return kspSourceRecordAiContextHash_(environment,
+      kspBuildSourceRecordAiSource_(row, item.sourceType, maps, text,
+        environment.hashText(text)));
+  }
+  var extension = kspGetPitchbookExtensionForAi_(row);
+  if (extension !== 'txt') {
+    var unsupported = new Error('Work 0008 indexes Meeting text and TXT sources only.');
+    unsupported.code = 'AI_FORMAT_DEFERRED_TO_WORK_0009';
+    unsupported.retryable = false;
+    unsupported.permanent = true;
+    throw unsupported;
+  }
+  text = environment.readTextFile(String(row.File_ID || ''));
+  return kspParentBoundSourceHash_(environment,
+    kspBuildPitchbookAiSource_(row, maps, text, environment.hashText(text)));
+}
+// ===== END src/140_AiSourceModels.gs =====
 

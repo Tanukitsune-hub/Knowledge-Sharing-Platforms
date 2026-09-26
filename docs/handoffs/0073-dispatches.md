@@ -4,11 +4,11 @@ WORK_ID: 0073
 DISPATCH_ID: 0073-CODEX-02
 ACTIVE_DISPATCH_ID: 0073-CODEX-02
 ACTIVE_DISPATCH: 0073-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
 
 更新日: 2026-09-26
-実行状態: ユーザーがWork0073未実行と確認。CODEX-02は引き渡し準備完了であり、Codex実行開始の観測ではない。
+実行状態: CODEX-02のrepository実装・合成検証・生成配布物・Draft PR候補をChatGPTへ返却。実runtime R1/R2は許可範囲外としてNOT_RUN。Work全体は未ACCEPTED。
 
 ## 現在の実行正本
 
@@ -21,7 +21,7 @@ STATUS: READY
 | Dispatch ID | 内容 | Mode | BALL | STATUS | Instruction | Report | Supersedes |
 |---|---|---|---|---|---|---|---|
 | 0073-CODEX-01 | 初期のAPIキー/モデル設定指示。ユーザー確認で未実行 | BUILD | NONE | SUPERSEDED | [旧01案内](0073-CODEX-01-provider-credential-onboarding-instruction.md) | 未作成・実行なし | — |
-| 0073-CODEX-02 | 1フォーム/確認して保存、初回既定なし、候補一覧の非依存化、4-source整合 | BUILD | CODEX | READY | [02指示](0073-CODEX-02-simple-model-setup-instruction.md) | 未作成 | 0073-CODEX-01 |
+| 0073-CODEX-02 | 1フォーム/確認して保存、初回既定なし、候補一覧の非依存化、4-source整合 | BUILD | CHATGPT | RETURNED | [02指示](0073-CODEX-02-simple-model-setup-instruction.md) | [実装報告](0073-CODEX-02-simple-model-setup-report.md) | 0073-CODEX-01 |
 
 未実行でも、発行済みinstructionの実行契約を差し替えるためdispatch-control.mdに従い次番号にする。旧01の番号や履歴を再利用・改番しない。activeは02だけ。
 
@@ -33,7 +33,7 @@ CODEX-02はrepository BUILDとdeterministic/local browser検証。実provider・
 
 ## 返却
 
-Report予定path: `docs/handoffs/0073-CODEX-02-simple-model-setup-report.md`
+Report: [0073-CODEX-02-simple-model-setup-report.md](0073-CODEX-02-simple-model-setup-report.md)
 
 Codexはbranch上でこのregisterを次へ更新する。
 
@@ -56,5 +56,5 @@ Shared Knowledge利用: `agent-knowledge-base/docs/knowledge/index.md`からOBS-
 
 WORK_ID: 0073
 DISPATCH_ID: 0073-CODEX-02
-BALL: CODEX
-STATUS: READY
+BALL: CHATGPT
+STATUS: RETURNED
