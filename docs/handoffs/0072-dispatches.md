@@ -1,12 +1,12 @@
 # Work 0072 dispatch control
 
 WORK_ID: 0072
-ACTIVE_DISPATCH_ID: 0072-CODEX-03
-BALL: CODEX
-STATUS: READY
+ACTIVE_DISPATCH_ID: NONE
+BALL: NONE
+STATUS: BLOCKED
 MODE: QUALIFICATION
 VALIDATION_TIER: TIER_3_HIGH
-PHASE: LIVE_PROVIDER_QUALIFICATION
+PHASE: LIVE_PROVIDER_QUALIFICATION_BLOCKED
 USER_NATIVE_ACTION_BUDGET: 0
 USER_PRESENCE_REQUIRED_BY_DEFAULT: NO
 
@@ -78,8 +78,8 @@ Work0072をACCEPTEDにしない。
 
 WORK_ID: 0072
 DISPATCH_ID: 0072-CODEX-03
-BALL: CODEX
-STATUS: READY
+BALL: NONE
+STATUS: BLOCKED
 
 
 ## Core integration
@@ -123,3 +123,28 @@ WORK0030_AZURE: DEFERRED_BY_USER
 ```
 
 User authorized bounded synthetic live-provider qualification. Active Dispatch is `0072-CODEX-03`; company/confidential data remains prohibited.
+
+
+## CODEX-03 return — credential blocker
+
+```text
+DISPATCH: 0072-CODEX-03
+RESULT: RETURNED
+BLOCKER: NO_AUTHORIZED_PROVIDER_CREDENTIAL
+OPENAI_CONFIGURED: NO
+GEMINI_CONFIGURED: NO
+LOCAL_GENERIC_OPENAI_KEY: NOT_USED / OWNERSHIP_PURPOSE_UNCONFIRMED
+Q1-Q4: NOT_RUN
+PROVIDER_CALL_COUNT: 0
+AI_INDEX_MUTATION_COUNT: 0
+APPS_SCRIPT_UPDATE_COUNT: 0
+USER_NATIVE_ACTION_COUNT: 0
+```
+
+ChatGPT accepted the safe stop. Do not ask the user to paste a raw API key into chat and do not use an ambiguous generic local key.
+
+The credential/onboarding problem is routed to Work0073:
+- `docs/decisions/provider-credential-management.md`
+- `docs/planning/work0073-provider-credential-onboarding.md`
+
+Work0072 four-source core remains integrated and closed. Live provider qualification resumes under a new 0072 Dispatch only after Work0073 supplies a clearly authorized environment-bound credential path.
