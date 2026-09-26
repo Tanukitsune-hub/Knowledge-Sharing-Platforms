@@ -16,22 +16,24 @@ Statuses: ACCEPTED, ACTIVE, READY, PLANNED, DEFERRED, BLOCKED, SUPERSEDED.
 | 0069 | Source-aware knowledge expansion implementation plan | ACCEPTED | Work0068 current baseline | Start API-independent record-layer implementation under a new Work ID when authorized; AI/provider phase remains credential/policy-gated |
 | 0070 | Source-aware record layer expansion — 4-source authoritative record/storage/UI, schema9, team concurrency | ACCEPTED | Work0069 ACCEPTED | PR #103 / merge `00ac5618c0c0f0ef771cb4b79602853ab0d43e9b`; preserve accepted evidence |
 | 0071 | Interaction-stable async UX — Google Web UX KBを選択適用し、save/upload/statusのlayout shift・focus・recoveryを改善 | ACCEPTED | Work0070 ACCEPTED baseline | PR #104 + #105; final release 0.2.2 / schema9; preserve accepted evidence |
+| 0072 | Four-source Knowledge Search / AI layer — Meeting / Pitchbook / News / Internal Assessmentの検索・provenance・Full Output scope統合 | READY | Work0070 + Work0071 ACCEPTED | Prepare `0072-CODEX-01`; provider calls/company data/migration/rollout remain out of scope |
 
 Plan: `docs/planning/work0069-source-aware-knowledge-expansion-plan.md`
 
 Work0071 plan: `docs/planning/work0071-interaction-stability-ux.md`
 Product direction: `docs/product/stable-interaction-layout.md`
+Work0072 plan: `docs/planning/work0072-four-source-knowledge-search.md`
 
 
 ## Post-0071 next-work decision
 
-Work0071 is ACCEPTED. No Work0072 has been allocated.
+Work0071 is ACCEPTED. Work0072 is allocated to the four-source Knowledge Search / AI layer.
 
 Current candidate outcomes, in dependency order rather than priority:
 
-1. Source-aware AI layer: 4-source Knowledge Search source selection/provenance and provider-neutral Full Output parity from Work0069. Requires approved provider credential/data-policy boundary where provider calls are involved; provider-independent Full Output materialization can be split if useful.
-2. Historical-material migration: still PLANNED and unassigned; select approach from the actual corpus after current record/storage format is stable.
-3. Final company qualification and rollout: still PLANNED and unassigned; requires explicit company-environment authorization, credentials/Shared Drive/permissions readiness, migration choice, and rollout boundary.
+1. Work0072: 4-source Knowledge Search / AI layer. Current priority. Provider calls remain separately authorization-gated; implementation begins with canonical source scope, authoritative resolution, provenance and Full Output parity.
+2. Historical-material migration: deferred by current user priority; do not start automatically.
+3. Final company qualification and rollout: deferred by current user priority; requires separate explicit authorization.
 4. Work0030 Azure OpenAI provider transition remains DEFERRED_BY_USER and must not restart without explicit reactivation.
 
 Company production rollout of release 0.2.2 is not part of Work0071 and requires a new Work with explicit authorization.
