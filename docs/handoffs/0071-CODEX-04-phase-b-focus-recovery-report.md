@@ -33,10 +33,10 @@ Work Contract: `BUILD`。目的は4つの Phase B 操作後の focus と編集�
 | `ANALYTICS_FOCUS` | synthetic browser 1440/390/320 PASS。成功時は同一 DOM checkbox と logical `meetingId` に focus、error reload は replacement の同一 ID、record missing は `activity-analytics-refresh`。成功時の余分な集計 RPC 0。1440/390/320 の error path の scrollY は各 `0→0` / `657→657` / `675→675`。 |
 | `MASTER_REORDER_FOCUS` | 矢印 up/down、端行の disabled boundary、reset/save 後の option ID focus PASS。reset/save の button は clean state で disabled になるため、移動 item の有効 control へ戻る。reorder の synthetic mutation は1回で duplicate 0。drag/persistence 契約は変更なし。 |
 | `PAST_SOURCE_INLINE_VALIDATION` | News/Assessment の Date、Title、Counterparty、Publisher/Assessment Type 全4欄に actionable inline message、`aria-invalid`、`aria-describedby`。first-invalid Date focus、修正後の field error 消去、draft Title 保持、client-invalid RPC 0 を browser で確認。server validation と DIRECT_TEXT/upload の意味論は変更なし。 |
-| `PAST_LIFECYCLE_FOCUS` | Meeting 削除後に最寄り surviving row、空一覧では検索 button。Pitchbook は消失時の最寄り行、同一行が残る無効化/再有効化で replacement status action、空一覧では検索 button。detached node focus 0。確認 dialog と Active/Inactive の server contract は維持。 |
+| `PAST_LIFECYCLE_FOCUS` | Meeting 削除後に最寄り surviving row、空一覧では検索 button。Pitchbook は消失時の最寄り行、同一行が残る無効化/再有効化で replacement status action、空一覧では検索 button。detached node focus 0、390/320 の空一覧遷移でも page top への jump 0。確認 dialog と Active/Inactive の server contract は維持。 |
 | `RESPONSIVE_1440` | production HTML browser の全 changed surface PASS。 |
 | `RESPONSIVE_390` | 同上 PASS。 |
-| `RESPONSIVE_320` | changed interaction の smoke PASS。レイアウト CSS は変更なし。 |
+| `RESPONSIVE_320` | changed interaction の smoke PASS。root horizontal overflow 0。レイアウト CSS は変更なし。 |
 | `KEYBOARD_FOCUS` | Space/Enter による Analytics checkbox、Master 移動/reset/save、Past edit submit、Meeting/Pitchbook lifecycle の readback PASS。 |
 
 ## Release / validation

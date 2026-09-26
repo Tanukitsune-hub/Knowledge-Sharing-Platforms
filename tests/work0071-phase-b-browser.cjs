@@ -118,6 +118,7 @@ async function run(browser, url, width) {
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => document.querySelectorAll('#meeting-past-results [data-meeting-detail]').length === 0);
     assert.equal((await focus()).id, 'meeting-past-search');
+    if (width < 1440) assert.ok((await focus()).scroll > 0, 'empty Meeting result must not jump to page top');
     await page.locator('[data-source-past-tab="pitchbook"]:visible').click();
     await page.evaluate(() => { window.__reply.searchPitchbookRecords = { ok: true, records: [ { documentId: 'DOC-1', date: '2026-09-01', status: 'Active', updatedAt: '2026-09-01T00:00:00.000Z', fileId: 'FILE-1', savedFilename: 'DOC-1', counterpartyName: 'Synthetic', assetClassName: 'PE' }, { documentId: 'DOC-2', date: '2026-09-01', status: 'Active', updatedAt: '2026-09-01T00:00:00.000Z', fileId: 'FILE-2', savedFilename: 'DOC-2', counterpartyName: 'Synthetic', assetClassName: 'PE' } ] }; window.__reply.changePitchbookStatus = { ok: true }; });
     await page.locator('#pitchbook-past-search').click();
@@ -139,6 +140,8 @@ async function run(browser, url, width) {
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => document.querySelectorAll('#pitchbook-past-results [data-pitchbook-status]').length === 0);
     assert.equal((await focus()).id, 'pitchbook-past-search');
+    if (width < 1440) assert.ok((await focus()).scroll > 0, 'empty Pitchbook result must not jump to page top');
+    assert.equal(await page.evaluate(() => Math.max(0, document.documentElement.scrollWidth - innerWidth)), 0);
     assert.deepEqual(errors, []);
     return { width, analyticsBefore, analyticsAfter, masterArrow, masterReset, masterSave, past, lifecycle, errors };
   } finally { await page.close(); }
