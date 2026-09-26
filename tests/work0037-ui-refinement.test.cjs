@@ -79,9 +79,9 @@ test('Masters exposes four in-page tabs and snapshots only allowlisted option mu
 
 test('Admin has no shared password gate while provider controls remain', () => {
   assert.doesNotMatch(adminPage + adminClient, /shared-admin|共有管理者パスワード|adminSessionToken|管理者モードを開始|管理者モードを終了/);
-  assert.match(adminPage, /id="ai-provider-openai-enable"/);
-  assert.match(adminPage, /id="ai-provider-gemini-connect"/);
-  assert.match(adminClient, /canMutate/);
+  assert.match(adminPage, /id="ai-setup-openai-key-button"/);
+  assert.match(adminPage, /id="ai-setup-gemini-key-button"/);
+  assert.match(read('ClientAiModelSetup.html'), /credentialOperator/);
   assert.doesNotMatch(read('165_AiProviderAdmin.gs'), /KSP_SHARED_ADMIN_PASSWORD_SALT/);
 });
 

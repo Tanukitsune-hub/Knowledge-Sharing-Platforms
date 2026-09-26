@@ -38,7 +38,7 @@ test('owner-only admin page has no shared password, lock, or browser session pat
   ]) assert.equal((page + client).includes(forbidden), false, forbidden);
   assert.doesNotMatch(entrypoints, /function manageAiProviderAdminSession\s*\(/);
   assert.match(client, /getAiProviderAdminData',\{\}/);
-  assert.match(client, /const payload=\{action,sourceType:/);
+  assert.match(read('src', 'ClientAiModelSetup.html'), /saveAiCredentialSetup/);
 });
 
 test('owner-only admin read and mutation do not consult legacy password properties', () => {

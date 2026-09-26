@@ -874,29 +874,27 @@ test('owner-only admin surface does not depend on legacy account identity and re
   assert.doesNotMatch(JSON.stringify(status) + JSON.stringify(result), /vs-private|KSP_OPENAI_API_KEY/);
 });
 
-test('admin provider surface exposes policy-safe exact model fields without credentials or provider resource IDs', () => {
+test('admin provider surface uses one safe model save and four-source sync controls', () => {
   const root = path.resolve(__dirname, '..');
   const page = fs.readFileSync(path.join(root, 'src', 'AiProviderSettingsPage.html'), 'utf8');
-  const client = fs.readFileSync(path.join(root, 'src', 'ClientAiProviderSettings.html'), 'utf8');
-  assert.match(page, /ChatGPT \/ OpenAI/);
-  assert.match(page, /APIキーを保存して接続確認/);
-  assert.match(page, /OpenAIを無効化/);
-  assert.match(page, /資料を同期して利用開始/);
-  assert.match(page, /id="ai-provider-openai-key-input" type="password"/);
-  assert.match(page, /ai-provider-sync-source/);
-  assert.match(page, /id="ai-provider-sync-source-id"/);
+  const client = fs.readFileSync(path.join(root, 'src', 'ClientAiModelSetup.html'), 'utf8');
+  assert.match(page, /id="ai-setup-openai-key-button"/);
+  assert.match(page, /id="ai-setup-gemini-key-button"/);
+  assert.match(page, /id="ai-setup-key" type="password"/);
+  assert.match(page, /id="ai-setup-save"[^>]*>確認して保存/);
+  assert.match(page, /id="ai-setup-sync-source"/);
+  assert.match(page, /id="ai-setup-profile-target"/);
   assert.match(page, /value="Meeting"/);
   assert.match(page, /value="Pitchbook"/);
-  assert.match(page, /id="ai-model-id"/);
-  assert.match(page, /id="ai-model-thinking-profiles"/);
-  assert.match(page, /id="ai-model-thinking-qualification-state"/);
-  assert.match(client, /getAiProviderAdminData/);
-  assert.match(client, /mutateAiProviderSettings/);
-  assert.match(client, /const isSync=action==='SYNC'\|\|action==='SYNC_GEMINI'/);
-  assert.match(client, /sourceId:isSync\?\(sourceId\|\|''\):''/);
+  assert.match(page, /value="News"/);
+  assert.match(page, /value="Internal Assessment"/);
+  assert.match(client, /saveAiCredentialSetup/);
+  assert.match(client, /saveAiModelSetup/);
+  assert.match(client, /getAiSyncCandidates/);
+  assert.match(client, /sourceId:record\.sourceId/);
   assert.doesNotMatch(client, /OPENAI_INDEX_TIMEOUT/);
-  assert.match(client, /sync\.selected/);
-  assert.match(client, /sync\.failed/);
+  assert.match(client, /sync\.remaining/);
+  assert.match(fs.readFileSync(path.join(root, 'src', 'ClientAiProviderSettings.html'), 'utf8'), /sync\.failed/);
   assert.doesNotMatch(page + client, /KSP_OPENAI_API_KEY|OPENAI_VECTOR_STORE_ID|OPENAI_DEFAULT_MODEL|gpt-5\.6-terra/);
 });
 

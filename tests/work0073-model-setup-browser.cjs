@@ -10,14 +10,10 @@ const playwrightPath=process.env.KSP_PLAYWRIGHT_PATH||path.join(process.env.USER
 const {chromium}=require(playwrightPath);
 const source=name=>fs.readFileSync(path.join(root,'src',name),'utf8');
 const shim=`<script>
-let aiProviderAdminState={ok:true,canMutate:true,credentialOperator:true,
+window.__serverState={ok:true,canMutate:true,credentialOperator:true,
   openai:{keyConfigured:false,vectorStoreReady:false,enabled:false,status:'UNCONFIGURED'},
   gemini:{keyConfigured:false,storeReady:false,enabled:false,status:'UNCONFIGURED'},modelPolicy:{profiles:[]}};
-let aiProviderAdminBusy=false;
-window.__calls=[];window.__unknown=false;window.__failList=false;
-function loadAiProviderAdminData(){return Promise.resolve()}
-function aiProviderAdminStatusLabel(value){return value}
-function aiProviderAdminSyncMessage(sync){return '対象 '+sync.selected+'件 / 同期 '+sync.indexed+'件'}
+window.__calls=[];window.__unknown=false;window.__failList=false;window.__failAdminLoad=false;
 function showStatus(id,kind,message){const node=document.getElementById(id);node.textContent=message;node.className='status visible '+kind}
 function clearStatus(id){const node=document.getElementById(id);node.textContent='';node.className='status'}
 function kspSetRegionBusy(node,busy){node.setAttribute('aria-busy',String(busy))}
@@ -25,6 +21,10 @@ function kspSetActionBusy(node,busy){node.disabled=busy}
 window.confirm=()=>true;
 async function serverCall(name,payload){
   window.__calls.push({name,payload:payload&&payload.apiKey?{...payload,apiKey:'REDACTED'}:payload});
+  if(name==='getAiProviderAdminData'){
+    if(window.__failAdminLoad)throw Error('synthetic admin read failure');
+    return window.__serverState;
+  }
   if(name==='getAiCredentialModelCandidates'||name==='getAiModelSetupCandidates'){
     if(window.__failList)throw Error('synthetic list failure');
     return {ok:true,models:[{modelId:'gpt-synthetic-list',displayName:'Synthetic model'}],
@@ -33,15 +33,15 @@ async function serverCall(name,payload){
   if(name==='saveAiCredentialSetup'||name==='saveAiModelSetup'){
     if(window.__unknown)throw Error('synthetic response loss');
     const suffix=payload.provider.toLowerCase();
-    aiProviderAdminState[suffix].keyConfigured=true;
+    window.__serverState[suffix].keyConfigured=true;
     if(payload.makeDefault===false){
       const profileId=payload.profileId||'synthetic-expert-variant';
-      aiProviderAdminState.modelPolicy.profiles=aiProviderAdminState.modelPolicy.profiles.filter(item=>item.profileId!==profileId);
-      aiProviderAdminState.modelPolicy.profiles.push({profileId,provider:payload.provider,modelId:payload.modelId,
+      window.__serverState.modelPolicy.profiles=window.__serverState.modelPolicy.profiles.filter(item=>item.profileId!==profileId);
+      window.__serverState.modelPolicy.profiles.push({profileId,provider:payload.provider,modelId:payload.modelId,
         displayName:payload.displayName,isProviderDefault:false,qualification:'QUALIFIED'});
     }else{
-      aiProviderAdminState.modelPolicy.profiles=aiProviderAdminState.modelPolicy.profiles.filter(item=>item.provider!==payload.provider);
-      aiProviderAdminState.modelPolicy.profiles.push({provider:payload.provider,modelId:payload.modelId,
+      window.__serverState.modelPolicy.profiles=window.__serverState.modelPolicy.profiles.filter(item=>item.provider!==payload.provider);
+      window.__serverState.modelPolicy.profiles.push({provider:payload.provider,modelId:payload.modelId,
         isProviderDefault:true,qualification:'QUALIFIED'});
     }
     return {ok:true,status:'SAVED',provider:payload.provider,modelId:payload.modelId};
@@ -57,9 +57,9 @@ async function serverCall(name,payload){
 }
 </script>`;
 const html='<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>Work0073 synthetic AI settings</title>'+
-  source('Styles.html')+'<style>.page{display:block}.app-shell{max-width:1120px}</style></head><body><main class="app-shell">'+
-  source('AiProviderSettingsPage.html')+'</main>'+shim+source('ClientAiModelSetup.html')+
-  '<script>aiSetupRender()</script></body></html>';
+  source('Styles.html')+'<style>.page{display:block}.app-shell{max-width:1120px}</style></head><body><button id="nav-ai-provider-settings" hidden></button><main class="app-shell">'+
+  source('AiProviderSettingsPage.html')+'</main>'+shim+source('ClientAiProviderSettings.html')+source('ClientAiModelSetup.html')+
+  '<script>loadAiProviderAdminData()</script></body></html>';
 const server=http.createServer((req,res)=>{res.writeHead(200,{'content-type':'text/html;charset=utf-8'});res.end(html)});
 async function main(){
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -75,6 +75,7 @@ async function main(){
       page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
       await page.goto(url);
       assert.equal(await page.title(),'Work0073 synthetic AI settings');
+      await page.waitForFunction(()=>document.getElementById('ai-setup-openai-state').textContent==='未設定');
       assert.equal(await page.locator('#ai-setup-openai-state').textContent(),'未設定');
       await page.locator('#ai-setup-openai-key-button').click();
       assert.equal(await page.locator('#ai-setup-key').isVisible(),true);
@@ -88,7 +89,7 @@ async function main(){
       assert.match(await page.locator('#ai-setup-result').textContent(),/保存しました/);
       await page.locator('#ai-setup-cancel').click();
       assert.equal(await page.locator('#ai-setup-openai-model-button').evaluate(node=>node===document.activeElement),true);
-      await page.locator('#ai-setup-openai-model-button').click();
+      await page.keyboard.press('Enter');
       await page.evaluate(()=>window.__failList=true);
       await page.locator('#ai-setup-refresh').click();
       await page.waitForFunction(()=>document.getElementById('ai-setup-candidate-status').textContent.includes('取得できません'));
@@ -105,6 +106,10 @@ async function main(){
       await page.waitForFunction(()=>window.__calls.some(item=>item.name==='saveAiModelSetup'&&item.payload.makeDefault===false));
       assert.equal(await page.locator('#ai-setup-openai-model').textContent(),'現在のモデル: gpt-manual-unlisted');
       await page.locator('#ai-setup-cancel').click();
+      await page.evaluate(async()=>{window.__failAdminLoad=true;await loadAiProviderAdminData(false)});
+      assert.match(await page.locator('#ai-setup-openai-state').textContent(),/前回取得時点/);
+      assert.equal(await page.locator('#ai-setup-openai-key-button').isDisabled(),true);
+      await page.evaluate(async()=>{window.__failAdminLoad=false;await loadAiProviderAdminData(false)});
       await page.locator('#ai-setup-openai-model-button').click();
       await page.locator('#ai-setup-model-id').fill('gpt-unknown-result');
       await page.evaluate(()=>window.__unknown=true);
@@ -121,7 +126,8 @@ async function main(){
       await page.screenshot({path:path.join(evidenceDir,label+'.png'),fullPage:false});
       findings.push({viewport:[width,height],page:url,overflow:false,consoleErrors:errors,
         savedModels:['gpt-synthetic-list','gpt-manual-unlisted'],unknownResultNoRetry:true,
-        fourSourceCandidates:true,expertVariantSameSave:true,screenshot:path.join(evidenceDir,label+'.png')});
+        fourSourceCandidates:true,expertVariantSameSave:true,staleReadDeniedSecretAction:true,
+        screenshot:path.join(evidenceDir,label+'.png')});
       await page.close();
     }
     process.stdout.write(JSON.stringify({classification:'SYNTHETIC_BROWSER_RENDER',result:'PASS',findings},null,2)+'\n');
