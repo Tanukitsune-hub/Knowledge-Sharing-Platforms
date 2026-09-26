@@ -330,6 +330,24 @@ function kspOpenAiAttributesEqual_(leftValue, rightValue) {
   return true;
 }
 
+function kspKnowledgeProviderNeedsSourceIdAllowlist_(provider, request) {
+  var filters = kspKnowledgeRequestFilters_(request);
+  var sourceTypes = kspNormalizeKnowledgeSourceTypes_(request);
+  var selectedEntities = request && Array.isArray(request.selectedEntityKeys)
+    ? request.selectedEntityKeys : [];
+  var hasSourceRecords = sourceTypes.indexOf(KSP_AI_SOURCE_TYPES.NEWS) !== -1 ||
+    sourceTypes.indexOf(KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT) !== -1;
+  // Provider metadata cannot prove a parent-bound Pitchbook is still linked.
+  if (sourceTypes.indexOf(KSP_AI_SOURCE_TYPES.PITCHBOOK) !== -1) return true;
+  if (filters.relatedGpId || filters.meetingTypeCode) return true;
+  if (hasSourceRecords && (filters.entityKey || filters.gpId || filters.counterpartyType ||
+      selectedEntities.length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN)) return true;
+  // Gemini has neither a selected-Entity OR expression nor a stored false follow-up value.
+  return provider === KSP_AI_PROVIDERS.GEMINI &&
+    (selectedEntities.length >= KSP_KNOWLEDGE_MULTI_ENTITY_MIN ||
+      filters.followUp === KSP_KNOWLEDGE_FOLLOW_UP_FILTERS.NOT_REQUIRED);
+}
+
 function kspBuildOpenAiFilter_(filters) {
   var request = filters || {};
   var input = kspKnowledgeRequestFilters_(request);
@@ -339,7 +357,9 @@ function kspBuildOpenAiFilter_(filters) {
   var explicitSourceSelection = Object.prototype.hasOwnProperty.call(request, 'sourceTypes') ||
     Object.prototype.hasOwnProperty.call(nestedFilters, 'sourceTypes') ||
     Boolean(kspAiTrim_(request.sourceType || nestedFilters.sourceType));
-  var authoritativeOnly = request.advancedFilterResolved === true &&
+  var sourceIdAllowlistRequired = request.advancedFilterResolved === true &&
+    kspKnowledgeProviderNeedsSourceIdAllowlist_(KSP_AI_PROVIDERS.OPENAI, request);
+  var authoritativeOnly = sourceIdAllowlistRequired &&
     sourceTypes.some(function (type) {
       return type === KSP_AI_SOURCE_TYPES.NEWS || type === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT;
     });
@@ -374,7 +394,7 @@ function kspBuildOpenAiFilter_(filters) {
     }) });
   }
   var resolvedSourceIds = Array.isArray(request.resolvedSourceIds) ? request.resolvedSourceIds : [];
-  if (request.advancedFilterResolved === true && resolvedSourceIds.length) {
+  if (sourceIdAllowlistRequired && resolvedSourceIds.length) {
     clauses.push(resolvedSourceIds.length === 1
       ? { type: 'eq', key: 'source_id', value: resolvedSourceIds[0] }
       : { type: 'or', filters: resolvedSourceIds.map(function (sourceId) {
@@ -397,6 +417,12 @@ function kspBuildProviderSearchRequest_(provider, config, input) {
   kspAssert_(value.advancedFilterResolved !== true ||
     (Array.isArray(value.resolvedSourceIds) && value.resolvedSourceIds.length > 0),
     'AI_ADVANCED_FILTER_NO_EVIDENCE', '指定した条件に一致するActive資料はありません。');
+  var sourceIdAllowlistRequired = value.advancedFilterResolved === true &&
+    kspKnowledgeProviderNeedsSourceIdAllowlist_(normalizedProvider, value);
+  if (sourceIdAllowlistRequired) {
+    kspAssert_(value.resolvedSourceIds.length <= KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX,
+      'AI_ADVANCED_FILTER_TOO_BROAD', '検索範囲を絞ってください。');
+  }
   var promptInput = kspValidateCanonicalKnowledgeRequest_(kspNormalizeCanonicalKnowledgeRequest_(value));
   var prompt = kspBuildCanonicalKnowledgePrompt_(promptInput);
   if (normalizedProvider === KSP_AI_PROVIDERS.OPENAI) {
@@ -426,7 +452,8 @@ function kspBuildProviderSearchRequest_(provider, config, input) {
     storeName: config.storeName,
     mode: promptInput.mode,
     questionOrInstruction: promptInput.questionOrInstruction,
-    metadataFilter: [kspBuildMetadataFilter_(value), value.advancedFilterResolved === true
+    metadataFilter: [kspBuildMetadataFilter_(sourceIdAllowlistRequired ? value :
+      Object.assign({}, value, { advancedFilterResolved: false })), sourceIdAllowlistRequired
       ? '(' + (value.resolvedSourceIds || []).map(function (id) {
         return 'source_id = "' + kspEscapeMetadataFilterString_(id) + '"';
       }).join(' OR ') + ')' : ''].filter(Boolean).join(' AND '),
@@ -1637,8 +1664,6 @@ function kspRestrictKnowledgeEligibleSources_(input, context) {
     });
   });
   var ids = kspUniqueStrings_(matches).sort();
-  kspAssert_(ids.length <= KSP_KNOWLEDGE_ADVANCED_SOURCE_ID_MAX,
-    'AI_ADVANCED_FILTER_TOO_BROAD', '検索範囲を絞ってください。');
   request.resolvedSourceIds = ids;
   request.advancedFilterResolved = true;
   return request;

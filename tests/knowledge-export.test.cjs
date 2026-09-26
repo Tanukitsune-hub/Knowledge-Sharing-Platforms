@@ -712,17 +712,69 @@ test('thresholds warn and hard-stop at strictly greater values', () => {
   const documents = Object.fromEntries(rows.map((row) => [row.Doc_File_ID, { text: 'x' }]));
   const env = createFakeEnvironment({ meetingRows: rows, pitchbookRows: [], documents });
   const preview = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: 'Meeting' }));
-  assert.equal(preview.ok, false);
-  assert.equal(preview.error.code, 'AI_ADVANCED_FILTER_TOO_BROAD');
+  assert.equal(preview.ok, true, JSON.stringify(preview));
+  assert.equal(preview.preview.meetingCount, 51);
+  assert.equal(preview.preview.hardStop, true);
+  assert.equal(preview.preview.characterCountDeferred, true);
+  assert.equal(preview.preview.sourceIdCount, 51);
+  assert.equal(preview.preview.sourceIds.length, ksp.KSP_KNOWLEDGE_EXPORT_LIMITS.MAX_SOURCE_ID_REPORT);
   const result = ksp.kspRunKnowledgeExportCreation_(env, {
     ...baseInput({ sourceType: 'Meeting' }),
-    previewFingerprint: 'synthetic-stale',
+    previewFingerprint: preview.preview.previewFingerprint,
     outputType: 'PDF'
   });
   assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'AI_ADVANCED_FILTER_TOO_BROAD');
+  assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_LIMIT_EXCEEDED');
   assert.equal(env._debug.artifacts.length, 0);
   assert.deepEqual(env._debug.reads, [], 'Index hard-stop must not read Meeting Docs');
+});
+
+test('Full Output Meeting counts 41 and 50 use export limits rather than provider IDs', () => {
+  for (const count of [41, 50]) {
+    const rows = Array.from({ length: count }, (_, index) =>
+      meetingRow(`MTG-${String(index + 1).padStart(6, '0')}`, '2026-08-01'));
+    const documents = Object.fromEntries(rows.map(row => [row.Doc_File_ID, { text: 'x' }]));
+    const env = createFakeEnvironment({ meetingRows: rows, pitchbookRows: [], documents });
+    const preview = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceTypes: ['Meeting'] }));
+    assert.equal(preview.ok, true, `${count}: ${JSON.stringify(preview)}`);
+    assert.equal(preview.preview.meetingCount, count);
+    assert.equal(preview.preview.hardStop, false);
+    assert.equal(env._debug.reads.length, count);
+    assert.equal(env._debug.artifacts.length, 0);
+  }
+});
+
+test('Full Output Pitchbook count 200 succeeds and 201 hard-stops before source reads', () => {
+  function rows(count) {
+    return Array.from({ length: count }, (_, index) =>
+      pitchbookRow(`DOC-${String(index + 1).padStart(6, '0')}`, '2026-08-01', {
+        Original_Filename: 'source.txt', Saved_Filename: 'source.txt'
+      }));
+  }
+  const allowed = createFakeEnvironment({ meetingRows: [], pitchbookRows: rows(200),
+    driveMetadata: { mimeType: 'text/plain' } });
+  const accepted = ksp.kspRunKnowledgeExportPreview_(allowed, baseInput({ sourceTypes: ['Pitchbook'] }));
+  assert.equal(accepted.ok, true, JSON.stringify(accepted));
+  assert.equal(accepted.preview.pitchbookCount, 200);
+  assert.equal(accepted.preview.hardStop, false);
+  assert.equal(allowed._debug.pitchbookByteReads.length, 200);
+
+  const stopped = createFakeEnvironment({ meetingRows: [], pitchbookRows: rows(201) });
+  const preview = ksp.kspRunKnowledgeExportPreview_(stopped, baseInput({ sourceTypes: ['Pitchbook'] }));
+  assert.equal(preview.ok, true, JSON.stringify(preview));
+  assert.equal(preview.preview.pitchbookCount, 201);
+  assert.equal(preview.preview.hardStop, true);
+  assert.deepEqual(stopped._debug.pitchbookMetadataReads, []);
+  assert.deepEqual(stopped._debug.pitchbookByteReads, []);
+  const created = ksp.kspRunKnowledgeExportCreation_(stopped, {
+    ...baseInput({ sourceTypes: ['Pitchbook'] }),
+    previewFingerprint: preview.preview.previewFingerprint, outputType: 'PDF'
+  });
+  assert.equal(created.ok, false);
+  assert.equal(created.error.code, 'KNOWLEDGE_EXPORT_LIMIT_EXCEEDED');
+  assert.deepEqual(stopped._debug.artifacts, []);
+  assert.deepEqual(stopped._debug.pitchbookMetadataReads, []);
+  assert.deepEqual(stopped._debug.pitchbookByteReads, []);
 });
 
 test('source link identity mismatches fail closed before reading or creating artifacts', () => {

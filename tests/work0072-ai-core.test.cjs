@@ -141,9 +141,15 @@ test('fake provider query matrix uses authoritative IDs and source-scoped citati
   env.getProviderConfig = provider => ({ provider, enabled: true, vectorStoreId: 'vs-synthetic',
     modelId: 'gpt-5.6-terra', credentialConfigured: true });
   let selectedType = '';
+  let selectedTypes = [];
   env.startQueryProvider = (provider, config, request) => {
     const id = sourceIds[selectedType];
-    assert.match(JSON.stringify(request.filters), new RegExp(id));
+    const filter = JSON.stringify(request.filters);
+    if (selectedTypes.includes('Pitchbook')) assert.match(filter, new RegExp(id));
+    else {
+      assert.doesNotMatch(filter, /source_id/);
+      assert.match(filter, /source_type/);
+    }
     const row = selectedType === 'Meeting' ? context.meetingRows[0] : selectedType === 'Pitchbook'
       ? context.pitchbookRows[0] : selectedType === 'News' ? context.newsRows[0] : context.assessmentRows[0];
     const state = ksp.kspParseAiProviderState_(row.AI_Provider_State_JSON, row).OPENAI;
@@ -162,6 +168,7 @@ test('fake provider query matrix uses authoritative IDs and source-scoped citati
   ];
   for (const [types, cited] of selections) {
     selectedType = cited;
+    selectedTypes = types;
     const result = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'OPENAI', {
       mode: '自由質問', questionOrInstruction: `Synthetic ${types.join('+')} question`, sourceTypes: types
     }));
@@ -233,4 +240,108 @@ test('Gemini scoped request uses bounded source IDs after authoritative Entity m
     modelId: 'gemini-synthetic', storeName: 'fileSearchStores/synthetic'
   }, { ...scoped, resolvedSourceIds: [] }),
   error => error.code === 'AI_ADVANCED_FILTER_NO_EVIDENCE');
+});
+
+test('broad Meeting and source-record queries use provider metadata beyond 40 authoritative IDs', () => {
+  const context = fixture();
+  context.meetingRows = Array.from({ length: 41 }, (_, index) => {
+    const id = `MTG-${String(index + 1).padStart(6, '0')}`;
+    return { ...context.meetingRows[0], Meeting_ID: id, Doc_File_ID: `doc-${id}`,
+      Doc_URL: `https://docs.google.com/document/d/doc-${id}/edit`, Related_Pitchbook_IDs: '' };
+  });
+  const meetingScope = ksp.kspRestrictKnowledgeEligibleSources_(canonical({ sourceTypes: ['Meeting'] }), context);
+  assert.equal(meetingScope.resolvedSourceIds.length, 41);
+  const openAi = plain(ksp.kspBuildProviderSearchRequest_('OPENAI',
+    { modelId: 'synthetic', vectorStoreId: 'vs-synthetic' }, meetingScope));
+  assert.match(JSON.stringify(openAi.filters), /source_type/);
+  assert.doesNotMatch(JSON.stringify(openAi.filters), /source_id/);
+  const gemini = plain(ksp.kspBuildProviderSearchRequest_('GEMINI',
+    { modelId: 'synthetic', storeName: 'fileSearchStores/synthetic' }, meetingScope));
+  assert.match(gemini.metadataFilter, /source_type = "Meeting"/);
+  assert.doesNotMatch(gemini.metadataFilter, /source_id/);
+  const env = createSyncEnvironment({ context });
+  env.getProviderConfig = provider => ({ provider, enabled: true, vectorStoreId: 'vs-synthetic',
+    modelId: 'gpt-5.6-terra', credentialConfigured: true });
+  let starts = 0;
+  env.startQueryProvider = (_provider, _config, request) => {
+    starts += 1;
+    assert.doesNotMatch(JSON.stringify(request.filters), /source_id/);
+    return { status: 'completed', response: { output: [
+      { type: 'message', content: [{ type: 'output_text', text: 'Synthetic answer', annotations: [] }] }
+    ] } };
+  };
+  const result = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'OPENAI', {
+    mode: '自由質問', questionOrInstruction: 'Broad Meeting request', sourceTypes: ['Meeting']
+  }));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(starts, 1);
+
+  const noFollow = ksp.kspRestrictKnowledgeEligibleSources_(canonical({ sourceTypes: ['Meeting'],
+    filters: { followUp: 'NOT_REQUIRED' } }), context);
+  assert.equal(noFollow.resolvedSourceIds.length, 41);
+  const openAiNoFollow = plain(ksp.kspBuildProviderSearchRequest_('OPENAI',
+    { modelId: 'synthetic', vectorStoreId: 'vs-synthetic' }, noFollow));
+  assert.match(JSON.stringify(openAiNoFollow.filters), /follow_up_required/);
+  assert.doesNotMatch(JSON.stringify(openAiNoFollow.filters), /source_id/);
+  assert.throws(() => ksp.kspBuildProviderSearchRequest_('GEMINI',
+    { modelId: 'synthetic', storeName: 'fileSearchStores/synthetic' }, noFollow),
+  error => error.code === 'AI_ADVANCED_FILTER_TOO_BROAD');
+  const narrowNoFollow = ksp.kspRestrictKnowledgeEligibleSources_(canonical({ sourceTypes: ['Meeting'],
+    filters: { followUp: 'NOT_REQUIRED' } }), { ...context, meetingRows: context.meetingRows.slice(0, 1) });
+  const geminiNoFollow = plain(ksp.kspBuildProviderSearchRequest_('GEMINI',
+    { modelId: 'synthetic', storeName: 'fileSearchStores/synthetic' }, narrowNoFollow));
+  assert.match(geminiNoFollow.metadataFilter, /source_id = "MTG-000001"/);
+  assert.doesNotMatch(geminiNoFollow.metadataFilter, /follow_up_required/);
+
+  context.newsRows = Array.from({ length: 41 }, (_, index) => {
+    const id = `NEWS-${String(index + 1).padStart(6, '0')}`;
+    return { ...context.newsRows[0], News_ID: id, Source_File_ID: `doc-${id}`,
+      Source_URL: `https://docs.google.com/document/d/doc-${id}/edit`, AI_Provider_State_JSON: '' };
+  });
+  const recordScope = ksp.kspRestrictKnowledgeEligibleSources_(canonical({
+    sourceTypes: ['News', 'Internal Assessment'],
+    filters: { dateFrom: '2026-08-01', assetClassId: 'AC-1' }
+  }), context);
+  assert.equal(recordScope.resolvedSourceIds.length, 42);
+  const recordOpenAi = plain(ksp.kspBuildProviderSearchRequest_('OPENAI',
+    { modelId: 'synthetic', vectorStoreId: 'vs-synthetic' }, recordScope));
+  assert.match(JSON.stringify(recordOpenAi.filters), /date_key/);
+  assert.match(JSON.stringify(recordOpenAi.filters), /asset_class_id/);
+  assert.doesNotMatch(JSON.stringify(recordOpenAi.filters), /source_id/);
+  const recordGemini = plain(ksp.kspBuildProviderSearchRequest_('GEMINI',
+    { modelId: 'synthetic', storeName: 'fileSearchStores/synthetic' }, recordScope));
+  assert.match(recordGemini.metadataFilter, /date_key/);
+  assert.match(recordGemini.metadataFilter, /asset_class_id/);
+  assert.doesNotMatch(recordGemini.metadataFilter, /source_id/);
+});
+
+test('provider-required News membership at 41 IDs fails before query transport', () => {
+  const context = fixture();
+  context.newsRows = Array.from({ length: 41 }, (_, index) => {
+    const id = `NEWS-${String(index + 1).padStart(6, '0')}`;
+    return { ...context.newsRows[0], News_ID: id, Source_File_ID: `doc-${id}`,
+      Source_URL: `https://docs.google.com/document/d/doc-${id}/edit`, AI_Provider_State_JSON: '' };
+  });
+  const scoped = ksp.kspRestrictKnowledgeEligibleSources_(canonical({ sourceTypes: ['News'],
+    filters: { entityKey: 'COUNTERPARTY:CP-000032' } }), context);
+  assert.equal(scoped.resolvedSourceIds.length, 41);
+  for (const [provider, config] of [
+    ['OPENAI', { modelId: 'synthetic', vectorStoreId: 'vs-synthetic' }],
+    ['GEMINI', { modelId: 'synthetic', storeName: 'fileSearchStores/synthetic' }]
+  ]) {
+    assert.throws(() => ksp.kspBuildProviderSearchRequest_(provider, config, scoped),
+      error => error.code === 'AI_ADVANCED_FILTER_TOO_BROAD');
+  }
+  const env = createSyncEnvironment({ context });
+  env.getProviderConfig = provider => ({ provider, enabled: true, vectorStoreId: 'vs-synthetic',
+    modelId: 'gpt-5.6-terra', credentialConfigured: true });
+  let starts = 0;
+  env.startQueryProvider = () => { starts += 1; throw new Error('provider must not start'); };
+  const result = plain(ksp.kspRunProviderKnowledgeSearch_(env, 'OPENAI', {
+    mode: '自由質問', questionOrInstruction: 'Membership-bound request', sourceTypes: ['News'],
+    filters: { entityKey: 'COUNTERPARTY:CP-000032' }
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'AI_ADVANCED_FILTER_TOO_BROAD');
+  assert.equal(starts, 0);
 });
