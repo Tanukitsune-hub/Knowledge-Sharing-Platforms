@@ -486,7 +486,7 @@ COMPANY_ROLLOUT: DEFERRED
 WORK0030_AZURE: DEFERRED_BY_USER
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: PENDING_USER_AUTHORIZATION
+NEXT_DISPATCH: 0072-CODEX-03
 ```
 
 
@@ -547,3 +547,23 @@ Next decision is authorization, not implementation:
 - otherwise preserve 0.2.3 as the integrated provider-disabled core and defer provider-runtime qualification to a future explicitly authorized Work/rollout boundary.
 
 No company data, historical migration, company rollout, or Work0030 Azure transition is implied.
+
+
+## Live provider qualification authorization
+
+User authorization 2026-09-26:
+
+```text
+LIVE_PROVIDER_QUALIFICATION: AUTHORIZED
+DATA_BOUNDARY: synthetic / non-confidential only
+COMPANY_DATA: prohibited
+COMPANY_ROLLOUT: prohibited
+AZURE_OPENAI / Work0030: remains deferred
+USER_NATIVE_ACTION_BUDGET: 0
+```
+
+Active Dispatch: `0072-CODEX-03`.
+
+Qualification may use currently configured non-Azure Direct OpenAI and/or Gemini test credentials, create one isolated temporary provider store per configured provider, index four synthetic sources, run at most three bounded queries per provider, and clean up exact resources created by the Dispatch.
+
+Existing isolated owner-only Apps Script target may be updated to release 0.2.3 only after exact target identity is independently confirmed. No new Apps Script target/deployment may be created.
