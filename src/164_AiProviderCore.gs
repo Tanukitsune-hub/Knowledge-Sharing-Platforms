@@ -1237,7 +1237,9 @@ function kspValidateCitedDriveSources_(environment, context, citations) {
     folderKeys[KSP_AI_SOURCE_TYPES.NEWS] = KSP_RESOURCE_KEYS.NEWS;
     folderKeys[KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT] = KSP_RESOURCE_KEYS.INTERNAL_ASSESSMENTS;
     var expectedFolderId = resources[folderKeys[citation.sourceType]];
-    var valid = Boolean(source && source.fileId && typeof environment.getDriveFileMetadata === 'function');
+    var valid = Boolean(source && source.fileId && source.driveUrl &&
+      kspKnowledgeExportUrlMatchesId_(source.driveUrl, source.fileId) &&
+      typeof environment.getDriveFileMetadata === 'function');
     if (valid) {
       try {
         var file = environment.getDriveFileMetadata(source.fileId);

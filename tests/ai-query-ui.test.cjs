@@ -2,7 +2,7 @@ const { test, assert, fs, path, vm, ksp, plain, baseContext, createSyncEnvironme
 test('free question maps citations and audits only safe query metadata',()=>{
   const env=createSyncEnvironment({queryResponse:{id:'interaction-1',steps:[{type:'model_output',content:[{type:'text',text:'Grounded answer',annotations:[{type:'file_citation',source:'fileSearchStores/store-1/documents/d1',custom_metadata:[{key:'source_id',string_value:'MTG-000001'}]}]}]}]}});
   const r=plain(ksp.kspRunFreeQuestion_(env,{question:'What did KKR say?',gpId:'GP-1'}));
-  assert.equal(r.ok,true);assert.equal(r.answer,'Grounded answer');assert.equal(r.citations[0].driveUrl,'https://drive.test/meeting-1');assert.equal(env._debug.audits.length,1);assert.equal(JSON.stringify(env._debug.audits[0]).includes('Grounded answer'),false);
+  assert.equal(r.ok,true);assert.equal(r.answer,'Grounded answer');assert.equal(r.citations[0].driveUrl,'https://docs.google.com/document/d/doc-1/edit');assert.equal(env._debug.audits.length,1);assert.equal(JSON.stringify(env._debug.audits[0]).includes('Grounded answer'),false);
 });
 
 test('free question surfaces insufficient evidence when authoritative citations are absent',()=>{

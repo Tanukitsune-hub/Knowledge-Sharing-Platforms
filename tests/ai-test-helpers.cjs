@@ -25,12 +25,12 @@ function baseContext(overrides={}) {
     ],
     meetingRows:[{
       Meeting_ID:'MTG-000001',Date:'2026-08-01',GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:'CT-1',
-      Doc_File_ID:'doc-1',Doc_URL:'https://drive.test/meeting-1',Saved_Filename:'2026_KKR_MTG',Status:'Active',
+      Doc_File_ID:'doc-1',Doc_URL:'https://docs.google.com/document/d/doc-1/edit',Saved_Filename:'2026_KKR_MTG',Status:'Active',
       Updated_At:'2026-08-02T00:00:00.000Z',AI_Document_Name:'',AI_Index_Status:'Pending',AI_Indexed_At:'',AI_Content_Hash:'',AI_Last_Error:''
     }],
     pitchbookRows:[{
       Document_ID:'DOC-000001',Date:'2026-08-01',GP_ID:'GP-1',Asset_Class_ID:'AC-1',Capital_Type_ID:'CT-1',
-      File_ID:'file-1',File_URL:'https://drive.test/file-1',Original_Filename:'note.txt',Saved_Filename:'2026_KKR_01.txt',Status:'Active',
+      File_ID:'file-1',File_URL:'https://drive.google.com/open?id=file-1',Original_Filename:'note.txt',Saved_Filename:'2026_KKR_01.txt',Status:'Active',
       Updated_At:'2026-08-03T00:00:00.000Z',AI_Document_Name:'',AI_Index_Status:'Pending',AI_Indexed_At:'',AI_Content_Hash:'',AI_Last_Error:''
     }],
     ...overrides

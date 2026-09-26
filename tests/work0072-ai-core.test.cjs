@@ -110,6 +110,18 @@ test('citation mapping preserves News and internal-assessment provenance and rej
   assert.equal(ambiguous.bySourceKey['News:NEWS-000001'], null);
 });
 
+test('normal citation link must identify the authoritative Drive file exactly', () => {
+  const context = fixture();
+  const environment = createSyncEnvironment({ context });
+  environment.getDriveFileMetadata = fileId => ({ id: fileId, parents: ['news-folder'], trashed: false,
+    mimeType: 'application/vnd.google-apps.document' });
+  const citation = [{ sourceType: 'News', sourceId: 'NEWS-000001' }];
+  assert.doesNotThrow(() => ksp.kspValidateCitedDriveSources_(environment, context, citation));
+  context.newsRows[0].Source_URL = 'https://docs.google.com/document/d/news-doc-1-extra/edit';
+  assert.throws(() => ksp.kspValidateCitedDriveSources_(environment, context, citation),
+    error => error.code === 'AI_CITED_SOURCE_UNAVAILABLE');
+});
+
 test('fake provider query matrix uses authoritative IDs and source-scoped citations', () => {
   const context = fixture();
   const env = createSyncEnvironment({ context });

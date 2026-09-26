@@ -76,7 +76,7 @@ test('query audit stores filters/model/cited IDs but no question, answer, or chu
 
 test('Meeting source model includes stable metadata and authoritative text only in transient source',()=>{
   const source=plain(ksp.kspBuildMeetingAiSource_(baseContext().meetingRows[0],{gps:{'GP-1':'KKR'},counterparties:{'GP:GP-1':'KKR'},assetClasses:{'AC-1':'Infrastructure'},capitalTypes:{'CT-1':'Equity'}},'body','hash'));
-  assert.equal(source.sourceId,'MTG-000001');assert.equal(source.driveUrl,'https://drive.test/meeting-1');assert.equal(source.text,'body');assert.equal(source.contentHash,'hash');
+  assert.equal(source.sourceId,'MTG-000001');assert.equal(source.driveUrl,'https://docs.google.com/document/d/doc-1/edit');assert.equal(source.text,'body');assert.equal(source.contentHash,'hash');
   assert.equal(source.entityKey,'COUNTERPARTY:GP-1');assert.equal(source.relatedGpIds,'');
   const nonGp=plain(ksp.kspBuildMeetingAiSource_({...baseContext().meetingRows[0],GP_ID:'',Counterparty_Type:'LP_ASSET_OWNER',Counterparty_ID:'OPT-CPLP-001',Related_GP_IDs:'GP-1'},
     {gps:{'GP-1':'KKR'},counterparties:{'OPT-CPLP-001':'Synthetic Asset Owner'},assetClasses:{'AC-1':'Infrastructure'},capitalTypes:{'CT-1':'Equity'}},'body','hash'));
