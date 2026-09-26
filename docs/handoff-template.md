@@ -99,6 +99,20 @@ Once required evidence passes, do not add success criteria or reopen weaker evid
 
 The report retains the same Work/Dispatch IDs and changes ownership to the next actor.
 
+### Shared Knowledge
+
+Every durable final completion report must include these three machine-readable fields:
+
+```text
+KNOWLEDGE_RETRIEVAL: <canonical IDs actually read | NONE | UNAVAILABLE>
+KNOWLEDGE_APPLIED: <canonical IDs that materially changed the work | NONE>
+NEW_KNOWLEDGE_CANDIDATE: <YES | NO>
+```
+
+Record only canonical IDs actually read from the shared `agent-knowledge-base`. `KNOWLEDGE_APPLIED` must be a subset of `KNOWLEDGE_RETRIEVAL` and is reserved for entries that materially changed a decision, implementation, validation, recovery, or stopping path. Use `UNAVAILABLE` only when the shared layer could not be checked.
+
+Missing fields are `telemetry-incomplete`. Do not infer historical usage or mutate an otherwise completed Work solely to backfill telemetry.
+
 ### Mandatory Codex final chat response contract
 
 The Codex final chat response MUST begin with this exact four-line block before any other text:
