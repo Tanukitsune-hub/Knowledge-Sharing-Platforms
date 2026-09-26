@@ -107,6 +107,34 @@ function pitchbookRow(id, date, overrides = {}) {
   };
 }
 
+function newsRow(id, date, overrides = {}) {
+  const fileId = overrides.Source_File_ID || `source-${id}`;
+  return {
+    News_ID: id, Published_Date: date, Publisher: 'Synthetic Publisher', Title: 'Synthetic News',
+    URL: 'https://example.test/news', Counterparty_IDs: 'CP-000001,CP-000002',
+    Asset_Class_ID: 'OPT-AC-002', Fund_Strategy: 'Fund Alpha', Input_Mode: 'DIRECT_TEXT',
+    Source_File_ID: fileId, Source_URL: `https://docs.google.com/document/d/${fileId}/edit`,
+    Source_Mime_Type: 'application/vnd.google-apps.document', Original_Filename: '',
+    Saved_Filename: id, Status: 'Active', Version: 1,
+    Updated_At: `${date}T00:00:00.000Z`, ...overrides
+  };
+}
+
+function assessmentRow(id, date, overrides = {}) {
+  const fileId = overrides.Source_File_ID || `source-${id}`;
+  return {
+    Assessment_ID: id, Assessment_Date: date, Assessment_Type: 'IC_DECISION',
+    Title: 'Synthetic Assessment', Counterparty_IDs: 'CP-000002',
+    Asset_Class_ID: 'OPT-AC-002', Fund_Strategy: 'Fund Alpha',
+    Decision_Or_Action: 'Synthetic decision', Input_Mode: 'DIRECT_TEXT',
+    Source_File_ID: fileId, Source_URL: `https://docs.google.com/document/d/${fileId}/edit`,
+    Source_Mime_Type: 'application/vnd.google-apps.document', Original_Filename: '',
+    Saved_Filename: id, Related_Meeting_IDs: 'MTG-000001', Related_Document_IDs: '',
+    Related_News_IDs: 'NEWS-000001', Status: 'Active', Version: 1,
+    Updated_At: `${date}T00:00:00.000Z`, ...overrides
+  };
+}
+
 function createFakeEnvironment(options = {}) {
   const cat = catalogRows();
   const meetingRows = (options.meetingRows || [
@@ -118,6 +146,8 @@ function createFakeEnvironment(options = {}) {
     pitchbookRow('DOC-000002', '2026-08-02', { File_ID: 'file-2', Counterparty_ID: 'CP-000001', Asset_Class_ID: 'OPT-AC-001' }),
     pitchbookRow('DOC-000003', '2026-08-04', { File_ID: 'file-3', Status: 'Inactive' })
   ]).map((row) => ({ ...row }));
+  const newsRows = (options.newsRows || []).map((row) => ({ ...row }));
+  const assessmentRows = (options.assessmentRows || []).map((row) => ({ ...row }));
   const documents = new Map(Object.entries(options.documents || {
     'doc-1': { text: 'Meeting body: synthetic full authoritative text.' },
     'doc-2': { text: 'Inactive body must not be read.' }
@@ -127,6 +157,7 @@ function createFakeEnvironment(options = {}) {
   const reads = [];
   const pitchbookMetadataReads = [];
   const pitchbookByteReads = [];
+  const xlsxNormalizations = [];
   const publicOperations = new Map();
   const idempotency = new Map();
   let tick = 0;
@@ -146,6 +177,8 @@ function createFakeEnvironment(options = {}) {
       return {
         meetingRows: meetingRows.map((row) => ({ ...row })),
         pitchbookRows: pitchbookRows.map((row) => ({ ...row })),
+        newsRows: newsRows.map((row) => ({ ...row })),
+        assessmentRows: assessmentRows.map((row) => ({ ...row })),
         gpRows: gpRows.map((row) => ({ ...row })),
         optionRows: optionRows.map((row) => ({ ...row })),
         auditSpreadsheetId: 'audit-synthetic',
@@ -175,6 +208,16 @@ function createFakeEnvironment(options = {}) {
     readPitchbookSource(id) {
       pitchbookByteReads.push(id);
       return { mimeType: 'application/pdf', bytes: [37, 80, 68, 70] };
+    },
+    getSourceFileBytes(id) {
+      pitchbookByteReads.push(id);
+      const mimeType = options.driveMetadata?.mimeType || 'text/plain';
+      return { fileId: id, mimeType, bytes: options.sourceBytes || Array.from(Buffer.from('Synthetic upload body', 'utf8')) };
+    },
+    decodeSourceText(bytes) { return Buffer.from(bytes).toString('utf8'); },
+    normalizeXlsxText(bytes) {
+      xlsxNormalizations.push(Array.from(bytes));
+      return options.xlsxText || 'Sheet: Synthetic\nA1\tSynthetic cell';
     },
     claimPublicOperation(key, expirationSeconds) {
       const now = Date.now();
@@ -211,7 +254,7 @@ function createFakeEnvironment(options = {}) {
       if (options.auditError) throw new Error('synthetic audit failure');
       audits.push({ ...row });
     },
-    _debug: { meetingRows, pitchbookRows, documents, audits, artifacts, reads, pitchbookMetadataReads, pitchbookByteReads, publicOperations, idempotency }
+    _debug: { meetingRows, pitchbookRows, newsRows, assessmentRows, documents, audits, artifacts, reads, pitchbookMetadataReads, pitchbookByteReads, xlsxNormalizations, publicOperations, idempotency }
   };
   return environment;
 }
@@ -235,22 +278,17 @@ function baseInput(overrides = {}) {
 
 test('Active source resolution applies filters and deterministic date/ID ordering', () => {
   const env = createFakeEnvironment();
-  const input = ksp.kspValidateKnowledgeExportFilters_(
-    ksp.kspNormalizeKnowledgeExportInput_(baseInput()),
-    ksp.kspBuildKnowledgeSearchCatalog_(catalogRows().gps, catalogRows().options)
-  );
-  const sources = ksp.kspResolveKnowledgeExportSources_(
-    env._debug.meetingRows, env._debug.pitchbookRows, input
-  );
+  const context = env.loadKnowledgeExportContext();
+  const input = ksp.kspRestrictKnowledgeEligibleSources_(
+    ksp.kspValidateKnowledgeExportFilters_(ksp.kspNormalizeKnowledgeFullOutputInput_(baseInput()),
+      ksp.kspBuildKnowledgeSearchCatalog_(catalogRows().gps, catalogRows().options)), context);
+  const sources = ksp.kspResolveKnowledgeExportSources_(context, input);
   assert.deepEqual(Array.from(sources, (source) => source.sourceId), [
     'MTG-000001'
   ]);
   assert.equal(sources.some((source) => source.sourceId === 'MTG-000002'), false);
   assert.deepEqual(
-    Array.from(ksp.kspResolveKnowledgeExportSources_(
-      env._debug.meetingRows, env._debug.pitchbookRows,
-      { ...input, sourceType: 'Meeting' }
-    ), (source) => source.sourceId),
+    Array.from(ksp.kspResolveKnowledgeExportSources_(context, input), (source) => source.sourceId),
     ['MTG-000001']
   );
 });
@@ -258,15 +296,15 @@ test('Active source resolution applies filters and deterministic date/ID orderin
 test('Full Output ignores AI-only state without mutating the request or changing the primary entity scope', () => {
   for (const mode of ['自由質問', '比較', '面談準備', 'invalid-AI-mode']) {
     const env = createFakeEnvironment();
-    const input = {mode, questionOrInstruction: '', modelProfileId: '', thinkingProfileId: '', selectedEntityKeys: ['invalid'],
-      filters: {entityKey: 'COUNTERPARTY:CP-000002', sourceType: 'Pitchbook', dateFrom: '2026-08-01', dateTo: '2026-08-03'}};
+    const input = {mode, questionOrInstruction: '', modelProfileId: '', thinkingProfileId: '',
+      filters: {entityKey: 'COUNTERPARTY:CP-000002', sourceTypes: ['Meeting'], dateFrom: '2026-08-01', dateTo: '2026-08-03'}};
     const before = JSON.stringify(input);
     const result = ksp.kspRunKnowledgeExportPreview_(env, input);
     assert.equal(result.ok, true, JSON.stringify(result));
     assert.equal(JSON.stringify(input), before);
     assert.equal(result.preview.meetingCount, 1);
     assert.equal(result.preview.pitchbookCount, 0);
-    assert.equal(result.preview.filters.sourceType, 'Meeting');
+    assert.deepEqual(Array.from(result.preview.sourceTypes), ['Meeting']);
     assert.equal(result.preview.filters.entityKey, 'COUNTERPARTY:CP-000002');
     assert.deepEqual(env._debug.pitchbookMetadataReads, []);
     assert.doesNotMatch(result.preview.packageText, /Mode instruction|Question \/ additional instruction|Pitchbooks \/ reference/);
@@ -292,16 +330,21 @@ test('Full Output rejects reversed dates and invalid common entity before author
   }
 });
 
-test('Full Output applies Meeting-only detailed filters even when AI source state is Pitchbook', () => {
+test('Full Output rejects Meeting-only filters with a Pitchbook selection', () => {
   const env = createFakeEnvironment({meetingRows: [meetingRow('MTG-000001', '2026-08-01', {
     Doc_File_ID: 'doc-1', GP_ID: '', Counterparty_Type: '', Counterparty_ID: 'CP-000031',
     Team_ID: 'OPT-TEAM-001', Follow_Up_Required: true, Related_GP_IDs: '', Meeting_Type_Codes: 'ANNUAL_REVIEW'
   })]});
   const result = ksp.kspRunKnowledgeExportPreview_(env, {filters: {entityKey: 'COUNTERPARTY:CP-000031',
     sourceType: 'Pitchbook', teamId: 'OPT-TEAM-001', followUp: 'REQUIRED', meetingTypeCode: 'ANNUAL_REVIEW'}});
-  assert.equal(result.ok, true, JSON.stringify(result));
-  assert.equal(result.preview.meetingCount, 1);
-  assert.match(result.preview.packageText, /Synthetic Asset Owner/);
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE');
+  assert.deepEqual(env._debug.reads, []);
+  env._debug.publicOperations.clear();
+  const meetingResult = ksp.kspRunKnowledgeExportPreview_(env, {filters: {entityKey: 'COUNTERPARTY:CP-000031',
+    sourceTypes: ['Meeting'], teamId: 'OPT-TEAM-001', followUp: 'REQUIRED', meetingTypeCode: 'ANNUAL_REVIEW'}});
+  assert.equal(meetingResult.ok, true, JSON.stringify(meetingResult));
+  assert.match(meetingResult.preview.packageText, /Synthetic Asset Owner/);
 });
 
 test('Full Output time budget and attribute fingerprints remain fail closed', () => {
@@ -402,30 +445,22 @@ test('creation preserves Meeting bodies and excludes Pitchbook metadata and link
   assert.doesNotMatch(result.preview.packageText, /Pitchbooks \/ reference metadata and authoritative links only/);
 });
 
-test('Pitchbook-only FULL_EXPORT is a no-result hard stop and cannot create a reference-only artifact', () => {
+test('Pitchbook PDF selection fails with an explicit unsupported-materialization error', () => {
   const env = createFakeEnvironment({
     meetingRows: [],
     pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: 'file-1' })]
   });
   const input = baseInput({ sourceType: 'Pitchbook' });
   const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
-  assert.equal(preview.ok, true, JSON.stringify(preview));
-  assert.equal(preview.preview.meetingCount, 0);
-  assert.equal(preview.preview.pitchbookCount, 0);
-  assert.equal(preview.preview.noResults, true);
-  const result = ksp.kspRunKnowledgeExportCreation_(env, {
-    ...input,
-    previewFingerprint: preview.preview.previewFingerprint,
-    outputType: 'GOOGLE_DOCS'
-  });
-  assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_NO_RESULTS');
+  assert.equal(preview.ok, false);
+  assert.equal(preview.error.code, 'KNOWLEDGE_EXPORT_UNSUPPORTED_MATERIALIZATION');
+  assert.match(preview.error.message, /DOC-000001.*\.pdf/);
   assert.equal(env._debug.artifacts.length, 0);
-  assert.deepEqual(env._debug.pitchbookMetadataReads, []);
+  assert.deepEqual(env._debug.pitchbookMetadataReads, ['file-1']);
   assert.deepEqual(env._debug.pitchbookByteReads, []);
 });
 
-test('Private materializer still validates Pitchbook reference metadata identity and boundary without reading body bytes', () => {
+test('Private materializer validates Pitchbook metadata identity before body bytes', () => {
   const invalidMetadataCases = [
     { id: 'file-other' },
     { mimeType: 'application/vnd.google-apps.folder' },
@@ -438,7 +473,7 @@ test('Private materializer still validates Pitchbook reference metadata identity
       pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: 'file-1' })],
       driveMetadata
     });
-    assert.throws(() => materializePitchbooks(env), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID' });
+    assert.throws(() => materializePitchbooks(env), { code: 'KNOWLEDGE_EXPORT_SOURCE_INTEGRITY_FAILED' });
     assert.deepEqual(env._debug.pitchbookMetadataReads, ['file-1']);
     assert.deepEqual(env._debug.pitchbookByteReads, []);
     assert.deepEqual(env._debug.artifacts, []);
@@ -475,7 +510,7 @@ test('Knowledge Export URL parser accepts exact Google editor and Drive shapes o
   });
 });
 
-test('Private materializer preserves exact Presentation and Spreadsheets identity checks', () => {
+test('Presentation hard-stops while existing XLSX cell materializer is reused', () => {
   const cases = [
     {
       extension: 'pptx',
@@ -502,11 +537,19 @@ test('Private materializer preserves exact Presentation and Spreadsheets identit
       driveMetadata: { id: fileId, mimeType, trashed: false, webViewLink: editorUrl },
       documents: { 'doc-1': { text: 'Authoritative Meeting body only.' } }
     });
-    const materials = materializePitchbooks(env);
-    assert.equal(materials.pitchbooks.length, 1);
-    assert.equal(materials.pitchbooks[0].source.canonicalUrl, 'https://drive.google.com/open?id=' + fileId);
+    if (extension === 'pptx') {
+      assert.throws(() => materializePitchbooks(env), {
+        code: 'KNOWLEDGE_EXPORT_UNSUPPORTED_MATERIALIZATION'
+      });
+      assert.deepEqual(env._debug.pitchbookByteReads, []);
+    } else {
+      const materials = materializePitchbooks(env);
+      assert.equal(materials.pitchbooks.length, 1);
+      assert.match(materials.pitchbooks[0].body, /Synthetic cell/);
+      assert.equal(materials.pitchbooks[0].source.canonicalUrl, 'https://drive.google.com/open?id=' + fileId);
+      assert.deepEqual(env._debug.pitchbookByteReads, [fileId]);
+    }
     assert.deepEqual(env._debug.pitchbookMetadataReads, [fileId]);
-    assert.deepEqual(env._debug.pitchbookByteReads, []);
     assert.deepEqual(env._debug.artifacts, []);
   });
 });
@@ -526,7 +569,7 @@ test('Presentation and Spreadsheets URL, row, and Drive metadata ID mismatches f
         File_URL: `https://docs.google.com/${editorType}/d/other-file/edit`
       })]
     });
-    assert.throws(() => materializePitchbooks(rowMismatch), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH' });
+    assert.throws(() => materializePitchbooks(rowMismatch), { code: 'KNOWLEDGE_EXPORT_SOURCE_INTEGRITY_FAILED' });
     assert.deepEqual(rowMismatch._debug.pitchbookMetadataReads, []);
 
     const metadataIdMismatch = createFakeEnvironment({
@@ -534,7 +577,7 @@ test('Presentation and Spreadsheets URL, row, and Drive metadata ID mismatches f
       pitchbookRows: [pitchbookRow('DOC-000001', '2026-08-01', { File_ID: fileId, File_URL: matchingUrl })],
       driveMetadata: { id: 'other-file', mimeType, trashed: false, webViewLink: matchingUrl }
     });
-    assert.throws(() => materializePitchbooks(metadataIdMismatch), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID' });
+    assert.throws(() => materializePitchbooks(metadataIdMismatch), { code: 'KNOWLEDGE_EXPORT_SOURCE_INTEGRITY_FAILED' });
 
     const metadataUrlMismatch = createFakeEnvironment({
       meetingRows: [],
@@ -546,13 +589,13 @@ test('Presentation and Spreadsheets URL, row, and Drive metadata ID mismatches f
         webViewLink: `https://docs.google.com/${editorType}/d/other-file/edit`
       }
     });
-    assert.throws(() => materializePitchbooks(metadataUrlMismatch), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_METADATA_INVALID' });
+    assert.throws(() => materializePitchbooks(metadataUrlMismatch), { code: 'KNOWLEDGE_EXPORT_SOURCE_INTEGRITY_FAILED' });
     assert.deepEqual(metadataUrlMismatch._debug.pitchbookByteReads, []);
     assert.deepEqual(metadataUrlMismatch._debug.artifacts, []);
   });
 });
 
-test('FULL_OUTPUT excludes all six Pitchbook formats without metadata or byte reads', () => {
+test('Meeting-only Full Output excludes unselected Pitchbooks without metadata or byte reads', () => {
   const extensions = ['pdf', 'pptx', 'xlsx', 'docx', 'txt', 'eml'];
   const pitchbookRows = extensions.map((extension, index) => pitchbookRow(
     `DOC-${String(index + 1).padStart(6, '0')}`,
@@ -588,7 +631,7 @@ test('Knowledge Export includes Counterparty-centered Meeting attributes without
   });
   const input=baseInput();const preview=ksp.kspRunKnowledgeExportPreview_(env,input);const result=ksp.kspRunKnowledgeExportCreation_(env,{...input,previewFingerprint:preview.preview.previewFingerprint,outputType:'GOOGLE_DOCS'});
   assert.equal(result.ok,true,JSON.stringify(result));const text=ksp.kspBuildKnowledgeExportPlainText_(env._debug.artifacts[0].model);
-  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/アセットクラス: Infrastructure/);assert.match(text,/チーム: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/MTG種別: 定例年1回, 先方オフィス訪問/);assert.doesNotMatch(text,/(?:Asset Class|Team|Meeting Type):/);assert.doesNotMatch(text,/要フォロー|Follow-up|private follow-up/);assert.match(text,/関連資料のDocument ID: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);
+  assert.match(text,/面談先区分: LP \/ Asset Owner/);assert.match(text,/面談先: Synthetic Asset Owner/);assert.doesNotMatch(text,/Related GP:/);assert.match(text,/アセットクラス: Infrastructure/);assert.match(text,/チーム: PD/);assert.match(text,/Fund \/ Strategy: Fund Alpha/);assert.match(text,/MTG種別: 定例年1回, 先方オフィス訪問/);assert.doesNotMatch(text,/(?:Asset Class|Team|Meeting Type):/);assert.doesNotMatch(text,/要フォロー|Follow-up|private follow-up/);assert.match(text,/関連Document ID: DOC-000001/);assert.doesNotMatch(text,/Fund \/ Strategy: Fund Beta/);
   assert.equal(JSON.stringify(env._debug.audits).includes('private follow-up'),false);
 });
 
@@ -669,15 +712,15 @@ test('thresholds warn and hard-stop at strictly greater values', () => {
   const documents = Object.fromEntries(rows.map((row) => [row.Doc_File_ID, { text: 'x' }]));
   const env = createFakeEnvironment({ meetingRows: rows, pitchbookRows: [], documents });
   const preview = ksp.kspRunKnowledgeExportPreview_(env, baseInput({ sourceType: 'Meeting' }));
-  assert.equal(preview.ok, true);
-  assert.equal(preview.preview.hardStop, true);
+  assert.equal(preview.ok, false);
+  assert.equal(preview.error.code, 'AI_ADVANCED_FILTER_TOO_BROAD');
   const result = ksp.kspRunKnowledgeExportCreation_(env, {
     ...baseInput({ sourceType: 'Meeting' }),
-    previewFingerprint: preview.preview.previewFingerprint,
+    previewFingerprint: 'synthetic-stale',
     outputType: 'PDF'
   });
   assert.equal(result.ok, false);
-  assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_LIMIT_EXCEEDED');
+  assert.equal(result.error.code, 'AI_ADVANCED_FILTER_TOO_BROAD');
   assert.equal(env._debug.artifacts.length, 0);
   assert.deepEqual(env._debug.reads, [], 'Index hard-stop must not read Meeting Docs');
 });
@@ -702,7 +745,7 @@ test('source link identity mismatches fail closed before reading or creating art
       File_URL: 'https://drive.google.com/file/d/file-other/view'
     })]
   });
-  assert.throws(() => materializePitchbooks(pitchbookEnv), { code: 'KNOWLEDGE_EXPORT_PITCHBOOK_LINK_MISMATCH' });
+  assert.throws(() => materializePitchbooks(pitchbookEnv), { code: 'KNOWLEDGE_EXPORT_SOURCE_INTEGRITY_FAILED' });
   assert.deepEqual(pitchbookEnv._debug.pitchbookMetadataReads, []);
 });
 
@@ -736,8 +779,8 @@ test('all five prompts are provider-neutral and independent of Gemini state', ()
     }));
     assert.equal(result.ok, true, `${mode}: ${JSON.stringify(result)}`);
     assert.doesNotMatch(result.prompt, /Gemini|File Search|Citation|citation/i);
-    assert.match(result.prompt, /保存資料の本文とリンクは含みません/);
-    assert.match(result.prompt, /必要に応じて別途添付した原資料/);
+    assert.match(result.prompt, /選択資料の全文/);
+    assert.match(result.prompt, /当時の社内評価/);
   });
   assert.equal(env._debug.audits.length, 0);
 });
@@ -952,5 +995,124 @@ test('Docs and PDF live adapter paths write the model, validate the folder, and 
     else ksp.ScriptApp = originalScriptApp;
     if (originalUrlFetchApp === undefined) delete ksp.UrlFetchApp;
     else ksp.UrlFetchApp = originalUrlFetchApp;
+  }
+});
+
+test('Full Output resolves all four Active sources once and preserves internal Assessment provenance', () => {
+  const meeting = meetingRow('MTG-000001', '2026-08-01', { Doc_File_ID: 'doc-meeting' });
+  const pitchbook = pitchbookRow('DOC-000001', '2026-08-02', {
+    File_ID: 'file-text', File_URL: 'https://drive.google.com/file/d/file-text/view',
+    Original_Filename: 'source.txt', Saved_Filename: 'source.txt'
+  });
+  const news = newsRow('NEWS-000001', '2026-08-03', { Source_File_ID: 'doc-news',
+    Source_URL: 'https://docs.google.com/document/d/doc-news/edit' });
+  const assessment = assessmentRow('ASMT-000001', '2026-08-04', { Source_File_ID: 'doc-assessment',
+    Source_URL: 'https://docs.google.com/document/d/doc-assessment/edit' });
+  const options = {
+    meetingRows: [meeting], pitchbookRows: [pitchbook],
+    newsRows: [news, newsRow('NEWS-000002', '2026-08-05', { Status: 'Inactive' })],
+    assessmentRows: [assessment],
+    documents: {
+      'doc-meeting': { text: 'Meeting full text' },
+      'doc-news': { text: 'News direct full text' },
+      'doc-assessment': { text: 'Assessment direct full text' }
+    },
+    driveMetadata: { mimeType: 'text/plain' },
+    sourceBytes: Array.from(Buffer.from('Pitchbook TXT full text', 'utf8'))
+  };
+  const env = createFakeEnvironment(options);
+  const input = { filters: { sourceTypes: ['Internal Assessment', 'News', 'Pitchbook', 'Meeting'],
+    entityKey: 'COUNTERPARTY:CP-000002' } };
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, input);
+  assert.equal(preview.ok, true, JSON.stringify(preview));
+  assert.deepEqual(Array.from(preview.preview.sourceTypes), ['Meeting', 'Pitchbook', 'News', 'Internal Assessment']);
+  assert.deepEqual([preview.preview.meetingCount, preview.preview.pitchbookCount,
+    preview.preview.newsCount, preview.preview.assessmentCount, preview.preview.sourceCount], [1, 1, 1, 1, 4]);
+  assert.equal(preview.preview.sourceIds.filter(id => id === 'NEWS-000001').length, 1);
+  assert.equal(preview.preview.sourceIds.includes('NEWS-000002'), false);
+  for (const body of ['Meeting full text', 'Pitchbook TXT full text', 'News direct full text',
+    'Assessment direct full text']) assert.match(preview.preview.packageText, new RegExp(body));
+  assert.match(preview.preview.packageText, /当時の社内評価（外部事実ではありません）/);
+  assert.match(preview.preview.packageText, /発行元: Synthetic Publisher/);
+  assert.match(preview.preview.packageText, /原本ID: ASMT-000001/);
+  assert.match(preview.preview.packageText, /原本URL: https:\/\/docs\.google\.com\/document\/d\/doc-assessment\/edit/);
+  const created = ksp.kspRunKnowledgeExportCreation_(env, {
+    ...input, previewFingerprint: preview.preview.packageFingerprint, outputType: 'GOOGLE_DOCS'
+  });
+  assert.equal(created.ok, true, JSON.stringify(created));
+  assert.equal(created.packageText, preview.preview.packageText);
+  assert.equal(created.packageFingerprint, preview.preview.packageFingerprint);
+  assert.equal(env._debug.artifacts[0].model.sourceSections.length, 4);
+  assert.equal(env._debug.artifacts[0].model.sourceSections.filter(s => s.sourceType === 'News').length, 1);
+  assert.deepEqual(env._debug.pitchbookByteReads, ['file-text', 'file-text']);
+  assert.doesNotMatch(JSON.stringify(env._debug.audits), /Meeting full text|News direct full text|Assessment direct full text/);
+
+  const reordered = createFakeEnvironment(options);
+  const same = ksp.kspRunKnowledgeExportPreview_(reordered, { filters: {
+    sourceTypes: ['Meeting', 'Pitchbook', 'News', 'Internal Assessment'],
+    entityKey: 'COUNTERPARTY:CP-000002'
+  } });
+  assert.equal(same.ok, true, JSON.stringify(same));
+  assert.equal(same.preview.packageFingerprint, preview.preview.packageFingerprint);
+});
+
+test('TXT and EML uploads materialize through the shared format registry for News and Assessment', () => {
+  const cases = [
+    { sourceType: 'News', extension: 'txt', mimeType: 'text/plain',
+      body: 'News TXT full body', expected: /News TXT full body/ },
+    { sourceType: 'Internal Assessment', extension: 'eml', mimeType: 'message/rfc822',
+      body: 'Subject: Synthetic assessment\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nInternal EML full body',
+      expected: /Internal EML full body/ }
+  ];
+  cases.forEach(({ sourceType, extension, mimeType, body, expected }) => {
+    const id = sourceType === 'News' ? 'NEWS-000001' : 'ASMT-000001';
+    const upload = { Input_Mode: 'UPLOAD_FILE', Source_File_ID: 'file-upload',
+      Source_URL: 'https://drive.google.com/file/d/file-upload/view', Source_Mime_Type: mimeType,
+      Original_Filename: `source.${extension}`, Saved_Filename: `source.${extension}` };
+    const env = createFakeEnvironment({ meetingRows: [], pitchbookRows: [],
+      newsRows: sourceType === 'News' ? [newsRow(id, '2026-08-01', upload)] : [],
+      assessmentRows: sourceType === 'Internal Assessment' ? [assessmentRow(id, '2026-08-01', upload)] : [],
+      driveMetadata: { mimeType }, sourceBytes: Array.from(Buffer.from(body, 'utf8')) });
+    const result = ksp.kspRunKnowledgeExportPreview_(env, { filters: { sourceTypes: [sourceType] } });
+    assert.equal(result.ok, true, `${sourceType}: ${JSON.stringify(result)}`);
+    assert.match(result.preview.packageText, expected);
+    assert.deepEqual(env._debug.pitchbookByteReads, ['file-upload']);
+  });
+});
+
+test('News XLSX upload reaches the existing cell normalizer in Full Output preview', () => {
+  const env = createFakeEnvironment({ meetingRows: [], pitchbookRows: [],
+    newsRows: [newsRow('NEWS-000001', '2026-08-01', {
+      Input_Mode: 'UPLOAD_FILE', Source_File_ID: 'file-xlsx',
+      Source_URL: 'https://drive.google.com/file/d/file-xlsx/view',
+      Source_Mime_Type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      Original_Filename: 'original.xlsx', Saved_Filename: 'saved.xlsx'
+    })],
+    driveMetadata: { mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+    sourceBytes: [80, 75, 3, 4], xlsxText: 'Sheet: Deal model\nB2\tSynthetic valuation'
+  });
+  const preview = ksp.kspRunKnowledgeExportPreview_(env, { filters: { sourceTypes: ['News'] } });
+  assert.equal(preview.ok, true, JSON.stringify(preview));
+  assert.match(preview.preview.packageText, /Sheet: Deal model\nB2\tSynthetic valuation/);
+  assert.match(preview.preview.packageText, /ニュース NEWS-000001/);
+  assert.deepEqual(env._debug.pitchbookByteReads, ['file-xlsx']);
+  assert.deepEqual(env._debug.xlsxNormalizations, [[80, 75, 3, 4]]);
+});
+
+test('selected PDF, PPTX, and DOCX sources hard-stop before byte reads or artifact creation', () => {
+  for (const [extension, mimeType] of [
+    ['pdf', 'application/pdf'],
+    ['pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+    ['docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  ]) {
+    const env = createFakeEnvironment({ meetingRows: [], pitchbookRows: [pitchbookRow('DOC-000001',
+      '2026-08-01', { Original_Filename: `source.${extension}`, Saved_Filename: `source.${extension}` })],
+    driveMetadata: { mimeType } });
+    const result = ksp.kspRunKnowledgeExportPreview_(env, { filters: { sourceTypes: ['Pitchbook'] } });
+    assert.equal(result.ok, false);
+    assert.equal(result.error.code, 'KNOWLEDGE_EXPORT_UNSUPPORTED_MATERIALIZATION');
+    assert.match(result.error.message, new RegExp(`\\.${extension}`));
+    assert.deepEqual(env._debug.pitchbookByteReads, []);
+    assert.deepEqual(env._debug.artifacts, []);
   }
 });

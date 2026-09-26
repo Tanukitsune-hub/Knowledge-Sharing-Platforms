@@ -22,6 +22,7 @@ function harness() {
       setAttribute() {}, remove() {}};
   }
   for (const [, id] of page.matchAll(/\bid="([^"]+)"/g)) nodes.set(id, node());
+  nodes.get('knowledge-source-meeting').checked = true;
   nodes.get('knowledge-route').value = 'OPENAI';
   nodes.get('knowledge-mode').value = '自由質問';
   const calls = [];
@@ -41,43 +42,54 @@ function harness() {
     kspSetRegionBusy(region, busy) { if (region) region.setAttribute('aria-busy', String(busy)); }});
   new vm.Script(dateControls.match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
   new vm.Script(client.match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
+  vm.runInContext("knowledgeState.options.sourceTypes=[{id:'Meeting',name:'面談メモ'},{id:'Pitchbook',name:'保存資料'},{id:'News',name:'ニュース'},{id:'Internal Assessment',name:'評価（ICメモ、社内整理等）'}]", context);
   return {context, nodes, calls, setResponse: value => {response = value}};
 }
 
 test('production layout has the Work 0037 row order and a dedicated non-submit Full Output action', () => {
   const order = ['knowledge-dateFrom', 'knowledge-dateTo', 'knowledge-all-period', 'knowledge-entityKey',
-    'knowledge-assetClassId', 'knowledge-teamId', 'knowledge-sourceType', 'knowledge-mode',
+    'knowledge-assetClassId', 'knowledge-teamId', 'knowledge-source-meeting', 'knowledge-source-pitchbook',
+    'knowledge-source-news', 'knowledge-source-assessment', 'knowledge-mode',
     'knowledge-model-profile', 'knowledge-full-output', 'knowledge-instruction'];
   let previous = -1;
   for (const id of order) {const position = page.indexOf('id="' + id + '"');assert.ok(position > previous, id);previous = position}
   assert.match(page, /id="knowledge-full-output"[^>]*type="button">全文出力/);
   assert.doesNotMatch(page, /<option value="FULL_EXPORT"/);
-  assert.match(page, /面談記録・保存資料/);
-  assert.match(page, /面談記録のみ/);
-  assert.match(page, /資料のみ/);
+  assert.match(page, /id="knowledge-source-meeting"[^>]*checked>面談メモ/);
+  assert.match(page, /id="knowledge-source-pitchbook"[^>]*>保存資料/);
+  assert.match(page, /id="knowledge-source-news"[^>]*>ニュース/);
+  assert.match(page, /id="knowledge-source-assessment"[^>]*>評価（ICメモ、社内整理等）/);
   const ids = Array.from(page.matchAll(/\bid="([^"]+)"/g), match => match[1]);
   assert.equal(ids.length, new Set(ids).size);
 });
 
-test('Full Output click calls existing preview API with common Meeting filters and preserves all AI state', async () => {
+test('Full Output click uses the same selected source scope and preserves AI state', async () => {
   for (const mode of ['自由質問', '比較', '面談準備']) {
     const h = harness();
     const values = {'knowledge-mode': mode, 'knowledge-entityKey': 'LP_ASSET_OWNER:OPT-CPLP-001',
-      'knowledge-sourceType': 'Pitchbook', 'knowledge-instruction': '', 'knowledge-model-profile': '',
-      'knowledge-dateFrom': '2026-08-01', 'knowledge-dateTo': '2026-08-31', 'knowledge-teamId': 'OPT-TEAM-001'};
+      'knowledge-instruction': '', 'knowledge-model-profile': '',
+      'knowledge-dateFrom': '2026-08-01', 'knowledge-dateTo': '2026-08-31', 'knowledge-teamId': ''};
     for (const [id, value] of Object.entries(values)) h.nodes.get(id).value = value;
-    h.nodes.get('knowledge-entityKeys').selectedOptions = [];
+    h.nodes.get('knowledge-source-news').checked = true;
+    const comparisonEntities = [{value: 'LP_ASSET_OWNER:OPT-CPLP-001'}, {value: 'GP:CP-000002'}];
+    h.nodes.get('knowledge-entityKeys').selectedOptions = mode === '比較' ? comparisonEntities : [];
     await h.nodes.get('knowledge-full-output').onclick();
     assert.equal(h.calls.length, 1);
     const call = h.calls[0];
     assert.equal(call.method, 'previewKnowledgeExport');
-    assert.equal(call.payload.filters.sourceType, 'Meeting');
-    assert.equal(call.payload.filters.entityKey, values['knowledge-entityKey']);
-    assert.equal(call.payload.filters.teamId, 'OPT-TEAM-001');
-    for (const field of ['mode', 'questionOrInstruction', 'selectedEntityKeys', 'modelProfileId', 'thinkingProfileId']) {
+    assert.deepEqual(call.payload.filters.sourceTypes, ['Meeting', 'News']);
+    assert.equal(call.payload.filters.sourceType, undefined);
+    assert.equal(call.payload.filters.entityKey, mode === '比較' ? '' : values['knowledge-entityKey']);
+    assert.equal(call.payload.filters.teamId, '');
+    assert.deepEqual(call.payload.selectedEntityKeys, mode === '比較'
+      ? comparisonEntities.map(entity => entity.value) : [values['knowledge-entityKey']]);
+    for (const field of ['mode', 'questionOrInstruction', 'modelProfileId', 'thinkingProfileId']) {
       assert.equal(call.payload[field], undefined, field);
     }
     for (const [id, value] of Object.entries(values)) assert.equal(h.nodes.get(id).value, value, id);
+    assert.equal(h.nodes.get('knowledge-source-meeting').checked, true);
+    assert.equal(h.nodes.get('knowledge-source-news').checked, true);
+    assert.match(h.nodes.get('knowledge-export-scope').textContent, /面談メモ・ニュース/);
     assert.equal(h.nodes.get('knowledge-export-body-preview').textContent, 'Authoritative synthetic Meeting text');
     assert.equal(h.nodes.get('knowledge-export-docs').disabled, false);
     h.setResponse({ok: false, error: {code: 'KNOWLEDGE_EXPORT_DATE_RANGE_INVALID', message: 'reverse dates'}});
@@ -110,12 +122,31 @@ test('Meeting-only AI filters reject incompatible source without silently changi
   const h = harness();
   h.nodes.get('knowledge-model-profile').value = 'configured-profile';
   h.nodes.get('knowledge-teamId').value = 'OPT-TEAM-001';
-  h.nodes.get('knowledge-sourceType').value = 'Pitchbook';
+  h.nodes.get('knowledge-source-pitchbook').checked = true;
+  h.nodes.get('knowledge-source-meeting').checked = false;
   h.nodes.get('knowledge-teamId').listeners.change();
-  assert.equal(h.nodes.get('knowledge-sourceType').value, 'Pitchbook');
+  assert.deepEqual(plain(h.context.kSelectedSourceTypes()), ['Pitchbook']);
   await h.nodes.get('knowledge-form').listeners.submit({preventDefault() {}});
-  assert.match(h.nodes.get('knowledge-status').textContent, /面談記録のみ/);
+  assert.match(h.nodes.get('knowledge-status').textContent, /面談メモ.*のみ/);
   assert.equal(h.calls.length, 0);
+});
+
+test('source selection starts with Meeting only, orders canonically, and rejects zero selection', async () => {
+  const h = harness();
+  assert.deepEqual(plain(h.context.kPayload().filters.sourceTypes), ['Meeting']);
+  h.nodes.get('knowledge-source-assessment').checked = true;
+  h.nodes.get('knowledge-source-news').checked = true;
+  assert.deepEqual(plain(h.context.kPayload().filters.sourceTypes), ['Meeting', 'News', 'Internal Assessment']);
+  for (const id of ['knowledge-source-meeting', 'knowledge-source-news', 'knowledge-source-assessment']) h.nodes.get(id).checked = false;
+  h.nodes.get('knowledge-source-assessment').listeners.change();
+  assert.equal(h.nodes.get('knowledge-submit').disabled, true);
+  assert.equal(h.nodes.get('knowledge-full-output').disabled, true);
+  assert.match(h.nodes.get('knowledge-status').textContent, /情報ソースを1つ以上/);
+  await h.nodes.get('knowledge-form').listeners.submit({preventDefault() {}});
+  await h.nodes.get('knowledge-full-output').onclick();
+  assert.equal(h.calls.length, 0);
+  h.nodes.get('knowledge-clear').onclick();
+  assert.deepEqual(plain(h.context.kPayload().filters.sourceTypes), ['Meeting']);
 });
 
 test('read-only mode instruction and free draft are preserved; all-period restores prior dates', () => {

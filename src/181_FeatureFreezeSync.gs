@@ -63,7 +63,7 @@ function kspFfIsAiWorkEligible_(item, nowIso, settings) {
     kspTemporalInstantComparisonKey_(lastError.nextAttemptAt) <= kspTemporalInstantComparisonKey_(nowIso);
 }
 
-function kspFfSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
+function kspFfSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings, newsRows, assessmentRows) {
   var items = [];
   (meetingRows || []).forEach(function (row) {
     var item = kspAiWorkItemFromRow_(KSP_AI_SOURCE_TYPES.MEETING, row);
@@ -77,6 +77,15 @@ function kspFfSelectAiWorkItems_(meetingRows, pitchbookRows, nowIso, settings) {
       return;
     }
     if (kspFfIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
+  });
+  [
+    { type: KSP_AI_SOURCE_TYPES.NEWS, rows: newsRows || [] },
+    { type: KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT, rows: assessmentRows || [] }
+  ].forEach(function (group) {
+    group.rows.forEach(function (row) {
+      var item = kspAiWorkItemFromRow_(group.type, row);
+      if (kspFfIsAiWorkEligible_(item, nowIso, settings)) items.push(item);
+    });
   });
   items.sort(function (left, right) {
     var leftInactive = String(left.row.Status) === KSP_STATUS.INACTIVE ? 0 : 1;
@@ -104,6 +113,43 @@ function kspBuildFeatureFreezeAiSource_(environment, item, maps) {
     meeting.payloadKind = 'text';
     meeting.byteLength = kspAiSourcePayloadBytes_(meeting).length;
     return meeting;
+  }
+  if (item.sourceType === KSP_AI_SOURCE_TYPES.NEWS ||
+      item.sourceType === KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT) {
+    var sourceFileId = String(row.Source_File_ID || '');
+    if (String(row.Input_Mode || '') === 'DIRECT_TEXT') {
+      var sourceText = environment.readMeetingText(sourceFileId);
+      var directSource = kspSourceRecordAiContextHash_(environment,
+        kspBuildSourceRecordAiSource_(row, item.sourceType, maps, sourceText,
+          environment.hashText(sourceText)));
+      directSource.payloadKind = 'text';
+      directSource.displayName += '.txt';
+      directSource.byteLength = kspAiSourcePayloadBytes_(directSource).length;
+      return directSource;
+    }
+    kspAssert_(String(row.Input_Mode || '') === 'UPLOAD_FILE', 'AI_SOURCE_ROW_INVALID',
+      'AI source input mode is invalid.');
+    var sourceExtension = kspGetPitchbookExtensionForAi_(row);
+    var sourceDefinition = kspGetAiFormatDefinition_(sourceExtension);
+    var sourcePayload = environment.readPitchbookSource(sourceFileId);
+    kspValidateAiSourceDescriptor_(sourceExtension, sourcePayload.mimeType, sourcePayload.bytes.length);
+    var sourceBytes = kspNormalizeAiByteArray_(sourcePayload.bytes);
+    var normalizedText = '';
+    if (sourceDefinition.readStrategy === KSP_AI_READ_STRATEGIES.EML_NORMALIZED_TEXT) {
+      normalizedText = kspNormalizeEmlText_(environment.decodeSourceText(sourceBytes, 'UTF-8'));
+    } else if (sourceDefinition.readStrategy === KSP_AI_READ_STRATEGIES.XLSX_NORMALIZED_TEXT) {
+      normalizedText = environment.normalizeXlsxText(sourceBytes);
+    }
+    var recordSource = kspBuildSourceRecordAiSource_(row, item.sourceType, maps, normalizedText,
+      normalizedText ? environment.hashText(normalizedText) : environment.hashBytes(sourceBytes));
+    recordSource.extension = sourceDefinition.extension;
+    recordSource.readStrategy = sourceDefinition.readStrategy;
+    recordSource.mimeType = sourceDefinition.uploadMimeType;
+    recordSource.payloadKind = normalizedText ? 'text' : 'binary';
+    recordSource.bytes = normalizedText ? null : sourceBytes;
+    if (normalizedText) recordSource.displayName = recordSource.savedFilename.replace(/\.(eml|xlsx)$/i, '') + '.txt';
+    recordSource.byteLength = kspAiSourcePayloadBytes_(recordSource).length;
+    return kspSourceRecordAiContextHash_(environment, recordSource);
   }
   var extension = kspGetPitchbookExtensionForAi_(row);
   var definition = kspGetAiFormatDefinition_(extension);
@@ -246,7 +292,8 @@ function kspRunFeatureFreezeAiSync_(environment) {
   var report = kspFfBuildSyncReport_(startedAt, settings);
   if (!settings.syncEnabled) { report.finishedAt = environment.nowIso(); return report; }
   var store = environment.ensureFileSearchStore(settings, KSP_AI_DEFAULTS.STORE_DISPLAY_NAME);
-  var items = kspFfSelectAiWorkItems_(context.meetingRows, context.pitchbookRows, startedAt, settings);
+  var items = kspFfSelectAiWorkItems_(context.meetingRows, context.pitchbookRows, startedAt, settings,
+    context.newsRows, context.assessmentRows);
   report.selected = items.length;
   var maps = kspBuildAiMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
   items.forEach(function (item) {

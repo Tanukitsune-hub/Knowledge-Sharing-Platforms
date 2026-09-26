@@ -5,6 +5,7 @@ function kspEscapeMetadataFilterString_(value) {
 function kspBuildMetadataFilter_(filters) {
   var input = typeof kspKnowledgeRequestFilters_ === 'function'
     ? kspKnowledgeRequestFilters_(filters) : (filters || {});
+  if (filters && filters.advancedFilterResolved === true) return '';
   var clauses = [];
   function addComparison(key, operator, value) {
     var normalized = kspAiTrim_(value);
@@ -21,7 +22,12 @@ function kspBuildMetadataFilter_(filters) {
   addComparison('fund_strategy', '=', input.fundStrategy);
   addComparison('follow_up_required', '=', input.followUp === 'REQUIRED' ? 'true' :
     (input.followUp === 'NOT_REQUIRED' ? 'false' : ''));
-  addComparison('source_type', '=', input.sourceType);
+  var selectedTypes = typeof kspNormalizeKnowledgeSourceTypes_ === 'function'
+    ? kspNormalizeKnowledgeSourceTypes_(filters) : (input.sourceType ? [input.sourceType] : []);
+  if (selectedTypes.length === 1) addComparison('source_type', '=', selectedTypes[0]);
+  else if (selectedTypes.length > 1) clauses.push('(' + selectedTypes.map(function (type) {
+    return 'source_type = "' + kspEscapeMetadataFilterString_(type) + '"';
+  }).join(' OR ') + ')');
   addComparison('source_id', '=', input.sourceId);
   return clauses.join(' AND ');
 }
@@ -36,7 +42,8 @@ function kspNormalizeKnowledgeSearchInput_(input) {
     gpId: kspAiTrim_(source.gpId),
     assetClassId: kspAiTrim_(source.assetClassId),
     capitalTypeId: kspAiTrim_(source.capitalTypeId),
-    sourceType: kspAiTrim_(source.sourceType)
+    sourceTypes: typeof kspNormalizeKnowledgeSourceTypes_ === 'function'
+      ? kspNormalizeKnowledgeSourceTypes_(source) : (source.sourceType ? [kspAiTrim_(source.sourceType)] : [])
   };
 }
 
@@ -49,10 +56,7 @@ function kspValidateKnowledgeSearchInput_(input) {
   if (input.dateFrom && input.dateTo) {
     kspAssert_(input.dateFrom <= input.dateTo, 'AI_DATE_RANGE_INVALID', 'Date FromはDate To以前にしてください。');
   }
-  if (input.sourceType) {
-    kspAssert_(input.sourceType === KSP_AI_SOURCE_TYPES.MEETING || input.sourceType === KSP_AI_SOURCE_TYPES.PITCHBOOK,
-      'AI_SOURCE_TYPE_INVALID', 'Source Typeが不正です。');
-  }
+  if (typeof kspNormalizeKnowledgeSourceTypes_ === 'function') input.sourceTypes = kspNormalizeKnowledgeSourceTypes_(input);
   return input;
 }
 

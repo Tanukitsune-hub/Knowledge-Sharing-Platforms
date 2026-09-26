@@ -79,7 +79,7 @@ function kspGetFeatureFreezeKnowledgeBootstrap_(environment) {
       implementedModes: KSP_FEATURE_FREEZE_MODE_ORDER.slice(), targetModes: KSP_FEATURE_FREEZE_MODE_ORDER.slice(),
       modeDefinitions: kspGetFeatureFreezeModeDefinitions_(),
       options: kspBuildKnowledgeSearchCatalog_(kspContextCounterpartyRows_(context), context.optionRows,
-        context.meetingRows, context.pitchbookRows),
+        context.meetingRows, context.pitchbookRows, context.newsRows, context.assessmentRows),
       syncIntervalMinutes: settings.syncIntervalMinutes
     };
   } catch (error) {
@@ -104,7 +104,7 @@ function kspRunFeatureFreezeKnowledgeSearch_(environment, rawInput) {
     kspAssert_(settings.storeName, 'AI_STORE_NOT_CONFIGURED', 'Gemini File Search Storeが設定されていません。');
     kspAssert_(settings.modelId, 'AI_MODEL_NOT_CONFIGURED', 'Gemini Flash model IDが設定されていません。');
     var catalog = kspBuildKnowledgeSearchCatalog_(kspContextCounterpartyRows_(context), context.optionRows,
-      context.meetingRows, context.pitchbookRows);
+      context.meetingRows, context.pitchbookRows, context.newsRows, context.assessmentRows);
     kspValidateKnowledgeFilterIds_(input, catalog);
     var metadataFilter = kspBuildMetadataFilter_(input);
     var request = kspBuildFeatureFreezeInteractionRequest_({

@@ -19,8 +19,24 @@ var KSP_AI_ROUTES = Object.freeze({
 
 var KSP_AI_SOURCE_TYPES = Object.freeze({
   MEETING: 'Meeting',
-  PITCHBOOK: 'Pitchbook'
+  PITCHBOOK: 'Pitchbook',
+  NEWS: 'News',
+  INTERNAL_ASSESSMENT: 'Internal Assessment'
 });
+
+var KSP_AI_SOURCE_DEFINITIONS = Object.freeze([
+  Object.freeze({ id: KSP_AI_SOURCE_TYPES.MEETING, name: '面談メモ' }),
+  Object.freeze({ id: KSP_AI_SOURCE_TYPES.PITCHBOOK, name: '保存資料' }),
+  Object.freeze({ id: KSP_AI_SOURCE_TYPES.NEWS, name: 'ニュース' }),
+  Object.freeze({ id: KSP_AI_SOURCE_TYPES.INTERNAL_ASSESSMENT, name: '評価（ICメモ、社内整理等）' })
+]);
+
+function kspAiSourceLabel_(sourceType) {
+  var match = KSP_AI_SOURCE_DEFINITIONS.filter(function (definition) {
+    return definition.id === sourceType;
+  })[0];
+  return match ? match.name : '';
+}
 
 var KSP_AI_SEARCH_MODES = Object.freeze({
   FREE_QUESTION: '自由質問'

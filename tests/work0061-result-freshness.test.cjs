@@ -42,7 +42,7 @@ function runtime(names, overrides = {}) {
   return { state, current, effects, context, call: expression => vm.runInContext(expression, context) };
 }
 const payload = question => ({ route: 'OPENAI', mode: '自由質問', questionOrInstruction: question,
-  filters: { sourceType: 'Meeting', dateFrom: '2026-09-01' }, selectedEntityKeys: [],
+  filters: { sourceTypes: ['Meeting'], dateFrom: '2026-09-01' }, selectedEntityKeys: [],
   modelProfileId: 'model-1', thinkingProfileId: 'thinking-1' });
 
 test('query fingerprint includes question identity without storing its raw text', () => {
@@ -56,6 +56,14 @@ test('query fingerprint includes question identity without storing its raw text'
   assert.doesNotMatch(b, /質問 B/);
   run.current.payload = payload('質問 A');
   assert.equal(run.call('kKnowledgeQueryFingerprint(kPayload())'), a);
+});
+
+test('query fingerprint changes with the selected source scope', () => {
+  const run = runtime(['kKnowledgeQueryFingerprint']);
+  run.current.payload = payload('同じ質問');
+  const meeting = run.call('kKnowledgeQueryFingerprint(kPayload())');
+  run.current.payload = { ...payload('同じ質問'), filters: { sourceTypes: ['Meeting', 'News'], dateFrom: '2026-09-01' } };
+  assert.notEqual(run.call('kKnowledgeQueryFingerprint(kPayload())'), meeting);
 });
 
 test('late start response cannot establish pending state after input identity changes', async () => {

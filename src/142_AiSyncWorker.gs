@@ -12,7 +12,8 @@ function kspRunAiSync_(environment) {
 
   var store = environment.ensureFileSearchStore(settings, KSP_AI_DEFAULTS.STORE_DISPLAY_NAME);
   var storeName = store.name;
-  var items = kspSelectAiWorkItems_(context.meetingRows, context.pitchbookRows, startedAt, settings);
+  var items = kspSelectAiWorkItems_(context.meetingRows, context.pitchbookRows, startedAt, settings,
+    context.newsRows, context.assessmentRows);
   report.selected = items.length;
   var maps = kspBuildAiMasterMaps_(kspContextCounterpartyRows_(context), context.optionRows);
 

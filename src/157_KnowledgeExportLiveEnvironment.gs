@@ -3,12 +3,43 @@ function kspCreateKnowledgeExportEnvironment_() {
 
   environment.loadKnowledgeExportContext = function () {
     var context = kspLoadMaintenanceContext_(environment);
+    context.newsRows = environment.readRows(context.backendSpreadsheetId, KSP_SHEET_NAMES.NEWS_INDEX);
+    context.assessmentRows = environment.readRows(context.backendSpreadsheetId, KSP_SHEET_NAMES.INTERNAL_ASSESSMENT_INDEX);
     var state = environment.getInstallationState();
     var folderId = state && state.resources ? state.resources[KSP_RESOURCE_KEYS.KNOWLEDGE_EXPORTS] : '';
     kspAssert_(folderId, 'KNOWLEDGE_EXPORTS_FOLDER_MISSING', 'Knowledge Exports folderが設定されていません。');
     kspValidateKnowledgeExportFolder_(folderId, state && state.config ? state.config.knowledgeParentFolderId : '');
     context.knowledgeExportsFolderId = folderId;
     return context;
+  };
+
+  environment.getSourceFileBytes = function (fileId) {
+    kspAssert_(fileId, 'KNOWLEDGE_EXPORT_SOURCE_INTEGRITY_FAILED', '原本ファイルIDがありません。');
+    var file = Drive.Files.get(fileId, {
+      supportsAllDrives: true, fields: 'id,mimeType,size,trashed'
+    });
+    kspAssert_(file && String(file.id || '') === String(fileId) && !file.trashed &&
+      Number(file.size || 0) <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_SOURCE_BYTES,
+    'KNOWLEDGE_EXPORT_SOURCE_INTEGRITY_FAILED', 'Drive原本を確認できません。');
+    var response = UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/' +
+      encodeURIComponent(fileId) + '?alt=media&supportsAllDrives=true', {
+        method: 'get', headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() },
+        muteHttpExceptions: true
+      });
+    kspAssert_(response.getResponseCode() >= 200 && response.getResponseCode() < 300,
+      'KNOWLEDGE_EXPORT_SOURCE_READ_FAILED', 'Drive原本を読み込めませんでした。');
+    var bytes = kspNormalizeAiByteArray_(response.getBlob().getBytes());
+    kspAssert_(bytes.length > 0 && bytes.length <= KSP_FEATURE_FREEZE_DEFAULTS.MAX_SOURCE_BYTES,
+      'KNOWLEDGE_EXPORT_SOURCE_READ_FAILED', 'Drive原本のサイズが不正です。');
+    return { fileId: String(file.id), mimeType: String(file.mimeType || ''), bytes: bytes };
+  };
+
+  environment.decodeSourceText = function (bytes, charset) {
+    return Utilities.newBlob(kspNormalizeAiByteArray_(bytes)).getDataAsString(charset || 'UTF-8');
+  };
+
+  environment.normalizeXlsxText = function (bytes) {
+    return kspNormalizeXlsxText_(bytes);
   };
 
   environment.createKnowledgeExportArtifact = function (options) {
@@ -148,10 +179,10 @@ function kspWriteKnowledgeExportDocument_(documentId, model) {
     kspAppendKnowledgeExportParagraph_(body, String(line));
   });
 
-  var sections = model.meetingSections || [];
+  var sections = model.sourceSections || model.meetingSections || [];
   sections.forEach(function (section, index) {
     if (index > 0) body.appendPageBreak();
-    kspAppendKnowledgeExportParagraph_(body, String(section.heading || 'Meeting'))
+    kspAppendKnowledgeExportParagraph_(body, String(section.heading || 'Source'))
       .setHeading(DocumentApp.ParagraphHeading.HEADING1);
     (section.metadataLines || []).forEach(function (line) {
       kspAppendKnowledgeExportParagraph_(body, String(line));
@@ -159,7 +190,6 @@ function kspWriteKnowledgeExportDocument_(documentId, model) {
     kspAppendKnowledgeExportParagraph_(body, String(section.body || ''));
   });
 
-  // Full Output is Meeting-only, including the generated Docs/PDF artifact.
   document.saveAndClose();
 }
 

@@ -90,19 +90,20 @@ test('Related GP and Meeting Type resolve by exact token AND without substring o
   const data = fixtures();
   const normalized = request({
     mode: '要約', selectedEntityKeys: [], filters: {
-      entityKey: 'COUNTERPARTY:CP-000031', relatedGpId: 'CP-000001', meetingTypeCode: 'ANNUAL_REVIEW'
+      sourceTypes: ['Meeting'], entityKey: 'COUNTERPARTY:CP-000031',
+      relatedGpId: 'CP-000001', meetingTypeCode: 'ANNUAL_REVIEW'
     }
   });
-  assert.equal(normalized.filters.sourceType, 'Meeting');
+  assert.deepEqual(plain(normalized.sourceTypes), ['Meeting']);
   ksp.kspValidateKnowledgeFilterIds_(normalized, catalog());
   const resolved = plain(ksp.kspResolveKnowledgeAdvancedSourceIds_(normalized, data.meetings));
   assert.deepEqual(resolved.resolvedSourceIds, ['MTG-1']);
   const partialGp = plain(ksp.kspResolveKnowledgeAdvancedSourceIds_(request({
-    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'CP-000001' }
+    mode: '要約', selectedEntityKeys: [], filters: { sourceTypes: ['Meeting'], relatedGpId: 'CP-000001' }
   }), [data.meetings[1]]));
   assert.deepEqual(partialGp.resolvedSourceIds, []);
   const partialType = plain(ksp.kspResolveKnowledgeAdvancedSourceIds_(request({
-    mode: '要約', selectedEntityKeys: [], filters: { meetingTypeCode: 'ANNUAL_REVIEW' }
+    mode: '要約', selectedEntityKeys: [], filters: { sourceTypes: ['Meeting'], meetingTypeCode: 'ANNUAL_REVIEW' }
   }), [data.meetings[1]]));
   assert.deepEqual(partialType.resolvedSourceIds, []);
 });
@@ -112,7 +113,7 @@ test('advanced Meeting-only filters fail closed, avoid broad retrieval when empt
     mode: '要約', selectedEntityKeys: [], filters: { sourceType: 'Pitchbook', relatedGpId: 'CP-000001' }
   })), error => error.code === 'AI_FILTER_SOURCE_TYPE_INCOMPATIBLE');
   const empty = plain(ksp.kspResolveKnowledgeAdvancedSourceIds_(request({
-    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'CP-000003' }
+    mode: '要約', selectedEntityKeys: [], filters: { sourceTypes: ['Meeting'], relatedGpId: 'CP-000003' }
   }), fixtures().meetings));
   assert.equal(empty.advancedFilterResolved, true);
   assert.deepEqual(empty.resolvedSourceIds, []);
@@ -121,7 +122,7 @@ test('advanced Meeting-only filters fail closed, avoid broad retrieval when empt
     Related_GP_IDs: 'CP-000001', Meeting_Type_Codes: 'ANNUAL_REVIEW'
   }));
   assert.throws(() => ksp.kspResolveKnowledgeAdvancedSourceIds_(request({
-    mode: '要約', selectedEntityKeys: [], filters: { relatedGpId: 'CP-000001' }
+    mode: '要約', selectedEntityKeys: [], filters: { sourceTypes: ['Meeting'], relatedGpId: 'CP-000001' }
   }), rows), error => error.code === 'AI_ADVANCED_FILTER_TOO_BROAD');
 });
 
@@ -147,7 +148,7 @@ test('empty advanced pre-resolution returns no-evidence without invoking the pro
   assert.ok(result.warnings.some(item => item.code === 'AI_ADVANCED_FILTER_NO_EVIDENCE'));
 });
 
-test('FULL_OUTPUT independently applies common Meeting filters, not AI comparison context', () => {
+test('FULL_OUTPUT uses the same resolved Meeting IDs for its selected source scope', () => {
   const data = fixtures();
   const meetings = data.meetings.concat([
     { ...data.meetings[0], Meeting_ID: 'MTG-OTHER-ENTITY', Counterparty_ID: 'CP-000032' },
@@ -155,10 +156,9 @@ test('FULL_OUTPUT independently applies common Meeting filters, not AI compariso
   ]);
   const pitchbooks = [{ ...data.meetings[0], Meeting_ID: '', Document_ID: 'DOC-EXCLUDED' }];
   for (const mode of ['自由質問', '比較', '面談準備']) {
-    // An unfinished AI comparison must neither block export nor override its primary Entity.
     const input = request({ mode, questionOrInstruction: '', modelProfileId: '', thinkingProfileId: '',
-      selectedEntityKeys: ['COUNTERPARTY:CP-000001'], filters: {
-        entityKey: 'COUNTERPARTY:CP-000031', sourceType: 'Pitchbook',
+      selectedEntityKeys: [], filters: {
+        entityKey: 'COUNTERPARTY:CP-000031', sourceTypes: ['Meeting'],
         dateFrom: '2026-08-01', dateTo: '2026-08-31',
         relatedGpId: 'CP-000001', meetingTypeCode: 'ANNUAL_REVIEW'
       } });
@@ -166,15 +166,18 @@ test('FULL_OUTPUT independently applies common Meeting filters, not AI compariso
     const normalized = ksp.kspValidateKnowledgeExportFilters_(
       ksp.kspNormalizeKnowledgeFullOutputInput_(input), catalog());
     assert.deepEqual(plain(input), before);
-    assert.equal(normalized.filters.sourceType, 'Meeting');
+    assert.deepEqual(plain(normalized.sourceTypes), ['Meeting']);
     assert.equal(normalized.filters.entityKey, 'COUNTERPARTY:CP-000031');
     assert.equal(normalized.questionOrInstruction, '');
     assert.deepEqual(plain(normalized.selectedEntityKeys), []);
-    const sources = plain(ksp.kspResolveKnowledgeExportSources_(meetings, pitchbooks, normalized));
+    const context = { meetingRows: meetings, pitchbookRows: pitchbooks,
+      newsRows: [], assessmentRows: [], gpRows: data.gps, optionRows: data.options };
+    const scoped = ksp.kspRestrictKnowledgeEligibleSources_(normalized, context);
+    const sources = plain(ksp.kspResolveKnowledgeExportSources_(context, scoped));
     assert.deepEqual(sources.map(item => [item.sourceType, item.entityKey, item.sourceId]),
       [['Meeting', 'COUNTERPARTY:CP-000031', 'MTG-1']]);
     const body = 'Synthetic authoritative Meeting body';
-    const model = plain(ksp.kspBuildKnowledgeExportRenderModel_(normalized,
+    const model = plain(ksp.kspBuildKnowledgeExportRenderModel_(scoped,
       sources.map(source => ({ source, body })), [], {
         gp: {}, assetClass: {}, capitalType: {}, location: {}, team: {},
         counterparty: { 'CP-000001': 'GP 1', 'CP-000031': 'LP 1' },
@@ -182,7 +185,7 @@ test('FULL_OUTPUT independently applies common Meeting filters, not AI compariso
       }, 'Synthetic'));
     assert.deepEqual(model.pitchbookLines, []);
     const text = ksp.kspBuildKnowledgeExportPlainText_(model);
-    assert.match(text, /面談記録の全文出力/);
+    assert.match(text, /選択資料の全文出力/);
     assert.match(text, /面談先: LP 1/);
     assert.doesNotMatch(text, /Related GP:/);
     assert.ok(text.includes(body));
