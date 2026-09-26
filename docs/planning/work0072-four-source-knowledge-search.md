@@ -3,7 +3,7 @@
 WORK_ID: 0072
 DISPATCH_ID: N/A
 BALL: NONE
-STATUS: READY
+STATUS: ACTIVE
 MODE: BUILD
 VALIDATION_TIER: TIER_2_STANDARD
 ROUTE: A -> C
@@ -486,5 +486,13 @@ COMPANY_ROLLOUT: DEFERRED
 WORK0030_AZURE: DEFERRED_BY_USER
 BLOCKER: NONE
 READY_FOR_IMPLEMENTATION_DISPATCH: YES
-NEXT_DISPATCH: UNASSIGNED
+NEXT_DISPATCH: 0072-CODEX-01
 ```
+
+
+## Active Dispatch
+
+`0072-CODEX-01` — provider-disabled four-source Knowledge Search core、authoritative source resolution、citation/provenance、4-source checkbox UI、provider-independent Full Output subset。
+
+Instruction: `docs/handoffs/0072-CODEX-01-four-source-knowledge-core-instruction.md`  
+Dispatch: `docs/handoffs/0072-dispatches.md`
