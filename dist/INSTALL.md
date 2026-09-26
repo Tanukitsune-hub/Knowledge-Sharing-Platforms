@@ -1,8 +1,8 @@
 # Alternative Assets Intelligence 0.2.3 installation
 
-Source commit: `32f120eca8b1d94822c00762e59f4b202a7f1465`
-Bundle SHA-256: `60799e8afef33f29477a02924e40121fb384b522c7564029ffcb13dc1baf38fc`
-Payload SHA-256: `009e99f3dab080ff3cc0a6c589f4823bb8c3a22731f35ea82a978c58b1e051c6`
+Source commit: `de0128791e4f29739ed6979989d466086bbf7a30`
+Bundle SHA-256: `ef4fa15273d16d6dfd19fe567f4fdfe75f5dfea1b19e5778bd9dc6df44377a66`
+Payload SHA-256: `7e403bf2fd48701dc0eab6c8c5fd81230ee97d7821d1413016d55ba34f9ace57`
 
 1. Create a Google Spreadsheet in the intended company Drive folder.
 2. Open Extensions -> Apps Script and add the Drive API service.
